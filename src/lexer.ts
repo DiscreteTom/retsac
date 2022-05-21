@@ -92,8 +92,15 @@ export class Lexer {
     });
   }
 
-  ignore(r: RegExp, type = "ignore") {
-    return this.define(type, Lexer.RegExp2Action(r).mute(true));
+  ignore(r: RegExp | Action | SimpleActionExec, type = "ignore") {
+    return this.define(
+      type,
+      r instanceof RegExp
+        ? Lexer.RegExp2Action(r).mute()
+        : r instanceof Action
+        ? r.mute()
+        : Action.simple(r).mute()
+    );
   }
 
   feed(input: string) {
