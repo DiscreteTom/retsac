@@ -2,9 +2,8 @@ import { Lexer } from "../src/lexer";
 import * as readline from "readline";
 
 let lexer = Lexer.define({
-  // empty: /^[ \n\r\t]+/,
   number: /^[0-9]+(?:\.[0-9]+)?\b/,
-}).ignore(/^[ \n\r\t]+/);
+}).ignore(/^[ \n\r\t]+/, "blank");
 
 var rl = readline.createInterface({
   input: process.stdin,
