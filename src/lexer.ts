@@ -3,7 +3,7 @@ export type Token = {
   content: string; // text content
 };
 
-type ActionOutput =
+export type ActionOutput =
   | { accept: false }
   | {
       accept: true; // return token if not mute
@@ -12,8 +12,9 @@ type ActionOutput =
       content: string; // token content
     };
 
-type ActionExec = (buffer: string) => ActionOutput;
-type SimpleActionExec = (buffer: string) => number; // only return how many chars are accepted
+export type ActionExec = (buffer: string) => ActionOutput;
+export type SimpleActionExec = (buffer: string) => number; // only return how many chars are accepted
+export type ActionSource = RegExp | Action | SimpleActionExec;
 
 export class Action {
   readonly exec: ActionExec;
@@ -22,7 +23,7 @@ export class Action {
     this.exec = exec;
   }
 
-  static simple(f: SimpleActionExec) {
+  private static simple(f: SimpleActionExec) {
     return new Action((buffer) => {
       let n = f(buffer);
       if (n > 0) {
@@ -36,6 +37,22 @@ export class Action {
         return { accept: false };
       }
     });
+  }
+
+  private static match(r: RegExp) {
+    return Action.simple((buffer) => {
+      let res = r.exec(buffer);
+      if (res && res.index != -1) return res.index + res[0].length;
+      return 0;
+    });
+  }
+
+  static from(r: ActionSource) {
+    return r instanceof RegExp
+      ? Action.match(r)
+      : r instanceof Action
+      ? r
+      : Action.simple(r);
   }
 
   /**
@@ -66,47 +83,30 @@ export class Lexer {
     this.buffer = "";
   }
 
-  define(type: string, pattern: RegExp | Action | SimpleActionExec) {
-    this.defs.push({
-      type,
-      action:
-        pattern instanceof RegExp
-          ? Lexer.RegExp2Action(pattern)
-          : pattern instanceof Action
-          ? pattern
-          : Action.simple(pattern),
-    });
+  define(defs: { [type: string]: ActionSource }) {
+    for (const type in defs) {
+      this.defs.push({
+        type,
+        action: Action.from(defs[type]),
+      });
+    }
     return this;
   }
 
-  static define(defs: { [type: string]: RegExp | Action | SimpleActionExec }) {
-    let lexer = new Lexer();
-    for (const name in defs) {
-      lexer.define(name, defs[name]);
-    }
-    return lexer;
-  }
-
-  static RegExp2Action(r: RegExp) {
-    return Action.simple((buffer) => {
-      let res = r.exec(buffer);
-      if (res && res.index != -1) return res.index + res[0].length;
-      return 0;
-    });
+  static define(defs: { [type: string]: ActionSource }) {
+    return new Lexer().define(defs);
   }
 
   /**
    * Define muted action.
    */
-  ignore(r: RegExp | Action | SimpleActionExec, type = "ignore") {
-    return this.define(
-      type,
-      r instanceof RegExp
-        ? Lexer.RegExp2Action(r).mute()
-        : r instanceof Action
-        ? r.mute()
-        : Action.simple(r).mute()
-    );
+  ignore(...r: ActionSource[]) {
+    r.map((s) => this.define({ "": Action.from(s).mute() }));
+    return this;
+  }
+
+  static ignore(...r: ActionSource[]) {
+    return new Lexer().ignore(...r);
   }
 
   feed(input: string) {

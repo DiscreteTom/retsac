@@ -1,19 +1,14 @@
 import { Lexer } from "../src/lexer";
 import * as readline from "readline";
+import { from_to } from "../src/lexer_utils";
 
-let lexer = Lexer.define({
+let lexer = Lexer.ignore(
+  /^[ \n\r\t]+/, // blank
+  from_to("//", "\n", true), // single line comments
+  from_to("/*", "*/", true) // multiline comments
+).define({
   number: /^[0-9]+(?:\.[0-9]+)?\b/,
-})
-  .ignore(/^[ \n\r\t]+/, "blank")
-  .ignore(/^\/\/[^\n]*/, "single line comments")
-  .ignore((buffer) => {
-    if (buffer.startsWith("/*")) {
-      let index = buffer.indexOf("*/", 2);
-      if (index == -1) return buffer.length;
-      else return index + 2;
-    }
-    return 0;
-  }, "multiline comments");
+});
 
 var rl = readline.createInterface({
   input: process.stdin,
