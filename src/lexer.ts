@@ -123,6 +123,8 @@ export class Lexer {
    * Try to retrieve a token. If nothing match, return `null`.
    */
   lex(): Token {
+    if (this.buffer.length == 0) return null;
+
     while (true) {
       let mute = false;
       for (const def of this.defs) {
