@@ -38,6 +38,9 @@ export class Action {
     });
   }
 
+  /**
+   * Mute action if `accept` is `true`.
+   */
   mute(enable = true) {
     return new Action((buffer) => {
       let output = this.exec(buffer);
@@ -92,6 +95,9 @@ export class Lexer {
     });
   }
 
+  /**
+   * Define muted action.
+   */
   ignore(r: RegExp | Action | SimpleActionExec, type = "ignore") {
     return this.define(
       type,
