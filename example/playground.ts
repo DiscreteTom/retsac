@@ -1,7 +1,7 @@
 import { Lexer } from "../src/lexer/lexer";
 import * as readline from "readline";
 import { exact, from_to } from "../src/lexer/utils";
-import { Builder } from "../src/parser/parser";
+import { Builder } from "../src/parser/builder";
 import { ASTNode } from "../src/parser/ast";
 
 let lexer = Lexer.ignore(
