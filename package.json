@@ -11,6 +11,8 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc && node out/example/test.js",
-    "dev": "tsc && node out/example/playground.js"
-  }
+    "dev": "tsc && node out/example/playground.js",
+    "dev:debug": "node out/example/playground.js"
+  },
+  "dependencies": {}
 }
