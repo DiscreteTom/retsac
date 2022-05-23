@@ -1,8 +1,8 @@
 import { Lexer } from "../src/lexer/lexer";
 import * as readline from "readline";
 import { exact, from_to } from "../src/lexer/utils";
-import { Builder } from "../src/parser/builder";
 import { ASTNode } from "../src/parser/ast";
+import { Parser } from "../src/parser/parser";
 
 let lexer = Lexer.ignore(
   /^\s/, // blank
@@ -18,17 +18,15 @@ let lexer = Lexer.ignore(
   maybe: exact("?"),
 });
 
-let parser = new Builder(lexer)
-  .simple({
-    // expression
-    exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-    any_exp: "exp any",
-    oneOrMore_exp: "exp oneOrMore",
-    maybe_exp: "exp maybe",
-    grouped_exp: "groupL exp groupR",
-    or_exp: "exp or exp",
-  })
-  .compile();
+let parser = new Parser(lexer).simple({
+  // expression
+  exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
+  any_exp: "exp any",
+  oneOrMore_exp: "exp oneOrMore",
+  maybe_exp: "exp maybe",
+  grouped_exp: "groupL exp groupR",
+  or_exp: "exp or exp",
+});
 
 var rl = readline.createInterface({
   input: process.stdin,
