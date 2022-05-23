@@ -20,3 +20,7 @@ export function from_to(
     return 0;
   };
 }
+
+export function exact(s: string): SimpleActionExec {
+  return (buffer) => (buffer.startsWith(s) ? s.length : 0);
+}
