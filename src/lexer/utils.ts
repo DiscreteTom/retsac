@@ -1,4 +1,4 @@
-import { SimpleActionExec } from "./lexer";
+import { SimpleActionExec } from "./action";
 
 export function from_to(
   from: string,
