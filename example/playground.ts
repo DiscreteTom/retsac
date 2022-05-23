@@ -19,14 +19,14 @@ let lexer = Lexer.ignore(
 });
 
 let parser = new Builder(lexer)
-  .define({
+  .simple({
     // expression
     exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-    or_exp: "exp or exp",
     any_exp: "exp any",
     oneOrMore_exp: "exp oneOrMore",
-    grouped_exp: "groupL exp groupR",
     maybe_exp: "exp maybe",
+    grouped_exp: "groupL exp groupR",
+    or_exp: "exp or exp",
   })
   .compile();
 
@@ -40,13 +40,14 @@ var rl = readline.createInterface({
 rl.on("line", function (line) {
   if (line == "reset") {
     parser.reset();
-    return;
+    console.log("done");
+  } else {
+    let res = parser.parse(line + "\n");
+    res.map((r) => {
+      if (r instanceof ASTNode) console.log(r.toString());
+      else console.log(r);
+    });
   }
-  let res = parser.parse(line + "\n");
-  res.map((r) => {
-    if (r instanceof ASTNode) console.log(r.toString());
-    else console.log(r);
-  });
   rl.prompt();
 });
 

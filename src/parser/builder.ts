@@ -1,13 +1,18 @@
-import { Lexer } from "../lexer/lexer";
-import { Grammar, NaiveLR } from "./naive_LR";
+import { Lexer, Token } from "../lexer/lexer";
+import { ASTNode } from "./ast";
 import { Parser } from "./parser";
 
+export type TokenBuffer = (ASTNode | Token)[]; // token tree buffer
+export type Reducer = (
+  b: TokenBuffer
+) => { reduced: false } | { reduced: true; buffer: TokenBuffer };
+
 export class Builder {
-  private defs: Map<string, string>; // non-terminator => grammar string
+  private reducers: Reducer[];
   lexer: Lexer;
 
   constructor(lexer?: Lexer) {
-    this.defs = new Map();
+    this.reducers = [];
     this.lexer = lexer;
   }
 
@@ -16,11 +21,70 @@ export class Builder {
     return this;
   }
 
-  define(defs: { [name: string]: string }) {
-    for (const name in defs) {
-      if (this.defs.has(name))
-        throw new Error(`Duplicated grammar name: ${name}`);
-      this.defs.set(name, defs[name]);
+  simple(defs: { [NT: string]: string }) {
+    for (const NT in defs) {
+      // get grammar parts
+      const grammar = defs[NT].split("|")
+        .map((s) => s.trim())
+        .filter((s) => s.length);
+
+      // define grammar lexer
+      let grammarLexer = Lexer.ignore(/^\s/).define({ grammar: /^\w+/ });
+
+      // construct reducer
+      grammar.map((grammarStr) => {
+        // grammar must be correctly tokenized
+        let grammarParts = grammarLexer
+          .lexAll(grammarStr)
+          .map((t) => t.content);
+        if (!grammarLexer.isDone())
+          throw new Error(`Can't tokenize ${grammarLexer.getRest()}`);
+
+        this.reducers.push((buffer) => {
+          // traverse every possibility
+          for (
+            let start = 0;
+            start < buffer.length - grammarParts.length + 1;
+            start++
+          ) {
+            if (
+              buffer
+                .slice(start, start + grammarParts.length)
+                .map((t) => t.type)
+                .every((t, i) => t == grammarParts[i])
+            ) {
+              // can reduce, construct new AST node
+              let node = new ASTNode({
+                type: NT,
+                children: buffer
+                  .slice(start, start + grammarParts.length)
+                  .map((t) =>
+                    t instanceof ASTNode
+                      ? t
+                      : new ASTNode({
+                          type: t.type,
+                          text: t.content,
+                          children: [],
+                          parent: null,
+                        })
+                  ),
+                parent: null,
+              });
+              node.children.map((c) => (c.parent = node));
+
+              // return new buffer
+              return {
+                reduced: true,
+                buffer: buffer
+                  .slice(0, start)
+                  .concat(node)
+                  .concat(buffer.slice(start + grammarParts.length)),
+              };
+            }
+          }
+          return { reduced: false };
+        });
+      });
     }
     return this;
   }
@@ -31,65 +95,6 @@ export class Builder {
   compile() {
     if (!this.lexer) throw new Error("Missing lexer");
 
-    let lr = this.getLR();
-    return new Parser(this.lexer, lr);
-  }
-
-  /**
-   * Check grammar errors and return naive LR.
-   */
-  private getLR() {
-    let grammarLexer = Lexer.ignore(/^\s/).define({
-      grammar: /^\w+/, // non-terminator or terminator
-    });
-
-    let grammarSet: Set<string> = new Set(); // terminators and non-terminators in grammar string
-    let ntNameSet: Set<string> = new Set(); // non-terminator definitions
-    let grammars: Grammar[] = []; // for naive LR
-
-    this.defs.forEach((grammarStr, ntName) => {
-      ntNameSet.add(ntName);
-
-      grammarStr
-        .split("|")
-        .map((s) => s.trim())
-        .filter((s) => s.length)
-        .map((g) => {
-          let grammar: Grammar = {
-            rule: [],
-            type: ntName,
-          };
-          grammarLexer
-            .reset()
-            .feed(g)
-            .apply((t) => {
-              grammar.rule.push(t.content);
-              grammarSet.add(t.content);
-            });
-
-          if (!grammarLexer.isDone())
-            throw new Error(`Can't tokenize: ${grammarLexer.getRest()}`);
-
-          grammars.push(grammar);
-        });
-    });
-
-    // NTs can't have same name with Ts
-    let tokenTypeSet = this.lexer.getTokenTypes(); // terminator definitions
-    ntNameSet.forEach((name) => {
-      if (tokenTypeSet.has(name))
-        throw new Error(`Duplicated definition: ${name}`);
-    });
-
-    // separate terminator / non-terminator
-    // let Ts: string[] = [];
-    // let NTs: string[] = [];
-    // grammarSet.forEach((grammar) => {
-    //   if (!nameSet.has(grammar)) NTs.push(grammar);
-    //   else if (!tokenTypeSet.has(grammar)) Ts.push(grammar);
-    //   else throw new Error(`Missing definition: ${grammar}`);
-    // });
-
-    return new NaiveLR(grammars);
+    return new Parser(this.lexer, this.reducers);
   }
 }
