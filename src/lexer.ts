@@ -145,4 +145,36 @@ export class Lexer {
         return null;
     }
   }
+
+  /**
+   * Apply function until scan ends. If function return `true`, scan ends.
+   */
+  apply(f: (t: Token) => any) {
+    while (true) {
+      let res = this.lex();
+      if (res) {
+        if (f(res)) break;
+      } else break;
+    }
+  }
+
+  /**
+   * Get the rest buffer.
+   */
+  getRest() {
+    return this.buffer;
+  }
+
+  /**
+   * Whether buffer length is 0.
+   */
+  isDone() {
+    return this.getRest().length == 0;
+  }
+
+  getTokenTypes() {
+    let res: Set<string> = new Set();
+    this.defs.map((d) => res.add(d.type));
+    return res;
+  }
 }
