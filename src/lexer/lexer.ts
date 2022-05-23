@@ -58,7 +58,8 @@ export class Lexer {
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    */
-  lex(): Token {
+  lex(input = ""): Token {
+    this.feed(input);
     if (this.buffer.length == 0) return null;
 
     while (true) {
@@ -99,8 +100,8 @@ export class Lexer {
   /**
    * Try to retrieve a token list.
    */
-  lexAll() {
-    return this.apply((t) => t);
+  lexAll(input = "") {
+    return this.feed(input).apply((t) => t);
   }
 
   /**
