@@ -147,15 +147,17 @@ export class Lexer {
   }
 
   /**
-   * Apply function until scan ends. If function return `true`, scan ends.
+   * Apply function until scan ends.
    */
-  apply(f: (t: Token) => any) {
+  apply<T>(f: (t: Token) => T) {
+    let result: T[] = [];
     while (true) {
       let res = this.lex();
       if (res) {
-        if (f(res)) break;
+        result.push(f(res));
       } else break;
     }
+    return result;
   }
 
   /**
