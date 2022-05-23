@@ -19,11 +19,7 @@ var rl = readline.createInterface({
 
 rl.on("line", function (line) {
   lexer.feed(line + "\n");
-  while (true) {
-    let res = lexer.lex();
-    if (res) console.log(res);
-    else break;
-  }
+  lexer.apply(console.log);
   rl.prompt();
 });
 
