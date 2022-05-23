@@ -97,6 +97,13 @@ export class Lexer {
   }
 
   /**
+   * Try to retrieve a token list.
+   */
+  lexAll() {
+    return this.apply((t) => t);
+  }
+
+  /**
    * Get the rest buffer.
    */
   getRest() {
