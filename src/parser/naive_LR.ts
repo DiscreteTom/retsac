@@ -1,5 +1,5 @@
 import { ASTNode } from "./ast";
-import { Token } from "./lexer";
+import { Token } from "../lexer/lexer";
 
 export type Grammar = {
   rule: string[]; // a list of Ns and NTs

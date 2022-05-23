@@ -1,8 +1,8 @@
-import { Lexer } from "../src/lexer";
+import { Lexer } from "../src/lexer/lexer";
 import * as readline from "readline";
-import { exact, from_to } from "../src/lexer_utils";
-import { Builder } from "../src/parser";
-import { ASTNode } from "../src/ast";
+import { exact, from_to } from "../src/lexer/utils";
+import { Builder } from "../src/parser/parser";
+import { ASTNode } from "../src/parser/ast";
 
 let lexer = Lexer.ignore(
   /^\s/, // blank

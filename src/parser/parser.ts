@@ -1,4 +1,4 @@
-import { Lexer, Token } from "./lexer";
+import { Lexer, Token } from "../lexer/lexer";
 import { Grammar, NaiveLR } from "./naive_LR";
 
 export class Builder {
