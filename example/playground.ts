@@ -18,15 +18,17 @@ let lexer = Lexer.ignore(
   maybe: exact("?"),
 });
 
-let parser = new Parser(lexer).simple({
-  // expression
-  exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-  any_exp: "exp any",
-  oneOrMore_exp: "exp oneOrMore",
-  maybe_exp: "exp maybe",
-  grouped_exp: "groupL exp groupR",
-  or_exp: "exp or exp",
-});
+let parser = new Parser(lexer)
+  .simple({
+    // expression
+    exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
+    any_exp: "exp any",
+    oneOrMore_exp: "exp oneOrMore",
+    maybe_exp: "exp maybe",
+    grouped_exp: "groupL exp groupR",
+    or_exp: "exp or exp",
+  })
+  .simple({ exp: "exp exp" });
 
 var rl = readline.createInterface({
   input: process.stdin,
