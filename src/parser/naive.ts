@@ -1,22 +1,32 @@
 import { ASTNode } from "./ast";
 import { Token } from "../lexer/lexer";
 
-export type Grammar = {
-  rule: string[]; // a list of Ns and NTs
-  type: string; // name of T or NT
+export enum ConflictType {
+  RR, // reduce/reduce
+  SR, // shift/reduce
+}
+
+export type GrammarRule = {
+  rule: string[]; // a list of Ts and NTs
+  NT: string; // the reduce target
+  priority: number; // priority when conflict, default: -1
+  conflicts: { rule: GrammarRule; type: ConflictType; lookahead?: number }[]; // conflict rules with higher priority
 };
 
 export class NaiveLR {
-  private grammars: Grammar[];
+  private grammarRules: GrammarRule[];
   private buffer: (Token | ASTNode)[];
+  private index: number;
 
-  constructor(grammars: Grammar[]) {
-    this.grammars = grammars;
+  constructor(grammarRules: GrammarRule[]) {
+    this.grammarRules = grammarRules;
     this.buffer = [];
+    this.index = 1;
   }
 
   reset() {
     this.buffer = [];
+    this.index = 1;
     return this;
   }
 
@@ -24,23 +34,23 @@ export class NaiveLR {
     return this.buffer;
   }
 
-  feedOne(t: Token) {
-    this.buffer.push(t);
+  feed(tokens: Token[]) {
+    this.buffer.push(...tokens);
 
-    while (true) {
+    while (this.index <= this.buffer.length) {
       // traverse all grammars, try to reduce
       let reduced = false;
-      for (const g of this.grammars) {
+      for (const g of this.grammarRules) {
         if (this.tryReduce(g)) {
           // reduce successful
           reduced = true;
-          break;
+          break; // traverse all grammars again
         }
       }
 
       if (!reduced) {
         // can't reduce more
-        break;
+        this.index++; // try to look more
       }
       // else, traverse again
     }
@@ -49,23 +59,51 @@ export class NaiveLR {
   }
 
   /**
+   * Try to reduce `buffer.slice(0, this.index)` with the given grammar rule.
    * Return `true` means successfully reduce.
    */
-  private tryReduce(grammar: Grammar) {
-    if (grammar.rule.length > this.buffer.length) return false;
+  private tryReduce(g: GrammarRule) {
+    if (g.rule.length > this.index) return false;
 
-    let tail = this.buffer.slice(-grammar.rule.length);
+    // get buffer tail with the same length of grammar rule
+    let tail = this.buffer.slice(this.index - g.rule.length, this.index);
 
-    // check whether tail match grammar
+    // check whether buffer tail match grammar
     for (let i = 0; i < tail.length; i++) {
-      if (tail[i].type != grammar.rule[i]) return false;
+      if (tail[i].type != g.rule[i]) return false;
     }
+
+    // buffer tail match grammar, check conflicts, higher priority first
+    for (const c of g.conflicts) {
+      if (c.type == ConflictType.RR) {
+        // reduce/reduce conflict
+        // just try to reduce
+        if (this.tryReduce(c.rule))
+          // conflict can reduce
+          return true;
+      } else {
+        // shift/reduce conflict
+        // need lookahead
+        for (let i = 1; i <= c.lookahead; i++) {
+          if (this.index + i > this.buffer.length)
+            // buffer not long enough to lookahead
+            break;
+
+          this.index += i; // move index to lookahead
+          if (this.tryReduce(c.rule))
+            // conflict can reduce
+            return true;
+          this.index -= i; // restore index
+        }
+      }
+    }
+    // all conflict can not reduce
 
     // reduce, generate tree
     let node = new ASTNode({
       children: [],
       parent: null,
-      type: grammar.type,
+      type: g.NT,
     });
     node.children = tail.map((t) => {
       if (t instanceof ASTNode) {
@@ -82,8 +120,11 @@ export class NaiveLR {
     });
 
     // update buffer
-    this.buffer = this.buffer.slice(0, -tail.length); // reduce
-    this.buffer.push(node);
+    this.buffer = this.buffer
+      .slice(0, this.index - g.rule.length) // un-reduced part
+      .concat(node) // reduce result
+      .concat(this.buffer.slice(this.index)); // un-reduced part
+    this.index -= tail.length - 1;
 
     return true;
   }

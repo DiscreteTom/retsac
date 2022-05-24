@@ -1,5 +1,5 @@
 import { Lexer, Token } from "../lexer/lexer";
-import { Grammar, NaiveLR } from "./naive";
+import { GrammarRule, NaiveLR } from "./naive";
 
 /**
  * Parser can parse input string to AST.
@@ -19,10 +19,7 @@ export class Parser {
   }
 
   parse(s: string) {
-    this.lexer.feed(s).apply((t) => {
-      this.lr.feedOne(t);
-    });
-    return this.lr.getBuffer();
+    return this.lr.feed(this.lexer.lexAll(s)).getBuffer();
   }
 
   getBuffer() {

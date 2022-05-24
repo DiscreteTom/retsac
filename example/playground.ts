@@ -3,6 +3,7 @@ import * as readline from "readline";
 import { exact, from_to } from "../src/lexer/utils";
 import { ASTNode } from "../src/parser/ast";
 import { Parser } from "../src/parser/parser";
+import { Builder } from "../src/parser/builder";
 
 let lexer = Lexer.ignore(
   /^\s/, // blank
@@ -18,17 +19,17 @@ let lexer = Lexer.ignore(
   maybe: exact("?"),
 });
 
-let parser = new Parser(lexer)
-  .simple({
+let parser = new Builder(lexer)
+  .define({
     // expression
     exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-    any_exp: "exp any",
-    oneOrMore_exp: "exp oneOrMore",
-    maybe_exp: "exp maybe",
+    any_exp: "exp any @2",
+    oneOrMore_exp: "exp oneOrMore @2",
+    maybe_exp: "exp maybe @2",
     grouped_exp: "groupL exp groupR",
-    or_exp: "exp or exp",
+    or_exp: "exp or exp @1",
   })
-  .simple({ exp: "exp exp" });
+  .compile();
 
 var rl = readline.createInterface({
   input: process.stdin,
