@@ -62,4 +62,17 @@ export class Action {
       return output;
     });
   }
+
+  /**
+   * Transform content if `accept` is true.
+   */
+  transform(f: (content: string) => string) {
+    return new Action((buffer) => {
+      let output = this.exec(buffer);
+      if (output.accept) {
+        output.content = f(output.content);
+      }
+      return output;
+    });
+  }
 }

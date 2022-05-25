@@ -1,3 +1,4 @@
+import { Action } from "../lexer/action";
 import { Lexer } from "../lexer/lexer";
 import { exact } from "../lexer/utils";
 import { ConflictType, GrammarRule, NaiveLR } from "./naive";
@@ -30,7 +31,7 @@ export class Builder {
 
   priority(...priorityStr: string[]) {
     let priorityLexer = Lexer.ignore(/^\s/).define({
-      tag: /^@\w+/,
+      tag: Action.from(/^@\w+/).transform((s) => s.slice(1)),
       higher: exact(">"),
       lower: exact("<"),
     });
@@ -60,9 +61,9 @@ export class Builder {
 
       let higher = cmpTokens[0].type == "higher";
       for (let i = 0; i < tags.length - 1; ++i) {
-        let left = tags[i].content.slice(1); // remove prefix `@`
+        let left = tags[i].content;
         for (let j = i + 1; j < tags.length; ++j) {
-          let right = tags[j].content.slice(1); // remove prefix `@`
+          let right = tags[j].content;
 
           this.setPriority(left, right, higher);
           this.setPriority(right, left, !higher);
@@ -100,7 +101,7 @@ export class Builder {
   private getLR() {
     let grammarLexer = Lexer.ignore(/^\s/).define({
       grammar: /^\w+/, // non-terminator or terminator
-      tag: /^@\w+/,
+      tag: Action.from(/^@\w+/).transform((s) => s.slice(1)),
     });
 
     let ntNameSet: Set<string> = new Set(); // non-terminator definitions
@@ -129,8 +130,7 @@ export class Builder {
                 grammarRule.rule.push(t.content);
               } else {
                 // t.type == 'tag'
-                if (grammarRule.tag == "")
-                  grammarRule.tag = t.content.slice(1); // remove prefix `@`
+                if (grammarRule.tag == "") grammarRule.tag = t.content;
                 else
                   throw new Error(
                     `Duplicated tag for rule '${ntName}=>${ruleStr}'`

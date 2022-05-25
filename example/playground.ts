@@ -4,6 +4,7 @@ import { exact, from_to } from "../src/lexer/utils";
 import { ASTNode } from "../src/parser/ast";
 import { Parser } from "../src/parser/parser";
 import { Builder } from "../src/parser/builder";
+import { Action } from "../src/lexer/action";
 
 let lexer = Lexer.ignore(
   /^\s/, // blank
@@ -17,6 +18,7 @@ let lexer = Lexer.ignore(
   groupL: exact("("),
   groupR: exact(")"),
   maybe: exact("?"),
+  tag: Action.from(/^@\w+/).transform((s) => s.slice(1)), // remove prefix `@`
 });
 
 let parser = new Builder(lexer)
