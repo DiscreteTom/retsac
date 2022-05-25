@@ -9,7 +9,7 @@ export enum ConflictType {
 export type GrammarRule = {
   rule: string[]; // a list of Ts and NTs
   NT: string; // the reduce target
-  priority: number; // priority when conflict, default: -1
+  tag: string; // to specify priority or other attributes
   conflicts: { rule: GrammarRule; type: ConflictType; lookahead?: number }[]; // conflict rules with higher priority
 };
 

@@ -23,12 +23,13 @@ let parser = new Builder(lexer)
   .define({
     // expression
     exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-    any_exp: "exp any @2",
-    oneOrMore_exp: "exp oneOrMore @2",
-    maybe_exp: "exp maybe @2",
+    any_exp: "exp any @suffix",
+    oneOrMore_exp: "exp oneOrMore @suffix",
+    maybe_exp: "exp maybe @suffix",
     grouped_exp: "groupL exp groupR",
-    or_exp: "exp or exp @1",
+    or_exp: "exp or exp @or",
   })
+  .priority("@suffix > @or")
   .compile();
 
 var rl = readline.createInterface({

@@ -1,14 +1,17 @@
 import { Lexer } from "../lexer/lexer";
+import { exact } from "../lexer/utils";
 import { ConflictType, GrammarRule, NaiveLR } from "./naive";
 import { Parser } from "./parser";
 
 export class Builder {
-  private defs: Map<string, string>; // non-terminator => grammar string
   lexer: Lexer;
+  private defs: Map<string, string>; // non-terminator => grammar string
+  private higherPriority: Map<string, Map<string, boolean>>; // (left tag, right tag) => higher
 
   constructor(lexer?: Lexer) {
     this.defs = new Map();
     this.lexer = lexer;
+    this.higherPriority = new Map();
   }
 
   setLexer(lexer: Lexer) {
@@ -25,6 +28,51 @@ export class Builder {
     return this;
   }
 
+  priority(...priorityStr: string[]) {
+    let priorityLexer = Lexer.ignore(/^\s/).define({
+      tag: /^@\w+/,
+      higher: exact(">"),
+      lower: exact("<"),
+    });
+
+    priorityStr.map((str) => {
+      let tokens = priorityLexer.reset().lexAll(str);
+      if (!priorityLexer.isDone())
+        throw new Error(
+          `Can't tokenize: "${priorityLexer.getRest()}" in priority rule: "${str}"`
+        );
+
+      if (tokens[0].type != "tag")
+        throw new Error(
+          `Priority rule should starts with a tag. Priority rule: "${str}"`
+        );
+
+      let cmpTokens = tokens.filter((_, i) => i % 2 == 1);
+      let tags = tokens.filter((_, i) => i % 2 == 0);
+      if (
+        tags.length < 2 || // not enough tags
+        !tags.every((t) => t.type == "tag") || // wrong token type
+        cmpTokens.length == 0 || // no cmp token
+        cmpTokens[0].type == "tag" || // not 'higher' or 'lower'
+        !cmpTokens.every((t) => t.type == cmpTokens[0].type) // not same relation
+      )
+        throw new Error(`Wrong format of priority rule: "${str}"`);
+
+      let higher = cmpTokens[0].type == "higher";
+      for (let i = 0; i < tags.length - 1; ++i) {
+        let left = tags[i].content.slice(1); // remove prefix `@`
+        for (let j = i + 1; j < tags.length; ++j) {
+          let right = tags[j].content.slice(1); // remove prefix `@`
+
+          this.setPriority(left, right, higher);
+          this.setPriority(right, left, !higher);
+        }
+      }
+    });
+
+    return this;
+  }
+
   /**
    * Build a parser.
    */
@@ -34,13 +82,25 @@ export class Builder {
     return new Parser(this.lexer, this.getLR());
   }
 
+  private setPriority(left: string, right: string, higher: boolean) {
+    if (!this.higherPriority.has(left))
+      this.higherPriority.set(left, new Map());
+
+    let leftPriority = this.higherPriority.get(left);
+    if (leftPriority.has(right) && leftPriority.get(right) != higher)
+      throw new Error(
+        `Conflict priority rule for tag: "${left}" and tag: "${right}"`
+      );
+    leftPriority.set(right, higher);
+  }
+
   /**
    * Check grammar errors and return naive LR.
    */
   private getLR() {
     let grammarLexer = Lexer.ignore(/^\s/).define({
       grammar: /^\w+/, // non-terminator or terminator
-      priority: /^@\d+/, // for grammar rule
+      tag: /^@\w+/,
     });
 
     let ntNameSet: Set<string> = new Set(); // non-terminator definitions
@@ -59,7 +119,7 @@ export class Builder {
             rule: [],
             NT: ntName,
             conflicts: [],
-            priority: -1,
+            tag: "",
           };
           grammarLexer
             .reset()
@@ -68,18 +128,20 @@ export class Builder {
               if (t.type == "grammar") {
                 grammarRule.rule.push(t.content);
               } else {
-                // t.type == 'priority'
-                if (grammarRule.priority == -1)
-                  grammarRule.priority = parseInt(t.content.slice(1));
+                // t.type == 'tag'
+                if (grammarRule.tag == "")
+                  grammarRule.tag = t.content.slice(1); // remove prefix `@`
                 else
                   throw new Error(
-                    `Duplicate priority hint for rule '${ntName}=>${ruleStr}'`
+                    `Duplicated tag for rule '${ntName}=>${ruleStr}'`
                   );
               }
             });
 
           if (!grammarLexer.isDone())
-            throw new Error(`Can't tokenize: ${grammarLexer.getRest()}`);
+            throw new Error(
+              `Can't tokenize: "${grammarLexer.getRest()}" in grammar rule: "${ruleStr}"`
+            );
 
           if (grammarRule.rule.length == 0)
             throw new Error(`No grammar rules in rule '${ntName}=>${ruleStr}'`);
@@ -102,17 +164,41 @@ export class Builder {
 
         let conflict = hasConflict(a.rule, b.rule);
         if (conflict != null) {
-          setConflict(a, b, conflict);
+          this.setConflict(a, b, conflict);
         }
         // reverse check
         conflict = hasConflict(b.rule, a.rule);
         if (conflict != null && conflict.type !== ConflictType.RR) {
-          setConflict(b, a, conflict);
+          this.setConflict(b, a, conflict);
         }
       }
     }
 
     return new NaiveLR(grammarRules);
+  }
+
+  private setConflict(
+    a: GrammarRule,
+    b: GrammarRule,
+    conflict: { type: ConflictType; lookahead?: number }
+  ) {
+    const ruleA = `${a.NT} := ${a.rule.join(" ")}`;
+    const ruleB = `${b.NT} := ${b.rule.join(" ")}`;
+
+    if (
+      !a.tag || // no tag for a
+      !b.tag || // no tag for b
+      !this.higherPriority.has(a.tag) ||
+      !this.higherPriority.get(a.tag).has(b.tag)
+    )
+      throw new Error(
+        `Rule "${ruleA}" and rule "${ruleB}" are conflict but missing priority hint`
+      );
+
+    if (this.higherPriority.get(a.tag).get(b.tag))
+      // a has higher priority than b
+      b.conflicts.push({ rule: a, ...conflict });
+    else a.conflicts.push({ rule: b, ...conflict });
   }
 }
 
@@ -155,26 +241,4 @@ function shortIsTailOfLong(long: string[], short: string[]) {
     }
   }
   return true;
-}
-
-function setConflict(
-  a: GrammarRule,
-  b: GrammarRule,
-  conflict: { type: ConflictType; lookahead?: number }
-) {
-  const ruleA = `${a.NT} := ${a.rule.join(" ")}`;
-  const ruleB = `${b.NT} := ${b.rule.join(" ")}`;
-
-  if (a.priority == -1 || b.priority == -1)
-    throw new Error(
-      `Rule "${ruleA}" and rule "${ruleB}" are conflict but missing priority hint`
-    );
-
-  if (a.priority == b.priority)
-    throw new Error(
-      `Rule "${ruleA}" and rule "${ruleB}" are conflict but have the same priority`
-    );
-
-  if (a.priority > b.priority) b.conflicts.push({ rule: a, ...conflict });
-  else a.conflicts.push({ rule: b, ...conflict });
 }
