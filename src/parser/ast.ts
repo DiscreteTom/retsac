@@ -21,7 +21,7 @@ export class ASTNode {
     if (this.text) res += this.text;
     res += "\n";
     this.children.map((c) => {
-      res += indent + c.toString(indent + "  ");
+      res += c.toString(indent + "  ");
     });
     return res;
   }
