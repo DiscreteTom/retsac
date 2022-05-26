@@ -1,4 +1,5 @@
 import { Action, ActionSource } from "./action";
+import { exact } from "./utils";
 
 export type Token = {
   type: string;
@@ -43,6 +44,18 @@ export class Lexer {
 
   static ignore(...r: ActionSource[]) {
     return new Lexer().ignore(...r);
+  }
+
+  /**
+   * Define anonymous token with literal strings.
+   */
+  literal(...ss: string[]) {
+    ss.map((s) => this.define({ "": exact(s) }));
+    return this;
+  }
+
+  static literal(...ss: string[]) {
+    return new Lexer().literal(...ss);
   }
 
   feed(input: string) {
