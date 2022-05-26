@@ -1,6 +1,6 @@
 import { Action } from "../lexer/action";
 import { Lexer, Token } from "../lexer/lexer";
-import { from_to } from "../lexer/utils";
+import { exact, from_to } from "../lexer/utils";
 import { Parser } from "./parser";
 
 export type GrammarRule = {
@@ -28,7 +28,8 @@ export class Builder {
       })
       .define({
         literal: from_to("'", "'", false).transform((s) => s.slice(1, -1)),
-      });
+      })
+      .define({ or: exact("|") });
   }
 
   setLexer(lexer: Lexer) {
@@ -38,45 +39,56 @@ export class Builder {
 
   define(defs: { [name: string]: string }) {
     for (const NT in defs) {
-      defs[NT].split("|") // get all rule strings from one grammar string
-        .map((s) => s.trim())
-        .filter((s) => s.length)
-        .map((ruleStr) => {
-          let tokens = this.basicLexer.reset().lexAll(ruleStr);
-
-          if (!this.basicLexer.isDone())
-            throw new Error(
-              `Can't tokenize: "${this.basicLexer.getRest()}" in grammar rule: "${ruleStr}"`
-            );
-
-          let tags = tokens
-            .filter((t) => t.type == "tag")
-            .map((t) => t.content);
-          let nonTags = tokens.filter((t) => t.type != "tag"); // 'literal' or 'grammar'
-
-          if (tags.length > 1)
-            throw new Error(`Duplicated tags for rule '${NT}=>${ruleStr}'`);
-
-          if (nonTags.length == 0)
-            throw new Error(
-              `No grammar or literal in rule '${NT}=>${ruleStr}'`
-            );
-
-          if (
-            !nonTags
-              .filter((t) => t.type == "literal")
-              .every((t) => t.content.length > 0)
-          )
-            throw new Error(
-              `Literal value can't be empty in rule '${NT}=>${ruleStr}'`
-            );
-
-          this.defs.push({
-            NT,
-            rule: nonTags,
-            tag: tags.length > 0 ? tags[0] : "",
-          });
+      // parse rules
+      let rules: Token[][] = [[]];
+      this.basicLexer
+        .reset()
+        .lexAll(defs[NT])
+        .map((t) => {
+          if (t.type == "or") rules.push([]);
+          else rules.at(-1).push(t);
         });
+
+      if (!this.basicLexer.isDone())
+        throw new Error(
+          `Can't tokenize: "${this.basicLexer.getRest()}" in grammar rule: "${
+            defs[NT]
+          }"`
+        );
+
+      rules.map((tokens) => {
+        let ruleStr = tokens.map((t) =>
+          t.type == "grammar"
+            ? t.content
+            : t.type == "tag"
+            ? "@" + t.content
+            : '"' + t.content + '"'
+        );
+
+        let tags = tokens.filter((t) => t.type == "tag").map((t) => t.content);
+        let nonTags = tokens.filter((t) => t.type != "tag"); // 'literal' or 'grammar'
+
+        if (tags.length > 1)
+          throw new Error(`Duplicated tags for rule '${NT}=>${ruleStr}'`);
+
+        if (nonTags.length == 0)
+          throw new Error(`No grammar or literal in rule '${NT}=>${ruleStr}'`);
+
+        if (
+          !nonTags
+            .filter((t) => t.type == "literal")
+            .every((t) => t.content.length > 0)
+        )
+          throw new Error(
+            `Literal value can't be empty in rule '${NT}=>${ruleStr}'`
+          );
+
+        this.defs.push({
+          NT,
+          rule: nonTags,
+          tag: tags.length > 0 ? tags[0] : "",
+        });
+      });
     }
     return this;
   }
