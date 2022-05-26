@@ -3,6 +3,13 @@ import { GrammarRule, NaiveLR } from "./naive";
 
 /**
  * Parser can parse input string to AST.
+ *
+ * Grammars:
+ * - `A | B` means `A` or `B`
+ * - `A B` means `A` then `B`
+ * - `@tag` means create a tag for the grammar rule
+ *
+ * E.g.: `A B @nice | B` means `A B` or `B`, and `A B` has a tag `nice`.
  */
 export class Parser {
   private lexer: Lexer;
