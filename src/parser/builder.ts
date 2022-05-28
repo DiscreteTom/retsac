@@ -23,11 +23,11 @@ export class Builder {
         grammar: /^\w+/,
         or: exact("|"),
       })
-      .define({
-        literal: from_to('"', '"', false).transform((s) => s.slice(1, -1)),
-      })
-      .define({
-        literal: from_to("'", "'", false).transform((s) => s.slice(1, -1)),
+      .overload({
+        literal: [
+          from_to('"', '"', false).transform((s) => s.slice(1, -1)),
+          from_to("'", "'", false).transform((s) => s.slice(1, -1)),
+        ],
       });
   }
 

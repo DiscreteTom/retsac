@@ -58,6 +58,24 @@ export class Lexer {
     return new Lexer().literal(...ss);
   }
 
+  /**
+   * Define a type with multiple action.
+   */
+  overload(defs: { [type: string]: ActionSource[] }) {
+    for (const type in defs) {
+      defs[type].map((action) => {
+        let def: { [type: string]: ActionSource } = {};
+        def[type] = action;
+        this.define(def);
+      });
+    }
+    return this;
+  }
+
+  static overload(defs: { [type: string]: ActionSource[] }) {
+    return new Lexer().overload(defs);
+  }
+
   feed(input: string) {
     this.buffer += input;
     return this;
