@@ -9,10 +9,9 @@ import { GrammarRule } from "./builder";
  * Grammars:
  * - `A | B` means `A` or `B`
  * - `A B` means `A` then `B`
- * - `@tag` means create a tag for the grammar rule
  * - `'xxx'` or `"xxx"` means literal string `xxx`
  *
- * E.g.: `A B @nice | 'xxx' B` means `A B` or `'xxx' B`, and `A B` has a tag `nice`.
+ * E.g.: `A B | 'xxx' B` means `A B` or `'xxx' B`
  */
 export class Parser {
   private lexer: Lexer;
