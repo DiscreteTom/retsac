@@ -3,20 +3,19 @@ export class ASTNode {
   text?: string;
   children: ASTNode[];
   parent: ASTNode;
-  data: { [key: string]: any };
+  data: { value: any; [key: string]: any };
 
   constructor(p: {
     type: string;
     text?: string;
     children: ASTNode[];
     parent: ASTNode;
-    data?: { [key: string]: any };
   }) {
     this.text = p.text;
     this.type = p.type;
     this.children = p.children;
     this.parent = p.parent;
-    this.data = p.data ?? {};
+    this.data = { value: null };
   }
 
   toString(indent = "") {

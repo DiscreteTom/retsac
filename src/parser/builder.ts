@@ -1,10 +1,8 @@
 import { Action } from "../lexer/action";
 import { Lexer, Token } from "../lexer/lexer";
 import { exact, from_to } from "../lexer/utils";
-import { ASTNode } from "./ast";
 import { Parser } from "./parser";
-
-export type Reducer = (current: ASTNode) => void;
+import { Reducer } from "./reducer";
 
 export type GrammarRule = {
   rule: Token[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
