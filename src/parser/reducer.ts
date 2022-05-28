@@ -1,6 +1,13 @@
+import { Token } from "../lexer/lexer";
 import { ASTNode } from "./ast";
 
-export type Reducer = (current: ASTNode) => void;
+export type ReducerContext = {
+  reject: boolean;
+  readonly before: (Token | ASTNode)[];
+  readonly after: (Token | ASTNode)[];
+};
+
+export type Reducer = (current: ASTNode, context: ReducerContext) => void;
 
 export function valueReducer(f: (values: number[]) => number): Reducer {
   return (node) =>

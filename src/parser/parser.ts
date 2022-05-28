@@ -1,7 +1,7 @@
-import { Action } from "../lexer/action";
 import { Lexer, Token } from "../lexer/lexer";
 import { ASTNode } from "./ast";
 import { GrammarRule } from "./builder";
+import { ReducerContext } from "./reducer";
 
 /**
  * Parser can parse input string to AST.
@@ -73,13 +73,24 @@ export class Parser {
             node.children.map((c) => (c.parent = node));
 
             // call reducer
-            g.reducer(node);
+            let before = this.buffer.slice(0, i);
+            let after = this.buffer.slice(i + g.rule.length);
+            let context: ReducerContext = {
+              reject: false,
+              before,
+              after,
+            };
+            g.reducer(node, context);
+
+            // check rejection
+            if (context.reject) {
+              // rollback
+              node.children.map((c) => (c.parent = null));
+              break; // try next grammar
+            }
 
             // update buffer
-            this.buffer = this.buffer
-              .slice(0, i)
-              .concat(node)
-              .concat(this.buffer.slice(i + g.rule.length));
+            this.buffer = before.concat(node).concat(after);
 
             // traverse all grammar rules again
             reduced = true;
