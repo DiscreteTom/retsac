@@ -79,8 +79,9 @@ export class Parser {
               reject: false,
               before,
               after,
+              node,
             };
-            g.reducer(node, context);
+            g.reducer(context);
 
             // check rejection
             if (context.reject) {
