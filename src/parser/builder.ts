@@ -1,4 +1,3 @@
-import { Action } from "../lexer/action";
 import { Lexer, Token } from "../lexer/lexer";
 import { exact, from_to } from "../lexer/utils";
 import { Parser } from "./parser";
@@ -7,7 +6,6 @@ import { Reducer } from "./reducer";
 export type GrammarRule = {
   rule: Token[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
   NT: string; // the reduce target
-  tag: string; // to specify priority or other attributes
   reducer: Reducer;
 };
 
@@ -23,15 +21,14 @@ export class Builder {
     this.basicLexer = Lexer.ignore(/^\s/)
       .define({
         grammar: /^\w+/,
-        tag: Action.from(/^@\w+/).transform((s) => s.slice(1)),
+        or: exact("|"),
       })
       .define({
         literal: from_to('"', '"', false).transform((s) => s.slice(1, -1)),
       })
       .define({
         literal: from_to("'", "'", false).transform((s) => s.slice(1, -1)),
-      })
-      .define({ or: exact("|") });
+      });
   }
 
   setLexer(lexer: Lexer) {
@@ -62,24 +59,14 @@ export class Builder {
 
       rules.map((tokens) => {
         let ruleStr = tokens.map((t) =>
-          t.type == "grammar"
-            ? t.content
-            : t.type == "tag"
-            ? "@" + t.content
-            : '"' + t.content + '"'
+          t.type == "grammar" ? t.content : '"' + t.content + '"'
         );
 
-        let tags = tokens.filter((t) => t.type == "tag").map((t) => t.content);
-        let nonTags = tokens.filter((t) => t.type != "tag"); // 'literal' or 'grammar'
-
-        if (tags.length > 1)
-          throw new Error(`Duplicated tags for rule '${NT}=>${ruleStr}'`);
-
-        if (nonTags.length == 0)
+        if (tokens.length == 0)
           throw new Error(`No grammar or literal in rule '${NT}=>${ruleStr}'`);
 
         if (
-          !nonTags
+          !tokens
             .filter((t) => t.type == "literal")
             .every((t) => t.content.length > 0)
         )
@@ -89,8 +76,7 @@ export class Builder {
 
         this.defs.push({
           NT,
-          rule: nonTags,
-          tag: tags.length > 0 ? tags[0] : "",
+          rule: tokens,
           reducer,
         });
       });
