@@ -9,7 +9,7 @@ let parser = new Builder()
       .define({
         number: /^[0-9]+(?:\.[0-9]+)?/,
       })
-      .literal(..."+-*/()".split(""))
+      .literal(..."+-*/()")
   )
   .define({ exp: "number" })
   .define({ exp: `'-' exp` }, (_, context) => {
