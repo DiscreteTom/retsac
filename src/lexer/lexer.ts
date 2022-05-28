@@ -97,24 +97,18 @@ export class Lexer {
   }
 
   /**
-   * Apply function until scan ends.
-   */
-  apply<T>(f: (t: Token) => T) {
-    let result: T[] = [];
-    while (true) {
-      let res = this.lex();
-      if (res) {
-        result.push(f(res));
-      } else break;
-    }
-    return result;
-  }
-
-  /**
    * Try to retrieve a token list.
    */
   lexAll(input = "") {
-    return this.feed(input).apply((t) => t);
+    this.feed(input);
+
+    let result: Token[] = [];
+    while (true) {
+      let res = this.lex();
+      if (res) result.push(res);
+      else break;
+    }
+    return result;
   }
 
   /**
