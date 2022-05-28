@@ -73,6 +73,9 @@ export class Parser {
             });
             node.children.map((c) => (c.parent = node));
 
+            // call reducer
+            g.reducer(node);
+
             // update buffer
             this.buffer = this.buffer
               .slice(0, i)
