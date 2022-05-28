@@ -14,16 +14,16 @@ let parser = new Builder()
   )
   .define(
     { exp: "number" },
-    (node) => (node.data.value = Number(node.children[0].text))
+    ({ node }) => (node.data.value = Number(node.children[0].text))
   )
-  .define({ exp: `'-' exp` }, (node, context) => {
+  .define({ exp: `'-' exp` }, (context) => {
     let p = context.before.at(-1); // previous token or AST node
     if (p && p instanceof ASTNode && p.type == "exp") {
       context.reject = true;
       return;
     }
     // else, no previous, or p is a token, or p is not exp
-    node.data.value = -node.children[1].data.value;
+    context.node.data.value = -context.node.children[1].data.value;
   })
   .define(
     { exp: `'(' exp ')'` },

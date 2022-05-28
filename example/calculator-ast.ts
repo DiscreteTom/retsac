@@ -12,7 +12,7 @@ let parser = new Builder()
       .literal(..."+-*/()")
   )
   .define({ exp: "number" })
-  .define({ exp: `'-' exp` }, (_, context) => {
+  .define({ exp: `'-' exp` }, (context) => {
     let p = context.before.at(-1); // previous token or AST node
     if (p && p instanceof ASTNode && p.type == "exp") context.reject = true;
   })
