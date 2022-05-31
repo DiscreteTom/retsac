@@ -18,7 +18,8 @@ export class Builder {
   constructor(lexer?: Lexer) {
     this.lexer = lexer;
     this.defs = [];
-    this.basicLexer = Lexer.ignore(/^\s/)
+    this.basicLexer = new Lexer()
+      .ignore(/^\s/)
       .define({
         grammar: /^\w+/,
         or: exact("|"),
@@ -50,7 +51,7 @@ export class Builder {
           else rules.at(-1).push(t);
         });
 
-      if (!this.basicLexer.isDone())
+      if (this.basicLexer.hasRest())
         throw new Error(
           `Can't tokenize: "${this.basicLexer.getRest()}" in grammar rule: "${
             defs[NT]

@@ -3,14 +3,16 @@ import { Builder } from "../src/parser/builder";
 import * as readline from "readline";
 import { ASTNode } from "../src/parser/ast";
 import { valueReducer } from "../src/parser/reducer";
+import { exact } from "../src/lexer/utils";
 
 let parser = new Builder()
   .setLexer(
-    Lexer.ignore(/^\s/)
+    new Lexer()
+      .ignore(/^\s/)
       .define({
         number: /^[0-9]+(?:\.[0-9]+)?/,
       })
-      .literal(..."+-*/()")
+      .anonymous(exact(..."+-*/()"))
   )
   .define(
     { exp: "number" },

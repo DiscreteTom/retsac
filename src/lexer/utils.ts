@@ -17,6 +17,27 @@ export function from_to(from: string, to: string, acceptEof: boolean): Action {
   });
 }
 
-export function exact(s: string): Action {
-  return Action.from((buffer) => (buffer.startsWith(s) ? s.length : 0));
+/**
+ * Match a list of strings exactly, no lookahead.
+ */
+export function exact(...ss: string[]): Action {
+  return Action.from((buffer) => {
+    for (const s of ss) if (buffer.startsWith(s)) return s.length;
+    return 0;
+  });
+}
+
+/**
+ * Match a list of keyword, lookahead one char to ensure there is a word boundary.
+ */
+export function keyword(...words: string[]): Action {
+  return Action.from((buffer) => {
+    for (const word of words)
+      if (
+        buffer.startsWith(word) &&
+        (buffer.length == word.length || /^\w/.test(buffer[word.length]))
+      )
+        return word.length;
+    return 0;
+  });
 }

@@ -1,5 +1,5 @@
 import { Lexer } from "../src/lexer/lexer";
-import { from_to } from "../src/lexer/utils";
+import { exact, from_to, keyword } from "../src/lexer/utils";
 
 const code = `
 #include <stdio.h>
@@ -18,18 +18,22 @@ int main() {
 }
 `;
 
-Lexer.ignore(
-  /^\s/, // blank
-  from_to("//", "\n", true), // single line comments
-  from_to("/*", "*/", true), // multi-line comments
-  from_to("#", "\n", true) // macro
-)
+new Lexer()
+  .ignore(
+    /^\s/, // blank
+    from_to("//", "\n", true), // single line comments
+    from_to("/*", "*/", true), // multi-line comments
+    from_to("#", "\n", true) // macro
+  )
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
-    ident: /^\w+/,
+    keyword: keyword("int", "return", "if", "else", "break"),
+    identifier: /^\w+/,
     string: from_to('"', '"', false),
   })
-  .literal("++", "--", "+=", "-=", "*=", "/=", "%=", "==", "!=", "&=", "|=")
-  .literal(..."+-*/()%?:!<>{};&|,")
+  .anonymous(
+    exact("++", "--", "+=", "-=", "*=", "/=", "%=", "==", "!=", "&=", "|="), // two-char operator
+    exact(..."+-*/()%?:!<>{};&|,") // one-char operator
+  )
   .lexAll(code)
   .map((token) => console.log(token));

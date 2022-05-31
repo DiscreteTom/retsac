@@ -24,6 +24,9 @@ export class Lexer {
     this.offset = 0;
   }
 
+  /**
+   * Define token types.
+   */
   define(defs: { [type: string]: ActionSource }) {
     for (const type in defs) {
       this.defs.push({
@@ -34,32 +37,20 @@ export class Lexer {
     return this;
   }
 
-  static define(defs: { [type: string]: ActionSource }) {
-    return new Lexer().define(defs);
+  /**
+   * Define anonymous tokens.
+   */
+  anonymous(...actions: ActionSource[]) {
+    actions.map((a) => this.define({ "": a }));
+    return this;
   }
 
   /**
-   * Define muted action.
+   * Define muted anonymous action.
    */
   ignore(...r: ActionSource[]) {
     r.map((s) => this.define({ "": Action.from(s).mute() }));
     return this;
-  }
-
-  static ignore(...r: ActionSource[]) {
-    return new Lexer().ignore(...r);
-  }
-
-  /**
-   * Define anonymous token with literal strings.
-   */
-  literal(...ss: string[]) {
-    ss.map((s) => this.define({ "": exact(s) }));
-    return this;
-  }
-
-  static literal(...ss: string[]) {
-    return new Lexer().literal(...ss);
   }
 
   /**
@@ -74,10 +65,6 @@ export class Lexer {
       });
     }
     return this;
-  }
-
-  static overload(defs: { [type: string]: ActionSource[] }) {
-    return new Lexer().overload(defs);
   }
 
   feed(input: string) {
@@ -141,17 +128,17 @@ export class Lexer {
   }
 
   /**
-   * Get the rest buffer.
+   * Get the rest string buffer.
    */
   getRest() {
     return this.buffer;
   }
 
   /**
-   * Whether buffer length is 0.
+   * Buffer not empty.
    */
-  isDone() {
-    return this.getRest().length == 0;
+  hasRest() {
+    return this.buffer.length != 0;
   }
 
   getTokenTypes() {
