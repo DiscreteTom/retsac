@@ -4,6 +4,8 @@ import { exact } from "./utils";
 export type Token = {
   type: string;
   content: string; // text content
+  start: number; // start position of input string
+  end: number; // end position of input string
 };
 
 export type Definition = {
@@ -14,10 +16,12 @@ export type Definition = {
 export class Lexer {
   private defs: Definition[];
   private buffer: string;
+  private offset: number; // how many chars are digested
 
   constructor() {
     this.defs = [];
     this.buffer = "";
+    this.offset = 0;
   }
 
   define(defs: { [type: string]: ActionSource }) {
@@ -83,6 +87,7 @@ export class Lexer {
 
   reset() {
     this.buffer = "";
+    this.offset = 0;
     return this;
   }
 
@@ -96,11 +101,17 @@ export class Lexer {
     while (true) {
       let mute = false;
       for (const def of this.defs) {
-        let res = def.action.exec(this.buffer);
+        let res = def.action.exec(this.buffer, this.offset);
         if (res.accept) {
           this.buffer = res.buffer;
+          this.offset = res.end;
           if (!res.mute) {
-            return { type: def.type, content: res.content };
+            return {
+              type: def.type,
+              content: res.content,
+              start: res.start,
+              end: res.end,
+            };
           } else {
             // mute, re-loop all definitions
             mute = true;
