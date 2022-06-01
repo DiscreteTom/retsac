@@ -1,5 +1,5 @@
 import { Lexer } from "../src/lexer/lexer";
-import { exact, from_to, keyword } from "../src/lexer/utils";
+import { exact, from_to, word } from "../src/lexer/utils";
 
 const code = `
 #include <stdio.h>
@@ -27,7 +27,7 @@ new Lexer()
   )
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
-    keyword: keyword("int", "return", "if", "else", "break"),
+    keyword: word("int", "return", "if", "else", "break"),
     identifier: /^\w+/,
     string: from_to('"', '"', false),
   })
