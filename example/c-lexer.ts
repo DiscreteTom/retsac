@@ -18,7 +18,7 @@ int main() {
 }
 `;
 
-new Lexer()
+const lexer = new Lexer()
   .ignore(
     /^\s/, // blank
     from_to("//", "\n", true), // single line comments
@@ -34,6 +34,12 @@ new Lexer()
   .anonymous(
     exact("++", "--", "+=", "-=", "*=", "/=", "%=", "==", "!=", "&=", "|="), // two-char operator
     exact(..."+-*/()%?:!<>{};&|,") // one-char operator
-  )
-  .lexAll(code)
-  .map((token) => console.log(token));
+  );
+
+lexer.lexAll(code).map((token) => {
+  console.log({
+    ...token,
+    start: lexer.getPos(token.start),
+    end: lexer.getPos(token.end),
+  });
+});
