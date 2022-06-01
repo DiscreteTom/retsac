@@ -17,11 +17,20 @@ export class Lexer {
   private defs: Definition[];
   private buffer: string;
   private offset: number; // how many chars are digested
+  private lineChars: number[]; // how many chars in each line
 
   constructor() {
     this.defs = [];
     this.buffer = "";
     this.offset = 0;
+    this.lineChars = [0];
+  }
+
+  reset() {
+    this.buffer = "";
+    this.offset = 0;
+    this.lineChars = [0];
+    return this;
   }
 
   /**
@@ -72,12 +81,6 @@ export class Lexer {
     return this;
   }
 
-  reset() {
-    this.buffer = "";
-    this.offset = 0;
-    return this;
-  }
-
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    */
@@ -90,8 +93,17 @@ export class Lexer {
       for (const def of this.defs) {
         let res = def.action.exec(this.buffer, this.offset);
         if (res.accept) {
+          // update this state
           this.buffer = res.buffer;
           this.offset = res.end;
+          res.content.split("\n").map((part, i, list) => {
+            this.lineChars[this.lineChars.length - 1] += part.length;
+            if (i != list.length - 1) {
+              this.lineChars[this.lineChars.length - 1]++; // add '\n'
+              this.lineChars.push(0);
+            }
+          });
+
           if (!res.mute) {
             return {
               type: def.type,
@@ -145,5 +157,29 @@ export class Lexer {
     let res: Set<string> = new Set();
     this.defs.map((d) => res.add(d.type));
     return res;
+  }
+
+  /**
+   * Get how many chars in each line.
+   */
+  getLineChars() {
+    return this.lineChars;
+  }
+
+  /**
+   * Get line number (start from 1) and column number (start from 1) from the index (start from 0) of the input string.
+   */
+  getPos(index: number): { line: number; column: number } {
+    let result = { line: 1, column: 1 };
+    for (const n of this.lineChars) {
+      if (index >= n) {
+        index -= n;
+        result.line++;
+      } else {
+        result.column += index;
+        break;
+      }
+    }
+    return result;
   }
 }
