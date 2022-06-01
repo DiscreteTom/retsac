@@ -1,10 +1,10 @@
 import { Action, ActionSource } from "./action";
-import { exact } from "./utils";
 
 export type Token = {
   type: string;
   content: string; // text content
   start: number; // start position of input string
+  error: string; // error message, empty if no error
 };
 
 export type Definition = {
@@ -17,18 +17,21 @@ export class Lexer {
   private buffer: string;
   private offset: number; // how many chars are digested
   private lineChars: number[]; // how many chars in each line
+  private errors: Token[];
 
   constructor() {
     this.defs = [];
     this.buffer = "";
     this.offset = 0;
     this.lineChars = [0];
+    this.errors = [];
   }
 
   reset() {
     this.buffer = "";
     this.offset = 0;
     this.lineChars = [0];
+    this.errors = [];
     return this;
   }
 
@@ -104,12 +107,20 @@ export class Lexer {
             }
           });
 
+          // construct token
+          const token: Token = {
+            type: def.type,
+            content,
+            start: this.offset - content.length,
+            error: res.error,
+          };
+
+          // collect errors
+          if (token.error) this.errors.push(token);
+
           if (!res.mute) {
-            return {
-              type: def.type,
-              content,
-              start: this.offset - content.length,
-            };
+            // emit token
+            return token;
           } else {
             // mute, re-loop all definitions
             mute = true;
@@ -180,5 +191,12 @@ export class Lexer {
       }
     }
     return result;
+  }
+
+  /**
+   * Get error tokens.
+   */
+  getErrors() {
+    return this.errors;
   }
 }
