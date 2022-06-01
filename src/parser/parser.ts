@@ -64,11 +64,8 @@ export class Parser {
                   : new ASTNode({
                       type: t.type,
                       text: t.content,
-                      children: [],
-                      parent: null,
                     })
               ),
-              parent: null,
             });
             node.children.map((c) => (c.parent = node));
 

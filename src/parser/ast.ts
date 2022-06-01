@@ -1,6 +1,6 @@
 export class ASTNode {
   type: string;
-  text?: string;
+  text: string;
   children: ASTNode[];
   parent: ASTNode;
   data: { value: any; [key: string]: any };
@@ -8,13 +8,13 @@ export class ASTNode {
   constructor(p: {
     type: string;
     text?: string;
-    children: ASTNode[];
-    parent: ASTNode;
+    children?: ASTNode[];
+    parent?: ASTNode;
   }) {
-    this.text = p.text;
     this.type = p.type;
-    this.children = p.children;
-    this.parent = p.parent;
+    this.text = p.text ?? "";
+    this.children = p.children ?? [];
+    this.parent = p.parent ?? null;
     this.data = { value: null };
   }
 
