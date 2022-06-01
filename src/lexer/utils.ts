@@ -28,14 +28,14 @@ export function exact(...ss: string[]): Action {
 }
 
 /**
- * Match a list of keyword, lookahead one char to ensure there is a word boundary.
+ * Match a list of word, lookahead one char to ensure there is a word boundary.
  */
-export function keyword(...words: string[]): Action {
+export function word(...words: string[]): Action {
   return Action.from((buffer) => {
     for (const word of words)
       if (
         buffer.startsWith(word) &&
-        (buffer.length == word.length || /^\w/.test(buffer[word.length]))
+        (buffer.length == word.length || /^\W/.test(buffer[word.length]))
       )
         return word.length;
     return 0;
