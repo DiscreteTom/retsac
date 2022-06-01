@@ -4,7 +4,7 @@ import { Parser } from "./parser";
 import { Reducer } from "./reducer";
 
 export type GrammarRule = {
-  rule: Token[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
+  rule: { type: "grammar" | "literal"; content: string }[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
   NT: string; // the reduce target
   reducer: Reducer;
 };
@@ -74,7 +74,10 @@ export class Builder {
 
         this.defs.push({
           NT,
-          rule: tokens,
+          rule: tokens.map((t) => ({
+            type: t.type as "grammar" | "literal",
+            content: t.content,
+          })),
           reducer,
         });
       });
