@@ -1,15 +1,12 @@
 export type ActionOutput =
   | { accept: false }
   | {
-      accept: true; // return token if not mute
-      mute: boolean; // don't return token, continue loop
-      buffer: string; // new buffer value
-      content: string; // token content
-      start: number; // start position of input string
-      end: number; // end position of input string
+      accept: true; // this action can accept some input as a token
+      mute: boolean; // don't emit token, continue loop
+      digested: number; // how many chars are accepted by this action
     };
 
-export type ActionExec = (buffer: string, offset: number) => ActionOutput;
+export type ActionExec = (buffer: string) => ActionOutput;
 export type SimpleActionExec = (buffer: string) => number; // only return how many chars are accepted
 export type ActionSource = RegExp | Action | SimpleActionExec;
 
@@ -21,20 +18,15 @@ export class Action {
   }
 
   private static simple(f: SimpleActionExec) {
-    return new Action((buffer, offset) => {
+    return new Action((buffer) => {
       let n = f(buffer);
-      if (n > 0) {
-        return {
-          accept: true,
-          mute: false,
-          buffer: buffer.slice(n),
-          content: buffer.slice(0, n),
-          start: offset,
-          end: offset + n,
-        };
-      } else {
-        return { accept: false };
-      }
+      return n > 0
+        ? {
+            accept: true,
+            mute: false,
+            digested: n,
+          }
+        : { accept: false };
     });
   }
 
@@ -58,23 +50,10 @@ export class Action {
    * Mute action if `accept` is `true`.
    */
   mute(enable = true) {
-    return new Action((buffer, offset) => {
-      let output = this.exec(buffer, offset);
+    return new Action((buffer) => {
+      let output = this.exec(buffer);
       if (output.accept) {
         output.mute = enable;
-      }
-      return output;
-    });
-  }
-
-  /**
-   * Transform content if `accept` is true.
-   */
-  transform(f: (content: string) => string) {
-    return new Action((buffer, offset) => {
-      let output = this.exec(buffer, offset);
-      if (output.accept) {
-        output.content = f(output.content);
       }
       return output;
     });

@@ -25,10 +25,7 @@ export class Builder {
         or: exact("|"),
       })
       .overload({
-        literal: [
-          from_to('"', '"', false).transform((s) => s.slice(1, -1)),
-          from_to("'", "'", false).transform((s) => s.slice(1, -1)),
-        ],
+        literal: [from_to('"', '"', false), from_to("'", "'", false)],
       });
   }
 

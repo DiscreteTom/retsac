@@ -5,7 +5,6 @@ export type Token = {
   type: string;
   content: string; // text content
   start: number; // start position of input string
-  end: number; // end position of input string
 };
 
 export type Definition = {
@@ -91,12 +90,13 @@ export class Lexer {
     while (true) {
       let mute = false;
       for (const def of this.defs) {
-        let res = def.action.exec(this.buffer, this.offset);
+        let res = def.action.exec(this.buffer);
         if (res.accept) {
           // update this state
-          this.buffer = res.buffer;
-          this.offset = res.end;
-          res.content.split("\n").map((part, i, list) => {
+          const content = this.buffer.slice(0, res.digested);
+          this.buffer = this.buffer.slice(res.digested);
+          this.offset += content.length;
+          content.split("\n").map((part, i, list) => {
             this.lineChars[this.lineChars.length - 1] += part.length;
             if (i != list.length - 1) {
               this.lineChars[this.lineChars.length - 1]++; // add '\n'
@@ -107,9 +107,8 @@ export class Lexer {
           if (!res.mute) {
             return {
               type: def.type,
-              content: res.content,
-              start: res.start,
-              end: res.end,
+              content,
+              start: this.offset - content.length,
             };
           } else {
             // mute, re-loop all definitions

@@ -40,6 +40,5 @@ lexer.lexAll(code).map((token) => {
   console.log({
     ...token,
     start: lexer.getPos(token.start),
-    end: lexer.getPos(token.end),
   });
 });
