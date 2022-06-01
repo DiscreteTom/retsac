@@ -38,7 +38,8 @@ const lexer = new Lexer()
 
 lexer.lexAll(code).map((token) => {
   console.log({
-    ...token,
+    type: token.type,
+    content: token.content,
     start: lexer.getPos(token.start),
   });
 });
