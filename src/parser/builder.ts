@@ -3,8 +3,10 @@ import { exact, from_to } from "../lexer/utils";
 import { Parser } from "./parser";
 import { Reducer } from "./reducer";
 
+export type Grammar = { type: "grammar" | "literal"; content: string };
+
 export type GrammarRule = {
-  rule: { type: "grammar" | "literal"; content: string }[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
+  rule: Grammar[]; // a list of Ts or NTs or literal strings, `token.type` should be `grammar` or `literal`
   NT: string; // the reduce target
   reducer: Reducer;
 };
