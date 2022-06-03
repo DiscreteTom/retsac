@@ -72,8 +72,8 @@ export class SimpleReducer {
         if (matchRule(buffer, grammarRule)) {
           let context: ReducerContext = {
             data: { value: null },
-            matched: buffer.slice(-1 - grammarRule.rule.length, -1),
-            before: buffer.slice(0, -1 - grammarRule.rule.length),
+            matched: buffer.slice(-grammarRule.rule.length),
+            before: buffer.slice(0, -grammarRule.rule.length),
             after: rest,
             error: "",
           };
@@ -136,7 +136,7 @@ const syntaxLexer = new Lexer()
 
 function matchRule(buffer: ASTNode[], grammarRule: GrammarRule) {
   if (buffer.length < grammarRule.rule.length) return false;
-  const tail = buffer.slice(-1 - grammarRule.rule.length, -1);
+  const tail = buffer.slice(-grammarRule.rule.length);
 
   for (let i = 0; i < grammarRule.rule.length; ++i) {
     let grammar = grammarRule.rule[i];
