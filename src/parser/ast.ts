@@ -1,9 +1,11 @@
+export type ASTData = { value: any; [key: string]: any };
+
 export class ASTNode {
   type: string; // T's or NT's name
   text: string; // T's text content
   children: ASTNode[];
   parent: ASTNode;
-  data: { value: any; [key: string]: any };
+  data: ASTData;
   error: string; // empty if no error
 
   constructor(p: {
@@ -12,13 +14,14 @@ export class ASTNode {
     children?: ASTNode[];
     parent?: ASTNode;
     error?: string;
+    data?: ASTData;
   }) {
     this.type = p.type;
     this.text = p.text ?? "";
     this.children = p.children ?? [];
     this.parent = p.parent ?? null;
     this.error = p.error ?? "";
-    this.data = { value: null };
+    this.data = p.data ?? { value: null };
   }
 
   toString(indent = "") {
