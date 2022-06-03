@@ -58,8 +58,8 @@ export class Parser {
   }
 
   parse(s: string) {
-    this.buffer.concat(
-      this.lexer
+    this.buffer.push(
+      ...this.lexer
         .lexAll(s)
         .map((t) => new ASTNode({ type: t.type, text: t.content }))
     );
