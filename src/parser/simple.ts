@@ -3,6 +3,9 @@ import { exact, from_to } from "../lexer/utils";
 import { ASTData, ASTNode } from "./ast";
 import { Reducer } from "./parser";
 
+/**
+ * Use `define` to define grammar rules, use `compile` to get reducer.
+ */
 export class SimpleReducer {
   private grammarRules: GrammarRule[];
 
@@ -10,6 +13,19 @@ export class SimpleReducer {
     this.grammarRules = [];
   }
 
+  /**
+   * Definition syntax:
+   * - `A | B` means `A` or `B`
+   * - `A B` means `A` then `B`
+   * - `'xxx'` or `"xxx"` means literal string `xxx`
+   *
+   * E.g.:
+   *
+   * ```js
+   * define({ exp: `A B | 'xxx' B` })
+   * // means `A B` or `'xxx' B`, and reduce to `exp`
+   * ```
+   */
   define(defs: { [NT: string]: string }, callback?: GrammarCallback) {
     callback ??= () => {};
 
