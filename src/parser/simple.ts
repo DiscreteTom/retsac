@@ -56,6 +56,11 @@ export class SimpleReducer {
                 type: "grammar",
                 name: t.content,
               };
+            else
+              return {
+                type: "literal",
+                content: t.content,
+              };
           }),
           callback,
         });
