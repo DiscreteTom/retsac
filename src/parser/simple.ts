@@ -59,7 +59,7 @@ export class SimpleReducer {
             else
               return {
                 type: "literal",
-                content: t.content,
+                content: t.content.slice(1, -1), // remove quotes
               };
           }),
           callback,
