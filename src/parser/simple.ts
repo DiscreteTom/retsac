@@ -121,6 +121,11 @@ export function valueReducer(f: (values: any[]) => any): GrammarCallback {
     (data.value = f(matched.map((node) => node.data.value)));
 }
 
+export function dataReducer(f: (data: any[]) => any): GrammarCallback {
+  return (context) =>
+    (context.data = f(context.matched.map((node) => node.data)));
+}
+
 export type GrammarRule = {
   rule: Grammar[]; // a list of Ts or NTs or literal strings
   NT: string; // the reduce target
