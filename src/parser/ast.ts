@@ -1,10 +1,10 @@
 export class ASTNode {
-  type: string;
-  text: string;
+  type: string; // T's or NT's name
+  text: string; // T's text content
   children: ASTNode[];
   parent: ASTNode;
   data: { value: any; [key: string]: any };
-  error: string;
+  error: string; // empty if no error
 
   constructor(p: {
     type: string;
