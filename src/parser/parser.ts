@@ -1,114 +1,100 @@
-import { Lexer, Token } from "../lexer/lexer";
-import { ASTNode } from "./ast";
-import { GrammarRule } from "./builder";
-import { ReducerContext } from "./reducer";
+import { Lexer } from "../lexer/lexer";
+import { ASTData, ASTNode } from "./ast";
 
-/**
- * Parser can parse input string to AST.
- *
- * Grammars:
- * - `A | B` means `A` or `B`
- * - `A B` means `A` then `B`
- * - `'xxx'` or `"xxx"` means literal string `xxx`
- *
- * E.g.: `A B | 'xxx' B` means `A B` or `'xxx' B`
- */
+export type ReducerOutput =
+  | { accept: false }
+  | {
+      accept: true;
+      digested: number; // how many nodes are digested
+      type: string; // NT type
+      data: ASTData;
+      error: string; // empty if no error
+    };
+
+export type ReducerExec = (buffer: ASTNode[], rest: ASTNode[]) => ReducerOutput;
+
+export class Reducer {
+  reduce: ReducerExec;
+
+  constructor(exec: ReducerExec) {
+    this.reduce = exec;
+  }
+}
+
 export class Parser {
+  private reducers: Reducer[];
   private lexer: Lexer;
-  private defs: GrammarRule[];
-  private buffer: (ASTNode | Token)[];
+  private buffer: ASTNode[];
+  private errors: ASTNode[];
 
-  constructor(lexer: Lexer, defs: GrammarRule[]) {
-    this.lexer = lexer;
-    this.defs = defs;
+  constructor(lexer?: Lexer) {
+    this.reducers = [];
     this.buffer = [];
+    this.errors = [];
+    this.lexer = lexer;
   }
 
   reset() {
-    this.lexer.reset();
     this.buffer = [];
-  }
-
-  parse(s: string) {
-    this.buffer.push(...this.lexer.lexAll(s));
-
-    while (true) {
-      let reduced = false;
-      // traverse all grammar rule in order
-      outer: for (const g of this.defs) {
-        if (this.buffer.length < g.rule.length)
-          // buffer not long enough
-          // can't reduce, try next rule
-          continue;
-
-        // check a chunk of buffer
-        // try left-most reduce
-        for (let i = 0; i <= this.buffer.length - g.rule.length; ++i) {
-          let chunk = this.buffer.slice(i, i + g.rule.length);
-
-          if (
-            chunk.every((t, i) =>
-              g.rule[i].type == "grammar"
-                ? g.rule[i].content == t.type
-                : !(t instanceof ASTNode) && g.rule[i].content == t.content
-            )
-          ) {
-            // can reduce
-
-            // construct new node
-            let node = new ASTNode({
-              type: g.NT,
-              children: chunk.map((t) =>
-                t instanceof ASTNode
-                  ? t
-                  : new ASTNode({
-                      type: t.type,
-                      text: t.content,
-                    })
-              ),
-            });
-            node.children.map((c) => (c.parent = node));
-
-            // call reducer
-            let before = this.buffer.slice(0, i);
-            let after = this.buffer.slice(i + g.rule.length);
-            let context: ReducerContext = {
-              reject: false,
-              before,
-              after,
-              node,
-            };
-            g.reducer(context);
-
-            // check rejection
-            if (context.reject) {
-              // rollback
-              node.children.map((c) => (c.parent = null));
-              break; // try next grammar
-            }
-
-            // update buffer
-            this.buffer = before.concat(node).concat(after);
-
-            // traverse all grammar rules again
-            reduced = true;
-            break outer;
-          }
-          // else, can't reduce, try next chunk
-        }
-
-        // no reduce, try next rule
-      }
-
-      if (!reduced)
-        // all rules can't reduce more
-        break;
-    }
-
-    return this.getBuffer();
+    this.errors = [];
   }
 
   getBuffer() {
+    return this.buffer;
+  }
+
+  getErrors() {
+    return this.errors;
+  }
+
+  setLexer(lexer: Lexer) {
+    this.lexer = lexer;
+    return this;
+  }
+
+  addRule(r: Reducer) {
+    this.reducers.push(r);
+    return this;
+  }
+
+  parse(s: string) {
+    this.buffer.concat(
+      this.lexer
+        .lexAll(s)
+        .map((t) => new ASTNode({ type: t.type, text: t.content }))
+    );
+
+    let tail = 1;
+    outer: while (tail <= this.buffer.length) {
+      // traverse all reducers
+      for (const r of this.reducers) {
+        let res = r.reduce(this.buffer.slice(0, tail), this.buffer.slice(tail));
+        if (res.accept) {
+          // construct new node
+          let node = new ASTNode({
+            type: res.type,
+            children: this.buffer.slice(tail - res.digested, tail),
+            error: res.error,
+            data: res.data,
+          });
+          node.children.map((c) => (c.parent = node));
+
+          // update parser state
+          if (node.error) this.errors.push(node);
+          this.buffer = this.buffer
+            .slice(0, tail - res.digested)
+            .concat(node)
+            .concat(this.buffer.slice(tail));
+
+          tail -= res.digested - 1; // consume n, produce 1
+
+          continue outer; // re-traverse all reducers
+        }
+      }
+      // no reducer can accept, move tail forward
+      tail++;
+    }
+
     return this.buffer;
   }
 }
