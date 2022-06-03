@@ -143,11 +143,9 @@ function matchRule(buffer: ASTNode[], grammarRule: GrammarRule) {
   if (buffer.length < grammarRule.rule.length) return false;
   const tail = buffer.slice(-grammarRule.rule.length);
 
-  for (let i = 0; i < grammarRule.rule.length; ++i) {
-    let grammar = grammarRule.rule[i];
-    if (grammar.type == "grammar" && tail[i].type == grammar.name) continue;
-    if (grammar.type == "literal" && tail[i].text == grammar.content) continue;
-    return false;
-  }
-  return true;
+  return grammarRule.rule.every(
+    (grammar, i) =>
+      (grammar.type == "grammar" && tail[i].type == grammar.name) ||
+      (grammar.type == "literal" && tail[i].text == grammar.content)
+  );
 }
