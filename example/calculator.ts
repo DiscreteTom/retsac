@@ -1,11 +1,11 @@
 import { Lexer } from "../src/lexer/lexer";
-import { Builder } from "../src/parser/builder";
+import { Parser } from "../src/parser/parser";
 import * as readline from "readline";
 import { ASTNode } from "../src/parser/ast";
-import { valueReducer } from "../src/parser/reducer";
 import { exact } from "../src/lexer/utils";
+import { SimpleReducer, valueReducer } from "../src/parser/simple";
 
-let parser = new Builder()
+let parser = new Parser()
   .setLexer(
     new Lexer()
       .ignore(/^\s/)
@@ -14,40 +14,40 @@ let parser = new Builder()
       })
       .anonymous(exact(..."+-*/()"))
   )
-  .define(
-    { exp: "number" },
-    ({ node }) => (node.data.value = Number(node.children[0].text))
-  )
-  .define({ exp: `'-' exp` }, (context) => {
-    let p = context.before.at(-1); // previous token or AST node
-    if (p && p instanceof ASTNode && p.type == "exp") {
-      context.reject = true;
-      return;
-    }
-    // else, no previous, or p is a token, or p is not exp
-    context.node.data.value = -context.node.children[1].data.value;
-  })
-  .define(
-    { exp: `'(' exp ')'` },
-    valueReducer((values) => values[1])
-  )
-  .define(
-    { exp: `exp '*' exp` },
-    valueReducer((values) => values[0] * values[2])
-  )
-  .define(
-    { exp: `exp '/' exp` },
-    valueReducer((values) => values[0] / values[2])
-  )
-  .define(
-    { exp: `exp '+' exp` },
-    valueReducer((values) => values[0] + values[2])
-  )
-  .define(
-    { exp: `exp '-' exp` },
-    valueReducer((values) => values[0] - values[2])
-  )
-  .compile();
+  .addRule(
+    new SimpleReducer()
+      .define(
+        { exp: "number" },
+        ({ data, matched }) => (data.value = Number(matched[0].text))
+      )
+      .define({ exp: `'-' exp` }, (context) => {
+        // if previous node is an exp, the `- exp` should be `exp - exp`, reject
+        if (context.before.at(-1)?.type == "exp") return "reject";
+        // else, no previous, or previous is not exp
+        context.data.value = -context.matched[1].data.value;
+      })
+      .define(
+        { exp: `'(' exp ')'` },
+        valueReducer((values) => values[1])
+      )
+      .define({ exp: `exp '+' exp` }, ({ after, data, matched }) => {
+        if (after[0]?.text == "*" || after[0]?.text == "/") return "reject";
+        data.value = matched[0].data.value + matched[2].data.value;
+      })
+      .define({ exp: `exp '-' exp` }, ({ after, data, matched }) => {
+        if (after[0]?.text == "*" || after[0]?.text == "/") return "reject";
+        data.value = matched[0].data.value - matched[2].data.value;
+      })
+      .define(
+        { exp: `exp '*' exp` },
+        valueReducer((values) => values[0] * values[2])
+      )
+      .define(
+        { exp: `exp '/' exp` },
+        valueReducer((values) => values[0] / values[2])
+      )
+      .compile()
+  );
 
 var rl = readline.createInterface({
   input: process.stdin,
