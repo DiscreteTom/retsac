@@ -3,56 +3,8 @@ import { exact, from_to } from "../lexer/utils";
 import { ASTData, ASTNode } from "./ast";
 import { Reducer } from "./parser";
 
-export type ReducerContext = {
-  data: ASTData;
-  readonly matched: ASTNode[];
-  readonly before: ASTNode[];
-  readonly after: ASTNode[];
-  error: string;
-};
-
-export type Grammar =
-  | { type: "literal"; content: string }
-  | {
-      type: "grammar";
-      name: string; // T's or NT's name
-    };
-
-export type GrammarCallback = (context: ReducerContext) => "reject" | void;
-
-export type GrammarRule = {
-  rule: Grammar[]; // a list of Ts or NTs or literal strings
-  NT: string; // the reduce target
-  callback: GrammarCallback;
-};
-
-const syntaxLexer = new Lexer()
-  .ignore(
-    /^\s/ // blank
-  )
-  .define({
-    grammar: /^\w+/,
-    or: exact("|"),
-  })
-  .overload({
-    literal: [from_to('"', '"', false), from_to("'", "'", false)],
-  });
-
-function matchRule(buffer: ASTNode[], grammarRule: GrammarRule) {
-  if (buffer.length < grammarRule.rule.length) return false;
-  const tail = buffer.slice(-1 - grammarRule.rule.length, -1);
-
-  for (let i = 0; i < grammarRule.rule.length; ++i) {
-    let grammar = grammarRule.rule[i];
-    if (grammar.type == "grammar" && tail[i].type == grammar.name) continue;
-    if (grammar.type == "literal" && tail[i].text == grammar.content) continue;
-    return false;
-  }
-  return true;
-}
-
 export class SimpleReducer {
-  grammarRules: GrammarRule[];
+  private grammarRules: GrammarRule[];
 
   constructor() {
     this.grammarRules = [];
@@ -140,4 +92,57 @@ export class SimpleReducer {
       return { accept: false };
     });
   }
+}
+
+export type ReducerContext = {
+  data: ASTData;
+  readonly matched: ASTNode[];
+  readonly before: ASTNode[];
+  readonly after: ASTNode[];
+  error: string;
+};
+
+export type Grammar =
+  | { type: "literal"; content: string }
+  | {
+      type: "grammar";
+      name: string; // T's or NT's name
+    };
+
+export type GrammarCallback = (context: ReducerContext) => "reject" | any;
+
+export function valueReducer(f: (values: any[]) => any): GrammarCallback {
+  return ({ matched, data }) =>
+    (data.value = f(matched.map((node) => node.data.value)));
+}
+
+export type GrammarRule = {
+  rule: Grammar[]; // a list of Ts or NTs or literal strings
+  NT: string; // the reduce target
+  callback: GrammarCallback;
+};
+
+const syntaxLexer = new Lexer()
+  .ignore(
+    /^\s/ // blank
+  )
+  .define({
+    grammar: /^\w+/,
+    or: exact("|"),
+  })
+  .overload({
+    literal: [from_to('"', '"', false), from_to("'", "'", false)],
+  });
+
+function matchRule(buffer: ASTNode[], grammarRule: GrammarRule) {
+  if (buffer.length < grammarRule.rule.length) return false;
+  const tail = buffer.slice(-1 - grammarRule.rule.length, -1);
+
+  for (let i = 0; i < grammarRule.rule.length; ++i) {
+    let grammar = grammarRule.rule[i];
+    if (grammar.type == "grammar" && tail[i].type == grammar.name) continue;
+    if (grammar.type == "literal" && tail[i].text == grammar.content) continue;
+    return false;
+  }
+  return true;
 }
