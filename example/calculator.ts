@@ -1,7 +1,7 @@
 import { Lexer } from "../src/lexer/lexer";
 import { Parser } from "../src/parser/parser";
 import { exact } from "../src/lexer/utils";
-import { SimpleNodeReducer, valueReducer } from "../src/parser/simple";
+import { SimpleNodeReducer, valueReducer } from "../src/parser/simple/reducer";
 
 let lexer = new Lexer()
   .ignore(/^\s/)

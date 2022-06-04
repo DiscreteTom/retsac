@@ -1,7 +1,25 @@
-import { Lexer, Token } from "../lexer/lexer";
-import { exact, from_to } from "../lexer/utils";
-import { ASTData, ASTNode } from "./ast";
-import { NodeReducer } from "./parser";
+import { Lexer, Token } from "../../lexer/lexer";
+import { exact, from_to } from "../../lexer/utils";
+import { ASTData, ASTNode } from "../ast";
+import { NodeReducer } from "../parser";
+import {
+  GrammarCallback,
+  GrammarRule,
+  ReducerContext,
+  Rejecter,
+} from "./model";
+
+const grammarLexer = new Lexer()
+  .ignore(
+    /^\s/ // blank
+  )
+  .define({
+    grammar: /^\w+/,
+    or: exact("|"),
+  })
+  .overload({
+    literal: [from_to('"', '"', false), from_to("'", "'", false)],
+  });
 
 /**
  * Use `define` to define grammar rules, use `compile` to get reducer.
@@ -37,7 +55,7 @@ export class SimpleNodeReducer {
     // parse rules
     for (const NT in defs) {
       let rules: Token[][] = [[]];
-      syntaxLexer
+      grammarLexer
         .reset()
         .lexAll(defs[NT])
         .map((t) => {
@@ -45,9 +63,9 @@ export class SimpleNodeReducer {
           else rules.at(-1).push(t);
         });
 
-      if (syntaxLexer.hasRest())
+      if (grammarLexer.hasRest())
         throw new Error(
-          `Can't tokenize: "${syntaxLexer.getRest()}" in grammar rule: "${
+          `Can't tokenize: "${grammarLexer.getRest()}" in grammar rule: "${
             defs[NT]
           }"`
         );
@@ -152,25 +170,6 @@ export class SimpleNodeReducer {
   }
 }
 
-export type ReducerContext = {
-  data: ASTData;
-  readonly matched: ASTNode[];
-  readonly before: ASTNode[];
-  readonly after: ASTNode[];
-  error: string;
-};
-
-export type Grammar =
-  | { type: "literal"; content: string }
-  | {
-      type: "grammar";
-      name: string; // T's or NT's name
-    };
-
-export type GrammarCallback = (context: ReducerContext) => void;
-
-export type Rejecter = (context: ReducerContext) => boolean; // return true if conflict
-
 export function dataReducer(
   f: (data: any[], context: ReducerContext) => ASTData
 ): GrammarCallback {
@@ -190,25 +189,6 @@ export function valueReducer(
       context
     ));
 }
-
-export type GrammarRule = {
-  rule: Grammar[]; // a list of Ts or NTs or literal strings
-  NT: string; // the reduce target
-  callback: GrammarCallback;
-  rejecter: Rejecter;
-};
-
-const syntaxLexer = new Lexer()
-  .ignore(
-    /^\s/ // blank
-  )
-  .define({
-    grammar: /^\w+/,
-    or: exact("|"),
-  })
-  .overload({
-    literal: [from_to('"', '"', false), from_to("'", "'", false)],
-  });
 
 function matchRule(buffer: ASTNode[], grammarRule: GrammarRule) {
   if (buffer.length < grammarRule.rule.length) return false;
