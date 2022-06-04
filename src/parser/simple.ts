@@ -169,14 +169,24 @@ export type GrammarCallback = (context: ReducerContext) => void;
 
 export type Rejecter = (context: ReducerContext) => boolean; // return true if conflict
 
-export function valueReducer(f: (values: any[]) => any): GrammarCallback {
-  return ({ matched, data }) =>
-    (data.value = f(matched.map((node) => node.data.value)));
+export function dataReducer(
+  f: (data: any[], context: ReducerContext) => ASTData
+): GrammarCallback {
+  return (context) =>
+    (context.data = f(
+      context.matched.map((node) => node.data),
+      context
+    ));
 }
 
-export function dataReducer(f: (data: any[]) => any): GrammarCallback {
+export function valueReducer(
+  f: (values: any[], context: ReducerContext) => any
+): GrammarCallback {
   return (context) =>
-    (context.data = f(context.matched.map((node) => node.data)));
+    (context.data.value = f(
+      context.matched.map((node) => node.data.value),
+      context
+    ));
 }
 
 export type GrammarRule = {
