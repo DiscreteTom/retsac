@@ -1,7 +1,7 @@
 import { Lexer } from "../lexer/lexer";
 import { ASTData, ASTNode } from "./ast";
 
-export type ReducerOutput =
+export type NodeReducerOutput =
   | { accept: false }
   | {
       accept: true;
@@ -11,18 +11,21 @@ export type ReducerOutput =
       error: string; // empty if no error
     };
 
-export type ReducerExec = (buffer: ASTNode[], rest: ASTNode[]) => ReducerOutput;
+export type NodeReducerExec = (
+  buffer: ASTNode[],
+  rest: ASTNode[]
+) => NodeReducerOutput;
 
-export class Reducer {
-  reduce: ReducerExec;
+export class NodeReducer {
+  reduce: NodeReducerExec;
 
-  constructor(exec: ReducerExec) {
+  constructor(exec: NodeReducerExec) {
     this.reduce = exec;
   }
 }
 
 export class Parser {
-  private reducers: Reducer[];
+  private reducers: NodeReducer[];
   private lexer: Lexer;
   private buffer: ASTNode[];
   private errors: ASTNode[];
@@ -52,7 +55,7 @@ export class Parser {
     return this;
   }
 
-  addRule(r: Reducer) {
+  addNodeReducer(r: NodeReducer) {
     this.reducers.push(r);
     return this;
   }
