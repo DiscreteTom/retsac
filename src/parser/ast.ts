@@ -24,8 +24,8 @@ export class ASTNode {
     this.data = p.data ?? { value: null };
   }
 
-  toString(indent = "") {
-    let res = `${indent}${this.type}: `;
+  toString(indent = "", anonymous = "<anonymous>") {
+    let res = `${indent}${this.type || anonymous}: `;
     if (this.text) res += this.text;
     res += "\n";
     this.children.map((c) => {
