@@ -1,12 +1,12 @@
 import { Lexer, Token } from "../lexer/lexer";
 import { exact, from_to } from "../lexer/utils";
 import { ASTData, ASTNode } from "./ast";
-import { Reducer } from "./parser";
+import { NodeReducer } from "./parser";
 
 /**
  * Use `define` to define grammar rules, use `compile` to get reducer.
  */
-export class SimpleReducer {
+export class SimpleNodeReducer {
   private grammarRules: GrammarRule[];
 
   constructor() {
@@ -26,8 +26,13 @@ export class SimpleReducer {
    * // means `A B` or `'xxx' B`, and reduce to `exp`
    * ```
    */
-  define(defs: { [NT: string]: string }, callback?: GrammarCallback) {
+  define(
+    defs: { [NT: string]: string },
+    callback?: GrammarCallback,
+    rejecter?: Rejecter
+  ) {
     callback ??= () => {};
+    rejecter ??= () => false;
 
     // parse rules
     for (const NT in defs) {
@@ -79,6 +84,7 @@ export class SimpleReducer {
               };
           }),
           callback,
+          rejecter,
         });
       });
     }
@@ -87,7 +93,7 @@ export class SimpleReducer {
   }
 
   compile() {
-    return new Reducer((buffer, rest) => {
+    return new NodeReducer((buffer, rest) => {
       // traverse all grammar rules
       for (const grammarRule of this.grammarRules) {
         if (matchRule(buffer, grammarRule)) {
@@ -98,7 +104,8 @@ export class SimpleReducer {
             after: rest,
             error: "",
           };
-          if (grammarRule.callback(context) != "reject") {
+          grammarRule.callback(context);
+          if (!grammarRule.rejecter(context)) {
             return {
               accept: true,
               data: context.data,
@@ -112,6 +119,34 @@ export class SimpleReducer {
       }
       return { accept: false };
     });
+  }
+
+  // check grammar definitions
+  check(terminatorSet: Set<string>) {
+    let ntNameSet: Set<string> = new Set(); // non-terminator definitions
+    let grammarSet: Set<string> = new Set();
+
+    // collect NT names and grammars
+    this.grammarRules.map((g) => {
+      ntNameSet.add(g.NT);
+      g.rule.map((grammar) => {
+        if (grammar.type == "grammar") grammarSet.add(grammar.name);
+      });
+    });
+
+    // all grammars should have its definition
+    grammarSet.forEach((grammar) => {
+      if (!terminatorSet.has(grammar) && !ntNameSet.has(grammar))
+        throw new Error(`Undefined grammar: ${grammar}`);
+    });
+
+    // NTs can't have same name with Ts
+    ntNameSet.forEach((name) => {
+      if (terminatorSet.has(name))
+        throw new Error(`Duplicated definition: ${name}`);
+    });
+
+    return this;
   }
 }
 
@@ -130,7 +165,9 @@ export type Grammar =
       name: string; // T's or NT's name
     };
 
-export type GrammarCallback = (context: ReducerContext) => "reject" | any;
+export type GrammarCallback = (context: ReducerContext) => void;
+
+export type Rejecter = (context: ReducerContext) => boolean; // return true if conflict
 
 export function valueReducer(f: (values: any[]) => any): GrammarCallback {
   return ({ matched, data }) =>
@@ -146,6 +183,7 @@ export type GrammarRule = {
   rule: Grammar[]; // a list of Ts or NTs or literal strings
   NT: string; // the reduce target
   callback: GrammarCallback;
+  rejecter: Rejecter;
 };
 
 const syntaxLexer = new Lexer()
