@@ -41,3 +41,26 @@ export function word(...words: string[]): Action {
     return 0;
   });
 }
+
+/**
+ * Match a string literal, quoted in `''` or `""` or ``` `` ```.
+ * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
+ */
+export function stringLiteral(p: {
+  single?: boolean;
+  double?: boolean;
+  back?: boolean;
+  multiline?: boolean;
+}) {
+  return Action.from((buffer) => {
+    let index = -1;
+    if (buffer.startsWith(`'`) && p.single) index = buffer.search(/[^\\]'/);
+    else if (buffer.startsWith(`"`) && p.double)
+      index = buffer.search(/[^\\]"/);
+    else if (buffer.startsWith("`") && p.back) index = buffer.search(/[^\\]`/);
+
+    if (index != -1 && (p.multiline || !buffer.slice(0, index).includes("\n")))
+      return index + 2;
+    return 0;
+  });
+}
