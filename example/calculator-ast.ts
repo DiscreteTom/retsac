@@ -1,48 +1,46 @@
 import { Lexer } from "../src/lexer/lexer";
-import { Builder } from "../src/parser/builder";
-import * as readline from "readline";
-import { ASTNode } from "../src/parser/ast";
+import { Parser } from "../src/parser/parser";
 import { exact } from "../src/lexer/utils";
+import { SimpleNodeReducer, valueReducer } from "../src/parser/simple/reducer";
 
-let parser = new Builder()
-  .setLexer(
-    new Lexer()
-      .ignore(/^\s/)
-      .define({
-        number: /^[0-9]+(?:\.[0-9]+)?/,
-      })
-      .anonymous(exact(..."+-*/()"))
-  )
-  .define({ exp: "number" })
-  .define({ exp: `'-' exp` }, (context) => {
-    let p = context.before.at(-1); // previous token or AST node
-    if (p && p instanceof ASTNode && p.type == "exp") context.reject = true;
-  })
+let lexer = new Lexer()
+  .ignore(/^\s/)
   .define({
-    exp: [
-      `'(' exp ')'`,
-      `exp '*' exp`,
-      `exp '/' exp`,
-      `exp '+' exp`,
-      `exp '-' exp`,
-    ].join("|"),
+    number: /^[0-9]+(?:\.[0-9]+)?/,
   })
-  .compile();
+  .anonymous(exact(..."+-*/()"));
 
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false,
-  prompt: ">>> ",
-});
+let parser = new Parser(lexer).addNodeReducer(
+  new SimpleNodeReducer()
+    .define(
+      { exp: "number" },
+      valueReducer((_, { matched }) => Number(matched[0].text))
+    )
+    .define(
+      { exp: `'-' exp` },
+      valueReducer((values) => -values[1]),
+      // if previous node is an exp, the `- exp` should be `exp - exp`, reject
+      ({ before }) => before.at(-1)?.type == "exp"
+    )
+    .define(
+      { exp: `'(' exp ')'` },
+      valueReducer((values) => values[1])
+    )
+    .define(
+      { exp: `exp '+' exp | exp '-' exp` },
+      valueReducer((values, { matched }) =>
+        matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
+      ),
+      ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
+    )
+    .define(
+      { exp: `exp '*' exp | exp '/' exp` },
+      valueReducer((values, { matched }) =>
+        matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
+      )
+    )
+    .checkSymbols(lexer.getTokenTypes())
+    .compile()
+);
 
-rl.on("line", function (line) {
-  let res = parser.parse(line + "\n");
-  if (res.length == 1 && res[0] instanceof ASTNode) {
-    console.log(res[0].toString());
-    parser.reset();
-  }
-  rl.prompt();
-});
-
-rl.prompt();
+console.log(parser.parse("(2+3)*4/5")[0].toString());
