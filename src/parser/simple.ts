@@ -121,8 +121,10 @@ export class SimpleNodeReducer {
     });
   }
 
-  // check grammar definitions
-  check(terminatorSet: Set<string>) {
+  /**
+   * Ensure all symbols have their definitions, and no duplication.
+   */
+  checkSymbols(terminatorSet: Set<string>) {
     let ntNameSet: Set<string> = new Set(); // non-terminator definitions
     let grammarSet: Set<string> = new Set();
 

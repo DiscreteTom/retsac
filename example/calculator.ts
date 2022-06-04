@@ -39,7 +39,7 @@ let parser = new Parser(lexer).addNodeReducer(
         matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
       )
     )
-    .check(lexer.getTokenTypes())
+    .checkSymbols(lexer.getTokenTypes())
     .compile()
 );
 
