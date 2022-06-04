@@ -43,8 +43,9 @@ export function word(...words: string[]): Action {
 }
 
 /**
- * Match a string literal, quoted in `''` or `""` or ``` `` ```.
+ * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
  * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
+ * Set `multiline: true` to allow multiline string literals.
  */
 export function stringLiteral(p: {
   single?: boolean;
