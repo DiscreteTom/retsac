@@ -1,5 +1,5 @@
 import { Lexer, Token } from "../../lexer/lexer";
-import { exact, from_to } from "../../lexer/utils";
+import { exact, stringLiteral } from "../../lexer/utils";
 import { ASTData, ASTNode } from "../ast";
 import { NodeReducer } from "../parser";
 import {
@@ -16,9 +16,7 @@ const grammarLexer = new Lexer()
   .define({
     grammar: /^\w+/,
     or: exact("|"),
-  })
-  .overload({
-    literal: [from_to('"', '"', false), from_to("'", "'", false)],
+    literal: stringLiteral({ single: true, double: true }),
   });
 
 /**
@@ -36,6 +34,7 @@ export class SimpleNodeReducer {
    * - `A | B` means `A` or `B`
    * - `A B` means `A` then `B`
    * - `'xxx'` or `"xxx"` means literal string `xxx`
+   *   - Escaped quote is supported. E.g.: `'abc\'def'`
    *
    * E.g.:
    *
