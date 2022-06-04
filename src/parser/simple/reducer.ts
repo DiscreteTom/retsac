@@ -142,27 +142,27 @@ export class SimpleNodeReducer {
   /**
    * Ensure all symbols have their definitions, and no duplication.
    */
-  checkSymbols(terminatorSet: Set<string>) {
+  checkSymbols(externalSymbols: Set<string>) {
     let ntNameSet: Set<string> = new Set(); // non-terminator definitions
-    let grammarSet: Set<string> = new Set();
+    let symbolSet: Set<string> = new Set();
 
     // collect NT names and grammars
     this.grammarRules.map((g) => {
       ntNameSet.add(g.NT);
       g.rule.map((grammar) => {
-        if (grammar.type == "grammar") grammarSet.add(grammar.name);
+        if (grammar.type == "grammar") symbolSet.add(grammar.name);
       });
     });
 
-    // all grammars should have its definition
-    grammarSet.forEach((grammar) => {
-      if (!terminatorSet.has(grammar) && !ntNameSet.has(grammar))
-        throw new Error(`Undefined grammar: ${grammar}`);
+    // all symbols should have its definition
+    symbolSet.forEach((symbol) => {
+      if (!externalSymbols.has(symbol) && !ntNameSet.has(symbol))
+        throw new Error(`Undefined symbol: ${symbol}`);
     });
 
-    // NTs can't have same name with Ts
+    // check duplication
     ntNameSet.forEach((name) => {
-      if (terminatorSet.has(name))
+      if (externalSymbols.has(name))
         throw new Error(`Duplicated definition: ${name}`);
     });
 
