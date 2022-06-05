@@ -43,10 +43,12 @@ export class SimpleParserBuilder {
    * ```js
    * define({ exp: `A B | 'xxx' B` })
    * // means `A B` or `'xxx' B`, and reduce to `exp`
+   * // equals to:
+   * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
   define(
-    defs: { [NT: string]: string },
+    defs: { [NT: string]: string | string[] },
     callback?: GrammarCallback,
     rejecter?: Rejecter
   ) {
@@ -56,9 +58,10 @@ export class SimpleParserBuilder {
     // parse rules
     for (const NT in defs) {
       let rules: Token[][] = [[]];
+      let def = defs[NT];
       grammarLexer
         .reset()
-        .lexAll(defs[NT])
+        .lexAll(def instanceof Array ? def.join("|") : def)
         .map((t) => {
           if (t.type == "or") rules.push([]);
           else rules.at(-1).push(t);
