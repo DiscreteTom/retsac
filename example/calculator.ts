@@ -1,7 +1,8 @@
 import { Lexer } from "../src/lexer/lexer";
-import { Parser } from "../src/parser/parser";
 import { exact } from "../src/lexer/utils";
-import { SimpleNodeReducer, valueReducer } from "../src/parser/simple/reducer";
+import { ParserManager } from "../src/parser/manager";
+import { SimpleParserBuilder } from "../src/parser/simple/parser";
+import { valueReducer } from "../src/parser/simple/reducer";
 
 let lexer = new Lexer()
   .ignore(/^\s/)
@@ -10,8 +11,8 @@ let lexer = new Lexer()
   })
   .anonymous(exact(..."+-*/()"));
 
-let parser = new Parser(lexer).addNodeReducer(
-  new SimpleNodeReducer()
+let parser = new ParserManager().setLexer(lexer).add(
+  new SimpleParserBuilder()
     .define(
       { exp: "number" },
       valueReducer((_, { matched }) => Number(matched[0].text))
@@ -40,7 +41,7 @@ let parser = new Parser(lexer).addNodeReducer(
       )
     )
     .checkSymbols(lexer.getTokenTypes())
-    .compile()
+    .build()
 );
 
 function assertEqual(input: string, desired: number) {
