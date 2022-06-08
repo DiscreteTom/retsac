@@ -8,14 +8,7 @@ export class ASTNode {
   data: ASTData;
   error: string; // empty if no error
 
-  constructor(p: {
-    type: string;
-    text?: string;
-    children?: ASTNode[];
-    parent?: ASTNode;
-    error?: string;
-    data?: ASTData;
-  }) {
+  constructor(p: Partial<ASTNode> & Pick<ASTNode, "type">) {
     this.type = p.type;
     this.text = p.text ?? "";
     this.children = p.children ?? [];
