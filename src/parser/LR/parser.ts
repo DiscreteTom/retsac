@@ -92,7 +92,7 @@ export class LRParserBuilder {
         index: number,
         gr: GrammarRule
       ): ParserOutput {
-        if (buffer.length < gr.rule.length) return { accept: false };
+        if (buffer.length - index < gr.rule.length) return { accept: false };
 
         buffer = [...buffer];
         let errors: ASTNode[] = [];
