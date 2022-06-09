@@ -80,6 +80,10 @@ export class LRParserBuilder {
       NTs
     );
     let first = getFirst(grammarRules, NTs);
+    let entryGrammarClosures = getGrammarRulesClosure(
+      grammarRules.filter((gr) => this.entryNTs.has(gr.NT)),
+      grammarRules
+    );
 
     return (buffer) => {
       // try to apply `gr` to buffer[index:]
@@ -155,10 +159,7 @@ export class LRParserBuilder {
         return { accept: true, buffer, errors };
       }
 
-      for (const gr of getGrammarRulesClosure(
-        grammarRules.filter((gr) => this.entryNTs.has(gr.NT)),
-        grammarRules
-      )) {
+      for (const gr of entryGrammarClosures) {
         let res = tryReduce(buffer, 0, gr);
         if (res.accept)
           return {
