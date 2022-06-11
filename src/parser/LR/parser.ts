@@ -43,8 +43,8 @@ export class LRParserBuilder {
   }
 
   /** Top-level NT's. */
-  entry(defs: string | string[]) {
-    this.entryNTs = new Set(defs instanceof Array ? defs : [defs]);
+  entry(...defs: string[]) {
+    this.entryNTs = new Set(defs);
     return this;
   }
 
