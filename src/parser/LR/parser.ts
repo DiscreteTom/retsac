@@ -26,12 +26,12 @@ type TempGrammarRule = {
   rejecter: Rejecter;
 };
 
-type Definition = { [NT: string]: string | string[] };
+export type Definition = { [NT: string]: string | string[] };
 
 /**
  * Builder for LR parsers.
  *
- * Use `define` to define grammar rules, use `build` to get parser.
+ * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  */
 export class LRParserBuilder {
   private tempGrammarRules: TempGrammarRule[];
@@ -73,6 +73,9 @@ export class LRParserBuilder {
   }
 
   build(): Parser {
+    if (this.entryNTs.size == 0)
+      throw new Error(`Please set entry NTs for LR Parser.`);
+
     let NTs = new Set(this.tempGrammarRules.map((gr) => gr.NT));
     let grammarRules = tempGrammarRulesToGrammarRules(
       this.tempGrammarRules,
