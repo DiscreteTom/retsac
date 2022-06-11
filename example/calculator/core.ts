@@ -41,5 +41,6 @@ export let parser = new ParserManager().setLexer(lexer).add(
         matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
       )
     )
+    .checkSymbols(lexer.getTokenTypes())
     .build()
 );
