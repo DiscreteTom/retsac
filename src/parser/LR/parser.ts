@@ -91,32 +91,31 @@ export class LRParserBuilder {
   /**
    * Ensure all symbols have their definitions, and no duplication.
    */
-  // checkSymbols(externalSymbols: Set<string>) {
-  //   let ntNameSet: Set<string> = new Set(); // non-terminator definitions
-  //   let symbolSet: Set<string> = new Set();
+  checkSymbols(Ts: Set<string>) {
+    let NTs: Set<string> = new Set(); // non-terminator definitions
+    let symbolSet: Set<string> = new Set();
 
-  //   // collect NT names and grammars
-  //   this.grammarRules.map((g) => {
-  //     ntNameSet.add(g.NT);
-  //     g.rule.map((grammar) => {
-  //       if (grammar.type == "grammar") symbolSet.add(grammar.content);
-  //     });
-  //   });
+    // collect NT names and grammars
+    this.tempGrammarRules.map((g) => {
+      NTs.add(g.NT);
+      g.rule.map((grammar) => {
+        if (grammar.type == "grammar") symbolSet.add(grammar.content);
+      });
+    });
 
-  //   // all symbols should have its definition
-  //   symbolSet.forEach((symbol) => {
-  //     if (!externalSymbols.has(symbol) && !ntNameSet.has(symbol))
-  //       throw new Error(`Undefined symbol: ${symbol}`);
-  //   });
+    // all symbols should have its definition
+    symbolSet.forEach((symbol) => {
+      if (!Ts.has(symbol) && !NTs.has(symbol))
+        throw new Error(`Undefined grammar symbol: ${symbol}`);
+    });
 
-  //   // check duplication
-  //   ntNameSet.forEach((name) => {
-  //     if (externalSymbols.has(name))
-  //       throw new Error(`Duplicated definition: ${name}`);
-  //   });
+    // check duplication
+    NTs.forEach((name) => {
+      if (Ts.has(name)) throw new Error(`Duplicated definition: ${name}`);
+    });
 
-  //   return this;
-  // }
+    return this;
+  }
 }
 
 function definitionToTempGrammarRules(
