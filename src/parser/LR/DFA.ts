@@ -155,6 +155,8 @@ export class DFA {
       errors.concat(res.errors);
       accept = true;
       for (let i = 0; i < reduced; ++i) this.states.pop(); // remove the reduced states
+      // if we return to the entry state, a top-level NT is reduced, should return
+      if (this.states.length == 1) return { accept: true, buffer, errors };
     }
 
     return accept ? { accept, buffer, errors } : { accept: false };
