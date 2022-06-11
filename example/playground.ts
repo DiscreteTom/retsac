@@ -1,38 +1,6 @@
-import { Lexer } from "../src/lexer/lexer";
 import * as readline from "readline";
-import { exact, from_to } from "../src/lexer/utils";
 import { ASTNode } from "../src/parser/ast";
-import { Parser } from "../src/parser/parser";
-import { Builder } from "../src/parser/builder";
-import { Action } from "../src/lexer/action";
-
-let lexer = Lexer.ignore(
-  /^\s/, // blank
-  from_to("//", "\n", true), // single line comments
-  from_to("/*", "*/", true) // multiline comments
-).define({
-  grammar: /^\w+/,
-  or: exact("|"),
-  any: exact("*"),
-  oneOrMore: exact("+"),
-  groupL: exact("("),
-  groupR: exact(")"),
-  maybe: exact("?"),
-  tag: Action.from(/^@\w+/).transform((s) => s.slice(1)), // remove prefix `@`
-});
-
-let parser = new Builder(lexer)
-  .define({
-    // expression
-    exp: "grammar | grouped_exp | any_exp | oneOrMore_exp | maybe_exp | or_exp",
-    any_exp: "exp any @suffix",
-    oneOrMore_exp: "exp oneOrMore @suffix",
-    maybe_exp: "exp maybe @suffix",
-    grouped_exp: "groupL exp groupR",
-    or_exp: "exp or exp @or",
-  })
-  .priority("@suffix > @or")
-  .compile();
+import { parser } from "./calculator/core";
 
 var rl = readline.createInterface({
   input: process.stdin,
@@ -42,15 +10,10 @@ var rl = readline.createInterface({
 });
 
 rl.on("line", function (line) {
-  if (line == "reset") {
+  let res = parser.parse(line + "\n");
+  if (res.length == 1 && res[0] instanceof ASTNode) {
+    console.log(res[0].data.value);
     parser.reset();
-    console.log("done");
-  } else {
-    let res = parser.parse(line + "\n");
-    res.map((r) => {
-      if (r instanceof ASTNode) console.log(r.toString());
-      else console.log(r);
-    });
   }
   rl.prompt();
 });

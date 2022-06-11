@@ -1,8 +1,8 @@
-import { Lexer } from "../src/lexer/lexer";
-import { exact } from "../src/lexer/utils";
-import { ParserManager } from "../src/parser/manager";
-import { SimpleParserBuilder } from "../src/parser/simple/parser";
-import { valueReducer } from "../src/parser/simple/reducer";
+import { Lexer } from "../../src/lexer/lexer";
+import { exact } from "../../src/lexer/utils";
+import { LRParserBuilder } from "../../src/parser/LR/parser";
+import { ParserManager } from "../../src/parser/manager";
+import { valueReducer } from "../../src/parser/LR/reducer";
 
 let lexer = new Lexer()
   .ignore(/^\s/)
@@ -11,8 +11,9 @@ let lexer = new Lexer()
   })
   .anonymous(exact(..."+-*/()"));
 
-let parser = new ParserManager().setLexer(lexer).add(
-  new SimpleParserBuilder()
+export let parser = new ParserManager().setLexer(lexer).add(
+  new LRParserBuilder()
+    .entry("exp")
     .define(
       { exp: "number" },
       valueReducer((_, { matched }) => Number(matched[0].text))
@@ -40,8 +41,5 @@ let parser = new ParserManager().setLexer(lexer).add(
         matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
       )
     )
-    .checkSymbols(lexer.getTokenTypes())
     .build()
 );
-
-console.log(parser.parse("(2+3)*4/5")[0].toString());
