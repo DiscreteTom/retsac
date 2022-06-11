@@ -84,26 +84,30 @@ export class State {
 export class DFA {
   private states: State[]; // state stack, current state is states[-1]
   private NTClosures: Map<string, GrammarRule[]>;
+  private entryState: State;
 
   constructor(
     grammarRules: GrammarRule[],
     entryNTs: Set<string>,
     NTs: Set<string>
   ) {
-    // init with entry state
-    this.states = [
-      new State(
-        getGrammarRulesClosure(
-          grammarRules.filter((gr) => entryNTs.has(gr.NT)),
-          grammarRules
-        ).map((gr) => new Candidate({ gr, digested: 0 }))
-      ),
-    ];
-
+    this.entryState = new State(
+      getGrammarRulesClosure(
+        grammarRules.filter((gr) => entryNTs.has(gr.NT)),
+        grammarRules
+      ).map((gr) => new Candidate({ gr, digested: 0 }))
+    );
     this.NTClosures = getAllNTClosure(NTs, grammarRules);
   }
 
+  reset() {
+    // reset state with entry state
+    this.states = [this.entryState];
+  }
+
   parse(buffer: ASTNode[]): ParserOutput {
+    this.reset();
+
     let index = 0; // buffer index
     let errors: ASTNode[] = [];
     let accept = false;
