@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsc && node out/example/test.js",
+    "test": "tsc && node out/example/calculator/test.js",
     "dev": "tsc && node out/example/playground.js",
     "dev:debug": "node out/example/playground.js"
   },
