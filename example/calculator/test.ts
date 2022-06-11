@@ -2,12 +2,14 @@ import { parser } from "./core";
 
 function assertEqual(input: string, desired: number) {
   parser.reset();
-  let res = parser.parse(input);
-  if (res.length != 1)
-    throw new Error(`Reduce failed for input "${input}". Result: ${res}`);
-  if (res[0].data.value != desired)
+  let res = parser.parseAll(input);
+  if (!res.accept || res.buffer.length != 1)
     throw new Error(
-      `Wrong result. Input: "${input}", want: ${desired}, got: ${res[0].data.value}`
+      `Reduce failed for input "${input}". Result: ${res.buffer}`
+    );
+  if (res.buffer[0].data.value != desired)
+    throw new Error(
+      `Wrong result. Input: "${input}", want: ${desired}, got: ${res.buffer[0].data.value}`
     );
 }
 
