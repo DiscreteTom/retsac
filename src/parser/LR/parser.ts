@@ -1,9 +1,9 @@
 import { Lexer, Token } from "../../lexer/lexer";
 import { exact, stringLiteral } from "../../lexer/utils";
-import { ASTNode } from "../ast";
-import { Parser, ParserOutput } from "../model";
-import { GrammarCallback, ReducerContext, Rejecter } from "../simple/model";
-import { Grammar, GrammarRule, GrammarSet } from "./model";
+import { Parser } from "../model";
+import { GrammarCallback, Rejecter } from "../simple/model";
+import { DFA } from "./DFA";
+import { Grammar, GrammarRule } from "./model";
 
 const grammarLexer = new Lexer()
   .ignore(
@@ -79,113 +79,10 @@ export class LRParserBuilder {
       this.tempGrammarRules,
       NTs
     );
-    let first = getFirst(grammarRules, NTs);
-    let entryGrammarClosures = getGrammarRulesClosure(
-      grammarRules.filter((gr) => this.entryNTs.has(gr.NT)),
-      grammarRules
-    );
+    let dfa = new DFA(grammarRules, this.entryNTs, NTs);
 
     return (buffer) => {
-      // try to apply `gr` to buffer[index:]
-      function tryReduce(
-        buffer: ASTNode[],
-        index: number,
-        gr: GrammarRule,
-        i = 0
-      ): ParserOutput {
-        // check buffer length
-        if (buffer.length - index < gr.rule.length) return { accept: false };
-
-        buffer = [...buffer]; // copy buffer to prevent changing outer env
-        let errors: ASTNode[] = [];
-
-        for (; i < gr.rule.length; ++i) {
-          const g = gr.rule[i];
-
-          if (g.eq(buffer[index + i]))
-            // match
-            continue;
-          if (g.type == "literal" || g.type == "T")
-            // not match and not recurse-able
-            return { accept: false };
-          // NT, maybe recurse
-          if (first.get(g.content).has(buffer[index + i])) {
-            // recurse
-            for (const candidate of grammarRules.filter(
-              (gr) => gr.NT == g.content && gr.rule[0].eq(buffer[index + i])
-            )) {
-              let res = tryReduce(buffer, index + i, candidate);
-              if (res.accept == true) {
-                // try to match rest of this grammar rule
-                let restRes = tryReduce(res.buffer, index, gr, i);
-                if (restRes.accept) {
-                  // whole grammar rule match
-                  return {
-                    accept: true,
-                    buffer: restRes.buffer,
-                    errors: errors.concat(res.errors).concat(restRes.errors),
-                  };
-                } else {
-                  // rest not match, wrong rule to recurse
-                  // try next grammar rule
-                  continue;
-                }
-              }
-            }
-            // recurse failed
-            return { accept: false };
-          } else {
-            return { accept: false };
-          }
-        }
-
-        // can reduce, check rejecter & callback
-        let context: ReducerContext = {
-          matched: buffer.slice(index, index + gr.rule.length),
-          before: buffer.slice(0, index),
-          after: buffer.slice(index + gr.rule.length),
-          error: "",
-          data: { value: null },
-        };
-        if (
-          gr.rejecter({
-            matched: buffer.slice(index, index + gr.rule.length),
-            before: buffer.slice(0, index),
-            after: buffer.slice(index + gr.rule.length),
-            error: "",
-            data: { value: null },
-          })
-        )
-          return { accept: false };
-
-        // reduce data
-        gr.callback(context);
-
-        // update buffer state
-        let node = new ASTNode({
-          type: gr.NT,
-          data: context.data,
-          children: context.matched,
-          error: context.error,
-        });
-        node.children.map((c) => (c.parent = node));
-        buffer = context.before.concat(node).concat(context.after);
-        if (context.error) errors.push(node);
-
-        return { accept: true, buffer, errors };
-      } // end of function tryReduce
-
-      for (const gr of entryGrammarClosures) {
-        let res = tryReduce(buffer, 0, gr);
-        if (res.accept)
-          return {
-            accept: true,
-            buffer: res.buffer,
-            errors: res.errors,
-          };
-      }
-
-      return { accept: false };
+      return dfa.parse(buffer);
     };
   }
 
@@ -305,57 +202,4 @@ function tempGrammarRulesToGrammarRules(
         ),
       })
   );
-}
-
-function getGrammarRulesClosure(
-  rules: GrammarRule[],
-  grammarRules: GrammarRule[]
-): GrammarRule[] {
-  let result = [...rules];
-
-  while (true) {
-    let changed = false;
-    result.map((gr) => {
-      if (gr.rule[0].type == "NT") {
-        grammarRules
-          .filter((gr2) => gr2.NT == gr.rule[0].content)
-          .map((gr) => {
-            if (result.includes(gr)) return;
-            changed = true;
-            result.push(gr);
-          });
-      }
-    });
-
-    if (!changed) break;
-  }
-
-  return result;
-}
-
-function getFirst(
-  grs: GrammarRule[],
-  NTs: Set<string>
-): Map<string, GrammarSet> {
-  // init result
-  let result: Map<string, GrammarSet> = new Map();
-  NTs.forEach((NT) => result.set(NT, new GrammarSet()));
-
-  function updateFirst(first: GrammarSet, g: Grammar) {
-    let changed = first.add(g);
-
-    // if NT, recurse
-    if (changed && g.type == "NT")
-      result.get(g.content).map((gg) => updateFirst(first, gg));
-
-    return changed;
-  }
-
-  while (true) {
-    let changed = false;
-    grs.map((gr) => (changed ||= updateFirst(result.get(gr.NT), gr.rule[0])));
-    if (!changed) break;
-  }
-
-  return result;
 }
