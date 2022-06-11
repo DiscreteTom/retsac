@@ -102,4 +102,9 @@ export class ParserManager {
 
     return { buffer: this.buffer, accept };
   }
+
+  /** Take the first AST Node out of buffer. */
+  take() {
+    return this.buffer.shift();
+  }
 }
