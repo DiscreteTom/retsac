@@ -90,14 +90,16 @@ export class LRParserBuilder {
       function tryReduce(
         buffer: ASTNode[],
         index: number,
-        gr: GrammarRule
+        gr: GrammarRule,
+        i = 0
       ): ParserOutput {
+        // check buffer length
         if (buffer.length - index < gr.rule.length) return { accept: false };
 
-        buffer = [...buffer];
+        buffer = [...buffer]; // copy buffer to prevent changing outer env
         let errors: ASTNode[] = [];
 
-        outer: for (let i = 0; i < gr.rule.length; ++i) {
+        for (; i < gr.rule.length; ++i) {
           const g = gr.rule[i];
 
           if (g.eq(buffer[index + i]))
@@ -110,13 +112,24 @@ export class LRParserBuilder {
           if (first.get(g.content).has(buffer[index + i])) {
             // recurse
             for (const candidate of grammarRules.filter(
-              (gr) => gr.NT == g.content
+              (gr) => gr.NT == g.content && gr.rule[0].eq(buffer[index + i])
             )) {
               let res = tryReduce(buffer, index + i, candidate);
               if (res.accept == true) {
-                buffer = res.buffer;
-                errors.push(...res.errors);
-                continue outer;
+                // try to match rest of this grammar rule
+                let restRes = tryReduce(res.buffer, index, gr, i);
+                if (restRes.accept) {
+                  // whole grammar rule match
+                  return {
+                    accept: true,
+                    buffer: restRes.buffer,
+                    errors: errors.concat(res.errors).concat(restRes.errors),
+                  };
+                } else {
+                  // rest not match, wrong rule to recurse
+                  // try next grammar rule
+                  continue;
+                }
               }
             }
             // recurse failed
@@ -144,8 +157,10 @@ export class LRParserBuilder {
           })
         )
           return { accept: false };
+
         // reduce data
         gr.callback(context);
+
         // update buffer state
         let node = new ASTNode({
           type: gr.NT,
@@ -156,8 +171,9 @@ export class LRParserBuilder {
         node.children.map((c) => (c.parent = node));
         buffer = context.before.concat(node).concat(context.after);
         if (context.error) errors.push(node);
+
         return { accept: true, buffer, errors };
-      }
+      } // end of function tryReduce
 
       for (const gr of entryGrammarClosures) {
         let res = tryReduce(buffer, 0, gr);
