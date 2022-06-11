@@ -1,9 +1,8 @@
 import { Lexer, Token } from "../../lexer/lexer";
 import { exact, stringLiteral } from "../../lexer/utils";
 import { Parser } from "../model";
-import { GrammarCallback, Rejecter } from "../simple/model";
+import { GrammarCallback, Rejecter, Grammar, GrammarRule } from "./model";
 import { DFA } from "./DFA";
-import { Grammar, GrammarRule } from "./model";
 
 const grammarLexer = new Lexer()
   .ignore(

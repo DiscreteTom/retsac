@@ -1,6 +1,6 @@
 import { ASTNode } from "../ast";
 import { ParserOutput } from "../model";
-import { ReducerContext } from "../simple/model";
+import { ReducerContext } from "./model";
 import { GrammarRule } from "./model";
 
 /** A.k.a: Project. */

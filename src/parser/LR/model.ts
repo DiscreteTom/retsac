@@ -1,5 +1,4 @@
-import { ASTNode } from "../ast";
-import { GrammarCallback, Rejecter } from "../simple/model";
+import { ASTData, ASTNode } from "../ast";
 
 export class Grammar {
   type: "literal" | "T" | "NT";
@@ -36,30 +35,14 @@ export class GrammarRule {
   }
 }
 
-export class GrammarSet {
-  private grammars: Grammar[];
+export type ReducerContext = {
+  data: ASTData;
+  readonly matched: ASTNode[];
+  readonly before: ASTNode[];
+  readonly after: ASTNode[];
+  error: string;
+};
 
-  constructor() {
-    this.grammars = [];
-  }
+export type GrammarCallback = (context: ReducerContext) => void;
 
-  has(g: Grammar | ASTNode) {
-    for (const gg of this.grammars) if (gg.eq(g)) return true;
-    return false;
-  }
-
-  /**
-   * Return true if successfully added.
-   */
-  add(g: Grammar) {
-    if (!this.has(g)) {
-      this.grammars.push(g);
-      return true;
-    }
-    return false;
-  }
-
-  map<T>(f: (g: Grammar) => T) {
-    return this.grammars.map(f);
-  }
-}
+export type Rejecter = (context: ReducerContext) => boolean; // return true if conflict
