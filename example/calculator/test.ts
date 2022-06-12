@@ -18,5 +18,6 @@ assertEqual("-1-2", -3);
 assertEqual("1 - -1", 2);
 assertEqual("2+3*4/5", 4.4);
 assertEqual("(2+3)*4/5", 4);
+assertEqual("2+3*(4/5)", 4.4);
 
 console.log("All check passed.");
