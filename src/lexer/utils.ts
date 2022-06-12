@@ -65,14 +65,21 @@ export function stringLiteral(p: {
   multiline?: boolean;
 }) {
   return Action.from((buffer) => {
-    let index = -1;
-    if (buffer.startsWith(`'`) && p.single) index = buffer.search(/[^\\]'/);
-    else if (buffer.startsWith(`"`) && p.double)
-      index = buffer.search(/[^\\]"/);
-    else if (buffer.startsWith("`") && p.back) index = buffer.search(/[^\\]`/);
+    let res =
+      buffer.startsWith(`'`) && p.single
+        ? /(^'|[^\\]')/.exec(buffer.slice(1))
+        : buffer.startsWith(`"`) && p.double
+        ? /(^"|[^\\]")/.exec(buffer.slice(1))
+        : buffer.startsWith("`") && p.back
+        ? /(^`|[^\\]`)/.exec(buffer.slice(1))
+        : null;
 
-    if (index != -1 && (p.multiline || !buffer.slice(0, index).includes("\n")))
-      return index + 2;
+    if (
+      res &&
+      res.index != -1 &&
+      (p.multiline || !buffer.slice(1, res.index).includes("\n"))
+    )
+      return res.index + res[0].length;
     return 0;
   });
 }
