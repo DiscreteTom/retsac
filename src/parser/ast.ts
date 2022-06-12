@@ -17,13 +17,17 @@ export class ASTNode {
     this.data = p.data ?? { value: null };
   }
 
-  toString(indent = "", anonymous = "<anonymous>") {
+  toTreeString(indent = "", anonymous = "<anonymous>") {
     let res = `${indent}${this.type || anonymous}: `;
     if (this.text) res += this.text;
     res += "\n";
     this.children.map((c) => {
-      res += c.toString(indent + "  ");
+      res += c.toTreeString(indent + "  ");
     });
     return res;
+  }
+
+  toString() {
+    return this.type || `"${this.text}"`;
   }
 }
