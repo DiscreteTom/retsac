@@ -114,6 +114,11 @@ export class LRParserBuilder {
       if (Ts.has(name)) throw new Error(`Duplicated definition: ${name}`);
     });
 
+    // entry NTs must in NTs
+    this.entryNTs.forEach((NT) => {
+      if (!NTs.has(NT)) throw new Error(`Undefined entry NT: "${NT}"`);
+    });
+
     return this;
   }
 }
