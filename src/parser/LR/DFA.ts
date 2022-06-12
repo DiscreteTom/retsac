@@ -153,6 +153,20 @@ export class DFA {
         }
       });
     });
+    let changed = true;
+    while (changed) {
+      changed = false;
+      grammarRules
+        .filter((gr) => gr.rule.at(-1).type == "NT")
+        .map((gr) =>
+          this.follow
+            .get(gr.NT)
+            .map(
+              (g) =>
+                (changed ||= this.follow.get(gr.rule.at(-1).content).add(g))
+            )
+        );
+    }
   }
 
   reset() {
