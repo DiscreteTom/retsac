@@ -84,6 +84,16 @@ export class Candidate {
       errors: context.error ? [node] : [],
     };
   }
+
+  toString() {
+    return `${this.gr.NT} => ${this.gr.rule
+      .slice(0, this.digested)
+      .map((r) => r.toString())
+      .join(" ")} @ ${this.gr.rule
+      .slice(this.digested)
+      .map((r) => r.toString())
+      .join(" ")}`;
+  }
 }
 
 export class State {
@@ -206,7 +216,18 @@ export class DFA {
       let nextCandidates = directCandidates.concat(indirectCandidates);
 
       // DFA can't accept input
-      if (nextCandidates.length == 0) return { accept: false };
+      if (nextCandidates.length == 0) {
+        if (this.debug)
+          console.log(
+            `[End] No more candidate. Node=${buffer[
+              index
+            ].toString()} Candidates:\n${this.states
+              .at(-1)
+              .candidates.map((c) => c.toString())
+              .join("\n")}`
+          );
+        return { accept: false };
+      }
 
       // construct new state and push stack
       this.states.push(new State(nextCandidates));
