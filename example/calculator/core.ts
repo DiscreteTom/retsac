@@ -1,6 +1,6 @@
 import { Lexer } from "../../src/lexer/lexer";
 import { exact } from "../../src/lexer/utils";
-import { LRParserBuilder } from "../../src/parser/LR/parser";
+import { LRParserBuilder } from "../../src/parser/LR/builder";
 import { ParserManager } from "../../src/parser/manager";
 import { valueReducer } from "../../src/parser/LR/reducer";
 
