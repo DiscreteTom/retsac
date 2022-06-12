@@ -71,4 +71,30 @@ export class Action {
       return output;
     });
   }
+
+  /**
+   * Reject if `accept` is `true` and `rejecter` returns `true`.
+   */
+  reject(rejecter: (content: string) => any) {
+    return new Action((buffer) => {
+      let output = this.exec(buffer);
+      if (output.accept) {
+        if (rejecter(buffer.slice(0, output.digested)))
+          return { accept: false };
+        else return output;
+      }
+      return output;
+    });
+  }
+
+  /**
+   * Call `f` if `accept` is `true`.
+   */
+  then(f: (content: string) => void) {
+    return new Action((buffer) => {
+      let output = this.exec(buffer);
+      if (output.accept) f(buffer.slice(0, output.digested));
+      return output;
+    });
+  }
 }
