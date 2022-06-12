@@ -4,7 +4,7 @@ export type ActionOutput =
       accept: true; // this action can accept some input as a token
       mute: boolean; // don't emit token, continue loop
       digested: number; // how many chars are accepted by this action
-      error: string; // empty if no error
+      error: any; // empty if no error
     };
 
 export type ActionExec = (buffer: string) => ActionOutput;
@@ -26,7 +26,7 @@ export class Action {
             accept: true,
             mute: false,
             digested: n,
-            error: "",
+            error: null,
           }
         : { accept: false };
     });
@@ -61,9 +61,9 @@ export class Action {
 
   /**
    * Check token content if `accept` is `true`.
-   * `condition` should return error message, empty error message means no error.
+   * `condition` should return error, empty error message means no error.
    */
-  check(condition: (content: string) => string) {
+  check(condition: (content: string) => any) {
     return new Action((buffer) => {
       let output = this.exec(buffer);
       if (output.accept)

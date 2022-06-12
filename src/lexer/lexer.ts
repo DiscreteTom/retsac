@@ -4,7 +4,7 @@ export type Token = {
   type: string;
   content: string; // text content
   start: number; // start position of input string
-  error: string; // error message, empty if no error
+  error: any; // error message, empty if no error
 };
 
 export type Definition = {
