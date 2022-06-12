@@ -46,3 +46,26 @@ export type ReducerContext = {
 export type GrammarCallback = (context: ReducerContext) => void;
 
 export type Rejecter = (context: ReducerContext) => boolean; // return true if conflict
+
+export class GrammarSet {
+  private gs: Grammar[];
+
+  constructor() {
+    this.gs = [];
+  }
+
+  has(g: Grammar | ASTNode) {
+    return !this.gs.every((gg) => !gg.eq(g));
+  }
+
+  /** Return true if successfully added. */
+  add(g: Grammar) {
+    if (this.has(g)) return false;
+    this.gs.push(g);
+    return true;
+  }
+
+  map<T>(f: (g: Grammar) => T) {
+    return this.gs.map(f);
+  }
+}
