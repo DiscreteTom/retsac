@@ -102,7 +102,7 @@ export function stringLiteral(p: {
       res.index != -1 &&
       (p.multiline || !buffer.slice(1, res.index).includes("\n"))
     )
-      return res.index + res[0].length;
+      return res.index + res[0].length + 1;
     return 0;
   });
 }
