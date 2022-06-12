@@ -29,7 +29,7 @@ type TempGrammarRule = {
 export type Definition = { [NT: string]: string | string[] };
 
 /**
- * Builder for LR parsers.
+ * Builder for LR(1) parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  */
