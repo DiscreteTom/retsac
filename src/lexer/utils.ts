@@ -43,6 +43,17 @@ export function word(...words: string[]): Action {
 }
 
 /**
+ * Define types which name is the same as its word value.
+ */
+export function wordType(...words: string[]): { [type: string]: Action } {
+  let result: { [type: string]: Action } = {};
+  for (const w of words) {
+    result[w] = word(w);
+  }
+  return result;
+}
+
+/**
  * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
  * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
  * Set `multiline: true` to allow multiline string literals.
