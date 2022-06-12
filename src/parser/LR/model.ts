@@ -16,6 +16,10 @@ export class Grammar {
         ? this.content == g.text
         : this.content == g.type;
   }
+
+  toString() {
+    return this.type == "literal" ? `"${this.content}"` : this.content;
+  }
 }
 
 export class GrammarRule {
@@ -32,6 +36,10 @@ export class GrammarRule {
     if (!p.rule?.length) throw new Error(`Rule can NOT be empty.`);
 
     Object.assign(this, p);
+  }
+
+  toString(sep = " ") {
+    return `${this.NT} => ${this.rule.map((r) => r.toString()).join(sep)}`;
   }
 }
 
