@@ -36,7 +36,8 @@ export class Candidate {
     buffer: ASTNode[],
     index: number,
     entryNTs: Set<string>,
-    follow: Map<string, GrammarSet>
+    follow: Map<string, GrammarSet>,
+    debug: boolean
   ): ParserOutput {
     if (this.canDigestMore() || this.rejected) return { accept: false };
 
@@ -50,13 +51,19 @@ export class Candidate {
 
     // check follow for LR(1)
     if (context.after.length > 0 && !entryNTs.has(this.gr.NT)) {
-      if (!follow.get(this.gr.NT).has(context.after[0]))
+      if (!follow.get(this.gr.NT).has(context.after[0])) {
+        if (debug)
+          console.log(
+            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after[0].toString()}`
+          );
         return { accept: false };
+      }
     }
 
     if (this.gr.rejecter(context)) {
       // check rejecter
       this.rejected = true;
+      if (debug) console.log(`[Reject] ${this.gr.toString()}`);
       return { accept: false };
     }
 
@@ -69,6 +76,8 @@ export class Candidate {
       error: context.error,
     });
     node.children.map((c) => (c.parent = node));
+
+    if (debug) console.log(`[Accept] ${this.gr.toString()}`);
     return {
       accept: true,
       buffer: context.before.concat(node).concat(context.after),
@@ -88,10 +97,11 @@ export class State {
     buffer: ASTNode[],
     start: number,
     entryNTs: Set<string>,
-    follow: Map<string, GrammarSet>
+    follow: Map<string, GrammarSet>,
+    debug: boolean
   ): ParserOutput {
     for (const c of this.candidates) {
-      let res = c.tryReduce(buffer, start, entryNTs, follow);
+      let res = c.tryReduce(buffer, start, entryNTs, follow, debug);
       if (res.accept) return res;
     }
 
@@ -106,6 +116,7 @@ export class DFA {
   private readonly follow: Map<string, GrammarSet>; // NT => Grammars
   private readonly entryNTs: Set<string>;
   private states: State[]; // state stack, current state is states[-1]
+  debug: boolean;
 
   constructor(
     grammarRules: GrammarRule[],
@@ -189,7 +200,7 @@ export class DFA {
       // try reduce with the new state
       let res = this.states
         .at(-1)
-        .tryReduce(buffer, index, this.entryNTs, this.follow);
+        .tryReduce(buffer, index, this.entryNTs, this.follow, this.debug);
       if (!res.accept) {
         index++;
         continue; // continue shift

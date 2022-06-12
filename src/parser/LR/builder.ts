@@ -72,7 +72,7 @@ export class LRParserBuilder {
     return this;
   }
 
-  build(): Parser {
+  build(debug = false): Parser {
     if (this.entryNTs.size == 0)
       throw new Error(`Please set entry NTs for LR Parser.`);
 
@@ -82,6 +82,7 @@ export class LRParserBuilder {
       NTs
     );
     let dfa = new DFA(grammarRules, this.entryNTs, NTs);
+    dfa.debug = debug;
 
     return (buffer) => {
       return dfa.parse(buffer);
