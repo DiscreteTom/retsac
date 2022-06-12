@@ -1,19 +1,42 @@
 import { Action } from "./action";
 
-export function from_to(from: string, to: string, acceptEof: boolean): Action {
+export function from_to(
+  from: string | RegExp,
+  to: string | RegExp,
+  acceptEof: boolean
+): Action {
   return Action.from((buffer) => {
-    if (buffer.startsWith(from)) {
-      let index = buffer.indexOf(to, from.length);
-      if (index == -1)
-        // not found
-        return acceptEof
-          ? // accept whole buffer
-            buffer.length
-          : // reject
-            0;
-      else return index + to.length;
+    // check 'from'
+    let fromDigested = 0;
+    if (from instanceof RegExp) {
+      let res = from.exec(buffer);
+      if (!res || res.index == -1) return 0;
+      fromDigested = res.index + res[0].length;
+    } else {
+      if (!buffer.startsWith(from)) return 0;
+      fromDigested = from.length;
     }
-    return 0;
+
+    // check 'to'
+    let rest = buffer.slice(fromDigested);
+    let toDigested = 0;
+    if (to instanceof RegExp) {
+      let res = to.exec(rest);
+      if (res && res.index != -1) toDigested = res.index + res[0].length;
+    } else {
+      let index = rest.indexOf(to);
+      if (index != -1) toDigested = index + to.length;
+    }
+
+    // construct result
+    if (toDigested == 0)
+      // 'to' not found
+      return acceptEof
+        ? // accept whole buffer
+          buffer.length
+        : // reject
+          0;
+    else return fromDigested + toDigested;
   });
 }
 
