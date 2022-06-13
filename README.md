@@ -1,6 +1,6 @@
 # Retsac
 
-![npm](https://img.shields.io/npm/v/retsac)
+[![npm](https://img.shields.io/npm/v/retsac)](https://www.npmjs.com/package/retsac)
 
 String lexer and parser.
 
