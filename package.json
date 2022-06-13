@@ -1,7 +1,8 @@
 {
   "name": "caster",
-  "version": "0.0.1",
-  "main": "index.js",
+  "version": "0.1.0",
+  "main": "out/src/index.js",
+  "types": "out/src/index.d.ts",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^17.0.35",
@@ -9,6 +10,7 @@
     "typescript": "^4.6.4"
   },
   "scripts": {
+    "prepublish": "yarn build",
     "build": "tsc",
     "test": "tsc && node out/example/calculator/test.js",
     "dev": "tsc && node out/example/playground.js",
