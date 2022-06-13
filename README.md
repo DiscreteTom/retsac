@@ -1,5 +1,7 @@
 # Retsac
 
+![npm](https://img.shields.io/npm/v/retsac)
+
 String lexer and parser.
 
 Can be used to make your own programming language compiler/translator frontend, or parse your domain specific language.
