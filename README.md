@@ -1,6 +1,18 @@
 # Retsac
 
-An easy way to make your own language compiler/translator. Maybe a substitute of flex/bison.
+String lexer and parser.
+
+Can be used to make your own programming language compiler/translator frontend, or parse your domain specific language.
+
+## Installation
+
+```bash
+npm install retsac
+```
+
+```bash
+yarn add retsac
+```
 
 ## Usage
 
