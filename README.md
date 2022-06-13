@@ -1,4 +1,4 @@
-# Caster
+# Retsac
 
 An easy way to make your own language compiler/translator. Maybe a substitute of flex/bison.
 
