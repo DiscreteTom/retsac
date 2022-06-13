@@ -3,6 +3,8 @@
   "compilerOptions": {
     "target": "ES6",
     "outDir": "out",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "declaration": true,
+    "declarationMap": true
   }
 }
