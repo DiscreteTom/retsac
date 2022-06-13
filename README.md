@@ -7,10 +7,6 @@ Can be used to make your own programming language compiler/translator frontend, 
 ## Installation
 
 ```bash
-npm install retsac
-```
-
-```bash
 yarn add retsac
 ```
 
