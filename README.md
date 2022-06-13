@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/retsac)](https://www.npmjs.com/package/retsac)
 
-String lexer and parser.
+Text lexer and parser.
 
 Can be used to make your own programming language compiler/translator frontend, or parse your domain specific language.
 
