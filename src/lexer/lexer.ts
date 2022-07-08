@@ -211,4 +211,8 @@ export class Lexer {
   getErrors() {
     return this.errors;
   }
+
+  hasError() {
+    return this.errors.length != 0;
+  }
 }
