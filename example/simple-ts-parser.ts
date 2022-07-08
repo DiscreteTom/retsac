@@ -1,4 +1,4 @@
-import { Lexer, ParserManager, LR } from "../src";
+import { Lexer, Manager, LR } from "../src";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -47,7 +47,7 @@ const lexer = new Lexer.Builder()
   )
   .build();
 
-let parser = new ParserManager(lexer).add(
+let parser = new Manager(lexer).add(
   new LR.LRParserBuilder()
     .define({ import_stmt: `import '*' as identifier from string ';'` })
     .define({ import_stmt: `import '{' multi_identifier '}' from string ';'` })

@@ -1,4 +1,4 @@
-import { Lexer, LR, ParserManager } from "../../src";
+import { Lexer, LR, Manager } from "../../src";
 
 let lexer = new Lexer.Builder()
   .ignore(/^\s/)
@@ -8,7 +8,7 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-export let parser = new ParserManager().setLexer(lexer).add(
+export let parser = new Manager().setLexer(lexer).add(
   new LR.LRParserBuilder()
     .entry("exp")
     .define(

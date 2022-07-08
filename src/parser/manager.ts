@@ -3,11 +3,11 @@ import { ASTNode } from "./ast";
 import { Parser } from "./model";
 
 /**
- * ParserManager will use a lexer to retrieve tokens,
+ * Manager will use a lexer to retrieve tokens,
  * call parsers orderly to reduce buffer,
  * and gather errors.
  */
-export class ParserManager {
+export class Manager {
   private parsers: Parser[];
   private lexer: Lexer;
   private buffer: ASTNode[];
