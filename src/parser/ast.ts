@@ -1,12 +1,15 @@
 export type ASTData = { value: any; [key: string]: any };
 
 export class ASTNode {
-  type: string; // T's or NT's name
-  text: string; // T's text content
+  /** T's or NT's name. */
+  type: string;
+  /** T's text content. */
+  text: string;
   children: ASTNode[];
   parent: ASTNode;
   data: ASTData;
-  error: string; // empty if no error
+  /** `null` if no error. */
+  error: string;
 
   constructor(p: Partial<ASTNode> & Pick<ASTNode, "type">) {
     this.type = p.type;
@@ -17,6 +20,7 @@ export class ASTNode {
     this.data = p.data ?? { value: null };
   }
 
+  /** Return a tree-structured string. */
   toTreeString(indent = "", anonymous = "<anonymous>") {
     let res = `${indent}${this.type || anonymous}: `;
     if (this.text) res += this.text;
@@ -27,6 +31,7 @@ export class ASTNode {
     return res;
   }
 
+  /** Return `NT` or `"T"`. */
   toString() {
     return this.type || `"${this.text}"`;
   }
