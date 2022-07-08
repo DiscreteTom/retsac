@@ -69,8 +69,8 @@ export class Lexer {
   /**
    * Define muted anonymous action.
    */
-  ignore(...r: ActionSource[]) {
-    r.map((s) => this.define({ "": Action.from(s).mute() }));
+  ignore(...actions: ActionSource[]) {
+    this.anonymous(...actions.map((a) => Action.from(a).mute()));
     return this;
   }
 
