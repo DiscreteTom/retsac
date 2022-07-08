@@ -1,3 +1,5 @@
+import { Token } from "../lexer/model";
+
 export type ASTData = { value: any; [key: string]: any };
 
 export class ASTNode {
@@ -5,6 +7,8 @@ export class ASTNode {
   type: string;
   /** T's text content. */
   text: string;
+  /** Start position of input string. */
+  start: number;
   children: ASTNode[];
   parent: ASTNode;
   data: ASTData;
@@ -18,6 +22,10 @@ export class ASTNode {
     this.parent = p.parent ?? null;
     this.error = p.error ?? null;
     this.data = p.data ?? { value: null };
+  }
+
+  static from(t: Token) {
+    return new ASTNode({ type: t.type, text: t.content, start: t.start });
   }
 
   /** Return a tree-structured string. */
