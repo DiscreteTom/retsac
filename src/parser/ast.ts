@@ -9,14 +9,14 @@ export class ASTNode {
   parent: ASTNode;
   data: ASTData;
   /** `null` if no error. */
-  error: string;
+  error: any;
 
   constructor(p: Partial<ASTNode> & Pick<ASTNode, "type">) {
     this.type = p.type;
     this.text = p.text ?? "";
     this.children = p.children ?? [];
     this.parent = p.parent ?? null;
-    this.error = p.error ?? "";
+    this.error = p.error ?? null;
     this.data = p.data ?? { value: null };
   }
 
