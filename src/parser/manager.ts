@@ -3,21 +3,20 @@ import { ASTNode } from "./ast";
 import { Parser } from "./model";
 
 /**
- * Manager will use a lexer to retrieve tokens,
- * call parsers orderly to reduce buffer,
- * and gather errors.
+ * Parser manager will use a lexer to retrieve tokens,
+ * and a parser to reduce buffer and gather errors.
  */
 export class Manager {
-  private parsers: Parser[];
   private lexer: Lexer;
+  private parser: Parser;
   private buffer: ASTNode[];
+  /** Error nodes. */
   private errors: ASTNode[];
 
-  constructor(lexer?: Lexer) {
-    this.parsers = [];
-    this.buffer = [];
-    this.errors = [];
-    this.lexer = lexer;
+  constructor(p: { lexer: Lexer; parser: Parser }) {
+    this.lexer = p.lexer;
+    this.parser = p.parser;
+    this.reset();
   }
 
   reset() {
@@ -33,71 +32,36 @@ export class Manager {
     return this.errors;
   }
 
-  setLexer(lexer: Lexer) {
-    this.lexer = lexer;
-    return this;
-  }
-
-  add(r: Parser) {
-    this.parsers.push(r);
-    return this;
-  }
-
   /** Parse input string to token then to ASTNode and push to buffer. */
   feed(s: string) {
-    this.buffer.push(
-      ...this.lexer
-        .lexAll(s)
-        .map((t) => new ASTNode({ type: t.type, text: t.content }))
-    );
-
+    this.buffer.push(...this.lexer.lexAll(s).map((t) => ASTNode.from(t)));
     return this;
   }
 
-  /** Return buffer if any parser accept. */
+  /** Try to reduce AST nodes once. */
   parse(s?: string) {
     if (s) this.feed(s);
 
-    outer: while (true) {
-      // traverse all parsers
-      for (const parse of this.parsers) {
-        let res = parse(this.buffer);
-        if (res.accept) {
-          // update state
-          this.errors.push(...res.errors);
-          this.buffer = res.buffer;
-
-          return { buffer: this.buffer, accept: true };
-        }
-      }
-      // no parser can accept
-      break;
+    let res = this.parser.parse(this.buffer);
+    if (res.accept) {
+      // update state
+      this.errors.push(...res.errors);
+      this.buffer = res.buffer;
     }
 
-    return { buffer: this.buffer, accept: false };
+    return { buffer: this.buffer, accept: res.accept };
   }
 
-  /** Return buffer if all parser can't accept more. */
+  /** Try to reduce till the parser can't accept more. */
   parseAll(s?: string) {
     if (s) this.feed(s);
 
+    /** `true` if accept one or more times. */
     let accept = false;
-
-    outer: while (true) {
-      // traverse all parsers
-      for (const parse of this.parsers) {
-        let res = parse(this.buffer);
-        if (res.accept) {
-          // update state
-          this.errors.push(...res.errors);
-          this.buffer = res.buffer;
-          accept = true;
-
-          continue outer; // re-traverse all parsers
-        }
-      }
-      // no parser can accept
-      break;
+    while (true) {
+      let res = this.parse();
+      if (res.accept) accept = true;
+      else break;
     }
 
     return { buffer: this.buffer, accept };
