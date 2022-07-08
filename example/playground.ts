@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { ASTNode } from "../src/parser/ast";
+import { ASTNode } from "../src";
 import { parser } from "./calculator/core";
 
 var rl = readline.createInterface({

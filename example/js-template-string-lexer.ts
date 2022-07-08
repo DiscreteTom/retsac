@@ -1,5 +1,4 @@
-import { Lexer } from "../src/lexer/lexer";
-import { exact, from_to, stringLiteral } from "../src/lexer/utils";
+import { Lexer, exact, from_to, stringLiteral } from "../src";
 
 let tempStrDepth = 0;
 

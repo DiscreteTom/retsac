@@ -1,9 +1,14 @@
-import { Lexer } from "../src/lexer/lexer";
-import { exact, from_to, stringLiteral, wordType } from "../src/lexer/utils";
+import {
+  Lexer,
+  exact,
+  from_to,
+  stringLiteral,
+  wordType,
+  ParserManager,
+  LR,
+} from "../src";
 import * as fs from "fs";
-import { ParserManager } from "../src/parser/manager";
 import * as path from "path";
-import { LRParserBuilder } from "../src/parser/LR/builder";
 
 // process this file
 const code = fs.readFileSync(
@@ -50,7 +55,7 @@ const lexer = new Lexer()
   );
 
 let parser = new ParserManager(lexer).add(
-  new LRParserBuilder()
+  new LR.LRParserBuilder()
     .define({ import_stmt: `import '*' as identifier from string ';'` })
     .define({ import_stmt: `import '{' multi_identifier '}' from string ';'` })
     .define({
