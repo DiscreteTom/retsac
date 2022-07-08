@@ -10,4 +10,6 @@ export type ParserOutput =
       errors: ASTNode[];
     };
 
-export type Parser = (buffer: ASTNode[]) => ParserOutput;
+export interface Parser {
+  parse: (buffer: ASTNode[]) => ParserOutput;
+}
