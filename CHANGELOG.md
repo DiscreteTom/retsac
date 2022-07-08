@@ -13,7 +13,7 @@
   - Treat `Parser` as an interface instead of a type.
   - `Manager` will only manage one parser instead of many.
   - `ASTNode` will record the start position.
-  - `ASTNode.error` can be any instead of string.
+  - `ASTNode.error` can be any type instead of string only.
 
 ## v0.1.1
 
