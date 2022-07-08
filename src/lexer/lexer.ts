@@ -1,23 +1,4 @@
-import { Action, ActionSource } from "./action";
-
-/** The output of a lexer. */
-export type Token = {
-  /** User-defined type name. */
-  type: string;
-  /** Text content. */
-  content: string;
-  /** Start position of input string. */
-  start: number;
-  /** Error message. `null` if no error. */
-  error: any;
-};
-
-/** Apply `action` and try to yield a token with `type`. */
-export type Definition = {
-  /** Target token type. Empty string if anonymous. */
-  type: string;
-  action: Action;
-};
+import { Definition, Token } from "./model";
 
 /** Transform text string to a token list. */
 export class Lexer {
@@ -29,8 +10,8 @@ export class Lexer {
   private lineChars: number[];
   private errors: Token[];
 
-  constructor() {
-    this.defs = [];
+  constructor(defs: Definition[]) {
+    this.defs = defs;
     this.reset();
   }
 
@@ -39,49 +20,6 @@ export class Lexer {
     this.offset = 0;
     this.lineChars = [0];
     this.errors = [];
-    return this;
-  }
-
-  /**
-   * Define token types.
-   */
-  define(defs: { [type: string]: ActionSource }) {
-    for (const type in defs) {
-      this.defs.push({
-        type,
-        action: Action.from(defs[type]),
-      });
-    }
-    return this;
-  }
-
-  /**
-   * Define anonymous tokens.
-   */
-  anonymous(...actions: ActionSource[]) {
-    actions.map((a) => this.define({ "": a }));
-    return this;
-  }
-
-  /**
-   * Define muted anonymous action.
-   */
-  ignore(...actions: ActionSource[]) {
-    this.anonymous(...actions.map((a) => Action.from(a).mute()));
-    return this;
-  }
-
-  /**
-   * Define a type with multiple action.
-   */
-  overload(defs: { [type: string]: ActionSource[] }) {
-    for (const type in defs) {
-      defs[type].map((action) => {
-        let def: { [type: string]: ActionSource } = {};
-        def[type] = action;
-        this.define(def);
-      });
-    }
     return this;
   }
 
