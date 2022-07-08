@@ -4,8 +4,10 @@ export type ParserOutput =
   | { accept: false }
   | {
       accept: true;
+      /** Result AST nodes. */
       buffer: ASTNode[];
-      errors: ASTNode[]; // empty if no error
+      /** Empty if no error. */
+      errors: ASTNode[];
     };
 
 export type Parser = (buffer: ASTNode[]) => ParserOutput;
