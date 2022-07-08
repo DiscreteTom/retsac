@@ -15,13 +15,14 @@ export class ASTNode {
   /** `null` if no error. */
   error: any;
 
-  constructor(p: Partial<ASTNode> & Pick<ASTNode, "type">) {
+  constructor(p: Partial<ASTNode> & Pick<ASTNode, "type" | "start">) {
     this.type = p.type;
     this.text = p.text ?? "";
     this.children = p.children ?? [];
     this.parent = p.parent ?? null;
     this.error = p.error ?? null;
     this.data = p.data ?? { value: null };
+    this.start = p.start;
   }
 
   static from(t: Token) {
