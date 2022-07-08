@@ -1,6 +1,6 @@
 import { ASTNode } from "../ast";
 import { ParserOutput } from "../model";
-import { GrammarSet, ReducerContext } from "./model";
+import { GrammarSet, GrammarType, ReducerContext } from "./model";
 import { GrammarRule } from "./model";
 
 /** A.k.a: Project. */
@@ -155,10 +155,10 @@ export class DFA {
     NTs.forEach((NT) => this.follow.set(NT, new GrammarSet()));
     grammarRules.map((gr) => {
       gr.rule.map((g, i, rule) => {
-        if (i < rule.length - 1 && g.type == "NT") {
+        if (i < rule.length - 1 && g.type == GrammarType.NT) {
           let gs = this.follow.get(g.content);
           gs.add(rule[i + 1]);
-          if (rule[i + 1].type == "NT")
+          if (rule[i + 1].type == GrammarType.NT)
             this.first.get(rule[i + 1].content).map((g) => gs.add(g));
         }
       });
@@ -167,7 +167,7 @@ export class DFA {
     while (changed) {
       changed = false;
       grammarRules
-        .filter((gr) => gr.rule.at(-1).type == "NT")
+        .filter((gr) => gr.rule.at(-1).type == GrammarType.NT)
         .map((gr) =>
           this.follow
             .get(gr.NT)
@@ -200,7 +200,7 @@ export class DFA {
         .reduce((p, c) => {
           if (
             c.canDigestMore() &&
-            c.current.type == "NT" &&
+            c.current.type == GrammarType.NT &&
             !p.includes(c.current.content)
           )
             p.push(c.current.content);
@@ -287,7 +287,7 @@ function getGrammarRulesClosure(
   while (true) {
     let changed = false;
     result.map((gr) => {
-      if (gr.rule[0].type == "NT") {
+      if (gr.rule[0].type == GrammarType.NT) {
         grammarRules
           .filter((gr2) => gr2.NT == gr.rule[0].content)
           .map((gr) => {

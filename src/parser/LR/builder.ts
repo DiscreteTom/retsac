@@ -1,10 +1,18 @@
-import { Lexer, Token } from "../../lexer/lexer";
+import { Lexer } from "../../";
 import { exact, stringLiteral } from "../../lexer/utils";
-import { Parser } from "../model";
-import { GrammarCallback, Rejecter, Grammar, GrammarRule } from "./model";
+import { ParseExec, Parser, ParserOutput } from "../model";
+import {
+  GrammarCallback,
+  Rejecter,
+  Grammar,
+  GrammarRule,
+  GrammarType,
+} from "./model";
 import { DFA } from "./DFA";
+import { ASTNode } from "../ast";
+import { Token } from "../../lexer/model";
 
-const grammarLexer = new Lexer()
+const grammarLexer = new Lexer.Builder()
   .ignore(
     /^\s/ // blank
   )
@@ -12,7 +20,8 @@ const grammarLexer = new Lexer()
     grammar: /^\w+/,
     or: exact("|"),
     literal: stringLiteral({ single: true, double: true }),
-  });
+  })
+  .build();
 
 type TempGrammar = {
   type: "literal" | "grammar";
@@ -27,6 +36,14 @@ type TempGrammarRule = {
 };
 
 export type Definition = { [NT: string]: string | string[] };
+
+export class LRParser implements Parser {
+  parse: ParseExec;
+
+  constructor(parse: ParseExec) {
+    this.parse = parse;
+  }
+}
 
 /**
  * Builder for LR(1) parsers.
@@ -84,9 +101,9 @@ export class LRParserBuilder {
     let dfa = new DFA(grammarRules, this.entryNTs, NTs);
     dfa.debug = debug;
 
-    return (buffer) => {
+    return new LRParser((buffer) => {
       return dfa.parse(buffer);
-    };
+    });
   }
 
   /**
@@ -204,7 +221,11 @@ function tempGrammarRulesToGrammarRules(
             new Grammar({
               content: g.content,
               type:
-                g.type == "literal" ? g.type : NTs.has(g.content) ? "NT" : "T",
+                g.type == "literal"
+                  ? GrammarType.LITERAL
+                  : NTs.has(g.content)
+                  ? GrammarType.NT
+                  : GrammarType.T,
             })
         ),
       })
