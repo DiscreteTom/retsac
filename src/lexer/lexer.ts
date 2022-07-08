@@ -31,10 +31,7 @@ export class Lexer {
 
   constructor() {
     this.defs = [];
-    this.buffer = "";
-    this.offset = 0;
-    this.lineChars = [0];
-    this.errors = [];
+    this.reset();
   }
 
   reset() {
