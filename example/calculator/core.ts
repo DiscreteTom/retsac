@@ -1,11 +1,12 @@
-import { Lexer, exact, LR, ParserManager } from "../../src";
+import { Lexer, LR, ParserManager } from "../../src";
 
-let lexer = new Lexer()
+let lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
   })
-  .anonymous(exact(..."+-*/()"));
+  .anonymous(Lexer.exact(..."+-*/()"))
+  .build();
 
 export let parser = new ParserManager().setLexer(lexer).add(
   new LR.LRParserBuilder()

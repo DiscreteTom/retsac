@@ -1,12 +1,4 @@
-import {
-  Lexer,
-  exact,
-  from_to,
-  stringLiteral,
-  wordType,
-  ParserManager,
-  LR,
-} from "../src";
+import { Lexer, ParserManager, LR } from "../src";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -16,14 +8,14 @@ const code = fs.readFileSync(
   "utf-8"
 );
 
-const lexer = new Lexer()
+const lexer = new Lexer.Builder()
   .ignore(
     /^\s/, // blank
-    from_to("//", "\n", true), // single line comments
-    from_to("/*", "*/", true) // multi-line comments
+    Lexer.from_to("//", "\n", true), // single line comments
+    Lexer.from_to("/*", "*/", true) // multi-line comments
   )
   .define(
-    wordType(
+    Lexer.wordType(
       "import",
       "from",
       "const",
@@ -40,19 +32,20 @@ const lexer = new Lexer()
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^\w+/,
-    regex: from_to("/", "/", false),
+    regex: Lexer.from_to("/", "/", false),
   })
   .overload({
     string: [
-      stringLiteral({ double: true, single: true }),
-      stringLiteral({ back: true, multiline: true }),
+      Lexer.stringLiteral({ double: true, single: true }),
+      Lexer.stringLiteral({ back: true, multiline: true }),
     ],
   })
   .anonymous(
-    exact("..."), // 3-char operator
-    exact("=>", "!=", "&&"), // two-char operator
-    exact(..."{};,*=.()+:[]!?") // one-char operator
-  );
+    Lexer.exact("..."), // 3-char operator
+    Lexer.exact("=>", "!=", "&&"), // two-char operator
+    Lexer.exact(..."{};,*=.()+:[]!?") // one-char operator
+  )
+  .build();
 
 let parser = new ParserManager(lexer).add(
   new LR.LRParserBuilder()

@@ -1,36 +1,37 @@
-import { Lexer, exact, from_to, stringLiteral } from "../src";
+import { Lexer } from "../src";
 
 let tempStrDepth = 0;
 
-let lexer = new Lexer()
+let lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
-    tempStr: from_to(
+    tempStr: Lexer.from_to(
       "`",
       /(^`|[^\\]`)/, // '`' without escape
       false
     ).reject((s) => s.search(/[^\\]\$\{/) != -1), // reject if find '${`
-    tempStrLeft: from_to(
+    tempStrLeft: Lexer.from_to(
       "`",
       /(^\$\{|[^\\]\$\{)/, // '${' without escape
       false
     ).then((_) => tempStrDepth++), // use closure to store state
-    tempStrRight: from_to(
+    tempStrRight: Lexer.from_to(
       "}",
       /(^`|[^\\]`)/, // '`' without escape
       false
     )
       .reject((s) => tempStrDepth == 0 || s.search(/[^\\]\$\{/) != -1)
       .then((_) => tempStrDepth--),
-    tempStrMiddle: from_to(
+    tempStrMiddle: Lexer.from_to(
       "}",
       /(^\$\{|[^\\]\$\{)/, // '${' without escape
       false
     ).reject((_) => tempStrDepth == 0), // check state
     word: /^\w+/,
-    string: stringLiteral({ single: true }),
+    string: Lexer.stringLiteral({ single: true }),
   })
-  .anonymous(exact(..."+"));
+  .anonymous(Lexer.exact(..."+"))
+  .build();
 
 [
   "`123`", // `123`
