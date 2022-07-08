@@ -1,22 +1,32 @@
 import { Action, ActionSource } from "./action";
 
+/** The output of a lexer. */
 export type Token = {
+  /** User-defined type name. */
   type: string;
-  content: string; // text content
-  start: number; // start position of input string
-  error: any; // error message, empty if no error
+  /** Text content. */
+  content: string;
+  /** Start position of input string. */
+  start: number;
+  /** Error message. `null` if no error. */
+  error: any;
 };
 
+/** Apply `action` and try to yield a token with `type`. */
 export type Definition = {
+  /** Target token type. Empty string if anonymous. */
   type: string;
   action: Action;
 };
 
+/** Transform text string to a token list. */
 export class Lexer {
   private defs: Definition[];
   private buffer: string;
-  private offset: number; // how many chars are digested
-  private lineChars: number[]; // how many chars in each line
+  /** How many chars are digested. */
+  private offset: number;
+  /** How many chars in each line. */
+  private lineChars: number[];
   private errors: Token[];
 
   constructor() {
@@ -78,6 +88,7 @@ export class Lexer {
     return this;
   }
 
+  /** Append buffer with input. */
   feed(input: string) {
     this.buffer += input;
     return this;
@@ -177,7 +188,8 @@ export class Lexer {
   }
 
   /**
-   * Get line number (start from 1) and column number (start from 1) from the index (start from 0) of the input string.
+   * Get line number (starts from 1) and column number (starts from 1)
+   * from the index (starts from 0) of the input string.
    */
   getPos(index: number): { line: number; column: number } {
     let result = { line: 1, column: 1 };

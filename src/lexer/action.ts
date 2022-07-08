@@ -1,14 +1,19 @@
 export type ActionOutput =
   | { accept: false }
   | {
-      accept: true; // this action can accept some input as a token
-      mute: boolean; // don't emit token, continue loop
-      digested: number; // how many chars are accepted by this action
-      error: any; // empty if no error
+      /** This action can accept some input as a token. */
+      accept: true;
+      /** Don't emit token, continue lex. */
+      mute: boolean;
+      /** How many chars are accepted by this action. */
+      digested: number;
+      /** `null` if no error. */
+      error: any;
     };
 
 export type ActionExec = (buffer: string) => ActionOutput;
-export type SimpleActionExec = (buffer: string) => number; // only return how many chars are accepted
+/** Only return how many chars are accepted. */
+export type SimpleActionExec = (buffer: string) => number;
 export type ActionSource = RegExp | Action | SimpleActionExec;
 
 export class Action {
@@ -61,7 +66,7 @@ export class Action {
 
   /**
    * Check token content if `accept` is `true`.
-   * `condition` should return error, empty error message means no error.
+   * `condition` should return error, `null` means no error.
    */
   check(condition: (content: string) => any) {
     return new Action((buffer) => {
