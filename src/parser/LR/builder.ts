@@ -39,6 +39,7 @@ export type Definition = { [NT: string]: string | string[] };
 
 export class LRParser implements Parser {
   parse: ParseExec;
+  reset() {}
 
   constructor(parse: ParseExec) {
     this.parse = parse;
