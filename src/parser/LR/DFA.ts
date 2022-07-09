@@ -207,6 +207,7 @@ export class DFA {
     this.states = [this.entryState];
   }
 
+  /** Reset DFA then try to yield a top level NT. */
   parse(buffer: ASTNode[]): ParserOutput {
     this.reset();
 
