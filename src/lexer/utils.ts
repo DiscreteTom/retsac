@@ -79,9 +79,7 @@ export function wordType(...words: string[]): { [type: string]: Action } {
 /**
  * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
  *
- * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
- *
- * Escaped escape `\\` also will be handled correctly.
+ * Escape `\` will be handled correctly.
  *
  * You can also use `from`/`to` or `quote` to specify your own string boundary.
  *
