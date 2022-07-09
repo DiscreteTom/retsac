@@ -13,7 +13,7 @@ function findUnescaped(s: string, target: string) {
   return false;
 }
 
-let lexer = new Lexer.Builder()
+export let lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     tempStr: Lexer.stringLiteral({ back: true, multiline: true }).reject(
@@ -41,17 +41,3 @@ let lexer = new Lexer.Builder()
   })
   .anonymous(Lexer.exact(..."+"))
   .build();
-
-// try to parse those
-[`123`, `123 ${lexer}  \${789} 0`, `123 ${"123" + `456 ${999}`} 789`];
-
-[
-  "`123`",
-  "`123 ${ lexer }  \\${789} 0`",
-  "`123 ${ '123' + `456 ${ 999 }` } 789`",
-].map((s) => {
-  let tokens = lexer.reset().lexAll(s);
-  console.log(`>>> Scanning: ${s} <<<`);
-  console.log(tokens.map((t) => ({ type: t.type, content: t.content })));
-  if (lexer.hasRest()) console.log(`Undigested: ${lexer.getRest()}`);
-});
