@@ -33,8 +33,6 @@ const lexer = new Lexer.Builder()
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^\w+/,
     regex: Lexer.from_to("/", "/", false),
-  })
-  .overload({
     string: [
       Lexer.stringLiteral({ double: true, single: true }),
       Lexer.stringLiteral({ back: true, multiline: true }),
