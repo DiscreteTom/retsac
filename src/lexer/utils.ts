@@ -78,34 +78,68 @@ export function wordType(...words: string[]): { [type: string]: Action } {
 
 /**
  * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
+ *
  * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
+ *
  * Escaped escape `\\` also will be handled correctly.
+ *
+ * You can also use `from`/`to` or `quote` to specify your own string boundary.
+ *
  * Set `multiline: true` to allow multiline string literals.
  */
-export function stringLiteral(p: {
-  single?: boolean;
-  double?: boolean;
-  back?: boolean;
-  multiline?: boolean;
-}) {
-  return Action.from((buffer) => {
-    let target =
-      buffer.startsWith(`'`) && p.single
-        ? "'"
-        : buffer.startsWith(`"`) && p.double
-        ? '"'
-        : buffer.startsWith("`") && p.back
-        ? "`"
-        : "";
-    if (target === "") return 0;
+export function stringLiteral(
+  p: (
+    | {
+        single?: true;
+        double?: true;
+        back?: true;
+      }
+    | {
+        from: string;
+        to: string;
+      }
+    | { quote: string }
+  ) & { multiline?: true }
+) {
+  if ("from" in p) {
+    if (p.from.length == 0) throw new Error(`'from' can't be empty.`);
+    if (p.to.length == 0) throw new Error(`'to' can't be empty.`);
+  }
+  if ("quote" in p) {
+    if (p.quote.length == 0) throw new Error(`'quote' can't be empty.`);
+  }
 
-    for (let i = 1; i < buffer.length; ++i) {
+  return Action.from((buffer) => {
+    let digested = 0;
+    let target = "";
+    if ("single" in p && p.single && buffer.startsWith(`'`)) {
+      target = "'";
+      digested = 1;
+    } else if ("double" in p && p.double && buffer.startsWith(`"`)) {
+      target = '"';
+      digested = 1;
+    } else if ("back" in p && p.back && buffer.startsWith("`")) {
+      target = "`";
+      digested = 1;
+    } else if ("from" in p && buffer.startsWith(p.from)) {
+      target = p.to;
+      digested = p.from.length;
+    } else if ("quote" in p && buffer.startsWith(p.quote)) {
+      target = p.quote;
+      digested = p.quote.length;
+    } else return 0;
+
+    for (let i = digested; i < buffer.length - target.length + 1; ++i) {
       if (buffer[i] == "\\") {
         i++; // escape next
         continue;
       }
-      if (buffer[i] == target) {
-        if (p.multiline || !buffer.slice(0, i + 1).includes("\n")) return i + 1;
+      if (buffer.slice(i, i + target.length) == target) {
+        if (
+          p.multiline ||
+          !buffer.slice(digested, i + target.length).includes("\n")
+        )
+          return i + target.length;
         else return 0; // multiline not allowed
       }
     }
