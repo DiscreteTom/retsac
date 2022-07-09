@@ -5,6 +5,7 @@
 - Optimize document / comments.
 - Better export structure.
 - Optimize code.
+- More examples.
 - Lexer
   - Decouple `Lexer` to `Lexer` and `Builder`.
   - Add `Lexer.hasError`.
