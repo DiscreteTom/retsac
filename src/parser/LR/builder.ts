@@ -1,6 +1,6 @@
 import { Lexer } from "../../";
 import { exact, stringLiteral } from "../../lexer/utils";
-import { Parser } from "../model";
+import { IParser } from "../model";
 import {
   GrammarCallback,
   Rejecter,
@@ -48,7 +48,7 @@ type TempGrammarRule = {
 type Definition = { [NT: string]: string | string[] };
 
 /** LR(1) parser. Stateless. Try to yield a top level NT each time. */
-export class LRParser implements Parser {
+export class Parser implements IParser {
   dfa: DFA;
 
   constructor(dfa: DFA) {
@@ -73,7 +73,7 @@ export class LRParser implements Parser {
  *
  * It's recommended to use `checkSymbols` before `build`.
  */
-export class LRParserBuilder {
+export class ParserBuilder {
   private tempGrammarRules: TempGrammarRule[];
   private entryNTs: Set<string>;
 
@@ -125,7 +125,7 @@ export class LRParserBuilder {
     let dfa = new DFA(grammarRules, this.entryNTs, NTs);
     dfa.debug = debug;
 
-    return new LRParser(dfa);
+    return new Parser(dfa);
   }
 
   /**
