@@ -204,7 +204,7 @@ function definitionToTempGrammarRules(
     if (grammarLexer.hasRest())
       throw new ParserError(
         ParserErrorType.TOKENIZE_GRAMMAR_RULE_FAILED,
-        `Can't tokenize: "${grammarLexer.getRest()}" in grammar rule: "${
+        `Unable to tokenize: "${grammarLexer.getRest()}" in grammar rule: "${
           defs[NT]
         }"`
       );

@@ -15,7 +15,7 @@ let lexer = new Lexer.Builder()
 
 function assertEq(input: string) {
   let token = lexer.reset().lex(input);
-  if (token == null) throw new Error(`Can't tokenize ${input}`);
+  if (token == null) throw new Error(`Unable to tokenize ${input}`);
   if (token.content != input)
     throw new Error(
       `Mismatch, input=${input}, want=${input}, got=${token.content}`
