@@ -106,7 +106,7 @@ while (true) {
   // parse one statement
   if (!manager.parse().accept) break;
   let stmt = manager.take();
-  console.log(stmt.toTreeString({ textQuote: '"' }));
+  console.log(stmt?.toTreeString({ textQuote: '"' }));
 }
 
 if (manager.getBuffer().length) {
