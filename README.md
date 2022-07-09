@@ -1,6 +1,6 @@
 # Retsac
 
-[![npm](https://img.shields.io/npm/v/retsac)](https://www.npmjs.com/package/retsac)
+[![npm](https://img.shields.io/npm/v/retsac?color=green&style=flat-square)](https://www.npmjs.com/package/retsac)
 
 Text lexer and parser.
 
@@ -12,95 +12,137 @@ Can be used to make your own programming language compiler/translator frontend, 
 yarn add retsac
 ```
 
-## Usage
+## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 
-### Lexer
+### [Calculator](https://github.com/DiscreteTom/retsac/tree/main/example/calculator)
 
-```js
-let lexer = new Lexer()
-  .ignore(/^\s/) // ignore chars
+```ts
+import { Lexer, LR, Manager } from "retsac";
+
+let lexer = new Lexer.Builder()
+  .ignore(/^\s/)
   .define({
-    // define token types
-    number: /^[0-9]+(?:\.[0-9]+)?/, // regex
-    plus: exact("+"), // custom string parser
+    number: /^[0-9]+(?:\.[0-9]+)?/,
   })
-  .anonymous(exact("-")) // anonymous token
-  .overload({
-    // multi-rule for one token type
-    string: [from_to('"', '"', false), from_to("'", "'", false)],
-  })
+  .anonymous(Lexer.exact(..."+-*/()"))
+  .build();
+
+let parser = new LR.ParserBuilder()
+  .entry("exp")
+  .define(
+    { exp: "number" },
+    LR.valueReducer((_, { matched }) => Number(matched[0].text))
+  )
+  .define(
+    { exp: `'-' exp` },
+    LR.valueReducer((values) => -values[1]),
+    // if previous node is an exp, the `- exp` should be `exp - exp`, reject
+    ({ before }) => before.at(-1)?.type == "exp"
+  )
+  .define(
+    { exp: `'(' exp ')'` },
+    LR.valueReducer((values) => values[1])
+  )
+  .define(
+    { exp: `exp '+' exp | exp '-' exp` },
+    LR.valueReducer((values, { matched }) =>
+      matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
+    ),
+    ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
+  )
+  .define(
+    { exp: `exp '*' exp | exp '/' exp` },
+    LR.valueReducer((values, { matched }) =>
+      matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
+    )
+  )
+  .checkSymbols(lexer.getTokenTypes())
+  .build();
+```
+
+### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json.ts)
+
+```ts
+import { Lexer, LR, Manager } from "retsac";
+
+let lexer = new Lexer.Builder()
+  .ignore(/^\s/)
   .define({
-    someError: exact("err").check((content) => `Error: ${content}.`), // error recording
-  });
+    string: Lexer.stringLiteral({ double: true }),
+    number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
+  })
+  .define(Lexer.wordType("true", "false", "null"))
+  .anonymous(Lexer.exact(..."[]{},:"))
+  .build();
 
-// use lexer
-lexer.lex("123");
-lexer.lexAll("123");
-lexer.hasRest();
-lexer.getTokenTypes();
-lexer.getPos(token.start);
-lexer.getErrors();
+let parser = new LR.ParserBuilder()
+  .entry("value")
+  .define(
+    { value: "string" },
+    LR.valueReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
+  )
+  .define(
+    { value: "number" },
+    LR.valueReducer((_, { matched }) => Number(matched[0].text))
+  )
+  .define(
+    { value: "true" },
+    LR.valueReducer(() => true)
+  )
+  .define(
+    { value: "false" },
+    LR.valueReducer(() => false)
+  )
+  .define(
+    { value: "null" },
+    LR.valueReducer(() => null)
+  )
+  .define(
+    { value: "object | array" },
+    LR.valueReducer((values) => values[0])
+  )
+  .define(
+    { array: `'[' ']'` },
+    LR.valueReducer(() => [])
+  )
+  .define(
+    { array: `'[' values ']'` },
+    LR.valueReducer((values) => values[1])
+  )
+  .define(
+    { values: `value` },
+    LR.valueReducer((values) => values) // values => [values[0]]
+  )
+  .define(
+    { values: `values ',' value` },
+    LR.valueReducer((values) => values[0].concat([values[2]]))
+  )
+  .define(
+    { object: `'{' '}'` },
+    LR.valueReducer(() => ({}))
+  )
+  .define(
+    { object: `'{' object_items '}'` },
+    LR.valueReducer((values) => values[1])
+  )
+  .define(
+    { object_items: `object_item` },
+    LR.valueReducer((values) => values[0])
+  )
+  .define(
+    { object_items: `object_items ',' object_item` },
+    LR.valueReducer((values) => Object.assign(values[0], values[2]))
+  )
+  .define(
+    { object_item: `string ':' value` },
+    LR.valueReducer((values, { matched }) => {
+      let result = {};
+      result[matched[0].text.slice(1, -1)] = values[2];
+      return result;
+    })
+  )
+  .checkSymbols(lexer.getTokenTypes())
+  .build();
 ```
 
-### Parser
-
-```js
-let parser = new ParserManager().setLexer(lexer).add(
-  new LRParserBuilder() // to build an LR(1) parser
-    .entry("exp") // set entry NT
-    .define(
-      { exp: "number" }, // define grammar rules
-      valueReducer((_, { matched }) => Number(matched[0].text)) // how to get value
-    )
-    .define(
-      { exp: `'-' exp` },
-      valueReducer((values) => -values[1]),
-      // if previous node is an exp, the `- exp` should be `exp - exp`, reject
-      ({ before }) => before.at(-1)?.type == "exp"
-    )
-    .define(
-      { exp: `'(' exp ')'` },
-      valueReducer((values) => values[1])
-    )
-    .define(
-      { exp: `exp '+' exp | exp '-' exp` },
-      valueReducer((values, { matched }) =>
-        matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
-      ),
-      ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
-    )
-    .define(
-      { exp: `exp '*' exp | exp '/' exp` },
-      valueReducer((values, { matched }) =>
-        matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
-      )
-    )
-    .checkSymbols(lexer.getTokenTypes())
-    .build()
-);
-
-let res = parser.parseAll("2+3*(4/5)");
-console.log(res.buffer[0].toTreeString());
-```
-
-Output AST:
-
-```
-exp:
-  exp:
-    number: 2
-  <anonymous>: +
-  exp:
-    exp:
-      number: 3
-    <anonymous>: *
-    exp:
-      <anonymous>: (
-      exp:
-        exp:
-          number: 4
-        <anonymous>: /
-        exp:
-          number: 5
-      <anonymous>: )
-```
+## [CHANGELOG](https://github.com/DiscreteTom/retsac/blob/main/CHANGELOG.md)
