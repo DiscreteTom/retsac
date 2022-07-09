@@ -8,6 +8,7 @@
 - Lexer
   - Decouple `Lexer` to `Lexer` and `Builder`.
   - Add `Lexer.hasError`.
+  - Fix `stringLiteral` to parse `\\` correctly.
 - Parser
   - Rename `ParserManager` to `Manager` and put it in the top level.
   - Treat `Parser` as an interface `IParser` instead of a type. Add `IParser.reset`.

@@ -79,6 +79,7 @@ export function wordType(...words: string[]): { [type: string]: Action } {
 /**
  * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
  * Escaped quote `\"` and `\'` and `` \` `` will be handled correctly.
+ * Escaped escape `\\` also will be handled correctly.
  * Set `multiline: true` to allow multiline string literals.
  */
 export function stringLiteral(p: {
@@ -88,21 +89,28 @@ export function stringLiteral(p: {
   multiline?: boolean;
 }) {
   return Action.from((buffer) => {
-    let res =
+    let target =
       buffer.startsWith(`'`) && p.single
-        ? /(^'|[^\\]')/.exec(buffer.slice(1))
+        ? "'"
         : buffer.startsWith(`"`) && p.double
-        ? /(^"|[^\\]")/.exec(buffer.slice(1))
+        ? '"'
         : buffer.startsWith("`") && p.back
-        ? /(^`|[^\\]`)/.exec(buffer.slice(1))
-        : null;
+        ? "`"
+        : "";
+    if (target === "") return 0;
 
-    if (
-      res &&
-      res.index != -1 &&
-      (p.multiline || !buffer.slice(1, res.index).includes("\n"))
-    )
-      return res.index + res[0].length + 1;
+    for (let i = 1; i < buffer.length; ++i) {
+      if (buffer[i] == "\\") {
+        i++; // escape next
+        continue;
+      }
+      if (buffer[i] == target) {
+        if (p.multiline || !buffer.slice(0, i + 1).includes("\n")) return i + 1;
+        else return 0; // multiline not allowed
+      }
+    }
+
+    // eof, return
     return 0;
   });
 }
