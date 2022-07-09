@@ -1,8 +1,8 @@
 {
   "name": "retsac",
   "version": "0.1.1",
-  "main": "out/src/index.js",
-  "types": "out/src/index.d.ts",
+  "main": "out/index.js",
+  "types": "out/index.d.ts",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.18.6",
