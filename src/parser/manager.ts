@@ -22,6 +22,8 @@ export class Manager {
   reset() {
     this.buffer = [];
     this.errors = [];
+    this.lexer.reset();
+    this.parser.reset();
   }
 
   getBuffer() {
