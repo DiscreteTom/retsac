@@ -3,11 +3,12 @@ import { ParserOutput } from "../model";
 import { GrammarSet, GrammarType, ReducerContext } from "./model";
 import { GrammarRule } from "./model";
 
-/** A.k.a: Project. */
+/** A.k.a: LR(1) Project. */
 export class Candidate {
   readonly gr: GrammarRule;
+  /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
-
+  /** `true` if already rejected and no need to check. */
   private rejected: boolean;
 
   constructor(data: Pick<Candidate, "gr" | "digested">) {
@@ -28,25 +29,31 @@ export class Candidate {
     return this.canDigestMore() && this.current.eq(node);
   }
 
+  private canReduce() {
+    return !this.canDigestMore() && !this.rejected;
+  }
+
+  /** Generate next candidate with `digested + 1`. */
   next() {
     return new Candidate({ gr: this.gr, digested: this.digested + 1 });
   }
 
   tryReduce(
     buffer: ASTNode[],
+    /** From where of the buffer to reduce. */
     index: number,
     entryNTs: Set<string>,
     follow: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput {
-    if (this.canDigestMore() || this.rejected) return { accept: false };
+    if (!this.canReduce()) return { accept: false };
 
     let context: ReducerContext = {
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),
       data: { value: null },
-      error: "",
+      error: null,
     };
 
     // check follow for LR(1)
@@ -60,8 +67,8 @@ export class Candidate {
       }
     }
 
+    // check rejecter
     if (this.gr.rejecter(context)) {
-      // check rejecter
       this.rejected = true;
       if (debug) console.log(`[Reject] ${this.gr.toString()}`);
       return { accept: false };
@@ -74,10 +81,11 @@ export class Candidate {
       children: context.matched,
       data: context.data,
       error: context.error,
+      start: context.matched[0].start,
     });
     node.children.map((c) => (c.parent = node));
-
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);
+
     return {
       accept: true,
       buffer: context.before.concat(node).concat(context.after),
@@ -85,17 +93,19 @@ export class Candidate {
     };
   }
 
-  toString() {
-    return `${this.gr.NT} => ${this.gr.rule
-      .slice(0, this.digested)
-      .map((r) => r.toString())
-      .join(" ")} @ ${this.gr.rule
-      .slice(this.digested)
-      .map((r) => r.toString())
-      .join(" ")}`;
+  /** Return `NT => ...before @ ...after`. */
+  toString(sep = " ", arrow = "=>", index = "@") {
+    return [
+      this.gr.NT,
+      arrow,
+      ...this.gr.rule.slice(0, this.digested).map((r) => r.toString()),
+      index,
+      ...this.gr.rule.slice(this.digested).map((r) => r.toString()),
+    ].join(sep);
   }
 }
 
+/** LR(1) state machine's state. */
 export class State {
   readonly candidates: Candidate[];
 
@@ -103,8 +113,10 @@ export class State {
     this.candidates = candidates;
   }
 
+  /** Traverse all candidates to try to reduce. */
   tryReduce(
     buffer: ASTNode[],
+    /** From where of the buffer to reduce. */
     start: number,
     entryNTs: Set<string>,
     follow: Map<string, GrammarSet>,
@@ -119,13 +131,17 @@ export class State {
   }
 }
 
+/** LR(1) DFA. */
 export class DFA {
   private readonly NTClosures: Map<string, GrammarRule[]>;
   private readonly entryState: State;
-  private readonly first: Map<string, GrammarSet>; // NT => Grammars
-  private readonly follow: Map<string, GrammarSet>; // NT => Grammars
+  /** `NT => Grammars` */
+  private readonly first: Map<string, GrammarSet>;
+  /** `NT => Grammars` */
+  private readonly follow: Map<string, GrammarSet>;
   private readonly entryNTs: Set<string>;
-  private states: State[]; // state stack, current state is states[-1]
+  /** State stack, current state is `states[-1]`. */
+  private states: State[];
   debug: boolean;
 
   constructor(
@@ -135,7 +151,7 @@ export class DFA {
   ) {
     this.entryState = new State(
       getGrammarRulesClosure(
-        grammarRules.filter((gr) => entryNTs.has(gr.NT)),
+        grammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
         grammarRules
       ).map((gr) => new Candidate({ gr, digested: 0 }))
     );
@@ -156,31 +172,38 @@ export class DFA {
     grammarRules.map((gr) => {
       gr.rule.map((g, i, rule) => {
         if (i < rule.length - 1 && g.type == GrammarType.NT) {
+          // current grammar is NT and next grammar exists, merge with next grammar
           let gs = this.follow.get(g.content);
           gs.add(rule[i + 1]);
+          // if next grammar is NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
             this.first.get(rule[i + 1].content).map((g) => gs.add(g));
         }
       });
     });
-    let changed = true;
-    while (changed) {
-      changed = false;
+    // if the last grammar is NT, that NT's follow set should merge with the target NT's follow set
+    while (true) {
+      let changed = false;
+
       grammarRules
-        .filter((gr) => gr.rule.at(-1).type == GrammarType.NT)
+        .filter((gr) => gr.rule.at(-1).type == GrammarType.NT) // last grammar if NT
         .map((gr) =>
           this.follow
-            .get(gr.NT)
+            .get(gr.NT) // target NT's follow set
             .map(
               (g) =>
                 (changed ||= this.follow.get(gr.rule.at(-1).content).add(g))
             )
         );
+
+      if (!changed) break;
     }
+
+    this.reset();
   }
 
   reset() {
-    // reset state with entry state
+    // reset state stack with entry state
     this.states = [this.entryState];
   }
 
@@ -215,7 +238,7 @@ export class DFA {
         .map((gr) => new Candidate({ gr, digested: 0 }));
       let nextCandidates = directCandidates.concat(indirectCandidates);
 
-      // DFA can't accept input
+      // if DFA can't accept input
       if (nextCandidates.length == 0) {
         if (this.debug)
           console.log(
@@ -241,6 +264,7 @@ export class DFA {
         continue; // continue shift
       }
 
+      // accept
       let reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
@@ -252,7 +276,7 @@ export class DFA {
         return { accept: true, buffer, errors };
     }
 
-    return accept ? { accept, buffer, errors } : { accept: false };
+    return accept ? { accept: true, buffer, errors } : { accept: false };
   }
 }
 
