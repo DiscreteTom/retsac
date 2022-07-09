@@ -10,7 +10,7 @@
   - Add `Lexer.hasError`.
 - Parser
   - Rename `ParserManager` to `Manager` and put it in the top level.
-  - Treat `Parser` as an interface instead of a type.
+  - Treat `Parser` as an interface instead of a type. Add `Parser.reset`.
   - `Manager` will only manage one parser instead of many.
   - `ASTNode` will record the start position.
   - `ASTNode.error` can be any type instead of string only.
