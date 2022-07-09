@@ -18,6 +18,7 @@
   - `ASTNode` will record the start position.
   - `ASTNode.error` can be any type instead of string only.
   - `ASTNode.toTreeString` has more format options.
+  - Custom error class `ParserError`.
 - LR Parser
   - `ReducerContext.error` can be any type instead of string only.
   - Rename `LRParser` to `LR.Parser`.

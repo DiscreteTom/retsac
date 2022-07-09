@@ -11,6 +11,7 @@ import {
 import { DFA } from "./DFA";
 import { ASTNode } from "../ast";
 import { Token } from "../../lexer/model";
+import { ParserError, ParserErrorType } from "./error";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
@@ -115,7 +116,10 @@ export class ParserBuilder {
   /** Generate the LR(1) parser. */
   build(debug = false) {
     if (this.entryNTs.size == 0)
-      throw new Error(`Please set entry NTs for LR Parser.`);
+      throw new ParserError(
+        ParserErrorType.NO_ENTRY_NT,
+        `Please set entry NTs for LR Parser.`
+      );
 
     let NTs = new Set(this.tempGrammarRules.map((gr) => gr.NT));
     let grammarRules = tempGrammarRulesToGrammarRules(
@@ -149,18 +153,28 @@ export class ParserBuilder {
     // all symbols should have its definition
     grammarSet.forEach((g) => {
       if (!Ts.has(g) && !NTs.has(g))
-        throw new Error(`Undefined grammar symbol: ${g}`);
+        throw new ParserError(
+          ParserErrorType.UNDEFINED_GRAMMAR_SYMBOL,
+          `Undefined grammar symbol: ${g}`
+        );
     });
 
     // check duplication
     NTs.forEach((name) => {
       if (Ts.has(name))
-        throw new Error(`Duplicated definition for grammar symbol: ${name}`);
+        throw new ParserError(
+          ParserErrorType.DUPLICATED_DEFINITION,
+          `Duplicated definition for grammar symbol: ${name}`
+        );
     });
 
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
-      if (!NTs.has(NT)) throw new Error(`Undefined entry NT: "${NT}"`);
+      if (!NTs.has(NT))
+        throw new ParserError(
+          ParserErrorType.UNDEFINED_ENTRY_NT,
+          `Undefined entry NT: "${NT}"`
+        );
     });
 
     return this;
@@ -188,26 +202,34 @@ function definitionToTempGrammarRules(
       });
 
     if (grammarLexer.hasRest())
-      throw new Error(
+      throw new ParserError(
+        ParserErrorType.TOKENIZE_GRAMMAR_RULE_FAILED,
         `Can't tokenize: "${grammarLexer.getRest()}" in grammar rule: "${
           defs[NT]
         }"`
       );
     if (rules.length == 0 && rules[0].length == 0)
-      throw new Error(`Empty rule: "${NT} => ${defs[NT]}"`);
+      throw new ParserError(
+        ParserErrorType.EMPTY_RULE,
+        `Empty rule: "${NT} => ${defs[NT]}"`
+      );
 
     rules.map((tokens) => {
       let ruleStr = tokens.map((t) => t.content).join(" ");
 
       if (tokens.length == 0)
-        throw new Error(`No grammar or literal in rule '${NT} => ${ruleStr}'`);
+        throw new ParserError(
+          ParserErrorType.EMPTY_RULE,
+          `No grammar or literal in rule '${NT} => ${ruleStr}'`
+        );
 
       if (
         !tokens
           .filter((t) => t.type == "literal")
           .every((t) => t.content.length > 2)
       )
-        throw new Error(
+        throw new ParserError(
+          ParserErrorType.EMPTY_LITERAL,
           `Literal value can't be empty in rule '${NT} => ${ruleStr}'`
         );
 

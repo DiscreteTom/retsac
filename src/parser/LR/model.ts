@@ -1,4 +1,5 @@
 import { ASTData, ASTNode } from "../ast";
+import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {
   /** Literal string. */
@@ -51,7 +52,11 @@ export class GrammarRule {
     p.rejecter ??= () => false;
     p.NT ??= "";
 
-    if (!p.rule.length) throw new Error(`Rule can NOT be empty.`);
+    if (!p.rule.length)
+      throw new ParserError(
+        ParserErrorType.EMPTY_RULE,
+        `Rule can NOT be empty.`
+      );
 
     Object.assign(this, p);
   }
