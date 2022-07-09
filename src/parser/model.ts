@@ -14,4 +14,5 @@ export type ParseExec = (buffer: ASTNode[]) => ParserOutput;
 
 export interface Parser {
   parse: ParseExec;
+  reset: () => void;
 }
