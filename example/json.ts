@@ -14,7 +14,7 @@ let parser = new LR.ParserBuilder()
   .entry("value")
   .define(
     { value: "string" },
-    LR.valueReducer((_, { matched }) => matched[0].text.slice(1, -1))
+    LR.valueReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
   )
   .define(
     { value: "number" },
@@ -46,11 +46,11 @@ let parser = new LR.ParserBuilder()
   )
   .define(
     { values: `value` },
-    LR.valueReducer((values) => values)
+    LR.valueReducer((values) => values) // values => [values[0]]
   )
   .define(
     { values: `values ',' value` },
-    LR.valueReducer((values) => values[0].concat(values[2]))
+    LR.valueReducer((values) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
