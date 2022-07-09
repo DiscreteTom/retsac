@@ -1,6 +1,6 @@
 import { Lexer } from "./lexer/lexer";
 import { ASTNode } from "./parser/ast";
-import { Parser } from "./parser/model";
+import { IParser } from "./parser/model";
 
 /**
  * Manager will use a lexer to retrieve tokens,
@@ -8,12 +8,12 @@ import { Parser } from "./parser/model";
  */
 export class Manager {
   private lexer: Lexer;
-  private parser: Parser;
+  private parser: IParser;
   private buffer: ASTNode[];
   /** Error nodes. */
   private errors: ASTNode[];
 
-  constructor(p: { lexer: Lexer; parser: Parser }) {
+  constructor(p: { lexer: Lexer; parser: IParser }) {
     this.lexer = p.lexer;
     this.parser = p.parser;
     this.reset();
