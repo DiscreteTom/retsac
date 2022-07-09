@@ -1,9 +1,9 @@
-import { Lexer } from "../lexer/lexer";
-import { ASTNode } from "./ast";
-import { Parser } from "./model";
+import { Lexer } from "./lexer/lexer";
+import { ASTNode } from "./parser/ast";
+import { Parser } from "./parser/model";
 
 /**
- * Parser manager will use a lexer to retrieve tokens,
+ * Manager will use a lexer to retrieve tokens,
  * and a parser to reduce buffer and gather errors.
  */
 export class Manager {

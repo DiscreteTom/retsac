@@ -9,7 +9,7 @@
   - Decouple `Lexer` to `Lexer` and `Builder`.
   - Add `Lexer.hasError`.
 - Parser
-  - Rename `ParserManager` to `Parser.Manager`.
+  - Rename `ParserManager` to `Manager` and put it in the top level.
   - Treat `Parser` as an interface instead of a type.
   - `Manager` will only manage one parser instead of many.
   - `ASTNode` will record the start position.
