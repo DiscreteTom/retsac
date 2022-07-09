@@ -10,6 +10,7 @@
   - Add `Lexer.hasError`.
   - Fix `stringLiteral` to parse `\\` correctly.
   - More optional parameters for `stringLiteral` to support custom quotes.
+  - Remove `Builder.overload`, but `Builder.define` can accept `ActionSource[]`.
 - Parser
   - Rename `ParserManager` to `Manager` and put it in the top level.
   - Treat `Parser` as an interface `IParser` instead of a type. Add `IParser.reset`.

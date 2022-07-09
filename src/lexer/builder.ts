@@ -13,12 +13,17 @@ export class Builder {
   /**
    * Define token types.
    */
-  define(defs: { [type: string]: ActionSource }) {
+  define(defs: { [type: string]: ActionSource | ActionSource[] }) {
     for (const type in defs) {
-      this.defs.push({
-        type,
-        action: Action.from(defs[type]),
-      });
+      let raw = defs[type];
+      let actionSources = raw instanceof Array ? raw : [raw];
+
+      for (const src of actionSources) {
+        this.defs.push({
+          type,
+          action: Action.from(src),
+        });
+      }
     }
     return this;
   }
@@ -36,20 +41,6 @@ export class Builder {
    */
   ignore(...actions: ActionSource[]) {
     this.anonymous(...actions.map((a) => Action.from(a).mute()));
-    return this;
-  }
-
-  /**
-   * Define a type with multiple action.
-   */
-  overload(defs: { [type: string]: ActionSource[] }) {
-    for (const type in defs) {
-      defs[type].map((action) => {
-        let def: { [type: string]: ActionSource } = {};
-        def[type] = action;
-        this.define(def);
-      });
-    }
     return this;
   }
 
