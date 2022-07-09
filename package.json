@@ -1,9 +1,15 @@
 {
   "name": "retsac",
+  "description": "Text lexer and parser.",
   "version": "0.2.0",
   "main": "out/index.js",
   "types": "out/index.d.ts",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
@@ -15,9 +21,19 @@
     "readline": "^1.3.0",
     "typescript": "^4.6.4"
   },
-  "scripts": {
-    "build": "tsc",
-    "test": "jest"
+  "repository": {
+    "url": "https://github.com/DiscreteTom/retsac.git",
+    "type": "git"
   },
-  "dependencies": {}
+  "bugs": {
+    "url": "https://github.com/DiscreteTom/retsac/issues"
+  },
+  "keywords": [
+    "parser",
+    "lexer",
+    "flex",
+    "bison",
+    "compiler",
+    "lr"
+  ]
 }
