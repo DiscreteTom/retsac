@@ -99,14 +99,6 @@ export function stringLiteral(
     | { quote: string }
   ) & { multiline?: true }
 ) {
-  if ("from" in p) {
-    if (p.from.length == 0) throw new Error(`'from' can't be empty.`);
-    if (p.to.length == 0) throw new Error(`'to' can't be empty.`);
-  }
-  if ("quote" in p) {
-    if (p.quote.length == 0) throw new Error(`'quote' can't be empty.`);
-  }
-
   return Action.from((buffer) => {
     let digested = 0;
     let target = "";
