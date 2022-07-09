@@ -1,6 +1,4 @@
 import { Lexer, LR, Manager } from "../src";
-import * as fs from "fs";
-import * as path from "path";
 
 let lexer = new Lexer.Builder()
   .ignore(/^\s/)
@@ -81,20 +79,4 @@ let parser = new LR.ParserBuilder()
   .checkSymbols(lexer.getTokenTypes())
   .build();
 
-let manager = new Manager({ lexer, parser });
-
-// parse package.json
-const code = fs.readFileSync(
-  path.join(__dirname, `/../../package.json`),
-  "utf-8"
-);
-
-let res = manager.parse(code);
-if (!res.accept) throw new Error(`Parse failed.`);
-
-if (
-  JSON.stringify(res.buffer[0].data.value) != JSON.stringify(JSON.parse(code))
-)
-  throw new Error(`Result mismatch.`);
-
-console.log("All check passed.");
+export let manager = new Manager({ lexer, parser });
