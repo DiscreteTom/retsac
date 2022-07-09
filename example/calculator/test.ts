@@ -1,8 +1,8 @@
-import { parser } from "./core";
+import { manager } from "./core";
 
 function assertEqual(input: string, desired: number) {
-  parser.reset();
-  let res = parser.parseAll(input);
+  manager.reset();
+  let res = manager.parseAll(input);
   if (!res.accept || res.buffer.length != 1)
     throw new Error(
       `Reduce failed for input "${input}". Result: ${res.buffer}`

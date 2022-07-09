@@ -1,6 +1,6 @@
 import * as readline from "readline";
-import { ASTNode } from "../src";
-import { parser } from "./calculator/core";
+import { Parser } from "../src";
+import { manager } from "./calculator/core";
 
 var rl = readline.createInterface({
   input: process.stdin,
@@ -10,14 +10,14 @@ var rl = readline.createInterface({
 });
 
 rl.on("line", function (line) {
-  let res = parser.parseAll(line + "\n");
+  let res = manager.parseAll(line + "\n");
   if (
     res.accept &&
     res.buffer.length == 1 &&
-    res.buffer[0] instanceof ASTNode
+    res.buffer[0] instanceof Parser.ASTNode
   ) {
     console.log(res.buffer[0].data.value);
-    parser.reset();
+    manager.reset();
   }
   rl.prompt();
 });
