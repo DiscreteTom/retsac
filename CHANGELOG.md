@@ -16,6 +16,7 @@
   - `Manager` will only manage one parser instead of many.
   - `ASTNode` will record the start position.
   - `ASTNode.error` can be any type instead of string only.
+  - `ASTNode.toTreeString` has more format options.
 - LR Parser
   - `ReducerContext.error` can be any type instead of string only.
   - Rename `LRParser` to `LR.Parser`.

@@ -30,12 +30,20 @@ export class ASTNode {
   }
 
   /** Return a tree-structured string. */
-  toTreeString(indent = "", anonymous = "<anonymous>") {
+  toTreeString(options?: {
+    indent?: string;
+    anonymous?: string;
+    textQuote?: string;
+  }) {
+    let indent = options?.indent ?? "";
+    let anonymous = options?.anonymous ?? "<anonymous>";
+    let textQuote = options?.textQuote ?? "";
+
     let res = `${indent}${this.type || anonymous}: `;
-    if (this.text) res += this.text;
+    if (this.text) res += `${textQuote}${this.text}${textQuote}`;
     res += "\n";
     this.children.map((c) => {
-      res += c.toTreeString(indent + "  ");
+      res += c.toTreeString({ indent: indent + "  ", anonymous, textQuote });
     });
     return res;
   }
