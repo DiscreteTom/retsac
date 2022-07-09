@@ -1,3 +1,6 @@
-src
+.github
 example
-out/example
+node_modules
+.gitignore
+.npmignore
+CHANGELOG.md
