@@ -1,4 +1,4 @@
-import { manager } from "../example/json";
+import { manager } from "./json";
 
 function getResult(input: string) {
   let res = manager.reset().parse(input);

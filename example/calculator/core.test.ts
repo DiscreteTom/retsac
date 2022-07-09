@@ -1,4 +1,4 @@
-import { manager } from "../example/calculator/core";
+import { manager } from "./core";
 
 function getResult(input: string) {
   let res = manager.reset().parseAll(input);

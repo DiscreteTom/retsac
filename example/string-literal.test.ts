@@ -1,4 +1,4 @@
-import { lexer } from "../example/string-literal";
+import { lexer } from "./string-literal";
 
 function assertEq(input: string) {
   let token = lexer.reset().lex(input);
