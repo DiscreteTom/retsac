@@ -1,6 +1,6 @@
 import { Lexer } from "../../";
 import { exact, stringLiteral } from "../../lexer/utils";
-import { ParseExec, Parser, ParserOutput } from "../model";
+import { Parser } from "../model";
 import {
   GrammarCallback,
   Rejecter,
@@ -23,26 +23,46 @@ const grammarLexer = new Lexer.Builder()
   })
   .build();
 
+/** Grammar type, but can't distinguish N or NT. */
+enum TempGrammarType {
+  LITERAL,
+  /** T or NT */
+  GRAMMAR,
+}
+
+/** Grammar, but can't distinguish N or NT. */
 type TempGrammar = {
-  type: "literal" | "grammar";
+  type: TempGrammarType;
+  /** Literal content, or T/NT's type name. */
   content: string;
 };
 
 type TempGrammarRule = {
   rule: TempGrammar[];
-  NT: string; // the reduce target
-  callback: GrammarCallback;
-  rejecter: Rejecter;
+  /** The reduce target. */
+  NT: string;
+  callback?: GrammarCallback;
+  rejecter?: Rejecter;
 };
 
-export type Definition = { [NT: string]: string | string[] };
+type Definition = { [NT: string]: string | string[] };
 
+/** LR(1) parser. Stateless. Try to yield a top level NT each time. */
 export class LRParser implements Parser {
-  parse: ParseExec;
-  reset() {}
+  dfa: DFA;
 
-  constructor(parse: ParseExec) {
-    this.parse = parse;
+  constructor(dfa: DFA) {
+    this.dfa = dfa;
+  }
+
+  /** Try to yield a top level NT. */
+  parse(buffer: ASTNode[]) {
+    return this.dfa.parse(buffer);
+  }
+
+  /** Actually this does nothing since each `DFA.parse` will reset itself. */
+  reset() {
+    // this.dfa.reset();
   }
 }
 
@@ -50,6 +70,8 @@ export class LRParser implements Parser {
  * Builder for LR(1) parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
+ *
+ * It's recommended to use `checkSymbols` before `build`.
  */
 export class LRParserBuilder {
   private tempGrammarRules: TempGrammarRule[];
@@ -60,7 +82,7 @@ export class LRParserBuilder {
     this.entryNTs = new Set();
   }
 
-  /** Top-level NT's. */
+  /** Declare top-level NT's. */
   entry(...defs: string[]) {
     this.entryNTs = new Set(defs);
     return this;
@@ -90,7 +112,8 @@ export class LRParserBuilder {
     return this;
   }
 
-  build(debug = false): Parser {
+  /** Generate the LR(1) parser. */
+  build(debug = false) {
     if (this.entryNTs.size == 0)
       throw new Error(`Please set entry NTs for LR Parser.`);
 
@@ -102,35 +125,37 @@ export class LRParserBuilder {
     let dfa = new DFA(grammarRules, this.entryNTs, NTs);
     dfa.debug = debug;
 
-    return new LRParser((buffer) => {
-      return dfa.parse(buffer);
-    });
+    return new LRParser(dfa);
   }
 
   /**
-   * Ensure all symbols have their definitions, and no duplication.
+   * Ensure all T/NTs have their definitions, and no duplication.
    */
   checkSymbols(Ts: Set<string>) {
-    let NTs: Set<string> = new Set(); // non-terminator definitions
-    let symbolSet: Set<string> = new Set();
+    /** Non-terminator definitions. */
+    let NTs: Set<string> = new Set();
+    /** T/NT names. */
+    let grammarSet: Set<string> = new Set();
 
-    // collect NT names and grammars
+    // collect NT definitions and T/NT names in grammar rule
     this.tempGrammarRules.map((g) => {
       NTs.add(g.NT);
       g.rule.map((grammar) => {
-        if (grammar.type == "grammar") symbolSet.add(grammar.content);
+        if (grammar.type == TempGrammarType.GRAMMAR)
+          grammarSet.add(grammar.content);
       });
     });
 
     // all symbols should have its definition
-    symbolSet.forEach((symbol) => {
-      if (!Ts.has(symbol) && !NTs.has(symbol))
-        throw new Error(`Undefined grammar symbol: ${symbol}`);
+    grammarSet.forEach((g) => {
+      if (!Ts.has(g) && !NTs.has(g))
+        throw new Error(`Undefined grammar symbol: ${g}`);
     });
 
     // check duplication
     NTs.forEach((name) => {
-      if (Ts.has(name)) throw new Error(`Duplicated definition: ${name}`);
+      if (Ts.has(name))
+        throw new Error(`Duplicated definition for grammar symbol: ${name}`);
     });
 
     // entry NTs must in NTs
@@ -151,14 +176,15 @@ function definitionToTempGrammarRules(
 
   // parse rules
   for (const NT in defs) {
+    /** `[grammar rule index][token index]` */
     let rules: Token[][] = [[]];
     let def = defs[NT];
     grammarLexer
       .reset()
       .lexAll(def instanceof Array ? def.join("|") : def)
       .map((t) => {
-        if (t.type == "or") rules.push([]);
-        else rules.at(-1).push(t);
+        if (t.type == "or") rules.push([]); // new grammar rule
+        else rules.at(-1).push(t); // append token to the last grammar rule
       });
 
     if (grammarLexer.hasRest())
@@ -168,13 +194,13 @@ function definitionToTempGrammarRules(
         }"`
       );
     if (rules.length == 0 && rules[0].length == 0)
-      throw new Error(`Empty rule: "${NT}=>${defs[NT]}"`);
+      throw new Error(`Empty rule: "${NT} => ${defs[NT]}"`);
 
     rules.map((tokens) => {
-      let ruleStr = tokens.join(" ");
+      let ruleStr = tokens.map((t) => t.content).join(" ");
 
       if (tokens.length == 0)
-        throw new Error(`No grammar or literal in rule '${NT}=>${ruleStr}'`);
+        throw new Error(`No grammar or literal in rule '${NT} => ${ruleStr}'`);
 
       if (
         !tokens
@@ -182,7 +208,7 @@ function definitionToTempGrammarRules(
           .every((t) => t.content.length > 2)
       )
         throw new Error(
-          `Literal value can't be empty in rule '${NT}=>${ruleStr}'`
+          `Literal value can't be empty in rule '${NT} => ${ruleStr}'`
         );
 
       result.push({
@@ -190,12 +216,12 @@ function definitionToTempGrammarRules(
         rule: tokens.map((t) => {
           if (t.type == "grammar")
             return {
-              type: "grammar",
+              type: TempGrammarType.GRAMMAR,
               content: t.content,
             };
           else
             return {
-              type: "literal",
+              type: TempGrammarType.LITERAL,
               content: t.content.slice(1, -1), // remove quotes
             };
         }),
@@ -222,7 +248,7 @@ function tempGrammarRulesToGrammarRules(
             new Grammar({
               content: g.content,
               type:
-                g.type == "literal"
+                g.type == TempGrammarType.LITERAL
                   ? GrammarType.LITERAL
                   : NTs.has(g.content)
                   ? GrammarType.NT
