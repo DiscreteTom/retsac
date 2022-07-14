@@ -6,7 +6,7 @@ function getResult(input: string) {
     throw new Error(
       `Reduce failed for input "${input}". Result: ${res.buffer}`
     );
-  return res.buffer[0].data.value;
+  return res.buffer[0].data;
 }
 
 test("basic", () => {

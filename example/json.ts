@@ -10,67 +10,67 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
-let parser = new LR.ParserBuilder()
+let parser = new LR.ParserBuilder<any>()
   .entry("value")
   .define(
     { value: "string" },
-    LR.valueReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
+    LR.dataReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
   )
   .define(
     { value: "number" },
-    LR.valueReducer((_, { matched }) => Number(matched[0].text))
+    LR.dataReducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { value: "true" },
-    LR.valueReducer(() => true)
+    LR.dataReducer(() => true)
   )
   .define(
     { value: "false" },
-    LR.valueReducer(() => false)
+    LR.dataReducer(() => false)
   )
   .define(
     { value: "null" },
-    LR.valueReducer(() => null)
+    LR.dataReducer(() => null)
   )
   .define(
     { value: "object | array" },
-    LR.valueReducer((values) => values[0])
+    LR.dataReducer((values) => values[0])
   )
   .define(
     { array: `'[' ']'` },
-    LR.valueReducer(() => [])
+    LR.dataReducer(() => [])
   )
   .define(
     { array: `'[' values ']'` },
-    LR.valueReducer((values) => values[1])
+    LR.dataReducer((values) => values[1])
   )
   .define(
     { values: `value` },
-    LR.valueReducer((values) => values) // values => [values[0]]
+    LR.dataReducer((values) => values) // values => [values[0]]
   )
   .define(
     { values: `values ',' value` },
-    LR.valueReducer((values) => values[0].concat([values[2]]))
+    LR.dataReducer((values) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
-    LR.valueReducer(() => ({}))
+    LR.dataReducer(() => ({}))
   )
   .define(
     { object: `'{' object_items '}'` },
-    LR.valueReducer((values) => values[1])
+    LR.dataReducer((values) => values[1])
   )
   .define(
     { object_items: `object_item` },
-    LR.valueReducer((values) => values[0])
+    LR.dataReducer((values) => values[0])
   )
   .define(
     { object_items: `object_items ',' object_item` },
-    LR.valueReducer((values) => Object.assign(values[0], values[2]))
+    LR.dataReducer((values) => Object.assign(values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
-    LR.valueReducer((values, { matched }) => {
+    LR.dataReducer((values, { matched }) => {
       let result = {};
       result[matched[0].text.slice(1, -1)] = values[2];
       return result;

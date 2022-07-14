@@ -1,27 +1,25 @@
 import { Token } from "../lexer/model";
 
-export type ASTData = { value: any; [key: string]: any };
-
-export class ASTNode {
+export class ASTNode<T> {
   /** T's or NT's name. */
   type: string;
   /** T's text content. */
   text: string;
   /** Start position of input string. */
   start: number;
-  children: ASTNode[];
-  parent: ASTNode;
-  data: ASTData;
+  children: ASTNode<T>[];
+  parent: ASTNode<T>;
+  data?: T;
   /** `null` if no error. */
   error: any;
 
-  constructor(p: Partial<ASTNode> & Pick<ASTNode, "type" | "start">) {
+  constructor(p: Partial<ASTNode<T>> & Pick<ASTNode<T>, "type" | "start">) {
     this.type = p.type;
     this.text = p.text ?? "";
     this.children = p.children ?? [];
     this.parent = p.parent ?? null;
     this.error = p.error ?? null;
-    this.data = p.data ?? { value: null };
+    this.data = p.data;
     this.start = p.start;
   }
 

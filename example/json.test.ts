@@ -4,7 +4,7 @@ function getResult(input: string) {
   let res = manager.reset().parse(input);
   if (!res.accept) throw new Error();
   if (res.buffer.length != 1) throw new Error();
-  return res.buffer[0].data.value;
+  return res.buffer[0].data;
 }
 
 test("literal value", () => {

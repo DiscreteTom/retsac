@@ -1,18 +1,18 @@
 import { ASTNode } from "./ast";
 
-export type ParserOutput =
+export type ParserOutput<T> =
   | { accept: false }
   | {
       accept: true;
       /** Result AST nodes. */
-      buffer: ASTNode[];
+      buffer: ASTNode<T>[];
       /** Empty if no error. */
-      errors: ASTNode[];
+      errors: ASTNode<T>[];
     };
 
-export type ParseExec = (buffer: ASTNode[]) => ParserOutput;
+export type ParseExec<T> = (buffer: ASTNode<T>[]) => ParserOutput<T>;
 
-export interface IParser {
-  parse: ParseExec;
+export interface IParser<T> {
+  parse: ParseExec<T>;
   reset: () => void;
 }

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.0
+
+- Parser
+  - Replace `ASTData` with generic type.
+  - Remove `valueParser`.
+
 ## v0.2.0
 
 - Better export structure.

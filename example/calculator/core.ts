@@ -8,32 +8,32 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-let parser = new LR.ParserBuilder()
+let parser = new LR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    LR.valueReducer((_, { matched }) => Number(matched[0].text))
+    LR.dataReducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    LR.valueReducer((values) => -values[1]),
+    LR.dataReducer((values) => -values[1]),
     // if previous node is an exp, the `- exp` should be `exp - exp`, reject
     ({ before }) => before.at(-1)?.type == "exp"
   )
   .define(
     { exp: `'(' exp ')'` },
-    LR.valueReducer((values) => values[1])
+    LR.dataReducer((values) => values[1])
   )
   .define(
     { exp: `exp '+' exp | exp '-' exp` },
-    LR.valueReducer((values, { matched }) =>
+    LR.dataReducer((values, { matched }) =>
       matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
     ),
     ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
   )
   .define(
     { exp: `exp '*' exp | exp '/' exp` },
-    LR.valueReducer((values, { matched }) =>
+    LR.dataReducer((values, { matched }) =>
       matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
     )
   )

@@ -1,4 +1,4 @@
-import { ASTData, ASTNode } from "../ast";
+import { ASTNode } from "../ast";
 import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {
@@ -10,17 +10,17 @@ export enum GrammarType {
   NT,
 }
 
-export class Grammar {
+export class Grammar<T> {
   type: GrammarType;
   /** Literal content, or T/NT's type name. */
   content: string;
 
-  constructor(p: Pick<Grammar, "type" | "content">) {
+  constructor(p: Pick<Grammar<T>, "type" | "content">) {
     Object.assign(this, p);
   }
 
   /** Equals to. */
-  eq(g: Grammar | ASTNode) {
+  eq(g: Grammar<T> | ASTNode<T>) {
     if (g instanceof Grammar)
       return this.type == g.type && this.content == g.content;
     else
@@ -37,16 +37,16 @@ export class Grammar {
   }
 }
 
-export class GrammarRule {
-  rule: Grammar[];
+export class GrammarRule<T> {
+  rule: Grammar<T>[];
   /** The reduce target. */
   NT: string;
-  callback: GrammarCallback;
-  rejecter: Rejecter;
+  callback: GrammarCallback<T>;
+  rejecter: Rejecter<T>;
 
   constructor(
-    p: Partial<Pick<GrammarRule, "callback" | "rejecter" | "NT">> &
-      Pick<GrammarRule, "rule">
+    p: Partial<Pick<GrammarRule<T>, "callback" | "rejecter" | "NT">> &
+      Pick<GrammarRule<T>, "rule">
   ) {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
@@ -67,43 +67,43 @@ export class GrammarRule {
   }
 }
 
-export type ReducerContext = {
+export type ReducerContext<T> = {
   /** Data of the result AST node. */
-  data: ASTData;
-  readonly matched: ASTNode[];
-  readonly before: ASTNode[];
-  readonly after: ASTNode[];
+  data: T;
+  readonly matched: ASTNode<T>[];
+  readonly before: ASTNode<T>[];
+  readonly after: ASTNode<T>[];
   /** `null` if no error. */
   error: any;
 };
 
 /** Will be called if the current grammar is accepted. */
-export type GrammarCallback = (context: ReducerContext) => void;
+export type GrammarCallback<T> = (context: ReducerContext<T>) => void;
 
 /** Grammar rejecter. Return `true` to reject to use the current grammar. */
-export type Rejecter = (context: ReducerContext) => boolean;
+export type Rejecter<T> = (context: ReducerContext<T>) => boolean;
 
 /** A set of different grammars. */
-export class GrammarSet {
+export class GrammarSet<T> {
   /** Grammars. */
-  private gs: Grammar[];
+  private gs: Grammar<T>[];
 
   constructor() {
     this.gs = [];
   }
 
-  has(g: Grammar | ASTNode) {
+  has(g: Grammar<T> | ASTNode<T>) {
     return !this.gs.every((gg) => !gg.eq(g));
   }
 
   /** Return `true` if successfully added. */
-  add(g: Grammar) {
+  add(g: Grammar<T>) {
     if (this.has(g)) return false;
     this.gs.push(g);
     return true;
   }
 
-  map<T>(f: (g: Grammar) => T) {
+  map<TT>(f: (g: Grammar<T>) => TT) {
     return this.gs.map(f);
   }
 }

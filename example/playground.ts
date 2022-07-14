@@ -13,7 +13,7 @@ var rl = readline.createInterface({
 rl.on("line", function (line) {
   let res = manager.parseAll(line + "\n");
   if (res.accept && res.buffer.length == 1) {
-    console.log(res.buffer[0].data.value);
+    console.log(res.buffer[0].data);
     manager.reset();
   }
   rl.prompt();

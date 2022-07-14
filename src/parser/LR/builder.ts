@@ -38,26 +38,26 @@ type TempGrammar = {
   content: string;
 };
 
-type TempGrammarRule = {
+type TempGrammarRule<T> = {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
-  callback?: GrammarCallback;
-  rejecter?: Rejecter;
+  callback?: GrammarCallback<T>;
+  rejecter?: Rejecter<T>;
 };
 
 type Definition = { [NT: string]: string | string[] };
 
 /** LR(1) parser. Stateless. Try to yield a top level NT each time. */
-export class Parser implements IParser {
-  dfa: DFA;
+export class Parser<T> implements IParser<T> {
+  dfa: DFA<T>;
 
-  constructor(dfa: DFA) {
+  constructor(dfa: DFA<T>) {
     this.dfa = dfa;
   }
 
   /** Try to yield a top level NT. */
-  parse(buffer: ASTNode[]) {
+  parse(buffer: ASTNode<T>[]) {
     return this.dfa.parse(buffer);
   }
 
@@ -74,8 +74,8 @@ export class Parser implements IParser {
  *
  * It's recommended to use `checkSymbols` before `build`.
  */
-export class ParserBuilder {
-  private tempGrammarRules: TempGrammarRule[];
+export class ParserBuilder<T> {
+  private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
 
   constructor() {
@@ -105,7 +105,11 @@ export class ParserBuilder {
    * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
-  define(defs: Definition, callback?: GrammarCallback, rejecter?: Rejecter) {
+  define(
+    defs: Definition,
+    callback?: GrammarCallback<T>,
+    rejecter?: Rejecter<T>
+  ) {
     this.tempGrammarRules.push(
       ...definitionToTempGrammarRules(defs, callback, rejecter)
     );
@@ -126,10 +130,10 @@ export class ParserBuilder {
       this.tempGrammarRules,
       NTs
     );
-    let dfa = new DFA(grammarRules, this.entryNTs, NTs);
+    let dfa = new DFA<T>(grammarRules, this.entryNTs, NTs);
     dfa.debug = debug;
 
-    return new Parser(dfa);
+    return new Parser<T>(dfa);
   }
 
   /**
@@ -181,12 +185,12 @@ export class ParserBuilder {
   }
 }
 
-function definitionToTempGrammarRules(
+function definitionToTempGrammarRules<T>(
   defs: Definition,
-  callback?: GrammarCallback,
-  rejecter?: Rejecter
+  callback?: GrammarCallback<T>,
+  rejecter?: Rejecter<T>
 ) {
-  let result: TempGrammarRule[] = [];
+  let result: TempGrammarRule<T>[] = [];
 
   // parse rules
   for (const NT in defs) {
@@ -255,8 +259,8 @@ function definitionToTempGrammarRules(
   return result;
 }
 
-function tempGrammarRulesToGrammarRules(
-  temp: TempGrammarRule[],
+function tempGrammarRulesToGrammarRules<T>(
+  temp: TempGrammarRule<T>[],
   NTs: Set<string>
 ) {
   return temp.map(
