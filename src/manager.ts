@@ -6,14 +6,14 @@ import { IParser } from "./parser/model";
  * Manager will use a lexer to retrieve tokens,
  * and a parser to reduce buffer and gather errors.
  */
-export class Manager {
+export class Manager<T> {
   private lexer: Lexer;
-  private parser: IParser;
-  private buffer: ASTNode[];
+  private parser: IParser<T>;
+  private buffer: ASTNode<T>[];
   /** Error nodes. */
-  private errors: ASTNode[];
+  private errors: ASTNode<T>[];
 
-  constructor(p: { lexer: Lexer; parser: IParser }) {
+  constructor(p: { lexer: Lexer; parser: IParser<T> }) {
     this.lexer = p.lexer;
     this.parser = p.parser;
     this.reset();
@@ -37,7 +37,7 @@ export class Manager {
 
   /** Parse input string to token then to ASTNode and push to buffer. */
   feed(s: string) {
-    this.buffer.push(...this.lexer.lexAll(s).map((t) => ASTNode.from(t)));
+    this.buffer.push(...this.lexer.lexAll(s).map((t) => ASTNode.from<T>(t)));
     return this;
   }
 
