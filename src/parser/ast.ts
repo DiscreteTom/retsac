@@ -23,8 +23,8 @@ export class ASTNode<T> {
     this.start = p.start;
   }
 
-  static from(t: Token) {
-    return new ASTNode({ type: t.type, text: t.content, start: t.start });
+  static from<T>(t: Token) {
+    return new ASTNode<T>({ type: t.type, text: t.content, start: t.start });
   }
 
   /** Return a tree-structured string. */
