@@ -117,6 +117,12 @@ export class ParserBuilder<T> {
     return this;
   }
 
+  /** Merge grammar rules of another parser builder. */
+  use(another: ParserBuilder<T>) {
+    this.tempGrammarRules.push(...another.tempGrammarRules);
+    return this;
+  }
+
   /** Generate the LR(1) parser. */
   build(debug = false) {
     if (this.entryNTs.size == 0)

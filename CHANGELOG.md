@@ -5,6 +5,8 @@
 - Parser
   - Replace `ASTData` with generic type.
   - Remove `valueParser`.
+  - LR Parser
+    - Add `ParserBuilder.use` to re-use existing parser builder or modularize code.
 
 ## v0.2.0
 
