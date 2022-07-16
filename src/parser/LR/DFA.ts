@@ -93,8 +93,8 @@ export class Candidate<T> {
     };
   }
 
-  /** Return `NT => ...before @ ...after`. */
-  toString(sep = " ", arrow = "=>", index = "@") {
+  /** Return `NT <= ...before @ ...after`. */
+  toString(sep = " ", arrow = "<=", index = "@") {
     return [
       this.gr.NT,
       arrow,

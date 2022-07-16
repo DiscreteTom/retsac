@@ -7,6 +7,7 @@
   - Remove `valueParser`.
   - LR Parser
     - Add `ParserBuilder.use` to re-use existing parser builder or modularize code.
+    - `GrammarRule/Candidate.toString` will use `<=` as the default arrow instead of `=>`.
 
 ## v0.2.0
 

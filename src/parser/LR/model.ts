@@ -61,8 +61,8 @@ export class GrammarRule<T> {
     Object.assign(this, p);
   }
 
-  /** Return `NT => grammar rules`. */
-  toString(sep = " ", arrow = "=>") {
+  /** Return `NT <= grammar rules`. */
+  toString(sep = " ", arrow = "<=") {
     return [this.NT, arrow, ...this.rule.map((r) => r.toString())].join(sep);
   }
 }
