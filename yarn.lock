@@ -1355,6 +1355,11 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+argparse@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmmirror.com/argparse/-/argparse-2.0.1.tgz#246f50f3ca78a3240f6c997e8a9bd1eac49e4b38"
+  integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
+
 babel-jest@^28.1.2:
   version "28.1.2"
   resolved "https://registry.npmmirror.com/babel-jest/-/babel-jest-28.1.2.tgz#2b37fb81439f14d34d8b2cc4a4bd7efabf9acbfe"
@@ -1737,6 +1742,13 @@ fast-json-stable-stringify@^2.0.0:
   version "2.1.0"
   resolved "https://registry.npmmirror.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
   integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
+
+fast-xml-parser@^4.0.9:
+  version "4.0.9"
+  resolved "https://registry.npmmirror.com/fast-xml-parser/-/fast-xml-parser-4.0.9.tgz#3a81dab7b4952b8d38f0136d28bd055b80ed6512"
+  integrity sha512-4G8EzDg2Nb1Qurs3f7BpFV4+jpMVsdgLVuG1Uv8O2OHJfVCg7gcA53obuKbmVqzd4Y7YXVBK05oJG7hzGIdyzg==
+  dependencies:
+    strnum "^1.0.5"
 
 fb-watchman@^2.0.0:
   version "2.0.1"
@@ -2409,6 +2421,20 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
+marked@^4.0.18:
+  version "4.0.18"
+  resolved "https://registry.npmmirror.com/marked/-/marked-4.0.18.tgz#cd0ac54b2e5610cfb90e8fd46ccaa8292c9ed569"
+  integrity sha512-wbLDJ7Zh0sqA0Vdg6aqlbT+yPxqLblpAZh1mK2+AO2twQkPywvvqQNfEPVwSSRjZ7dZcdeVBIAgiO7MMp3Dszw==
+
+mdcg@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.npmmirror.com/mdcg/-/mdcg-0.1.1.tgz#d663509796a29677738ae6cf0425fff64563a557"
+  integrity sha512-aSTJEFr46TepgYn+qrFp/veVfArmCt6WG07EaUgvaeaohFD+VZzIabPN0ikBwbX/l00Rxfby0MNTT9ojkxGvog==
+  dependencies:
+    argparse "^2.0.1"
+    fast-xml-parser "^4.0.9"
+    marked "^4.0.18"
+
 merge-stream@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmmirror.com/merge-stream/-/merge-stream-2.0.0.tgz#52823629a14dd00c9770fb6ad47dc6310f2c1f60"
@@ -2792,6 +2818,11 @@ strip-json-comments@^3.1.1:
   version "3.1.1"
   resolved "https://registry.npmmirror.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
+
+strnum@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmmirror.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
+  integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
 supports-color@^5.3.0:
   version "5.5.0"
