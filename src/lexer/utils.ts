@@ -1,5 +1,8 @@
 import { Action } from "./action";
 
+/**
+ * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
+ */
 export function from_to(
   from: string | RegExp,
   to: string | RegExp,
