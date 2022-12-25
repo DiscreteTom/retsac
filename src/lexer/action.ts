@@ -12,7 +12,7 @@ export type ActionOutput =
     };
 
 export type ActionExec = (buffer: string) => ActionOutput;
-/** Only return how many chars are accepted. */
+/** Only return how many chars are accepted. If > 0, accept. */
 export type SimpleActionExec = (buffer: string) => number;
 export type ActionSource = RegExp | Action | SimpleActionExec;
 
@@ -25,7 +25,7 @@ export class Action {
 
   private static simple(f: SimpleActionExec) {
     return new Action((buffer) => {
-      let n = f(buffer);
+      const n = f(buffer);
       return n > 0
         ? {
             accept: true,
@@ -39,7 +39,7 @@ export class Action {
 
   private static match(r: RegExp) {
     return Action.simple((buffer) => {
-      let res = r.exec(buffer);
+      const res = r.exec(buffer);
       if (res && res.index != -1) return res.index + res[0].length;
       return 0;
     });
@@ -58,7 +58,7 @@ export class Action {
    */
   mute(enable = true) {
     return new Action((buffer) => {
-      let output = this.exec(buffer);
+      const output = this.exec(buffer);
       if (output.accept) output.mute = enable;
       return output;
     });
@@ -70,7 +70,7 @@ export class Action {
    */
   check(condition: (content: string) => any) {
     return new Action((buffer) => {
-      let output = this.exec(buffer);
+      const output = this.exec(buffer);
       if (output.accept)
         output.error = condition(buffer.slice(0, output.digested));
       return output;
@@ -82,7 +82,7 @@ export class Action {
    */
   reject(rejecter: (content: string) => any) {
     return new Action((buffer) => {
-      let output = this.exec(buffer);
+      const output = this.exec(buffer);
       if (output.accept) {
         if (rejecter(buffer.slice(0, output.digested)))
           return { accept: false };
@@ -97,7 +97,7 @@ export class Action {
    */
   then(f: (content: string) => void) {
     return new Action((buffer) => {
-      let output = this.exec(buffer);
+      const output = this.exec(buffer);
       if (output.accept) f(buffer.slice(0, output.digested));
       return output;
     });
