@@ -1,7 +1,7 @@
 import { Action } from "./action";
 
 /** The output of a lexer. */
-export type Token = {
+export interface Token {
   /** User-defined type name. */
   type: string;
   /** Text content. */
@@ -9,12 +9,12 @@ export type Token = {
   /** Start position of input string. */
   start: number;
   /** Error message. `null` if no error. */
-  error: any;
-};
+  error?: any;
+}
 
 /** Apply `action` and try to yield a token with `type`. */
-export type Definition = {
+export interface Definition {
   /** Target token type. Empty string if anonymous. */
   type: string;
   action: Action;
-};
+}

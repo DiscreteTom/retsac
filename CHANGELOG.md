@@ -4,6 +4,7 @@
 
 - Lexer
   - Add optional `stopOnError` parameter to `lexAll`.
+  - Change `Token` and `Definition` from type to interface.
 - Optimize document / comments.
 - Optimize code.
 - More test code.
