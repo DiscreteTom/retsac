@@ -3,24 +3,20 @@ import { Token } from "../lexer/model";
 export class ASTNode<T> {
   /** T's or NT's name. */
   type: string;
-  /** T's text content. */
-  text: string;
-  /** Start position of input string. */
+  /** Start position of the input string. Same as the first token's start position. */
   start: number;
-  children: ASTNode<T>[];
-  parent: ASTNode<T>;
+  /** T's text content. */
+  text?: string;
+  /** NT's children. */
+  children?: ASTNode<T>[];
+  /** Parent must be an NT unless this node is the root node, in this case parent is null. */
+  parent?: ASTNode<T>;
   data?: T;
   /** `null` if no error. */
   error: any;
 
   constructor(p: Partial<ASTNode<T>> & Pick<ASTNode<T>, "type" | "start">) {
-    this.type = p.type;
-    this.text = p.text ?? "";
-    this.children = p.children ?? [];
-    this.parent = p.parent ?? null;
-    this.error = p.error ?? null;
-    this.data = p.data;
-    this.start = p.start;
+    Object.assign(this, p);
   }
 
   static from<T>(t: Token) {
@@ -33,9 +29,9 @@ export class ASTNode<T> {
     anonymous?: string;
     textQuote?: string;
   }) {
-    let indent = options?.indent ?? "";
-    let anonymous = options?.anonymous ?? "<anonymous>";
-    let textQuote = options?.textQuote ?? "";
+    const indent = options?.indent ?? "";
+    const anonymous = options?.anonymous ?? "<anonymous>";
+    const textQuote = options?.textQuote ?? "";
 
     let res = `${indent}${this.type || anonymous}: `;
     if (this.text) res += `${textQuote}${this.text}${textQuote}`;
@@ -46,7 +42,7 @@ export class ASTNode<T> {
     return res;
   }
 
-  /** Return `NT` or `"T"`. */
+  /** Return type name. If the type is anonymous, return "literal value". */
   toString() {
     return this.type || `"${this.text}"`;
   }
