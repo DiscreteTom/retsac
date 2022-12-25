@@ -12,7 +12,7 @@ export function from_to(
     // check 'from'
     let fromDigested = 0;
     if (from instanceof RegExp) {
-      let res = from.exec(buffer);
+      const res = from.exec(buffer);
       if (!res || res.index == -1) return 0;
       fromDigested = res.index + res[0].length;
     } else {
@@ -21,13 +21,13 @@ export function from_to(
     }
 
     // check 'to'
-    let rest = buffer.slice(fromDigested);
+    const rest = buffer.slice(fromDigested);
     let toDigested = 0;
     if (to instanceof RegExp) {
-      let res = to.exec(rest);
+      const res = to.exec(rest);
       if (res && res.index != -1) toDigested = res.index + res[0].length;
     } else {
-      let index = rest.indexOf(to);
+      const index = rest.indexOf(to);
       if (index != -1) toDigested = index + to.length;
     }
 
@@ -54,7 +54,7 @@ export function exact(...ss: string[]): Action {
 }
 
 /**
- * Match a list of word, lookahead one char to ensure there is a word boundary.
+ * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
 export function word(...words: string[]): Action {
   return Action.from((buffer) => {
@@ -69,10 +69,10 @@ export function word(...words: string[]): Action {
 }
 
 /**
- * Define types which name is the same as its word value.
+ * Define types which name is the same as its literal value.
  */
 export function wordType(...words: string[]): { [type: string]: Action } {
-  let result: { [type: string]: Action } = {};
+  const result: { [type: string]: Action } = {};
   for (const w of words) {
     result[w] = word(w);
   }
@@ -82,7 +82,7 @@ export function wordType(...words: string[]): { [type: string]: Action } {
 /**
  * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
  *
- * Escape `\` will be handled correctly.
+ * Escape `\` will be handled correctly for quote, not for the string content.
  *
  * You can also use `from`/`to` or `quote` to specify your own string boundary.
  *
@@ -104,35 +104,35 @@ export function stringLiteral(
 ) {
   return Action.from((buffer) => {
     let digested = 0;
-    let target = "";
+    let endQuote = "";
     if ("single" in p && p.single && buffer.startsWith(`'`)) {
-      target = "'";
+      endQuote = "'";
       digested = 1;
     } else if ("double" in p && p.double && buffer.startsWith(`"`)) {
-      target = '"';
+      endQuote = '"';
       digested = 1;
     } else if ("back" in p && p.back && buffer.startsWith("`")) {
-      target = "`";
+      endQuote = "`";
       digested = 1;
     } else if ("from" in p && buffer.startsWith(p.from)) {
-      target = p.to;
+      endQuote = p.to;
       digested = p.from.length;
     } else if ("quote" in p && buffer.startsWith(p.quote)) {
-      target = p.quote;
+      endQuote = p.quote;
       digested = p.quote.length;
     } else return 0;
 
-    for (let i = digested; i < buffer.length - target.length + 1; ++i) {
+    for (let i = digested; i < buffer.length - endQuote.length + 1; ++i) {
       if (buffer[i] == "\\") {
         i++; // escape next
         continue;
       }
-      if (buffer.slice(i, i + target.length) == target) {
+      if (buffer.slice(i, i + endQuote.length) == endQuote) {
         if (
           p.multiline ||
-          !buffer.slice(digested, i + target.length).includes("\n")
+          !buffer.slice(digested, i + endQuote.length).includes("\n")
         )
-          return i + target.length;
+          return i + endQuote.length;
         else return 0; // multiline not allowed
       }
     }
