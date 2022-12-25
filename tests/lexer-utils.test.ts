@@ -65,9 +65,17 @@ test("lexer utils stringLiteral", () => {
     })
     .build();
 
+  expect(lexer.reset().lex(`""`)?.content).toBe(`""`);
   expect(lexer.reset().lex(`"123"`)?.content).toBe(`"123"`);
+  expect(lexer.reset().lex(`"123\\""`)?.content).toBe(`"123\\""`);
+  expect(lexer.reset().lex(`''`)?.content).toBe(`''`);
   expect(lexer.reset().lex(`'123'`)?.content).toBe(`'123'`);
+  expect(lexer.reset().lex(`'123\\''`)?.content).toBe(`'123\\''`);
   expect(lexer.reset().lex("`123\n123`")?.content).toBe("`123\n123`");
+  expect(lexer.reset().lex("ab")?.content).toBe("ab");
   expect(lexer.reset().lex("a123b")?.content).toBe("a123b");
+  expect(lexer.reset().lex("a123\\bb")?.content).toBe("a123\\bb");
+  expect(lexer.reset().lex("&&")?.content).toBe("&&");
   expect(lexer.reset().lex("&123&")?.content).toBe("&123&");
+  expect(lexer.reset().lex("&123\\&&")?.content).toBe("&123\\&&");
 });
