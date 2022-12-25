@@ -15,8 +15,8 @@ export class Builder {
    */
   define(defs: { [type: string]: ActionSource | ActionSource[] }) {
     for (const type in defs) {
-      let raw = defs[type];
-      let actionSources = raw instanceof Array ? raw : [raw];
+      const raw = defs[type];
+      const actionSources = raw instanceof Array ? raw : [raw];
 
       for (const src of actionSources) {
         this.defs.push({
@@ -29,7 +29,7 @@ export class Builder {
   }
 
   /**
-   * Define anonymous tokens.
+   * Define tokens with empty type.
    */
   anonymous(...actions: ActionSource[]) {
     actions.map((a) => this.define({ "": a }));
@@ -44,10 +44,11 @@ export class Builder {
     return this;
   }
 
+  /**
+   * Get all defined token types.
+   */
   getTokenTypes() {
-    let res: Set<string> = new Set();
-    this.defs.map((d) => res.add(d.type));
-    return res;
+    return this.build().getTokenTypes();
   }
 
   build() {
