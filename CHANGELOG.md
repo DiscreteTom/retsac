@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.4.0
+
+- Optimize document / comments.
+- Optimize code.
+
 ## v0.3.0
 
 - Parser

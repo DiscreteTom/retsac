@@ -8,6 +8,7 @@ export class Lexer {
   private offset: number;
   /** How many chars in each line. */
   private lineChars: number[];
+  /** Error token list. */
   private errors: Token[];
 
   constructor(defs: Definition[]) {
@@ -32,14 +33,14 @@ export class Lexer {
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    */
-  lex(input = ""): Token {
+  lex(input = ""): Token | null {
     this.feed(input);
     if (this.buffer.length == 0) return null;
 
     while (true) {
       let mute = false;
       for (const def of this.defs) {
-        let res = def.action.exec(this.buffer);
+        const res = def.action.exec(this.buffer);
         if (res.accept) {
           // update this state
           const content = this.buffer.slice(0, res.digested);
@@ -79,6 +80,7 @@ export class Lexer {
       if (!mute)
         // all definition checked, no accept
         return null;
+      // else, muted, re-loop all definitions
     }
   }
 
@@ -88,9 +90,9 @@ export class Lexer {
   lexAll(input = "") {
     this.feed(input);
 
-    let result: Token[] = [];
+    const result: Token[] = [];
     while (true) {
-      let res = this.lex();
+      const res = this.lex();
       if (res) result.push(res);
       else break;
     }
@@ -111,8 +113,11 @@ export class Lexer {
     return this.buffer.length != 0;
   }
 
+  /**
+   * Get all defined token types.
+   */
   getTokenTypes() {
-    let res: Set<string> = new Set();
+    const res: Set<string> = new Set();
     this.defs.map((d) => res.add(d.type));
     return res;
   }
@@ -129,7 +134,7 @@ export class Lexer {
    * from the index (starts from 0) of the input string.
    */
   getPos(index: number): { line: number; column: number } {
-    let result = { line: 1, column: 1 };
+    const result = { line: 1, column: 1 };
     for (const n of this.lineChars) {
       if (index >= n) {
         index -= n;
