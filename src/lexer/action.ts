@@ -8,7 +8,7 @@ export type ActionOutput =
       /** How many chars are accepted by this action. */
       digested: number;
       /** `null` if no error. */
-      error: any;
+      error?: any;
     };
 
 export type ActionExec = (buffer: string) => ActionOutput;
