@@ -2,6 +2,8 @@
 
 ## v0.4.0
 
+- Lexer
+  - Add optional `stopOnError` parameter to `lexAll`.
 - Optimize document / comments.
 - Optimize code.
 

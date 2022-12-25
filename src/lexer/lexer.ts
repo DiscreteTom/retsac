@@ -87,14 +87,16 @@ export class Lexer {
   /**
    * Try to retrieve a token list.
    */
-  lexAll(input = "") {
+  lexAll(input = "", stopOnError = false): Token[] {
     this.feed(input);
 
     const result: Token[] = [];
     while (true) {
       const res = this.lex();
-      if (res) result.push(res);
-      else break;
+      if (res) {
+        result.push(res);
+        if (stopOnError && res.error) break;
+      } else break;
     }
     return result;
   }
