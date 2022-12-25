@@ -73,8 +73,7 @@ export type ReducerContext<T> = {
   readonly matched: ASTNode<T>[];
   readonly before: ASTNode<T>[];
   readonly after: ASTNode<T>[];
-  /** `null` if no error. */
-  error: any;
+  error?: any;
 };
 
 /** Will be called if the current grammar is accepted. */

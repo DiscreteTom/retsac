@@ -53,7 +53,6 @@ export class Candidate<T> {
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),
       data: null,
-      error: null,
     };
 
     // check follow for LR(1)

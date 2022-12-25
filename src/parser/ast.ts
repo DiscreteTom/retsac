@@ -12,8 +12,7 @@ export class ASTNode<T> {
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
   data?: T;
-  /** `null` if no error. */
-  error: any;
+  error?: any;
 
   constructor(p: Partial<ASTNode<T>> & Pick<ASTNode<T>, "type" | "start">) {
     Object.assign(this, p);
