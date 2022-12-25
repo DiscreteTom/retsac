@@ -27,7 +27,7 @@ test("number", () => {
       type: "number",
       content: str,
       start: 0,
-      error: null,
+      error: undefined,
     } as Token);
   });
 });
@@ -44,7 +44,7 @@ test("anonymous", () => {
       type: "",
       content: str,
       start: 0,
-      error: null,
+      error: undefined,
     } as Token);
   });
 });

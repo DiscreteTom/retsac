@@ -7,7 +7,6 @@ export type ActionOutput =
       mute: boolean;
       /** How many chars are accepted by this action. */
       digested: number;
-      /** `null` if no error. */
       error?: any;
     };
 
@@ -31,7 +30,6 @@ export class Action {
             accept: true,
             mute: false,
             digested: n,
-            error: null,
           }
         : { accept: false };
     });
@@ -66,7 +64,7 @@ export class Action {
 
   /**
    * Check token content if `accept` is `true`.
-   * `condition` should return error, `null` means no error.
+   * `condition` should return error, `undefined` means no error.
    */
   check(condition: (content: string) => any) {
     return new Action((buffer) => {

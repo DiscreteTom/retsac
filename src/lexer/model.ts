@@ -8,7 +8,6 @@ export interface Token {
   content: string;
   /** Start position of input string. */
   start: number;
-  /** Error message. `null` if no error. */
   error?: any;
 }
 

@@ -5,6 +5,7 @@
 - Lexer
   - Add optional `stopOnError` parameter to `lexAll`.
   - Change `Token` and `Definition` from type to interface.
+  - If token has no error, the error field will be `undefined`.
 - Optimize document / comments.
 - Optimize code.
 - More test code.
