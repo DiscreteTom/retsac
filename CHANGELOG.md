@@ -10,6 +10,7 @@
   - If ASTNode has no error, the error field will be `undefined`.
   - LR Parser
     - If ReducerContext has no error, the error field will be `undefined`.
+    - Change `ReducerContext` from type to interface.
 - Optimize document / comments.
 - Optimize code.
 - More test code.

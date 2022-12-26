@@ -67,14 +67,14 @@ export class GrammarRule<T> {
   }
 }
 
-export type ReducerContext<T> = {
-  /** Data of the result AST node. */
-  data: T;
+export interface ReducerContext<T> {
   readonly matched: ASTNode<T>[];
   readonly before: ASTNode<T>[];
   readonly after: ASTNode<T>[];
+  /** Data of the result AST node. */
+  data?: T;
   error?: any;
-};
+}
 
 /** Will be called if the current grammar is accepted. */
 export type GrammarCallback<T> = (context: ReducerContext<T>) => void;
