@@ -10,7 +10,10 @@ export type ParserOutput<T> =
       errors: ASTNode<T>[];
     };
 
-export type ParseExec<T> = (buffer: ASTNode<T>[]) => ParserOutput<T>;
+export type ParseExec<T> = (
+  buffer: ASTNode<T>[],
+  stopOnError?: boolean
+) => ParserOutput<T>;
 
 export interface IParser<T> {
   parse: ParseExec<T>;

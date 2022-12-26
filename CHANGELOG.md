@@ -9,10 +9,11 @@
 - Parser
   - If ASTNode has no error, the error field will be `undefined`.
   - Add `ASTNode.toObj` for serialization.
+  - Add optional `stopOnError` parameter to `IParser.parse`.
   - LR Parser
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
-    - Add optional `stopOnError` parameter to `DFA.parse`.
+    - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
 - Optimize document / comments.
 - Optimize code.
 - More test code.

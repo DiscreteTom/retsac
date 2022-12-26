@@ -59,8 +59,8 @@ export class Parser<T> implements IParser<T> {
   }
 
   /** Try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[]) {
-    return this.dfa.parse(buffer);
+  parse(buffer: ASTNode<T>[], stopOnError = false) {
+    return this.dfa.parse(buffer, stopOnError);
   }
 
   /** Actually this does nothing since each `DFA.parse` will reset itself. */
