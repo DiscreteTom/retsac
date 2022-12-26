@@ -32,21 +32,23 @@ enum TempGrammarType {
 }
 
 /** Grammar, but can't distinguish N or NT. */
-type TempGrammar = {
+interface TempGrammar {
   type: TempGrammarType;
   /** Literal content, or T/NT's type name. */
   content: string;
-};
+}
 
-type TempGrammarRule<T> = {
+interface TempGrammarRule<T> {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
   callback?: GrammarCallback<T>;
   rejecter?: Rejecter<T>;
-};
+}
 
-type Definition = { [NT: string]: string | string[] };
+interface Definition {
+  [NT: string]: string | string[];
+}
 
 /** LR(1) parser. Stateless. Try to yield a top level NT each time. */
 export class Parser<T> implements IParser<T> {
@@ -56,7 +58,7 @@ export class Parser<T> implements IParser<T> {
     this.dfa = dfa;
   }
 
-  /** Try to yield a top level NT. */
+  /** Try to yield an entry NT. */
   parse(buffer: ASTNode<T>[]) {
     return this.dfa.parse(buffer);
   }
@@ -131,12 +133,12 @@ export class ParserBuilder<T> {
         `Please set entry NTs for LR Parser.`
       );
 
-    let NTs = new Set(this.tempGrammarRules.map((gr) => gr.NT));
-    let grammarRules = tempGrammarRulesToGrammarRules(
+    const NTs = new Set(this.tempGrammarRules.map((gr) => gr.NT));
+    const grammarRules = tempGrammarRulesToGrammarRules(
       this.tempGrammarRules,
       NTs
     );
-    let dfa = new DFA<T>(grammarRules, this.entryNTs, NTs);
+    const dfa = new DFA<T>(grammarRules, this.entryNTs, NTs);
     dfa.debug = debug;
 
     return new Parser<T>(dfa);
@@ -144,12 +146,13 @@ export class ParserBuilder<T> {
 
   /**
    * Ensure all T/NTs have their definitions, and no duplication.
+   * If ok, return this.
    */
   checkSymbols(Ts: Set<string>) {
     /** Non-terminator definitions. */
-    let NTs: Set<string> = new Set();
+    const NTs: Set<string> = new Set();
     /** T/NT names. */
-    let grammarSet: Set<string> = new Set();
+    const grammarSet: Set<string> = new Set();
 
     // collect NT definitions and T/NT names in grammar rule
     this.tempGrammarRules.map((g) => {
@@ -196,13 +199,13 @@ function definitionToTempGrammarRules<T>(
   callback?: GrammarCallback<T>,
   rejecter?: Rejecter<T>
 ) {
-  let result: TempGrammarRule<T>[] = [];
+  const result: TempGrammarRule<T>[] = [];
 
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    let rules: Token[][] = [[]];
-    let def = defs[NT];
+    const rules: Token[][] = [[]];
+    const def = defs[NT];
     grammarLexer
       .reset()
       .lexAll(def instanceof Array ? def.join("|") : def)
@@ -225,7 +228,7 @@ function definitionToTempGrammarRules<T>(
       );
 
     rules.map((tokens) => {
-      let ruleStr = tokens.map((t) => t.content).join(" ");
+      const ruleStr = tokens.map((t) => t.content).join(" ");
 
       if (tokens.length == 0)
         throw new ParserError(
