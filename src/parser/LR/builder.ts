@@ -228,6 +228,10 @@ export class ParserBuilder<T> {
     return this;
   }
 
+  /**
+   * Ensure all shift-reduce and reduce-reduce conflicts are resolved.
+   * If ok, return this.
+   */
   checkConflicts(debug = false) {
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
     // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
