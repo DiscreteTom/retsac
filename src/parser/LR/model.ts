@@ -29,7 +29,7 @@ export class Grammar<T> {
         : this.content == g.type; // check type name
   }
 
-  /** Return `type` or `"literal"` */
+  /** Return `type name` or `"literal"` */
   toString() {
     return this.type == GrammarType.LITERAL
       ? `"${this.content}"` // literal content
@@ -45,12 +45,11 @@ export class GrammarRule<T> {
   rejecter: Rejecter<T>;
 
   constructor(
-    p: Partial<Pick<GrammarRule<T>, "callback" | "rejecter" | "NT">> &
-      Pick<GrammarRule<T>, "rule">
+    p: Partial<Pick<GrammarRule<T>, "callback" | "rejecter">> &
+      Pick<GrammarRule<T>, "rule" | "NT">
   ) {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
-    p.NT ??= "";
 
     if (!p.rule.length)
       throw new ParserError(
@@ -102,7 +101,7 @@ export class GrammarSet<T> {
     return true;
   }
 
-  map<TT>(f: (g: Grammar<T>) => TT) {
+  map<R>(f: (g: Grammar<T>) => R) {
     return this.gs.map(f);
   }
 }
