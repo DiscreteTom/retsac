@@ -14,6 +14,7 @@
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
+    - Add `ParserBuilder.printConflicts` to detect shift-reduce & reduce-reduce conflicts.
 - Optimize document / comments.
 - Optimize code.
 - More test code.

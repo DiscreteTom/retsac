@@ -172,6 +172,46 @@ export class ParserBuilder<T> {
 
     return this;
   }
+
+  printConflicts() {
+    // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
+    // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
+    for (let i = 0; i < this.tempGrammarRules.length; i++) {
+      for (let j = 0; j < this.tempGrammarRules.length; j++) {
+        if (i == j) continue;
+        const gr1 = this.tempGrammarRules[i];
+        const gr2 = this.tempGrammarRules[j];
+        const res = checkShiftReduceConflict(gr1, gr2);
+        res.map((c) => {
+          console.log(
+            `Shift-Reduce conflict with length ${
+              c.length
+            }: ${tempGrammarRuleToString(gr1)} | ${tempGrammarRuleToString(
+              gr2
+            )}`
+          );
+        });
+      }
+    }
+
+    // if the tail of a grammar rule is the same as another grammar rule, it's a reduce-reduce conflict
+    for (let i = 0; i < this.tempGrammarRules.length; i++) {
+      for (let j = 0; j < this.tempGrammarRules.length; j++) {
+        if (i == j) continue;
+        const gr1 = this.tempGrammarRules[i];
+        const gr2 = this.tempGrammarRules[j];
+        if (checkReduceReduceConflict(gr1, gr2)) {
+          console.log(
+            `Reduce-Reduce conflict: ${tempGrammarRuleToString(
+              gr1
+            )} | ${tempGrammarRuleToString(gr2)}`
+          );
+        }
+      }
+    }
+
+    return this;
+  }
 }
 
 function definitionToTempGrammarRules<T>(
@@ -272,4 +312,73 @@ function tempGrammarRulesToGrammarRules<T>(
         ),
       })
   );
+}
+
+/** Check if the tail of gr1 is the same as the head of gr2. */
+function checkShiftReduceConflict<T>(
+  gr1: TempGrammarRule<T>,
+  gr2: TempGrammarRule<T>
+) {
+  const result = [] as {
+    gr1: TempGrammarRule<T>;
+    gr2: TempGrammarRule<T>;
+    length: number;
+  }[];
+  for (let i = 0; i < gr1.rule.length; ++i) {
+    if (ruleStartsWith(gr2.rule, gr1.rule.slice(i))) {
+      result.push({
+        gr1,
+        gr2,
+        length: gr1.rule.length - i,
+      });
+    }
+  }
+  return result;
+}
+
+/** Check if the tail of gr1 is the same as gr2. */
+function checkReduceReduceConflict<T>(
+  gr1: TempGrammarRule<T>,
+  gr2: TempGrammarRule<T>
+) {
+  return ruleEndsWith(gr1.rule, gr2.rule);
+}
+
+/** Return whether rule1 starts with rule2. */
+function ruleStartsWith(rule1: TempGrammar[], rule2: TempGrammar[]) {
+  if (rule1.length < rule2.length) return false;
+  for (let i = 0; i < rule2.length; i++) {
+    if (rule1[i].content != rule2[i].content || rule1[i].type != rule2[i].type)
+      return false;
+  }
+  return true;
+}
+
+/** Return whether rule1 ends with rule2. */
+function ruleEndsWith(rule1: TempGrammar[], rule2: TempGrammar[]) {
+  if (rule1.length < rule2.length) return false;
+  for (let i = 0; i < rule2.length; i++) {
+    if (
+      rule1.at(-i - 1).content != rule2.at(-i - 1).content ||
+      rule1.at(-i - 1).type != rule2.at(-i - 1).type
+    )
+      return false;
+  }
+  return true;
+}
+
+function tempGrammarRuleToString<T>(gr: TempGrammarRule<T>) {
+  return new GrammarRule({
+    NT: gr.NT,
+    rule: gr.rule.map(
+      (g) =>
+        new Grammar({
+          type:
+            g.type == TempGrammarType.LITERAL
+              ? GrammarType.LITERAL
+              : GrammarType.NT,
+          content: g.content,
+        })
+    ),
+  }).toString();
 }
