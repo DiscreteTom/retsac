@@ -217,6 +217,7 @@ export class DFA<T> {
     const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
+      // TODO: cache DFA states to prevent duplicate calculation
       const directCandidates = this.states
         .at(-1)
         .candidates.filter((c) => c.canAccept(buffer[index]))
