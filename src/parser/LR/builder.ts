@@ -1,6 +1,5 @@
 import { Lexer } from "../../";
 import { exact, stringLiteral } from "../../lexer/utils";
-import { IParser } from "../model";
 import {
   GrammarCallback,
   Rejecter,
@@ -9,9 +8,9 @@ import {
   GrammarType,
 } from "./model";
 import { DFA } from "./DFA";
-import { ASTNode } from "../ast";
 import { Token } from "../../lexer/model";
 import { ParserError, ParserErrorType } from "./error";
+import { Parser } from "./parser";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
@@ -48,25 +47,6 @@ interface TempGrammarRule<T> {
 
 interface Definition {
   [NT: string]: string | string[];
-}
-
-/** LR(1) parser. Stateless. Try to yield a top level NT each time. */
-export class Parser<T> implements IParser<T> {
-  dfa: DFA<T>;
-
-  constructor(dfa: DFA<T>) {
-    this.dfa = dfa;
-  }
-
-  /** Try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[], stopOnError = false) {
-    return this.dfa.parse(buffer, stopOnError);
-  }
-
-  /** Actually this does nothing since each `DFA.parse` will reset itself. */
-  reset() {
-    // this.dfa.reset();
-  }
 }
 
 /**
