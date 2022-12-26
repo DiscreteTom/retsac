@@ -1,5 +1,17 @@
 import { Token } from "../lexer/model";
 
+/** A structured interface for serialization. */
+export interface ASTObj {
+  /** T's or NT's name. */
+  type: string;
+  /** Start position of the input string. Same as the first token's start position. */
+  start: number;
+  /** T's text content. */
+  text: string;
+  /** NT's children. */
+  children: ASTObj[];
+}
+
 export class ASTNode<T> {
   /** T's or NT's name. */
   type: string;
@@ -44,5 +56,15 @@ export class ASTNode<T> {
   /** Return type name. If the type is anonymous, return "literal value". */
   toString() {
     return this.type || `"${this.text}"`;
+  }
+
+  /** Return an ASTObj for serialization. */
+  toObj(): ASTObj {
+    return {
+      type: this.type,
+      start: this.start,
+      text: this.text || "",
+      children: this.children?.map((c) => c.toObj()) ?? [],
+    };
   }
 }

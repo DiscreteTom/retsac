@@ -8,6 +8,7 @@
   - If token has no error, the error field will be `undefined`.
 - Parser
   - If ASTNode has no error, the error field will be `undefined`.
+  - Add `ASTNode.toObj` for serialization.
   - LR Parser
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
