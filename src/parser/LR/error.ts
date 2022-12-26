@@ -6,6 +6,7 @@ export enum ParserErrorType {
   TOKENIZE_GRAMMAR_RULE_FAILED,
   EMPTY_RULE,
   EMPTY_LITERAL,
+  CONFLICT,
 }
 
 export class ParserError extends Error {

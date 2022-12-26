@@ -49,6 +49,17 @@ interface Definition {
   [NT: string]: string | string[];
 }
 
+enum ConflictType {
+  SHIFT_REDUCE,
+  REDUCE_REDUCE,
+}
+
+interface ResolvedConflict {
+  type: ConflictType;
+  rule1: TempGrammarRule<void>;
+  rule2: TempGrammarRule<void>;
+}
+
 /**
  * Builder for LR(1) parsers.
  *
@@ -59,10 +70,12 @@ interface Definition {
 export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
+  private resolved: ResolvedConflict[];
 
   constructor() {
     this.tempGrammarRules = [];
     this.entryNTs = new Set();
+    this.resolved = [];
   }
 
   /** Declare top-level NT's. */
@@ -99,10 +112,52 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  /** Merge grammar rules of another parser builder. */
+  /** Merge grammar rules and resolved conflicts of another parser builder. */
   use(another: ParserBuilder<T>) {
     this.tempGrammarRules.push(...another.tempGrammarRules);
+    this.resolved.push(...another.resolved);
     return this;
+  }
+
+  /** Resolve a conflict. */
+  private resolve(type: ConflictType, def1: Definition, def2: Definition) {
+    this.resolved.push({
+      type,
+      rule1: definitionToTempGrammarRules<void>(def1)[0],
+      rule2: definitionToTempGrammarRules<void>(def2)[0],
+    });
+    return this;
+  }
+
+  /** Resolve a shift-reduce conflict. */
+  resolveSR(def1: Definition, def2: Definition) {
+    return this.resolve(ConflictType.SHIFT_REDUCE, def1, def2);
+  }
+
+  /** Resolve a reduce-reduce conflict. */
+  resolveRR(def1: Definition, def2: Definition) {
+    return this.resolve(ConflictType.REDUCE_REDUCE, def1, def2);
+  }
+
+  /** Return whether a conflict has been resolved. */
+  private hasResolvedConflict<_, __>(
+    type: ConflictType,
+    rule1: TempGrammarRule<_>,
+    rule2: TempGrammarRule<__>
+  ) {
+    return this.resolved.some((r) => {
+      if (r.type != type) return false;
+      const r1 = r.rule1;
+      const r2 = r.rule2;
+      return (
+        r1.NT == rule1.NT &&
+        r2.NT == rule2.NT &&
+        r1.rule.length == rule1.rule.length &&
+        r2.rule.length == rule2.rule.length &&
+        r1.rule.every((g, i) => g.type == rule1.rule[i].type) &&
+        r2.rule.every((g, i) => g.type == rule2.rule[i].type)
+      );
+    });
   }
 
   /** Generate the LR(1) parser. */
@@ -173,7 +228,7 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  printConflicts() {
+  checkConflicts(debug = false) {
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
     // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
@@ -183,13 +238,15 @@ export class ParserBuilder<T> {
         const gr2 = this.tempGrammarRules[j];
         const res = checkShiftReduceConflict(gr1, gr2);
         res.map((c) => {
-          console.log(
-            `Shift-Reduce conflict with length ${
+          if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
+            const msg = `Unresolved S-R conflict (length ${
               c.length
-            }: ${tempGrammarRuleToString(gr1)} | ${tempGrammarRuleToString(
+            }): ${tempGrammarRuleToString(gr1)} | ${tempGrammarRuleToString(
               gr2
-            )}`
-          );
+            )}`;
+            if (debug) console.log(msg);
+            else throw new ParserError(ParserErrorType.CONFLICT, msg);
+          }
         });
       }
     }
@@ -201,11 +258,13 @@ export class ParserBuilder<T> {
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
         if (checkReduceReduceConflict(gr1, gr2)) {
-          console.log(
-            `Reduce-Reduce conflict: ${tempGrammarRuleToString(
+          if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
+            const msg = `Unresolved R-R conflict: ${tempGrammarRuleToString(
               gr1
-            )} | ${tempGrammarRuleToString(gr2)}`
-          );
+            )} | ${tempGrammarRuleToString(gr2)}`;
+            if (debug) console.log(msg);
+            else throw new ParserError(ParserErrorType.CONFLICT, msg);
+          }
         }
       }
     }
