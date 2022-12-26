@@ -65,7 +65,7 @@ interface ResolvedConflict {
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
- * It's recommended to use `checkSymbols` before `build`.
+ * It's recommended to use `checkAll` before `build`.
  */
 export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
