@@ -150,12 +150,7 @@ export class ParserBuilder<T> {
       const r1 = r.rule1;
       const r2 = r.rule2;
       return (
-        r1.NT == rule1.NT &&
-        r2.NT == rule2.NT &&
-        r1.rule.length == rule1.rule.length &&
-        r2.rule.length == rule2.rule.length &&
-        r1.rule.every((g, i) => g.type == rule1.rule[i].type) &&
-        r2.rule.every((g, i) => g.type == rule2.rule[i].type)
+        tempGrammarRuleWeakEq(r1, rule1) && tempGrammarRuleWeakEq(r2, rule2)
       );
     });
   }
@@ -444,4 +439,18 @@ function tempGrammarRuleToString<T>(gr: TempGrammarRule<T>) {
         })
     ),
   }).toString();
+}
+
+/** Only check whether NT and rules are equal. */
+function tempGrammarRuleWeakEq(
+  gr1: TempGrammarRule<any>,
+  gr2: TempGrammarRule<any>
+) {
+  return (
+    gr1.NT == gr2.NT &&
+    gr1.rule.length == gr2.rule.length &&
+    gr1.rule.every(
+      (g, i) => g.type == gr2.rule[i].type && g.content == gr2.rule[i].content
+    )
+  );
 }
