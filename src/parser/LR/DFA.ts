@@ -29,15 +29,18 @@ export class Candidate<T> {
     return this.canDigestMore() && this.current.eq(node);
   }
 
-  private canReduce() {
-    return !this.canDigestMore() && !this.rejected;
-  }
-
   /** Generate next candidate with `digested + 1`. */
   next() {
     return new Candidate({ gr: this.gr, digested: this.digested + 1 });
   }
 
+  /**
+   * Only failed if:
+   * 1. This grammar is already rejected.
+   * 2. Digestion not finished.
+   * 3. Check follow set failed.
+   * 4. Rejecter rejected.
+   */
   tryReduce(
     buffer: ASTNode<T>[],
     /** From where of the buffer to reduce. */
@@ -46,9 +49,9 @@ export class Candidate<T> {
     follow: Map<string, GrammarSet<T>>,
     debug: boolean
   ): ParserOutput<T> {
-    if (!this.canReduce()) return { accept: false };
+    if (this.rejected || this.canDigestMore()) return { accept: false };
 
-    let context: ReducerContext<T> = {
+    const context: ReducerContext<T> = {
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),
@@ -74,14 +77,14 @@ export class Candidate<T> {
 
     // accept
     this.gr.callback(context);
-    let node = new ASTNode({
+    const node = new ASTNode({
       type: this.gr.NT,
       children: context.matched,
       data: context.data,
       error: context.error,
       start: context.matched[0].start,
     });
-    node.children.map((c) => (c.parent = node));
+    node.children.map((c) => (c.parent = node)); // link parent
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);
 
     return {
@@ -121,7 +124,7 @@ export class State<T> {
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
-      let res = c.tryReduce(buffer, start, entryNTs, follow, debug);
+      const res = c.tryReduce(buffer, start, entryNTs, follow, debug);
       if (res.accept) return res;
     }
 
@@ -138,7 +141,7 @@ export class DFA<T> {
   /** `NT => Grammars` */
   private readonly follow: Map<string, GrammarSet<T>>;
   private readonly entryNTs: Set<string>;
-  /** State stack, current state is `states[-1]`. */
+  /** State stack, current state is `states.at(-1)`. */
   private states: State<T>[];
   debug: boolean;
 
@@ -160,7 +163,7 @@ export class DFA<T> {
     this.first = new Map();
     NTs.forEach((NT) => this.first.set(NT, new GrammarSet()));
     this.NTClosures.forEach((grs, NT) => {
-      let gs = this.first.get(NT);
+      const gs = this.first.get(NT);
       grs.map((gr) => gs.add(gr.rule[0]));
     });
 
@@ -171,7 +174,7 @@ export class DFA<T> {
       gr.rule.map((g, i, rule) => {
         if (i < rule.length - 1 && g.type == GrammarType.NT) {
           // current grammar is NT and next grammar exists, merge with next grammar
-          let gs = this.follow.get(g.content);
+          const gs = this.follow.get(g.content);
           gs.add(rule[i + 1]);
           // if next grammar is NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
@@ -210,15 +213,15 @@ export class DFA<T> {
     this.reset();
 
     let index = 0; // buffer index
-    let errors: ASTNode<T>[] = [];
     let accept = false;
+    const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
-      let directCandidates = this.states
+      const directCandidates = this.states
         .at(-1)
         .candidates.filter((c) => c.canAccept(buffer[index]))
         .map((c) => c.next());
-      let indirectCandidates = directCandidates
+      const indirectCandidates = directCandidates
         .reduce((p, c) => {
           if (
             c.canDigestMore() &&
@@ -235,7 +238,7 @@ export class DFA<T> {
           return p;
         }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
         .map((gr) => new Candidate({ gr, digested: 0 }));
-      let nextCandidates = directCandidates.concat(indirectCandidates);
+      const nextCandidates = directCandidates.concat(indirectCandidates);
 
       // if DFA can't accept input
       if (nextCandidates.length == 0) {
@@ -255,16 +258,16 @@ export class DFA<T> {
       this.states.push(new State(nextCandidates));
 
       // try reduce with the new state
-      let res = this.states
+      const res = this.states
         .at(-1)
         .tryReduce(buffer, index, this.entryNTs, this.follow, this.debug);
       if (!res.accept) {
         index++;
-        continue; // continue shift
+        continue; // try to digest more
       }
 
-      // accept
-      let reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
+      // accepted
+      const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
       errors.concat(res.errors);
@@ -276,6 +279,8 @@ export class DFA<T> {
         (stopOnError && errors.length > 0)
       )
         return { accept: true, buffer, errors };
+
+      // continue loop, try to digest more with the newly reduced buffer
     }
 
     return accept ? { accept: true, buffer, errors } : { accept: false };
@@ -286,7 +291,7 @@ function getAllNTClosure<T>(
   NTs: Set<string>,
   grammarRules: GrammarRule<T>[]
 ): Map<string, GrammarRule<T>[]> {
-  let result = new Map<string, GrammarRule<T>[]>();
+  const result = new Map<string, GrammarRule<T>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, grammarRules)));
   return result;
 }
@@ -311,7 +316,7 @@ function getGrammarRulesClosure<T>(
   rules: GrammarRule<T>[],
   grammarRules: GrammarRule<T>[]
 ): GrammarRule<T>[] {
-  let result = [...rules];
+  const result = [...rules];
 
   while (true) {
     let changed = false;
