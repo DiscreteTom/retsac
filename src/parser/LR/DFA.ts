@@ -205,8 +205,8 @@ export class DFA<T> {
     this.states = [this.entryState];
   }
 
-  /** Reset DFA then try to yield a top level NT. */
-  parse(buffer: ASTNode<T>[]): ParserOutput<T> {
+  /** Reset DFA then try to yield an entry NT. */
+  parse(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
     this.reset();
 
     let index = 0; // buffer index
@@ -270,8 +270,11 @@ export class DFA<T> {
       errors.concat(res.errors);
       accept = true;
       for (let i = 0; i < reduced; ++i) this.states.pop(); // remove the reduced states
-      // if a top-level NT is reduced, should return
-      if (this.entryNTs.has(buffer[0].type))
+      // if a top-level NT is reduced, or stop on error, should return
+      if (
+        this.entryNTs.has(buffer[0].type) ||
+        (stopOnError && errors.length > 0)
+      )
         return { accept: true, buffer, errors };
     }
 

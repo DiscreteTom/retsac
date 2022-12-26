@@ -3,7 +3,7 @@
 ## v0.4.0
 
 - Lexer
-  - Add optional `stopOnError` parameter to `lexAll`.
+  - Add optional `stopOnError` parameter to `Lexer.lexAll`.
   - Change `Token` and `Definition` from type to interface.
   - If token has no error, the error field will be `undefined`.
 - Parser
@@ -12,6 +12,7 @@
   - LR Parser
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
+    - Add optional `stopOnError` parameter to `DFA.parse`.
 - Optimize document / comments.
 - Optimize code.
 - More test code.
