@@ -270,6 +270,30 @@ export class ParserBuilder<T> {
 
     return this;
   }
+
+  /**
+   * Ensure all grammar rules resolved are appeared in the grammar rules.
+   * If ok, return this.
+   */
+  checkResolved() {
+    this.resolved.forEach((g) => {
+      if (
+        !this.tempGrammarRules.some((gr) => tempGrammarRuleWeakEq(gr, g.rule1))
+      )
+        throw new ParserError(
+          ParserErrorType.NO_SUCH_GRAMMAR_RULE,
+          tempGrammarRuleToString(g.rule1)
+        );
+      if (
+        !this.tempGrammarRules.some((gr) => tempGrammarRuleWeakEq(gr, g.rule2))
+      )
+        throw new ParserError(
+          ParserErrorType.NO_SUCH_GRAMMAR_RULE,
+          tempGrammarRuleToString(g.rule2)
+        );
+    });
+    return this;
+  }
 }
 
 function definitionToTempGrammarRules<T>(
