@@ -17,6 +17,7 @@
     - Add `ParserBuilder.resolveSR/resolveRR` to ignore resolved conflicts.
     - Add `ParserBuilder.checkConflicts` to ensure all shift-reduce and reduce-reduce conflicts are resolved.
     - Add `ParserBuilder.checkResolved` to ensure all grammar rules resolved are appeared in the grammar rules.
+    - Add `ParserBuilder.checkAll` to do all necessary checks.
 - Optimize document / comments.
 - Optimize code.
 - More test code.

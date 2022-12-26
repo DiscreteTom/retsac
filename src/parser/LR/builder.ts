@@ -294,6 +294,11 @@ export class ParserBuilder<T> {
     });
     return this;
   }
+
+  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(debug).checkResolved()`.  */
+  checkAll(Ts: Set<string>, debug = false) {
+    return this.checkSymbols(Ts).checkConflicts(debug).checkResolved();
+  }
 }
 
 function definitionToTempGrammarRules<T>(
