@@ -208,7 +208,7 @@ export class ParserBuilder<T> {
         if (i == j) continue;
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
-        const res = checkShiftReduceConflict(gr1, gr2);
+        const res = gr1.checkShiftReduceConflict(gr2);
         res.map((c) => {
           if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
             const msg = `Unresolved S-R conflict (length ${
@@ -228,7 +228,7 @@ export class ParserBuilder<T> {
         if (i == j) continue;
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
-        if (checkReduceReduceConflict(gr1, gr2)) {
+        if (gr1.checkReduceReduceConflict(gr2)) {
           if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
             const msg = `Unresolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`;
             if (debug) console.log(msg);
@@ -367,57 +367,4 @@ function tempGrammarRulesToGrammarRules<T>(
         ),
       })
   );
-}
-
-/** Check if the tail of gr1 is the same as the head of gr2. */
-function checkShiftReduceConflict<T>(
-  gr1: TempGrammarRule<T>,
-  gr2: TempGrammarRule<T>
-) {
-  const result = [] as {
-    gr1: TempGrammarRule<T>;
-    gr2: TempGrammarRule<T>;
-    length: number;
-  }[];
-  for (let i = 0; i < gr1.rule.length; ++i) {
-    if (ruleStartsWith(gr2.rule, gr1.rule.slice(i))) {
-      result.push({
-        gr1,
-        gr2,
-        length: gr1.rule.length - i,
-      });
-    }
-  }
-  return result;
-}
-
-/** Check if the tail of gr1 is the same as gr2. */
-function checkReduceReduceConflict<T>(
-  gr1: TempGrammarRule<T>,
-  gr2: TempGrammarRule<T>
-) {
-  return ruleEndsWith(gr1.rule, gr2.rule);
-}
-
-/** Return whether rule1 starts with rule2. */
-function ruleStartsWith(rule1: TempGrammar[], rule2: TempGrammar[]) {
-  if (rule1.length < rule2.length) return false;
-  for (let i = 0; i < rule2.length; i++) {
-    if (rule1[i].content != rule2[i].content || rule1[i].type != rule2[i].type)
-      return false;
-  }
-  return true;
-}
-
-/** Return whether rule1 ends with rule2. */
-function ruleEndsWith(rule1: TempGrammar[], rule2: TempGrammar[]) {
-  if (rule1.length < rule2.length) return false;
-  for (let i = 0; i < rule2.length; i++) {
-    if (
-      rule1.at(-i - 1).content != rule2.at(-i - 1).content ||
-      rule1.at(-i - 1).type != rule2.at(-i - 1).type
-    )
-      return false;
-  }
-  return true;
 }

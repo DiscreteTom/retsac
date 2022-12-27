@@ -45,6 +45,59 @@ export class TempGrammarRule<T> {
     );
   }
 
+  /** Return whether this.rule starts with partial rule. */
+  private ruleStartsWith(partialRule: TempGrammar[]) {
+    if (this.rule.length < partialRule.length) return false;
+    for (let i = 0; i < partialRule.length; i++) {
+      if (
+        this.rule[i].content != partialRule[i].content ||
+        this.rule[i].type != partialRule[i].type
+      )
+        return false;
+    }
+    return true;
+  }
+
+  /** Return whether this.rule ends with partial rule. */
+  private ruleEndsWith(partialRule: TempGrammar[]) {
+    if (this.rule.length < partialRule.length) return false;
+    for (let i = 0; i < partialRule.length; i++) {
+      if (
+        this.rule.at(-i - 1).content != partialRule.at(-i - 1).content ||
+        this.rule.at(-i - 1).type != partialRule.at(-i - 1).type
+      )
+        return false;
+    }
+    return true;
+  }
+
+  /**
+   * Check if the tail of this's rule is the same as the head of another.
+   * Which means this rule want's to reduce, and another rule want's to shift.
+   */
+  checkShiftReduceConflict(another: TempGrammarRule<T>) {
+    const result = [] as {
+      reducerRule: TempGrammarRule<T>;
+      shifterRule: TempGrammarRule<T>;
+      length: number;
+    }[];
+    for (let i = 0; i < this.rule.length; ++i) {
+      if (another.ruleStartsWith(this.rule.slice(i))) {
+        result.push({
+          reducerRule: this,
+          shifterRule: another,
+          length: this.rule.length - i,
+        });
+      }
+    }
+    return result;
+  }
+
+  /** Check if the tail of this's rule is the same as another's whole rule. */
+  checkReduceReduceConflict(another: TempGrammarRule<T>) {
+    return this.ruleStartsWith(another.rule);
+  }
+
   toString() {
     return new GrammarRule<void>({
       NT: this.NT,
