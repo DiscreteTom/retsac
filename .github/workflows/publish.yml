@@ -12,8 +12,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: yarn
-      - run: yarn test
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Run Tests
+        run: yarn test
+
+      - name: Check Generated README
+        run: |
+          mv README.md README.md.bk
+          yarn build:doc
+          diff README.md README.md.bk
+
       - run: yarn build
       - uses: JS-DevTools/npm-publish@v1
         with:
