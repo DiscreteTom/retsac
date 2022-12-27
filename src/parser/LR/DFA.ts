@@ -57,8 +57,8 @@ export class Candidate<T> {
       after: buffer.slice(index + 1),
     };
 
-    // check follow for LR(1)
-    if (context.after.length > 0 && !entryNTs.has(this.gr.NT)) {
+    // peek next ASTNode and check follow for LR(1)
+    if (context.after.length > 0) {
       if (!follow.get(this.gr.NT).has(context.after[0])) {
         if (debug)
           console.log(
@@ -66,6 +66,14 @@ export class Candidate<T> {
           );
         return { accept: false };
       }
+      // else, follow set matched, continue
+    } else {
+      // no more nodes in buffer, check if this is an entry NT
+      if (!entryNTs.has(this.gr.NT)) {
+        if (debug) console.log(`[Not Entry NT] ${this.gr.toString()}`);
+        return { accept: false };
+      }
+      // else, this is an entry NT, continue
     }
 
     // check rejecter
