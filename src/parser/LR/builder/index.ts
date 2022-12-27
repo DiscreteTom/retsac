@@ -4,14 +4,7 @@ import { DFA } from "../DFA";
 import { Token } from "../../../lexer/model";
 import { ParserError, ParserErrorType } from "../error";
 import { Parser } from "../parser";
-import {
-  ConflictType,
-  Definition,
-  ResolvedConflict,
-  TempGrammar,
-  TempGrammarRule,
-  TempGrammarType,
-} from "./model";
+import { ConflictType, Definition, ResolvedConflict } from "./model";
 import {
   Grammar,
   GrammarCallback,
@@ -19,6 +12,7 @@ import {
   GrammarType,
   Rejecter,
 } from "../model";
+import { TempGrammarRule, TempGrammarType } from "./grammar";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
