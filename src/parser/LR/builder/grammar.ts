@@ -95,7 +95,7 @@ export class TempGrammarRule<T> {
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
   checkReduceReduceConflict(another: TempGrammarRule<T>) {
-    return this.ruleStartsWith(another.rule);
+    return this.ruleEndsWith(another.rule);
   }
 
   toString() {
