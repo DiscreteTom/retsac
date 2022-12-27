@@ -19,7 +19,7 @@
     - Add `ParserBuilder.checkResolved` to ensure all grammar rules resolved are appeared in the grammar rules.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
 - Optimize document / comments.
-- Optimize code.
+- Optimize code / performance.
 - More test code.
 
 ## v0.3.0
