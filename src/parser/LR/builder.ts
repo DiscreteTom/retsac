@@ -65,7 +65,7 @@ interface ResolvedConflict {
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
- * It's recommended to use `checkAll` before `build`.
+ * It's recommended to use `checkAll` before `build` when debug.
  */
 export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
@@ -228,6 +228,12 @@ export class ParserBuilder<T> {
    * If ok, return this.
    */
   checkConflicts(debug = false) {
+    // TODO: auto resolve conflicts if possible
+    // e.g. for a shift-reduce conflict: `A <= B C` and `D <= B C E`
+    // if E's first set doesn't overlap with A's follow set, the conflict can be resolved by LR1 peeking
+    // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
+    // if A's follow set doesn't overlap with C's follow set, the conflict can be resolved by LR1 peeking
+
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
     // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
@@ -251,6 +257,7 @@ export class ParserBuilder<T> {
     }
 
     // if the tail of a grammar rule is the same as another grammar rule, it's a reduce-reduce conflict
+    // e.g. `A B C | B C` is a reduce-reduce conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
       for (let j = 0; j < this.tempGrammarRules.length; j++) {
         if (i == j) continue;
