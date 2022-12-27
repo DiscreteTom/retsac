@@ -14,12 +14,30 @@ export interface TempGrammar {
   content: string;
 }
 
-export interface TempGrammarRule<T> {
+export class TempGrammarRule<T> {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
   callback?: GrammarCallback<T>;
   rejecter?: Rejecter<T>;
+
+  constructor(
+    data: Partial<TempGrammarRule<T>> & Pick<TempGrammarRule<T>, "rule" | "NT">
+  ) {
+    Object.assign(this, data);
+  }
+
+  /** Only check whether NT and rules are equal. */
+  weakEq<_>(rule: TempGrammarRule<_>) {
+    return (
+      this.NT == rule.NT &&
+      this.rule.length == rule.rule.length &&
+      this.rule.every(
+        (g, i) =>
+          g.content == rule.rule[i].content && g.type == rule.rule[i].type
+      )
+    );
+  }
 }
 
 export interface Definition {

@@ -118,11 +118,7 @@ export class ParserBuilder<T> {
   ) {
     return this.resolved.some((r) => {
       if (r.type != type) return false;
-      const r1 = r.rule1;
-      const r2 = r.rule2;
-      return (
-        tempGrammarRuleWeakEq(r1, rule1) && tempGrammarRuleWeakEq(r2, rule2)
-      );
+      return rule1.weakEq(r.rule1) && rule2.weakEq(r.rule2);
     });
   }
 
@@ -255,16 +251,12 @@ export class ParserBuilder<T> {
    */
   checkResolved() {
     this.resolved.forEach((g) => {
-      if (
-        !this.tempGrammarRules.some((gr) => tempGrammarRuleWeakEq(gr, g.rule1))
-      )
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule1)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
           tempGrammarRuleToString(g.rule1)
         );
-      if (
-        !this.tempGrammarRules.some((gr) => tempGrammarRuleWeakEq(gr, g.rule2))
-      )
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule2)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
           tempGrammarRuleToString(g.rule2)
@@ -331,23 +323,25 @@ function definitionToTempGrammarRules<T>(
           `Literal value can't be empty in rule '${NT} => ${ruleStr}'`
         );
 
-      result.push({
-        NT,
-        rule: tokens.map((t) => {
-          if (t.type == "grammar")
-            return {
-              type: TempGrammarType.GRAMMAR,
-              content: t.content,
-            };
-          else
-            return {
-              type: TempGrammarType.LITERAL,
-              content: t.content.slice(1, -1), // remove quotes
-            };
-        }),
-        callback,
-        rejecter,
-      });
+      result.push(
+        new TempGrammarRule<T>({
+          NT,
+          rule: tokens.map((t) => {
+            if (t.type == "grammar")
+              return {
+                type: TempGrammarType.GRAMMAR,
+                content: t.content,
+              };
+            else
+              return {
+                type: TempGrammarType.LITERAL,
+                content: t.content.slice(1, -1), // remove quotes
+              };
+          }),
+          callback,
+          rejecter,
+        })
+      );
     });
   }
   return result;
@@ -446,18 +440,4 @@ function tempGrammarRuleToString<T>(gr: TempGrammarRule<T>) {
         })
     ),
   }).toString();
-}
-
-/** Only check whether NT and rules are equal. */
-function tempGrammarRuleWeakEq(
-  gr1: TempGrammarRule<any>,
-  gr2: TempGrammarRule<any>
-) {
-  return (
-    gr1.NT == gr2.NT &&
-    gr1.rule.length == gr2.rule.length &&
-    gr1.rule.every(
-      (g, i) => g.type == gr2.rule[i].type && g.content == gr2.rule[i].content
-    )
-  );
 }
