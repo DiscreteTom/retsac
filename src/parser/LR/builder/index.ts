@@ -1,16 +1,24 @@
-import { Lexer } from "../../";
-import { exact, stringLiteral } from "../../lexer/utils";
+import { Lexer } from "../../../../out";
+import { exact, stringLiteral } from "../../../lexer/utils";
+import { DFA } from "../DFA";
+import { Token } from "../../../lexer/model";
+import { ParserError, ParserErrorType } from "../error";
+import { Parser } from "../parser";
 import {
-  GrammarCallback,
-  Rejecter,
+  ConflictType,
+  Definition,
+  ResolvedConflict,
+  TempGrammar,
+  TempGrammarRule,
+  TempGrammarType,
+} from "./model";
+import {
   Grammar,
+  GrammarCallback,
   GrammarRule,
   GrammarType,
-} from "./model";
-import { DFA } from "./DFA";
-import { Token } from "../../lexer/model";
-import { ParserError, ParserErrorType } from "./error";
-import { Parser } from "./parser";
+  Rejecter,
+} from "../model";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
@@ -22,43 +30,6 @@ const grammarLexer = new Lexer.Builder()
     literal: stringLiteral({ single: true, double: true }),
   })
   .build();
-
-/** Grammar type, but can't distinguish N or NT. */
-enum TempGrammarType {
-  LITERAL,
-  /** T or NT */
-  GRAMMAR,
-}
-
-/** Grammar, but can't distinguish N or NT. */
-interface TempGrammar {
-  type: TempGrammarType;
-  /** Literal content, or T/NT's type name. */
-  content: string;
-}
-
-interface TempGrammarRule<T> {
-  rule: TempGrammar[];
-  /** The reduce target. */
-  NT: string;
-  callback?: GrammarCallback<T>;
-  rejecter?: Rejecter<T>;
-}
-
-interface Definition {
-  [NT: string]: string | string[];
-}
-
-enum ConflictType {
-  SHIFT_REDUCE,
-  REDUCE_REDUCE,
-}
-
-interface ResolvedConflict {
-  type: ConflictType;
-  rule1: TempGrammarRule<void>;
-  rule2: TempGrammarRule<void>;
-}
 
 /**
  * Builder for LR(1) parsers.
