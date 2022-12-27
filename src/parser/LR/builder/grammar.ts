@@ -75,7 +75,7 @@ export class TempGrammarRule<T> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkShiftReduceConflict(another: TempGrammarRule<T>) {
+  checkSRConflict(another: TempGrammarRule<T>) {
     const result = [] as {
       reducerRule: TempGrammarRule<T>;
       shifterRule: TempGrammarRule<T>;
@@ -94,7 +94,7 @@ export class TempGrammarRule<T> {
   }
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
-  checkReduceReduceConflict(another: TempGrammarRule<T>) {
+  checkRRConflict(another: TempGrammarRule<T>) {
     return this.ruleEndsWith(another.rule);
   }
 

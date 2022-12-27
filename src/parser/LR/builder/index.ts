@@ -10,7 +10,7 @@ import {
   Rejecter,
 } from "../model";
 import { TempGrammarRule, TempGrammarType } from "./grammar";
-import { definitionToTempGrammarRules } from "./utils";
+import { defToTempGRs } from "./utils";
 
 /**
  * Builder for LR(1) parsers.
@@ -57,9 +57,7 @@ export class ParserBuilder<T> {
     callback?: GrammarCallback<T>,
     rejecter?: Rejecter<T>
   ) {
-    this.tempGrammarRules.push(
-      ...definitionToTempGrammarRules(defs, callback, rejecter)
-    );
+    this.tempGrammarRules.push(...defToTempGRs(defs, callback, rejecter));
 
     return this;
   }
@@ -75,8 +73,8 @@ export class ParserBuilder<T> {
   private resolve(type: ConflictType, def1: Definition, def2: Definition) {
     this.resolved.push({
       type,
-      rule1: definitionToTempGrammarRules<void>(def1)[0],
-      rule2: definitionToTempGrammarRules<void>(def2)[0],
+      rule1: defToTempGRs<void>(def1)[0],
+      rule2: defToTempGRs<void>(def2)[0],
     });
     return this;
   }
@@ -189,7 +187,7 @@ export class ParserBuilder<T> {
         if (i == j) continue;
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
-        const res = gr1.checkShiftReduceConflict(gr2);
+        const res = gr1.checkSRConflict(gr2);
         res.map((c) => {
           if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
             const msg = `Unresolved S-R conflict (length ${
@@ -209,7 +207,7 @@ export class ParserBuilder<T> {
         if (i == j) continue;
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
-        if (gr1.checkReduceReduceConflict(gr2)) {
+        if (gr1.checkRRConflict(gr2)) {
           if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
             const msg = `Unresolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`;
             if (debug) console.log(msg);

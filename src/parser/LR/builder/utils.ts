@@ -17,7 +17,8 @@ const grammarLexer = new Lexer.Builder()
   })
   .build();
 
-export function definitionToTempGrammarRules<T>(
+/** Definition to TempGrammarRules. */
+export function defToTempGRs<T>(
   defs: Definition,
   callback?: GrammarCallback<T>,
   rejecter?: Rejecter<T>
