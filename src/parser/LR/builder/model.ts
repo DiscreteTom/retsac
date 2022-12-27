@@ -1,4 +1,10 @@
-import { GrammarCallback, Rejecter } from "../model";
+import {
+  Grammar,
+  GrammarCallback,
+  GrammarRule,
+  GrammarType,
+  Rejecter,
+} from "../model";
 
 /** Grammar type, but can't distinguish N or NT. */
 export enum TempGrammarType {
@@ -37,6 +43,22 @@ export class TempGrammarRule<T> {
           g.content == rule.rule[i].content && g.type == rule.rule[i].type
       )
     );
+  }
+
+  toString() {
+    return new GrammarRule<void>({
+      NT: this.NT,
+      rule: this.rule.map(
+        (g) =>
+          new Grammar({
+            type:
+              g.type == TempGrammarType.LITERAL
+                ? GrammarType.LITERAL
+                : GrammarType.NT,
+            content: g.content,
+          })
+      ),
+    }).toString();
   }
 }
 

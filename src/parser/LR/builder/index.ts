@@ -213,9 +213,7 @@ export class ParserBuilder<T> {
           if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
             const msg = `Unresolved S-R conflict (length ${
               c.length
-            }): ${tempGrammarRuleToString(gr1)} | ${tempGrammarRuleToString(
-              gr2
-            )}`;
+            }): ${gr1.toString()} | ${gr2.toString()}`;
             if (debug) console.log(msg);
             else throw new ParserError(ParserErrorType.CONFLICT, msg);
           }
@@ -232,9 +230,7 @@ export class ParserBuilder<T> {
         const gr2 = this.tempGrammarRules[j];
         if (checkReduceReduceConflict(gr1, gr2)) {
           if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
-            const msg = `Unresolved R-R conflict: ${tempGrammarRuleToString(
-              gr1
-            )} | ${tempGrammarRuleToString(gr2)}`;
+            const msg = `Unresolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`;
             if (debug) console.log(msg);
             else throw new ParserError(ParserErrorType.CONFLICT, msg);
           }
@@ -254,12 +250,12 @@ export class ParserBuilder<T> {
       if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule1)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          tempGrammarRuleToString(g.rule1)
+          g.rule1.toString()
         );
       if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule2)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          tempGrammarRuleToString(g.rule2)
+          g.rule2.toString()
         );
     });
     return this;
@@ -424,20 +420,4 @@ function ruleEndsWith(rule1: TempGrammar[], rule2: TempGrammar[]) {
       return false;
   }
   return true;
-}
-
-function tempGrammarRuleToString<T>(gr: TempGrammarRule<T>) {
-  return new GrammarRule({
-    NT: gr.NT,
-    rule: gr.rule.map(
-      (g) =>
-        new Grammar({
-          type:
-            g.type == TempGrammarType.LITERAL
-              ? GrammarType.LITERAL
-              : GrammarType.NT,
-          content: g.content,
-        })
-    ),
-  }).toString();
 }
