@@ -22,11 +22,13 @@ import { defToTempGRs } from "./utils";
 export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
+  private NTs: Set<string>;
   private resolved: ResolvedConflict[];
 
   constructor() {
     this.tempGrammarRules = [];
     this.entryNTs = new Set();
+    this.NTs = new Set();
     this.resolved = [];
   }
 
@@ -57,14 +59,17 @@ export class ParserBuilder<T> {
     callback?: GrammarCallback<T>,
     rejecter?: Rejecter<T>
   ) {
-    this.tempGrammarRules.push(...defToTempGRs(defs, callback, rejecter));
+    const grs = defToTempGRs(defs, callback, rejecter);
+    this.tempGrammarRules.push(...grs);
+    grs.forEach((gr) => this.NTs.add(gr.NT));
 
     return this;
   }
 
-  /** Merge grammar rules and resolved conflicts of another parser builder. */
+  /** Merge grammar rules, NTs and resolved conflicts of another parser builder. */
   use(another: ParserBuilder<T>) {
     this.tempGrammarRules.push(...another.tempGrammarRules);
+    this.NTs = new Set([...this.NTs, ...another.NTs]);
     this.resolved.push(...another.resolved);
     return this;
   }
@@ -101,6 +106,33 @@ export class ParserBuilder<T> {
     });
   }
 
+  /**
+   * Turn temp grammar rules to grammar rules according to the known NTs.
+   * This should be called only if no more definitions will be defined.
+   */
+  private getGrammarRules() {
+    return this.tempGrammarRules.map(
+      (gr) =>
+        new GrammarRule<T>({
+          NT: gr.NT,
+          callback: gr.callback,
+          rejecter: gr.rejecter,
+          rule: gr.rule.map(
+            (g) =>
+              new Grammar({
+                content: g.content,
+                type:
+                  g.type == TempGrammarType.LITERAL
+                    ? GrammarType.LITERAL
+                    : this.NTs.has(g.content)
+                    ? GrammarType.NT
+                    : GrammarType.T,
+              })
+          ),
+        })
+    );
+  }
+
   /** Generate the LR(1) parser. */
   build(debug = false) {
     if (this.entryNTs.size == 0)
@@ -109,12 +141,7 @@ export class ParserBuilder<T> {
         `Please set entry NTs for LR Parser.`
       );
 
-    const NTs = new Set(this.tempGrammarRules.map((gr) => gr.NT));
-    const grammarRules = tempGrammarRulesToGrammarRules(
-      this.tempGrammarRules,
-      NTs
-    );
-    const dfa = new DFA<T>(grammarRules, this.entryNTs, NTs);
+    const dfa = new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
     dfa.debug = debug;
 
     return new Parser<T>(dfa);
@@ -125,14 +152,11 @@ export class ParserBuilder<T> {
    * If ok, return this.
    */
   checkSymbols(Ts: Set<string>) {
-    /** Non-terminator definitions. */
-    const NTs: Set<string> = new Set();
     /** T/NT names. */
     const grammarSet: Set<string> = new Set();
 
-    // collect NT definitions and T/NT names in grammar rule
+    // collect T/NT names in grammar rules
     this.tempGrammarRules.map((g) => {
-      NTs.add(g.NT);
       g.rule.map((grammar) => {
         if (grammar.type == TempGrammarType.GRAMMAR)
           grammarSet.add(grammar.content);
@@ -141,7 +165,7 @@ export class ParserBuilder<T> {
 
     // all symbols should have its definition
     grammarSet.forEach((g) => {
-      if (!Ts.has(g) && !NTs.has(g))
+      if (!Ts.has(g) && !this.NTs.has(g))
         throw new ParserError(
           ParserErrorType.UNDEFINED_GRAMMAR_SYMBOL,
           `Undefined grammar symbol: ${g}`
@@ -149,7 +173,7 @@ export class ParserBuilder<T> {
     });
 
     // check duplication
-    NTs.forEach((name) => {
+    this.NTs.forEach((name) => {
       if (Ts.has(name))
         throw new ParserError(
           ParserErrorType.DUPLICATED_DEFINITION,
@@ -159,7 +183,7 @@ export class ParserBuilder<T> {
 
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
-      if (!NTs.has(NT))
+      if (!this.NTs.has(NT))
         throw new ParserError(
           ParserErrorType.UNDEFINED_ENTRY_NT,
           `Undefined entry NT: "${NT}"`
@@ -244,30 +268,4 @@ export class ParserBuilder<T> {
   checkAll(Ts: Set<string>, debug = false) {
     return this.checkSymbols(Ts).checkConflicts(debug).checkResolved();
   }
-}
-
-function tempGrammarRulesToGrammarRules<T>(
-  temp: TempGrammarRule<T>[],
-  NTs: Set<string>
-) {
-  return temp.map(
-    (gr) =>
-      new GrammarRule({
-        NT: gr.NT,
-        callback: gr.callback,
-        rejecter: gr.rejecter,
-        rule: gr.rule.map(
-          (g) =>
-            new Grammar({
-              content: g.content,
-              type:
-                g.type == TempGrammarType.LITERAL
-                  ? GrammarType.LITERAL
-                  : NTs.has(g.content)
-                  ? GrammarType.NT
-                  : GrammarType.T,
-            })
-        ),
-      })
-  );
 }
