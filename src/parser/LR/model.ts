@@ -41,7 +41,7 @@ export class GrammarRule<T> {
   rule: Grammar[];
   /** The reduce target. */
   NT: string;
-  callback: GrammarCallback<T>;
+  callback: Callback<T>;
   rejecter: Rejecter<T>;
 
   constructor(
@@ -76,7 +76,7 @@ export interface ReducerContext<T> {
 }
 
 /** Will be called if the current grammar is accepted. */
-export type GrammarCallback<T> = (context: ReducerContext<T>) => void;
+export type Callback<T> = (context: ReducerContext<T>) => void;
 
 /** Grammar rejecter. Return `true` to reject to use the current grammar. */
 export type Rejecter<T> = (context: ReducerContext<T>) => boolean;
