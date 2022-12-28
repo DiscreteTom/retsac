@@ -45,7 +45,6 @@ export class Candidate<T> {
     buffer: ASTNode<T>[],
     /** From where of the buffer to reduce. */
     index: number,
-    entryNTs: Set<string>,
     follow: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
@@ -120,12 +119,11 @@ export class State<T> {
     buffer: ASTNode<T>[],
     /** From where of the buffer to reduce. */
     start: number,
-    entryNTs: Set<string>,
     follow: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
-      const res = c.tryReduce(buffer, start, entryNTs, follow, debug);
+      const res = c.tryReduce(buffer, start, follow, debug);
       if (res.accept) return res;
     }
 
@@ -263,7 +261,7 @@ export class DFA<T> {
       // try reduce with the new state
       const res = this.states
         .at(-1)
-        .tryReduce(buffer, index, this.entryNTs, this.follow, this.debug);
+        .tryReduce(buffer, index, this.follow, this.debug);
       if (!res.accept) {
         index++;
         continue; // try to digest more
