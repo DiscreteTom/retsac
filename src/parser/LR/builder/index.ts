@@ -133,15 +133,19 @@ export class ParserBuilder<T> {
     );
   }
 
-  /** Generate the LR(1) parser. */
-  build(debug = false) {
+  private buildDFA() {
     if (this.entryNTs.size == 0)
       throw new ParserError(
         ParserErrorType.NO_ENTRY_NT,
         `Please set entry NTs for LR Parser.`
       );
 
-    const dfa = new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
+    return new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
+  }
+
+  /** Generate the LR(1) parser. */
+  build(debug = false) {
+    const dfa = this.buildDFA();
     dfa.debug = debug;
 
     return new Parser<T>(dfa);
@@ -198,11 +202,9 @@ export class ParserBuilder<T> {
    * If ok, return this.
    */
   checkConflicts(debug = false) {
-    // TODO: auto resolve conflicts if possible
-    // e.g. for a shift-reduce conflict: `A <= B C` and `D <= B C E`
-    // if E's first set doesn't overlap with A's follow set, the conflict can be resolved by LR1 peeking
-    // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
-    // if A's follow set doesn't overlap with C's follow set, the conflict can be resolved by LR1 peeking
+    const dfa = this.buildDFA();
+    const first = dfa.getFirst();
+    const follow = dfa.getFollow();
 
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
     // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
@@ -211,8 +213,61 @@ export class ParserBuilder<T> {
         if (i == j) continue;
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
-        const res = gr1.checkSRConflict(gr2);
-        res.map((c) => {
+        const conflicts = gr1.checkSRConflict(gr2);
+        conflicts.map((c) => {
+          // try to auto resolve conflicts if possible
+          // e.g. for a shift-reduce conflict: `A <= B C` and `D <= B C E`
+          // if E's first set doesn't overlap with A's follow set, the conflict can be resolved by LR1 peeking
+          const E = c.shifterRule.rule[c.length];
+          const A = c.reducerRule.NT;
+          if (E.type == TempGrammarType.GRAMMAR) {
+            if (this.NTs.has(E.content)) {
+              // E is a NT, check if E's first set doesn't overlap with A's follow set
+              if (!first.get(E.content).overlap(follow.get(A))) {
+                if (debug)
+                  console.log(
+                    `Auto Resolved S-R conflict (length ${
+                      c.length
+                    }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
+                  );
+                return;
+              }
+            } else {
+              // E is a T, just check if E is in A's follow set
+              if (
+                !follow
+                  .get(A)
+                  .has(new Grammar({ type: GrammarType.T, content: E.content }))
+              ) {
+                if (debug)
+                  console.log(
+                    `Auto Resolved S-R conflict (length ${
+                      c.length
+                    }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
+                  );
+                return;
+              }
+            }
+          } else {
+            // E is a literal string, just check if E is in A's follow set
+            if (
+              !follow
+                .get(A)
+                .has(
+                  new Grammar({ type: GrammarType.LITERAL, content: E.content })
+                )
+            ) {
+              if (debug)
+                console.log(
+                  `Auto Resolved S-R conflict (length ${
+                    c.length
+                  }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
+                );
+              return;
+            }
+          }
+
+          // auto resolve failed, check if the conflict is resolved by user
           if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
             const msg = `Unresolved S-R conflict (length ${
               c.length
@@ -232,6 +287,20 @@ export class ParserBuilder<T> {
         const gr1 = this.tempGrammarRules[i];
         const gr2 = this.tempGrammarRules[j];
         if (gr1.checkRRConflict(gr2)) {
+          // try to auto resolve conflicts if possible
+          // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
+          // if A's follow set doesn't overlap with C's follow set, the conflict can be resolved by LR1 peeking
+          const A = gr1.NT;
+          const C = gr2.NT;
+          if (!follow.get(A).overlap(follow.get(C))) {
+            if (debug)
+              console.log(
+                `Auto Resolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`
+              );
+            continue;
+          }
+
+          // auto resolve failed, check if the conflict is resolved by user
           if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
             const msg = `Unresolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`;
             if (debug) console.log(msg);
