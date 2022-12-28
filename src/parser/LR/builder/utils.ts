@@ -2,7 +2,7 @@ import { Lexer } from "../../..";
 import { exact, stringLiteral } from "../../../lexer";
 import { Token } from "../../../lexer/model";
 import { ParserError, ParserErrorType } from "../error";
-import { GrammarCallback, Rejecter } from "../model";
+import { Callback, Rejecter } from "../model";
 import { TempGrammarRule, TempGrammarType } from "./grammar";
 import { Definition } from "./model";
 
@@ -20,7 +20,7 @@ const grammarLexer = new Lexer.Builder()
 /** Definition to TempGrammarRules. */
 export function defToTempGRs<T>(
   defs: Definition,
-  callback?: GrammarCallback<T>,
+  callback?: Callback<T>,
   rejecter?: Rejecter<T>
 ) {
   const result: TempGrammarRule<T>[] = [];

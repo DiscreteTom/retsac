@@ -4,7 +4,7 @@ import { Parser } from "../parser";
 import { ConflictType, Definition, ResolvedConflict } from "./model";
 import {
   Grammar,
-  GrammarCallback,
+  Callback,
   GrammarRule,
   GrammarType,
   Rejecter,
@@ -54,11 +54,7 @@ export class ParserBuilder<T> {
    * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
-  define(
-    defs: Definition,
-    callback?: GrammarCallback<T>,
-    rejecter?: Rejecter<T>
-  ) {
+  define(defs: Definition, callback?: Callback<T>, rejecter?: Rejecter<T>) {
     const grs = defToTempGRs(defs, callback, rejecter);
     this.tempGrammarRules.push(...grs);
     grs.forEach((gr) => this.NTs.add(gr.NT));

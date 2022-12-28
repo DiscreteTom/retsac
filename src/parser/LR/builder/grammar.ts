@@ -1,6 +1,6 @@
 import {
   Grammar,
-  GrammarCallback,
+  Callback,
   GrammarRule,
   GrammarType,
   Rejecter,
@@ -24,7 +24,7 @@ export class TempGrammarRule<T> {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
-  callback?: GrammarCallback<T>;
+  callback?: Callback<T>;
   rejecter?: Rejecter<T>;
 
   constructor(
