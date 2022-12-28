@@ -46,7 +46,7 @@ export class Candidate<T> {
     /** From where of the buffer to reduce. */
     index: number,
     entryNTs: Set<string>,
-    follow: Map<string, GrammarSet<T>>,
+    follow: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     if (this.rejected || this.canDigestMore()) return { accept: false };
@@ -121,7 +121,7 @@ export class State<T> {
     /** From where of the buffer to reduce. */
     start: number,
     entryNTs: Set<string>,
-    follow: Map<string, GrammarSet<T>>,
+    follow: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
@@ -138,9 +138,9 @@ export class DFA<T> {
   private readonly NTClosures: Map<string, GrammarRule<T>[]>;
   private readonly entryState: State<T>;
   /** `NT => Grammars` */
-  private readonly first: Map<string, GrammarSet<T>>;
+  private readonly first: Map<string, GrammarSet>;
   /** `NT => Grammars` */
-  private readonly follow: Map<string, GrammarSet<T>>;
+  private readonly follow: Map<string, GrammarSet>;
   private readonly entryNTs: Set<string>;
   /** State stack, current state is `states.at(-1)`. */
   private states: State<T>[];

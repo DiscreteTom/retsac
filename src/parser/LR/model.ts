@@ -10,17 +10,17 @@ export enum GrammarType {
   NT,
 }
 
-export class Grammar<T> {
+export class Grammar {
   type: GrammarType;
   /** Literal content, or T/NT's type name. */
   content: string;
 
-  constructor(p: Pick<Grammar<T>, "type" | "content">) {
+  constructor(p: Pick<Grammar, "type" | "content">) {
     Object.assign(this, p);
   }
 
   /** Equals to. */
-  eq(g: Grammar<T> | ASTNode<T>) {
+  eq<_>(g: Grammar | ASTNode<_>) {
     if (g instanceof Grammar)
       return this.type == g.type && this.content == g.content;
     else
@@ -38,7 +38,7 @@ export class Grammar<T> {
 }
 
 export class GrammarRule<T> {
-  rule: Grammar<T>[];
+  rule: Grammar[];
   /** The reduce target. */
   NT: string;
   callback: GrammarCallback<T>;
@@ -82,26 +82,26 @@ export type GrammarCallback<T> = (context: ReducerContext<T>) => void;
 export type Rejecter<T> = (context: ReducerContext<T>) => boolean;
 
 /** A set of different grammars. */
-export class GrammarSet<T> {
+export class GrammarSet {
   /** Grammars. */
-  private gs: Grammar<T>[];
+  private gs: Grammar[];
 
   constructor() {
     this.gs = [];
   }
 
-  has(g: Grammar<T> | ASTNode<T>) {
+  has<_>(g: Grammar | ASTNode<_>) {
     return !this.gs.every((gg) => !gg.eq(g));
   }
 
   /** Return `true` if successfully added. */
-  add(g: Grammar<T>) {
+  add(g: Grammar) {
     if (this.has(g)) return false;
     this.gs.push(g);
     return true;
   }
 
-  map<R>(f: (g: Grammar<T>) => R) {
+  map<R>(f: (g: Grammar) => R) {
     return this.gs.map(f);
   }
 }
