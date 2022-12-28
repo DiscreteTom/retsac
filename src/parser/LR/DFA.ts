@@ -162,22 +162,23 @@ export class DFA<T> {
 
     // construct first
     this.first = new Map();
-    NTs.forEach((NT) => this.first.set(NT, new GrammarSet()));
+    NTs.forEach((NT) => this.first.set(NT, new GrammarSet())); // init
     this.NTClosures.forEach((grs, NT) => {
       const gs = this.first.get(NT);
+      // for each direct/indirect grammar rule, add first grammar to first set
       grs.map((gr) => gs.add(gr.rule[0]));
     });
 
     // construct follow
     this.follow = new Map();
-    NTs.forEach((NT) => this.follow.set(NT, new GrammarSet()));
+    NTs.forEach((NT) => this.follow.set(NT, new GrammarSet())); // init
     grammarRules.map((gr) => {
       gr.rule.map((g, i, rule) => {
         if (i < rule.length - 1 && g.type == GrammarType.NT) {
-          // current grammar is NT and next grammar exists, merge with next grammar
+          // current grammar is NT and next grammar exists, merge the NT's follow set with next grammar
           const gs = this.follow.get(g.content);
           gs.add(rule[i + 1]);
-          // if next grammar is NT, merge with its first set
+          // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
             this.first.get(rule[i + 1].content).map((g) => gs.add(g));
         }
@@ -300,6 +301,9 @@ function getAllNTClosure<T>(
 
 /**
  * Get all direct/indirect grammar rules which can reduce to the specified NT.
+ * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
+ * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
+ * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
  */
 function getNTClosure<T>(
   NT: string,
@@ -313,6 +317,8 @@ function getNTClosure<T>(
 
 /**
  * If a rule starts with NT, merge result with that NT's grammar rules.
+ * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
+ * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
 function getGrammarRulesClosure<T>(
   rules: GrammarRule<T>[],
