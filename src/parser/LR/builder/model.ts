@@ -5,7 +5,7 @@ export interface Definition {
 }
 
 export enum ConflictType {
-  SHIFT_REDUCE,
+  REDUCE_SHIFT,
   REDUCE_REDUCE,
 }
 

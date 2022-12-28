@@ -82,7 +82,7 @@ export class ParserBuilder<T> {
 
   /** Resolve a shift-reduce conflict. */
   resolveSR(def1: Definition, def2: Definition) {
-    return this.resolve(ConflictType.SHIFT_REDUCE, def1, def2);
+    return this.resolve(ConflictType.REDUCE_SHIFT, def1, def2);
   }
 
   /** Resolve a reduce-reduce conflict. */
@@ -264,7 +264,7 @@ export class ParserBuilder<T> {
           }
 
           // auto resolve failed, check if the conflict is resolved by user
-          if (!this.hasResolvedConflict(ConflictType.SHIFT_REDUCE, gr1, gr2)) {
+          if (!this.hasResolvedConflict(ConflictType.REDUCE_SHIFT, gr1, gr2)) {
             const msg = `Unresolved S-R conflict (length ${
               c.length
             }): ${gr1.toString()} | ${gr2.toString()}`;
