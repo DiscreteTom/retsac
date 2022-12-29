@@ -1,4 +1,4 @@
-import { Lexer } from "./lexer/lexer";
+import { ILexer } from "./lexer/model";
 import { ASTNode } from "./parser/ast";
 import { IParser } from "./parser/model";
 
@@ -7,13 +7,13 @@ import { IParser } from "./parser/model";
  * and a parser to reduce buffer and gather errors.
  */
 export class Manager<T> {
-  private lexer: Lexer;
+  private lexer: ILexer;
   private parser: IParser<T>;
   private buffer: ASTNode<T>[];
   /** Error nodes. */
   private errors: ASTNode<T>[];
 
-  constructor(p: { lexer: Lexer; parser: IParser<T> }) {
+  constructor(p: { lexer: ILexer; parser: IParser<T> }) {
     this.lexer = p.lexer;
     this.parser = p.parser;
     this.reset();
