@@ -41,7 +41,7 @@ test("R-R conflict", () => {
         { exp: `exp '-' exp` },
         LR.resolveRR(
           { exp: `'-' exp` },
-          { next: `'-'`, reject: false, end: true }
+          { next: `'-'`, reject: false, handleEnd: true }
         )
       )
       .checkConflicts();
