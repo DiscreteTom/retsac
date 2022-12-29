@@ -116,5 +116,4 @@ export class GrammarSet {
   overlap(gs: GrammarSet) {
     return this.gs.filter((g) => gs.has(g));
   }
-
 }
