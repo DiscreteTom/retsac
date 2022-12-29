@@ -287,10 +287,10 @@ export class DFA<T> {
     return accept ? { accept: true, buffer, errors } : { accept: false };
   }
 
-  getFirst() {
+  getFirstSets() {
     return this.firstSets;
   }
-  getFollow() {
+  getFollowSets() {
     return this.followSets;
   }
 }

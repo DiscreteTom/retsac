@@ -214,8 +214,8 @@ export class ParserBuilder<T> {
    */
   checkConflicts(printAll = false) {
     const dfa = this.buildDFA();
-    const first = dfa.getFirst();
-    const follow = dfa.getFollow();
+    const firstSets = dfa.getFirstSets();
+    const followSets = dfa.getFollowSets();
 
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
     // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
@@ -231,8 +231,8 @@ export class ParserBuilder<T> {
           // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
           const A = c.reducerRule.NT;
           const E = c.shifterRule.rule[c.length];
-          const EFirst = first.get(E.content);
-          const AFollow = follow.get(A);
+          const EFirst = firstSets.get(E.content);
+          const AFollow = followSets.get(A);
           let errMsg = "";
           if (E.type == TempGrammarType.GRAMMAR) {
             if (this.NTs.has(E.content)) {
@@ -323,7 +323,7 @@ export class ParserBuilder<T> {
           // if A's follow has some grammar that is also in C's follow, the conflict can't be resolved by LR1 peeking
           const A = reducerRule.NT;
           const C = anotherRule.NT;
-          const overlap = follow.get(A).overlap(follow.get(C));
+          const overlap = followSets.get(A).overlap(followSets.get(C));
           let errMsg = "";
           if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
 
@@ -371,7 +371,7 @@ export class ParserBuilder<T> {
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
     this.resolved.forEach((g) => {
       g.next.forEach((n) => {
-        if (!follow.get(g.reducerRule.NT).has(n)) {
+        if (!followSets.get(g.reducerRule.NT).has(n)) {
           const errMsg = `Next grammar ${n.toString()} not in follow set of ${g.reducerRule.NT.toString()}`;
           if (printAll) console.log(errMsg);
           else throw new ParserError(ParserErrorType.NO_SUCH_NEXT, errMsg);
