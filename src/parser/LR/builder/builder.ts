@@ -101,7 +101,10 @@ export class ParserBuilder<T> {
     // check end
     const endHandlers = related.filter((r) => r.handleEnd);
     if (endHandlers.length > 1) {
-      // TODO: throw error
+      throw new ParserError(
+        ParserErrorType.TOO_MANY_END_HANDLER,
+        `Too many end handlers for rule ${endHandlers[0].reducerRule.toString()}`
+      );
     }
     const unresolvedEnd = handleEnd ? endHandlers[0]?.reject ?? true : false;
 
