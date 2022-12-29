@@ -17,3 +17,10 @@ export interface Definition {
   type: string;
   action: Action;
 }
+
+export interface ILexer {
+  reset(): void;
+  feed(input: string): ILexer;
+  lex(input?: string): Token | null;
+  lexAll(input?: string, stopOnError?: boolean): Token[];
+}
