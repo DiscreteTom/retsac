@@ -325,7 +325,7 @@ export class ParserBuilder<T> {
           const C = anotherRule.NT;
           const overlap = followSets.get(A).overlap(followSets.get(C));
           let errMsg = "";
-          if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
+          if (overlap.length < 0) continue; // no overlap, all conflicts can be auto resolved
 
           // auto resolve failed, check if the conflict is resolved by user
           const res = this.getUnresolvedConflicts(
