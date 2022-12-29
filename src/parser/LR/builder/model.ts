@@ -23,7 +23,7 @@ export interface PartialConflict<T> {
   /** If this is a R-S conflict, this rule is a shifter. If this is a R-R conflict, this rule is a reducer. */
   another: TempGrammarRule<T>;
   next: TempGrammar[];
-  /** Whether to handle conflict if reach the end of input */
+  /** Whether to handle conflict if reach the end of input using `reject`. */
   end: boolean;
 }
 
