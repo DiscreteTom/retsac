@@ -104,7 +104,7 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRS<T>(
     another: Definition,
-    { reject = true, end = false, next = "" }
+    { next = "", reject = true, end = false }
   ) {
     return this.resolve<T>(
       ConflictType.REDUCE_SHIFT,
@@ -119,7 +119,7 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRR<T>(
     another: Definition,
-    { reject = true, end = false, next = "" }
+    { next = "", reject = true, end = false }
   ) {
     return this.resolve<T>(
       ConflictType.REDUCE_REDUCE,
@@ -129,11 +129,36 @@ export class DefinitionContextBuilder<T> {
       end
     );
   }
-  resolveRS(another: Definition, { reject = true, end = false, next = "" }) {
-    // TODO
+  /** Create a new DefinitionContextBuilder with the new specified type resolved conflict appended. */
+  private resolve(
+    type: ConflictType,
+    another: Definition,
+    next: string,
+    reject: boolean,
+    end: boolean
+  ) {
+    const anotherCtx = DefinitionContextBuilder.resolve<T>(
+      type,
+      another,
+      next,
+      reject,
+      end
+    );
+    return new DefinitionContextBuilder<T>({
+      callback: this._callback,
+      rejecter: (ctx) => {
+        return this._rejecter(ctx) || anotherCtx._rejecter(ctx);
+      },
+      resolved: this.resolved.concat(anotherCtx.resolved),
+    });
   }
-  resolveRR(another: Definition, { reject = true, end = false, next = "" }) {
-    // TODO
+  /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
+  resolveRS(another: Definition, { next = "", reject = true, end = false }) {
+    return this.resolve(ConflictType.REDUCE_SHIFT, another, next, reject, end);
+  }
+  /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
+  resolveRR(another: Definition, { next = "", reject = true, end = false }) {
+    return this.resolve(ConflictType.REDUCE_REDUCE, another, next, reject, end);
   }
 
   static reducer() {
@@ -143,8 +168,19 @@ export class DefinitionContextBuilder<T> {
     // TODO
   }
 
-  build(gr: TempGrammarRule<T>) {
-    // TODO
+  build(NT: string, rule: TempGrammar[]): ResolvedConflict<T>[] {
+    const reducerRule = new TempGrammarRule({
+      NT,
+      rule,
+      callback: this._callback,
+      rejecter: this._rejecter,
+    });
+    return this.resolved.map((c) => {
+      return {
+        ...c,
+        reducer: reducerRule,
+      };
+    });
   }
 }
 
@@ -172,6 +208,6 @@ export interface Conflict<T> extends PartialConflict<T> {
   reducer: TempGrammarRule<T>;
 }
 
-export interface ResolvedConflict<T> extends Conflict<T> {
-  reject: boolean;
+export interface ResolvedConflict<T> extends PartialResolvedConflict<T> {
+  reducer: TempGrammarRule<T>;
 }
