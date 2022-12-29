@@ -9,6 +9,7 @@ export enum ParserErrorType {
   CONFLICT,
   NO_SUCH_GRAMMAR_RULE,
   TOO_MANY_END_HANDLER,
+  NO_SUCH_NEXT,
 }
 
 export class ParserError extends Error {

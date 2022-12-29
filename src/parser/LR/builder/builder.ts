@@ -350,32 +350,38 @@ export class ParserBuilder<T> {
       }
     }
 
-    return this;
-  }
-
-  /**
-   * Ensure all grammar rules resolved are appeared in the grammar rules.
-   * If ok, return this.
-   */
-  checkResolved() {
-    // TODO: check next
+    // ensure all grammar rules resolved are appeared in the grammar rules
     this.resolved.forEach((g) => {
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule)))
-        throw new ParserError(
-          ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.reducerRule.toString()
-        );
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule)))
-        throw new ParserError(
-          ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.anotherRule.toString()
-        );
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule))) {
+        const errMsg = `No such grammar rule: ${g.reducerRule.toString()}`;
+        if (printAll) console.log(errMsg);
+        else
+          throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
+      }
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule))) {
+        const errMsg = `No such grammar rule: ${g.anotherRule.toString()}`;
+        if (printAll) console.log(errMsg);
+        else
+          throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
+      }
     });
+
+    // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
+    this.resolved.forEach((g) => {
+      g.next.forEach((n) => {
+        if (!follow.get(g.reducerRule.NT).has(n)) {
+          const errMsg = `Next grammar ${n.toString()} not in follow set of ${g.reducerRule.NT.toString()}`;
+          if (printAll) console.log(errMsg);
+          else throw new ParserError(ParserErrorType.NO_SUCH_NEXT, errMsg);
+        }
+      });
+    });
+
     return this;
   }
 
-  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(printAll).checkResolved()`.  */
+  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(printAll)`.  */
   checkAll(Ts: Set<string>, printAll = false) {
-    return this.checkSymbols(Ts).checkConflicts(printAll).checkResolved();
+    return this.checkSymbols(Ts).checkConflicts(printAll);
   }
 }
