@@ -17,7 +17,6 @@
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
     - Add `ParserBuilder.checkConflicts` to ensure all reduce-shift and reduce-reduce conflicts are resolved.
       - It will also try to auto resolve conflicts by LR(1) peeking.
-    - Add `ParserBuilder.checkResolved` to ensure all grammar rules resolved are appeared in the grammar rules.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
     - Replace `dataReducer` with `LR.reducer`.
 - Optimize document / comments.
