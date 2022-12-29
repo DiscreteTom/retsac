@@ -286,6 +286,13 @@ export class DFA<T> {
 
     return accept ? { accept: true, buffer, errors } : { accept: false };
   }
+
+  getFirst() {
+    return this.firstSets;
+  }
+  getFollow() {
+    return this.followSets;
+  }
 }
 
 function getAllNTClosure<T>(
