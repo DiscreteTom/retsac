@@ -7,6 +7,7 @@
   - Change `Token` and `Definition` from type to interface.
   - If token has no error, the error field will be `undefined`.
 - Parser
+  - Use `DefinitionContextBuilder` to define parser actions.
   - If ASTNode has no error, the error field will be `undefined`.
   - Add `ASTNode.toObj` for serialization.
   - Add optional `stopOnError` parameter to `IParser.parse`.
@@ -14,10 +15,11 @@
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
-    - Add `ParserBuilder.resolveSR/resolveRR` to ignore resolved conflicts.
     - Add `ParserBuilder.checkConflicts` to ensure all shift-reduce and reduce-reduce conflicts are resolved.
+      - It will also try to auto resolve conflicts by LR(1) peeking.
     - Add `ParserBuilder.checkResolved` to ensure all grammar rules resolved are appeared in the grammar rules.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
+    - Replace `dataReducer` with `LR.reducer`.
 - Optimize document / comments.
 - Optimize code / performance.
 - More test code.
