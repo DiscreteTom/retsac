@@ -210,7 +210,7 @@ export class ParserBuilder<T> {
    * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
    */
-  checkConflicts(debug = false) {
+  checkConflicts(printAll = false) {
     const dfa = this.buildDFA();
     const first = dfa.getFirst();
     const follow = dfa.getFollow();
@@ -301,7 +301,7 @@ export class ParserBuilder<T> {
           }
 
           if (errMsg.length > 0) {
-            if (debug) console.log(errMsg);
+            if (printAll) console.log(errMsg);
             else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
         });
@@ -343,7 +343,7 @@ export class ParserBuilder<T> {
           }
 
           if (errMsg.length > 0) {
-            if (debug) console.log(errMsg);
+            if (printAll) console.log(errMsg);
             else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
         }
@@ -374,8 +374,8 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(debug).checkResolved()`.  */
-  checkAll(Ts: Set<string>, debug = false) {
-    return this.checkSymbols(Ts).checkConflicts(debug).checkResolved();
+  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(printAll).checkResolved()`.  */
+  checkAll(Ts: Set<string>, printAll = false) {
+    return this.checkSymbols(Ts).checkConflicts(printAll).checkResolved();
   }
 }
