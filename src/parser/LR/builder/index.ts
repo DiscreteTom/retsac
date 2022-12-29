@@ -1,16 +1,20 @@
 import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { Parser } from "../parser";
-import { ConflictType, Definition, ResolvedConflict } from "./model";
 import {
-  Grammar,
-  Callback,
-  GrammarRule,
-  GrammarType,
-  Rejecter,
-} from "../model";
-import { TempGrammarRule, TempGrammarType } from "./grammar";
+  ConflictType,
+  Definition,
+  DefinitionContextBuilder,
+  ResolvedConflict,
+} from "./model";
+import { Grammar, GrammarRule, GrammarType } from "../model";
+import { TempGrammar, TempGrammarRule, TempGrammarType } from "./grammar";
 import { defToTempGRs } from "./utils";
+
+export const callback = DefinitionContextBuilder.callback;
+export const rejecter = DefinitionContextBuilder.rejecter;
+export const resolveRS = DefinitionContextBuilder.resolveRS;
+export const resolveRR = DefinitionContextBuilder.resolveRR;
 
 /**
  * Builder for LR(1) parsers.
@@ -23,7 +27,7 @@ export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
   private NTs: Set<string>;
-  private resolved: ResolvedConflict[];
+  private resolved: ResolvedConflict<T>[];
 
   constructor() {
     this.tempGrammarRules = [];
@@ -54,10 +58,21 @@ export class ParserBuilder<T> {
    * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
-  define(defs: Definition, callback?: Callback<T>, rejecter?: Rejecter<T>) {
-    const grs = defToTempGRs(defs, callback, rejecter);
+  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
+    const ctx = ctxBuilder?.build();
+    const grs = defToTempGRs(defs, ctx);
+
     this.tempGrammarRules.push(...grs);
-    grs.forEach((gr) => this.NTs.add(gr.NT));
+    grs.forEach((gr) => {
+      this.NTs.add(gr.NT);
+      if (ctx)
+        this.resolved.push(
+          ...ctx.resolved.map((r) => ({
+            ...r,
+            reducer: gr,
+          }))
+        );
+    });
 
     return this;
   }
@@ -70,36 +85,30 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  /** Resolve a conflict. */
-  private resolve(type: ConflictType, def1: Definition, def2: Definition) {
-    this.resolved.push({
-      type,
-      rule1: defToTempGRs<void>(def1)[0],
-      rule2: defToTempGRs<void>(def2)[0],
-    });
-    return this;
-  }
-
-  /** Resolve a shift-reduce conflict. */
-  resolveSR(def1: Definition, def2: Definition) {
-    return this.resolve(ConflictType.REDUCE_SHIFT, def1, def2);
-  }
-
-  /** Resolve a reduce-reduce conflict. */
-  resolveRR(def1: Definition, def2: Definition) {
-    return this.resolve(ConflictType.REDUCE_REDUCE, def1, def2);
-  }
-
-  /** Return whether a conflict has been resolved. */
-  private hasResolvedConflict<_, __>(
+  /** Return conflicts that user didn't resolve. */
+  private unresolvedConflicts<_, __>(
     type: ConflictType,
-    rule1: TempGrammarRule<_>,
-    rule2: TempGrammarRule<__>
+    reducer: TempGrammarRule<_>,
+    another: TempGrammarRule<__>,
+    next: Grammar[],
+    end: boolean
   ) {
-    return this.resolved.some((r) => {
-      if (r.type != type) return false;
-      return rule1.weakEq(r.rule1) && rule2.weakEq(r.rule2);
-    });
+    const related = this.resolved.filter(
+      (r) =>
+        r.type == type && reducer.weakEq(r.reducer) && another.weakEq(r.another)
+    );
+
+    // check next
+    const resolvedNext = [] as TempGrammar[];
+    related.forEach((r) => r.next.forEach((n) => resolvedNext.push(n)));
+    const unresolvedNext = next.filter(
+      (n) => !resolvedNext.some((rn) => n.eq(rn))
+    );
+
+    // check end
+    const unresolvedEnd = end ? !related.some((r) => r.end) : false;
+
+    return { next: unresolvedNext, end: unresolvedEnd };
   }
 
   /**
@@ -194,7 +203,7 @@ export class ParserBuilder<T> {
   }
 
   /**
-   * Ensure all shift-reduce and reduce-reduce conflicts are resolved.
+   * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
    */
   checkConflicts(debug = false) {
@@ -202,74 +211,94 @@ export class ParserBuilder<T> {
     const first = dfa.getFirst();
     const follow = dfa.getFollow();
 
-    // if the tail of a grammar rule is the same as the head of another grammar rule, it's a shift-reduce conflict
-    // e.g. `exp '+' exp | exp '*' exp` is a shift-reduce conflict, `A B C | B C D` is a shift-reduce conflict
+    // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
+    // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
       for (let j = 0; j < this.tempGrammarRules.length; j++) {
         if (i == j) continue;
-        const gr1 = this.tempGrammarRules[i];
-        const gr2 = this.tempGrammarRules[j];
-        const conflicts = gr1.checkSRConflict(gr2);
+        const reducerRule = this.tempGrammarRules[i];
+        const anotherRule = this.tempGrammarRules[j];
+        const conflicts = reducerRule.checkRSConflict(anotherRule);
         conflicts.map((c) => {
           // try to auto resolve conflicts if possible
-          // e.g. for a shift-reduce conflict: `A <= B C` and `D <= B C E`
-          // if E's first set doesn't overlap with A's follow set, the conflict can be resolved by LR1 peeking
-          const E = c.shifterRule.rule[c.length];
+          // e.g. for a reduce-shift conflict: `A <= B C` and `D <= C E`
+          // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
           const A = c.reducerRule.NT;
+          const E = c.shifterRule.rule[c.length];
+          const EFirst = first.get(E.content);
+          const AFollow = follow.get(A);
           if (E.type == TempGrammarType.GRAMMAR) {
             if (this.NTs.has(E.content)) {
-              // E is a NT, check if E's first set doesn't overlap with A's follow set
-              if (!first.get(E.content).overlap(follow.get(A))) {
-                if (debug)
-                  console.log(
-                    `Auto Resolved S-R conflict (length ${
-                      c.length
-                    }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
-                  );
-                return;
+              // E is a NT, check if A's follow has some grammar that is also in E's first
+              const overlap = AFollow.overlap(EFirst);
+              if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
+
+              // auto resolve failed, check if the conflicts are resolved by user
+              const res = this.unresolvedConflicts(
+                ConflictType.REDUCE_SHIFT,
+                reducerRule,
+                anotherRule,
+                overlap,
+                false // for a RS conflict, we don't need to handle end of input
+              );
+
+              if (res.next.length > 0) {
+                const msg = `Unresolved R-S conflict (length: ${
+                  c.length
+                }, next: ${res.next.map((g) =>
+                  g.toString()
+                )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                if (debug) console.log(msg);
+                else throw new ParserError(ParserErrorType.CONFLICT, msg);
               }
             } else {
-              // E is a T, just check if E is in A's follow set
-              if (
-                !follow
-                  .get(A)
-                  .has(new Grammar({ type: GrammarType.T, content: E.content }))
-              ) {
-                if (debug)
-                  console.log(
-                    `Auto Resolved S-R conflict (length ${
-                      c.length
-                    }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
-                  );
-                return;
+              // E is a T, check if A's follow has E
+              if (AFollow.has(E)) {
+                // auto resolve failed, check if the conflicts are resolved by user
+                const res = this.unresolvedConflicts(
+                  ConflictType.REDUCE_SHIFT,
+                  reducerRule,
+                  anotherRule,
+                  [new Grammar({ content: E.content, type: GrammarType.T })],
+                  false // for a RS conflict, we don't need to handle end of input
+                );
+                if (res.next.length > 0) {
+                  const msg = `Unresolved R-S conflict (length: ${
+                    c.length
+                  }, next: ${res.next.map((g) =>
+                    g.toString()
+                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                  if (debug) console.log(msg);
+                  else throw new ParserError(ParserErrorType.CONFLICT, msg);
+                }
               }
             }
           } else {
-            // E is a literal string, just check if E is in A's follow set
-            if (
-              !follow
-                .get(A)
-                .has(
-                  new Grammar({ type: GrammarType.LITERAL, content: E.content })
-                )
-            ) {
-              if (debug)
-                console.log(
-                  `Auto Resolved S-R conflict (length ${
-                    c.length
-                  }): ${c.shifterRule.toString()} | ${c.reducerRule.toString()}`
-                );
-              return;
+            // E is a literal, check if A's follow has E
+            if (AFollow.has(E)) {
+              // auto resolve failed, check if the conflicts are resolved by user
+              const res = this.unresolvedConflicts(
+                ConflictType.REDUCE_SHIFT,
+                reducerRule,
+                anotherRule,
+                [
+                  new Grammar({
+                    content: E.content,
+                    type: GrammarType.LITERAL,
+                  }),
+                ],
+                false // for a RS conflict, we don't need to handle end of input
+              );
+              if (res.next.length > 0) {
+                const msg = `Unresolved R-S conflict (length: ${
+                  c.length
+                }, next: ${res.next.map((g) =>
+                  g.toString()
+                )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                if (debug) console.log(msg);
+                else throw new ParserError(ParserErrorType.CONFLICT, msg);
+              }
             }
-          }
-
-          // auto resolve failed, check if the conflict is resolved by user
-          if (!this.hasResolvedConflict(ConflictType.REDUCE_SHIFT, gr1, gr2)) {
-            const msg = `Unresolved S-R conflict (length ${
-              c.length
-            }): ${gr1.toString()} | ${gr2.toString()}`;
-            if (debug) console.log(msg);
-            else throw new ParserError(ParserErrorType.CONFLICT, msg);
           }
         });
       }
@@ -280,25 +309,34 @@ export class ParserBuilder<T> {
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
       for (let j = 0; j < this.tempGrammarRules.length; j++) {
         if (i == j) continue;
-        const gr1 = this.tempGrammarRules[i];
-        const gr2 = this.tempGrammarRules[j];
-        if (gr1.checkRRConflict(gr2)) {
+        const reducerRule = this.tempGrammarRules[i];
+        const anotherRule = this.tempGrammarRules[j];
+        if (reducerRule.checkRRConflict(anotherRule)) {
           // try to auto resolve conflicts if possible
           // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
-          // if A's follow set doesn't overlap with C's follow set, the conflict can be resolved by LR1 peeking
-          const A = gr1.NT;
-          const C = gr2.NT;
-          if (!follow.get(A).overlap(follow.get(C))) {
-            if (debug)
-              console.log(
-                `Auto Resolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`
-              );
-            continue;
-          }
+          // if A's follow has some grammar that is also in C's follow, the conflict can't be resolved by LR1 peeking
+          const A = reducerRule.NT;
+          const C = anotherRule.NT;
+          const overlap = follow.get(A).overlap(follow.get(C));
+          if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
 
           // auto resolve failed, check if the conflict is resolved by user
-          if (!this.hasResolvedConflict(ConflictType.REDUCE_REDUCE, gr1, gr2)) {
-            const msg = `Unresolved R-R conflict: ${gr1.toString()} | ${gr2.toString()}`;
+          const res = this.unresolvedConflicts(
+            ConflictType.REDUCE_REDUCE,
+            reducerRule,
+            anotherRule,
+            overlap,
+            true // for a RR conflict, we need to handle end of input
+          );
+          if (res.next.length > 0) {
+            const msg = `Unresolved R-R conflict (next: ${res.next.map((g) =>
+              g.toString()
+            )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+            if (debug) console.log(msg);
+            else throw new ParserError(ParserErrorType.CONFLICT, msg);
+          }
+          if (res.end) {
+            const msg = `Unresolved R-R conflict (end of input): ${reducerRule.toString()} | ${anotherRule.toString()}`;
             if (debug) console.log(msg);
             else throw new ParserError(ParserErrorType.CONFLICT, msg);
           }
@@ -315,15 +353,15 @@ export class ParserBuilder<T> {
    */
   checkResolved() {
     this.resolved.forEach((g) => {
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule1)))
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducer)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.rule1.toString()
+          g.reducer.toString()
         );
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.rule2)))
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.another)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.rule2.toString()
+          g.another.toString()
         );
     });
     return this;
