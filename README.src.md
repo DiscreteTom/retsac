@@ -22,7 +22,7 @@ yarn add retsac
   - Support custom functions to yield tokens from the input string.
 - The Parser, reduce a token list to an AST (Abstract Syntax Tree).
   - By default the lib provides an LR(1) parser.
-    - Support conflict detection (for shift-reduce conflicts and reduce-reduce conflicts).
+    - Support conflict detection (for reduce-shift conflicts and reduce-reduce conflicts).
       - Support custom rejecter to resolve conflicts.
       - As an LR(1) parser, the parser will try to auto resolve conflicts by peeking the next AST node.
     - Optional data reducer to make it possible to get a result value when the parse is done.
