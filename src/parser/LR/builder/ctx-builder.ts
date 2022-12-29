@@ -105,17 +105,13 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T>(
-    another: Definition,
-    // TODO: R-S conflict doesn't need to handle end?
-    { next = "", reject = true, handleEnd = false }
-  ) {
+  static resolveRS<T>(another: Definition, { next = "", reject = true }) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
       reject,
-      handleEnd
+      false
     );
   }
   /**
@@ -157,17 +153,13 @@ export class DefinitionContextBuilder<T> {
     });
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(
-    another: Definition,
-    // TODO: R-S conflict doesn't need to handle end?
-    { next = "", reject = true, handleEnd = false }
-  ) {
+  resolveRS(another: Definition, { next = "", reject = true }) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
       reject,
-      handleEnd
+      false
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
