@@ -2,13 +2,9 @@ import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { Grammar, GrammarRule, GrammarType } from "../model";
 import { Parser } from "../parser";
+import { DefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
-import {
-  ResolvedConflict,
-  Definition,
-  DefinitionContextBuilder,
-  ConflictType,
-} from "./model";
+import { ResolvedConflict, Definition, ConflictType } from "./model";
 import { defToTempGRs } from "./utils";
 
 /**

@@ -1,4 +1,4 @@
-import { DefinitionContextBuilder } from "./model";
+import { DefinitionContextBuilder } from "./ctx-builder";
 
 export { ParserBuilder } from "./builder";
 
