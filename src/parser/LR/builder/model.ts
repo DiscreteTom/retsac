@@ -6,6 +6,12 @@ export interface Definition {
   [NT: string]: string | string[];
 }
 
+export interface DefinitionContext<T> {
+  callback: Callback<T>;
+  rejecter: Rejecter<T>;
+  resolved: PartialResolvedConflict<T>[];
+}
+
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Rejecter<T>;
@@ -106,7 +112,7 @@ export class DefinitionContextBuilder<T> {
     another: Definition,
     { next = "", reject = true, end = false }
   ) {
-    return this.resolve<T>(
+    return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
@@ -121,7 +127,7 @@ export class DefinitionContextBuilder<T> {
     another: Definition,
     { next = "", reject = true, end = false }
   ) {
-    return this.resolve<T>(
+    return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
       next,
@@ -168,19 +174,12 @@ export class DefinitionContextBuilder<T> {
     // TODO
   }
 
-  build(NT: string, rule: TempGrammar[]): ResolvedConflict<T>[] {
-    const reducerRule = new TempGrammarRule({
-      NT,
-      rule,
+  build(): DefinitionContext<T> {
+    return {
       callback: this._callback,
       rejecter: this._rejecter,
-    });
-    return this.resolved.map((c) => {
-      return {
-        ...c,
-        reducer: reducerRule,
-      };
-    });
+      resolved: this.resolved,
+    };
   }
 }
 
