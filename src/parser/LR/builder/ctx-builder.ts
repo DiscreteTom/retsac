@@ -1,4 +1,4 @@
-import { Callback, Rejecter } from "../model";
+import { Callback, ReducerContext, Rejecter } from "../model";
 import { TempGrammarType } from "./grammar";
 import {
   PartialResolvedConflict,
@@ -163,11 +163,27 @@ export class DefinitionContextBuilder<T> {
     return this.resolve(ConflictType.REDUCE_REDUCE, another, next, reject, end);
   }
 
-  static reducer() {
-    // TODO
+  /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
+  static reducer<T>(f: (data: T[], context: ReducerContext<T>) => T) {
+    return new DefinitionContextBuilder<T>({
+      callback: (context) =>
+        (context.data = f(
+          context.matched.map((node) => node.data),
+          context
+        )),
+    });
   }
-  reducer() {
-    // TODO
+  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
+  reducer(f: (data: T[], context: ReducerContext<T>) => T) {
+    const anotherCtx = DefinitionContextBuilder.reducer(f);
+    return new DefinitionContextBuilder<T>({
+      callback: (context) => {
+        this._callback(context);
+        anotherCtx._callback(context);
+      },
+      rejecter: this._rejecter,
+      resolved: this.resolved,
+    });
   }
 
   build(): DefinitionContext<T> {
