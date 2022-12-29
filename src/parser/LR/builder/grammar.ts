@@ -20,6 +20,7 @@ export interface TempGrammar {
   content: string;
 }
 
+/** Grammar rule, but can't distinguish N or NT. */
 export class TempGrammarRule<T> {
   rule: TempGrammar[];
   /** The reduce target. */
@@ -45,26 +46,26 @@ export class TempGrammarRule<T> {
     );
   }
 
-  /** Return whether this.rule starts with partial rule. */
-  private ruleStartsWith(partialRule: TempGrammar[]) {
-    if (this.rule.length < partialRule.length) return false;
-    for (let i = 0; i < partialRule.length; i++) {
+  /** Return whether this.rule starts with another rule. */
+  private ruleStartsWith(anotherRule: TempGrammar[]) {
+    if (this.rule.length < anotherRule.length) return false;
+    for (let i = 0; i < anotherRule.length; i++) {
       if (
-        this.rule[i].content != partialRule[i].content ||
-        this.rule[i].type != partialRule[i].type
+        this.rule[i].content != anotherRule[i].content ||
+        this.rule[i].type != anotherRule[i].type
       )
         return false;
     }
     return true;
   }
 
-  /** Return whether this.rule ends with partial rule. */
-  private ruleEndsWith(partialRule: TempGrammar[]) {
-    if (this.rule.length < partialRule.length) return false;
-    for (let i = 0; i < partialRule.length; i++) {
+  /** Return whether this.rule ends with `partialRule`. */
+  private ruleEndsWith(anotherRule: TempGrammar[]) {
+    if (this.rule.length < anotherRule.length) return false;
+    for (let i = 0; i < anotherRule.length; i++) {
       if (
-        this.rule.at(-i - 1).content != partialRule.at(-i - 1).content ||
-        this.rule.at(-i - 1).type != partialRule.at(-i - 1).type
+        this.rule.at(-i - 1).content != anotherRule.at(-i - 1).content ||
+        this.rule.at(-i - 1).type != anotherRule.at(-i - 1).type
       )
         return false;
     }
@@ -79,6 +80,7 @@ export class TempGrammarRule<T> {
     const result = [] as {
       reducerRule: TempGrammarRule<T>;
       shifterRule: TempGrammarRule<T>;
+      /** How many grammars are overlapped in rule. */
       length: number;
     }[];
     for (let i = 0; i < this.rule.length; ++i) {

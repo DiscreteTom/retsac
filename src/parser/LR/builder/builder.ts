@@ -60,7 +60,7 @@ export class ParserBuilder<T> {
         this.resolved.push(
           ...ctx.resolved.map((r) => ({
             ...r,
-            reducer: gr,
+            reducerRule: gr,
           }))
         );
     });
@@ -77,16 +77,18 @@ export class ParserBuilder<T> {
   }
 
   /** Return conflicts that user didn't resolve. */
-  private unresolvedConflicts<_, __>(
+  private getUnresolvedConflicts<_, __>(
     type: ConflictType,
-    reducer: TempGrammarRule<_>,
-    another: TempGrammarRule<__>,
+    reducerRule: TempGrammarRule<_>,
+    anotherRule: TempGrammarRule<__>,
     next: Grammar[],
-    end: boolean
+    handleEnd: boolean
   ) {
     const related = this.resolved.filter(
       (r) =>
-        r.type == type && reducer.weakEq(r.reducer) && another.weakEq(r.another)
+        r.type == type &&
+        reducerRule.weakEq(r.reducerRule) &&
+        anotherRule.weakEq(r.anotherRule)
     );
 
     // check next
@@ -97,13 +99,17 @@ export class ParserBuilder<T> {
     );
 
     // check end
-    const endHandlers = related.filter((r) => r.end);
+    const endHandlers = related.filter((r) => r.handleEnd);
     if (endHandlers.length > 1) {
       // TODO: throw error
     }
-    const unresolvedEnd = end ? endHandlers[0]?.reject ?? true : false;
+    const unresolvedEnd = handleEnd ? endHandlers[0]?.reject ?? true : false;
 
-    return { next: unresolvedNext, end: unresolvedEnd };
+    return {
+      next: unresolvedNext,
+      /** If true, means user didn't handle end of input. */
+      end: unresolvedEnd,
+    };
   }
 
   /**
@@ -222,6 +228,7 @@ export class ParserBuilder<T> {
           const E = c.shifterRule.rule[c.length];
           const EFirst = first.get(E.content);
           const AFollow = follow.get(A);
+          let errMsg = "";
           if (E.type == TempGrammarType.GRAMMAR) {
             if (this.NTs.has(E.content)) {
               // E is a NT, check if A's follow has some grammar that is also in E's first
@@ -229,7 +236,7 @@ export class ParserBuilder<T> {
               if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
 
               // auto resolve failed, check if the conflicts are resolved by user
-              const res = this.unresolvedConflicts(
+              const res = this.getUnresolvedConflicts(
                 ConflictType.REDUCE_SHIFT,
                 reducerRule,
                 anotherRule,
@@ -238,19 +245,17 @@ export class ParserBuilder<T> {
               );
 
               if (res.next.length > 0) {
-                const msg = `Unresolved R-S conflict (length: ${
+                errMsg = `Unresolved R-S conflict (length: ${
                   c.length
                 }, next: ${res.next.map((g) =>
                   g.toString()
                 )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-                if (debug) console.log(msg);
-                else throw new ParserError(ParserErrorType.CONFLICT, msg);
               }
             } else {
               // E is a T, check if A's follow has E
               if (AFollow.has(E)) {
                 // auto resolve failed, check if the conflicts are resolved by user
-                const res = this.unresolvedConflicts(
+                const res = this.getUnresolvedConflicts(
                   ConflictType.REDUCE_SHIFT,
                   reducerRule,
                   anotherRule,
@@ -258,13 +263,11 @@ export class ParserBuilder<T> {
                   false // for a RS conflict, we don't need to handle end of input
                 );
                 if (res.next.length > 0) {
-                  const msg = `Unresolved R-S conflict (length: ${
+                  errMsg = `Unresolved R-S conflict (length: ${
                     c.length
                   }, next: ${res.next.map((g) =>
                     g.toString()
                   )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-                  if (debug) console.log(msg);
-                  else throw new ParserError(ParserErrorType.CONFLICT, msg);
                 }
               }
             }
@@ -272,7 +275,7 @@ export class ParserBuilder<T> {
             // E is a literal, check if A's follow has E
             if (AFollow.has(E)) {
               // auto resolve failed, check if the conflicts are resolved by user
-              const res = this.unresolvedConflicts(
+              const res = this.getUnresolvedConflicts(
                 ConflictType.REDUCE_SHIFT,
                 reducerRule,
                 anotherRule,
@@ -285,15 +288,18 @@ export class ParserBuilder<T> {
                 false // for a RS conflict, we don't need to handle end of input
               );
               if (res.next.length > 0) {
-                const msg = `Unresolved R-S conflict (length: ${
+                errMsg = `Unresolved R-S conflict (length: ${
                   c.length
                 }, next: ${res.next.map((g) =>
                   g.toString()
                 )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-                if (debug) console.log(msg);
-                else throw new ParserError(ParserErrorType.CONFLICT, msg);
               }
             }
+          }
+
+          if (errMsg.length > 0) {
+            if (debug) console.log(errMsg);
+            else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
         });
       }
@@ -313,10 +319,11 @@ export class ParserBuilder<T> {
           const A = reducerRule.NT;
           const C = anotherRule.NT;
           const overlap = follow.get(A).overlap(follow.get(C));
+          let errMsg = "";
           if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
 
           // auto resolve failed, check if the conflict is resolved by user
-          const res = this.unresolvedConflicts(
+          const res = this.getUnresolvedConflicts(
             ConflictType.REDUCE_REDUCE,
             reducerRule,
             anotherRule,
@@ -324,16 +331,17 @@ export class ParserBuilder<T> {
             true // for a RR conflict, we need to handle end of input
           );
           if (res.next.length > 0) {
-            const msg = `Unresolved R-R conflict (next: ${res.next.map((g) =>
+            errMsg = `Unresolved R-R conflict (next: ${res.next.map((g) =>
               g.toString()
             )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-            if (debug) console.log(msg);
-            else throw new ParserError(ParserErrorType.CONFLICT, msg);
           }
           if (res.end) {
-            const msg = `Unresolved R-R conflict (end of input): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-            if (debug) console.log(msg);
-            else throw new ParserError(ParserErrorType.CONFLICT, msg);
+            errMsg = `Unresolved R-R conflict (end of input): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+          }
+
+          if (errMsg.length > 0) {
+            if (debug) console.log(errMsg);
+            else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
         }
       }
@@ -347,16 +355,17 @@ export class ParserBuilder<T> {
    * If ok, return this.
    */
   checkResolved() {
+    // TODO: check next
     this.resolved.forEach((g) => {
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducer)))
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.reducer.toString()
+          g.reducerRule.toString()
         );
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.another)))
+      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule)))
         throw new ParserError(
           ParserErrorType.NO_SUCH_GRAMMAR_RULE,
-          g.another.toString()
+          g.anotherRule.toString()
         );
     });
     return this;

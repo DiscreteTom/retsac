@@ -63,9 +63,10 @@ export class DefinitionContextBuilder<T> {
     another: Definition,
     next: string,
     reject: boolean,
-    end: boolean
+    handleEnd: boolean
   ) {
-    const anotherGr = defToTempGRs<T>(another)[0];
+    const anotherRule = defToTempGRs<T>(another)[0];
+    // TODO: use a dedicated lexer to parse next
     const nextGrammars = defToTempGRs<T>({ "": next })[0].rule;
 
     return new DefinitionContextBuilder<T>({
@@ -73,7 +74,7 @@ export class DefinitionContextBuilder<T> {
         // if reach end of input
         if (ctx.after.length == 0) {
           // if handle the end of input
-          if (end) return reject;
+          if (handleEnd) return reject;
           else return false;
         }
         // else, not the end of input
@@ -93,10 +94,10 @@ export class DefinitionContextBuilder<T> {
       resolved: [
         {
           type,
-          another: anotherGr,
+          anotherRule,
           next: nextGrammars,
           reject,
-          end,
+          handleEnd: handleEnd,
         },
       ],
     });
@@ -106,14 +107,15 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRS<T>(
     another: Definition,
-    { next = "", reject = true, end = false }
+    // TODO: R-S conflict doesn't need to handle end?
+    { next = "", reject = true, handleEnd = false }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
       reject,
-      end
+      handleEnd
     );
   }
   /**
@@ -121,14 +123,14 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRR<T>(
     another: Definition,
-    { next = "", reject = true, end = false }
+    { next = "", reject = true, handleEnd = false }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
       next,
       reject,
-      end
+      handleEnd
     );
   }
   /** Create a new DefinitionContextBuilder with the new specified type resolved conflict appended. */
@@ -137,14 +139,14 @@ export class DefinitionContextBuilder<T> {
     another: Definition,
     next: string,
     reject: boolean,
-    end: boolean
+    handleEnd: boolean
   ) {
     const anotherCtx = DefinitionContextBuilder.resolve<T>(
       type,
       another,
       next,
       reject,
-      end
+      handleEnd
     );
     return new DefinitionContextBuilder<T>({
       callback: this._callback,
@@ -155,35 +157,47 @@ export class DefinitionContextBuilder<T> {
     });
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(another: Definition, { next = "", reject = true, end = false }) {
-    return this.resolve(ConflictType.REDUCE_SHIFT, another, next, reject, end);
+  resolveRS(
+    another: Definition,
+    // TODO: R-S conflict doesn't need to handle end?
+    { next = "", reject = true, handleEnd = false }
+  ) {
+    return this.resolve(
+      ConflictType.REDUCE_SHIFT,
+      another,
+      next,
+      reject,
+      handleEnd
+    );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
-  resolveRR(another: Definition, { next = "", reject = true, end = false }) {
-    return this.resolve(ConflictType.REDUCE_REDUCE, another, next, reject, end);
+  resolveRR(
+    another: Definition,
+    { next = "", reject = true, handleEnd = false }
+  ) {
+    return this.resolve(
+      ConflictType.REDUCE_REDUCE,
+      another,
+      next,
+      reject,
+      handleEnd
+    );
   }
 
   /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
   static reducer<T>(f: (data: T[], context: ReducerContext<T>) => T) {
-    return new DefinitionContextBuilder<T>({
-      callback: (context) =>
+    return DefinitionContextBuilder.callback<T>(
+      (context) =>
         (context.data = f(
           context.matched.map((node) => node.data),
           context
-        )),
-    });
+        ))
+    );
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   reducer(f: (data: T[], context: ReducerContext<T>) => T) {
     const anotherCtx = DefinitionContextBuilder.reducer(f);
-    return new DefinitionContextBuilder<T>({
-      callback: (context) => {
-        this._callback(context);
-        anotherCtx._callback(context);
-      },
-      rejecter: this._rejecter,
-      resolved: this.resolved,
-    });
+    return this.callback(anotherCtx._callback);
   }
 
   build(): DefinitionContext<T> {
