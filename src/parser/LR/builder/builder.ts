@@ -82,7 +82,7 @@ export class ParserBuilder<T> {
     reducerRule: TempGrammarRule<_>,
     anotherRule: TempGrammarRule<__>,
     next: Grammar[],
-    handleEnd: boolean
+    checkHandleEnd: boolean
   ) {
     const related = this.resolved.filter(
       (r) =>
@@ -106,7 +106,9 @@ export class ParserBuilder<T> {
         `Too many end handlers for rule ${endHandlers[0].reducerRule.toString()}`
       );
     }
-    const unresolvedEnd = handleEnd ? endHandlers[0]?.reject ?? true : false;
+    const unresolvedEnd = checkHandleEnd
+      ? endHandlers[0]?.reject ?? true
+      : false;
 
     return {
       next: unresolvedNext,
