@@ -2,9 +2,8 @@ import { Lexer } from "../../..";
 import { exact, stringLiteral } from "../../../lexer";
 import { Token } from "../../../lexer/model";
 import { ParserError, ParserErrorType } from "../error";
-import { Callback, Rejecter } from "../model";
 import { TempGrammarRule, TempGrammarType } from "./grammar";
-import { Definition } from "./model";
+import { Definition, DefinitionContext } from "./model";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
@@ -18,11 +17,7 @@ const grammarLexer = new Lexer.Builder()
   .build();
 
 /** Definition to TempGrammarRules. */
-export function defToTempGRs<T>(
-  defs: Definition,
-  callback?: Callback<T>,
-  rejecter?: Rejecter<T>
-) {
+export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
   const result: TempGrammarRule<T>[] = [];
 
   // parse rules
@@ -85,8 +80,8 @@ export function defToTempGRs<T>(
                 content: t.content.slice(1, -1), // remove quotes
               };
           }),
-          callback,
-          rejecter,
+          callback: ctx?.callback,
+          rejecter: ctx?.rejecter,
         })
       );
     });

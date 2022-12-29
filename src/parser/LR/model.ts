@@ -1,4 +1,5 @@
 import { ASTNode } from "../ast";
+import { TempGrammar, TempGrammarType } from "./builder/grammar";
 import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {
@@ -20,13 +21,19 @@ export class Grammar {
   }
 
   /** Equals to. */
-  eq<_>(g: Grammar | ASTNode<_>) {
+  eq<_>(g: Grammar | ASTNode<_> | TempGrammar) {
     if (g instanceof Grammar)
       return this.type == g.type && this.content == g.content;
-    else
+    else if (g instanceof ASTNode)
       return this.type == GrammarType.LITERAL
         ? this.content == g.text // check literal content
-        : this.content == g.type; // check type name
+        : this.content == g.type;
+    // check type name
+    else
+      return (
+        (this.type == GrammarType.LITERAL) ==
+          (g.type == TempGrammarType.LITERAL) && this.content == g.content
+      );
   }
 
   /** Return `type name` or `"literal"` */
@@ -90,7 +97,7 @@ export class GrammarSet {
     this.gs = [];
   }
 
-  has<_>(g: Grammar | ASTNode<_>) {
+  has<_>(g: Grammar | ASTNode<_> | TempGrammar) {
     return !this.gs.every((gg) => !gg.eq(g));
   }
 
