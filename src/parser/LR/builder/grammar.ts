@@ -82,7 +82,10 @@ export class TempGrammarRule<T> {
       length: number;
     }[];
     for (let i = 0; i < this.rule.length; ++i) {
-      if (another.ruleStartsWith(this.rule.slice(i))) {
+      if (
+        another.ruleStartsWith(this.rule.slice(i)) &&
+        i != another.rule.length - 1 // if i is the last index, it's a reduce-reduce conflict.
+      ) {
         result.push({
           reducerRule: this,
           shifterRule: another,
