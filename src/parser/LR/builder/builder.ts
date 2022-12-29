@@ -97,7 +97,11 @@ export class ParserBuilder<T> {
     );
 
     // check end
-    const unresolvedEnd = end ? !related.some((r) => r.end) : false;
+    const endHandlers = related.filter((r) => r.end);
+    if (endHandlers.length > 1) {
+      // TODO: throw error
+    }
+    const unresolvedEnd = end ? endHandlers[0]?.reject ?? true : false;
 
     return { next: unresolvedNext, end: unresolvedEnd };
   }
