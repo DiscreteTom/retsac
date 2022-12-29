@@ -111,4 +111,10 @@ export class GrammarSet {
   map<R>(f: (g: Grammar) => R) {
     return this.gs.map(f);
   }
+
+  /** Return a list of grammars that in both `this` and `gs`. */
+  overlap(gs: GrammarSet) {
+    return this.gs.filter((g) => gs.has(g));
+  }
+
 }
