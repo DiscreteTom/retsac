@@ -20,6 +20,14 @@ export class Grammar {
     Object.assign(this, p);
   }
 
+  static from(g: TempGrammar) {
+    return new Grammar({
+      type:
+        g.type == TempGrammarType.LITERAL ? GrammarType.LITERAL : GrammarType.T,
+      content: g.content,
+    });
+  }
+
   /** Equals to. */
   eq<_>(g: Grammar | ASTNode<_> | TempGrammar) {
     if (g instanceof Grammar)
