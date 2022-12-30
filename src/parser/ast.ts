@@ -47,7 +47,7 @@ export class ASTNode<T> {
     let res = `${indent}${this.type || anonymous}: `;
     if (this.text) res += `${textQuote}${this.text}${textQuote}`;
     res += "\n";
-    this.children.map((c) => {
+    this.children?.map((c) => {
       res += c.toTreeString({ indent: indent + "  ", anonymous, textQuote });
     });
     return res;
