@@ -252,9 +252,11 @@ export class ParserBuilder<T> {
               if (res.next.length > 0) {
                 errMsg = `Unresolved R-S conflict (length: ${
                   c.length
-                }, next: ${res.next.map((g) =>
-                  g.toString()
-                )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                }, next: ${res.next
+                  .map((g) => g.toString())
+                  .join(
+                    ", "
+                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
               }
             } else {
               // E is a T, check if A's follow has E
@@ -270,9 +272,11 @@ export class ParserBuilder<T> {
                 if (res.next.length > 0) {
                   errMsg = `Unresolved R-S conflict (length: ${
                     c.length
-                  }, next: ${res.next.map((g) =>
-                    g.toString()
-                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                  }, next: ${res.next
+                    .map((g) => g.toString())
+                    .join(
+                      ", "
+                    )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
                 }
               }
             }
@@ -295,9 +299,11 @@ export class ParserBuilder<T> {
               if (res.next.length > 0) {
                 errMsg = `Unresolved R-S conflict (length: ${
                   c.length
-                }, next: ${res.next.map((g) =>
-                  g.toString()
-                )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                }, next: ${res.next
+                  .map((g) => g.toString())
+                  .join(
+                    ", "
+                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
               }
             }
           }
