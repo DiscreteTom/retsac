@@ -1,6 +1,6 @@
 import { Lexer, LR, Manager } from "../src";
 
-let lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     string: Lexer.stringLiteral({ double: true }),
@@ -10,73 +10,75 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
-let parser = new LR.ParserBuilder<any>()
+const parser = new LR.ParserBuilder<any>()
   .entry("value")
   .define(
     { value: "string" },
-    LR.dataReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
+    LR.reducer((_, { matched }) => eval(matched[0].text!)) // use `eval` to make `\\n` become `\n`
   )
   .define(
     { value: "number" },
-    LR.dataReducer((_, { matched }) => Number(matched[0].text))
+    LR.reducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { value: "true" },
-    LR.dataReducer(() => true)
+    LR.reducer(() => true)
   )
   .define(
     { value: "false" },
-    LR.dataReducer(() => false)
+    LR.reducer(() => false)
   )
   .define(
     { value: "null" },
-    LR.dataReducer(() => null)
+    LR.reducer(() => null)
   )
   .define(
     { value: "object | array" },
-    LR.dataReducer((values) => values[0])
+    LR.reducer((values) => values[0])
   )
   .define(
     { array: `'[' ']'` },
-    LR.dataReducer(() => [])
+    LR.reducer(() => [])
   )
   .define(
     { array: `'[' values ']'` },
-    LR.dataReducer((values) => values[1])
+    LR.reducer((values) => values[1])
   )
   .define(
     { values: `value` },
-    LR.dataReducer((values) => values) // values => [values[0]]
+    LR.reducer((values) => values) // values => [values[0]]
   )
   .define(
-    { values: `values ',' value` },
-    LR.dataReducer((values) => values[0].concat([values[2]]))
+    { values: `value ',' values` },
+    LR.reducer((values) => [values[0], ...values[2]])
   )
   .define(
     { object: `'{' '}'` },
-    LR.dataReducer(() => ({}))
+    LR.reducer(() => ({}))
   )
   .define(
     { object: `'{' object_items '}'` },
-    LR.dataReducer((values) => values[1])
+    LR.reducer((values) => values[1])
   )
   .define(
     { object_items: `object_item` },
-    LR.dataReducer((values) => values[0])
+    LR.reducer((values) => values[0])
   )
   .define(
-    { object_items: `object_items ',' object_item` },
-    LR.dataReducer((values) => Object.assign(values[0], values[2]))
+    { object_items: `object_item ',' object_items` },
+    LR.reducer((values) => Object.assign({}, values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
-    LR.dataReducer((values, { matched }) => {
+    LR.reducer((values, { matched }) => {
       let result = {};
-      result[matched[0].text.slice(1, -1)] = values[2];
+      result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
     })
+      .resolveRS({ values: `value ',' values` }, { next: `','` })
+      .resolveRR({ values: `value` }, { handleEnd: true })
   )
-  .checkSymbols(lexer.getTokenTypes())
+  .checkAll(lexer.getTokenTypes(), true)
   .build();
 
-export let manager = new Manager({ lexer, parser });
+export const manager = new Manager({ lexer, parser });
