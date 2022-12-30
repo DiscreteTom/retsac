@@ -1,6 +1,6 @@
 import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
-import { Grammar, GrammarRule, GrammarType } from "../model";
+import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
@@ -144,6 +144,45 @@ export class ParserBuilder<T> {
     );
   }
 
+  /**
+   * Return a grammar set contains NTs which might be the last input grammar.
+   * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
+   * This should be called only if no more definitions will be defined.
+   */
+  private getEndSet() {
+    const result = new GrammarSet();
+    // entry NTs might be the last input grammar of course
+    this.entryNTs.forEach((nt) =>
+      result.add(new Grammar({ content: nt, type: GrammarType.NT }))
+    );
+
+    while (true) {
+      let changed = false;
+      this.tempGrammarRules.forEach((gr) => {
+        if (result.has(new Grammar({ content: gr.NT, type: GrammarType.NT }))) {
+          // current NT is in result, so we need to check its last grammar
+          if (
+            gr.rule.at(-1).type != TempGrammarType.LITERAL &&
+            this.NTs.has(gr.rule.at(-1).content)
+          ) {
+            // last grammar is a NT, so we need to check it in result
+            const last = new Grammar({
+              content: gr.rule.at(-1).content,
+              type: GrammarType.NT,
+            });
+            if (!result.has(last)) {
+              result.add(last);
+              changed = true;
+            }
+          }
+        }
+      });
+      if (!changed) break;
+    }
+
+    return result;
+  }
+
   private buildDFA() {
     if (this.entryNTs.size == 0)
       throw new ParserError(
@@ -216,6 +255,7 @@ export class ParserBuilder<T> {
     const dfa = this.buildDFA();
     const firstSets = dfa.getFirstSets();
     const followSets = dfa.getFollowSets();
+    const endSet = this.getEndSet();
 
     // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
     // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
@@ -338,7 +378,13 @@ export class ParserBuilder<T> {
             reducerRule,
             anotherRule,
             overlap,
-            true // for a RR conflict, we need to handle end of input
+            // for a RR conflict, we need to handle end of input if both's NT in end sets
+            endSet.has(
+              new Grammar({ type: GrammarType.NT, content: reducerRule.NT })
+            ) &&
+              endSet.has(
+                new Grammar({ type: GrammarType.NT, content: anotherRule.NT })
+              )
           );
           if (res.next.length > 0) {
             const errMsg = `Unresolved R-R conflict (next: \`${res.next
