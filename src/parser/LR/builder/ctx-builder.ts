@@ -106,7 +106,7 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T>(another: Definition, { next = "", reject = true }) {
+  static resolveRS<T>(another: Definition, { next = "", reject = false }) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
@@ -120,7 +120,7 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRR<T>(
     another: Definition,
-    { next = "", reject = true, handleEnd = false }
+    { next = "", reject = false, handleEnd = false }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
@@ -154,7 +154,7 @@ export class DefinitionContextBuilder<T> {
     });
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(another: Definition, { next = "", reject = true }) {
+  resolveRS(another: Definition, { next = "", reject = false }) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
@@ -166,7 +166,7 @@ export class DefinitionContextBuilder<T> {
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
   resolveRR(
     another: Definition,
-    { next = "", reject = true, handleEnd = false }
+    { next = "", reject = false, handleEnd = false }
   ) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
