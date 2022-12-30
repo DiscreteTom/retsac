@@ -27,12 +27,12 @@ const lexer = new Lexer.Builder()
       "while",
       "break",
       "let"
-    ) // keywords
+    ) // keywords, not all typescript keywords are supported for simplicity
   )
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^\w+/,
-    regex: Lexer.from_to("/", "/", false),
+    regex: Lexer.from_to("/", "/", false), // for simplicity, we don't support complex regex
     string: [
       Lexer.stringLiteral({ double: true, single: true }),
       Lexer.stringLiteral({ back: true, multiline: true }),
@@ -45,7 +45,7 @@ const lexer = new Lexer.Builder()
   )
   .build();
 
-let parser = new LR.ParserBuilder()
+const parser = new LR.ParserBuilder()
   .define({ import_stmt: `import '*' as identifier from string ';'` })
   .define({ import_stmt: `import '{' multi_identifier '}' from string ';'` })
   .define({
@@ -92,10 +92,10 @@ let parser = new LR.ParserBuilder()
     "while_stmt",
     "let_stmt"
   )
-  .checkSymbols(lexer.getTokenTypes())
+  .checkAll(lexer.getTokenTypes(), true)
   .build(true); // enable debug mode
 
-let manager = new Manager({
+const manager = new Manager({
   lexer,
   parser,
 });
@@ -105,7 +105,7 @@ manager.feed(code);
 while (true) {
   // parse one statement
   if (!manager.parse().accept) break;
-  let stmt = manager.take();
+  const stmt = manager.take();
   console.log(stmt?.toTreeString({ textQuote: '"' }));
 }
 
