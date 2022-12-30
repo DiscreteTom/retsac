@@ -330,7 +330,6 @@ export class ParserBuilder<T> {
           const A = reducerRule.NT;
           const C = anotherRule.NT;
           const overlap = followSets.get(A).overlap(followSets.get(C));
-          let errMsg = "";
           if (overlap.length < 0) continue; // no overlap, all conflicts can be auto resolved
 
           // auto resolve failed, check if the conflict is resolved by user
@@ -342,15 +341,16 @@ export class ParserBuilder<T> {
             true // for a RR conflict, we need to handle end of input
           );
           if (res.next.length > 0) {
-            errMsg = `Unresolved R-R conflict (next: ${res.next.map((g) =>
-              g.toString()
-            )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+            const errMsg = `Unresolved R-R conflict (next: ${res.next
+              .map((g) => g.toString())
+              .join(
+                ", "
+              )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+            if (printAll) console.log(errMsg);
+            else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
           if (res.end) {
-            errMsg = `Unresolved R-R conflict (end of input): ${reducerRule.toString()} | ${anotherRule.toString()}`;
-          }
-
-          if (errMsg.length > 0) {
+            const errMsg = `Unresolved R-R conflict (end of input): ${reducerRule.toString()} | ${anotherRule.toString()}`;
             if (printAll) console.log(errMsg);
             else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }
