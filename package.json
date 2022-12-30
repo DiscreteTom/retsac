@@ -6,8 +6,11 @@
   "types": "out/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "build:doc": "mdcg README.src.md README.md",
+    "build:example": "tsc --build example.tsconfig.json",
+    "clean": "tsc --build --clean",
+    "clean:example": "tsc --build example.tsconfig.json --clean",
     "test": "jest"
   },
   "dependencies": {},
