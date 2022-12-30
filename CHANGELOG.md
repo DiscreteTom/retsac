@@ -20,6 +20,7 @@
       - It will also try to auto resolve conflicts by LR(1) peeking.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
     - Replace `dataReducer` with `LR.reducer`.
+    - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
 - Manager
   - Manager will use `ILexer` instead of `Lexer` in constructor.
 - Optimize document / comments.

@@ -252,11 +252,11 @@ export class ParserBuilder<T> {
               if (res.next.length > 0) {
                 errMsg = `Unresolved R-S conflict (length: ${
                   c.length
-                }, next: ${res.next
+                }, next: \`${res.next
                   .map((g) => g.toString())
                   .join(
-                    ", "
-                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                    " "
+                  )}\`): ${reducerRule.toString()} | ${anotherRule.toString()}`;
               }
             } else {
               // E is a T, check if A's follow has E
@@ -272,11 +272,11 @@ export class ParserBuilder<T> {
                 if (res.next.length > 0) {
                   errMsg = `Unresolved R-S conflict (length: ${
                     c.length
-                  }, next: ${res.next
+                  }, next: \`${res.next
                     .map((g) => g.toString())
                     .join(
-                      ", "
-                    )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                      " "
+                    )}\`): ${reducerRule.toString()} | ${anotherRule.toString()}`;
                 }
               }
             }
@@ -299,11 +299,11 @@ export class ParserBuilder<T> {
               if (res.next.length > 0) {
                 errMsg = `Unresolved R-S conflict (length: ${
                   c.length
-                }, next: ${res.next
+                }, next: \`${res.next
                   .map((g) => g.toString())
                   .join(
-                    ", "
-                  )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                    " "
+                  )}\`): ${reducerRule.toString()} | ${anotherRule.toString()}`;
               }
             }
           }
@@ -341,11 +341,11 @@ export class ParserBuilder<T> {
             true // for a RR conflict, we need to handle end of input
           );
           if (res.next.length > 0) {
-            const errMsg = `Unresolved R-R conflict (next: ${res.next
+            const errMsg = `Unresolved R-R conflict (next: \`${res.next
               .map((g) => g.toString())
               .join(
-                ", "
-              )}): ${reducerRule.toString()} | ${anotherRule.toString()}`;
+                " "
+              )}\`): ${reducerRule.toString()} | ${anotherRule.toString()}`;
             if (printAll) console.log(errMsg);
             else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
           }

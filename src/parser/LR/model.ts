@@ -39,7 +39,7 @@ export class Grammar {
   /** Return `type name` or `"literal"` */
   toString() {
     return this.type == GrammarType.LITERAL
-      ? `"${this.content}"` // literal content
+      ? `'${this.content}'` // literal content
       : this.content; // type name
   }
 }
@@ -68,8 +68,13 @@ export class GrammarRule<T> {
   }
 
   /** Return `NT <= grammar rules`. */
-  toString(sep = " ", arrow = "<=") {
-    return [this.NT, arrow, ...this.rule.map((r) => r.toString())].join(sep);
+  toString(formatter?: (NT: string, grammars: string[]) => string) {
+    formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
+
+    return formatter(
+      this.NT,
+      this.rule.map((g) => g.toString())
+    );
   }
 }
 

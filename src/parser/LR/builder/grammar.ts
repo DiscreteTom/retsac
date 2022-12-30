@@ -105,7 +105,7 @@ export class TempGrammarRule<T> {
     return this.ruleEndsWith(another.rule);
   }
 
-  toString() {
+  toString(formatter?: (NT: string, grammars: string[]) => string) {
     return new GrammarRule<void>({
       NT: this.NT,
       rule: this.rule.map(
@@ -118,6 +118,6 @@ export class TempGrammarRule<T> {
             content: g.content,
           })
       ),
-    }).toString();
+    }).toString(formatter);
   }
 }
