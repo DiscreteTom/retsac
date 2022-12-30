@@ -1,6 +1,6 @@
 import { Lexer, LR, Manager } from "../../src";
 
-let lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
@@ -8,36 +8,57 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-let parser = new LR.ParserBuilder<number>()
+const parser = new LR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    LR.dataReducer((_, { matched }) => Number(matched[0].text))
+    LR.reducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    LR.dataReducer((values) => -values[1]),
-    // if previous node is an exp, the `- exp` should be `exp - exp`, reject
-    ({ before }) => before.at(-1)?.type == "exp"
+    LR.reducer<number>((values) => -values[1])
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'` })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'` })
   )
   .define(
     { exp: `'(' exp ')'` },
-    LR.dataReducer((values) => values[1])
+    LR.reducer((values) => values[1])
   )
   .define(
-    { exp: `exp '+' exp | exp '-' exp` },
-    LR.dataReducer((values, { matched }) =>
-      matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
-    ),
-    ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
+    { exp: `exp '+' exp` },
+    LR.reducer<number>((values) => values[0] + values[2])
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reject: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reject: true })
   )
   .define(
-    { exp: `exp '*' exp | exp '/' exp` },
-    LR.dataReducer((values, { matched }) =>
-      matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
-    )
+    { exp: `exp '-' exp` },
+    LR.reducer<number>((values) => values[0] - values[2])
+      .resolveRR(
+        { exp: `'-' exp` },
+        { handleEnd: true, next: `')' '+' '-' '*' '/'` }
+      )
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reject: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reject: true })
   )
-  .checkSymbols(lexer.getTokenTypes())
+  .define(
+    { exp: `exp '*' exp` },
+    LR.reducer<number>((values) => values[0] * values[2])
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'` })
+  )
+  .define(
+    { exp: `exp '/' exp` },
+    LR.reducer<number>((values) => values[0] / values[2])
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'` })
+  )
+  .checkAll(lexer.getTokenTypes(), true)
   .build();
 
-export let manager = new Manager({ lexer, parser });
+export const manager = new Manager({ lexer, parser });
