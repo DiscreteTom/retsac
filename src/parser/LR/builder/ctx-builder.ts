@@ -67,7 +67,8 @@ export class DefinitionContextBuilder<T> {
   ) {
     const anotherRule = defToTempGRs<T>(another)[0];
     // TODO: use a dedicated lexer to parse next
-    const nextGrammars = defToTempGRs<T>({ "": next })[0].rule;
+    const nextGrammars =
+      next.length > 0 ? defToTempGRs<T>({ "": next })[0].rule : [];
 
     return new DefinitionContextBuilder<T>({
       rejecter: (ctx) => {
