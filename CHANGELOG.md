@@ -21,6 +21,7 @@
     - Add `ParserBuilder.checkAll` to do all necessary checks.
     - Replace `dataReducer` with `LR.reducer`.
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
+    - Add `ParserBuilder.generateResolver` to auto generate resolver template.
 - Manager
   - Manager will use `ILexer` instead of `Lexer` in constructor.
 - Optimize document / comments.
