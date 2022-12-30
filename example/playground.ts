@@ -3,7 +3,7 @@ import { manager } from "./calculator/core";
 
 console.log(`This is a simple calculator.`);
 
-var rl = readline.createInterface({
+const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
   terminal: false,
@@ -11,7 +11,7 @@ var rl = readline.createInterface({
 });
 
 rl.on("line", function (line) {
-  let res = manager.parseAll(line + "\n");
+  const res = manager.parseAll(line + "\n");
   if (res.accept && res.buffer.length == 1) {
     console.log(res.buffer[0].data);
     manager.reset();

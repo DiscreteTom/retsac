@@ -13,7 +13,7 @@ function findUnescaped(s: string, target: string) {
   return false;
 }
 
-export let lexer = new Lexer.Builder()
+export const lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     tempStr: Lexer.stringLiteral({ back: true, multiline: true }).reject(
@@ -23,19 +23,19 @@ export let lexer = new Lexer.Builder()
       from: "`",
       to: "${",
       multiline: true,
-    }).then((_) => tempStrDepth++), // use closure to store state
+    }).then(() => tempStrDepth++), // use closure to store state
     tempStrRight: Lexer.stringLiteral({ from: "}", to: "`", multiline: true })
       .reject(
         (s) =>
           tempStrDepth == 0 || // not in template string
           findUnescaped(s, "${") // contains another '${'
       )
-      .then((_) => tempStrDepth--),
+      .then(() => tempStrDepth--),
     tempStrMiddle: Lexer.stringLiteral({
       from: "}",
       to: "${",
       multiline: true,
-    }).reject((_) => tempStrDepth == 0), // check state
+    }).reject(() => tempStrDepth == 0), // check state
     exp: /^\w+/,
     simpleString: Lexer.stringLiteral({ single: true, double: true }),
   })

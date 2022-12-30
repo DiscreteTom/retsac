@@ -1,6 +1,6 @@
 import { Lexer } from "../src";
 
-export let lexer = new Lexer.Builder()
+export const lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     simpleStr: Lexer.stringLiteral({

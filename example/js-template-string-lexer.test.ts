@@ -1,7 +1,7 @@
 import { lexer } from "./js-template-string-lexer";
 
 function getResult(input: string) {
-  let tokens = lexer.reset().lexAll(input);
+  const tokens = lexer.reset().lexAll(input);
   if (lexer.hasRest()) throw new Error(`Undigested: ${lexer.getRest()}`);
   return tokens.map((t) => t.content);
 }
