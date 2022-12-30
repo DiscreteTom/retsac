@@ -45,6 +45,7 @@ export class Candidate<T> {
     buffer: ASTNode<T>[],
     /** From where of the buffer to reduce. */
     index: number,
+    entryNTs: Set<string>,
     followSets: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
@@ -58,7 +59,10 @@ export class Candidate<T> {
 
     // peek next ASTNode and check follow for LR(1)
     if (context.after.length > 0) {
-      if (!followSets.get(this.gr.NT).has(context.after[0])) {
+      if (entryNTs.has(this.gr.NT)) {
+        // entry NT, no need to check follow set
+        // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
+      } else if (!followSets.get(this.gr.NT).has(context.after[0])) {
         if (debug)
           console.log(
             `[Follow Mismatch] ${this.gr.toString()} follow=${context.after[0].toString()}`
@@ -119,11 +123,12 @@ export class State<T> {
     buffer: ASTNode<T>[],
     /** From where of the buffer to reduce. */
     start: number,
+    entryNTs: Set<string>,
     followSets: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
-      const res = c.tryReduce(buffer, start, followSets, debug);
+      const res = c.tryReduce(buffer, start, entryNTs, followSets, debug);
       if (res.accept) return res;
     }
 
@@ -261,7 +266,7 @@ export class DFA<T> {
       // try reduce with the new state
       const res = this.stateStack
         .at(-1)
-        .tryReduce(buffer, index, this.followSets, this.debug);
+        .tryReduce(buffer, index, this.entryNTs, this.followSets, this.debug);
       if (!res.accept) {
         index++;
         continue; // try to digest more
