@@ -1,7 +1,7 @@
 import { manager } from "./core";
 
 function getResult(input: string) {
-  let res = manager.reset().parseAll(input);
+  const res = manager.reset().parseAll(input);
   if (!res.accept || res.buffer.length != 1)
     throw new Error(
       `Reduce failed for input "${input}". Result: ${res.buffer}`
