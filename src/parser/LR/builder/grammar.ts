@@ -86,7 +86,9 @@ export class TempGrammarRule<T> {
     for (let i = 0; i < this.rule.length; ++i) {
       if (
         another.ruleStartsWith(this.rule.slice(i)) &&
-        i != another.rule.length - 1 // if i is the last index, it's a reduce-reduce conflict.
+        // if the tail of this rule is the same as another's whole rule, it's a reduce-reduce conflict.
+        // e.g. `A B C | B C`
+        this.rule.length - i != another.rule.length
       ) {
         result.push({
           reducerRule: this,
