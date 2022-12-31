@@ -78,7 +78,7 @@ const parser = new LR.ParserBuilder<any>()
       .resolveRS({ values: `value ',' values` }, { next: `','` })
       .resolveRR({ values: `value` }, { handleEnd: true })
   )
-  .checkAll(lexer.getTokenTypes(), true)
+  .checkAll(lexer.getTokenTypes(), lexer, true)
   .build();
 
 export const manager = new Manager({ lexer, parser });

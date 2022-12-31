@@ -282,9 +282,9 @@ export class DFA<T> {
       errors.concat(res.errors);
       accept = true;
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
-      // if a top-level NT is reduced, or stop on error, should return
+      // if a top-level NT is reduced to the head of buffer, or stop on error, should return
       if (
-        this.entryNTs.has(buffer[0].type) ||
+        (this.entryNTs.has(buffer[0].type) && index == 0) ||
         (stopOnError && errors.length > 0)
       )
         return { accept: true, buffer, errors };
