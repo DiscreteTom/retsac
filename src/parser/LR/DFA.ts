@@ -409,6 +409,17 @@ export class DFA<T> {
   getFollowSets() {
     return this.followSets;
   }
+
+  /**
+   * Return all cached states. You might want to call `calculateAllState` first.
+   */
+  getAllStates() {
+    const result: State<T>[] = [];
+    this.nextStateCache.forEach((transitions, state) => {
+      result.push(state);
+    });
+    return result;
+  }
 }
 
 function getAllNTClosure<T>(
