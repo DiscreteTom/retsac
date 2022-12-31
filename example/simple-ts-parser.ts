@@ -92,7 +92,7 @@ const parser = new LR.ParserBuilder()
     "while_stmt",
     "let_stmt"
   )
-  .checkAll(lexer.getTokenTypes(), true)
+  .checkAll(lexer.getTokenTypes(), lexer, true)
   .build(true); // enable debug mode
 
 const manager = new Manager({
