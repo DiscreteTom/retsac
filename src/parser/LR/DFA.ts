@@ -1,6 +1,7 @@
 import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
 import { ParserOutput } from "../model";
+import { TempGrammarRule } from "./builder/grammar";
 import { GrammarSet, GrammarType, ReducerContext } from "./model";
 import { GrammarRule } from "./model";
 
@@ -109,6 +110,12 @@ export class Candidate<T> {
       ...this.gr.rule.slice(this.digested).map((r) => r.toString()),
     ].join(sep);
   }
+
+  eq(other: { gr: TempGrammarRule<T>; digested: number } | Candidate<T>) {
+    return other instanceof Candidate<T>
+      ? this.gr == other.gr && this.digested === other.digested
+      : this.gr.eq(other.gr) && this.digested === other.digested;
+  }
 }
 
 /** LR(1) state machine's state. */
@@ -134,6 +141,17 @@ export class State<T> {
     }
 
     return { accept: false };
+  }
+
+  contains(gr: TempGrammarRule<T>, digested: number) {
+    return this.candidates.some((c) => c.eq({ gr, digested }));
+  }
+
+  eq(other: State<T>) {
+    return (
+      this.candidates.length == other.candidates.length &&
+      this.candidates.every((c) => other.candidates.some((oc) => c.eq(oc)))
+    );
   }
 }
 
@@ -336,7 +354,11 @@ export class DFA<T> {
     }
     // else, construction succeed
 
-    const result = res.state;
+    let result = res.state;
+    // check if next state is already in cache
+    this.nextStateCache.forEach((_, state) => {
+      if (state.eq(result)) result = state;
+    });
     // cache next state
     this.nextStateCache.get(currentState).push({ next: result, node: next });
     if (!this.nextStateCache.has(result)) this.nextStateCache.set(result, []);
