@@ -147,6 +147,8 @@ export class DFA<T> {
   private readonly entryNTs: Set<string>;
   /** Current state is `states.at(-1)`. */
   private stateStack: State<T>[];
+  /** We will construct the state machine's state transition map on the fly. */
+  private nextStateCache: Map<State<T>, { node: ASTNode<T>; next: State<T> }[]>;
   debug: boolean;
 
   constructor(
@@ -162,6 +164,8 @@ export class DFA<T> {
     );
     this.NTClosures = getAllNTClosure(NTs, allGrammarRules);
     this.entryNTs = entryNTs;
+    this.nextStateCache = new Map();
+    this.nextStateCache.set(this.entryState, []); // init
 
     // construct first sets for all NTs
     this.firstSets = new Map();
@@ -222,46 +226,64 @@ export class DFA<T> {
     const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
-      // TODO: cache DFA states to prevent duplicate calculation
-      const directCandidates = this.stateStack
-        .at(-1)
-        .candidates.filter((c) => c.canAccept(buffer[index]))
-        .map((c) => c.next());
-      const indirectCandidates = directCandidates
-        .reduce((p, c) => {
-          if (
-            c.canDigestMore() &&
-            c.current.type == GrammarType.NT &&
-            !p.includes(c.current.content)
-          )
-            p.push(c.current.content);
-          return p;
-        }, [] as string[]) // de-duplicated NT list
-        .reduce((p, c) => {
-          this.NTClosures.get(c).map((gr) => {
-            if (!p.includes(gr)) p.push(gr);
-          });
-          return p;
-        }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
-        .map((gr) => new Candidate({ gr, digested: 0 }));
-      const nextCandidates = directCandidates.concat(indirectCandidates);
+      // first, try to get next state from cache
+      let nextState = this.nextStateCache
+        .get(this.stateStack.at(-1)) // current state
+        ?.find(
+          (c) =>
+            // check ast node equality
+            c.node.type == buffer[index].type &&
+            c.node.text == buffer[index].text
+        )?.next;
+      // if not found in cache, construct next state and cache it
+      if (!nextState) {
+        const directCandidates = this.stateStack
+          .at(-1)
+          .candidates.filter((c) => c.canAccept(buffer[index]))
+          .map((c) => c.next());
+        const indirectCandidates = directCandidates
+          .reduce((p, c) => {
+            if (
+              c.canDigestMore() &&
+              c.current.type == GrammarType.NT &&
+              !p.includes(c.current.content)
+            )
+              p.push(c.current.content);
+            return p;
+          }, [] as string[]) // de-duplicated NT list
+          .reduce((p, c) => {
+            this.NTClosures.get(c).map((gr) => {
+              if (!p.includes(gr)) p.push(gr);
+            });
+            return p;
+          }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
+          .map((gr) => new Candidate({ gr, digested: 0 }));
+        const nextCandidates = directCandidates.concat(indirectCandidates);
 
-      // if DFA can't accept input
-      if (nextCandidates.length == 0) {
-        if (this.debug)
-          console.log(
-            `[End] No more candidate. Node=${buffer[
-              index
-            ].toString()} Candidates:\n${this.stateStack
-              .at(-1)
-              .candidates.map((c) => c.toString())
-              .join("\n")}`
-          );
-        return { accept: false };
+        // if DFA can't accept input
+        if (nextCandidates.length == 0) {
+          if (this.debug)
+            console.log(
+              `[End] No more candidate. Node=${buffer[
+                index
+              ].toString()} Candidates:\n${this.stateStack
+                .at(-1)
+                .candidates.map((c) => c.toString())
+                .join("\n")}`
+            );
+          return { accept: false };
+        }
+        nextState = new State(nextCandidates);
+        // cache next state
+        this.nextStateCache
+          .get(this.stateStack.at(-1))
+          .push({ next: nextState, node: buffer[index] });
+        if (!this.nextStateCache.has(nextState))
+          this.nextStateCache.set(nextState, []);
       }
 
-      // construct new state and push stack
-      this.stateStack.push(new State(nextCandidates));
+      // push stack
+      this.stateStack.push(nextState);
 
       // try reduce with the new state
       const res = this.stateStack
