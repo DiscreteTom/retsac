@@ -5,7 +5,13 @@ import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
-import { Definition, ConflictType, Conflict, Accepter } from "./model";
+import {
+  Definition,
+  ConflictType,
+  Conflict,
+  Accepter,
+  DefinitionContext,
+} from "./model";
 import { defToTempGRs } from "./utils";
 
 /**
@@ -598,15 +604,7 @@ export class ParserBuilder<T> {
     }
   }
 
-  resolveRS(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: { next?: string; reduce?: boolean | Accepter<T> }
-  ) {
-    const ctx = DefinitionContextBuilder.resolveRS<T>(
-      anotherRule,
-      options
-    ).build();
+  private resolve(reducerRule: Definition, ctx: DefinitionContext<T>) {
     const grs = defToTempGRs(reducerRule, ctx);
 
     grs.forEach((gr) => {
@@ -621,6 +619,21 @@ export class ParserBuilder<T> {
     return this;
   }
 
+  /** Resolve a reduce-shift conflict. */
+  resolveRS(
+    reducerRule: Definition,
+    anotherRule: Definition,
+    options: { next?: string; reduce?: boolean | Accepter<T> }
+  ) {
+    const ctx = DefinitionContextBuilder.resolveRS<T>(
+      anotherRule,
+      options
+    ).build();
+
+    return this.resolve(reducerRule, ctx);
+  }
+
+  /** Resolve a reduce-reduce conflict. */
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,
@@ -634,18 +647,8 @@ export class ParserBuilder<T> {
       anotherRule,
       options
     ).build();
-    const grs = defToTempGRs(reducerRule, ctx);
 
-    grs.forEach((gr) => {
-      this.resolved.push(
-        ...ctx.resolved.map((r) => ({
-          ...r,
-          reducerRule: gr,
-        }))
-      );
-    });
-
-    return this;
+    return this.resolve(reducerRule, ctx);
   }
 
   /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll)`.  */
