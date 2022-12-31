@@ -602,6 +602,8 @@ export class ParserBuilder<T> {
         console.log(""); // add a blank line
       });
     }
+
+    return this;
   }
 
   private resolve(reducerRule: Definition, ctx: DefinitionContext<T>) {
