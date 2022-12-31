@@ -237,43 +237,13 @@ export class DFA<T> {
         )?.next;
       // if not found in cache, construct next state and cache it
       if (!nextState) {
-        const directCandidates = this.stateStack
-          .at(-1)
-          .candidates.filter((c) => c.canAccept(buffer[index]))
-          .map((c) => c.next());
-        const indirectCandidates = directCandidates
-          .reduce((p, c) => {
-            if (
-              c.canDigestMore() &&
-              c.current.type == GrammarType.NT &&
-              !p.includes(c.current.content)
-            )
-              p.push(c.current.content);
-            return p;
-          }, [] as string[]) // de-duplicated NT list
-          .reduce((p, c) => {
-            this.NTClosures.get(c).map((gr) => {
-              if (!p.includes(gr)) p.push(gr);
-            });
-            return p;
-          }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
-          .map((gr) => new Candidate({ gr, digested: 0 }));
-        const nextCandidates = directCandidates.concat(indirectCandidates);
+        const res = this.calculateNextState(
+          this.stateStack.at(-1),
+          buffer[index]
+        );
+        if (!res.accept) return { accept: false };
 
-        // if DFA can't accept input
-        if (nextCandidates.length == 0) {
-          if (this.debug)
-            console.log(
-              `[End] No more candidate. Node=${buffer[
-                index
-              ].toString()} Candidates:\n${this.stateStack
-                .at(-1)
-                .candidates.map((c) => c.toString())
-                .join("\n")}`
-            );
-          return { accept: false };
-        }
-        nextState = new State(nextCandidates);
+        nextState = res.state;
         // cache next state
         this.nextStateCache
           .get(this.stateStack.at(-1))
@@ -312,6 +282,42 @@ export class DFA<T> {
     }
 
     return accept ? { accept: true, buffer, errors } : { accept: false };
+  }
+
+  private calculateNextState(currentState: State<T>, next: ASTNode<T>) {
+    const directCandidates = currentState.candidates
+      .filter((c) => c.canAccept(next))
+      .map((c) => c.next());
+    const indirectCandidates = directCandidates
+      .reduce((p, c) => {
+        if (
+          c.canDigestMore() &&
+          c.current.type == GrammarType.NT &&
+          !p.includes(c.current.content)
+        )
+          p.push(c.current.content);
+        return p;
+      }, [] as string[]) // de-duplicated NT list
+      .reduce((p, c) => {
+        this.NTClosures.get(c).map((gr) => {
+          if (!p.includes(gr)) p.push(gr);
+        });
+        return p;
+      }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
+      .map((gr) => new Candidate({ gr, digested: 0 }));
+    const nextCandidates = directCandidates.concat(indirectCandidates);
+
+    // if DFA can't accept input
+    if (nextCandidates.length == 0) {
+      if (this.debug)
+        console.log(
+          `[End] No more candidate. Node=${next.toString()} Candidates:\n${currentState.candidates
+            .map((c) => c.toString())
+            .join("\n")}`
+        );
+      return { accept: false };
+    }
+    return { accept: true, state: new State(nextCandidates) };
   }
 
   getFirstSets() {
