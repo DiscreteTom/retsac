@@ -10,6 +10,7 @@ test("R-S conflict", () => {
       .checkConflicts();
   }).toThrow(ParserError);
 
+  // context style resolve
   expect(() => {
     new LR.ParserBuilder()
       .entry("exp")
@@ -23,6 +24,25 @@ test("R-S conflict", () => {
       .define({ exp: `exp B` })
       .checkConflicts();
   }).not.toThrow(ParserError);
+
+  // builder style resolve
+  expect(() => {
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `exp A exp` })
+      .define({ exp: `exp B` })
+      .resolveRS(
+        { exp: `exp A exp` },
+        { exp: `exp B` },
+        { next: `B`, reduce: false }
+      )
+      .resolveRS(
+        { exp: `exp A exp` },
+        { exp: `exp A exp` },
+        { next: `A`, reduce: false }
+      )
+      .checkConflicts();
+  }).not.toThrow(ParserError);
 });
 
 test("R-R conflict", () => {
@@ -34,6 +54,7 @@ test("R-R conflict", () => {
       .checkConflicts();
   }).toThrow(ParserError);
 
+  // context style resolve
   expect(() => {
     new LR.ParserBuilder()
       .entry("exp")
@@ -47,6 +68,30 @@ test("R-R conflict", () => {
           { exp: `C exp` },
           { next: `C`, reduce: true, handleEnd: true }
         ).resolveRS({ exp: `exp C exp` }, { next: `C`, reduce: true })
+      )
+      .checkConflicts();
+  }).not.toThrow(ParserError);
+
+  // builder style resolve
+  expect(() => {
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `C exp` })
+      .define({ exp: `exp C exp` })
+      .resolveRS(
+        { exp: `C exp` },
+        { exp: `exp C exp` },
+        { next: `C`, reduce: true }
+      )
+      .resolveRR(
+        { exp: `exp C exp` },
+        { exp: `C exp` },
+        { next: `C`, reduce: true, handleEnd: true }
+      )
+      .resolveRS(
+        { exp: `exp C exp` },
+        { exp: `exp C exp` },
+        { next: `C`, reduce: true }
       )
       .checkConflicts();
   }).not.toThrow(ParserError);
