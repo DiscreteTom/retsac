@@ -1,3 +1,4 @@
+import { ILexer } from "../../../lexer/model";
 import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
@@ -247,11 +248,12 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  private getConflicts(dfa?: DFA<T>) {
+  private getConflicts(lexer?: ILexer, dfa?: DFA<T>) {
     dfa ??= this.buildDFA();
     const firstSets = dfa.getFirstSets();
     const followSets = dfa.getFollowSets();
     const endSet = this.getEndSet();
+    const states = dfa.calculateAllStates(lexer).getAllStates();
 
     const result = new Map<TempGrammarRule<T>, Conflict<T>[]>();
 
@@ -274,7 +276,18 @@ export class ParserBuilder<T> {
             if (this.NTs.has(E.content)) {
               // E is a NT, check if A's follow has some grammar that is also in E's first
               const overlap = AFollow.overlap(EFirst);
-              if (overlap.length < 0) return; // no overlap, all conflicts can be auto resolved
+              if (overlap.length < 0) return; // no overlap, conflicts can be auto resolved
+
+              // check states
+              if (
+                !states.some(
+                  (s) =>
+                    s.contains(reducerRule, reducerRule.rule.length) &&
+                    s.contains(anotherRule, c.length)
+                )
+              )
+                // no state contains both rules with the digestion condition, conflicts can be auto resolved
+                return;
 
               // auto resolve failed, check if the conflicts are resolved by user
               const res = this.getUnresolvedConflicts(
@@ -307,6 +320,17 @@ export class ParserBuilder<T> {
             } else {
               // E is a T, check if A's follow has E
               if (AFollow.has(E)) {
+                // check states
+                if (
+                  !states.some(
+                    (s) =>
+                      s.contains(reducerRule, reducerRule.rule.length) &&
+                      s.contains(anotherRule, c.length)
+                  )
+                )
+                  // no state contains both rules with the digestion condition, conflicts can be auto resolved
+                  return;
+
                 // auto resolve failed, check if the conflicts are resolved by user
                 const res = this.getUnresolvedConflicts(
                   ConflictType.REDUCE_SHIFT,
@@ -339,6 +363,17 @@ export class ParserBuilder<T> {
           } else {
             // E is a literal, check if A's follow has E
             if (AFollow.has(E)) {
+              // check states
+              if (
+                !states.some(
+                  (s) =>
+                    s.contains(reducerRule, reducerRule.rule.length) &&
+                    s.contains(anotherRule, c.length)
+                )
+              )
+                // no state contains both rules with the digestion condition, conflicts can be auto resolved
+                return;
+
               // auto resolve failed, check if the conflicts are resolved by user
               const res = this.getUnresolvedConflicts(
                 ConflictType.REDUCE_SHIFT,
@@ -381,7 +416,7 @@ export class ParserBuilder<T> {
     // e.g. `A B C | B C` is a reduce-reduce conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
       for (let j = 0; j < this.tempGrammarRules.length; j++) {
-        if (i == j) continue;
+        if (i == j) continue; // skip the same rule
         const reducerRule = this.tempGrammarRules[i];
         const anotherRule = this.tempGrammarRules[j];
         if (reducerRule.checkRRConflict(anotherRule)) {
@@ -392,6 +427,17 @@ export class ParserBuilder<T> {
           const C = anotherRule.NT;
           const overlap = followSets.get(A).overlap(followSets.get(C));
           if (overlap.length < 0) continue; // no overlap, all conflicts can be auto resolved
+
+          // check states
+          if (
+            !states.some(
+              (s) =>
+                s.contains(reducerRule, reducerRule.rule.length) &&
+                s.contains(anotherRule, anotherRule.rule.length)
+            )
+          )
+            // no state contains both rules with the digestion condition, conflicts can be auto resolved
+            continue;
 
           // auto resolve failed, check if the conflict is resolved by user
           const res = this.getUnresolvedConflicts(
@@ -445,12 +491,14 @@ export class ParserBuilder<T> {
   /**
    * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
+   * This action requires a lexer to calculate literal's type name.
+   * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  checkConflicts(printAll = false) {
+  checkConflicts(lexer?: ILexer, printAll = false) {
     const dfa = this.buildDFA();
     const followSets = dfa.getFollowSets();
 
-    this.getConflicts(dfa).forEach((cs) => {
+    this.getConflicts(lexer, dfa).forEach((cs) => {
       cs.forEach((c) => {
         const errMsg =
           c.type == ConflictType.REDUCE_SHIFT
@@ -499,8 +547,12 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  generateResolver() {
-    this.getConflicts().forEach((v, k) => {
+  /**
+   * This action requires a lexer to calculate literal's type name.
+   * If you don't use literal grammar in your rules, you can omit the lexer.
+   */
+  generateResolver(lexer?: ILexer) {
+    this.getConflicts(lexer).forEach((v, k) => {
       const txt =
         `=== ${k.toString()} ===\nLR` +
         v
@@ -522,8 +574,8 @@ export class ParserBuilder<T> {
     });
   }
 
-  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(printAll)`.  */
-  checkAll(Ts: Set<string>, printAll = false) {
-    return this.checkSymbols(Ts).checkConflicts(printAll);
+  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll)`.  */
+  checkAll(Ts: Set<string>, lexer?: ILexer, printAll = false) {
+    return this.checkSymbols(Ts).checkConflicts(lexer, printAll);
   }
 }
