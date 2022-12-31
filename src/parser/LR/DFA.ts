@@ -155,7 +155,11 @@ export class DFA<T> {
    */
   private nextStateCache: Map<
     State<T>,
-    { node: ASTNode<T>; next?: State<T> }[]
+    {
+      node: ASTNode<T>;
+      /** If the `next` is `null`, means we already tried to construct it but failed. */
+      next?: State<T>;
+    }[]
   >;
   debug: boolean;
 
@@ -235,40 +239,14 @@ export class DFA<T> {
     const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
-      // first, try to get next state from cache
-      let nextState = this.nextStateCache
-        .get(this.stateStack.at(-1)) // current state
-        ?.find(
-          (c) =>
-            // check ast node equality
-            c.node.type == buffer[index].type &&
-            c.node.text == buffer[index].text
-        )?.next;
-      // if not found in cache, construct next state and cache it
-      if (!nextState) {
-        const res = this.calculateNextState(
-          this.stateStack.at(-1),
-          buffer[index]
-        );
-        if (!res.accept) {
-          // cache next state as null, which means we already tried to construct it but failed
-          this.nextStateCache
-            .get(this.stateStack.at(-1))
-            .push({ next: null, node: buffer[index] });
-          return { accept: false };
-        }
-
-        nextState = res.state;
-        // cache next state
-        this.nextStateCache
-          .get(this.stateStack.at(-1))
-          .push({ next: nextState, node: buffer[index] });
-        if (!this.nextStateCache.has(nextState))
-          this.nextStateCache.set(nextState, []);
-      }
+      const nextStateResult = this.getNextState(
+        this.stateStack.at(-1),
+        buffer[index]
+      );
+      if (!nextStateResult.accept) return { accept: false };
 
       // push stack
-      this.stateStack.push(nextState);
+      this.stateStack.push(nextStateResult.next);
 
       // try reduce with the new state
       const res = this.stateStack
@@ -335,6 +313,36 @@ export class DFA<T> {
     return { accept: true, state: new State(nextCandidates) };
   }
 
+  /** Try to get next state from cache. If cache miss, calculate next state and update cache. */
+  private getNextState(currentState: State<T>, next: ASTNode<T>) {
+    const transition = this.nextStateCache.get(currentState)?.find(
+      (c) =>
+        // check ast node equality
+        c.node.type == next.type && c.node.text == next.text
+    );
+    if (transition) {
+      // found in cache
+      if (transition.next !== null) {
+        return { accept: true, next: transition.next, changed: false };
+      } else return { accept: false, changed: false };
+    }
+
+    // if not found in cache, construct next state and cache it
+    const res = this.calculateNextState(currentState, next);
+    if (!res.accept) {
+      // cache next state as null, which means we already tried to construct it but failed
+      this.nextStateCache.get(currentState).push({ next: null, node: next });
+      return { accept: false, changed: true };
+    }
+    // else, construction succeed
+
+    const result = res.state;
+    // cache next state
+    this.nextStateCache.get(currentState).push({ next: result, node: next });
+    if (!this.nextStateCache.has(result)) this.nextStateCache.set(result, []);
+    return { accept: true, next: result, changed: true };
+  }
+
   /**
    * Calculate state machine's state transition map ahead of time and cache.
    * This action requires a lexer to calculate literal's type name.
@@ -365,32 +373,7 @@ export class DFA<T> {
       let changed = false;
       this.nextStateCache.forEach((transitions, state) => {
         mockNodes.forEach((node) => {
-          if (
-            transitions.find(
-              // check ast node equality
-              (t) => t.node.type == node.type && t.node.text == node.text
-            )
-          )
-            // already calculated, skip
-            return;
-          const res = this.calculateNextState(state, node);
-          if (res.accept) {
-            // cache next state
-            transitions.push({
-              next: res.state,
-              node,
-            });
-            if (!this.nextStateCache.has(res.state))
-              this.nextStateCache.set(res.state, []);
-            changed = true;
-          } else {
-            // cache next state
-            transitions.push({
-              next: null,
-              node,
-            });
-            changed = true;
-          }
+          if (this.getNextState(state, node).changed) changed = true;
         });
       });
       if (!changed) break;
