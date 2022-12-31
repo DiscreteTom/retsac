@@ -19,7 +19,7 @@ export interface Definition {
 }
 
 export interface ILexer {
-  reset(): void;
+  reset(): ILexer;
   feed(input: string): ILexer;
   lex(input?: string): Token | null;
   lexAll(input?: string, stopOnError?: boolean): Token[];
