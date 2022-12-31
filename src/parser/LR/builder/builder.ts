@@ -609,6 +609,7 @@ export class ParserBuilder<T> {
   private resolve(reducerRule: Definition, ctx: DefinitionContext<T>) {
     const grs = defToTempGRs(reducerRule, ctx);
 
+    // update resolved
     grs.forEach((gr) => {
       this.resolved.push(
         ...ctx.resolved.map((r) => ({
@@ -616,6 +617,17 @@ export class ParserBuilder<T> {
           reducerRule: gr,
         }))
       );
+    });
+
+    // apply rejecter
+    grs.forEach((gr) => {
+      // find the grammar rule
+      const idx = this.tempGrammarRules.findIndex((g) => g.weakEq(gr));
+      if (idx < 0) throw new Error(`No such grammar rule: ${gr.toString()}`);
+      // apply rejecter
+      const r = this.tempGrammarRules[idx].rejecter;
+      this.tempGrammarRules[idx].rejecter = (ctx) =>
+        r?.(ctx) || gr.rejecter(ctx);
     });
 
     return this;
