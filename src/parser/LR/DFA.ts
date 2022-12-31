@@ -1,3 +1,4 @@
+import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
 import { ParserOutput } from "../model";
 import { GrammarSet, GrammarType, ReducerContext } from "./model";
@@ -138,6 +139,7 @@ export class State<T> {
 
 /** LR(1) DFA. */
 export class DFA<T> {
+  private readonly allGrammarRules: GrammarRule<T>[];
   private readonly NTClosures: Map<string, GrammarRule<T>[]>;
   private readonly entryState: State<T>;
   /** `NT => Grammars` */
@@ -147,8 +149,14 @@ export class DFA<T> {
   private readonly entryNTs: Set<string>;
   /** Current state is `states.at(-1)`. */
   private stateStack: State<T>[];
-  /** We will construct the state machine's state transition map on the fly. */
-  private nextStateCache: Map<State<T>, { node: ASTNode<T>; next: State<T> }[]>;
+  /**
+   * We will construct the state machine's state transition map on the fly.
+   * If the `next` is `null`, means we already tried to construct it but failed.
+   */
+  private nextStateCache: Map<
+    State<T>,
+    { node: ASTNode<T>; next?: State<T> }[]
+  >;
   debug: boolean;
 
   constructor(
@@ -156,6 +164,7 @@ export class DFA<T> {
     entryNTs: Set<string>,
     NTs: Set<string>
   ) {
+    this.allGrammarRules = allGrammarRules;
     this.entryState = new State(
       getGrammarRulesClosure(
         allGrammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
@@ -241,7 +250,13 @@ export class DFA<T> {
           this.stateStack.at(-1),
           buffer[index]
         );
-        if (!res.accept) return { accept: false };
+        if (!res.accept) {
+          // cache next state as null, which means we already tried to construct it but failed
+          this.nextStateCache
+            .get(this.stateStack.at(-1))
+            .push({ next: null, node: buffer[index] });
+          return { accept: false };
+        }
 
         nextState = res.state;
         // cache next state
@@ -318,6 +333,69 @@ export class DFA<T> {
       return { accept: false };
     }
     return { accept: true, state: new State(nextCandidates) };
+  }
+
+  /**
+   * Calculate state machine's state transition map ahead of time and cache.
+   * This action requires a lexer to calculate literal's type name.
+   * If you don't use literal grammar in your rules, you can omit the lexer.
+   */
+  calculateAllState(lexer?: ILexer) {
+    // collect all grammars in rules
+    const gs = new GrammarSet();
+    this.allGrammarRules.forEach((gr) => {
+      gr.rule.forEach((g) => {
+        gs.add(g);
+      });
+    });
+    // convert to mock AST node
+    const mockNodes = gs.map((g) => {
+      if (g.type == GrammarType.LITERAL) {
+        if (!lexer)
+          throw new Error("Lexer is required to parse literal grammars.");
+        return new ASTNode<T>({
+          type: lexer.reset().lex(g.content).type,
+          text: g.content,
+          start: 0,
+        });
+      } else return new ASTNode<T>({ type: g.content, start: 0 });
+    });
+
+    while (true) {
+      let changed = false;
+      this.nextStateCache.forEach((transitions, state) => {
+        mockNodes.forEach((node) => {
+          if (
+            transitions.find(
+              // check ast node equality
+              (t) => t.node.type == node.type && t.node.text == node.text
+            )
+          )
+            // already calculated, skip
+            return;
+          const res = this.calculateNextState(state, node);
+          if (res.accept) {
+            // cache next state
+            transitions.push({
+              next: res.state,
+              node,
+            });
+            if (!this.nextStateCache.has(res.state))
+              this.nextStateCache.set(res.state, []);
+            changed = true;
+          } else {
+            // cache next state
+            transitions.push({
+              next: null,
+              node,
+            });
+            changed = true;
+          }
+        });
+      });
+      if (!changed) break;
+    }
+    return this;
   }
 
   getFirstSets() {
