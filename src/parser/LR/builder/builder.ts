@@ -4,7 +4,7 @@ import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
-import { ResolvedConflict, Definition, ConflictType, Conflict } from "./model";
+import { Definition, ConflictType, Conflict } from "./model";
 import { defToTempGRs } from "./utils";
 
 /**
@@ -18,7 +18,7 @@ export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
   private NTs: Set<string>;
-  private resolved: ResolvedConflict<T>[];
+  private resolved: Conflict<T>[];
 
   constructor() {
     this.tempGrammarRules = [];

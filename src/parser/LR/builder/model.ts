@@ -8,8 +8,14 @@ export interface Definition {
 export interface DefinitionContext<T> {
   callback: Callback<T>;
   rejecter: Rejecter<T>;
-  resolved: PartialResolvedConflict<T>[];
+  resolved: PartialConflict<T>[];
 }
+
+/**
+ * Same param & return value as Rejecter, but flip result.
+ * Which means, if return true, accept. If return false, reject.
+ */
+export type Accepter<T> = Rejecter<T>;
 
 export enum ConflictType {
   REDUCE_SHIFT,
@@ -29,17 +35,7 @@ export interface PartialConflict<T> {
   length?: number;
 }
 
-/** ResolvedConflict without reducer. */
-export interface PartialResolvedConflict<T> extends PartialConflict<T> {
-  reject: boolean;
-}
-
 export interface Conflict<T> extends PartialConflict<T> {
-  /** The rule that will try to reduce some grammars to an NT in a conflict. */
-  reducerRule: TempGrammarRule<T>;
-}
-
-export interface ResolvedConflict<T> extends PartialResolvedConflict<T> {
   /** The rule that will try to reduce some grammars to an NT in a conflict. */
   reducerRule: TempGrammarRule<T>;
 }

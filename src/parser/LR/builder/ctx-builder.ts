@@ -1,22 +1,23 @@
 import { Callback, ReducerContext, Rejecter } from "../model";
 import { TempGrammarType } from "./grammar";
 import {
-  PartialResolvedConflict,
   ConflictType,
   Definition,
   DefinitionContext,
+  Accepter,
+  PartialConflict,
 } from "./model";
 import { defToTempGRs } from "./utils";
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Rejecter<T>;
-  private resolved: PartialResolvedConflict<T>[];
+  private resolved: PartialConflict<T>[];
 
   constructor(data: {
     callback?: Callback<T>;
     rejecter?: Rejecter<T>;
-    resolved?: PartialResolvedConflict<T>[];
+    resolved?: PartialConflict<T>[];
   }) {
     this._callback = data.callback ?? (() => {});
     this._rejecter = data.rejecter ?? (() => false);
@@ -62,7 +63,7 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean,
+    reduce: boolean | Accepter<T>,
     handleEnd: boolean
   ) {
     const anotherRule = defToTempGRs<T>(another)[0];
@@ -75,7 +76,8 @@ export class DefinitionContextBuilder<T> {
         // if reach end of input
         if (ctx.after.length == 0) {
           // if handle the end of input
-          if (handleEnd) return !reduce;
+          if (handleEnd)
+            return !(reduce instanceof Function ? reduce(ctx) : reduce);
           else return false;
         }
         // else, not the end of input
@@ -89,7 +91,7 @@ export class DefinitionContextBuilder<T> {
                 g.content == ctx.after[0].type)
           )
         )
-          return !reduce;
+          return !(reduce instanceof Function ? reduce(ctx) : reduce);
         return false;
       },
       resolved: [
@@ -97,7 +99,6 @@ export class DefinitionContextBuilder<T> {
           type,
           anotherRule,
           next: nextGrammars,
-          reject: !reduce,
           handleEnd: handleEnd,
         },
       ],
@@ -106,12 +107,15 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T>(another: Definition, { next = "", reduce = true }) {
+  static resolveRS<T>(
+    another: Definition,
+    options: { next?: string; reduce?: boolean | Accepter<T> }
+  ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
-      next,
-      reduce,
+      options.next ?? "",
+      options.reduce ?? true,
       false
     );
   }
@@ -120,14 +124,18 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRR<T>(
     another: Definition,
-    { next = "", reduce = true, handleEnd = false }
+    options: {
+      next?: string;
+      reduce?: boolean | Accepter<T>;
+      handleEnd?: boolean;
+    }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
-      next,
-      reduce,
-      handleEnd
+      options.next ?? "",
+      options.reduce ?? true,
+      options.handleEnd ?? false
     );
   }
   /** Create a new DefinitionContextBuilder with the new specified type resolved conflict appended. */
@@ -135,7 +143,7 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean,
+    reduce: boolean | Accepter<T>,
     handleEnd: boolean
   ) {
     const anotherCtx = DefinitionContextBuilder.resolve<T>(
@@ -154,26 +162,33 @@ export class DefinitionContextBuilder<T> {
     });
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(another: Definition, { next = "", reduce = true }) {
+  resolveRS(
+    another: Definition,
+    options: { next?: string; reduce?: boolean | Accepter<T> }
+  ) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
-      next,
-      reduce,
+      options.next ?? "",
+      options.reduce ?? true,
       false
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
   resolveRR(
     another: Definition,
-    { next = "", reduce = true, handleEnd = false }
+    options: {
+      next?: string;
+      reduce?: boolean | Accepter<T>;
+      handleEnd?: boolean;
+    }
   ) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
       another,
-      next,
-      reduce,
-      handleEnd
+      options.next ?? "",
+      options.reduce ?? true,
+      options.handleEnd ?? false
     );
   }
 
