@@ -635,7 +635,7 @@ export class ParserBuilder<T> {
                       .map((g) => Grammar.from(g).toString())
                       .join(" ")}\`, `
                   : ""
-              } ${c.handleEnd ? `handleEnd: true, ` : ""}reject: false })`
+              }${c.handleEnd ? `handleEnd: true, ` : ""}reject: false })`
           )
           .join("\n  ");
       console.log(txt);
