@@ -17,10 +17,10 @@ const parser = new LR.ParserBuilder<number>()
   .define(
     { exp: `'-' exp` },
     LR.reducer<number>((values) => -values[1])
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'` })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'` })
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
   .define(
     { exp: `'(' exp ')'` },
@@ -29,36 +29,36 @@ const parser = new LR.ParserBuilder<number>()
   .define(
     { exp: `exp '+' exp` },
     LR.reducer<number>((values) => values[0] + values[2])
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '-' exp` },
     LR.reducer<number>((values) => values[0] - values[2])
-      .resolveRR(
-        { exp: `'-' exp` },
-        { handleEnd: true, next: `')' '+' '-' '*' '/'` }
-      )
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '*' exp` },
     LR.reducer<number>((values) => values[0] * values[2])
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'` })
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
   .define(
     { exp: `exp '/' exp` },
     LR.reducer<number>((values) => values[0] / values[2])
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'` })
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
-  .checkAll(lexer.getTokenTypes(), true)
+  .checkAll(lexer.getTokenTypes(), lexer, true)
   .build();
 
 export const manager = new Manager({ lexer, parser });
