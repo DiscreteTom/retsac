@@ -30,8 +30,8 @@ const parser = new LR.ParserBuilder<number>()
     { exp: `exp '+' exp` },
     LR.reducer<number>((values) => values[0] + values[2])
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'` })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reject: true })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reject: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '-' exp` },
@@ -41,8 +41,8 @@ const parser = new LR.ParserBuilder<number>()
         { handleEnd: true, next: `')' '+' '-' '*' '/'` }
       )
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'` })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reject: true })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reject: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '*' exp` },

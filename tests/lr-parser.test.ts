@@ -15,7 +15,7 @@ test("R-S conflict", () => {
       .entry("exp")
       .define(
         { exp: `exp '+' exp` },
-        LR.resolveRS({ exp: `exp '*'` }, { next: `'*'`, reject: true })
+        LR.resolveRS({ exp: `exp '*'` }, { next: `'*'`, reduce: false })
       )
       .define({ exp: `exp '*'` })
       .checkConflicts();
@@ -36,13 +36,13 @@ test("R-R conflict", () => {
       .entry("exp")
       .define(
         { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reject: false })
+        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       )
       .define(
         { exp: `exp '-' exp` },
         LR.resolveRR(
           { exp: `'-' exp` },
-          { next: `'-'`, reject: false, handleEnd: true }
+          { next: `'-'`, reduce: true, handleEnd: true }
         )
       )
       .checkConflicts();
@@ -55,16 +55,16 @@ test("conflict checker", () => {
       .entry("exp")
       .define(
         { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reject: false })
+        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       )
       .define(
         { exp: `exp '-' exp` },
         LR.resolveRR<void>(
           { exp: `'-' exp` },
-          { next: `'-'`, reject: false, handleEnd: true }
+          { next: `'-'`, reduce: true, handleEnd: true }
         ).resolveRR(
           { exp: `exp '-'` }, // non-existing grammar rule
-          { next: `'-'`, reject: false, handleEnd: true }
+          { next: `'-'`, reduce: true, handleEnd: true }
         )
       )
       .checkConflicts();
@@ -75,13 +75,13 @@ test("conflict checker", () => {
       .entry("exp")
       .define(
         { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reject: false })
+        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       )
       .define(
         { exp: `exp '-' exp` },
         LR.resolveRR<void>(
           { exp: `'-' exp` },
-          { next: `'-' '*'`, reject: false, handleEnd: true } // non-existing token
+          { next: `'-' '*'`, reduce: true, handleEnd: true } // non-existing token
         )
       )
       .checkConflicts();
