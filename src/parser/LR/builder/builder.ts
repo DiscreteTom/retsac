@@ -259,7 +259,6 @@ export class ParserBuilder<T> {
     // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
     for (let i = 0; i < this.tempGrammarRules.length; i++) {
       for (let j = 0; j < this.tempGrammarRules.length; j++) {
-        if (i == j) continue;
         const reducerRule = this.tempGrammarRules[i];
         const anotherRule = this.tempGrammarRules[j];
         const conflicts = reducerRule.checkRSConflict(anotherRule);
