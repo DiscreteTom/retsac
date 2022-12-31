@@ -497,8 +497,9 @@ export class ParserBuilder<T> {
   checkConflicts(lexer?: ILexer, printAll = false) {
     const dfa = this.buildDFA();
     const followSets = dfa.getFollowSets();
+    const conflicts = this.getConflicts(lexer, dfa);
 
-    this.getConflicts(lexer, dfa).forEach((cs) => {
+    conflicts.forEach((cs) => {
       cs.forEach((c) => {
         const errMsg =
           c.type == ConflictType.REDUCE_SHIFT
@@ -544,6 +545,7 @@ export class ParserBuilder<T> {
       });
     });
 
+    // TODO: ensure all resolved are indeed conflicts
     return this;
   }
 
