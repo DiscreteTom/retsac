@@ -5,7 +5,7 @@ import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
-import { Definition, ConflictType, Conflict } from "./model";
+import { Definition, ConflictType, Conflict, Accepter } from "./model";
 import { defToTempGRs } from "./utils";
 
 /**
@@ -553,16 +553,17 @@ export class ParserBuilder<T> {
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  generateResolver(lexer?: ILexer) {
-    this.getConflicts(lexer).forEach((v, k) => {
-      const txt =
-        `=== ${k.toString()} ===\nLR` +
-        v
+  generateResolver(lexer?: ILexer, style?: "builder" | "context") {
+    style ??= "builder";
+
+    if (style == "builder") {
+      this.getConflicts(lexer).forEach((v, k) => {
+        const txt = v
           .map(
             (c) =>
               `.resolve${
                 c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-              }(${c.anotherRule.toString()}, { ${
+              }(${c.reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
                 c.next.length > 0
                   ? `next: \`${c.next
                       .map((g) => Grammar.from(g).toString())
@@ -570,10 +571,81 @@ export class ParserBuilder<T> {
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
           )
-          .join("\n  ");
-      console.log(txt);
-      console.log(""); // add a blank line
+          .join("\n");
+        console.log(txt);
+      });
+    } else {
+      this.getConflicts(lexer).forEach((v, k) => {
+        const txt =
+          `=== ${k.toString()} ===\nLR` +
+          v
+            .map(
+              (c) =>
+                `.resolve${
+                  c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+                }(${c.anotherRule.toString()}, { ${
+                  c.next.length > 0
+                    ? `next: \`${c.next
+                        .map((g) => Grammar.from(g).toString())
+                        .join(" ")}\`, `
+                    : ""
+                }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
+            )
+            .join("\n  ");
+        console.log(txt);
+        console.log(""); // add a blank line
+      });
+    }
+  }
+
+  resolveRS(
+    reducerRule: Definition,
+    anotherRule: Definition,
+    options: { next?: string; reduce?: boolean | Accepter<T> }
+  ) {
+    const ctx = DefinitionContextBuilder.resolveRS<T>(
+      anotherRule,
+      options
+    ).build();
+    const grs = defToTempGRs(reducerRule, ctx);
+
+    grs.forEach((gr) => {
+      this.resolved.push(
+        ...ctx.resolved.map((r) => ({
+          ...r,
+          reducerRule: gr,
+        }))
+      );
     });
+
+    return this;
+  }
+
+  resolveRR(
+    reducerRule: Definition,
+    anotherRule: Definition,
+    options: {
+      next?: string;
+      reduce?: boolean | Accepter<T>;
+      handleEnd?: boolean;
+    }
+  ) {
+    const ctx = DefinitionContextBuilder.resolveRR<T>(
+      anotherRule,
+      options
+    ).build();
+    const grs = defToTempGRs(reducerRule, ctx);
+
+    grs.forEach((gr) => {
+      this.resolved.push(
+        ...ctx.resolved.map((r) => ({
+          ...r,
+          reducerRule: gr,
+        }))
+      );
+    });
+
+    return this;
   }
 
   /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll)`.  */
