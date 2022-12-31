@@ -107,7 +107,7 @@ export class ParserBuilder<T> {
       );
     }
     const unresolvedEnd = checkHandleEnd
-      ? endHandlers[0]?.reject ?? true
+      ? !endHandlers[0]?.handleEnd ?? true
       : false;
 
     return {
