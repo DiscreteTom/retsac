@@ -23,7 +23,7 @@
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
     - Add `ParserBuilder.generateResolver` to auto generate resolver template.
     - DFA will cache state transition on the fly to optimize runtime performance.
-      - Add `DFA.calculateAllState` to calculate all state transitions ahead of time and cache them.
+      - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
 - Manager
   - Manager will use `ILexer` instead of `Lexer` in constructor.
 - Optimize document / comments.
