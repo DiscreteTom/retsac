@@ -1,5 +1,9 @@
 import { ASTNode } from "../ast";
-import { TempGrammar, TempGrammarType } from "./builder/grammar";
+import {
+  TempGrammar,
+  TempGrammarRule,
+  TempGrammarType,
+} from "./builder/grammar";
 import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {
@@ -85,6 +89,14 @@ export class GrammarRule<T> {
     return formatter(
       this.NT,
       this.rule.map((g) => g.toString())
+    );
+  }
+
+  eq(g: TempGrammarRule<T>) {
+    return (
+      this.NT == g.NT &&
+      this.rule.length == g.rule.length &&
+      this.rule.every((gg, i) => gg.eq(g.rule[i]))
     );
   }
 }
