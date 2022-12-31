@@ -34,9 +34,10 @@ export class Grammar {
       return this.type == g.type && this.content == g.content;
     else if (g instanceof ASTNode)
       return this.type == GrammarType.LITERAL
-        ? this.content == g.text // check literal content
-        : this.content == g.type;
-    // check type name
+        ? // check literal content
+          this.content == g.text
+        : // check type name
+          this.content == g.type;
     else
       return (
         (this.type == GrammarType.LITERAL) ==
@@ -47,8 +48,10 @@ export class Grammar {
   /** Return `type name` or `"literal"` */
   toString() {
     return this.type == GrammarType.LITERAL
-      ? `'${this.content}'` // literal content
-      : this.content; // type name
+      ? // literal content
+        `'${this.content}'`
+      : // type name
+        this.content;
   }
 }
 
