@@ -74,15 +74,14 @@ const parser = new LR.ParserBuilder()
   .define({ object_item: `identifier ':' exp` })
   .define({ array: `'[' exps ']'` })
   .define({ exps: `exp | exps ',' exp | exps ','` })
-  .define({ if_stmt: `if '(' exp ')' exp_stmt` })
-  .define({ if_stmt: `if '(' exp ')' '{' exp_stmts '}'` })
+  .define({ block_stmt: `'{' stmts '}'` })
+  .define({ if_stmt: `if '(' exp ')' stmt` })
   .define({ exp_stmt: `exp ';'` })
   .define({ exp_stmts: `exp_stmt | exp_stmts exp_stmt` })
-  .define({ while_stmt: `while '(' exp ')' exp_stmt` })
-  .define({ while_stmt: `while '(' exp ')' '{' stmts '}'` })
+  .define({ while_stmt: `while '(' exp ')' stmt` })
   .define({ stmts: `stmt | stmts stmt` })
   .define({
-    stmt: `exp_stmts | if_stmt | const_stmt | let_stmt | while_stmt`,
+    stmt: `exp_stmts | if_stmt | const_stmt | let_stmt | while_stmt | block_stmt`,
   })
   .entry(
     "import_stmt",
@@ -92,7 +91,166 @@ const parser = new LR.ParserBuilder()
     "while_stmt",
     "let_stmt"
   )
-  .checkAll(lexer.getTokenTypes(), lexer, true)
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `'!' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `'...' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `exp '!=' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: true }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: false }
+  )
+  .resolveRS(
+    { exp: `exp '&&' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: true }
+  )
+  .resolveRS(
+    { stmt: `exp_stmts` },
+    { exp_stmts: `exp_stmts exp_stmt` },
+    {
+      next: `'{' exp identifier string regex true false object array break new '!' '...' '['`,
+      reduce: true,
+    }
+  )
+  .resolveRR(
+    { exp: `identifier` },
+    { object_item: `identifier` },
+    { next: `'}' ','`, reduce: true }
+  )
+  .resolveRR(
+    { object_item: `identifier` },
+    { exp: `identifier` },
+    { next: `'}' ','`, reduce: true }
+  )
+  // .generateResolver(lexer);
+  .checkAll(lexer.getTokenTypes(), lexer)
   .build(true); // enable debug mode
 
 const manager = new Manager({
