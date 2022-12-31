@@ -62,7 +62,7 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reject: boolean,
+    reduce: boolean,
     handleEnd: boolean
   ) {
     const anotherRule = defToTempGRs<T>(another)[0];
@@ -75,7 +75,7 @@ export class DefinitionContextBuilder<T> {
         // if reach end of input
         if (ctx.after.length == 0) {
           // if handle the end of input
-          if (handleEnd) return reject;
+          if (handleEnd) return !reduce;
           else return false;
         }
         // else, not the end of input
@@ -89,7 +89,7 @@ export class DefinitionContextBuilder<T> {
                 g.content == ctx.after[0].type)
           )
         )
-          return reject;
+          return !reduce;
         return false;
       },
       resolved: [
@@ -97,7 +97,7 @@ export class DefinitionContextBuilder<T> {
           type,
           anotherRule,
           next: nextGrammars,
-          reject,
+          reject: !reduce,
           handleEnd: handleEnd,
         },
       ],
@@ -106,12 +106,12 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T>(another: Definition, { next = "", reject = false }) {
+  static resolveRS<T>(another: Definition, { next = "", reduce = true }) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
-      reject,
+      reduce,
       false
     );
   }
@@ -120,13 +120,13 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRR<T>(
     another: Definition,
-    { next = "", reject = false, handleEnd = false }
+    { next = "", reduce = true, handleEnd = false }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
       next,
-      reject,
+      reduce,
       handleEnd
     );
   }
@@ -135,14 +135,14 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reject: boolean,
+    reduce: boolean,
     handleEnd: boolean
   ) {
     const anotherCtx = DefinitionContextBuilder.resolve<T>(
       type,
       another,
       next,
-      reject,
+      reduce,
       handleEnd
     );
     return new DefinitionContextBuilder<T>({
@@ -154,25 +154,25 @@ export class DefinitionContextBuilder<T> {
     });
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(another: Definition, { next = "", reject = false }) {
+  resolveRS(another: Definition, { next = "", reduce = true }) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
       next,
-      reject,
+      reduce,
       false
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
   resolveRR(
     another: Definition,
-    { next = "", reject = false, handleEnd = false }
+    { next = "", reduce = true, handleEnd = false }
   ) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
       another,
       next,
-      reject,
+      reduce,
       handleEnd
     );
   }
