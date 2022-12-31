@@ -3,47 +3,50 @@ import { ParserError } from "../src/parser/LR/error";
 
 test("R-S conflict", () => {
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
-      .define({ exp: `exp '+' exp` })
-      .define({ exp: `exp '*'` })
+      .define({ exp: `exp A exp` })
+      .define({ exp: `exp B` })
       .checkConflicts();
   }).toThrow(ParserError);
 
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
       .define(
-        { exp: `exp '+' exp` },
-        LR.resolveRS({ exp: `exp '*'` }, { next: `'*'`, reduce: false })
+        { exp: `exp A exp` },
+        LR.resolveRS({ exp: `exp B` }, { next: `B`, reduce: false }).resolveRS(
+          { exp: `exp A exp` },
+          { next: `A`, reduce: false }
+        )
       )
-      .define({ exp: `exp '*'` })
+      .define({ exp: `exp B` })
       .checkConflicts();
   }).not.toThrow(ParserError);
 });
 
 test("R-R conflict", () => {
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
-      .define({ exp: `'-' exp` })
-      .define({ exp: `exp '-' exp` })
+      .define({ exp: `C exp` })
+      .define({ exp: `exp C exp` })
       .checkConflicts();
   }).toThrow(ParserError);
 
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
       .define(
-        { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+        { exp: `C exp` },
+        LR.resolveRS({ exp: `exp C exp` }, { next: `C`, reduce: true })
       )
       .define(
-        { exp: `exp '-' exp` },
+        { exp: `exp C exp` },
         LR.resolveRR(
-          { exp: `'-' exp` },
-          { next: `'-'`, reduce: true, handleEnd: true }
-        )
+          { exp: `C exp` },
+          { next: `C`, reduce: true, handleEnd: true }
+        ).resolveRS({ exp: `exp C exp` }, { next: `C`, reduce: true })
       )
       .checkConflicts();
   }).not.toThrow(ParserError);
@@ -51,37 +54,37 @@ test("R-R conflict", () => {
 
 test("conflict checker", () => {
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
       .define(
-        { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+        { exp: `C exp` },
+        LR.resolveRS({ exp: `exp C exp` }, { next: `C`, reduce: true })
       )
       .define(
-        { exp: `exp '-' exp` },
-        LR.resolveRR<void>(
-          { exp: `'-' exp` },
-          { next: `'-'`, reduce: true, handleEnd: true }
+        { exp: `exp C exp` },
+        LR.resolveRR(
+          { exp: `C exp` },
+          { next: `C`, reduce: true, handleEnd: true }
         ).resolveRR(
-          { exp: `exp '-'` }, // non-existing grammar rule
-          { next: `'-'`, reduce: true, handleEnd: true }
+          { exp: `exp C` }, // non-existing grammar rule
+          { next: `C`, reduce: true, handleEnd: true }
         )
       )
       .checkConflicts();
   }).toThrow(ParserError);
 
   expect(() => {
-    new LR.ParserBuilder<void>()
+    new LR.ParserBuilder()
       .entry("exp")
       .define(
-        { exp: `'-' exp` },
-        LR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+        { exp: `C exp` },
+        LR.resolveRS({ exp: `exp C exp` }, { next: `C`, reduce: true })
       )
       .define(
-        { exp: `exp '-' exp` },
-        LR.resolveRR<void>(
-          { exp: `'-' exp` },
-          { next: `'-' '*'`, reduce: true, handleEnd: true } // non-existing token
+        { exp: `exp C exp` },
+        LR.resolveRR(
+          { exp: `C exp` },
+          { next: `C B`, reduce: true, handleEnd: true } // non-existing token
         )
       )
       .checkConflicts();
