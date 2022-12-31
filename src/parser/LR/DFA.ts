@@ -10,12 +10,9 @@ export class Candidate<T> {
   readonly gr: GrammarRule<T>;
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
-  /** `true` if already rejected and no need to check. */
-  private rejected: boolean;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
     Object.assign(this, data);
-    this.rejected = false;
   }
 
   /** Current grammar. */
@@ -38,10 +35,9 @@ export class Candidate<T> {
 
   /**
    * Only failed if:
-   * 1. This grammar is already rejected.
-   * 2. Digestion not finished.
-   * 3. Check follow set failed.
-   * 4. Rejecter rejected.
+   * 1. Digestion not finished.
+   * 2. Check follow set failed.
+   * 3. Rejecter rejected.
    */
   tryReduce(
     buffer: ASTNode<T>[],
@@ -51,7 +47,7 @@ export class Candidate<T> {
     followSets: Map<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
-    if (this.rejected || this.canDigestMore()) return { accept: false };
+    if (this.canDigestMore()) return { accept: false };
 
     const context: ReducerContext<T> = {
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
@@ -76,7 +72,6 @@ export class Candidate<T> {
 
     // check rejecter
     if (this.gr.rejecter(context)) {
-      this.rejected = true;
       if (debug) console.log(`[Reject] ${this.gr.toString()}`);
       return { accept: false };
     }
