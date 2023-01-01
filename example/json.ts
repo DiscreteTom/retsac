@@ -71,7 +71,7 @@ const parser = new LR.ParserBuilder<any>()
   .define(
     { object_item: `string ':' value` },
     LR.reducer((values, { matched }) => {
-      let result = {};
+      const result: { [key: string]: any } = {};
       result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
     })

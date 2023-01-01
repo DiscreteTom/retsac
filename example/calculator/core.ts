@@ -16,7 +16,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `'-' exp` },
-    LR.reducer<number>((values) => -values[1])
+    LR.reducer<number>((values) => -values[1]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -28,7 +28,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '+' exp` },
-    LR.reducer<number>((values) => values[0] + values[2])
+    LR.reducer<number>((values) => values[0]! + values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -36,7 +36,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '-' exp` },
-    LR.reducer<number>((values) => values[0] - values[2])
+    LR.reducer<number>((values) => values[0]! - values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -44,7 +44,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '*' exp` },
-    LR.reducer<number>((values) => values[0] * values[2])
+    LR.reducer<number>((values) => values[0]! * values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -52,7 +52,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '/' exp` },
-    LR.reducer<number>((values) => values[0] / values[2])
+    LR.reducer<number>((values) => values[0]! / values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
