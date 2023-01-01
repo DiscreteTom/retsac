@@ -18,7 +18,9 @@ test("lexer functions", () => {
   expect(lexer.feed("123").getRest()).toBe("123");
   expect(lexer.feed("123").hasRest()).toBe(true);
   expect(lexer.feed("123").reset().getRest()).toBe("");
-  expect(Array.from(lexer.getTokenTypes())).toEqual(["", "number", "someErr"]);
+  expect(Array.from(lexer.getTokenTypes()).sort()).toEqual(
+    ["", "number", "someErr"].sort()
+  );
 });
 
 test("number", () => {
@@ -65,4 +67,23 @@ test("lexAll with error", () => {
       .lexAll("error 123", true)
       .map((token) => token.content)
   ).toEqual(["error"]);
+});
+
+test("reset lexer", () => {
+  lexer.lexAll("error 123");
+  lexer.reset();
+  expect(lexer.hasRest()).toBe(false);
+  expect(lexer.hasError()).toBe(false);
+  expect(lexer.getLineChars()).toEqual([0]);
+});
+
+test("getLineChars & getPos", () => {
+  lexer.reset().feed("123\n12345\n1234567").lexAll();
+  expect(lexer.getLineChars()).toEqual([4, 6, 7]);
+  expect(lexer.getPos(0)).toEqual({ line: 1, column: 1 });
+  expect(lexer.getPos(1)).toEqual({ line: 1, column: 2 });
+  expect(lexer.getPos(3)).toEqual({ line: 1, column: 4 });
+  expect(lexer.getPos(4)).toEqual({ line: 2, column: 1 });
+  expect(lexer.getPos(9)).toEqual({ line: 2, column: 6 });
+  expect(lexer.getPos(16)).toEqual({ line: 3, column: 7 });
 });
