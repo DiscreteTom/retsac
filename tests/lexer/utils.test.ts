@@ -1,4 +1,4 @@
-import { Lexer } from "../src";
+import { Lexer } from "../../src";
 import {
   Action,
   exact,
@@ -6,8 +6,7 @@ import {
   stringLiteral,
   word,
   wordType,
-} from "../src/lexer";
-import { Token } from "../src/lexer/model";
+} from "../../src/lexer";
 
 test("lexer utils from_to", () => {
   const lexer = new Lexer.Builder()

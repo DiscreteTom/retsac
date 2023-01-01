@@ -1,6 +1,6 @@
-import { Lexer } from "../src";
-import { Action } from "../src/lexer";
-import { Token } from "../src/lexer/model";
+import { Lexer } from "../../src";
+import { Action } from "../../src/lexer";
+import { Token } from "../../src/lexer/model";
 
 const lexer = new Lexer.Builder()
   .ignore(/^\s/)
