@@ -34,7 +34,7 @@ export class TempGrammar {
     });
   }
 
-  eq<_>(g: TempGrammar | ASTNode<_>) {
+  eq<_>(g: TempGrammar | ASTNode<_> | Grammar) {
     if (g instanceof TempGrammar)
       return this.type == g.type && this.content == g.content;
     else if (g instanceof ASTNode)
@@ -43,6 +43,11 @@ export class TempGrammar {
           this.content == g.text
         : // check type name
           this.content == g.type;
+    else
+      return (
+        (this.type == TempGrammarType.LITERAL) ==
+          (g.type == GrammarType.LITERAL) && this.content == g.content
+      );
   }
 
   toGrammar(isNT = true) {
@@ -73,63 +78,12 @@ export class TempGrammarRule<T> {
   }
 
   /** Only check whether NT and rules are equal. */
-  weakEq<_>(rule: TempGrammarRule<_>) {
+  weakEq<_>(rule: TempGrammarRule<_> | GrammarRule<_>) {
     return (
       this.NT == rule.NT &&
       this.rule.length == rule.rule.length &&
       this.rule.every((g, i) => g.eq(rule.rule[i]))
     );
-  }
-
-  /** Return whether this.rule starts with another rule. */
-  private ruleStartsWith(anotherRule: TempGrammar[]) {
-    if (this.rule.length < anotherRule.length) return false;
-    for (let i = 0; i < anotherRule.length; i++) {
-      if (this.rule[i].eq(anotherRule[i])) return false;
-    }
-    return true;
-  }
-
-  /** Return whether this.rule ends with `partialRule`. */
-  private ruleEndsWith(anotherRule: TempGrammar[]) {
-    if (this.rule.length < anotherRule.length) return false;
-    for (let i = 0; i < anotherRule.length; i++) {
-      if (this.rule.at(-i - 1)!.eq(anotherRule.at(-i - 1)!)) return false;
-    }
-    return true;
-  }
-
-  /**
-   * Check if the tail of this's rule is the same as the head of another.
-   * Which means this rule want's to reduce, and another rule want's to shift.
-   */
-  checkRSConflict(another: TempGrammarRule<T>) {
-    const result = [] as {
-      reducerRule: TempGrammarRule<T>;
-      shifterRule: TempGrammarRule<T>;
-      /** How many grammars are overlapped in rule. */
-      length: number;
-    }[];
-    for (let i = 0; i < this.rule.length; ++i) {
-      if (
-        another.ruleStartsWith(this.rule.slice(i)) &&
-        // if the tail of this rule is the same as another's whole rule, it's a reduce-reduce conflict.
-        // e.g. `A B C | B C`
-        this.rule.length - i != another.rule.length
-      ) {
-        result.push({
-          reducerRule: this,
-          shifterRule: another,
-          length: this.rule.length - i,
-        });
-      }
-    }
-    return result;
-  }
-
-  /** Check if the tail of this's rule is the same as another's whole rule. */
-  checkRRConflict(another: TempGrammarRule<T>) {
-    return this.ruleEndsWith(another.rule);
   }
 
   toString(formatter?: (NT: string, grammars: string[]) => string) {

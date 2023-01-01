@@ -8,11 +8,12 @@ import { TempGrammarRule, TempGrammar, TempGrammarType } from "./temp-grammar";
 import {
   Definition,
   ConflictType,
-  Conflict,
+  TempConflict,
   Accepter,
   DefinitionContext,
 } from "./model";
 import { defToTempGRs } from "./utils";
+import { getConflicts } from "./check-conflicts";
 
 /**
  * Builder for LR(1) parsers.
@@ -25,7 +26,7 @@ export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
   private NTs: Set<string>;
-  private resolved: Conflict<T>[];
+  private resolved: TempConflict<T>[];
 
   constructor() {
     this.tempGrammarRules = [];
@@ -163,312 +164,22 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  /** Return conflicts that user didn't resolve. */
-  private getUnresolvedConflicts<_, __>(
-    type: ConflictType,
-    reducerRule: TempGrammarRule<_>,
-    anotherRule: TempGrammarRule<__>,
-    next: Grammar[],
-    checkHandleEnd: boolean
-  ) {
-    const related = this.resolved.filter(
-      (r) =>
-        r.type == type &&
-        reducerRule.weakEq(r.reducerRule) &&
-        anotherRule.weakEq(r.anotherRule)
-    );
-
-    // check next
-    const resolvedNext = [] as TempGrammar[];
-    related.forEach((r) => r.next.forEach((n) => resolvedNext.push(n)));
-    const unresolvedNext = next.filter(
-      (n) => !resolvedNext.some((rn) => n.eq(rn))
-    );
-
-    // check end
-    const endHandlers = related.filter((r) => r.handleEnd);
-    if (endHandlers.length > 1) {
-      throw new ParserError(
-        ParserErrorType.TOO_MANY_END_HANDLER,
-        `Too many end handlers for rule ${endHandlers[0].reducerRule.toString()}`
-      );
-    }
-    const unresolvedEnd = checkHandleEnd
-      ? !endHandlers[0]?.handleEnd ?? true
-      : false;
-
-    return {
-      next: unresolvedNext,
-      /** If true, means user didn't handle end of input. */
-      end: unresolvedEnd,
-    };
-  }
-
-  /**
-   * Return a grammar set contains NTs which might be the last input grammar.
-   * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
-   * This should be called only if no more definitions will be defined.
-   */
-  private getEndSet() {
-    const result = new GrammarSet();
-    // entry NTs might be the last input grammar of course
-    this.entryNTs.forEach((nt) =>
-      result.add(new Grammar({ content: nt, type: GrammarType.NT }))
-    );
-
-    while (true) {
-      let changed = false;
-      this.tempGrammarRules.forEach((gr) => {
-        if (result.has(new Grammar({ content: gr.NT, type: GrammarType.NT }))) {
-          // current NT is in result, so we need to check its last grammar
-          if (
-            gr.rule.at(-1)!.type != TempGrammarType.LITERAL &&
-            this.NTs.has(gr.rule.at(-1)!.content)
-          ) {
-            // last grammar is a NT, so we need to check it in result
-            const last = new Grammar({
-              content: gr.rule.at(-1)!.content,
-              type: GrammarType.NT,
-            });
-            if (!result.has(last)) {
-              result.add(last);
-              changed = true;
-            }
-          }
-        }
-      });
-      if (!changed) break;
-    }
-
-    return result;
-  }
-
-  private getConflicts(lexer?: ILexer, dfa?: DFA<T>) {
-    dfa ??= this.buildDFA();
-    const firstSets = dfa.getFirstSets();
-    const followSets = dfa.getFollowSets();
-    const endSet = this.getEndSet();
-    const states = dfa.calculateAllStates(lexer).getAllStates();
-
-    const result = new Map<TempGrammarRule<T>, Conflict<T>[]>();
-
-    // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
-    // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
-    for (let i = 0; i < this.tempGrammarRules.length; i++) {
-      for (let j = 0; j < this.tempGrammarRules.length; j++) {
-        const reducerRule = this.tempGrammarRules[i];
-        const anotherRule = this.tempGrammarRules[j];
-        const conflicts = reducerRule.checkRSConflict(anotherRule);
-        conflicts.map((c) => {
-          // try to auto resolve conflicts if possible
-          // e.g. for a reduce-shift conflict: `A <= B C` and `D <= C E`
-          // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
-          const A = c.reducerRule.NT;
-          const E = c.shifterRule.rule[c.length];
-          const EFirst = firstSets.get(E.content)!;
-          const AFollow = followSets.get(A)!;
-          if (E.type == TempGrammarType.GRAMMAR) {
-            if (this.NTs.has(E.content)) {
-              // E is a NT, check if A's follow has some grammar that is also in E's first
-              const overlap = AFollow.overlap(EFirst);
-              if (overlap.length < 0) return; // no overlap, conflicts can be auto resolved
-
-              // check states
-              if (
-                !states.some(
-                  (s) =>
-                    s.contains(reducerRule, reducerRule.rule.length) &&
-                    s.contains(anotherRule, c.length)
-                )
-              )
-                // no state contains both rules with the digestion condition, conflicts can be auto resolved
-                return;
-
-              // auto resolve failed, check if the conflicts are resolved by user
-              const res = this.getUnresolvedConflicts(
-                ConflictType.REDUCE_SHIFT,
-                reducerRule,
-                anotherRule,
-                overlap,
-                false // for a RS conflict, we don't need to handle end of input
-              );
-
-              if (res.next.length > 0) {
-                const conflict: Conflict<T> = {
-                  type: ConflictType.REDUCE_SHIFT,
-                  reducerRule: reducerRule,
-                  anotherRule: anotherRule,
-                  handleEnd: false,
-                  next: res.next.map((g) => TempGrammar.from(g)),
-                  length: c.length,
-                };
-                if (result.has(reducerRule))
-                  result.get(reducerRule)!.push(conflict);
-                else result.set(reducerRule, [conflict]);
-              }
-            } else {
-              // E is a T, check if A's follow has E
-              if (AFollow.has(E)) {
-                // check states
-                if (
-                  !states.some(
-                    (s) =>
-                      s.contains(reducerRule, reducerRule.rule.length) &&
-                      s.contains(anotherRule, c.length)
-                  )
-                )
-                  // no state contains both rules with the digestion condition, conflicts can be auto resolved
-                  return;
-
-                // auto resolve failed, check if the conflicts are resolved by user
-                const res = this.getUnresolvedConflicts(
-                  ConflictType.REDUCE_SHIFT,
-                  reducerRule,
-                  anotherRule,
-                  [new Grammar({ content: E.content, type: GrammarType.T })],
-                  false // for a RS conflict, we don't need to handle end of input
-                );
-                if (res.next.length > 0) {
-                  const conflict: Conflict<T> = {
-                    type: ConflictType.REDUCE_SHIFT,
-                    reducerRule: reducerRule,
-                    anotherRule: anotherRule,
-                    handleEnd: false,
-                    next: res.next.map((g) => TempGrammar.from(g)),
-                    length: c.length,
-                  };
-                  if (result.has(reducerRule))
-                    result.get(reducerRule)!.push(conflict);
-                  else result.set(reducerRule, [conflict]);
-                }
-              }
-            }
-          } else {
-            // E is a literal, check if A's follow has E
-            if (AFollow.has(E)) {
-              // check states
-              if (
-                !states.some(
-                  (s) =>
-                    s.contains(reducerRule, reducerRule.rule.length) &&
-                    s.contains(anotherRule, c.length)
-                )
-              )
-                // no state contains both rules with the digestion condition, conflicts can be auto resolved
-                return;
-
-              // auto resolve failed, check if the conflicts are resolved by user
-              const res = this.getUnresolvedConflicts(
-                ConflictType.REDUCE_SHIFT,
-                reducerRule,
-                anotherRule,
-                [
-                  new Grammar({
-                    content: E.content,
-                    type: GrammarType.LITERAL,
-                  }),
-                ],
-                false // for a RS conflict, we don't need to handle end of input
-              );
-              if (res.next.length > 0) {
-                const conflict: Conflict<T> = {
-                  type: ConflictType.REDUCE_SHIFT,
-                  reducerRule: reducerRule,
-                  anotherRule: anotherRule,
-                  handleEnd: false,
-                  next: res.next.map((g) => TempGrammar.from(g)),
-                  length: c.length,
-                };
-                if (result.has(reducerRule))
-                  result.get(reducerRule)!.push(conflict);
-                else result.set(reducerRule, [conflict]);
-              }
-            }
-          }
-        });
-      }
-    }
-
-    // if the tail of a grammar rule is the same as another grammar rule, it's a reduce-reduce conflict
-    // e.g. `A B C | B C` is a reduce-reduce conflict
-    for (let i = 0; i < this.tempGrammarRules.length; i++) {
-      for (let j = 0; j < this.tempGrammarRules.length; j++) {
-        if (i == j) continue; // skip the same rule
-        const reducerRule = this.tempGrammarRules[i];
-        const anotherRule = this.tempGrammarRules[j];
-        if (reducerRule.checkRRConflict(anotherRule)) {
-          // try to auto resolve conflicts if possible
-          // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
-          // if A's follow has some grammar that is also in C's follow, the conflict can't be resolved by LR1 peeking
-          const A = reducerRule.NT;
-          const C = anotherRule.NT;
-          const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
-          if (overlap.length < 0) continue; // no overlap, all conflicts can be auto resolved
-
-          // check states
-          if (
-            !states.some(
-              (s) =>
-                s.contains(reducerRule, reducerRule.rule.length) &&
-                s.contains(anotherRule, anotherRule.rule.length)
-            )
-          )
-            // no state contains both rules with the digestion condition, conflicts can be auto resolved
-            continue;
-
-          // auto resolve failed, check if the conflict is resolved by user
-          const res = this.getUnresolvedConflicts(
-            ConflictType.REDUCE_REDUCE,
-            reducerRule,
-            anotherRule,
-            overlap,
-            // for a RR conflict, we need to handle end of input if both's NT in end sets
-            endSet.has(
-              new Grammar({ type: GrammarType.NT, content: reducerRule.NT })
-            ) &&
-              endSet.has(
-                new Grammar({ type: GrammarType.NT, content: anotherRule.NT })
-              )
-          );
-          if (res.next.length > 0) {
-            const c: Conflict<T> = {
-              type: ConflictType.REDUCE_REDUCE,
-              reducerRule: reducerRule,
-              anotherRule: anotherRule,
-              handleEnd: false,
-              next: res.next.map((g) => TempGrammar.from(g)),
-            };
-            if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
-            else result.set(reducerRule, [c]);
-          }
-          if (res.end) {
-            const c: Conflict<T> = {
-              type: ConflictType.REDUCE_REDUCE,
-              reducerRule: reducerRule,
-              anotherRule: anotherRule,
-              handleEnd: true,
-              next: [],
-            };
-            if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
-            else result.set(reducerRule, [c]);
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  checkConflicts(lexer?: ILexer, printAll = false) {
-    const dfa = this.buildDFA();
+  checkConflicts(lexer?: ILexer, printAll = false, debug = false) {
+    const { conflicts, dfa } = getConflicts(
+      this.entryNTs,
+      this.NTs,
+      this.getGrammarRules(),
+      this.resolved,
+      lexer,
+      debug
+    );
     const followSets = dfa.getFollowSets();
-    const conflicts = this.getConflicts(lexer, dfa);
 
     conflicts.forEach((cs) => {
       cs.forEach((c) => {
@@ -527,8 +238,16 @@ export class ParserBuilder<T> {
   generateResolver(lexer?: ILexer, style?: "builder" | "context") {
     style ??= "builder";
 
+    const { conflicts } = getConflicts(
+      this.entryNTs,
+      this.NTs,
+      this.getGrammarRules(),
+      this.resolved,
+      lexer
+    );
+
     if (style == "builder") {
-      this.getConflicts(lexer).forEach((v, k) => {
+      conflicts.forEach((v, k) => {
         const txt = v
           .map(
             (c) =>
@@ -536,9 +255,7 @@ export class ParserBuilder<T> {
                 c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
               }(${c.reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
                 c.next.length > 0
-                  ? `next: \`${c.next
-                      .map((g) => Grammar.from(g).toString())
-                      .join(" ")}\`, `
+                  ? `next: \`${c.next.map((g) => g.toString()).join(" ")}\`, `
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
           )
@@ -546,7 +263,7 @@ export class ParserBuilder<T> {
         console.log(txt);
       });
     } else {
-      this.getConflicts(lexer).forEach((v, k) => {
+      conflicts.forEach((v, k) => {
         const txt =
           `=== ${k.toString()} ===\nLR` +
           v
@@ -556,9 +273,7 @@ export class ParserBuilder<T> {
                   c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
                 }(${c.anotherRule.toString()}, { ${
                   c.next.length > 0
-                    ? `next: \`${c.next
-                        .map((g) => Grammar.from(g).toString())
-                        .join(" ")}\`, `
+                    ? `next: \`${c.next.map((g) => g.toString()).join(" ")}\`, `
                     : ""
                 }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
             )

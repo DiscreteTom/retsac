@@ -106,10 +106,8 @@ export class Candidate<T> {
     ].join(sep);
   }
 
-  eq(other: { gr: TempGrammarRule<T>; digested: number } | Candidate<T>) {
-    return other instanceof Candidate<T>
-      ? this.gr == other.gr && this.digested === other.digested
-      : this.gr.eq(other.gr) && this.digested === other.digested;
+  eq(other: { gr: GrammarRule<T>; digested: number }) {
+    return this.gr == other.gr && this.digested === other.digested;
   }
 }
 
@@ -138,7 +136,7 @@ export class State<T> {
     return { accept: false };
   }
 
-  contains(gr: TempGrammarRule<T>, digested: number) {
+  contains(gr: GrammarRule<T>, digested: number) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
   }
 

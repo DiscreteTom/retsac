@@ -5,19 +5,19 @@ import {
   Definition,
   DefinitionContext,
   Accepter,
-  PartialConflict,
+  TempPartialConflict,
 } from "./model";
 import { defToTempGRs } from "./utils";
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Rejecter<T>;
-  private resolved: PartialConflict<T>[];
+  private resolved: TempPartialConflict<T>[];
 
   constructor(data: {
     callback?: Callback<T>;
     rejecter?: Rejecter<T>;
-    resolved?: PartialConflict<T>[];
+    resolved?: TempPartialConflict<T>[];
   }) {
     this._callback = data.callback ?? (() => {});
     this._rejecter = data.rejecter ?? (() => false);

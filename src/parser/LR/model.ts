@@ -82,6 +82,57 @@ export class GrammarRule<T> {
     Object.assign(this, p);
   }
 
+  /** Return whether this.rule starts with another rule. */
+  private ruleStartsWith(anotherRule: Grammar[]) {
+    if (this.rule.length < anotherRule.length) return false;
+    for (let i = 0; i < anotherRule.length; i++) {
+      if (!this.rule[i].eq(anotherRule[i])) return false;
+    }
+    return true;
+  }
+
+  /** Return whether this.rule ends with `anotherRule`. */
+  private ruleEndsWith(anotherRule: Grammar[]) {
+    if (this.rule.length < anotherRule.length) return false;
+    for (let i = 0; i < anotherRule.length; i++) {
+      if (!this.rule.at(-i - 1)!.eq(anotherRule.at(-i - 1)!)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Check if the tail of this's rule is the same as the head of another.
+   * Which means this rule want's to reduce, and another rule want's to shift.
+   */
+  checkRSConflict(another: GrammarRule<T>) {
+    const result = [] as {
+      reducerRule: GrammarRule<T>;
+      shifterRule: GrammarRule<T>;
+      /** How many grammars are overlapped in rule. */
+      length: number;
+    }[];
+    for (let i = 0; i < this.rule.length; ++i) {
+      if (
+        another.ruleStartsWith(this.rule.slice(i)) &&
+        // if the tail of this rule is the same as another's whole rule, it's a reduce-reduce conflict.
+        // e.g. `A B C | B C`
+        this.rule.length - i != another.rule.length
+      ) {
+        result.push({
+          reducerRule: this,
+          shifterRule: another,
+          length: this.rule.length - i,
+        });
+      }
+    }
+    return result;
+  }
+
+  /** Check if the tail of this's rule is the same as another's whole rule. */
+  checkRRConflict(another: GrammarRule<T>) {
+    return this.ruleEndsWith(another.rule);
+  }
+
   /** Return `NT <= grammar rules`. */
   toString(formatter?: (NT: string, grammars: string[]) => string) {
     formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
