@@ -310,13 +310,7 @@ export class ParserBuilder<T> {
                   reducerRule: reducerRule,
                   anotherRule: anotherRule,
                   handleEnd: false,
-                  next: res.next.map((g) => ({
-                    type:
-                      g.type == GrammarType.LITERAL
-                        ? TempGrammarType.LITERAL
-                        : TempGrammarType.GRAMMAR,
-                    content: g.content,
-                  })),
+                  next: res.next.map((g) => TempGrammar.from(g)),
                   length: c.length,
                 };
                 if (result.has(reducerRule))
@@ -351,13 +345,7 @@ export class ParserBuilder<T> {
                     reducerRule: reducerRule,
                     anotherRule: anotherRule,
                     handleEnd: false,
-                    next: res.next.map((g) => ({
-                      type:
-                        g.type == GrammarType.LITERAL
-                          ? TempGrammarType.LITERAL
-                          : TempGrammarType.GRAMMAR,
-                      content: g.content,
-                    })),
+                    next: res.next.map((g) => TempGrammar.from(g)),
                     length: c.length,
                   };
                   if (result.has(reducerRule))
@@ -399,13 +387,7 @@ export class ParserBuilder<T> {
                   reducerRule: reducerRule,
                   anotherRule: anotherRule,
                   handleEnd: false,
-                  next: res.next.map((g) => ({
-                    type:
-                      g.type == GrammarType.LITERAL
-                        ? TempGrammarType.LITERAL
-                        : TempGrammarType.GRAMMAR,
-                    content: g.content,
-                  })),
+                  next: res.next.map((g) => TempGrammar.from(g)),
                   length: c.length,
                 };
                 if (result.has(reducerRule))
@@ -465,13 +447,7 @@ export class ParserBuilder<T> {
               reducerRule: reducerRule,
               anotherRule: anotherRule,
               handleEnd: false,
-              next: res.next.map((g) => ({
-                type:
-                  g.type == GrammarType.LITERAL
-                    ? TempGrammarType.LITERAL
-                    : TempGrammarType.GRAMMAR,
-                content: g.content,
-              })),
+              next: res.next.map((g) => TempGrammar.from(g)),
             };
             if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
             else result.set(reducerRule, [c]);
