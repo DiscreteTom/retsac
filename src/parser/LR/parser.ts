@@ -21,10 +21,13 @@ export class Parser<T> implements IParser<T> {
       accept: false,
     };
 
+    let lastBuffer = buffer;
+
     while (true) {
-      const res = this.parse(buffer, stopOnError);
+      const res = this.parse(lastBuffer, stopOnError);
       if (res.accept) {
         lastRes = res;
+        lastBuffer = res.buffer;
       } else {
         return lastRes;
       }
