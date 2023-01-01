@@ -31,6 +31,7 @@
 - Optimize code / performance.
 - Use strict.
 - More test code.
+  - Enable code coverage report.
 
 ## v0.3.0
 
