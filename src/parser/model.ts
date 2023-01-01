@@ -17,5 +17,5 @@ export type ParseExec<T> = (
 
 export interface IParser<T> {
   parse: ParseExec<T>;
-  reset: () => void;
+  reset: () => IParser<T>;
 }

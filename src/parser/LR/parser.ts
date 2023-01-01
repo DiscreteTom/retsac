@@ -18,5 +18,6 @@ export class Parser<T> implements IParser<T> {
   /** Actually this does nothing since each `DFA.parse` will reset itself. */
   reset() {
     // this.dfa.reset();
+    return this;
   }
 }
