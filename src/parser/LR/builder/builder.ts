@@ -4,7 +4,7 @@ import { ParserError, ParserErrorType } from "../error";
 import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
-import { TempGrammarRule, TempGrammar, TempGrammarType } from "./grammar";
+import { TempGrammarRule, TempGrammar, TempGrammarType } from "./temp-grammar";
 import {
   Definition,
   ConflictType,

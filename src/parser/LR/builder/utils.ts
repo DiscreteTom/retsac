@@ -2,7 +2,7 @@ import { Lexer } from "../../..";
 import { exact, stringLiteral } from "../../../lexer";
 import { Token } from "../../../lexer/model";
 import { ParserError, ParserErrorType } from "../error";
-import { TempGrammarRule, TempGrammarType } from "./grammar";
+import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import { Definition, DefinitionContext } from "./model";
 
 const grammarLexer = new Lexer.Builder()

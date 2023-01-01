@@ -3,7 +3,7 @@ import {
   TempGrammar,
   TempGrammarRule,
   TempGrammarType,
-} from "./builder/grammar";
+} from "./builder/temp-grammar";
 import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {

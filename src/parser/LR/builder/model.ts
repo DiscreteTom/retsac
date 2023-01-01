@@ -1,5 +1,5 @@
 import { Callback, Rejecter } from "../model";
-import { TempGrammar, TempGrammarRule } from "./grammar";
+import { TempGrammar, TempGrammarRule } from "./temp-grammar";
 
 export interface Definition {
   [NT: string]: string | string[];

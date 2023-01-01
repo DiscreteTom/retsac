@@ -1,5 +1,5 @@
 import { Callback, ReducerContext, Rejecter } from "../model";
-import { TempGrammarType } from "./grammar";
+import { TempGrammarType } from "./temp-grammar";
 import {
   ConflictType,
   Definition,

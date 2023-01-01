@@ -1,7 +1,7 @@
 import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
 import { ParserOutput } from "../model";
-import { TempGrammarRule } from "./builder/grammar";
+import { TempGrammarRule } from "./builder/temp-grammar";
 import { GrammarSet, GrammarType, ReducerContext } from "./model";
 import { GrammarRule } from "./model";
 
