@@ -3,7 +3,6 @@ import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { TempConflict, ConflictType, Conflict } from "./model";
-import { TempGrammarRule, TempGrammarType, TempGrammar } from "./temp-grammar";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
