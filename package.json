@@ -11,7 +11,8 @@
     "build:example": "tsc --build example.tsconfig.json",
     "clean": "tsc --build --clean",
     "clean:example": "tsc --build example.tsconfig.json --clean",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {},
   "devDependencies": {
