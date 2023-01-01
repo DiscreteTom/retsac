@@ -1,9 +1,9 @@
-import { Lexer } from "../../..";
-import { exact, stringLiteral } from "../../../lexer";
-import { Token } from "../../../lexer/model";
-import { ParserError, ParserErrorType } from "../error";
-import { TempGrammar, TempGrammarRule, TempGrammarType } from "./temp-grammar";
-import { Definition, DefinitionContext } from "./model";
+import { Lexer } from "../../../..";
+import { exact, stringLiteral } from "../../../../lexer";
+import { Token } from "../../../../lexer/model";
+import { ParserError, ParserErrorType } from "../../error";
+import { Definition, DefinitionContext } from "../model";
+import { TempGrammar, TempGrammarRule, TempGrammarType } from "../temp-grammar";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(

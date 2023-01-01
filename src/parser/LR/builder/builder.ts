@@ -12,8 +12,8 @@ import {
   Accepter,
   DefinitionContext,
 } from "./model";
-import { defToTempGRs } from "./utils";
-import { getConflicts } from "./check-conflicts";
+import { defToTempGRs } from "./utils/definition";
+import { getConflicts } from "./utils/conflict";
 
 /**
  * Builder for LR(1) parsers.

@@ -6,7 +6,7 @@ import {
   Accepter,
   TempPartialConflict,
 } from "./model";
-import { defToTempGRs } from "./utils";
+import { defToTempGRs } from "./utils/definition";
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;

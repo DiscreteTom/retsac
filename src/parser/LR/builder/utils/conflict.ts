@@ -1,8 +1,8 @@
-import { ILexer } from "../../../lexer/model";
-import { DFA } from "../DFA";
-import { ParserError, ParserErrorType } from "../error";
-import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
-import { TempConflict, ConflictType, Conflict } from "./model";
+import { ILexer } from "../../../../lexer/model";
+import { DFA } from "../../DFA";
+import { ParserError, ParserErrorType } from "../../error";
+import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
+import { TempConflict, ConflictType, Conflict } from "../model";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
