@@ -32,6 +32,10 @@ export class TempGrammar {
       content: g.content,
     });
   }
+
+  eq(g: TempGrammar) {
+    return this.type == g.type && this.content == g.content;
+  }
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
@@ -53,10 +57,7 @@ export class TempGrammarRule<T> {
     return (
       this.NT == rule.NT &&
       this.rule.length == rule.rule.length &&
-      this.rule.every(
-        (g, i) =>
-          g.content == rule.rule[i].content && g.type == rule.rule[i].type
-      )
+      this.rule.every((g, i) => g.eq(rule.rule[i]))
     );
   }
 
@@ -64,11 +65,7 @@ export class TempGrammarRule<T> {
   private ruleStartsWith(anotherRule: TempGrammar[]) {
     if (this.rule.length < anotherRule.length) return false;
     for (let i = 0; i < anotherRule.length; i++) {
-      if (
-        this.rule[i].content != anotherRule[i].content ||
-        this.rule[i].type != anotherRule[i].type
-      )
-        return false;
+      if (this.rule[i].eq(anotherRule[i])) return false;
     }
     return true;
   }
@@ -77,11 +74,7 @@ export class TempGrammarRule<T> {
   private ruleEndsWith(anotherRule: TempGrammar[]) {
     if (this.rule.length < anotherRule.length) return false;
     for (let i = 0; i < anotherRule.length; i++) {
-      if (
-        this.rule.at(-i - 1)!.content != anotherRule.at(-i - 1)!.content ||
-        this.rule.at(-i - 1)!.type != anotherRule.at(-i - 1)!.type
-      )
-        return false;
+      if (this.rule.at(-i - 1)!.eq(anotherRule.at(-i - 1)!)) return false;
     }
     return true;
   }
