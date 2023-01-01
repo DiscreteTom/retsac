@@ -82,15 +82,7 @@ export class DefinitionContextBuilder<T> {
         }
         // else, not the end of input
         // check if any next grammar match the after[0]
-        if (
-          nextGrammars.some(
-            (g) =>
-              (g.type == TempGrammarType.LITERAL &&
-                g.content == ctx.after[0].text) ||
-              (g.type == TempGrammarType.GRAMMAR &&
-                g.content == ctx.after[0].type)
-          )
-        )
+        if (nextGrammars.some((g) => g.eq(ctx.after[0])))
           return !(reduce instanceof Function ? reduce(ctx) : reduce);
         return false;
       },

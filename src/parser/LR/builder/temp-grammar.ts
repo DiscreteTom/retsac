@@ -1,3 +1,4 @@
+import { ASTNode } from "../../ast";
 import {
   Grammar,
   Callback,
@@ -33,8 +34,15 @@ export class TempGrammar {
     });
   }
 
-  eq(g: TempGrammar) {
-    return this.type == g.type && this.content == g.content;
+  eq<_>(g: TempGrammar | ASTNode<_>) {
+    if (g instanceof TempGrammar)
+      return this.type == g.type && this.content == g.content;
+    else if (g instanceof ASTNode)
+      return this.type == TempGrammarType.LITERAL
+        ? // check literal content
+          this.content == g.text
+        : // check type name
+          this.content == g.type;
   }
 
   toGrammar(isT = true) {
