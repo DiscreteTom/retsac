@@ -1,10 +1,10 @@
 import { ILexer } from "../../../lexer/model";
 import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
-import { Grammar, GrammarRule, GrammarSet, GrammarType } from "../model";
+import { GrammarRule } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
-import { TempGrammarRule, TempGrammar, TempGrammarType } from "./temp-grammar";
+import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import {
   Definition,
   ConflictType,
@@ -219,7 +219,11 @@ export class ParserBuilder<T> {
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
     this.resolved.forEach((g) => {
       g.next.forEach((n) => {
-        if (!followSets.get(g.reducerRule.NT)!.has(n)) {
+        if (
+          !followSets
+            .get(g.reducerRule.NT)!
+            .has(n.toGrammar(this.NTs.has(n.content)))
+        ) {
           const errMsg = `Next grammar ${n.toString()} not in follow set of ${g.reducerRule.NT.toString()}`;
           if (printAll) console.log(errMsg);
           else throw new ParserError(ParserErrorType.NO_SUCH_NEXT, errMsg);

@@ -1,9 +1,4 @@
 import { ASTNode } from "../ast";
-import {
-  TempGrammar,
-  TempGrammarRule,
-  TempGrammarType,
-} from "./builder/temp-grammar";
 import { ParserError, ParserErrorType } from "./error";
 
 export enum GrammarType {
@@ -24,16 +19,8 @@ export class Grammar {
     Object.assign(this, p);
   }
 
-  static from(g: TempGrammar) {
-    return new Grammar({
-      type:
-        g.type == TempGrammarType.LITERAL ? GrammarType.LITERAL : GrammarType.T,
-      content: g.content,
-    });
-  }
-
   /** Equals to. */
-  eq<_>(g: Grammar | ASTNode<_> | TempGrammar) {
+  eq<_>(g: Grammar | ASTNode<_>) {
     if (g instanceof Grammar)
       return this.type == g.type && this.content == g.content;
     else if (g instanceof ASTNode)
@@ -42,11 +29,6 @@ export class Grammar {
           this.content == g.text
         : // check type name
           this.content == g.type;
-    else
-      return (
-        (this.type == GrammarType.LITERAL) ==
-          (g.type == TempGrammarType.LITERAL) && this.content == g.content
-      );
   }
 
   /** Return `type name` or `"literal"` */
@@ -142,14 +124,6 @@ export class GrammarRule<T> {
       this.rule.map((g) => g.toString())
     );
   }
-
-  eq(g: TempGrammarRule<T>) {
-    return (
-      this.NT == g.NT &&
-      this.rule.length == g.rule.length &&
-      this.rule.every((gg, i) => gg.eq(g.rule[i]))
-    );
-  }
 }
 
 export interface ReducerContext<T> {
@@ -176,7 +150,7 @@ export class GrammarSet {
     this.gs = [];
   }
 
-  has<_>(g: Grammar | ASTNode<_> | TempGrammar) {
+  has<_>(g: Grammar | ASTNode<_>) {
     return !this.gs.every((gg) => !gg.eq(g));
   }
 
