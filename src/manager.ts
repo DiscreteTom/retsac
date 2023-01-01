@@ -10,7 +10,6 @@ export class Manager<T> {
   private lexer: ILexer;
   private parser: IParser<T>;
   private buffer: ASTNode<T>[];
-  /** Error nodes. */
   private errors: ASTNode<T>[];
 
   constructor(p: { lexer: ILexer; parser: IParser<T> }) {
@@ -52,22 +51,21 @@ export class Manager<T> {
       this.buffer = res.buffer;
     }
 
-    return { buffer: this.buffer, accept: res.accept };
+    return res;
   }
 
   /** Try to reduce till the parser can't accept more. */
   parseAll(s?: string) {
     if (s) this.feed(s);
 
-    /** `true` if accept one or more times. */
-    let accept = false;
-    while (true) {
-      const res = this.parse();
-      if (res.accept) accept = true;
-      else break;
+    const res = this.parser.parseAll(this.buffer);
+    if (res.accept) {
+      // update state
+      this.errors.push(...res.errors);
+      this.buffer = res.buffer;
     }
 
-    return { buffer: this.buffer, accept };
+    return res;
   }
 
   /** Take the first AST Node out of buffer. */
