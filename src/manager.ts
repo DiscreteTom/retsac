@@ -45,7 +45,7 @@ export class Manager<T> {
   parse(s?: string) {
     if (s) this.feed(s);
 
-    let res = this.parser.parse(this.buffer);
+    const res = this.parser.parse(this.buffer);
     if (res.accept) {
       // update state
       this.errors.push(...res.errors);
@@ -62,7 +62,7 @@ export class Manager<T> {
     /** `true` if accept one or more times. */
     let accept = false;
     while (true) {
-      let res = this.parse();
+      const res = this.parse();
       if (res.accept) accept = true;
       else break;
     }
