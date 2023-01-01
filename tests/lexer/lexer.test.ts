@@ -61,12 +61,10 @@ test("lexAll", () => {
 });
 
 test("lexAll with error", () => {
-  expect(
-    lexer
-      .reset()
-      .lexAll("error 123", true)
-      .map((token) => token.content)
-  ).toEqual(["error"]);
+  const tokens = lexer.reset().lexAll("error 123", true);
+
+  expect(tokens.map((token) => token.content)).toEqual(["error"]);
+  expect(lexer.getErrors()[0].error).toBe("some error");
 });
 
 test("reset lexer", () => {

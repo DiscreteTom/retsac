@@ -33,3 +33,18 @@ test("builder getTokenTypes", () => {
     ["", "number", "someErr"].sort()
   );
 });
+
+test("builder define using array", () => {
+  const lexer = new Lexer.Builder()
+    .define({
+      string: [
+        Lexer.stringLiteral({ double: true, single: true }),
+        Lexer.stringLiteral({ back: true, multiline: true }),
+      ],
+    })
+    .build();
+
+  expect(lexer.reset().lex(`'abc'`)?.type).toBe("string");
+  expect(lexer.reset().lex(`"abc"`)?.type).toBe("string");
+  expect(lexer.reset().lex("`abc`")?.type).toBe("string");
+});

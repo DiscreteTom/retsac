@@ -67,6 +67,7 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex(`""`)?.content).toBe(`""`);
   expect(lexer.reset().lex(`"123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`"123\\""`)?.content).toBe(`"123\\""`);
+  expect(lexer.reset().lex(`"123\n\\""`)).toBe(null);
   expect(lexer.reset().lex(`''`)?.content).toBe(`''`);
   expect(lexer.reset().lex(`'123'`)?.content).toBe(`'123'`);
   expect(lexer.reset().lex(`'123\\''`)?.content).toBe(`'123\\''`);
@@ -77,4 +78,19 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("&&")?.content).toBe("&&");
   expect(lexer.reset().lex("&123&")?.content).toBe("&123&");
   expect(lexer.reset().lex("&123\\&&")?.content).toBe("&123\\&&");
+
+  // EOF
+  expect(lexer.reset().lex(`"`)).toBe(null);
+  expect(lexer.reset().lex(`"123`)).toBe(null);
+  expect(lexer.reset().lex(`"123\\"`)).toBe(null);
+  expect(lexer.reset().lex(`'`)).toBe(null);
+  expect(lexer.reset().lex(`'123`)).toBe(null);
+  expect(lexer.reset().lex(`'123\\'`)).toBe(null);
+  expect(lexer.reset().lex("`123\n123")).toBe(null);
+  expect(lexer.reset().lex("a")).toBe(null);
+  expect(lexer.reset().lex("a123")).toBe(null);
+  expect(lexer.reset().lex("a123\\b")).toBe(null);
+  expect(lexer.reset().lex("&")).toBe(null);
+  expect(lexer.reset().lex("&123")).toBe(null);
+  expect(lexer.reset().lex("&123\\&")).toBe(null);
 });
