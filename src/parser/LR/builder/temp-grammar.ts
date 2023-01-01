@@ -19,7 +19,7 @@ export class TempGrammar {
   /** Literal content, or T/NT's type name. */
   content: string;
 
-  constructor(p: Pick<Grammar, "type" | "content">) {
+  constructor(p: Pick<TempGrammar, "type" | "content">) {
     Object.assign(this, p);
   }
 
