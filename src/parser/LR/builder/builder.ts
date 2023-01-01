@@ -135,18 +135,7 @@ export class ParserBuilder<T> {
           NT: gr.NT,
           callback: gr.callback,
           rejecter: gr.rejecter,
-          rule: gr.rule.map(
-            (g) =>
-              new Grammar({
-                content: g.content,
-                type:
-                  g.type == TempGrammarType.LITERAL
-                    ? GrammarType.LITERAL
-                    : this.NTs.has(g.content)
-                    ? GrammarType.NT
-                    : GrammarType.T,
-              })
-          ),
+          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
         })
     );
   }
