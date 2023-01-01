@@ -23,6 +23,15 @@ export class TempGrammar {
     Object.assign(this, p);
   }
 
+  static from(g: Grammar) {
+    return new TempGrammar({
+      type:
+        g.type == GrammarType.LITERAL
+          ? TempGrammarType.LITERAL
+          : TempGrammarType.GRAMMAR,
+      content: g.content,
+    });
+  }
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
