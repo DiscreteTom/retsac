@@ -106,6 +106,8 @@ export function getConflicts<T>(
   entryNTs: Set<string>,
   NTs: Set<string>,
   grs: GrammarRule<T>[],
+  // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
+  // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
   resolved: TempConflict<T>[],
   lexer?: ILexer,
   debug = false
