@@ -29,6 +29,7 @@
   - Manager will use `ILexer` instead of `Lexer` in constructor.
 - Optimize document / comments.
 - Optimize code / performance.
+- Use strict.
 - More test code.
 
 ## v0.3.0
