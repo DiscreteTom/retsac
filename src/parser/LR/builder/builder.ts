@@ -83,6 +83,86 @@ export class ParserBuilder<T> {
     return this;
   }
 
+  /**
+   * Turn temp grammar rules to grammar rules according to the known NTs.
+   * This should be called only if no more definitions will be defined.
+   */
+  private getGrammarRules() {
+    return this.tempGrammarRules.map(
+      (gr) =>
+        new GrammarRule<T>({
+          NT: gr.NT,
+          callback: gr.callback,
+          rejecter: gr.rejecter,
+          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
+        })
+    );
+  }
+
+  private buildDFA() {
+    if (this.entryNTs.size == 0)
+      throw new ParserError(
+        ParserErrorType.NO_ENTRY_NT,
+        `Please set entry NTs for LR Parser.`
+      );
+
+    return new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
+  }
+
+  /** Generate the LR(1) parser. */
+  build(debug = false) {
+    const dfa = this.buildDFA();
+    dfa.debug = debug;
+
+    return new Parser<T>(dfa);
+  }
+
+  /**
+   * Ensure all T/NTs have their definitions, and no duplication.
+   * If ok, return this.
+   */
+  checkSymbols(Ts: Set<string>) {
+    /** T/NT names. */
+    const grammarSet: Set<string> = new Set();
+
+    // collect T/NT names in temp grammar rules
+    this.tempGrammarRules.map((g) => {
+      g.rule.map((grammar) => {
+        if (grammar.type == TempGrammarType.GRAMMAR)
+          grammarSet.add(grammar.content);
+      });
+    });
+
+    // all symbols should have its definition
+    grammarSet.forEach((g) => {
+      if (!Ts.has(g) && !this.NTs.has(g))
+        throw new ParserError(
+          ParserErrorType.UNDEFINED_GRAMMAR_SYMBOL,
+          `Undefined grammar symbol: ${g}`
+        );
+    });
+
+    // check duplication
+    this.NTs.forEach((name) => {
+      if (Ts.has(name))
+        throw new ParserError(
+          ParserErrorType.DUPLICATED_DEFINITION,
+          `Duplicated definition for grammar symbol: ${name}`
+        );
+    });
+
+    // entry NTs must in NTs
+    this.entryNTs.forEach((NT) => {
+      if (!this.NTs.has(NT))
+        throw new ParserError(
+          ParserErrorType.UNDEFINED_ENTRY_NT,
+          `Undefined entry NT: "${NT}"`
+        );
+    });
+
+    return this;
+  }
+
   /** Return conflicts that user didn't resolve. */
   private getUnresolvedConflicts<_, __>(
     type: ConflictType,
@@ -125,22 +205,6 @@ export class ParserBuilder<T> {
   }
 
   /**
-   * Turn temp grammar rules to grammar rules according to the known NTs.
-   * This should be called only if no more definitions will be defined.
-   */
-  private getGrammarRules() {
-    return this.tempGrammarRules.map(
-      (gr) =>
-        new GrammarRule<T>({
-          NT: gr.NT,
-          callback: gr.callback,
-          rejecter: gr.rejecter,
-          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
-        })
-    );
-  }
-
-  /**
    * Return a grammar set contains NTs which might be the last input grammar.
    * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
    * This should be called only if no more definitions will be defined.
@@ -177,70 +241,6 @@ export class ParserBuilder<T> {
     }
 
     return result;
-  }
-
-  private buildDFA() {
-    if (this.entryNTs.size == 0)
-      throw new ParserError(
-        ParserErrorType.NO_ENTRY_NT,
-        `Please set entry NTs for LR Parser.`
-      );
-
-    return new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
-  }
-
-  /** Generate the LR(1) parser. */
-  build(debug = false) {
-    const dfa = this.buildDFA();
-    dfa.debug = debug;
-
-    return new Parser<T>(dfa);
-  }
-
-  /**
-   * Ensure all T/NTs have their definitions, and no duplication.
-   * If ok, return this.
-   */
-  checkSymbols(Ts: Set<string>) {
-    /** T/NT names. */
-    const grammarSet: Set<string> = new Set();
-
-    // collect T/NT names in grammar rules
-    this.tempGrammarRules.map((g) => {
-      g.rule.map((grammar) => {
-        if (grammar.type == TempGrammarType.GRAMMAR)
-          grammarSet.add(grammar.content);
-      });
-    });
-
-    // all symbols should have its definition
-    grammarSet.forEach((g) => {
-      if (!Ts.has(g) && !this.NTs.has(g))
-        throw new ParserError(
-          ParserErrorType.UNDEFINED_GRAMMAR_SYMBOL,
-          `Undefined grammar symbol: ${g}`
-        );
-    });
-
-    // check duplication
-    this.NTs.forEach((name) => {
-      if (Ts.has(name))
-        throw new ParserError(
-          ParserErrorType.DUPLICATED_DEFINITION,
-          `Duplicated definition for grammar symbol: ${name}`
-        );
-    });
-
-    // entry NTs must in NTs
-    this.entryNTs.forEach((NT) => {
-      if (!this.NTs.has(NT))
-        throw new ParserError(
-          ParserErrorType.UNDEFINED_ENTRY_NT,
-          `Undefined entry NT: "${NT}"`
-        );
-    });
-
-    return this;
   }
 
   private getConflicts(lexer?: ILexer, dfa?: DFA<T>) {
