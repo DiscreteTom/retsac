@@ -50,7 +50,8 @@ function getUnresolvedConflicts<T>(
   reducerRule: GrammarRule<T>,
   anotherRule: GrammarRule<T>,
   next: Grammar[],
-  checkHandleEnd: boolean
+  checkHandleEnd: boolean,
+  debug: boolean
 ) {
   const related = resolved.filter(
     (r) =>
@@ -67,6 +68,21 @@ function getUnresolvedConflicts<T>(
   const unresolvedNext = next.filter(
     (n) => !resolvedNext.some((rn) => n.eq(rn))
   );
+
+  if (debug) {
+    if (resolvedNext.length > 0)
+      console.log(
+        `user resolved ${
+          type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+        }: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${resolvedNext}`
+      );
+    if (unresolvedNext.length > 0)
+      console.log(
+        `unresolved ${
+          type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+        }: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${unresolvedNext}`
+      );
+  }
 
   // check end
   const endHandlers = related.filter((r) => r.handleEnd);
@@ -125,7 +141,7 @@ export function getConflicts<T>(
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
-                `auto resolve RS: ${c.reducerRule.toString()} ${c.shifterRule.toString()}`
+                `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -140,7 +156,7 @@ export function getConflicts<T>(
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               console.log(
-                `auto resolve RS: ${c.reducerRule.toString()} ${c.shifterRule.toString()}`
+                `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -153,7 +169,8 @@ export function getConflicts<T>(
             reducerRule,
             anotherRule,
             overlap,
-            false // for a RS conflict, we don't need to handle end of input
+            false, // for a RS conflict, we don't need to handle end of input
+            debug
           );
 
           if (res.next.length > 0) {
@@ -183,7 +200,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `auto resolve RS: ${c.reducerRule.toString()} ${c.shifterRule.toString()}`
+                  `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -196,7 +213,8 @@ export function getConflicts<T>(
               reducerRule,
               anotherRule,
               [new Grammar({ content: E.content, type: GrammarType.T })],
-              false // for a RS conflict, we don't need to handle end of input
+              false, // for a RS conflict, we don't need to handle end of input
+              debug
             );
             if (res.next.length > 0) {
               const conflict: Conflict<T> = {
@@ -226,7 +244,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `auto resolve RS: ${c.reducerRule.toString()} ${c.shifterRule.toString()}`
+                  `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -244,7 +262,8 @@ export function getConflicts<T>(
                   type: GrammarType.LITERAL,
                 }),
               ],
-              false // for a RS conflict, we don't need to handle end of input
+              false, // for a RS conflict, we don't need to handle end of input
+              debug
             );
             if (res.next.length > 0) {
               const conflict: Conflict<T> = {
@@ -313,7 +332,8 @@ export function getConflicts<T>(
           ) &&
             endSet.has(
               new Grammar({ type: GrammarType.NT, content: anotherRule.NT })
-            )
+            ),
+          debug
         );
         if (res.next.length > 0) {
           const c: Conflict<T> = {

@@ -235,7 +235,11 @@ export class ParserBuilder<T> {
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  generateResolver(lexer?: ILexer, style?: "builder" | "context") {
+  generateResolver(
+    lexer?: ILexer,
+    style?: "builder" | "context",
+    debug = false
+  ) {
     style ??= "builder";
 
     const { conflicts } = getConflicts(
@@ -243,7 +247,8 @@ export class ParserBuilder<T> {
       this.NTs,
       this.getGrammarRules(),
       this.resolved,
-      lexer
+      lexer,
+      debug
     );
 
     if (style == "builder") {
