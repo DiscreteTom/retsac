@@ -2,7 +2,7 @@ import { Lexer } from "../../..";
 import { exact, stringLiteral } from "../../../lexer";
 import { Token } from "../../../lexer/model";
 import { ParserError, ParserErrorType } from "../error";
-import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
+import { TempGrammar, TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import { Definition, DefinitionContext } from "./model";
 
 const grammarLexer = new Lexer.Builder()
@@ -70,15 +70,15 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
           NT,
           rule: tokens.map((t) => {
             if (t.type == "grammar")
-              return {
+              return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
                 content: t.content,
-              };
+              });
             else
-              return {
+              return new TempGrammar({
                 type: TempGrammarType.LITERAL,
                 content: t.content.slice(1, -1), // remove quotes
-              };
+              });
           }),
           callback: ctx?.callback,
           rejecter: ctx?.rejecter,
