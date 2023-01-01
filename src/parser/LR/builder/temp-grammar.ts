@@ -45,14 +45,14 @@ export class TempGrammar {
           this.content == g.type;
   }
 
-  toGrammar(isT = true) {
+  toGrammar(isNT = true) {
     return new Grammar({
       type:
         this.type == TempGrammarType.LITERAL
           ? GrammarType.LITERAL
-          : isT
-          ? GrammarType.T
-          : GrammarType.NT,
+          : isNT
+          ? GrammarType.NT
+          : GrammarType.T,
       content: this.content,
     });
   }
