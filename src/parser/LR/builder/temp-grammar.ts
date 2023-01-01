@@ -14,10 +14,15 @@ export enum TempGrammarType {
 }
 
 /** Grammar, but can't distinguish N or NT. */
-export interface TempGrammar {
+export class TempGrammar {
   type: TempGrammarType;
   /** Literal content, or T/NT's type name. */
   content: string;
+
+  constructor(p: Pick<Grammar, "type" | "content">) {
+    Object.assign(this, p);
+  }
+
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
