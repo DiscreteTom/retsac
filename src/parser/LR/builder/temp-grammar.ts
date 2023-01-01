@@ -36,6 +36,18 @@ export class TempGrammar {
   eq(g: TempGrammar) {
     return this.type == g.type && this.content == g.content;
   }
+
+  toGrammar(isT = true) {
+    return new Grammar({
+      type:
+        this.type == TempGrammarType.LITERAL
+          ? GrammarType.LITERAL
+          : isT
+          ? GrammarType.T
+          : GrammarType.NT,
+      content: this.content,
+    });
+  }
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
@@ -115,16 +127,7 @@ export class TempGrammarRule<T> {
   toString(formatter?: (NT: string, grammars: string[]) => string) {
     return new GrammarRule<void>({
       NT: this.NT,
-      rule: this.rule.map(
-        (g) =>
-          new Grammar({
-            type:
-              g.type == TempGrammarType.LITERAL
-                ? GrammarType.LITERAL
-                : GrammarType.NT,
-            content: g.content,
-          })
-      ),
+      rule: this.rule.map((g) => g.toGrammar()),
     }).toString(formatter);
   }
 }
