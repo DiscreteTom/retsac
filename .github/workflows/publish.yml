@@ -25,6 +25,9 @@ jobs:
           yarn build:doc
           diff README.md README.md.bk
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
       - run: yarn build
       - uses: JS-DevTools/npm-publish@v1
         with:
