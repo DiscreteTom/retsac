@@ -193,7 +193,9 @@ export class DefinitionContextBuilder<T> {
   }
 
   /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
-  static reducer<T>(f: (data: T[], context: ReducerContext<T>) => T) {
+  static reducer<T>(
+    f: (data: (T | undefined)[], context: ReducerContext<T>) => T | undefined
+  ) {
     return DefinitionContextBuilder.callback<T>(
       (context) =>
         (context.data = f(
@@ -203,7 +205,9 @@ export class DefinitionContextBuilder<T> {
     );
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  reducer(f: (data: T[], context: ReducerContext<T>) => T) {
+  reducer(
+    f: (data: (T | undefined)[], context: ReducerContext<T>) => T | undefined
+  ) {
     const anotherCtx = DefinitionContextBuilder.reducer(f);
     return this.callback(anotherCtx._callback);
   }

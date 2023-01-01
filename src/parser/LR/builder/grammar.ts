@@ -64,8 +64,8 @@ export class TempGrammarRule<T> {
     if (this.rule.length < anotherRule.length) return false;
     for (let i = 0; i < anotherRule.length; i++) {
       if (
-        this.rule.at(-i - 1).content != anotherRule.at(-i - 1).content ||
-        this.rule.at(-i - 1).type != anotherRule.at(-i - 1).type
+        this.rule.at(-i - 1)!.content != anotherRule.at(-i - 1)!.content ||
+        this.rule.at(-i - 1)!.type != anotherRule.at(-i - 1)!.type
       )
         return false;
     }

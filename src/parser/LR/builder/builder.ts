@@ -169,12 +169,12 @@ export class ParserBuilder<T> {
         if (result.has(new Grammar({ content: gr.NT, type: GrammarType.NT }))) {
           // current NT is in result, so we need to check its last grammar
           if (
-            gr.rule.at(-1).type != TempGrammarType.LITERAL &&
-            this.NTs.has(gr.rule.at(-1).content)
+            gr.rule.at(-1)!.type != TempGrammarType.LITERAL &&
+            this.NTs.has(gr.rule.at(-1)!.content)
           ) {
             // last grammar is a NT, so we need to check it in result
             const last = new Grammar({
-              content: gr.rule.at(-1).content,
+              content: gr.rule.at(-1)!.content,
               type: GrammarType.NT,
             });
             if (!result.has(last)) {
@@ -276,8 +276,8 @@ export class ParserBuilder<T> {
           // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
           const A = c.reducerRule.NT;
           const E = c.shifterRule.rule[c.length];
-          const EFirst = firstSets.get(E.content);
-          const AFollow = followSets.get(A);
+          const EFirst = firstSets.get(E.content)!;
+          const AFollow = followSets.get(A)!;
           if (E.type == TempGrammarType.GRAMMAR) {
             if (this.NTs.has(E.content)) {
               // E is a NT, check if A's follow has some grammar that is also in E's first
@@ -320,7 +320,7 @@ export class ParserBuilder<T> {
                   length: c.length,
                 };
                 if (result.has(reducerRule))
-                  result.get(reducerRule).push(conflict);
+                  result.get(reducerRule)!.push(conflict);
                 else result.set(reducerRule, [conflict]);
               }
             } else {
@@ -361,7 +361,7 @@ export class ParserBuilder<T> {
                     length: c.length,
                   };
                   if (result.has(reducerRule))
-                    result.get(reducerRule).push(conflict);
+                    result.get(reducerRule)!.push(conflict);
                   else result.set(reducerRule, [conflict]);
                 }
               }
@@ -409,7 +409,7 @@ export class ParserBuilder<T> {
                   length: c.length,
                 };
                 if (result.has(reducerRule))
-                  result.get(reducerRule).push(conflict);
+                  result.get(reducerRule)!.push(conflict);
                 else result.set(reducerRule, [conflict]);
               }
             }
@@ -431,7 +431,7 @@ export class ParserBuilder<T> {
           // if A's follow has some grammar that is also in C's follow, the conflict can't be resolved by LR1 peeking
           const A = reducerRule.NT;
           const C = anotherRule.NT;
-          const overlap = followSets.get(A).overlap(followSets.get(C));
+          const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
           if (overlap.length < 0) continue; // no overlap, all conflicts can be auto resolved
 
           // check states
@@ -473,7 +473,7 @@ export class ParserBuilder<T> {
                 content: g.content,
               })),
             };
-            if (result.has(reducerRule)) result.get(reducerRule).push(c);
+            if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
             else result.set(reducerRule, [c]);
           }
           if (res.end) {
@@ -484,7 +484,7 @@ export class ParserBuilder<T> {
               handleEnd: true,
               next: [],
             };
-            if (result.has(reducerRule)) result.get(reducerRule).push(c);
+            if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
             else result.set(reducerRule, [c]);
           }
         }
@@ -543,7 +543,7 @@ export class ParserBuilder<T> {
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
     this.resolved.forEach((g) => {
       g.next.forEach((n) => {
-        if (!followSets.get(g.reducerRule.NT).has(n)) {
+        if (!followSets.get(g.reducerRule.NT)!.has(n)) {
           const errMsg = `Next grammar ${n.toString()} not in follow set of ${g.reducerRule.NT.toString()}`;
           if (printAll) console.log(errMsg);
           else throw new ParserError(ParserErrorType.NO_SUCH_NEXT, errMsg);
@@ -627,7 +627,7 @@ export class ParserBuilder<T> {
       // apply rejecter
       const r = this.tempGrammarRules[idx].rejecter;
       this.tempGrammarRules[idx].rejecter = (ctx) =>
-        r?.(ctx) || gr.rejecter(ctx);
+        r?.(ctx) || gr.rejecter!(ctx);
     });
 
     return this;

@@ -60,7 +60,7 @@ export class Candidate<T> {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
-      } else if (!followSets.get(this.gr.NT).has(context.after[0])) {
+      } else if (!followSets.get(this.gr.NT)!.has(context.after[0])) {
         if (debug)
           console.log(
             `[Follow Mismatch] ${this.gr.toString()} follow=${context.after[0].toString()}`
@@ -85,7 +85,7 @@ export class Candidate<T> {
       error: context.error,
       start: context.matched[0].start,
     });
-    node.children.map((c) => (c.parent = node)); // link parent
+    node.children!.map((c) => (c.parent = node)); // link parent
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);
 
     return {
@@ -164,13 +164,13 @@ export class DFA<T> {
   private stateStack: State<T>[];
   /**
    * We will construct the state machine's state transition map on the fly.
-   * If the `next` is `null`, means we already tried to construct it but failed.
+   * If the `next` is `undefined`, means we already tried to construct it but failed.
    */
   private nextStateCache: Map<
     State<T>,
     {
       node: ASTNode<T>;
-      /** If the `next` is `null`, means we already tried to construct it but failed. */
+      /** If the `next` is `undefined`, means we already tried to construct it but failed. */
       next?: State<T>;
     }[]
   >;
@@ -199,7 +199,7 @@ export class DFA<T> {
     this.NTClosures.forEach((grs, NT) => {
       const gs = this.firstSets.get(NT);
       // for each direct/indirect grammar rule, add first grammar to first set
-      grs.map((gr) => gs.add(gr.rule[0]));
+      grs.map((gr) => gs!.add(gr.rule[0]));
     });
 
     // construct follow sets for all NTs
@@ -209,11 +209,11 @@ export class DFA<T> {
       gr.rule.map((g, i, rule) => {
         if (i < rule.length - 1 && g.type == GrammarType.NT) {
           // current grammar is NT and next grammar exists, merge the NT's follow set with next grammar
-          const gs = this.followSets.get(g.content);
+          const gs = this.followSets.get(g.content)!;
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
-            this.firstSets.get(rule[i + 1].content).map((g) => gs.add(g));
+            this.firstSets.get(rule[i + 1].content)!.map((g) => gs.add(g));
         }
       });
     });
@@ -222,13 +222,15 @@ export class DFA<T> {
       let changed = false;
 
       allGrammarRules
-        .filter((gr) => gr.rule.at(-1).type == GrammarType.NT) // last grammar if NT
+        .filter((gr) => gr.rule.at(-1)!.type == GrammarType.NT) // last grammar if NT
         .map((gr) =>
           this.followSets
-            .get(gr.NT) // target NT's follow set
+            .get(gr.NT)! // target NT's follow set
             .map(
               (g) =>
-                (changed ||= this.followSets.get(gr.rule.at(-1).content).add(g))
+                (changed ||= this.followSets
+                  .get(gr.rule.at(-1)!.content)!
+                  .add(g))
             )
         );
 
@@ -253,17 +255,17 @@ export class DFA<T> {
     while (index < buffer.length) {
       // try to construct next state
       const nextStateResult = this.getNextState(
-        this.stateStack.at(-1),
+        this.stateStack.at(-1)!,
         buffer[index]
       );
       if (!nextStateResult.accept) return { accept: false };
 
       // push stack
-      this.stateStack.push(nextStateResult.next);
+      this.stateStack.push(nextStateResult.next!);
 
       // try reduce with the new state
       const res = this.stateStack
-        .at(-1)
+        .at(-1)!
         .tryReduce(buffer, index, this.entryNTs, this.followSets, this.debug);
       if (!res.accept) {
         index++;
@@ -305,7 +307,7 @@ export class DFA<T> {
         return p;
       }, [] as string[]) // de-duplicated NT list
       .reduce((p, c) => {
-        this.NTClosures.get(c).map((gr) => {
+        this.NTClosures.get(c)!.map((gr) => {
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
@@ -335,7 +337,7 @@ export class DFA<T> {
     );
     if (transition) {
       // found in cache
-      if (transition.next !== null) {
+      if (transition.next) {
         return { accept: true, next: transition.next, changed: false };
       } else return { accept: false, changed: false };
     }
@@ -343,19 +345,21 @@ export class DFA<T> {
     // if not found in cache, construct next state and cache it
     const res = this.calculateNextState(currentState, next);
     if (!res.accept) {
-      // cache next state as null, which means we already tried to construct it but failed
-      this.nextStateCache.get(currentState).push({ next: null, node: next });
+      // cache next state as undefined, which means we already tried to construct it but failed
+      this.nextStateCache
+        .get(currentState)!
+        .push({ node: next, next: undefined });
       return { accept: false, changed: true };
     }
     // else, construction succeed
 
-    let result = res.state;
+    let result = res.state!;
     // check if next state is already in cache
     this.nextStateCache.forEach((_, state) => {
       if (state.eq(result)) result = state;
     });
     // cache next state
-    this.nextStateCache.get(currentState).push({ next: result, node: next });
+    this.nextStateCache.get(currentState)!.push({ next: result, node: next });
     if (!this.nextStateCache.has(result)) this.nextStateCache.set(result, []);
     return { accept: true, next: result, changed: true };
   }
@@ -379,7 +383,7 @@ export class DFA<T> {
         if (!lexer)
           throw new Error("Lexer is required to parse literal grammars.");
         return new ASTNode<T>({
-          type: lexer.reset().lex(g.content).type,
+          type: lexer.reset().lex(g.content)!.type,
           text: g.content,
           start: 0,
         });

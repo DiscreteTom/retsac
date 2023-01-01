@@ -30,7 +30,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
       .lexAll(def instanceof Array ? def.join("|") : def)
       .map((t) => {
         if (t.type == "or") rules.push([]); // new grammar rule
-        else rules.at(-1).push(t); // append token to the last grammar rule
+        else rules.at(-1)!.push(t); // append token to the last grammar rule
       });
 
     if (grammarLexer.hasRest())
