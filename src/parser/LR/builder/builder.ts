@@ -321,7 +321,7 @@ export class ParserBuilder<T> {
       // apply rejecter
       const r = this.tempGrammarRules[idx].rejecter;
       this.tempGrammarRules[idx].rejecter = (ctx) =>
-        r?.(ctx) || gr.rejecter!(ctx);
+        (r?.(ctx) ?? false) || gr.rejecter!(ctx);
     });
 
     return this;
