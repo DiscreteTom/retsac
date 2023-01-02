@@ -38,11 +38,11 @@ test("state tryReduce", () => {
   });
   const s = new State([new Candidate({ gr, digested: gr.rule.length })]);
 
-  expect(s.tryReduce(nodes, 2, new Set("exp"), new Map(), false).accept).toBe(
+  expect(s.tryReduce(nodes, 2, new Set(["exp"]), new Map(), false).accept).toBe(
     true
   );
 
   expect(
-    new State([]).tryReduce(nodes, 0, new Set("exp"), new Map(), false).accept
+    new State([]).tryReduce(nodes, 0, new Set(["exp"]), new Map(), false).accept
   ).toBe(false);
 });
