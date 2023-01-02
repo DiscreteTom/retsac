@@ -122,6 +122,8 @@ export function getConflicts<T>(
 
   // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
   // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
+  // the following code will check every grammar rule pair, another way is to check every DFA state
+  // but different DFA states may contain same grammar rules which will cause duplicate check
   for (let i = 0; i < grs.length; i++) {
     for (let j = 0; j < grs.length; j++) {
       const reducerRule = grs[i];
