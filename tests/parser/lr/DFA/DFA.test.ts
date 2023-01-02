@@ -163,6 +163,10 @@ test("DFA all states", () => {
     ]),
   ];
 
+  expect(() => dfa.calculateAllStates()).toThrow(
+    "Lexer is required to parse literal grammars."
+  );
+
   const computedStates = dfa.calculateAllStates(lexer).getAllStates();
   expect(computedStates.length).toBe(states.length);
   expect(computedStates.every((s) => states.some((ss) => ss.eq(s)))).toBe(true);
@@ -248,4 +252,48 @@ test("DFA complex follow set", () => {
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.LITERAL, content: "+" }))
   ).toBe(true);
+});
+
+test("DFA parse stop on error", () => {
+  let count = 0;
+  const grs = [
+    new GrammarRule({
+      NT: "exp",
+      rule: [new Grammar({ type: GrammarType.T, content: "number" })],
+      callback: (ctx) => {
+        // stop parse when the second number is encountered
+        count++;
+        if (count === 2) {
+          ctx.error = "error";
+        }
+      },
+    }),
+    new GrammarRule({
+      NT: "exp",
+      rule: [
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+        new Grammar({ type: GrammarType.LITERAL, content: "+" }),
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+      ],
+    }),
+  ];
+
+  const dfa = new DFA(grs, new Set(["exp"]), new Set(["exp"]));
+  const nodes = lexer.lexAll("1+1").map((t) => ASTNode.from(t));
+
+  // first parse, `number '+' number` to `exp '+' number`
+  const res = dfa.parse(nodes);
+  if (res.accept) {
+    // second parse, `exp '+' number` to `exp '+' exp`, callback will set error
+    const res2 = dfa.parse(res.buffer, true);
+    expect(res2.accept).toBe(true);
+    if (res2.accept) {
+      expect(res2.buffer.length).toBe(3); // `exp '+' exp`
+      expect(res2.buffer[0].type).toBe("exp");
+      expect(res2.buffer[1].type).toBe("");
+      expect(res2.buffer[2].type).toBe("exp");
+      expect(res2.errors.length).toBe(1);
+      expect(res2.errors[0].error).toBe("error");
+    }
+  }
 });
