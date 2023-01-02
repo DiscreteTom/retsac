@@ -13,24 +13,9 @@ const lexer = new Lexer.Builder()
 const parser = new LR.ParserBuilder<any>()
   .entry("value")
   .define(
-    { value: "string" },
-    LR.reducer((_, { matched }) => eval(matched[0].text!)) // use `eval` to make `\\n` become `\n`
-  )
-  .define(
-    { value: "number" },
-    LR.reducer((_, { matched }) => Number(matched[0].text))
-  )
-  .define(
-    { value: "true" },
-    LR.reducer(() => true)
-  )
-  .define(
-    { value: "false" },
-    LR.reducer(() => false)
-  )
-  .define(
-    { value: "null" },
-    LR.reducer(() => null)
+    { value: "string | number | true | false | null" },
+    // especially, for string use `eval` to make `\\n` become `\n`
+    LR.reducer((_, { matched }) => eval(matched[0].text!))
   )
   .define(
     { value: "object | array" },
@@ -49,8 +34,8 @@ const parser = new LR.ParserBuilder<any>()
     LR.reducer((values) => values) // values => [values[0]]
   )
   .define(
-    { values: `value ',' values` },
-    LR.reducer((values) => [values[0], ...values[2]])
+    { values: `values ',' value` },
+    LR.reducer((values) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
@@ -65,20 +50,21 @@ const parser = new LR.ParserBuilder<any>()
     LR.reducer((values) => values[0])
   )
   .define(
-    { object_items: `object_item ',' object_items` },
-    LR.reducer((values) => Object.assign({}, values[0], values[2]))
+    { object_items: `object_items ',' object_item` },
+    // merge objects
+    LR.reducer((values) => Object.assign(values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
+    // reduce to an object
     LR.reducer((values, { matched }) => {
       const result: { [key: string]: any } = {};
       result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
     })
-      .resolveRS({ values: `value ',' values` }, { next: `','` })
-      .resolveRR({ values: `value` }, { handleEnd: true })
   )
-  .checkAll(lexer.getTokenTypes(), lexer, true)
+  // .generateResolver(lexer)
+  .checkAll(lexer.getTokenTypes(), lexer)
   .build();
 
 export const manager = new Manager({ lexer, parser });
