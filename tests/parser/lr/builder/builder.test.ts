@@ -152,6 +152,23 @@ test("ParserBuilder check conflicts", () => {
   expect(console.log).toHaveBeenCalledWith(
     "Unresolved R-R conflict (end of input, next: `number`): { exp: `number` } | { xxx: `number` }"
   );
+
+  // RR conflict with next, no end of input
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define(
+        { exp: `number` },
+        LR.resolveRR({ xxx: `number` }, { handleEnd: true })
+      )
+      .define(
+        { exp: `xxx` },
+        LR.resolveRS({ xxx: `xxx number` }, { next: `number` })
+      )
+      .define({ xxx: `number` })
+      .define({ xxx: `xxx number` })
+      .checkConflicts(lexer)
+  ).toThrow(`Unresolved R-R conflict`);
 });
 
 test("ParserBuilder check resolved", () => {
@@ -179,6 +196,17 @@ test("ParserBuilder check resolved", () => {
       .resolveRR({ exp: `number` }, { exp: `number` }, { next: `end` })
       .checkConflicts(lexer)
   ).toThrow(`not in follow set of`);
+
+  // print all
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `number` })
+    .resolveRR({ exp: `number` }, { exp: `xxx` }, { next: `end` })
+    .checkConflicts(lexer, true);
+  expect(console.log).toHaveBeenCalledWith(
+    "No such grammar rule: { exp: `xxx` }"
+  );
 });
 
 test("ParserBuilder generate resolver", () => {
@@ -200,6 +228,42 @@ test("ParserBuilder generate resolver", () => {
     .generateResolver(lexer, "context");
   expect(console.log).toHaveBeenCalledWith(
     "=== { exp: `exp '-' exp` } ===\nLR.resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })"
+  );
+
+  // RR conflict, builder style
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `number` })
+    .define({ exp: `xxx` })
+    .define({ xxx: `number` })
+    .define({ xxx: `xxx number` })
+    .resolveRR(
+      { xxx: `number` },
+      { exp: `number` },
+      { next: `number`, reduce: true }
+    )
+    .generateResolver(lexer);
+  expect(console.log).toHaveBeenCalledWith(
+    ".resolveRR({ xxx: `number` }, { exp: `number` }, { handleEnd: true, reduce: true })"
+  );
+
+  // RR conflict, context style
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `number` })
+    .define({ exp: `xxx` })
+    .define({ xxx: `number` })
+    .define({ xxx: `xxx number` })
+    .resolveRR(
+      { xxx: `number` },
+      { exp: `number` },
+      { next: `number`, reduce: true }
+    )
+    .generateResolver(lexer, "context");
+  expect(console.log).toHaveBeenCalledWith(
+    "=== { exp: `number` } ===\nLR.resolveRR({ xxx: `number` }, { next: `number`, handleEnd: true, reduce: true })"
   );
 });
 
@@ -243,4 +307,39 @@ test("ParserBuilder resolve conflicts", () => {
       // .generateResolver(lexer)
       .checkConflicts(lexer)
   ).not.toThrow(`Unresolved`);
+
+  // test rejecter
+  expect(
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .define({ exp: `exp '-' exp` })
+      .resolveRS(
+        { exp: `exp '-' exp` },
+        { exp: `exp '-' exp` },
+        { next: `'-'`, reduce: false }
+      )
+      .checkAll(new Set(["number"]), lexer)
+      .build()
+      .parseAll(lexer.lexAll("1-1-1").map((t) => ASTNode.from(t))).accept
+  ).toBe(true);
+
+  // rejecter overload
+  expect(
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .define(
+        { exp: `exp '-' exp` },
+        LR.rejecter(() => true)
+      )
+      .resolveRS(
+        { exp: `exp '-' exp` },
+        { exp: `exp '-' exp` },
+        { next: `'-'`, reduce: true }
+      )
+      .checkAll(new Set(["number"]), lexer)
+      .build()
+      .parseAll(lexer.lexAll("1-1-1").map((t) => ASTNode.from(t))).accept
+  ).toBe(true);
 });
