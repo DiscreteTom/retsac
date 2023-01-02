@@ -90,3 +90,93 @@ test("ParserBuilder simple errors", () => {
     new ParserBuilder().entry("exp").checkSymbols(new Set())
   ).toThrow(`Undefined entry NT: "exp"`);
 });
+
+test("ParserBuilder check conflicts", () => {
+  // RS conflict
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `exp '-' exp` })
+      .checkConflicts(lexer)
+  ).toThrow(`Unresolved R-S conflict`);
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `exp '-' exp` })
+    .checkConflicts(lexer, true);
+  expect(console.log).toHaveBeenCalledWith(
+    "Unresolved R-S conflict (length: 1, next: `'-'`): { exp: `exp '-' exp` } | { exp: `exp '-' exp` }"
+  );
+
+  // RR conflict at end of input
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .define({ exp: `xxx` })
+      .define({ xxx: `number` })
+      .checkConflicts(lexer)
+  ).toThrow(`Unresolved R-R conflict`);
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `number` })
+    .define({ exp: `xxx` })
+    .define({ xxx: `number` }, LR.resolveRR({ exp: `number` }, { next: `end` }))
+    .checkConflicts(lexer, true);
+  expect(console.log).toHaveBeenCalledWith(
+    "Unresolved R-R conflict (end of input): { exp: `number` } | { xxx: `number` }"
+  );
+
+  // RR conflict with next
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .define(
+        { exp: `xxx` },
+        LR.resolveRS({ xxx: `xxx number` }, { next: `number` })
+      )
+      .define({ xxx: `number` })
+      .define({ xxx: `xxx number` })
+      .checkConflicts(lexer)
+  ).toThrow(`Unresolved R-R conflict`);
+  console.log = jest.fn();
+  new LR.ParserBuilder()
+    .entry("exp")
+    .define({ exp: `number` })
+    .define({ exp: `xxx` })
+    .define({ xxx: `number` }, LR.resolveRR({ exp: `number` }, { next: `end` }))
+    .define({ xxx: `xxx number` })
+    .checkConflicts(lexer, true);
+  expect(console.log).toHaveBeenCalledWith(
+    "Unresolved R-R conflict (end of input, next: `number`): { exp: `number` } | { xxx: `number` }"
+  );
+});
+
+test("ParserBuilder check resolved", () => {
+  // No such grammar rule
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .resolveRR({ exp: `number` }, { exp: `xxx` }, { next: `end` })
+      .checkConflicts(lexer)
+  ).toThrow(`No such grammar rule`);
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .resolveRR({ exp: `xxx` }, { exp: `number` }, { next: `end` })
+      .checkConflicts(lexer)
+  ).toThrow(`No such grammar rule`);
+
+  // No next grammar
+  expect(() =>
+    new LR.ParserBuilder()
+      .entry("exp")
+      .define({ exp: `number` })
+      .resolveRR({ exp: `number` }, { exp: `number` }, { next: `end` })
+      .checkConflicts(lexer)
+  ).toThrow(`not in follow set of`);
+});
