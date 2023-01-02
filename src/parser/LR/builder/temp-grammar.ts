@@ -72,7 +72,8 @@ export class TempGrammarRule<T> {
   rejecter?: Rejecter<T>;
 
   constructor(
-    data: Partial<TempGrammarRule<T>> & Pick<TempGrammarRule<T>, "rule" | "NT">
+    data: Partial<Pick<TempGrammarRule<T>, "callback" | "rejecter">> &
+      Pick<TempGrammarRule<T>, "rule" | "NT">
   ) {
     Object.assign(this, data);
   }

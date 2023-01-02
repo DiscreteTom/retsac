@@ -26,7 +26,12 @@ export class ASTNode<T> {
   data?: T;
   error?: any;
 
-  constructor(p: Partial<ASTNode<T>> & Pick<ASTNode<T>, "type" | "start">) {
+  constructor(
+    p: Partial<
+      Pick<ASTNode<T>, "text" | "children" | "parent" | "data" | "error">
+    > &
+      Pick<ASTNode<T>, "type" | "start">
+  ) {
     Object.assign(this, p);
   }
 
