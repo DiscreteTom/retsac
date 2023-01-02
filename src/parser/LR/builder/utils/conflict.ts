@@ -301,7 +301,7 @@ export function getConflicts<T>(
         const A = reducerRule.NT;
         const C = anotherRule.NT;
         const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
-        if (overlap.length < 0) {
+        if (overlap.length == 0) {
           // no overlap, all conflicts can be auto resolved
           if (debug)
             console.log(
