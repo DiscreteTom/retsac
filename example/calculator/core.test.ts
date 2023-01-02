@@ -4,7 +4,7 @@ function getResult(input: string) {
   const res = manager.reset().parseAll(input);
   if (!res.accept || res.buffer.length != 1)
     throw new Error(
-      `Reduce failed for input "${input}". Result: ${res.buffer}`
+      `Reduce failed for input "${input}". Result: ${manager.getBuffer()}`
     );
   return res.buffer[0].data;
 }
