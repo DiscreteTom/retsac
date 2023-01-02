@@ -99,4 +99,20 @@ test("candidate tryReduce", () => {
   expect(console.log).toHaveBeenCalledWith(
     `[Reject] ${grWithRejecter.toString()}`
   );
+
+  // with error
+  const grWithErr = new GrammarRule({
+    NT: "exp",
+    rule: [new Grammar({ type: GrammarType.T, content: "number" })],
+    callback: (ctx) => (ctx.error = "error"),
+  });
+  const cWithErr = new Candidate({
+    gr: grWithErr,
+    digested: gr.rule.length,
+  });
+  const res = cWithErr.tryReduce(nodes, 0, new Set(), followSets, false);
+  expect(res.accept).toBe(true);
+  if (res.accept) {
+    expect(res.errors[0].error).toBe("error");
+  }
 });
