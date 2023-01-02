@@ -140,7 +140,7 @@ export function getConflicts<T>(
         if (E.type == GrammarType.NT) {
           // E is a NT, check if A's follow has some grammar that is also in E's first
           const overlap = AFollow.overlap(EFirst);
-          if (overlap.length < 0) {
+          if (overlap.length == 0) {
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
