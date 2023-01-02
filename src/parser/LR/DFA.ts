@@ -272,7 +272,7 @@ export class DFA<T> {
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
-      errors.concat(res.errors);
+      errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of buffer, or stop on error, should return
       if (
