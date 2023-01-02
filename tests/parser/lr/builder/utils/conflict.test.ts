@@ -199,3 +199,62 @@ test("auto resolve RS conflict by state machine states while E is literal", () =
     "[auto resolve RS (DFA state)]: { exp1: `'*' number '+'` } | { exp2: `'+' '-'` }"
   );
 });
+
+test("auto resolve RR conflict by follow set overlap", () => {
+  const NTs = new Set(["exp1", "exp2"]);
+  const grs = defToTempGRs({
+    exp1: `'+' number '+'`,
+    exp2: `number '+'`,
+  }).map(
+    (gr) =>
+      new GrammarRule({
+        NT: gr.NT,
+        callback: gr.callback,
+        rejecter: gr.rejecter,
+        rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+      })
+  );
+  console.log = jest.fn();
+  const conflicts = getConflicts(
+    new Set(["exp1", "exp2"]),
+    NTs,
+    grs,
+    [],
+    lexer,
+    true
+  ).conflicts;
+  expect(conflicts.size).toBe(0);
+  expect(console.log).toBeCalledWith(
+    "[auto resolve RR (follow overlap)]: { exp1: `'+' number '+'` } { exp2: `number '+'` }"
+  );
+});
+
+test("resolve RR by user", () => {
+  const NTs = new Set(["exp", "A", "B"]);
+  const grs = defToTempGRs({
+    exp: `A number A | B number B`,
+    A: `number`,
+    B: `number`,
+  }).map(
+    (gr) =>
+      new GrammarRule({
+        NT: gr.NT,
+        callback: gr.callback,
+        rejecter: gr.rejecter,
+        rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+      })
+  );
+  console.log = jest.fn();
+  const conflicts = getConflicts(
+    new Set(["exp"]),
+    NTs,
+    grs,
+    [],
+    lexer,
+    true
+  ).conflicts;
+  expect(conflicts.size).toBe(2);
+  expect(console.log).toHaveBeenCalledWith(
+    "unresolved RR: { A: `number` } | { B: `number` } next: number"
+  );
+});
