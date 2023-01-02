@@ -142,7 +142,7 @@ test("auto resolve RS conflict by follow set overlap", () => {
   );
 });
 
-test("auto resolve RS conflict by state machine states", () => {
+test("auto resolve RS conflict by state machine states while E is NT", () => {
   const NTs = new Set(["exp1", "exp2"]);
   const grs = defToTempGRs({
     exp1: `'*' number '+' | exp1 '+'`,
@@ -168,5 +168,34 @@ test("auto resolve RS conflict by state machine states", () => {
   expect(conflicts.size).toBe(0);
   expect(console.log).toBeCalledWith(
     "[auto resolve RS (DFA state)]: { exp1: `'*' number '+'` } | { exp2: `'+' exp2 '-'` }"
+  );
+});
+
+test("auto resolve RS conflict by state machine states while E is literal", () => {
+  const NTs = new Set(["exp1", "exp2"]);
+  const grs = defToTempGRs({
+    exp1: `'*' number '+' | exp1 '-'`,
+    exp2: `'+' '-'`,
+  }).map(
+    (gr) =>
+      new GrammarRule({
+        NT: gr.NT,
+        callback: gr.callback,
+        rejecter: gr.rejecter,
+        rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+      })
+  );
+  console.log = jest.fn();
+  const conflicts = getConflicts(
+    new Set(["exp1", "exp2"]),
+    NTs,
+    grs,
+    [],
+    lexer,
+    true
+  ).conflicts;
+  expect(conflicts.size).toBe(0);
+  expect(console.log).toBeCalledWith(
+    "[auto resolve RS (DFA state)]: { exp1: `'*' number '+'` } | { exp2: `'+' '-'` }"
   );
 });
