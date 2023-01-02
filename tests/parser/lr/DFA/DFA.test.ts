@@ -203,3 +203,49 @@ test("DFA grammar closure", () => {
       ?.has(new Grammar({ type: GrammarType.T, content: "number" }))
   ).toBe(true);
 });
+
+test("DFA complex follow set", () => {
+  const grs = [
+    new GrammarRule({
+      NT: "exp",
+      rule: [new Grammar({ type: GrammarType.T, content: "number" })],
+    }),
+    new GrammarRule({
+      NT: "exp",
+      rule: [
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+        new Grammar({ type: GrammarType.LITERAL, content: "+" }),
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+      ],
+    }),
+    new GrammarRule({
+      NT: "exp",
+      rule: [
+        // NT follows NT
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+        new Grammar({ type: GrammarType.NT, content: "exp" }),
+      ],
+    }),
+  ];
+
+  const dfa = new DFA(grs, new Set(["exp"]), new Set(["exp"]));
+
+  expect(
+    dfa
+      .getFollowSets()
+      .get("exp")
+      ?.has(new Grammar({ type: GrammarType.T, content: "number" }))
+  ).toBe(true);
+  expect(
+    dfa
+      .getFollowSets()
+      .get("exp")
+      ?.has(new Grammar({ type: GrammarType.NT, content: "exp" }))
+  ).toBe(true);
+  expect(
+    dfa
+      .getFollowSets()
+      .get("exp")
+      ?.has(new Grammar({ type: GrammarType.LITERAL, content: "+" }))
+  ).toBe(true);
+});
