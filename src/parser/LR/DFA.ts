@@ -326,7 +326,7 @@ export class DFA<T> {
 
   /** Try to get next state from cache. If cache miss, calculate next state and update cache. */
   private getNextState(currentState: State<T>, next: ASTNode<T>) {
-    const transition = this.nextStateCache.get(currentState)?.find(
+    const transition = this.nextStateCache.get(currentState)!.find(
       (c) =>
         // check ast node equality
         c.node.type == next.type && c.node.text == next.text
