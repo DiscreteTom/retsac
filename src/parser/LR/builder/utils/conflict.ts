@@ -144,7 +144,7 @@ export function getConflicts<T>(
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
-                `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (follow overlap)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -159,7 +159,7 @@ export function getConflicts<T>(
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               console.log(
-                `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -203,7 +203,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -247,7 +247,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `auto resolve RS: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -304,7 +304,9 @@ export function getConflicts<T>(
         if (overlap.length < 0) {
           // no overlap, all conflicts can be auto resolved
           if (debug)
-            console.log(`auto resolve RR: ${reducerRule} ${anotherRule}`);
+            console.log(
+              `[auto resolve RR (follow overlap)]: ${reducerRule} ${anotherRule}`
+            );
           continue;
         }
         // check states
@@ -317,7 +319,9 @@ export function getConflicts<T>(
         ) {
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
           if (debug)
-            console.log(`auto resolve RR: ${reducerRule} ${anotherRule}`);
+            console.log(
+              `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`
+            );
           continue;
         }
 
