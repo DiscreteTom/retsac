@@ -214,13 +214,13 @@ export class DFA<T> {
         }
       });
     });
-    // if the last grammar is NT, that NT's follow set should merge with the target NT's follow set
+    // if the last grammar is NT, that NT's follow set should merge with the target NT's follow set, vice versa
     while (true) {
       let changed = false;
 
       allGrammarRules
         .filter((gr) => gr.rule.at(-1)!.type == GrammarType.NT) // last grammar if NT
-        .map((gr) =>
+        .map((gr) => {
           this.followSets
             .get(gr.NT)! // target NT's follow set
             .map(
@@ -228,8 +228,11 @@ export class DFA<T> {
                 (changed ||= this.followSets
                   .get(gr.rule.at(-1)!.content)!
                   .add(g))
-            )
-        );
+            );
+          this.followSets
+            .get(gr.rule.at(-1)!.content)! // last grammar's follow set
+            .map((g) => (changed ||= this.followSets.get(gr.NT)!.add(g)));
+        });
 
       if (!changed) break;
     }
