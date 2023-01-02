@@ -3,7 +3,7 @@ import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { GrammarRule } from "../model";
 import { Parser } from "../parser";
-import { DefinitionContextBuilder } from "./ctx-builder";
+import { DefinitionContextBuilder, RR_ResolverOptions } from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import {
   Definition,
@@ -340,11 +340,7 @@ export class ParserBuilder<T> {
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: {
-      next?: string;
-      reduce?: boolean | Accepter<T>;
-      handleEnd?: boolean;
-    }
+    options: RR_ResolverOptions<T>
   ) {
     const ctx = DefinitionContextBuilder.resolveRR<T>(
       anotherRule,

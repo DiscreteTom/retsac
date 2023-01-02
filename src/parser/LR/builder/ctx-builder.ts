@@ -8,6 +8,19 @@ import {
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
 
+export type RR_ResolverOptions<T> = {
+  reduce?: boolean | Accepter<T>;
+} & (
+  | {
+      next: string;
+      handleEnd?: boolean;
+    }
+  | {
+      next?: string;
+      handleEnd: boolean;
+    }
+);
+
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Rejecter<T>;
@@ -113,14 +126,7 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-R conflict.
    */
-  static resolveRR<T>(
-    another: Definition,
-    options: {
-      next?: string;
-      reduce?: boolean | Accepter<T>;
-      handleEnd?: boolean;
-    }
-  ) {
+  static resolveRR<T>(another: Definition, options: RR_ResolverOptions<T>) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
@@ -166,14 +172,7 @@ export class DefinitionContextBuilder<T> {
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
-  resolveRR(
-    another: Definition,
-    options: {
-      next?: string;
-      reduce?: boolean | Accepter<T>;
-      handleEnd?: boolean;
-    }
-  ) {
+  resolveRR(another: Definition, options: RR_ResolverOptions<T>) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
       another,
