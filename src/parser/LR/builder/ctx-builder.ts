@@ -100,12 +100,12 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRS<T>(
     another: Definition,
-    options: { next?: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T> }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
       another,
-      options.next ?? "",
+      options.next,
       options.reduce ?? true,
       false
     );
@@ -155,12 +155,12 @@ export class DefinitionContextBuilder<T> {
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
   resolveRS(
     another: Definition,
-    options: { next?: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T> }
   ) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
-      options.next ?? "",
+      options.next,
       options.reduce ?? true,
       false
     );

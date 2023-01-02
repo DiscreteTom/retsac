@@ -326,7 +326,7 @@ export class ParserBuilder<T> {
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: { next?: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T> }
   ) {
     const ctx = DefinitionContextBuilder.resolveRS<T>(
       anotherRule,
