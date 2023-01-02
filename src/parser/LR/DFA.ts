@@ -247,7 +247,6 @@ export class DFA<T> {
     this.reset();
 
     let index = 0; // buffer index
-    let accept = false;
     const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
@@ -274,7 +273,6 @@ export class DFA<T> {
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
       errors.concat(res.errors);
-      accept = true;
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of buffer, or stop on error, should return
       if (
@@ -286,7 +284,8 @@ export class DFA<T> {
       // continue loop, try to digest more with the newly reduced buffer
     }
 
-    return accept ? { accept: true, buffer, errors } : { accept: false };
+    // index == buffer.length, maybe need more input
+    return { accept: false };
   }
 
   private calculateNextState(currentState: State<T>, next: ASTNode<T>) {
