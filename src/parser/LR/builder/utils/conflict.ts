@@ -338,24 +338,13 @@ export function getConflicts<T>(
             ),
           debug
         );
-        if (res.next.length > 0) {
+        if (res.next.length > 0 || res.end) {
           const c: Conflict<T> = {
             type: ConflictType.REDUCE_REDUCE,
             reducerRule,
             anotherRule,
-            handleEnd: false,
+            handleEnd: res.end,
             next: res.next,
-          };
-          if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
-          else result.set(reducerRule, [c]);
-        }
-        if (res.end) {
-          const c: Conflict<T> = {
-            type: ConflictType.REDUCE_REDUCE,
-            reducerRule,
-            anotherRule,
-            handleEnd: true,
-            next: [],
           };
           if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
           else result.set(reducerRule, [c]);
