@@ -283,7 +283,7 @@ test("DefinitionContextBuilder with RR conflict resolver, handle end", () => {
   // reduce will be true by default, handle end
   const ctx1 = DefinitionContextBuilder.resolveRR(
     { exp: `number` },
-    { next: `exp '+'`, handleEnd: true }
+    { handleEnd: true }
   ).build();
 
   // resolver handle end
@@ -315,4 +315,30 @@ test("DefinitionContextBuilder with RR conflict resolver, handle end", () => {
       matched: [],
     })
   ).toBe(true);
+});
+
+// additional test for full branch coverage
+test("DefinitionContextBuilder with conflict resolver in other conditions", () => {
+  const ctx1 = new DefinitionContextBuilder({})
+    .resolveRR({ exp: `number` }, { handleEnd: true })
+    .build();
+  expect(ctx1.resolved[0].handleEnd).toBe(true);
+  expect(ctx1.resolved[0].next.length).toBe(0);
+
+  const ctx2 = new DefinitionContextBuilder({})
+    .resolveRR({ exp: `number` }, { next: "exp" })
+    .build();
+  expect(ctx2.resolved[0].handleEnd).toBe(false);
+  expect(ctx2.resolved[0].next.length).toBe(1);
+
+  const ctx3 = new DefinitionContextBuilder({})
+    .resolveRS({ exp: `number` }, { next: "exp" })
+    .build();
+  expect(
+    ctx3.rejecter({
+      after: [new ASTNode({ start: 0, type: "exp" })],
+      before: [],
+      matched: [],
+    })
+  ).toBe(false);
 });
