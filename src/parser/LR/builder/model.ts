@@ -31,8 +31,6 @@ export interface TempPartialConflict<T> {
   next: TempGrammar[];
   /** Whether to handle conflict if reach the end of input using `reject`. */
   handleEnd: boolean;
-  /** R-S conflict only. How many grammars are overlapped in rule. */
-  length?: number;
 }
 
 export interface TempConflict<T> extends TempPartialConflict<T> {
