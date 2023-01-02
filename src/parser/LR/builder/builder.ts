@@ -205,12 +205,14 @@ export class ParserBuilder<T> {
 
     // ensure all grammar rules resolved are appeared in the grammar rules
     this.resolved.forEach((g) => {
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule))) {
-        const errMsg = `No such grammar rule: ${g.reducerRule.toString()}`;
-        if (printAll) console.log(errMsg);
-        else
-          throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
-      }
+      // reducer rule must be in grammar rules, because we already checked it in this.resolve()
+      // so we can omit this check
+      // if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule))) {
+      //   const errMsg = `No such grammar rule: ${g.reducerRule.toString()}`;
+      //   if (printAll) console.log(errMsg);
+      //   else
+      //     throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
+      // }
       if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule))) {
         const errMsg = `No such grammar rule: ${g.anotherRule.toString()}`;
         if (printAll) console.log(errMsg);
