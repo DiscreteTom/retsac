@@ -40,7 +40,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
           defs[NT]
         }"`
       );
-    if (rules.length == 0 && rules[0].length == 0)
+    if (rules.length == 1 && rules[0].length == 0)
       throw new ParserError(
         ParserErrorType.EMPTY_RULE,
         `Empty rule: "${NT} => ${defs[NT]}"`
