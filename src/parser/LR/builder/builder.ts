@@ -190,11 +190,14 @@ export class ParserBuilder<T> {
                 .join(
                   " "
                 )}\`): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`
-            : `Unresolved R-R conflict (next: \`${c.next
-                .map((g) => g.toString())
-                .join(
-                  " "
-                )}\`): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`;
+            : `Unresolved R-R conflict (${
+                (c.handleEnd ? "end of input" : "") +
+                (c.next.length > 0
+                  ? `${c.handleEnd ? ", " : ""}next: \`${c.next
+                      .map((g) => g.toString())
+                      .join(" ")}\``
+                  : "")
+              }): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`;
         if (printAll) console.log(errMsg);
         else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
       });
