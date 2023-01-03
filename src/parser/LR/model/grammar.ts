@@ -1,6 +1,7 @@
 import { ASTNode } from "../../ast";
 import { ParserError, ParserErrorType } from "../error";
 import { Callback, Rejecter } from "./context";
+import { ruleEndsWith, ruleStartsWith } from "./util";
 
 export enum GrammarType {
   /** Literal string. */
@@ -65,24 +66,6 @@ export class GrammarRule<T> {
     Object.assign(this, p);
   }
 
-  /** Return whether this.rule starts with another rule. */
-  private ruleStartsWith(anotherRule: Grammar[]) {
-    if (this.rule.length < anotherRule.length) return false;
-    for (let i = 0; i < anotherRule.length; i++) {
-      if (!this.rule[i].eq(anotherRule[i])) return false;
-    }
-    return true;
-  }
-
-  /** Return whether this.rule ends with `anotherRule`. */
-  private ruleEndsWith(anotherRule: Grammar[]) {
-    if (this.rule.length < anotherRule.length) return false;
-    for (let i = 0; i < anotherRule.length; i++) {
-      if (!this.rule.at(-i - 1)!.eq(anotherRule.at(-i - 1)!)) return false;
-    }
-    return true;
-  }
-
   /**
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
@@ -96,7 +79,7 @@ export class GrammarRule<T> {
     }[];
     for (let i = 0; i < this.rule.length; ++i) {
       if (
-        another.ruleStartsWith(this.rule.slice(i)) &&
+        ruleStartsWith(another.rule, this.rule.slice(i)) &&
         // if the tail of this rule is the same as another's whole rule, it's a reduce-reduce conflict.
         // e.g. `A B C | B C`
         this.rule.length - i != another.rule.length
@@ -113,7 +96,7 @@ export class GrammarRule<T> {
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
   checkRRConflict(another: GrammarRule<T>) {
-    return this.ruleEndsWith(another.rule);
+    return ruleEndsWith(this.rule, another.rule);
   }
 
   /** Return `NT <= grammar rules`. */
