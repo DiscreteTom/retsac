@@ -24,7 +24,7 @@ export class TempGrammar {
     Object.assign(this, p);
   }
 
-  static from(g: Grammar) {
+  static from(g: Readonly<Grammar>) {
     return new TempGrammar({
       type:
         g.type == GrammarType.LITERAL
@@ -34,7 +34,7 @@ export class TempGrammar {
     });
   }
 
-  eq<_>(g: TempGrammar | ASTNode<_> | Grammar) {
+  eq<_>(g: Readonly<TempGrammar> | Readonly<ASTNode<_>> | Readonly<Grammar>) {
     if (g instanceof TempGrammar)
       return this.type == g.type && this.content == g.content;
     else if (g instanceof ASTNode)
@@ -43,7 +43,7 @@ export class TempGrammar {
           this.content == g.text
         : // check type name
           this.content == g.type;
-    else
+    else if (g instanceof Grammar)
       return (
         (this.type == TempGrammarType.LITERAL) ==
           (g.type == GrammarType.LITERAL) && this.content == g.content
@@ -79,7 +79,7 @@ export class TempGrammarRule<T> {
   }
 
   /** Only check whether NT and rules are equal. */
-  weakEq<_>(rule: TempGrammarRule<_> | GrammarRule<_>) {
+  weakEq<_>(rule: Readonly<TempGrammarRule<_>> | Readonly<GrammarRule<_>>) {
     return (
       this.NT == rule.NT &&
       this.rule.length == rule.rule.length &&

@@ -8,14 +8,14 @@ import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 /** LR(1) DFA. */
 export class DFA<T> {
-  private readonly allGrammarRules: GrammarRule<T>[];
+  private readonly allGrammarRules: readonly GrammarRule<T>[];
   private readonly NTClosures: Map<string, GrammarRule<T>[]>;
   private readonly entryState: State<T>;
   /** `NT => Grammars` */
   private readonly firstSets: Map<string, GrammarSet>;
   /** `NT => Grammars` */
   private readonly followSets: Map<string, GrammarSet>;
-  private readonly entryNTs: Set<string>;
+  private readonly entryNTs: Readonly<Set<string>>;
   /** Current state is `states.at(-1)`. */
   private stateStack: State<T>[];
   /**
@@ -33,9 +33,9 @@ export class DFA<T> {
   debug: boolean;
 
   constructor(
-    allGrammarRules: GrammarRule<T>[],
-    entryNTs: Set<string>,
-    NTs: Set<string>
+    allGrammarRules: readonly GrammarRule<T>[],
+    entryNTs: Readonly<Set<string>>,
+    NTs: Readonly<Set<string>>
   ) {
     this.allGrammarRules = allGrammarRules;
     this.entryState = new State(
@@ -150,7 +150,10 @@ export class DFA<T> {
     return { accept: false };
   }
 
-  private calculateNextState(currentState: State<T>, next: ASTNode<T>) {
+  private calculateNextState(
+    currentState: Readonly<State<T>>,
+    next: Readonly<ASTNode<T>>
+  ) {
     const directCandidates = currentState.candidates
       .filter((c) => c.canAccept(next))
       .map((c) => c.next());
@@ -187,7 +190,10 @@ export class DFA<T> {
   }
 
   /** Try to get next state from cache. If cache miss, calculate next state and update cache. */
-  private getNextState(currentState: State<T>, next: ASTNode<T>) {
+  private getNextState(
+    currentState: Readonly<State<T>>,
+    next: Readonly<ASTNode<T>>
+  ) {
     const transition = this.nextStateCache.get(currentState)!.find(
       (c) =>
         // check ast node equality

@@ -22,7 +22,7 @@ export class Grammar {
   }
 
   /** Equals to. */
-  eq<_>(g: Grammar | ASTNode<_>) {
+  eq<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
     if (g instanceof Grammar)
       return this.type == g.type && this.content == g.content;
     else if (g instanceof ASTNode)
@@ -70,7 +70,7 @@ export class GrammarRule<T> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: GrammarRule<T>) {
+  checkRSConflict(another: Readonly<GrammarRule<T>>) {
     const result = [] as {
       reducerRule: GrammarRule<T>;
       shifterRule: GrammarRule<T>;
@@ -95,7 +95,7 @@ export class GrammarRule<T> {
   }
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
-  checkRRConflict(another: GrammarRule<T>) {
+  checkRRConflict(another: Readonly<GrammarRule<T>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 
@@ -119,7 +119,7 @@ export class GrammarSet {
     this.gs = [];
   }
 
-  has<_>(g: Grammar | ASTNode<_>) {
+  has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
     return !this.gs.every((gg) => !gg.eq(g));
   }
 
@@ -135,7 +135,7 @@ export class GrammarSet {
   }
 
   /** Return a list of grammars that in both `this` and `gs`. */
-  overlap(gs: GrammarSet) {
+  overlap(gs: Readonly<GrammarSet>) {
     return this.gs.filter((g) => gs.has(g));
   }
 }

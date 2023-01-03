@@ -13,11 +13,11 @@ export class State<T> {
 
   /** Traverse all candidates to try to reduce. */
   tryReduce(
-    buffer: ASTNode<T>[],
+    buffer: readonly ASTNode<T>[],
     /** From where of the buffer to reduce. */
     start: number,
-    entryNTs: Set<string>,
-    followSets: Map<string, GrammarSet>,
+    entryNTs: Readonly<Set<string>>,
+    followSets: Readonly<Map<string, GrammarSet>>,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
@@ -28,11 +28,11 @@ export class State<T> {
     return { accept: false };
   }
 
-  contains(gr: GrammarRule<T>, digested: number) {
+  contains(gr: Readonly<GrammarRule<T>>, digested: number) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
   }
 
-  eq(other: State<T>) {
+  eq(other: Readonly<State<T>>) {
     return (
       this.candidates.length == other.candidates.length &&
       this.candidates.every((c) => other.candidates.some((oc) => c.eq(oc)))

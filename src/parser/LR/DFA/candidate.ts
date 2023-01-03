@@ -21,7 +21,7 @@ export class Candidate<T> {
     return this.digested < this.gr.rule.length;
   }
 
-  canAccept(node: ASTNode<T>) {
+  canAccept(node: Readonly<ASTNode<T>>) {
     return this.canDigestMore() && this.current.eq(node);
   }
 
@@ -37,11 +37,11 @@ export class Candidate<T> {
    * 3. Rejecter rejected.
    */
   tryReduce(
-    buffer: ASTNode<T>[],
+    buffer: readonly ASTNode<T>[],
     /** From where of the buffer to reduce. */
     index: number,
-    entryNTs: Set<string>,
-    followSets: Map<string, GrammarSet>,
+    entryNTs: Readonly<Set<string>>,
+    followSets: Readonly<Map<string, GrammarSet>>,
     debug: boolean
   ): ParserOutput<T> {
     if (this.canDigestMore()) return { accept: false };
@@ -103,7 +103,7 @@ export class Candidate<T> {
     ].join(sep);
   }
 
-  eq(other: { gr: GrammarRule<T>; digested: number }) {
+  eq(other: { gr: Readonly<GrammarRule<T>>; digested: number }) {
     return this.gr == other.gr && this.digested === other.digested;
   }
 }

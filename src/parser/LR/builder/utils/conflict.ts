@@ -9,7 +9,10 @@ import { TempConflict, ConflictType, Conflict } from "../model";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-function getEndSet<T>(entryNTs: Set<string>, grs: GrammarRule<T>[]) {
+function getEndSet<T>(
+  entryNTs: Readonly<Set<string>>,
+  grs: readonly GrammarRule<T>[]
+) {
   const result = new GrammarSet();
 
   // entry NTs might be the last input grammar of course
@@ -43,12 +46,12 @@ function getEndSet<T>(entryNTs: Set<string>, grs: GrammarRule<T>[]) {
 
 /** Return conflicts that user didn't resolve. */
 function getUnresolvedConflicts<T>(
-  resolved: TempConflict<T>[],
-  NTs: Set<string>,
+  resolved: readonly TempConflict<T>[],
+  NTs: Readonly<Set<string>>,
   type: ConflictType,
-  reducerRule: GrammarRule<T>,
-  anotherRule: GrammarRule<T>,
-  next: Grammar[],
+  reducerRule: Readonly<GrammarRule<T>>,
+  anotherRule: Readonly<GrammarRule<T>>,
+  next: readonly Grammar[],
   checkHandleEnd: boolean,
   debug: boolean
 ) {
@@ -103,12 +106,12 @@ function getUnresolvedConflicts<T>(
 }
 
 export function getConflicts<T>(
-  entryNTs: Set<string>,
-  NTs: Set<string>,
-  grs: GrammarRule<T>[],
+  entryNTs: Readonly<Set<string>>,
+  NTs: Readonly<Set<string>>,
+  grs: readonly GrammarRule<T>[],
   // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
   // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
-  resolved: TempConflict<T>[],
+  resolved: readonly TempConflict<T>[],
   lexer?: ILexer,
   debug = false
 ) {

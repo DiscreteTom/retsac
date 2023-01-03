@@ -1,8 +1,8 @@
 import { GrammarRule, GrammarType } from "../model";
 
 export function getAllNTClosure<T>(
-  NTs: Set<string>,
-  allGrammarRules: GrammarRule<T>[]
+  NTs: Readonly<Set<string>>,
+  allGrammarRules: readonly GrammarRule<T>[]
 ): Map<string, GrammarRule<T>[]> {
   const result = new Map<string, GrammarRule<T>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
@@ -17,7 +17,7 @@ export function getAllNTClosure<T>(
  */
 export function getNTClosure<T>(
   NT: string,
-  allGrammarRules: GrammarRule<T>[]
+  allGrammarRules: readonly GrammarRule<T>[]
 ): GrammarRule<T>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
@@ -31,8 +31,8 @@ export function getNTClosure<T>(
  * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
 export function getGrammarRulesClosure<T>(
-  rules: GrammarRule<T>[],
-  allGrammarRules: GrammarRule<T>[]
+  rules: readonly GrammarRule<T>[],
+  allGrammarRules: readonly GrammarRule<T>[]
 ): GrammarRule<T>[] {
   const result = [...rules];
 

@@ -122,7 +122,7 @@ export class ParserBuilder<T> {
    * Ensure all T/NTs have their definitions, and no duplication.
    * If ok, return this.
    */
-  checkSymbols(Ts: Set<string>) {
+  checkSymbols(Ts: Readonly<Set<string>>) {
     /** T/NT names. */
     const grammarSet: Set<string> = new Set();
 
@@ -356,7 +356,7 @@ export class ParserBuilder<T> {
   }
 
   /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll)`.  */
-  checkAll(Ts: Set<string>, lexer?: ILexer, printAll = false) {
+  checkAll(Ts: Readonly<Set<string>>, lexer?: ILexer, printAll = false) {
     return this.checkSymbols(Ts).checkConflicts(lexer, printAll);
   }
 }
