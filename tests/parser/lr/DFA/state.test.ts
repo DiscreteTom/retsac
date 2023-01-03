@@ -1,6 +1,7 @@
 import { Lexer } from "../../../../src";
 import { ASTNode } from "../../../../src/parser";
-import { Candidate, State } from "../../../../src/parser/LR/DFA";
+import { Candidate } from "../../../../src/parser/LR/DFA/candidate";
+import { State } from "../../../../src/parser/LR/DFA/state";
 import {
   GrammarRule,
   Grammar,
