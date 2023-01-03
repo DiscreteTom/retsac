@@ -46,7 +46,7 @@ export function from_to(
 /**
  * Match a list of strings exactly, no lookahead.
  */
-export function exact(...ss: string[]): Action {
+export function exact(...ss: readonly string[]): Action {
   return Action.from((buffer) => {
     for (const s of ss) if (buffer.startsWith(s)) return s.length;
     return 0;
@@ -56,7 +56,7 @@ export function exact(...ss: string[]): Action {
 /**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function word(...words: string[]): Action {
+export function word(...words: readonly string[]): Action {
   return Action.from((buffer) => {
     for (const word of words)
       if (
@@ -71,7 +71,9 @@ export function word(...words: string[]): Action {
 /**
  * Define types which name is the same as its literal value.
  */
-export function wordType(...words: string[]): { [type: string]: Action } {
+export function wordType(...words: readonly string[]): {
+  [type: string]: Action;
+} {
   const result: { [type: string]: Action } = {};
   for (const w of words) {
     result[w] = word(w);
