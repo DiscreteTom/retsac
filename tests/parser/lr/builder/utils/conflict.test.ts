@@ -303,42 +303,54 @@ test("resolve RR by user", () => {
   );
 });
 
-// test("resolve RR by user with handleEnd", () => {
-//   const NTs = new Set(["exp", "A", "B"]);
-//   const grs = defToTempGRs({
-//     exp: `A number A | B number B`,
-//     A: `number`,
-//     B: `number`,
-//   }).map(
-//     (gr) =>
-//       new GrammarRule({
-//         NT: gr.NT,
-//         callback: gr.callback,
-//         rejecter: gr.rejecter,
-//         rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
-//       })
-//   );
-//   console.log = jest.fn();
-//   const conflicts = getConflicts(
-//     new Set(["exp"]),
-//     NTs,
-//     grs,
-//     [
-//       {
-//         reducerRule: defToTempGRs({ A: `number` })[0],
-//         anotherRule: defToTempGRs({ B: `number` })[0],
-//         next: [
-//           new TempGrammar({ content: "number", type: TempGrammarType.GRAMMAR }),
-//         ],
-//         type: ConflictType.REDUCE_REDUCE,
-//         handleEnd: true,
-//       },
-//     ],
-//     lexer,
-//     true
-//   ).conflicts;
-//   expect(conflicts.size).toBe(1);
-//   expect(console.log).toHaveBeenCalledWith(
-//     "user resolved RR: { A: `number` } | { B: `number` } next: umber"
-//   );
-// });
+test("too many end handlers for RR", () => {
+  const NTs = new Set(["exp", "A", "B"]);
+  const grs = defToTempGRs({
+    exp: `A number A | B number B`,
+    A: `number`,
+    B: `number`,
+  }).map(
+    (gr) =>
+      new GrammarRule({
+        NT: gr.NT,
+        callback: gr.callback,
+        rejecter: gr.rejecter,
+        rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+      })
+  );
+  expect(() =>
+    getConflicts(
+      new Set(["exp"]),
+      NTs,
+      grs,
+      [
+        {
+          reducerRule: defToTempGRs({ A: `number` })[0],
+          anotherRule: defToTempGRs({ B: `number` })[0],
+          next: [
+            new TempGrammar({
+              content: "number",
+              type: TempGrammarType.GRAMMAR,
+            }),
+          ],
+          type: ConflictType.REDUCE_REDUCE,
+          handleEnd: true,
+        },
+        {
+          reducerRule: defToTempGRs({ A: `number` })[0],
+          anotherRule: defToTempGRs({ B: `number` })[0],
+          next: [
+            new TempGrammar({
+              content: "number",
+              type: TempGrammarType.GRAMMAR,
+            }),
+          ],
+          type: ConflictType.REDUCE_REDUCE,
+          handleEnd: true,
+        },
+      ],
+      lexer,
+      true
+    )
+  ).toThrow("Too many end handlers for rule");
+});
