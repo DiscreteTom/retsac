@@ -1,8 +1,7 @@
-import { ILexer } from "../../lexer/model";
-import { ASTNode } from "../ast";
-import { ParserOutput } from "../model";
-import { GrammarSet, GrammarType, ReducerContext } from "./model";
-import { GrammarRule } from "./model";
+import { ILexer } from "../../../lexer/model";
+import { ASTNode } from "../../ast";
+import { ParserOutput } from "../../model";
+import { GrammarRule, GrammarSet, ReducerContext, GrammarType } from "../model";
 
 /** A.k.a: LR(1) Project. */
 export class Candidate<T> {
