@@ -302,6 +302,43 @@ test("resolve RR by user", () => {
     "user resolved RR: { A: `number` } | { B: `number` } next: number"
   );
 });
+test("resolve RS by user", () => {
+  const NTs = new Set(["exp"]);
+  const grs = defToTempGRs({
+    exp: `number | exp '+' exp`,
+  }).map(
+    (gr) =>
+      new GrammarRule({
+        NT: gr.NT,
+        callback: gr.callback,
+        rejecter: gr.rejecter,
+        rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+      })
+  );
+  console.log = jest.fn();
+  const conflicts = getConflicts(
+    new Set(["exp"]),
+    NTs,
+    grs,
+    [
+      {
+        reducerRule: defToTempGRs({ exp: `exp '+' exp` })[0],
+        anotherRule: defToTempGRs({ exp: `exp '+' exp` })[0],
+        next: [
+          new TempGrammar({ content: "+", type: TempGrammarType.LITERAL }),
+        ],
+        type: ConflictType.REDUCE_SHIFT,
+        handleEnd: false,
+      },
+    ],
+    lexer,
+    true
+  ).conflicts;
+  expect(conflicts.size).toBe(0);
+  expect(console.log).toHaveBeenCalledWith(
+    "user resolved RS: { exp: `exp '+' exp` } | { exp: `exp '+' exp` } next: '+'"
+  );
+});
 
 test("too many end handlers for RR", () => {
   const NTs = new Set(["exp", "A", "B"]);
