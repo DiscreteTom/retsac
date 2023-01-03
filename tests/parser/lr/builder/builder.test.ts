@@ -113,19 +113,25 @@ test("ParserBuilder check conflicts", () => {
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `number` })
-      .define({ exp: `xxx` })
-      .define({ xxx: `number` })
+      .define(
+        { exp: `xxx` },
+        LR.resolveRS({ xxx: `xxx number` }, { next: `number` })
+      )
+      .define({ xxx: `number | xxx number` })
       .checkConflicts(lexer)
   ).toThrow(`Unresolved R-R conflict`);
   console.log = jest.fn();
   new LR.ParserBuilder()
     .entry("exp")
     .define({ exp: `number` })
-    .define({ exp: `xxx` })
-    .define({ xxx: `number` }, LR.resolveRR({ exp: `number` }, { next: `end` }))
+    .define(
+      { exp: `xxx` },
+      LR.resolveRS({ xxx: `xxx number` }, { next: `number` })
+    )
+    .define({ xxx: `number | xxx number` })
     .checkConflicts(lexer, true);
   expect(console.log).toHaveBeenCalledWith(
-    "Unresolved R-R conflict (end of input): { exp: `number` } | { xxx: `number` }"
+    "Unresolved R-R conflict (end of input, next: `number`): { exp: `number` } | { xxx: `number` }"
   );
 
   // RR conflict with next
