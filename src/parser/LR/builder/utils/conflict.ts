@@ -94,9 +94,25 @@ function getUnresolvedConflicts<T>(
       `Too many end handlers for rule ${endHandlers[0].reducerRule.toString()}`
     );
   }
-  const unresolvedEnd = checkHandleEnd
-    ? !endHandlers[0]?.handleEnd ?? true
-    : false;
+  let unresolvedEnd = checkHandleEnd;
+  if (checkHandleEnd) {
+    if (endHandlers.length == 1) {
+      unresolvedEnd = !endHandlers[0].handleEnd;
+    } else {
+      // user didn't handle end of input
+      unresolvedEnd = true;
+    }
+  }
+  if (debug) {
+    if (unresolvedEnd)
+      console.log(
+        `unresolved RR: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+      );
+    if (unresolvedNext.length > 0)
+      console.log(
+        `user resolved RR: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+      );
+  }
 
   return {
     next: unresolvedNext,
