@@ -1,5 +1,5 @@
 import { ILexer } from "../../../lexer/model";
-import { DFA } from "../DFA/DFA";
+import { DFA } from "../DFA";
 import { ParserError, ParserErrorType } from "../error";
 import { GrammarRule } from "../model";
 import { Parser } from "../parser";
