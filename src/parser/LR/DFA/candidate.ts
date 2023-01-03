@@ -1,6 +1,6 @@
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import { GrammarRule, GrammarSet, ReducerContext } from "../model";
+import { GrammarRule, GrammarSet, ParserContext } from "../model";
 
 /** A.k.a: LR(1) Project. */
 export class Candidate<T> {
@@ -46,7 +46,7 @@ export class Candidate<T> {
   ): ParserOutput<T> {
     if (this.canDigestMore()) return { accept: false };
 
-    const context: ReducerContext<T> = {
+    const context: ParserContext<T> = {
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),

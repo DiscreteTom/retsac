@@ -13,6 +13,7 @@
   - Add `ASTNode.toObj` for serialization.
   - Add optional `stopOnError` parameter to `IParser.parse`.
   - LR Parser
+    - Rename `ReducerContext` to `ParserContext`.
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.

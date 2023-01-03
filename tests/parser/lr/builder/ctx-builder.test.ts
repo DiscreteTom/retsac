@@ -5,7 +5,7 @@ import {
   TempGrammar,
   TempGrammarType,
 } from "../../../../src/parser/LR/builder/temp-grammar";
-import { ReducerContext } from "../../../../src/parser/LR/model";
+import { ParserContext } from "../../../../src/parser/LR/model";
 
 test("DefinitionContextBuilder basics", () => {
   const ctx = new DefinitionContextBuilder({}).build();
@@ -66,7 +66,7 @@ test("DefinitionContextBuilder with reducer", () => {
     (values) => values.length
   ).build();
 
-  const reducerCtx: ReducerContext<number> = {
+  const reducerCtx: ParserContext<number> = {
     after: [],
     before: [],
     matched: [],

@@ -1,6 +1,6 @@
 import { ASTNode } from "../../ast";
 
-export interface ReducerContext<T> {
+export interface ParserContext<T> {
   readonly matched: ASTNode<T>[];
   readonly before: ASTNode<T>[];
   readonly after: ASTNode<T>[];
@@ -10,7 +10,7 @@ export interface ReducerContext<T> {
 }
 
 /** Will be called if the current grammar is accepted. */
-export type Callback<T> = (context: ReducerContext<T>) => void;
+export type Callback<T> = (context: ParserContext<T>) => void;
 
 /** Grammar rejecter. Return `true` to reject to use the current grammar. */
-export type Rejecter<T> = (context: ReducerContext<T>) => boolean;
+export type Rejecter<T> = (context: ParserContext<T>) => boolean;

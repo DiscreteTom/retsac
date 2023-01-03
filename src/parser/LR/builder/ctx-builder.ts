@@ -1,4 +1,4 @@
-import { Callback, ReducerContext, Rejecter } from "../model";
+import { Callback, ParserContext, Rejecter } from "../model";
 import {
   ConflictType,
   Definition,
@@ -184,7 +184,7 @@ export class DefinitionContextBuilder<T> {
 
   /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
   static reducer<T>(
-    f: (data: (T | undefined)[], context: ReducerContext<T>) => T | undefined
+    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
   ) {
     return DefinitionContextBuilder.callback<T>(
       (context) =>
@@ -196,7 +196,7 @@ export class DefinitionContextBuilder<T> {
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   reducer(
-    f: (data: (T | undefined)[], context: ReducerContext<T>) => T | undefined
+    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
   ) {
     const anotherCtx = DefinitionContextBuilder.reducer(f);
     return this.callback(anotherCtx._callback);
