@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { manager } from "./calculator/core";
+import { manager } from "./core";
 
 console.log(`This is a simple calculator.`);
 
