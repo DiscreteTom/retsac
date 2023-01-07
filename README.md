@@ -1,6 +1,9 @@
 # Retsac
 
-[![npm](https://img.shields.io/npm/v/retsac?color=green&style=flat-square)](https://www.npmjs.com/package/retsac)
+[![npm](https://img.shields.io/npm/v/retsac?style=flat-square)](https://www.npmjs.com/package/retsac)
+![coverage](https://img.shields.io/codecov/c/github/DiscreteTom/retsac?style=flat-square)
+![build](https://img.shields.io/github/actions/workflow/status/DiscreteTom/retsac/publish.yml?style=flat-square)
+![license](https://img.shields.io/github/license/DiscreteTom/retsac?style=flat-square)
 
 Text lexer and parser.
 
