@@ -20,14 +20,15 @@
     - Add `ParserBuilder.checkConflicts` to ensure all reduce-shift and reduce-reduce conflicts are resolved.
       - It will also try to auto resolve conflicts by LR(1) peeking.
       - Add `ParserBuilder.resolveRS/resolveRR` to manually resolve conflicts.
+      - Add `ParserBuilder.generateResolver` to auto generate resolver template.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
     - Replace `dataReducer` with `LR.reducer`.
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
-    - Add `ParserBuilder.generateResolver` to auto generate resolver template.
     - DFA will cache state transition on the fly to optimize runtime performance.
       - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
 - Manager
   - Manager will use `ILexer` instead of `Lexer` in constructor.
+  - `Manager.parse/parseAll` will return `ParserOutput`.
 - Optimize document / comments.
 - Optimize code / performance.
 - Use strict.
