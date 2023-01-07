@@ -4,7 +4,7 @@
 
 Text lexer and parser.
 
-Can be used to make your own programming language compiler/translator frontend, or parse your domain specific language.
+Can be used to fast prototype your own programming language compiler/translator frontend, or parse your domain specific language.
 
 ## Installation
 
@@ -12,56 +12,39 @@ Can be used to make your own programming language compiler/translator frontend, 
 yarn add retsac
 ```
 
+## Features
+
+- The Lexer, turns a text string to a [token](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/model.ts) list.
+  - Regex support. See [examples](https://github.com/DiscreteTom/retsac#examples) below.
+  - [Built-in util functions](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils.ts) makes it super easy to process the input.
+  - Support custom error handling functions to prevent interruptions during the process.
+  - Support custom functions to yield tokens from the input string.
+- The Parser, reduce a token list to an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
+  - By default the lib provides an LR(1) parser.
+    - Support conflict detection (for reduce-shift conflicts and reduce-reduce conflicts).
+      - As an LR(1) parser, the parser will try to **auto resolve conflicts** by peeking the next AST node.
+      - Provide a **code generator** to resolve conflict.
+      - Support custom rejecter to resolve conflicts.
+    - Optional data reducer to make it possible to get a result value when the parse is done.
+  - Support custom error handling functions to prevent interruptions during the process.
+  - You can define your own parser as long as it implement the [`IParser`](https://github.com/DiscreteTom/retsac/blob/main/src/parser/model.ts) interface.
+  - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
+- Provide multi-level APIs to make this easy to use and highly customizable.
+
+## Contribute
+
+All issues and pull requests are highly welcomed.
+
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
-
-### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/example/calculator/core.ts)
-
-```ts
-let lexer = new Lexer.Builder()
-  .ignore(/^\s/)
-  .define({
-    number: /^[0-9]+(?:\.[0-9]+)?/,
-  })
-  .anonymous(Lexer.exact(..."+-*/()"))
-  .build();
-
-let parser = new LR.ParserBuilder<number>()
-  .entry("exp")
-  .define(
-    { exp: "number" },
-    LR.dataReducer((_, { matched }) => Number(matched[0].text))
-  )
-  .define(
-    { exp: `'-' exp` },
-    LR.dataReducer((values) => -values[1]),
-    // if previous node is an exp, the `- exp` should be `exp - exp`, reject
-    ({ before }) => before.at(-1)?.type == "exp"
-  )
-  .define(
-    { exp: `'(' exp ')'` },
-    LR.dataReducer((values) => values[1])
-  )
-  .define(
-    { exp: `exp '+' exp | exp '-' exp` },
-    LR.dataReducer((values, { matched }) =>
-      matched[1].text == "+" ? values[0] + values[2] : values[0] - values[2]
-    ),
-    ({ after }) => after[0]?.text == "*" || after[0]?.text == "/"
-  )
-  .define(
-    { exp: `exp '*' exp | exp '/' exp` },
-    LR.dataReducer((values, { matched }) =>
-      matched[1].text == "*" ? values[0] * values[2] : values[0] / values[2]
-    )
-  )
-  .checkSymbols(lexer.getTokenTypes())
-  .build();
-```
 
 ### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json.ts)
 
+In this example, all conflicts are auto resolved by LR(1) parser.
+
+<details open><summary>Click to Expand</summary>
+
 ```ts
-let lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(/^\s/)
   .define({
     string: Lexer.stringLiteral({ double: true }),
@@ -71,74 +54,135 @@ let lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
-let parser = new LR.ParserBuilder<any>()
+const parser = new LR.ParserBuilder<any>()
   .entry("value")
   .define(
-    { value: "string" },
-    LR.dataReducer((_, { matched }) => eval(matched[0].text)) // use `eval` to make `\\n` become `\n`
-  )
-  .define(
-    { value: "number" },
-    LR.dataReducer((_, { matched }) => Number(matched[0].text))
-  )
-  .define(
-    { value: "true" },
-    LR.dataReducer(() => true)
-  )
-  .define(
-    { value: "false" },
-    LR.dataReducer(() => false)
-  )
-  .define(
-    { value: "null" },
-    LR.dataReducer(() => null)
+    { value: "string | number | true | false | null" },
+    // especially, for string use `eval` to make `\\n` become `\n`
+    LR.reducer((_, { matched }) => eval(matched[0].text!))
   )
   .define(
     { value: "object | array" },
-    LR.dataReducer((values) => values[0])
+    LR.reducer((values) => values[0])
   )
   .define(
     { array: `'[' ']'` },
-    LR.dataReducer(() => [])
+    LR.reducer(() => [])
   )
   .define(
     { array: `'[' values ']'` },
-    LR.dataReducer((values) => values[1])
+    LR.reducer((values) => values[1])
   )
   .define(
     { values: `value` },
-    LR.dataReducer((values) => values) // values => [values[0]]
+    LR.reducer((values) => values) // values => [values[0]]
   )
   .define(
     { values: `values ',' value` },
-    LR.dataReducer((values) => values[0].concat([values[2]]))
+    LR.reducer((values) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
-    LR.dataReducer(() => ({}))
+    LR.reducer(() => ({}))
   )
   .define(
     { object: `'{' object_items '}'` },
-    LR.dataReducer((values) => values[1])
+    LR.reducer((values) => values[1])
   )
   .define(
     { object_items: `object_item` },
-    LR.dataReducer((values) => values[0])
+    LR.reducer((values) => values[0])
   )
   .define(
     { object_items: `object_items ',' object_item` },
-    LR.dataReducer((values) => Object.assign(values[0], values[2]))
+    // merge objects
+    LR.reducer((values) => Object.assign(values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
-    LR.dataReducer((values, { matched }) => {
-      let result = {};
-      result[matched[0].text.slice(1, -1)] = values[2];
+    // reduce to an object
+    LR.reducer((values, { matched }) => {
+      const result: { [key: string]: any } = {};
+      result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
     })
   )
-  .checkSymbols(lexer.getTokenTypes())
+  // .generateResolver(lexer)
+  .checkAll(lexer.getTokenTypes(), lexer)
   .build();
 ```
+
+</details>
+
+### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/example/calculator/core.ts)
+
+In this example, there are many conflicts in the grammar. We use code generator to generate `.resolveRS( ... )` to resolve those conflicts.
+
+<details><summary>Click to Expand</summary>
+
+```ts
+const lexer = new Lexer.Builder()
+  .ignore(/^\s/)
+  .define({
+    number: /^[0-9]+(?:\.[0-9]+)?/,
+  })
+  .anonymous(Lexer.exact(..."+-*/()"))
+  .build();
+
+const parser = new LR.ParserBuilder<number>()
+  .entry("exp")
+  .define(
+    { exp: "number" },
+    LR.reducer((_, { matched }) => Number(matched[0].text))
+  )
+  .define(
+    { exp: `'-' exp` },
+    LR.reducer<number>((values) => -values[1]!)
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
+  )
+  .define(
+    { exp: `'(' exp ')'` },
+    LR.reducer((values) => values[1])
+  )
+  .define(
+    { exp: `exp '+' exp` },
+    LR.reducer<number>((values) => values[0]! + values[2]!)
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
+  )
+  .define(
+    { exp: `exp '-' exp` },
+    LR.reducer<number>((values) => values[0]! - values[2]!)
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
+  )
+  .define(
+    { exp: `exp '*' exp` },
+    LR.reducer<number>((values) => values[0]! * values[2]!)
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
+  )
+  .define(
+    { exp: `exp '/' exp` },
+    LR.reducer<number>((values) => values[0]! / values[2]!)
+      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
+      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
+      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
+      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
+  )
+  .checkAll(lexer.getTokenTypes(), lexer, true)
+  .build();
+```
+
+</details>
 
 ## [CHANGELOG](https://github.com/DiscreteTom/retsac/blob/main/CHANGELOG.md)
