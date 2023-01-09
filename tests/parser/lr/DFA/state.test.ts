@@ -8,16 +8,15 @@ import {
   GrammarType,
 } from "../../../../src/parser/LR/model";
 
-const gr = new GrammarRule({
-  NT: "exp",
-  rule: [
-    new Grammar({ type: GrammarType.NT, content: "exp" }),
-    new Grammar({ type: GrammarType.LITERAL, content: "+" }),
-    new Grammar({ type: GrammarType.NT, content: "exp" }),
-  ],
-});
-
 test("state basics", () => {
+  const gr = new GrammarRule({
+    NT: "exp",
+    rule: [
+      new Grammar({ type: GrammarType.NT, content: "exp" }),
+      new Grammar({ type: GrammarType.LITERAL, content: "+" }),
+      new Grammar({ type: GrammarType.NT, content: "exp" }),
+    ],
+  });
   const s = new State([new Candidate({ gr, digested: 0 })]);
 
   expect(s.eq(s)).toBe(true);
@@ -38,12 +37,12 @@ test("state tryReduce", () => {
     rule: [new Grammar({ type: GrammarType.T, content: "number" })],
   });
   const s = new State([new Candidate({ gr, digested: gr.rule.length })]);
+  const entryNTs = new Set(["exp"]);
+  const followSets = new Map();
 
-  expect(s.tryReduce(nodes, 2, new Set(["exp"]), new Map(), false).accept).toBe(
-    true
-  );
+  expect(s.tryReduce(nodes, 2, entryNTs, followSets, false).accept).toBe(true);
 
   expect(
-    new State([]).tryReduce(nodes, 0, new Set(["exp"]), new Map(), false).accept
+    new State([]).tryReduce(nodes, 0, entryNTs, followSets, false).accept
   ).toBe(false);
 });

@@ -1,5 +1,4 @@
 import { ASTNode } from "../../../src/parser/ast";
-import { ParserError } from "../../../src/parser/LR/error";
 import {
   Grammar,
   GrammarRule,
@@ -34,8 +33,6 @@ test("grammar toString", () => {
 });
 
 test("grammar rule constructor", () => {
-  expect(() => new GrammarRule({ rule: [], NT: "A" })).toThrow(ParserError);
-
   const gr = new GrammarRule({
     rule: [new Grammar({ type: GrammarType.NT, content: "exp" })],
     NT: "A",

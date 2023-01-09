@@ -41,21 +41,18 @@ test("DFA basics", () => {
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.T, content: "number" }))
   ).toBe(true);
-
   expect(
     dfa
       .getFirstSets()
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.NT, content: "exp" }))
   ).toBe(true);
-
   expect(
     dfa
       .getFirstSets()
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.LITERAL, content: "+" }))
   ).toBe(false);
-
   expect(dfa.getFirstSets().get("number")).toBe(undefined);
   expect(dfa.getFirstSets().get("+")).toBe(undefined);
 
@@ -66,21 +63,18 @@ test("DFA basics", () => {
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.T, content: "number" }))
   ).toBe(false);
-
   expect(
     dfa
       .getFollowSets()
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.NT, content: "exp" }))
   ).toBe(false);
-
   expect(
     dfa
       .getFollowSets()
       .get("exp")
       ?.has(new Grammar({ type: GrammarType.LITERAL, content: "+" }))
   ).toBe(true);
-
   expect(dfa.getFollowSets().get("number")).toBe(undefined);
   expect(dfa.getFollowSets().get("+")).toBe(undefined);
 });
