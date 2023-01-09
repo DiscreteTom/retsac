@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --build",
-    "build:doc": "mdcg README.src.md README.md",
+    "build:doc": "mdcg README.src.md README.md && typedoc",
     "build:example": "tsc --build example.tsconfig.json",
     "clean": "tsc --build --clean",
     "clean:example": "tsc --build example.tsconfig.json --clean",
