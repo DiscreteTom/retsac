@@ -1,6 +1,9 @@
 import { DefinitionContextBuilder } from "./ctx-builder";
 
-export { ParserBuilder } from "./builder";
+export * from "./builder";
+export * from "./temp-grammar";
+export * from "./model";
+export * from "./ctx-builder";
 
 export const callback = DefinitionContextBuilder.callback;
 export const rejecter = DefinitionContextBuilder.rejecter;
