@@ -74,15 +74,15 @@ function getUnresolvedConflicts<T>(
   if (debug) {
     if (resolvedNext.length > 0)
       console.log(
-        `user resolved ${
+        `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${resolvedNext}`
+        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${resolvedNext}`
       );
     if (unresolvedNext.length > 0)
       console.log(
-        `unresolved ${
+        `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${unresolvedNext}`
+        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${unresolvedNext}`
       );
   }
 
@@ -103,11 +103,11 @@ function getUnresolvedConflicts<T>(
   if (debug) {
     if (unresolvedEnd)
       console.log(
-        `unresolved RR: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+        `[unresolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
       );
     if (unresolvedNext.length > 0)
       console.log(
-        `user resolved RR: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+        `[user resolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
       );
   }
 
@@ -160,7 +160,7 @@ export function getConflicts<T>(
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
-                `[auto resolve RS (follow overlap)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (no follow overlap)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -321,7 +321,7 @@ export function getConflicts<T>(
           // no overlap, all conflicts can be auto resolved
           if (debug)
             console.log(
-              `[auto resolve RR (follow overlap)]: ${reducerRule} ${anotherRule}`
+              `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`
             );
           continue;
         }
