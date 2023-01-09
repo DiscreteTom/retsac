@@ -30,6 +30,7 @@
   - Manager will use `ILexer` instead of `Lexer` in constructor.
   - `Manager.parse/parseAll` will return `ParserOutput`.
 - Optimize document / comments.
+  - Generate documentation with [typedoc](https://typedoc.org/).
 - Optimize code / performance.
 - Use strict.
 - More test code.
