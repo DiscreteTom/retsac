@@ -29,7 +29,6 @@ yarn add retsac
       - Provide a **code generator** to resolve conflict.
       - Support custom rejecter to resolve conflicts.
     - Optional data reducer to make it possible to get a result value when the parse is done.
-  - Support custom error handling functions to prevent interruptions during the process.
   - You can define your own parser as long as it implement the [`IParser`](https://github.com/DiscreteTom/retsac/blob/main/src/parser/model.ts) interface.
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
 - Provide multi-level APIs to make this easy to use and highly customizable.
