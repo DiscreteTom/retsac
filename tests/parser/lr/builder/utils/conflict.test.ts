@@ -7,6 +7,7 @@ import {
 import { getConflicts } from "../../../../../src/parser/LR/builder/utils/conflict";
 import { defToTempGRs } from "../../../../../src/parser/LR/builder/utils/definition";
 import { GrammarRule } from "../../../../../src/parser/LR/model";
+import { expect_unwrap } from "../test_util";
 
 const lexer = new Lexer.Builder()
   .define({
@@ -142,7 +143,7 @@ test("auto resolve RS conflict by follow set overlap", () => {
   ).conflicts;
   expect(conflicts.size).toBe(0);
   expect(console.log).toBeCalledWith(
-    "[auto resolve RS (follow overlap)]: { exp1: `'+' number '+'` } | { exp2: `'+' exp2 '-'` }"
+    "[auto resolve RS (no follow overlap)]: { exp1: `'+' number '+'` } | { exp2: `'+' exp2 '-'` }"
   );
 });
 
@@ -229,7 +230,7 @@ test("auto resolve RR conflict by follow set overlap", () => {
   ).conflicts;
   expect(conflicts.size).toBe(0);
   expect(console.log).toBeCalledWith(
-    "[auto resolve RR (follow overlap)]: { exp1: `'+' number '+'` } { exp2: `number '+'` }"
+    "[auto resolve RR (no follow overlap)]: { exp1: `'+' number '+'` } { exp2: `number '+'` }"
   );
 });
 
@@ -259,7 +260,7 @@ test("unresolved RR", () => {
   ).conflicts;
   expect(conflicts.size).toBe(2);
   expect(console.log).toHaveBeenCalledWith(
-    "unresolved RR: { A: `number` } | { B: `number` } next: number"
+    "[unresolved RR]: { A: `number` } | { B: `number` } next: number"
   );
 });
 
@@ -299,7 +300,7 @@ test("resolve RR by user", () => {
   ).conflicts;
   expect(conflicts.size).toBe(2);
   expect(console.log).toHaveBeenCalledWith(
-    "user resolved RR: { A: `number` } | { B: `number` } next: number"
+    "[user resolved RR]: { A: `number` } | { B: `number` } next: number"
   );
 });
 test("resolve RS by user", () => {
@@ -336,7 +337,7 @@ test("resolve RS by user", () => {
   ).conflicts;
   expect(conflicts.size).toBe(0);
   expect(console.log).toHaveBeenCalledWith(
-    "user resolved RS: { exp: `exp '+' exp` } | { exp: `exp '+' exp` } next: '+'"
+    "[user resolved RS]: { exp: `exp '+' exp` } | { exp: `exp '+' exp` } next: '+'"
   );
 });
 
@@ -355,7 +356,7 @@ test("too many end handlers for RR", () => {
         rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
       })
   );
-  expect(() =>
+  expect_unwrap(() =>
     getConflicts(
       new Set(["exp"]),
       NTs,
@@ -389,5 +390,5 @@ test("too many end handlers for RR", () => {
       lexer,
       true
     )
-  ).toThrow("Too many end handlers for rule");
+  ).toBe("TOO_MANY_END_HANDLER");
 });

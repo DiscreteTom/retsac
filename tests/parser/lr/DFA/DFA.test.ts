@@ -160,7 +160,7 @@ test("DFA all states", () => {
   ];
 
   expect(() => dfa.calculateAllStates()).toThrow(
-    "Lexer is required to parse literal grammars."
+    "Lexer is required to parse literal grammars"
   );
 
   const computedStates = dfa.calculateAllStates(lexer).getAllStates();

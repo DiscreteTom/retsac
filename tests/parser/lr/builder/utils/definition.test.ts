@@ -1,5 +1,6 @@
 import { TempGrammarType } from "../../../../../src/parser/LR/builder/temp-grammar";
 import { defToTempGRs } from "../../../../../src/parser/LR/builder/utils/definition";
+import { expect_unwrap } from "../test_util";
 
 test("defToTempGRs", () => {
   // normal
@@ -19,18 +20,16 @@ test("defToTempGRs", () => {
   expect(grs[1].rule[2].content).toBe("exp");
 
   // tokenize failed
-  expect(() => defToTempGRs({ exp: `num+ber` })).toThrow(`Unable to tokenize`);
+  expect_unwrap(() => defToTempGRs({ exp: `num+ber` })).toBe(
+    "TOKENIZE_GRAMMAR_RULE_FAILED"
+  );
 
   // empty rule
-  expect(() => defToTempGRs({ exp: `` })).toThrow(`Empty rule`);
-  expect(() => defToTempGRs({ exp: `|` })).toThrow(
-    `No grammar or literal in rule`
-  );
+  expect_unwrap(() => defToTempGRs({ exp: `` })).toBe("EMPTY_RULE");
+  expect_unwrap(() => defToTempGRs({ exp: `|` })).toBe("EMPTY_RULE");
 
   // empty literal
-  expect(() => defToTempGRs({ exp: `''` })).toThrow(
-    `Literal value can't be empty in rule`
-  );
+  expect_unwrap(() => defToTempGRs({ exp: `''` })).toBe("EMPTY_LITERAL");
 
   // array
   const grs2 = defToTempGRs({ exp: [`number`, `exp '+' exp`] });

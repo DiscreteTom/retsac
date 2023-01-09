@@ -2,6 +2,7 @@ import { Lexer, LR } from "../../../../src";
 import { ASTNode } from "../../../../src/parser";
 import { ParserBuilder } from "../../../../src/parser/LR";
 import { DefinitionContextBuilder } from "../../../../src/parser/LR/builder/ctx-builder";
+import { expect_unwrap } from "./test_util";
 
 const lexer = new Lexer.Builder()
   .define({
@@ -72,33 +73,31 @@ test("ParserBuilder simple calculator", () => {
 });
 
 test("ParserBuilder simple errors", () => {
-  expect(() => new ParserBuilder().build()).toThrow(
-    `Please set entry NTs for LR Parser.`
-  );
+  expect_unwrap(() => new ParserBuilder().build()).toBe("NO_ENTRY_NT");
 
-  expect(() =>
+  expect_unwrap(() =>
     new ParserBuilder().define({ exp: `number` }).checkSymbols(new Set())
-  ).toThrow(`Undefined grammar symbol: number`);
+  ).toBe("UNKNOWN_GRAMMAR");
 
-  expect(() =>
+  expect_unwrap(() =>
     new ParserBuilder()
       .define({ exp: `number` })
       .checkSymbols(new Set(["exp", "number"]))
-  ).toThrow(`Duplicated definition for grammar symbol: exp`);
+  ).toBe("DUPLICATED_DEFINITION");
 
-  expect(() =>
+  expect_unwrap(() =>
     new ParserBuilder().entry("exp").checkSymbols(new Set())
-  ).toThrow(`Undefined entry NT: "exp"`);
+  ).toBe("UNKNOWN_ENTRY_NT");
 });
 
 test("ParserBuilder check conflicts", () => {
   // RS conflict
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `exp '-' exp` })
       .checkConflicts(lexer)
-  ).toThrow(`Unresolved R-S conflict`);
+  ).toBe("CONFLICT");
   console.log = jest.fn();
   new LR.ParserBuilder()
     .entry("exp")
@@ -109,7 +108,7 @@ test("ParserBuilder check conflicts", () => {
   );
 
   // RR conflict at end of input, no next
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define(
@@ -122,7 +121,7 @@ test("ParserBuilder check conflicts", () => {
       )
       .define({ xxx: `number | xxx number` })
       .checkConflicts(lexer)
-  ).toThrow(`Unresolved R-R conflict`);
+  ).toBe("CONFLICT");
   console.log = jest.fn();
   new LR.ParserBuilder()
     .entry("exp")
@@ -141,7 +140,7 @@ test("ParserBuilder check conflicts", () => {
   );
 
   // RR conflict with next
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `number` })
@@ -152,7 +151,7 @@ test("ParserBuilder check conflicts", () => {
       .define({ xxx: `number` })
       .define({ xxx: `xxx number` })
       .checkConflicts(lexer)
-  ).toThrow(`Unresolved R-R conflict`);
+  ).toBe("CONFLICT");
   console.log = jest.fn();
   new LR.ParserBuilder()
     .entry("exp")
@@ -166,7 +165,7 @@ test("ParserBuilder check conflicts", () => {
   );
 
   // RR conflict with next, no end of input
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define(
@@ -180,34 +179,34 @@ test("ParserBuilder check conflicts", () => {
       .define({ xxx: `number` })
       .define({ xxx: `xxx number` })
       .checkConflicts(lexer)
-  ).toThrow(`Unresolved R-R conflict`);
+  ).toBe("CONFLICT");
 });
 
 test("ParserBuilder check resolved", () => {
   // No such grammar rule
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `number` })
       .resolveRR({ exp: `number` }, { exp: `xxx` }, { next: `end` })
       .checkConflicts(lexer)
-  ).toThrow(`No such grammar rule`);
-  expect(() =>
+  ).toBe("GRAMMAR_RULE_NOT_FOUND");
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `number` })
       .resolveRR({ exp: `xxx` }, { exp: `number` }, { next: `end` })
       .checkConflicts(lexer)
-  ).toThrow(`No such grammar rule`);
+  ).toBe("GRAMMAR_RULE_NOT_FOUND");
 
   // No next grammar
-  expect(() =>
+  expect_unwrap(() =>
     new LR.ParserBuilder()
       .entry("exp")
       .define({ exp: `number` })
       .resolveRR({ exp: `number` }, { exp: `number` }, { next: `end` })
       .checkConflicts(lexer)
-  ).toThrow(`not in follow set of`);
+  ).toBe("NEXT_GRAMMAR_NOT_FOUND");
 
   // print all
   console.log = jest.fn();
