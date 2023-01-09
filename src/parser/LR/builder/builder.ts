@@ -152,8 +152,13 @@ export class ParserBuilder<T> {
   /**
    * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
+   *
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
+   *
+   * If `printAll` is true, print all conflicts instead of throwing error.
+   *
+   * If `debug` is true, print all auto-resolved / user-resolved / unresolved conflicts.
    */
   checkConflicts(lexer?: ILexer, printAll = false, debug = false) {
     const { conflicts, dfa } = getConflicts(
