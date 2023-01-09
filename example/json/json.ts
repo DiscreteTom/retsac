@@ -1,4 +1,4 @@
-import { Lexer, LR, Manager } from "../src";
+import { Lexer, LR, Manager } from "../../src";
 
 const lexer = new Lexer.Builder()
   .ignore(/^\s/)

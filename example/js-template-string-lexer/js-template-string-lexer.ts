@@ -1,4 +1,4 @@
-import { Lexer } from "../src";
+import { Lexer } from "../../src";
 
 let tempStrDepth = 0;
 
