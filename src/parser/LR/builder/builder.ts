@@ -1,8 +1,8 @@
 import { ILexer } from "../../../lexer/model";
 import { DFA } from "../DFA";
-import { ParserError, ParserErrorType } from "../error";
 import { GrammarRule } from "../model";
 import { Parser } from "../parser";
+import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder, RR_ResolverOptions } from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import {
@@ -101,11 +101,7 @@ export class ParserBuilder<T> {
   }
 
   private buildDFA() {
-    if (this.entryNTs.size == 0)
-      throw new ParserError(
-        ParserErrorType.NO_ENTRY_NT,
-        `Please set entry NTs for LR Parser.`
-      );
+    if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
     return new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
   }
@@ -137,28 +133,17 @@ export class ParserBuilder<T> {
     // all symbols should have its definition
     grammarSet.forEach((g) => {
       if (!Ts.has(g) && !this.NTs.has(g))
-        throw new ParserError(
-          ParserErrorType.UNDEFINED_GRAMMAR_SYMBOL,
-          `Undefined grammar symbol: ${g}`
-        );
+        throw LR_BuilderError.unknownGrammar(g);
     });
 
     // check duplication
     this.NTs.forEach((name) => {
-      if (Ts.has(name))
-        throw new ParserError(
-          ParserErrorType.DUPLICATED_DEFINITION,
-          `Duplicated definition for grammar symbol: ${name}`
-        );
+      if (Ts.has(name)) throw LR_BuilderError.duplicatedDefinition(name);
     });
 
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
-      if (!this.NTs.has(NT))
-        throw new ParserError(
-          ParserErrorType.UNDEFINED_ENTRY_NT,
-          `Undefined entry NT: "${NT}"`
-        );
+      if (!this.NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
     });
 
     return this;
@@ -183,23 +168,9 @@ export class ParserBuilder<T> {
 
     conflicts.forEach((cs) => {
       cs.forEach((c) => {
-        const errMsg =
-          c.type == ConflictType.REDUCE_SHIFT
-            ? `Unresolved R-S conflict (length: ${c.length}, next: \`${c.next
-                .map((g) => g.toString())
-                .join(
-                  " "
-                )}\`): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`
-            : `Unresolved R-R conflict (${
-                (c.handleEnd ? "end of input" : "") +
-                (c.next.length > 0
-                  ? `${c.handleEnd ? ", " : ""}next: \`${c.next
-                      .map((g) => g.toString())
-                      .join(" ")}\``
-                  : "")
-              }): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`;
-        if (printAll) console.log(errMsg);
-        else throw new ParserError(ParserErrorType.CONFLICT, errMsg);
+        const err = LR_BuilderError.conflict(c);
+        if (printAll) console.log(err.message);
+        else throw err;
       });
     });
 
@@ -214,10 +185,9 @@ export class ParserBuilder<T> {
       //     throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
       // }
       if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule))) {
-        const errMsg = `No such grammar rule: ${g.anotherRule.toString()}`;
-        if (printAll) console.log(errMsg);
-        else
-          throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
+        const err = LR_BuilderError.grammarRuleNotFound(g.anotherRule);
+        if (printAll) console.log(err.message);
+        else throw err;
       }
     });
 
@@ -229,9 +199,9 @@ export class ParserBuilder<T> {
             .get(g.reducerRule.NT)!
             .has(n.toGrammar(this.NTs.has(n.content)))
         ) {
-          const errMsg = `Next grammar ${n.toString()} not in follow set of ${g.reducerRule.NT.toString()}`;
-          if (printAll) console.log(errMsg);
-          else throw new ParserError(ParserErrorType.NO_SUCH_NEXT, errMsg);
+          const err = LR_BuilderError.nextGrammarNotFound(n, g.reducerRule.NT);
+          if (printAll) console.log(err.message);
+          else throw err;
         }
       });
     });
@@ -317,7 +287,7 @@ export class ParserBuilder<T> {
     grs.forEach((gr) => {
       // find the grammar rule
       const idx = this.tempGrammarRules.findIndex((g) => g.weakEq(gr));
-      if (idx < 0) throw new Error(`No such grammar rule: ${gr.toString()}`);
+      if (idx < 0) throw LR_BuilderError.grammarRuleNotFound(gr);
       // apply rejecter
       const r = this.tempGrammarRules[idx].rejecter;
       this.tempGrammarRules[idx].rejecter = (ctx) =>

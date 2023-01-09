@@ -5,6 +5,7 @@ import { GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
+import { LR_RuntimeError } from "./../error";
 
 /** LR(1) DFA. */
 export class DFA<T> {
@@ -244,8 +245,7 @@ export class DFA<T> {
     // convert to mock AST node
     const mockNodes = gs.map((g) => {
       if (g.type == GrammarType.LITERAL) {
-        if (!lexer)
-          throw new Error("Lexer is required to parse literal grammars.");
+        if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
         return new ASTNode<T>({
           type: lexer.reset().lex(g.content)!.type,
           text: g.content,

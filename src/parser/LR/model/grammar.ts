@@ -1,5 +1,4 @@
 import { ASTNode } from "../../ast";
-import { ParserError, ParserErrorType } from "../error";
 import { Callback, Rejecter } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -57,11 +56,9 @@ export class GrammarRule<T> {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
 
-    if (!p.rule.length)
-      throw new ParserError(
-        ParserErrorType.EMPTY_RULE,
-        `Rule can NOT be empty.`
-      );
+    // parser builder will ensure every rule has at least one grammar.
+    // we don't need to check it here.
+    // if (!p.rule.length) throw ParserError.emptyRule(p.NT);
 
     Object.assign(this, p);
   }

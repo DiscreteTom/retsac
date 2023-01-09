@@ -1,7 +1,7 @@
 import { ILexer } from "../../../../lexer/model";
 import { DFA } from "../../DFA";
-import { ParserError, ParserErrorType } from "../../error";
 import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
+import { LR_BuilderError } from "../error";
 import { TempConflict, ConflictType, Conflict } from "../model";
 
 /**
@@ -89,10 +89,7 @@ function getUnresolvedConflicts<T>(
   // check end
   const endHandlers = related.filter((r) => r.handleEnd);
   if (endHandlers.length > 1) {
-    throw new ParserError(
-      ParserErrorType.TOO_MANY_END_HANDLER,
-      `Too many end handlers for rule ${endHandlers[0].reducerRule.toString()}`
-    );
+    throw LR_BuilderError.tooManyEndHandler(endHandlers[0].reducerRule);
   }
   let unresolvedEnd = checkHandleEnd;
   if (checkHandleEnd) {

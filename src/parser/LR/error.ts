@@ -1,25 +1,20 @@
-export enum ParserErrorType {
-  NO_ENTRY_NT,
-  UNDEFINED_GRAMMAR_SYMBOL,
-  DUPLICATED_DEFINITION,
-  UNDEFINED_ENTRY_NT,
-  TOKENIZE_GRAMMAR_RULE_FAILED,
-  EMPTY_RULE,
-  EMPTY_LITERAL,
-  CONFLICT,
-  NO_SUCH_GRAMMAR_RULE,
-  TOO_MANY_END_HANDLER,
-  NO_SUCH_NEXT,
-}
+export type LR_RuntimeErrorType = "MISSING_LEXER";
 
-export class ParserError extends Error {
-  type: ParserErrorType;
+export class LR_RuntimeError extends Error {
+  type: LR_RuntimeErrorType;
 
-  constructor(type: ParserErrorType, msg: string) {
+  constructor(type: LR_RuntimeErrorType, msg: string) {
     super(msg);
 
     this.type = type;
 
-    Object.setPrototypeOf(this, ParserError.prototype);
+    Object.setPrototypeOf(this, LR_RuntimeError.prototype);
+  }
+
+  static missingLexerToParseLiteral() {
+    return new LR_RuntimeError(
+      "MISSING_LEXER",
+      `Lexer is required to parse literal grammars`
+    );
   }
 }

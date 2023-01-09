@@ -1,7 +1,7 @@
 import { Lexer } from "../../../..";
 import { exact, stringLiteral } from "../../../../lexer";
 import { Token } from "../../../../lexer/model";
-import { ParserError, ParserErrorType } from "../../error";
+import { LR_BuilderError } from "../error";
 import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../temp-grammar";
 
@@ -25,45 +25,34 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
     /** `[grammar rule index][token index]` */
     const rules: Token[][] = [[]];
     const def = defs[NT];
+    const defStr = def instanceof Array ? def.join("|") : def;
     grammarLexer
       .reset()
-      .lexAll(def instanceof Array ? def.join("|") : def)
+      .lexAll(defStr)
       .map((t) => {
         if (t.type == "or") rules.push([]); // new grammar rule
         else rules.at(-1)!.push(t); // append token to the last grammar rule
       });
 
     if (grammarLexer.hasRest())
-      throw new ParserError(
-        ParserErrorType.TOKENIZE_GRAMMAR_RULE_FAILED,
-        `Unable to tokenize: "${grammarLexer.getRest()}" in grammar rule: "${
-          defs[NT]
-        }"`
+      throw LR_BuilderError.tokenizeGrammarRuleFailed(
+        defStr,
+        grammarLexer.getRest()
       );
     if (rules.length == 1 && rules[0].length == 0)
-      throw new ParserError(
-        ParserErrorType.EMPTY_RULE,
-        `Empty rule: "${NT} => ${defs[NT]}"`
-      );
+      throw LR_BuilderError.emptyRule(NT, defStr);
 
     rules.map((tokens) => {
       const ruleStr = tokens.map((t) => t.content).join(" ");
 
-      if (tokens.length == 0)
-        throw new ParserError(
-          ParserErrorType.EMPTY_RULE,
-          `No grammar or literal in rule '${NT} => ${ruleStr}'`
-        );
+      if (tokens.length == 0) throw LR_BuilderError.emptyRule(NT, defStr);
 
       if (
         !tokens
           .filter((t) => t.type == "literal")
           .every((t) => t.content.length > 2)
       )
-        throw new ParserError(
-          ParserErrorType.EMPTY_LITERAL,
-          `Literal value can't be empty in rule '${NT} => ${ruleStr}'`
-        );
+        throw LR_BuilderError.emptyLiteral(NT, ruleStr);
 
       result.push(
         new TempGrammarRule<T>({
