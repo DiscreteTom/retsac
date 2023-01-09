@@ -93,16 +93,16 @@ export function wordType(...words: readonly string[]): {
 export function stringLiteral(
   p: (
     | {
-        single?: true;
-        double?: true;
-        back?: true;
+        single?: boolean;
+        double?: boolean;
+        back?: boolean;
       }
     | {
         from: string;
         to: string;
       }
     | { quote: string }
-  ) & { multiline?: true }
+  ) & { multiline?: boolean }
 ) {
   return Action.from((buffer) => {
     let digested = 0;
