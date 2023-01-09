@@ -19,7 +19,7 @@ jobs:
       - name: Run Tests
         run: yarn test:coverage
 
-      - name: Check Generated README
+      - name: Build Doc & Check Generated README
         run: |
           mv README.md README.md.bk
           yarn build:doc
@@ -29,6 +29,14 @@ jobs:
         uses: codecov/codecov-action@v3
 
       - run: yarn build
+
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
+
+      - name: GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: docs
