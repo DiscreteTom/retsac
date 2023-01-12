@@ -180,8 +180,8 @@ export class DFA<T> {
     }
 
     // if not found in cache, construct next state and cache it
-    const res = currentState.getNext(next, this.NTClosures);
-    if (!res.accept) {
+    const nextState = currentState.getNext(next, this.NTClosures);
+    if (nextState == null) {
       // cache next state as undefined, which means we already tried to construct it but failed
       this.nextStateCache
         .get(currentState)!
@@ -190,7 +190,7 @@ export class DFA<T> {
     }
     // else, construction succeed
 
-    let result = res.state!;
+    let result = nextState;
     // check if next state is already in cache
     this.nextStateCache.forEach((_, state) => {
       if (state.eq(result)) result = state;

@@ -14,7 +14,7 @@ export class State<T> {
   getNext(
     next: Readonly<ASTNode<T>>,
     NTClosures: Readonly<Map<string, GrammarRule<T>[]>>
-  ) {
+  ): State<T> | null {
     const directCandidates = this.candidates
       .map((c) => c.getNext(next))
       .filter((c) => c != null) as Candidate<T>[];
@@ -37,11 +37,7 @@ export class State<T> {
       .map((gr) => new Candidate({ gr, digested: 0 })); // TODO: cache all candidates with digested = 0, to avoid creating new object every time
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
-    // if DFA can't accept input
-    if (nextCandidates.length == 0) {
-      return { accept: false };
-    }
-    return { accept: true, state: new State(nextCandidates) };
+    return nextCandidates.length == 0 ? null : new State(nextCandidates);
   }
 
   /** Traverse all candidates to try to reduce. */
