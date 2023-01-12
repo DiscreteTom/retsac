@@ -102,14 +102,6 @@ export class State<T> {
     return this.candidates.some((c) => c.eq({ gr, digested }));
   }
 
-  eq(other: Readonly<State<T>>) {
-    return (
-      this.candidates.length == other.candidates.length &&
-      // since candidates are sorted, we can compare them one by one
-      this.candidates.every((c, i) => other.candidates[i].eq(c))
-    );
-  }
-
   /**
    * Get the string representation of this state.
    *
