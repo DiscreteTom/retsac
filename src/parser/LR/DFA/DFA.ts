@@ -31,18 +31,7 @@ export class DFA<T> {
     NTs: Readonly<Set<string>>
   ) {
     this.allGrammarRules = allGrammarRules;
-    this.entryState = new State(
-      getGrammarRulesClosure(
-        allGrammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
-        allGrammarRules
-      ).map((gr) => new Candidate({ gr, digested: 0 }))
-    );
-    this.NTClosures = getAllNTClosure(NTs, allGrammarRules);
     this.entryNTs = entryNTs;
-
-    // init all states
-    this.allStates = new Map();
-    this.allStates.set(this.entryState.toString(), this.entryState);
 
     // init all initial candidates
     this.allInitialCandidates = new Map();
@@ -50,6 +39,24 @@ export class DFA<T> {
       const c = new Candidate({ gr, digested: 0 });
       this.allInitialCandidates.set(c.toString(), c);
     });
+
+    this.entryState = new State(
+      getGrammarRulesClosure(
+        allGrammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
+        allGrammarRules
+      ).map(
+        (gr) =>
+          // get initial candidate from global cache
+          this.allInitialCandidates.get(
+            new Candidate({ gr, digested: 0 }).toString()
+          )!
+      )
+    );
+    this.NTClosures = getAllNTClosure(NTs, allGrammarRules);
+
+    // init all states
+    this.allStates = new Map();
+    this.allStates.set(this.entryState.toString(), this.entryState);
 
     // construct first sets for all NTs
     this.firstSets = new Map();
