@@ -51,9 +51,7 @@ export class State<T> {
       .map(
         (gr) =>
           // get initial candidate from global cache
-          allInitialCandidates.get(
-            new Candidate({ gr, digested: 0 }).toString()
-          )!
+          allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
 

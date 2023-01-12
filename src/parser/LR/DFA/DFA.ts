@@ -48,7 +48,7 @@ export class DFA<T> {
         (gr) =>
           // get initial candidate from global cache
           this.allInitialCandidates.get(
-            new Candidate({ gr, digested: 0 }).toString()
+            Candidate.getString({ gr, digested: 0 })
           )!
       )
     );

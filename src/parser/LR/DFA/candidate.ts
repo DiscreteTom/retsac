@@ -9,6 +9,15 @@ export class Candidate<T> {
   readonly digested: number;
   private nextCache: Map<string, Candidate<T> | null>;
 
+  /**
+   * Candidate should only be created when:
+   *
+   * 1. Create initial candidates by DFA.
+   * 2. Create next candidates by `Candidate.getNext`.
+   * 3. Get string value by `Candidate.getString`.
+   *
+   * This will ensure that all candidates are unique and only one instance exists.
+   */
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
     Object.assign(this, data);
     this.nextCache = new Map();
@@ -115,6 +124,15 @@ export class Candidate<T> {
       index,
       ...this.gr.rule.slice(this.digested).map((r) => r.toString()),
     ].join(sep);
+  }
+
+  static getString<_>(
+    data: Pick<Candidate<_>, "gr" | "digested">,
+    sep = " ",
+    arrow = "<=",
+    index = "@"
+  ) {
+    return new Candidate(data).toString(sep, arrow, index);
   }
 
   eq(other: { gr: Readonly<GrammarRule<T>>; digested: number }) {
