@@ -25,4 +25,5 @@ export interface ILexer {
     input?: string | { input?: string; expect?: ReadonlySet<string> }
   ): Token | null;
   lexAll(input?: string, stopOnError?: boolean): Token[];
+  trimStart(input?: string): ILexer;
 }

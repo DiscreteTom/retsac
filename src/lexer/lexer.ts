@@ -125,6 +125,62 @@ export class Lexer {
   }
 
   /**
+   * Remove ignored chars from the start of the buffer.
+   */
+  trimStart(input = "") {
+    this.feed(input);
+
+    while (true) {
+      if (this.buffer.length == 0) return this;
+      let mute = false;
+      for (const def of this.defs) {
+        const res = def.action.exec(this.buffer);
+        if (res.accept) {
+          if (!res.mute) {
+            // next token is not muted
+            // don't update state, just return
+            return this;
+          }
+
+          // next token is muted, update this state
+          const content = this.buffer.slice(0, res.digested);
+          this.buffer = this.buffer.slice(res.digested);
+          this.offset += content.length;
+
+          // calculate line chars
+          content.split("\n").map((part, i, list) => {
+            this.lineChars[this.lineChars.length - 1] += part.length;
+            if (i != list.length - 1) {
+              this.lineChars[this.lineChars.length - 1]++; // add '\n'
+              this.lineChars.push(0); // new line with 0 chars
+            }
+          });
+
+          // construct token
+          const token: Token = {
+            type: def.type,
+            content,
+            start: this.offset - content.length,
+            error: res.error,
+          };
+
+          // collect errors
+          if (token.error) this.errors.push(token);
+
+          // since muted, re-loop all definitions
+          mute = true;
+          break;
+        }
+        // not accept, try next def
+      }
+      if (!mute)
+        // all definition checked, no accept
+        return this;
+      // else, muted, re-loop all definitions
+    }
+  }
+
+  /**
    * Get the rest string buffer.
    */
   getRest() {
