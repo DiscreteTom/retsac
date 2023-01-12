@@ -42,16 +42,29 @@ export class Lexer {
 
   /**
    * Try to retrieve a token. If nothing match, return `null`.
+   *
+   * You can provide `expect` to limit the token types to be accepted.
    */
-  lex(input = ""): Token | null {
-    this.feed(input);
+  lex(
+    input: string | { input?: string; expect?: Readonly<Set<string>> } = ""
+  ): Token | null {
+    // feed input if provided
+    if (typeof input === "string") {
+      this.feed(input);
+    } else {
+      if (input.input) this.feed(input.input);
+    }
+
+    // calculate expect
+    const expect = typeof input === "string" ? undefined : input.expect;
+
     if (this.buffer.length == 0) return null;
 
     while (true) {
       let mute = false;
       for (const def of this.defs) {
         const res = def.action.exec(this.buffer);
-        if (res.accept) {
+        if (res.accept && (!expect || expect.has(def.type))) {
           // update this state
           const content = this.buffer.slice(0, res.digested);
           this.buffer = this.buffer.slice(res.digested);

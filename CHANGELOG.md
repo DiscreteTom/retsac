@@ -8,6 +8,7 @@
   - If token has no error, the error field will be `undefined`.
   - Add interface `ILexer`.
   - Add `Lexer.clone`.
+  - `Lexer.lex` add optional parameter `expect` to limit the output token type.
 - Parser
   - Use `DefinitionContextBuilder` to define parser actions.
   - If ASTNode has no error, the error field will be `undefined`.

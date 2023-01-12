@@ -21,6 +21,8 @@ export interface Definition {
 export interface ILexer {
   reset(): ILexer;
   feed(input: string): ILexer;
-  lex(input?: string): Token | null;
+  lex(
+    input?: string | { input?: string; expect?: Readonly<Set<string>> }
+  ): Token | null;
   lexAll(input?: string, stopOnError?: boolean): Token[];
 }
