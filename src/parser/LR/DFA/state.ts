@@ -9,6 +9,14 @@ export class State<T> {
   readonly candidates: readonly Candidate<T>[];
   private nextCache: Map<string, State<T> | null>;
 
+  /**
+   * State should only be created when:
+   *
+   * 1. DFA create entry state.
+   * 2. `State.getNext`.
+   *
+   * This will ensure that all states are unique and only one instance exists.
+   */
   constructor(candidates: Candidate<T>[]) {
     this.candidates = candidates.sort((a, b) =>
       a.toString() > b.toString() ? 1 : -1
