@@ -7,9 +7,11 @@ export class Candidate<T> {
   readonly gr: GrammarRule<T>;
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
+  private nextCache: Map<string, Candidate<T> | null>;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
     Object.assign(this, data);
+    this.nextCache = new Map();
   }
 
   /** Current grammar. */
@@ -27,9 +29,19 @@ export class Candidate<T> {
    * Return `null` if the node can not be accepted.
    */
   getNext(node: Readonly<ASTNode<T>>): Candidate<T> | null {
-    if (this.canDigestMore() && this.current.eq(node))
-      return new Candidate({ gr: this.gr, digested: this.digested + 1 });
-    return null;
+    const key = JSON.stringify({ type: node.type, text: node.text });
+
+    // try to get from cache
+    const cache = this.nextCache.get(key);
+    if (cache !== undefined) return cache;
+
+    // not in cache, calculate and cache
+    const res =
+      this.canDigestMore() && this.current.eq(node)
+        ? new Candidate({ gr: this.gr, digested: this.digested + 1 })
+        : null;
+    this.nextCache.set(key, res);
+    return res;
   }
 
   /**
