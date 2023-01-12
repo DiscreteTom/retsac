@@ -5,16 +5,29 @@ import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state. */
 export class State<T> {
-  readonly candidates: Candidate<T>[];
+  /** Sorted candidates by candidates' string value. */
+  readonly candidates: readonly Candidate<T>[];
+  private nextCache: Map<string, State<T> | null>;
 
   constructor(candidates: Candidate<T>[]) {
-    this.candidates = candidates;
+    this.candidates = candidates.sort((a, b) =>
+      a.toString() > b.toString() ? 1 : -1
+    );
+    this.nextCache = new Map();
   }
 
   getNext(
     next: Readonly<ASTNode<T>>,
-    NTClosures: Readonly<Map<string, GrammarRule<T>[]>>
-  ): State<T> | null {
+    NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
+    allStates: Map<string, State<T>>
+  ): { state: State<T> | null; changed: boolean } {
+    const key = JSON.stringify({ type: next.type, text: next.text });
+
+    // try to get from local cache
+    const cache = this.nextCache.get(key);
+    if (cache !== undefined) return { state: cache, changed: false };
+
+    // not in cache, calculate and cache
     const directCandidates = this.candidates
       .map((c) => c.getNext(next))
       .filter((c) => c != null) as Candidate<T>[];
@@ -37,7 +50,22 @@ export class State<T> {
       .map((gr) => new Candidate({ gr, digested: 0 })); // TODO: cache all candidates with digested = 0, to avoid creating new object every time
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
-    return nextCandidates.length == 0 ? null : new State(nextCandidates);
+    const result =
+      nextCandidates.length == 0 ? null : new State(nextCandidates);
+
+    // check & update global state cache
+    if (result != null) {
+      const cache = allStates.get(result.toString());
+      if (cache !== undefined) {
+        this.nextCache.set(key, cache);
+        return { state: cache, changed: false };
+      } else {
+        allStates.set(result.toString(), result);
+      }
+    }
+
+    this.nextCache.set(key, result);
+    return { state: result, changed: true };
   }
 
   /** Traverse all candidates to try to reduce. */
@@ -45,8 +73,8 @@ export class State<T> {
     buffer: readonly ASTNode<T>[],
     /** From where of the buffer to reduce. */
     start: number,
-    entryNTs: Readonly<Set<string>>,
-    followSets: Readonly<Map<string, GrammarSet>>,
+    entryNTs: ReadonlySet<string>,
+    followSets: ReadonlyMap<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
@@ -64,7 +92,17 @@ export class State<T> {
   eq(other: Readonly<State<T>>) {
     return (
       this.candidates.length == other.candidates.length &&
-      this.candidates.every((c) => other.candidates.some((oc) => c.eq(oc)))
+      // since candidates are sorted, we can compare them one by one
+      this.candidates.every((c, i) => other.candidates[i].eq(c))
     );
+  }
+
+  /**
+   * Get the string representation of this state.
+   *
+   * Since candidates are sorted, the string representation of this state is unique.
+   */
+  toString() {
+    return this.candidates.map((c) => c.toString()).join("\n");
   }
 }

@@ -19,18 +19,8 @@ export class DFA<T> {
   private readonly entryNTs: Readonly<Set<string>>;
   /** Current state is `states.at(-1)`. */
   private stateStack: State<T>[];
-  /**
-   * We will construct the state machine's state transition map on the fly.
-   * If the `next` is `undefined`, means we already tried to construct it but failed.
-   */
-  private nextStateCache: Map<
-    State<T>,
-    {
-      node: ASTNode<T>;
-      /** If the `next` is `undefined`, means we already tried to construct it but failed. */
-      next?: State<T>;
-    }[]
-  >;
+  /** string representation of state => state */
+  private allStates: Map<string, State<T>>;
   debug: boolean;
 
   constructor(
@@ -47,8 +37,8 @@ export class DFA<T> {
     );
     this.NTClosures = getAllNTClosure(NTs, allGrammarRules);
     this.entryNTs = entryNTs;
-    this.nextStateCache = new Map();
-    this.nextStateCache.set(this.entryState, []); // init
+    this.allStates = new Map();
+    this.allStates.set(this.entryState.toString(), this.entryState);
 
     // construct first sets for all NTs
     this.firstSets = new Map();
@@ -113,11 +103,10 @@ export class DFA<T> {
     const errors: ASTNode<T>[] = [];
     while (index < buffer.length) {
       // try to construct next state
-      const nextStateResult = this.getNextState(
-        this.stateStack.at(-1)!,
-        buffer[index]
-      );
-      if (!nextStateResult.accept) {
+      const nextStateResult = this.stateStack
+        .at(-1)!
+        .getNext(buffer[index], this.NTClosures, this.allStates);
+      if (nextStateResult.state == null) {
         if (this.debug)
           console.log(
             `[End] No more candidate. Node=${buffer[
@@ -131,7 +120,7 @@ export class DFA<T> {
       }
 
       // push stack
-      this.stateStack.push(nextStateResult.next!);
+      this.stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
       const res = this.stateStack
@@ -162,45 +151,6 @@ export class DFA<T> {
     return { accept: false };
   }
 
-  /** Try to get next state from cache. If cache miss, calculate next state and update cache. */
-  private getNextState(
-    currentState: Readonly<State<T>>,
-    next: Readonly<ASTNode<T>>
-  ) {
-    const transition = this.nextStateCache.get(currentState)!.find(
-      (c) =>
-        // check ast node equality
-        c.node.type == next.type && c.node.text == next.text
-    );
-    if (transition) {
-      // found in cache
-      if (transition.next) {
-        return { accept: true, next: transition.next, changed: false };
-      } else return { accept: false, changed: false };
-    }
-
-    // if not found in cache, construct next state and cache it
-    const nextState = currentState.getNext(next, this.NTClosures);
-    if (nextState == null) {
-      // cache next state as undefined, which means we already tried to construct it but failed
-      this.nextStateCache
-        .get(currentState)!
-        .push({ node: next, next: undefined });
-      return { accept: false, changed: true };
-    }
-    // else, construction succeed
-
-    let result = nextState;
-    // check if next state is already in cache
-    this.nextStateCache.forEach((_, state) => {
-      if (state.eq(result)) result = state;
-    });
-    // cache next state
-    this.nextStateCache.get(currentState)!.push({ next: result, node: next });
-    if (!this.nextStateCache.has(result)) this.nextStateCache.set(result, []);
-    return { accept: true, next: result, changed: true };
-  }
-
   /**
    * Calculate state machine's state transition map ahead of time and cache.
    * This action requires a lexer to calculate literal's type name.
@@ -228,9 +178,10 @@ export class DFA<T> {
 
     while (true) {
       let changed = false;
-      this.nextStateCache.forEach((transitions, state) => {
+      this.allStates.forEach((state) => {
         mockNodes.forEach((node) => {
-          if (this.getNextState(state, node).changed) changed = true;
+          if (state.getNext(node, this.NTClosures, this.allStates).changed)
+            changed = true;
         });
       });
       if (!changed) break;
@@ -250,9 +201,7 @@ export class DFA<T> {
    */
   getAllStates() {
     const result: State<T>[] = [];
-    this.nextStateCache.forEach((transitions, state) => {
-      result.push(state);
-    });
+    this.allStates.forEach((s) => result.push(s));
     return result;
   }
 }
