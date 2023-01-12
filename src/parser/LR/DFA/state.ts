@@ -19,7 +19,8 @@ export class State<T> {
   getNext(
     next: Readonly<ASTNode<T>>,
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
-    allStates: Map<string, State<T>>
+    allStates: Map<string, State<T>>,
+    allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
     const key = JSON.stringify({ type: next.type, text: next.text });
 
@@ -47,7 +48,13 @@ export class State<T> {
         });
         return p;
       }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
-      .map((gr) => new Candidate({ gr, digested: 0 })); // TODO: cache all candidates with digested = 0, to avoid creating new object every time
+      .map(
+        (gr) =>
+          // get initial candidate from global cache
+          allInitialCandidates.get(
+            new Candidate({ gr, digested: 0 }).toString()
+          )!
+      );
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
     const result =

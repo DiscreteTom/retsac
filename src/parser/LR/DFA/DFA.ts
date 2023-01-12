@@ -21,6 +21,8 @@ export class DFA<T> {
   private stateStack: State<T>[];
   /** string representation of state => state */
   private allStates: Map<string, State<T>>;
+  /** string representation of candidate => candidate */
+  private allInitialCandidates: Map<string, Candidate<T>>;
   debug: boolean;
 
   constructor(
@@ -37,8 +39,17 @@ export class DFA<T> {
     );
     this.NTClosures = getAllNTClosure(NTs, allGrammarRules);
     this.entryNTs = entryNTs;
+
+    // init all states
     this.allStates = new Map();
     this.allStates.set(this.entryState.toString(), this.entryState);
+
+    // init all initial candidates
+    this.allInitialCandidates = new Map();
+    this.allGrammarRules.forEach((gr) => {
+      const c = new Candidate({ gr, digested: 0 });
+      this.allInitialCandidates.set(c.toString(), c);
+    });
 
     // construct first sets for all NTs
     this.firstSets = new Map();
@@ -105,7 +116,12 @@ export class DFA<T> {
       // try to construct next state
       const nextStateResult = this.stateStack
         .at(-1)!
-        .getNext(buffer[index], this.NTClosures, this.allStates);
+        .getNext(
+          buffer[index],
+          this.NTClosures,
+          this.allStates,
+          this.allInitialCandidates
+        );
       if (nextStateResult.state == null) {
         if (this.debug)
           console.log(
@@ -180,7 +196,14 @@ export class DFA<T> {
       let changed = false;
       this.allStates.forEach((state) => {
         mockNodes.forEach((node) => {
-          if (state.getNext(node, this.NTClosures, this.allStates).changed)
+          if (
+            state.getNext(
+              node,
+              this.NTClosures,
+              this.allStates,
+              this.allInitialCandidates
+            ).changed
+          )
             changed = true;
         });
       });
