@@ -54,8 +54,8 @@ export class Candidate<T> {
     buffer: readonly ASTNode<T>[],
     /** From where of the buffer to reduce. */
     index: number,
-    entryNTs: Readonly<Set<string>>,
-    followSets: Readonly<Map<string, GrammarSet>>,
+    entryNTs: ReadonlySet<string>,
+    followSets: ReadonlyMap<string, GrammarSet>,
     debug: boolean
   ): ParserOutput<T> {
     if (this.canDigestMore()) return { accept: false };
