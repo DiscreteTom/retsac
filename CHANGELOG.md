@@ -7,6 +7,7 @@
   - Change `Token` and `Definition` from type to interface.
   - If token has no error, the error field will be `undefined`.
   - Add interface `ILexer`.
+  - Add `Lexer.clone`.
 - Parser
   - Use `DefinitionContextBuilder` to define parser actions.
   - If ASTNode has no error, the error field will be `undefined`.

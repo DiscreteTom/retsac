@@ -24,6 +24,15 @@ export class Lexer {
     return this;
   }
 
+  clone() {
+    const res = new Lexer(this.defs);
+    res.buffer = this.buffer;
+    res.offset = this.offset;
+    res.lineChars = [...this.lineChars];
+    res.errors = [...this.errors];
+    return res;
+  }
+
   /** Append buffer with input. */
   feed(input: string) {
     this.buffer += input;
