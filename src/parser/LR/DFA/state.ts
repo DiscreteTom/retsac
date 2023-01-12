@@ -27,7 +27,7 @@ export class State<T> {
   getNext(
     next: Readonly<ASTNode<T>>,
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
-    allStates: Map<string, State<T>>,
+    allStatesCache: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
     const key = JSON.stringify({ type: next.type, text: next.text });
@@ -68,12 +68,12 @@ export class State<T> {
 
     // check & update global state cache
     if (result != null) {
-      const cache = allStates.get(result.toString());
+      const cache = allStatesCache.get(result.toString());
       if (cache !== undefined) {
         this.nextCache.set(key, cache);
         return { state: cache, changed: false };
       } else {
-        allStates.set(result.toString(), result);
+        allStatesCache.set(result.toString(), result);
       }
     }
 
