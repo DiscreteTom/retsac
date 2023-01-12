@@ -21,13 +21,15 @@ export class Candidate<T> {
     return this.digested < this.gr.rule.length;
   }
 
-  canAccept(node: Readonly<ASTNode<T>>) {
-    return this.canDigestMore() && this.current.eq(node);
-  }
-
-  /** Generate next candidate with `digested + 1`. */
-  next() {
-    return new Candidate({ gr: this.gr, digested: this.digested + 1 });
+  /**
+   * Accept the node and generate next candidate with `digested + 1`.
+   *
+   * Return `null` if the node can not be accepted.
+   */
+  getNext(node: Readonly<ASTNode<T>>): Candidate<T> | null {
+    if (this.canDigestMore() && this.current.eq(node))
+      return new Candidate({ gr: this.gr, digested: this.digested + 1 });
+    return null;
   }
 
   /**

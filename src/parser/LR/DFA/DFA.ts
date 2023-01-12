@@ -156,8 +156,8 @@ export class DFA<T> {
     next: Readonly<ASTNode<T>>
   ) {
     const directCandidates = currentState.candidates
-      .filter((c) => c.canAccept(next))
-      .map((c) => c.next());
+      .map((c) => c.getNext(next))
+      .filter((c) => c != null) as Candidate<T>[];
     const indirectCandidates = directCandidates
       .reduce((p, c) => {
         if (
