@@ -16,7 +16,7 @@ export class DFA<T> {
   private readonly firstSets: Map<string, GrammarSet>;
   /** `NT => Grammars` */
   private readonly followSets: Map<string, GrammarSet>;
-  private readonly entryNTs: Readonly<Set<string>>;
+  private readonly entryNTs: ReadonlySet<string>;
   /** Current state is `states.at(-1)`. */
   private stateStack: State<T>[];
   /** string representation of state => state */
@@ -27,8 +27,8 @@ export class DFA<T> {
 
   constructor(
     allGrammarRules: readonly GrammarRule<T>[],
-    entryNTs: Readonly<Set<string>>,
-    NTs: Readonly<Set<string>>
+    entryNTs: ReadonlySet<string>,
+    NTs: ReadonlySet<string>
   ) {
     this.allGrammarRules = allGrammarRules;
     this.entryNTs = entryNTs;

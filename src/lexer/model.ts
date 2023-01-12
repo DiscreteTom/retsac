@@ -22,7 +22,7 @@ export interface ILexer {
   reset(): ILexer;
   feed(input: string): ILexer;
   lex(
-    input?: string | { input?: string; expect?: Readonly<Set<string>> }
+    input?: string | { input?: string; expect?: ReadonlySet<string> }
   ): Token | null;
   lexAll(input?: string, stopOnError?: boolean): Token[];
 }

@@ -46,7 +46,7 @@ export class Lexer {
    * You can provide `expect` to limit the token types to be accepted.
    */
   lex(
-    input: string | { input?: string; expect?: Readonly<Set<string>> } = ""
+    input: string | { input?: string; expect?: ReadonlySet<string> } = ""
   ): Token | null {
     // feed input if provided
     if (typeof input === "string") {

@@ -1,7 +1,7 @@
 import { GrammarRule, GrammarType } from "../model";
 
 export function getAllNTClosure<T>(
-  NTs: Readonly<Set<string>>,
+  NTs: ReadonlySet<string>,
   allGrammarRules: readonly GrammarRule<T>[]
 ): Map<string, GrammarRule<T>[]> {
   const result = new Map<string, GrammarRule<T>[]>();
