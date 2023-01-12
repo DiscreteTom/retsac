@@ -24,6 +24,7 @@ export class Lexer {
     return this;
   }
 
+  /** Clone a new lexer with the same state. */
   clone() {
     const res = new Lexer(this.defs);
     res.buffer = this.buffer;
