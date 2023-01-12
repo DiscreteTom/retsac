@@ -1,6 +1,6 @@
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import { GrammarSet, GrammarRule } from "../model";
+import { GrammarSet, GrammarRule, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state. */
@@ -9,6 +9,39 @@ export class State<T> {
 
   constructor(candidates: Candidate<T>[]) {
     this.candidates = candidates;
+  }
+
+  getNext(
+    next: Readonly<ASTNode<T>>,
+    NTClosures: Readonly<Map<string, GrammarRule<T>[]>>
+  ) {
+    const directCandidates = this.candidates
+      .map((c) => c.getNext(next))
+      .filter((c) => c != null) as Candidate<T>[];
+    const indirectCandidates = directCandidates
+      .reduce((p, c) => {
+        if (
+          c.canDigestMore() &&
+          c.current.type == GrammarType.NT &&
+          !p.includes(c.current.content)
+        )
+          p.push(c.current.content);
+        return p;
+      }, [] as string[]) // de-duplicated NT list
+      .reduce((p, c) => {
+        NTClosures.get(c)!.map((gr) => {
+          if (!p.includes(gr)) p.push(gr);
+        });
+        return p;
+      }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
+      .map((gr) => new Candidate({ gr, digested: 0 })); // TODO: cache all candidates with digested = 0, to avoid creating new object every time
+    const nextCandidates = directCandidates.concat(indirectCandidates);
+
+    // if DFA can't accept input
+    if (nextCandidates.length == 0) {
+      return { accept: false };
+    }
+    return { accept: true, state: new State(nextCandidates) };
   }
 
   /** Traverse all candidates to try to reduce. */

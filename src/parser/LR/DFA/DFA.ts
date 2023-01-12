@@ -117,7 +117,18 @@ export class DFA<T> {
         this.stateStack.at(-1)!,
         buffer[index]
       );
-      if (!nextStateResult.accept) return { accept: false };
+      if (!nextStateResult.accept) {
+        if (this.debug)
+          console.log(
+            `[End] No more candidate. Node=${buffer[
+              index
+            ].toString()} Candidates:\n${this.stateStack
+              .at(-1)!
+              .candidates.map((c) => c.toString())
+              .join("\n")}`
+          );
+        return { accept: false };
+      }
 
       // push stack
       this.stateStack.push(nextStateResult.next!);
@@ -151,45 +162,6 @@ export class DFA<T> {
     return { accept: false };
   }
 
-  private calculateNextState(
-    currentState: Readonly<State<T>>,
-    next: Readonly<ASTNode<T>>
-  ) {
-    const directCandidates = currentState.candidates
-      .map((c) => c.getNext(next))
-      .filter((c) => c != null) as Candidate<T>[];
-    const indirectCandidates = directCandidates
-      .reduce((p, c) => {
-        if (
-          c.canDigestMore() &&
-          c.current.type == GrammarType.NT &&
-          !p.includes(c.current.content)
-        )
-          p.push(c.current.content);
-        return p;
-      }, [] as string[]) // de-duplicated NT list
-      .reduce((p, c) => {
-        this.NTClosures.get(c)!.map((gr) => {
-          if (!p.includes(gr)) p.push(gr);
-        });
-        return p;
-      }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
-      .map((gr) => new Candidate({ gr, digested: 0 }));
-    const nextCandidates = directCandidates.concat(indirectCandidates);
-
-    // if DFA can't accept input
-    if (nextCandidates.length == 0) {
-      if (this.debug)
-        console.log(
-          `[End] No more candidate. Node=${next.toString()} Candidates:\n${currentState.candidates
-            .map((c) => c.toString())
-            .join("\n")}`
-        );
-      return { accept: false };
-    }
-    return { accept: true, state: new State(nextCandidates) };
-  }
-
   /** Try to get next state from cache. If cache miss, calculate next state and update cache. */
   private getNextState(
     currentState: Readonly<State<T>>,
@@ -208,7 +180,7 @@ export class DFA<T> {
     }
 
     // if not found in cache, construct next state and cache it
-    const res = this.calculateNextState(currentState, next);
+    const res = currentState.getNext(next, this.NTClosures);
     if (!res.accept) {
       // cache next state as undefined, which means we already tried to construct it but failed
       this.nextStateCache
