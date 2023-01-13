@@ -206,7 +206,7 @@ export class Lexer implements ILexer {
     return res;
   }
 
-  getLineChars() {
+  getLineChars(): readonly number[] {
     return this.lineChars;
   }
 
@@ -224,7 +224,7 @@ export class Lexer implements ILexer {
     return result;
   }
 
-  getErrors() {
+  getErrors(): readonly Token[] {
     return this.errors;
   }
 

@@ -69,7 +69,7 @@ export interface ILexer {
   /**
    * Get how many chars in each line.
    */
-  getLineChars(): number[];
+  getLineChars(): readonly number[];
   /**
    * Get line number (starts from 1) and column number (starts from 1)
    * from the index (starts from 0) of the input string.
@@ -78,6 +78,6 @@ export interface ILexer {
   /**
    * Get error tokens.
    */
-  getErrors(): Token[];
+  getErrors(): readonly Token[];
   hasError(): boolean;
 }
