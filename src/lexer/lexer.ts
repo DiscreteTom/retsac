@@ -24,7 +24,6 @@ export class Lexer implements ILexer {
     return this;
   }
 
-  /** Clone a new lexer with the same state. */
   clone() {
     const res = new Lexer(this.defs);
     res.buffer = this.buffer;
@@ -34,20 +33,15 @@ export class Lexer implements ILexer {
     return res;
   }
 
-  /** Clone a new lexer with the same definitions. */
   dryClone() {
     return new Lexer(this.defs);
   }
 
-  /** Append buffer with input. */
   feed(input: string) {
     this.buffer += input;
     return this;
   }
 
-  /**
-   * Take `n` chars from buffer and update state.
-   */
   take(n = 1) {
     // update this state
     const content = this.buffer.slice(0, n);
@@ -65,11 +59,6 @@ export class Lexer implements ILexer {
     return content;
   }
 
-  /**
-   * Try to retrieve a token. If nothing match, return `null`.
-   *
-   * You can provide `expect` to limit the token types to be accepted.
-   */
   lex(
     input:
       | string
@@ -147,9 +136,6 @@ export class Lexer implements ILexer {
     }
   }
 
-  /**
-   * Try to retrieve a token list.
-   */
   lexAll(input = "", stopOnError = false): Token[] {
     this.feed(input);
 
@@ -164,9 +150,6 @@ export class Lexer implements ILexer {
     return result;
   }
 
-  /**
-   * Remove ignored chars from the start of the buffer.
-   */
   trimStart(input = "") {
     this.feed(input);
 
@@ -209,40 +192,24 @@ export class Lexer implements ILexer {
     }
   }
 
-  /**
-   * Get the rest string buffer.
-   */
   getRest() {
     return this.buffer;
   }
 
-  /**
-   * Buffer not empty.
-   */
   hasRest() {
     return this.buffer.length != 0;
   }
 
-  /**
-   * Get all defined token types.
-   */
   getTokenTypes() {
     const res: Set<string> = new Set();
     this.defs.map((d) => res.add(d.type));
     return res;
   }
 
-  /**
-   * Get how many chars in each line.
-   */
   getLineChars() {
     return this.lineChars;
   }
 
-  /**
-   * Get line number (starts from 1) and column number (starts from 1)
-   * from the index (starts from 0) of the input string.
-   */
   getPos(index: number): { line: number; column: number } {
     const result = { line: 1, column: 1 };
     for (const n of this.lineChars) {
@@ -257,9 +224,6 @@ export class Lexer implements ILexer {
     return result;
   }
 
-  /**
-   * Get error tokens.
-   */
   getErrors() {
     return this.errors;
   }

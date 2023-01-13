@@ -20,10 +20,64 @@ export interface Definition {
 
 export interface ILexer {
   reset(): ILexer;
+  /** Clone a new lexer with the same state. */
+  clone(): ILexer;
+  /** Clone a new lexer with the same definitions. */
+  dryClone(): ILexer;
+  /** Append buffer with input. */
   feed(input: string): ILexer;
+  /**
+   * Take `n` chars from buffer and update state.
+   */
+  take(n?: number): string;
+  /**
+   * Try to retrieve a token. If nothing match, return `null`.
+   *
+   * You can provide `expect` to limit the token types/content to be accepted.
+   */
   lex(
-    input?: string | { input?: string; expect?: ReadonlySet<string> }
+    input?:
+      | string
+      | Readonly<{
+          input?: string;
+          expect?: Readonly<{
+            types?: ReadonlySet<string> | readonly string[];
+            text?: string;
+          }>;
+        }>
   ): Token | null;
+  /**
+   * Try to retrieve a token list.
+   */
   lexAll(input?: string, stopOnError?: boolean): Token[];
+  /**
+   * Remove ignored chars from the start of the buffer.
+   */
   trimStart(input?: string): ILexer;
+  /**
+   * Get the rest string buffer.
+   */
+  getRest(): string;
+  /**
+   * Buffer not empty.
+   */
+  hasRest(): boolean;
+  /**
+   * Get all defined token types.
+   */
+  getTokenTypes(): Set<string>;
+  /**
+   * Get how many chars in each line.
+   */
+  getLineChars(): number[];
+  /**
+   * Get line number (starts from 1) and column number (starts from 1)
+   * from the index (starts from 0) of the input string.
+   */
+  getPos(index: number): { line: number; column: number };
+  /**
+   * Get error tokens.
+   */
+  getErrors(): Token[];
+  hasError(): boolean;
 }
