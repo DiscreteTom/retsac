@@ -1,7 +1,7 @@
 import { Definition, Token } from "./model";
 
 /** Transform text string to a token list. */
-export class Lexer {
+export class Lexer implements ILexer {
   private readonly defs: readonly Definition[];
   private buffer: string;
   /** How many chars are digested. */
