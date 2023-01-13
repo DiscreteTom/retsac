@@ -188,16 +188,7 @@ export class DFA<T> {
       });
     });
     // convert to mock AST node
-    const mockNodes = gs.map((g) => {
-      if (g.type == GrammarType.LITERAL) {
-        if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
-        return new ASTNode<T>({
-          type: lexer.reset().lex(g.content)!.type,
-          text: g.content,
-          start: 0,
-        });
-      } else return new ASTNode<T>({ type: g.content, start: 0 });
-    });
+    const mockNodes = gs.map((g) => g.toASTNode<T>(lexer));
 
     while (true) {
       let changed = false;
