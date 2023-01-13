@@ -2,7 +2,7 @@ import { Definition, Token } from "./model";
 
 /** Transform text string to a token list. */
 export class Lexer {
-  private readonly defs: Definition[];
+  private readonly defs: readonly Definition[];
   private buffer: string;
   /** How many chars are digested. */
   private offset: number;
@@ -11,7 +11,7 @@ export class Lexer {
   /** Error token list. */
   private errors: Token[];
 
-  constructor(defs: Definition[]) {
+  constructor(defs: readonly Definition[]) {
     this.defs = defs;
     this.reset();
   }
