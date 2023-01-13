@@ -103,17 +103,7 @@ export class Lexer implements ILexer {
         const res = def.action.exec(this.buffer);
         if (res.accept && (!expect || expect.has(def.type))) {
           // update this state
-          const content = this.buffer.slice(0, res.digested);
-          this.buffer = this.buffer.slice(res.digested);
-          this.offset += content.length;
-          // calculate line chars
-          content.split("\n").map((part, i, list) => {
-            this.lineChars[this.lineChars.length - 1] += part.length;
-            if (i != list.length - 1) {
-              this.lineChars[this.lineChars.length - 1]++; // add '\n'
-              this.lineChars.push(0); // new line with 0 chars
-            }
-          });
+          const content = this.take(res.digested);
 
           // construct token
           const token: Token = {
@@ -180,18 +170,7 @@ export class Lexer implements ILexer {
           }
 
           // next token is muted, update this state
-          const content = this.buffer.slice(0, res.digested);
-          this.buffer = this.buffer.slice(res.digested);
-          this.offset += content.length;
-
-          // calculate line chars
-          content.split("\n").map((part, i, list) => {
-            this.lineChars[this.lineChars.length - 1] += part.length;
-            if (i != list.length - 1) {
-              this.lineChars[this.lineChars.length - 1]++; // add '\n'
-              this.lineChars.push(0); // new line with 0 chars
-            }
-          });
+          const content = this.take(res.digested);
 
           // construct token
           const token: Token = {
