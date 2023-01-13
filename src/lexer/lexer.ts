@@ -34,6 +34,11 @@ export class Lexer implements ILexer {
     return res;
   }
 
+  /** Clone a new lexer with the same definitions. */
+  dryClone() {
+    return new Lexer(this.defs);
+  }
+
   /** Append buffer with input. */
   feed(input: string) {
     this.buffer += input;
