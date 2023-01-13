@@ -53,10 +53,10 @@ export class Lexer implements ILexer {
   lex(
     input:
       | string
-      | {
+      | Readonly<{
           input?: string;
           expect?: ReadonlySet<string> | readonly string[];
-        } = ""
+        }> = ""
   ): Token | null {
     // feed input if provided
     if (typeof input === "string") {
