@@ -46,6 +46,26 @@ export class Lexer implements ILexer {
   }
 
   /**
+   * Take `n` chars from buffer and update state.
+   */
+  take(n = 1) {
+    // update this state
+    const content = this.buffer.slice(0, n);
+    this.buffer = this.buffer.slice(n);
+    this.offset += n;
+    // calculate line chars
+    content.split("\n").map((part, i, list) => {
+      this.lineChars[this.lineChars.length - 1] += part.length;
+      if (i != list.length - 1) {
+        this.lineChars[this.lineChars.length - 1]++; // add '\n'
+        this.lineChars.push(0); // new line with 0 chars
+      }
+    });
+
+    return content;
+  }
+
+  /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
    * You can provide `expect` to limit the token types to be accepted.
