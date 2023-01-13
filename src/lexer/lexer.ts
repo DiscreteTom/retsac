@@ -51,7 +51,12 @@ export class Lexer implements ILexer {
    * You can provide `expect` to limit the token types to be accepted.
    */
   lex(
-    input: string | { input?: string; expect?: ReadonlySet<string> } = ""
+    input:
+      | string
+      | {
+          input?: string;
+          expect?: ReadonlySet<string> | readonly string[];
+        } = ""
   ): Token | null {
     // feed input if provided
     if (typeof input === "string") {
@@ -61,7 +66,14 @@ export class Lexer implements ILexer {
     }
 
     // calculate expect
-    const expect = typeof input === "string" ? undefined : input.expect;
+    const expect =
+      typeof input === "string"
+        ? undefined
+        : input.expect
+        ? input.expect instanceof Array
+          ? new Set(input.expect)
+          : input.expect
+        : undefined;
 
     if (this.buffer.length == 0) return null;
 
