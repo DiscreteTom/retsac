@@ -100,8 +100,11 @@ export class Lexer implements ILexer {
     while (true) {
       let mute = false;
       for (const def of this.defs) {
+        // if user provide expect, skip unmatched type
+        if (expect && !expect.has(def.type)) continue;
+
         const res = def.action.exec(this.buffer);
-        if (res.accept && (!expect || expect.has(def.type))) {
+        if (res.accept) {
           // update this state
           const content = this.take(res.digested);
 
