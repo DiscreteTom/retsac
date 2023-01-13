@@ -1,4 +1,4 @@
-import { Definition, Token } from "./model";
+import { Definition, ILexer, Token } from "./model";
 
 /** Transform text string to a token list. */
 export class Lexer implements ILexer {
