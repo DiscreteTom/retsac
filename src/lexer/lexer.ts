@@ -75,7 +75,10 @@ export class Lexer implements ILexer {
       | string
       | Readonly<{
           input?: string;
-          expect?: ReadonlySet<string> | readonly string[];
+          expect?: Readonly<{
+            types?: ReadonlySet<string> | readonly string[];
+            text?: string;
+          }>;
         }> = ""
   ): Token | null {
     // feed input if provided
@@ -86,25 +89,32 @@ export class Lexer implements ILexer {
     }
 
     // calculate expect
-    const expect =
-      typeof input === "string"
-        ? undefined
-        : input.expect
-        ? input.expect instanceof Array
-          ? new Set(input.expect)
-          : input.expect
-        : undefined;
+    const expect = {
+      types:
+        typeof input === "string"
+          ? undefined
+          : input.expect?.types
+          ? input.expect.types instanceof Array
+            ? new Set(input.expect.types)
+            : input.expect.types
+          : undefined,
+      text: typeof input === "string" ? undefined : input.expect?.text,
+    };
 
     if (this.buffer.length == 0) return null;
 
     while (true) {
       let mute = false;
       for (const def of this.defs) {
-        // if user provide expect, skip unmatched type
-        if (expect && !expect.has(def.type)) continue;
+        // if user provide expected types, skip unmatched type
+        if (expect.types && !expect.types.has(def.type)) continue;
 
         const res = def.action.exec(this.buffer);
-        if (res.accept) {
+        if (
+          res.accept &&
+          // if user provide expected text, reject unmatched text
+          (!expect.text || expect.text == this.buffer.slice(0, res.digested))
+        ) {
           // update this state
           const content = this.take(res.digested);
 

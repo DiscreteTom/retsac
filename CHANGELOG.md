@@ -8,7 +8,7 @@
   - If token has no error, the error field will be `undefined`.
   - Add interface `ILexer`.
   - Add `Lexer.clone`.
-  - `Lexer.lex` add optional parameter `expect` to limit the output token type.
+  - `Lexer.lex` add optional parameter `expect` to limit the output token type or/and token content.
   - Add `Lexer.trimStart`.
 - Parser
   - Use `DefinitionContextBuilder` to define parser actions.
