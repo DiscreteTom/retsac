@@ -107,11 +107,11 @@ export class ParserBuilder<T> {
   }
 
   /** Generate the LR(1) parser. */
-  build(debug = false) {
+  build(lexer: ILexer, debug = false) {
     const dfa = this.buildDFA();
     dfa.debug = debug;
 
-    return new Parser<T>(dfa);
+    return new Parser<T>(dfa, lexer);
   }
 
   /**
