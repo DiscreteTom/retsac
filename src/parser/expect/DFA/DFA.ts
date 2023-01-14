@@ -114,24 +114,34 @@ export class DFA<T> {
   }
 
   /** Reset DFA then try to yield an entry NT. */
-  parse(lexer: ILexer, stopOnError = false): ParserOutput<T> {
+  parse(
+    buffer: ASTNode<T>[],
+    lexer: ILexer,
+    stopOnError = false
+  ): ParserOutput<T> {
     this.reset();
 
+    let index = 0; // buffer index
     const errors: ASTNode<T>[] = [];
-    let buffer: ASTNode<T>[] = [];
-    let needLex = true;
 
     while (true) {
+      if (index >= buffer.length) {
+        // end of buffer, try to lex input string to get next ASTNode
+        const res = this.stateStack.at(-1)!.tryLex(lexer);
+        // no more ASTNode can be lexed, end of parsing
+        if (res == null) return { accept: false };
+        // push new ASTNode to buffer
+        buffer.push(res);
+      }
+
       // try to construct next state
       const nextStateResult = this.stateStack
         .at(-1)!
         .getNext(
-          needLex,
-          buffer,
+          buffer[index],
           this.NTClosures,
           this.allStatesCache,
-          this.allInitialCandidates,
-          lexer
+          this.allInitialCandidates
         );
       if (nextStateResult.state == null) {
         if (this.debug)
@@ -154,22 +164,22 @@ export class DFA<T> {
         .at(-1)!
         .tryReduce(buffer, this.entryNTs, this.followSets, lexer, this.debug);
       if (!res.accept) {
-        needLex = true;
+        index++;
         continue; // try to digest more
       }
 
       // accepted
-      needLex = false;
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
+      index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].type) && buffer.length == 1)
-        return { accept: true, buffer: buffer, errors };
+      if (this.entryNTs.has(buffer[0].type) && index == 0)
+        return { accept: true, buffer, errors };
       // if stop on error, return partial result
       if (stopOnError && errors.length > 0)
-        return { accept: true, buffer: buffer, errors };
+        return { accept: true, buffer, errors };
 
       // continue loop, try to digest more with the newly reduced buffer
     }
@@ -197,12 +207,10 @@ export class DFA<T> {
         mockNodes.forEach((node) => {
           if (
             state.getNext(
-              false,
-              [node],
+              node,
               this.NTClosures,
               this.allStatesCache,
-              this.allInitialCandidates,
-              lexer
+              this.allInitialCandidates
             ).changed
           )
             changed = true;

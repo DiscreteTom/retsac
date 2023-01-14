@@ -1,7 +1,6 @@
 import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import { LR_RuntimeError } from "../error";
 import { GrammarSet, GrammarRule, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 
@@ -27,36 +26,32 @@ export class State<T> {
   }
 
   /**
+   * Try to use lexer to yield an ASTNode with type and/or content needed by a candidate.
+   */
+  tryLex(lexer: ILexer): ASTNode<T> | null {
+    // try to use lexer to yield an ASTNode with specific type and/or content
+    for (let i = 0; i < this.candidates.length; ++i) {
+      const node = this.candidates[i].tryLex(lexer);
+      if (node !== null) {
+        // for now we only consider the first candidate that can lex the input
+        return node;
+        // TODO: what if multiple candidates can lex the input?
+      }
+    }
+
+    // no candidate can lex the input, return null
+    return null;
+  }
+
+  /**
    * Try to generate next state according to the nodes and the input string in lexer.
    */
   getNext(
-    needLex: boolean,
-    nodes: ASTNode<T>[],
+    next: Readonly<ASTNode<T>>,
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
     allStatesCache: Map<string, State<T>>,
-    allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
-    lexer?: ILexer
+    allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
-    if (needLex) {
-      if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
-
-      let lexed = false;
-      // try to use lexer to yield an ASTNode with specific type and/or content
-      for (let i = 0; i < this.candidates.length; ++i) {
-        const node = this.candidates[i].tryLex(lexer);
-        if (node !== null) {
-          nodes.push(node);
-          lexed = true;
-          break; // for now we only consider the first candidate that can lex the input
-          // TODO: what if multiple candidates can lex the input?
-        }
-      }
-
-      // no candidate can lex the input, return null
-      if (!lexed) return { state: null, changed: false };
-    }
-
-    const next = nodes.at(-1)!;
     const key = JSON.stringify({ type: next.type, text: next.text });
 
     // try to get from local cache

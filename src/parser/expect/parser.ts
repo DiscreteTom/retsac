@@ -7,22 +7,26 @@ import { DFA } from "./DFA";
 export class Parser<T> implements IParser<T> {
   readonly dfa: DFA<T>;
   lexer: ILexer;
+  private buffer: ASTNode<T>[];
   private errors: ASTNode<T>[];
 
   constructor(dfa: DFA<T>, lexer: ILexer) {
     this.dfa = dfa;
     this.lexer = lexer;
+    this.buffer = [];
     this.errors = [];
   }
 
   reset() {
     this.lexer.reset();
+    this.buffer = [];
     this.errors = [];
     return this;
   }
 
   clone() {
     const res = new Parser(this.dfa, this.lexer.clone());
+    res.buffer = this.buffer.slice();
     res.errors = this.errors.slice();
     return res;
   }
@@ -42,10 +46,11 @@ export class Parser<T> implements IParser<T> {
     // clone lexer to avoid DFA changing the original lexer
     const lexerClone = this.lexer.clone();
 
-    const res = this.dfa.parse(lexerClone, stopOnError);
+    const res = this.dfa.parse(this.buffer, lexerClone, stopOnError);
     if (res.accept) {
       // update states
       this.lexer = lexerClone; // lexer is stateful and may be changed in DFA, so we need to update it
+      this.buffer = res.buffer;
       this.errors.push(...res.errors);
     }
 
