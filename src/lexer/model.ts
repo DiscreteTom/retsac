@@ -19,13 +19,13 @@ export interface Definition {
 }
 
 export interface ILexer {
-  reset(): ILexer;
+  reset(): this;
   /** Clone a new lexer with the same state. */
   clone(): ILexer;
   /** Clone a new lexer with the same definitions. */
   dryClone(): ILexer;
   /** Append buffer with input. */
-  feed(input: string): ILexer;
+  feed(input: string): this;
   /**
    * Take `n` chars from buffer and update state.
    */
@@ -53,7 +53,7 @@ export interface ILexer {
   /**
    * Remove ignored chars from the start of the buffer.
    */
-  trimStart(input?: string): ILexer;
+  trimStart(input?: string): this;
   /**
    * Get the rest string buffer.
    */
