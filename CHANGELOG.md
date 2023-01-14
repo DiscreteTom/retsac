@@ -10,6 +10,7 @@
   - Add `Lexer.clone`.
   - `Lexer.lex` add optional parameter `expect` to limit the output token type or/and token content.
   - Add `Lexer.trimStart`.
+  - Rename `Lexer.hasError` to `Lexer.hasErrors`.
 - Parser
   - If ASTNode has no error, the error field will be `undefined`.
   - Add `ASTNode.toObj` for serialization.
