@@ -28,4 +28,11 @@ export interface IParser<T> {
   parse: ParseExec<T>;
   /** Try to reduce till the parser can't accept more. */
   parseAll: ParseExec<T>;
+  /** Get error AST nodes. */
+  getErrors(): readonly ASTNode<T>[];
+  hasErrors(): boolean;
+  /** Get all reduced AST nodes. */
+  getNodes(): readonly ASTNode<T>[];
+  /** Take the first AST node. */
+  take(): ASTNode<T> | undefined;
 }
