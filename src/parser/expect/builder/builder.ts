@@ -106,7 +106,7 @@ export class ParserBuilder<T> {
     return new DFA<T>(this.getGrammarRules(), this.entryNTs, this.NTs);
   }
 
-  /** Generate the LR(1) parser. */
+  /** Generate the Expectational LR(1) parser. */
   build(lexer: ILexer, debug = false) {
     const dfa = this.buildDFA();
     dfa.debug = debug;
