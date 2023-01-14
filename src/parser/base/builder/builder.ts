@@ -1,20 +1,8 @@
-import { ILexer } from "../../../lexer/model";
-import { DFA } from "../DFA";
 import { GrammarRule } from "../model";
-import { BaseParser } from "../parser";
 import { LR_BuilderError } from "./error";
-import {
-  BaseDefinitionContextBuilder,
-  RR_ResolverOptions,
-} from "./ctx-builder";
+import { BaseDefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
-import {
-  Definition,
-  ConflictType,
-  TempConflict,
-  Accepter,
-  DefinitionContext,
-} from "./model";
+import { Definition, TempConflict } from "./model";
 import { defToTempGRs } from "./utils/definition";
 
 /**
