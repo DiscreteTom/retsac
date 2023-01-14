@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { manager } from "./core";
+import { parser } from "./core";
 
 console.log(`This is a simple calculator.`);
 
@@ -11,10 +11,10 @@ const rl = readline.createInterface({
 });
 
 rl.on("line", function (line) {
-  const res = manager.parseAll(line + "\n");
+  const res = parser.parseAll(line + "\n");
   if (res.accept && res.buffer.length == 1) {
     console.log(res.buffer[0].data);
-    manager.reset();
+    parser.reset();
   }
   rl.prompt();
 });

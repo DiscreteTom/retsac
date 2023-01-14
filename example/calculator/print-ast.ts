@@ -1,10 +1,10 @@
-import { manager } from "./core";
+import { parser } from "./core";
 
-const res = manager.parseAll("2+3*(4/5)");
+const res = parser.parseAll("2+3*(4/5)");
 if (!res.accept || res.buffer.length != 1)
   throw new Error(
-    `Reduce failed for input. Result: ${manager
-      .getBuffer()
+    `Reduce failed for input. Result: ${parser
+      .getNodes()
       .map((node) => node.toString())
       .join(" ")}`
   );

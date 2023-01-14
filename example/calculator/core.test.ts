@@ -1,10 +1,10 @@
-import { manager } from "./core";
+import { parser } from "./core";
 
 function getResult(input: string) {
-  const res = manager.reset().parseAll(input);
+  const res = parser.reset().parseAll(input);
   if (!res.accept || res.buffer.length != 1)
     throw new Error(
-      `Reduce failed for input "${input}". Result: ${manager.getBuffer()}`
+      `Reduce failed for input "${input}". Result: ${parser.getNodes()}`
     );
   return res.buffer[0].data;
 }

@@ -1,4 +1,4 @@
-import { Lexer, LR, Manager } from "../../src";
+import { Lexer, ELR } from "../../src";
 
 const lexer = new Lexer.Builder()
   .ignore(/^\s/)
@@ -8,15 +8,15 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-const parser = new LR.ParserBuilder<number>()
+export const parser = new ELR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    LR.reducer((_, { matched }) => Number(matched[0].text))
+    ELR.reducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    LR.reducer<number>((values) => -values[1]!)
+    ELR.reducer<number>((values) => -values[1]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -24,11 +24,11 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `'(' exp ')'` },
-    LR.reducer((values) => values[1])
+    ELR.reducer((values) => values[1])
   )
   .define(
     { exp: `exp '+' exp` },
-    LR.reducer<number>((values) => values[0]! + values[2]!)
+    ELR.reducer<number>((values) => values[0]! + values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -36,7 +36,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '-' exp` },
-    LR.reducer<number>((values) => values[0]! - values[2]!)
+    ELR.reducer<number>((values) => values[0]! - values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -44,7 +44,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '*' exp` },
-    LR.reducer<number>((values) => values[0]! * values[2]!)
+    ELR.reducer<number>((values) => values[0]! * values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -52,13 +52,11 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '/' exp` },
-    LR.reducer<number>((values) => values[0]! / values[2]!)
+    ELR.reducer<number>((values) => values[0]! / values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
   .checkAll(lexer.getTokenTypes(), lexer, true)
-  .build();
-
-export const manager = new Manager({ lexer, parser });
+  .build(lexer);
