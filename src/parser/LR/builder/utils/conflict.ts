@@ -13,6 +13,7 @@ import {
   getUnresolvedConflicts,
 } from "../../../base/builder/utils/conflict";
 import { Candidate, DFA, State } from "../../DFA";
+import { ParserContext } from "../../model";
 
 export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
@@ -20,7 +21,7 @@ export function getConflicts<T>(
   grs: readonly GrammarRule<T, ASTNode<T>[]>[],
   // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
   // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
-  resolved: readonly TempConflict<T, ASTNode<T>[]>[],
+  resolved: readonly TempConflict<T, ASTNode<T>[], ParserContext<T>>[],
   lexer?: ILexer,
   debug = false
 ) {

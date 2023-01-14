@@ -10,15 +10,17 @@ import {
   RR_ResolverOptions,
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
+import { ParserContext } from "../model";
 
 export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   T,
-  ASTNode<T>[]
+  ASTNode<T>[],
+  ParserContext<T>
 > {
   constructor(data: {
-    callback?: Callback<T, ASTNode<T>[]>;
-    rejecter?: Rejecter<T, ASTNode<T>[]>;
-    resolved?: TempPartialConflict<T, ASTNode<T>[]>[];
+    callback?: Callback<T, ASTNode<T>[], ParserContext<T>>;
+    rejecter?: Rejecter<T, ASTNode<T>[], ParserContext<T>>;
+    resolved?: TempPartialConflict<T, ASTNode<T>[], ParserContext<T>>[];
   }) {
     super(data);
   }
@@ -30,14 +32,16 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T, ASTNode<T>[]>,
+    reduce: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>,
     handleEnd: boolean
   ) {
-    const anotherRule = defToTempGRs<T, ASTNode<T>[]>(another)[0];
+    const anotherRule = defToTempGRs<T, ASTNode<T>[], ParserContext<T>>(
+      another
+    )[0];
     // TODO: use a dedicated lexer to parse next
     const nextGrammars =
       next.length > 0
-        ? defToTempGRs<T, ASTNode<T>[]>({ "": next })[0].rule
+        ? defToTempGRs<T, ASTNode<T>[], ParserContext<T>>({ "": next })[0].rule
         : [];
 
     return new DefinitionContextBuilder<T>({
@@ -70,7 +74,10 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
    */
   static resolveRS<T>(
     another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
+    options: {
+      next: string;
+      reduce?: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>;
+    }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
@@ -85,7 +92,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
    */
   static resolveRR<T>(
     another: Definition,
-    options: RR_ResolverOptions<T, ASTNode<T>[]>
+    options: RR_ResolverOptions<T, ASTNode<T>[], ParserContext<T>>
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
@@ -100,7 +107,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T, ASTNode<T>[]>,
+    reduce: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>,
     handleEnd: boolean
   ) {
     const anotherCtx = DefinitionContextBuilder.resolve<T>(
@@ -121,7 +128,10 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
   resolveRS(
     another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
+    options: {
+      next: string;
+      reduce?: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>;
+    }
   ) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
@@ -132,7 +142,10 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
-  resolveRR(another: Definition, options: RR_ResolverOptions<T, ASTNode<T>[]>) {
+  resolveRR(
+    another: Definition,
+    options: RR_ResolverOptions<T, ASTNode<T>[], ParserContext<T>>
+  ) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
       another,

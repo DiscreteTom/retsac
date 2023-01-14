@@ -11,6 +11,7 @@ import {
 import { LR_BuilderError } from "../../base/builder/error";
 import { defToTempGRs } from "../../base/builder/utils/definition";
 import { DFA } from "../DFA";
+import { ParserContext } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import { getConflicts } from "./utils/conflict";
@@ -22,7 +23,11 @@ import { getConflicts } from "./utils/conflict";
  *
  * It's recommended to use `checkAll` before `build` when debug.
  */
-export class ParserBuilder<T> extends BaseParserBuilder<T, ASTNode<T>[]> {
+export class ParserBuilder<T> extends BaseParserBuilder<
+  T,
+  ASTNode<T>[],
+  ParserContext<T>
+> {
   constructor() {
     super();
   }
@@ -169,7 +174,7 @@ export class ParserBuilder<T> extends BaseParserBuilder<T, ASTNode<T>[]> {
 
   private resolve(
     reducerRule: Definition,
-    ctx: DefinitionContext<T, ASTNode<T>[]>
+    ctx: DefinitionContext<T, ASTNode<T>[], ParserContext<T>>
   ) {
     const grs = defToTempGRs(reducerRule, ctx);
 
@@ -201,7 +206,10 @@ export class ParserBuilder<T> extends BaseParserBuilder<T, ASTNode<T>[]> {
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
+    options: {
+      next: string;
+      reduce?: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>;
+    }
   ) {
     const ctx = DefinitionContextBuilder.resolveRS<T>(
       anotherRule,
@@ -215,7 +223,7 @@ export class ParserBuilder<T> extends BaseParserBuilder<T, ASTNode<T>[]> {
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: RR_ResolverOptions<T, ASTNode<T>[]>
+    options: RR_ResolverOptions<T, ASTNode<T>[], ParserContext<T>>
   ) {
     const ctx = DefinitionContextBuilder.resolveRR<T>(
       anotherRule,
