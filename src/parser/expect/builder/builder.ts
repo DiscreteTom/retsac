@@ -16,7 +16,7 @@ import { defToTempGRs } from "./utils/definition";
 import { getConflicts } from "./utils/conflict";
 
 /**
- * Builder for LR(1) parsers.
+ * Builder for Expectational LR(1) parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *

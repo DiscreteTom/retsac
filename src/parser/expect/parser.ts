@@ -3,7 +3,7 @@ import { ASTNode } from "../ast";
 import { IParser, ParserOutput } from "../model";
 import { DFA } from "./DFA";
 
-/** LR(1) parser. Stateless. Try to yield a top level NT each time. */
+/** Expectational LR(1) parser. Stateless. Try to yield a top level NT each time. */
 export class Parser<T> implements IParser<T> {
   readonly dfa: DFA<T>;
   lexer: ILexer;
