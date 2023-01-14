@@ -11,12 +11,12 @@ export type ParserOutput<T> =
     };
 
 export type ParseExec<T> = (
-  buffer: ASTNode<T>[],
+  input: string,
   stopOnError?: boolean
 ) => ParserOutput<T>;
 
 export interface IParser<T> {
   parse: ParseExec<T>;
   parseAll: ParseExec<T>;
-  reset: () => IParser<T>;
+  reset: () => this;
 }
