@@ -5,17 +5,17 @@ export interface Definition {
   [NT: string]: string | string[];
 }
 
-export interface DefinitionContext<T> {
-  callback: Callback<T>;
-  rejecter: Rejecter<T>;
-  resolved: TempPartialConflict<T>[];
+export interface DefinitionContext<T, After> {
+  callback: Callback<T, After>;
+  rejecter: Rejecter<T, After>;
+  resolved: TempPartialConflict<T, After>[];
 }
 
 /**
  * Same param & return value as Rejecter, but flip result.
  * Which means, if return true, accept. If return false, reject.
  */
-export type Accepter<T> = Rejecter<T>;
+export type Accepter<T, After> = Rejecter<T, After>;
 
 export enum ConflictType {
   REDUCE_SHIFT,
@@ -23,27 +23,27 @@ export enum ConflictType {
 }
 
 /** Conflict without reducer. */
-export interface TempPartialConflict<T> {
+export interface TempPartialConflict<T, After> {
   type: ConflictType;
   /** If this is a R-S conflict, this rule is a shifter. If this is a R-R conflict, this rule is a reducer. */
-  anotherRule: TempGrammarRule<T>;
+  anotherRule: TempGrammarRule<T, After>;
   /** A list of grammars that will cause conflicts when appear at the next of input. */
   next: TempGrammar[];
   /** Whether to handle conflict if reach the end of input using `reject`. */
   handleEnd: boolean;
 }
 
-export interface TempConflict<T> extends TempPartialConflict<T> {
+export interface TempConflict<T, After> extends TempPartialConflict<T, After> {
   /** The rule that will try to reduce some grammars to an NT in a conflict. */
-  reducerRule: TempGrammarRule<T>;
+  reducerRule: TempGrammarRule<T, After>;
 }
 
-export interface Conflict<T> {
+export interface Conflict<T, After> {
   /** The rule that will try to reduce some grammars to an NT in a conflict. */
-  reducerRule: GrammarRule<T>;
+  reducerRule: GrammarRule<T, After>;
   type: ConflictType;
   /** If this is a R-S conflict, this rule is a shifter. If this is a R-R conflict, this rule is a reducer. */
-  anotherRule: GrammarRule<T>;
+  anotherRule: GrammarRule<T, After>;
   /** A list of grammars that will cause conflicts when appear at the next of input. */
   next: Grammar[];
   /** Whether to handle conflict if reach the end of input using `reject`. */

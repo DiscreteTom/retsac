@@ -1,15 +1,8 @@
-import { Callback, ParserContext, Rejecter } from "../model";
-import {
-  ConflictType,
-  Definition,
-  DefinitionContext,
-  Accepter,
-  TempPartialConflict,
-} from "./model";
-import { defToTempGRs } from "./utils/definition";
+import { Callback, BaseParserContext, Rejecter } from "../model";
+import { DefinitionContext, Accepter, TempPartialConflict } from "./model";
 
-export type RR_ResolverOptions<T> = {
-  reduce?: boolean | Accepter<T>;
+export type RR_ResolverOptions<T, After> = {
+  reduce?: boolean | Accepter<T, After>;
 } & (
   | {
       next: string;
@@ -21,15 +14,15 @@ export type RR_ResolverOptions<T> = {
     }
 );
 
-export class DefinitionContextBuilder<T> {
-  private _callback: Callback<T>;
-  private _rejecter: Rejecter<T>;
-  private resolved: TempPartialConflict<T>[];
+export class DefinitionContextBuilder<T, After> {
+  private _callback: Callback<T, After>;
+  private _rejecter: Rejecter<T, After>;
+  private resolved: TempPartialConflict<T, After>[];
 
   constructor(data: {
-    callback?: Callback<T>;
-    rejecter?: Rejecter<T>;
-    resolved?: TempPartialConflict<T>[];
+    callback?: Callback<T, After>;
+    rejecter?: Rejecter<T, After>;
+    resolved?: TempPartialConflict<T, After>[];
   }) {
     this._callback = data.callback ?? (() => {});
     this._rejecter = data.rejecter ?? (() => false);
@@ -37,17 +30,17 @@ export class DefinitionContextBuilder<T> {
   }
 
   /** Create a new DefinitionContext with a callback. */
-  static callback<T>(f: Callback<T>) {
-    return new DefinitionContextBuilder<T>({ callback: f });
+  static callback<T, After>(f: Callback<T, After>) {
+    return new DefinitionContextBuilder<T, After>({ callback: f });
   }
   /** Create a new DefinitionContextBuilder with a rejecter. */
-  static rejecter<T>(f: Rejecter<T>) {
-    return new DefinitionContextBuilder<T>({ rejecter: f });
+  static rejecter<T, After>(f: Rejecter<T, After>) {
+    return new DefinitionContextBuilder<T, After>({ rejecter: f });
   }
 
   /** Create a new DefinitionContextBuilder with the new callback appended. */
-  callback(f: Callback<T>) {
-    return new DefinitionContextBuilder<T>({
+  callback(f: Callback<T, After>) {
+    return new DefinitionContextBuilder<T, After>({
       callback: (ctx) => {
         this._callback(ctx);
         f(ctx);
@@ -58,8 +51,8 @@ export class DefinitionContextBuilder<T> {
   }
 
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  rejecter(f: Rejecter<T>) {
-    return new DefinitionContextBuilder<T>({
+  rejecter(f: Rejecter<T, After>) {
+    return new DefinitionContextBuilder<T, After>({
       callback: this._callback,
       rejecter: (ctx) => {
         return this._rejecter(ctx) || f(ctx);
@@ -68,125 +61,14 @@ export class DefinitionContextBuilder<T> {
     });
   }
 
-  /**
-   * Create a new DefinitionContextBuilder with a rejecter, which will reject during the specified type conflict.
-   */
-  private static resolve<T>(
-    type: ConflictType,
-    another: Definition,
-    next: string,
-    reduce: boolean | Accepter<T>,
-    handleEnd: boolean
-  ) {
-    const anotherRule = defToTempGRs<T>(another)[0];
-    // TODO: use a dedicated lexer to parse next
-    const nextGrammars =
-      next.length > 0 ? defToTempGRs<T>({ "": next })[0].rule : [];
-
-    return new DefinitionContextBuilder<T>({
-      rejecter: (ctx) => {
-        // if reach end of input
-        if (ctx.after.length == 0) {
-          // if handle the end of input
-          if (handleEnd)
-            return !(reduce instanceof Function ? reduce(ctx) : reduce);
-          else return false;
-        }
-        // else, not the end of input
-        // check if any next grammar match the after[0]
-        if (nextGrammars.some((g) => g.eq(ctx.after[0])))
-          return !(reduce instanceof Function ? reduce(ctx) : reduce);
-        return false;
-      },
-      resolved: [
-        {
-          type,
-          anotherRule,
-          next: nextGrammars,
-          handleEnd: handleEnd,
-        },
-      ],
-    });
-  }
-  /**
-   * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
-   */
-  static resolveRS<T>(
-    another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T> }
-  ) {
-    return DefinitionContextBuilder.resolve<T>(
-      ConflictType.REDUCE_SHIFT,
-      another,
-      options.next,
-      options.reduce ?? true,
-      false
-    );
-  }
-  /**
-   * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-R conflict.
-   */
-  static resolveRR<T>(another: Definition, options: RR_ResolverOptions<T>) {
-    return DefinitionContextBuilder.resolve<T>(
-      ConflictType.REDUCE_REDUCE,
-      another,
-      options.next ?? "",
-      options.reduce ?? true,
-      options.handleEnd ?? false
-    );
-  }
-  /** Create a new DefinitionContextBuilder with the new specified type resolved conflict appended. */
-  private resolve(
-    type: ConflictType,
-    another: Definition,
-    next: string,
-    reduce: boolean | Accepter<T>,
-    handleEnd: boolean
-  ) {
-    const anotherCtx = DefinitionContextBuilder.resolve<T>(
-      type,
-      another,
-      next,
-      reduce,
-      handleEnd
-    );
-    return new DefinitionContextBuilder<T>({
-      callback: this._callback,
-      rejecter: (ctx) => {
-        return this._rejecter(ctx) || anotherCtx._rejecter(ctx);
-      },
-      resolved: this.resolved.concat(anotherCtx.resolved),
-    });
-  }
-  /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
-  resolveRS(
-    another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T> }
-  ) {
-    return this.resolve(
-      ConflictType.REDUCE_SHIFT,
-      another,
-      options.next,
-      options.reduce ?? true,
-      false
-    );
-  }
-  /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
-  resolveRR(another: Definition, options: RR_ResolverOptions<T>) {
-    return this.resolve(
-      ConflictType.REDUCE_REDUCE,
-      another,
-      options.next ?? "",
-      options.reduce ?? true,
-      options.handleEnd ?? false
-    );
-  }
-
   /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
-  static reducer<T>(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
+  static reducer<T, After>(
+    f: (
+      data: (T | undefined)[],
+      context: BaseParserContext<T, After>
+    ) => T | undefined
   ) {
-    return DefinitionContextBuilder.callback<T>(
+    return DefinitionContextBuilder.callback<T, After>(
       (context) =>
         (context.data = f(
           context.matched.map((node) => node.data),
@@ -196,13 +78,16 @@ export class DefinitionContextBuilder<T> {
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   reducer(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
+    f: (
+      data: (T | undefined)[],
+      context: BaseParserContext<T, After>
+    ) => T | undefined
   ) {
     const anotherCtx = DefinitionContextBuilder.reducer(f);
     return this.callback(anotherCtx._callback);
   }
 
-  build(): DefinitionContext<T> {
+  build(): DefinitionContext<T, After> {
     return {
       callback: this._callback,
       rejecter: this._rejecter,

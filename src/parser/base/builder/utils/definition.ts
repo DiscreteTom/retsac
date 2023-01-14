@@ -17,8 +17,11 @@ const grammarLexer = new Lexer.Builder()
   .build();
 
 /** Definition to TempGrammarRules. */
-export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
-  const result: TempGrammarRule<T>[] = [];
+export function defToTempGRs<T, After>(
+  defs: Definition,
+  ctx?: DefinitionContext<T, After>
+) {
+  const result: TempGrammarRule<T, After>[] = [];
 
   // parse rules
   for (const NT in defs) {
@@ -55,7 +58,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
         throw LR_BuilderError.emptyLiteral(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<T>({
+        new TempGrammarRule<T, After>({
           NT,
           rule: tokens.map((t) => {
             if (t.type == "grammar")

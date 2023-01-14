@@ -1,10 +1,10 @@
 import { GrammarRule, GrammarType } from "../model";
 
-export function getAllNTClosure<T>(
+export function getAllNTClosure<T, After>(
   NTs: ReadonlySet<string>,
-  allGrammarRules: readonly GrammarRule<T>[]
-): Map<string, GrammarRule<T>[]> {
-  const result = new Map<string, GrammarRule<T>[]>();
+  allGrammarRules: readonly GrammarRule<T, After>[]
+): Map<string, GrammarRule<T, After>[]> {
+  const result = new Map<string, GrammarRule<T, After>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
 }
@@ -15,10 +15,10 @@ export function getAllNTClosure<T>(
  * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
  * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
  */
-export function getNTClosure<T>(
+export function getNTClosure<T, After>(
   NT: string,
-  allGrammarRules: readonly GrammarRule<T>[]
-): GrammarRule<T>[] {
+  allGrammarRules: readonly GrammarRule<T, After>[]
+): GrammarRule<T, After>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules
@@ -30,10 +30,10 @@ export function getNTClosure<T>(
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
  * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
-export function getGrammarRulesClosure<T>(
-  rules: readonly GrammarRule<T>[],
-  allGrammarRules: readonly GrammarRule<T>[]
-): GrammarRule<T>[] {
+export function getGrammarRulesClosure<T, After>(
+  rules: readonly GrammarRule<T, After>[],
+  allGrammarRules: readonly GrammarRule<T, After>[]
+): GrammarRule<T, After>[] {
   const result = [...rules];
 
   while (true) {

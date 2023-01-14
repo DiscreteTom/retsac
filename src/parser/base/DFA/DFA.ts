@@ -1,32 +1,28 @@
-import { ILexer } from "../../../lexer/model";
-import { ASTNode } from "../../ast";
-import { ParserOutput } from "../../model";
 import { GrammarRule, GrammarSet, GrammarType } from "../model";
-import { Candidate } from "./candidate";
-import { State } from "./state";
+import { BaseCandidate } from "./candidate";
+import { BaseState } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
-import { LR_RuntimeError } from "./../error";
 
-/** LR(1) DFA. Stateless. */
-export class DFA<T> {
-  private readonly allGrammarRules: readonly GrammarRule<T>[];
-  private readonly NTClosures: Map<string, GrammarRule<T>[]>;
-  private readonly entryState: State<T>;
+/** Base DFA for LR and ELR parsers. Stateless. */
+export class BaseDFA<T, After> {
+  private readonly allGrammarRules: readonly GrammarRule<T, After>[];
+  private readonly NTClosures: Map<string, GrammarRule<T, After>[]>;
+  private readonly entryState: BaseState<T, After>;
   /** `NT => Grammars` */
   private readonly firstSets: Map<string, GrammarSet>;
   /** `NT => Grammars` */
   private readonly followSets: Map<string, GrammarSet>;
   private readonly entryNTs: ReadonlySet<string>;
   /** Current state is `states.at(-1)`. */
-  private stateStack: State<T>[];
+  protected stateStack: BaseState<T, After>[];
   /** string representation of state => state */
-  private allStatesCache: Map<string, State<T>>;
+  private allStatesCache: Map<string, BaseState<T, After>>;
   /** string representation of candidate => candidate */
-  private allInitialCandidates: Map<string, Candidate<T>>;
+  private allInitialCandidates: Map<string, BaseCandidate<T, After>>;
   debug: boolean;
 
   constructor(
-    allGrammarRules: readonly GrammarRule<T>[],
+    allGrammarRules: readonly GrammarRule<T, After>[],
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
   ) {
@@ -36,11 +32,11 @@ export class DFA<T> {
     // init all initial candidates
     this.allInitialCandidates = new Map();
     this.allGrammarRules.forEach((gr) => {
-      const c = new Candidate({ gr, digested: 0 });
+      const c = new BaseCandidate({ gr, digested: 0 });
       this.allInitialCandidates.set(c.toString(), c);
     });
 
-    this.entryState = new State(
+    this.entryState = new BaseState(
       getGrammarRulesClosure(
         allGrammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
         allGrammarRules
@@ -48,7 +44,7 @@ export class DFA<T> {
         (gr) =>
           // get initial candidate from global cache
           this.allInitialCandidates.get(
-            Candidate.getString({ gr, digested: 0 })
+            BaseCandidate.getString({ gr, digested: 0 })
           )!
       )
     );
@@ -113,103 +109,6 @@ export class DFA<T> {
     this.stateStack = [this.entryState];
   }
 
-  /** Reset DFA then try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
-    this.reset();
-
-    let index = 0; // buffer index
-    const errors: ASTNode<T>[] = [];
-    while (index < buffer.length) {
-      // try to construct next state
-      const nextStateResult = this.stateStack
-        .at(-1)!
-        .getNext(
-          buffer[index],
-          this.NTClosures,
-          this.allStatesCache,
-          this.allInitialCandidates
-        );
-      if (nextStateResult.state == null) {
-        if (this.debug)
-          console.log(
-            `[End] No more candidate. Node=${buffer[
-              index
-            ].toString()} Candidates:\n${this.stateStack
-              .at(-1)!
-              .candidates.map((c) => c.toString())
-              .join("\n")}`
-          );
-        return { accept: false };
-      }
-
-      // push stack
-      this.stateStack.push(nextStateResult.state);
-
-      // try reduce with the new state
-      const res = this.stateStack
-        .at(-1)!
-        .tryReduce(buffer, index, this.entryNTs, this.followSets, this.debug);
-      if (!res.accept) {
-        index++;
-        continue; // try to digest more
-      }
-
-      // accepted
-      const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
-      index -= reduced - 1; // digest n, generate 1
-      buffer = res.buffer;
-      errors.push(...res.errors);
-      for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
-      // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].type) && index == 0)
-        return { accept: true, buffer, errors };
-      // if stop on error, return partial result
-      if (stopOnError && errors.length > 0)
-        return { accept: true, buffer, errors };
-
-      // continue loop, try to digest more with the newly reduced buffer
-    }
-
-    // index == buffer.length, maybe need more input
-    return { accept: false };
-  }
-
-  /**
-   * Calculate state machine's state transition map ahead of time and cache.
-   * This action requires a lexer to calculate literal's type name.
-   * If you don't use literal grammar in your rules, you can omit the lexer.
-   */
-  calculateAllStates(lexer?: ILexer) {
-    // collect all grammars in rules
-    const gs = new GrammarSet();
-    this.allGrammarRules.forEach((gr) => {
-      gr.rule.forEach((g) => {
-        gs.add(g);
-      });
-    });
-    // convert to mock AST node
-    const mockNodes = gs.map((g) => g.toASTNode<T>(lexer));
-
-    while (true) {
-      let changed = false;
-      this.allStatesCache.forEach((state) => {
-        mockNodes.forEach((node) => {
-          if (
-            state.getNext(
-              node,
-              this.NTClosures,
-              this.allStatesCache,
-              this.allInitialCandidates
-            ).changed
-          )
-            changed = true;
-        });
-      });
-      if (!changed) break;
-    }
-    return this;
-  }
-
   getFirstSets() {
     return this.firstSets;
   }
@@ -221,7 +120,7 @@ export class DFA<T> {
    * Return all cached states. You might want to call `calculateAllState` first.
    */
   getAllStates() {
-    const result: State<T>[] = [];
+    const result: BaseState<T, After>[] = [];
     this.allStatesCache.forEach((s) => result.push(s));
     return result;
   }

@@ -55,16 +55,16 @@ export class Grammar {
   }
 }
 
-export class GrammarRule<T> {
+export class GrammarRule<T, After> {
   rule: Grammar[];
   /** The reduce target. */
   NT: string;
-  callback: Callback<T>;
-  rejecter: Rejecter<T>;
+  callback: Callback<T, After>;
+  rejecter: Rejecter<T, After>;
 
   constructor(
-    p: Partial<Pick<GrammarRule<T>, "callback" | "rejecter">> &
-      Pick<GrammarRule<T>, "rule" | "NT">
+    p: Partial<Pick<GrammarRule<T, After>, "callback" | "rejecter">> &
+      Pick<GrammarRule<T, After>, "rule" | "NT">
   ) {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
@@ -80,10 +80,10 @@ export class GrammarRule<T> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: Readonly<GrammarRule<T>>) {
+  checkRSConflict(another: Readonly<GrammarRule<T, After>>) {
     const result = [] as {
-      reducerRule: GrammarRule<T>;
-      shifterRule: GrammarRule<T>;
+      reducerRule: GrammarRule<T, After>;
+      shifterRule: GrammarRule<T, After>;
       /** How many grammars are overlapped in rule. */
       length: number;
     }[];
@@ -105,7 +105,7 @@ export class GrammarRule<T> {
   }
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
-  checkRRConflict(another: Readonly<GrammarRule<T>>) {
+  checkRRConflict(another: Readonly<GrammarRule<T, After>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 

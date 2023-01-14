@@ -64,22 +64,24 @@ export class TempGrammar {
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
-export class TempGrammarRule<T> {
+export class TempGrammarRule<T, After> {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
-  callback?: Callback<T>;
-  rejecter?: Rejecter<T>;
+  callback?: Callback<T, After>;
+  rejecter?: Rejecter<T, After>;
 
   constructor(
-    data: Partial<Pick<TempGrammarRule<T>, "callback" | "rejecter">> &
-      Pick<TempGrammarRule<T>, "rule" | "NT">
+    data: Partial<Pick<TempGrammarRule<T, After>, "callback" | "rejecter">> &
+      Pick<TempGrammarRule<T, After>, "rule" | "NT">
   ) {
     Object.assign(this, data);
   }
 
   /** Only check whether NT and rules are equal. */
-  weakEq<_>(rule: Readonly<TempGrammarRule<_>> | Readonly<GrammarRule<_>>) {
+  weakEq<_, __>(
+    rule: Readonly<TempGrammarRule<_, __>> | Readonly<GrammarRule<_, __>>
+  ) {
     return (
       this.NT == rule.NT &&
       this.rule.length == rule.rule.length &&
@@ -88,7 +90,7 @@ export class TempGrammarRule<T> {
   }
 
   toString(formatter?: (NT: string, grammars: string[]) => string) {
-    return new GrammarRule<void>({
+    return new GrammarRule<void, void>({
       NT: this.NT,
       rule: this.rule.map((g) => g.toGrammar()),
     }).toString(formatter);

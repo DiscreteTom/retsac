@@ -25,7 +25,7 @@ export class LR_BuilderError extends Error {
     Object.setPrototypeOf(this, LR_BuilderError.prototype);
   }
 
-  static grammarRuleNotFound<_>(gr: TempGrammarRule<_>) {
+  static grammarRuleNotFound<_, __>(gr: TempGrammarRule<_, __>) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
       `No such grammar rule: ${gr.toString()}`
@@ -39,7 +39,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static conflict<_>(c: Conflict<_>) {
+  static conflict<_, __>(c: Conflict<_, __>) {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
@@ -105,7 +105,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<_>(rule: TempGrammarRule<_>) {
+  static tooManyEndHandler<_, __>(rule: TempGrammarRule<_, __>) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
