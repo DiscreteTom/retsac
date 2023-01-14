@@ -58,6 +58,7 @@ export class Candidate<T> {
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
    */
   tryLex(lexer: ILexer): ASTNode<T> | null {
+    if (!this.canDigestMore()) return null;
     if (this.current.type == GrammarType.NT) {
       return null;
     } else {
