@@ -4,7 +4,7 @@ export type ActionOutput =
       /** This action can accept some input as a token. */
       accept: true;
       /** Don't emit token, continue lex. */
-      mute: boolean;
+      muted: boolean;
       /** How many chars are accepted by this action. */
       digested: number;
       error?: any;
@@ -28,7 +28,7 @@ export class Action {
       return n > 0
         ? {
             accept: true,
-            mute: false,
+            muted: false,
             digested: n,
           }
         : { accept: false };
@@ -54,10 +54,10 @@ export class Action {
   /**
    * Mute action if `accept` is `true`.
    */
-  mute(enable = true) {
+  mute(muted = true) {
     return new Action((buffer) => {
       const output = this.exec(buffer);
-      if (output.accept) output.mute = enable;
+      if (output.accept) output.muted = muted;
       return output;
     });
   }

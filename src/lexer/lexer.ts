@@ -93,7 +93,7 @@ export class Lexer implements ILexer {
     if (this.buffer.length == 0) return null;
 
     while (true) {
-      let mute = false;
+      let muted = false;
       for (const def of this.defs) {
         // if user provide expected types, skip unmatched type
         if (expect.types && !expect.types.has(def.type)) continue;
@@ -105,7 +105,7 @@ export class Lexer implements ILexer {
           (!expect.text ||
             expect.text == this.buffer.slice(0, res.digested) ||
             // but if the unmatched text is muted (e.g. ignored), accept it
-            res.mute)
+            res.muted)
         ) {
           // update this state
           const content = this.take(res.digested);
@@ -121,18 +121,18 @@ export class Lexer implements ILexer {
           // collect errors
           if (token.error) this.errors.push(token);
 
-          if (!res.mute) {
+          if (!res.muted) {
             // emit token
             return token;
           } else {
             // mute, re-loop all definitions
-            mute = true;
+            muted = true;
             break;
           }
         }
         // not accept, try next def
       }
-      if (!mute)
+      if (!muted)
         // all definition checked, no accept
         return null;
       // else, muted, re-loop all definitions
@@ -162,7 +162,7 @@ export class Lexer implements ILexer {
       for (const def of this.defs) {
         const res = def.action.exec(this.buffer);
         if (res.accept) {
-          if (!res.mute) {
+          if (!res.muted) {
             // next token is not muted
             // don't update state, just return
             return this;
