@@ -4,27 +4,37 @@ import { BaseState } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 /** Base DFA for LR and ELR parsers. Stateless. */
-export class BaseDFA<T, After> {
-  private readonly allGrammarRules: readonly GrammarRule<T, After>[];
-  private readonly NTClosures: Map<string, GrammarRule<T, After>[]>;
-  private readonly entryState: BaseState<T, After>;
+export class BaseDFA<
+  T,
+  After,
+  Candidate extends BaseCandidate<T, After>,
+  State extends BaseState<T, After, Candidate>
+> {
+  protected readonly allGrammarRules: readonly GrammarRule<T, After>[];
+  protected readonly NTClosures: Map<string, GrammarRule<T, After>[]>;
+  private readonly entryState: State;
   /** `NT => Grammars` */
   private readonly firstSets: Map<string, GrammarSet>;
   /** `NT => Grammars` */
-  private readonly followSets: Map<string, GrammarSet>;
-  private readonly entryNTs: ReadonlySet<string>;
+  protected readonly followSets: Map<string, GrammarSet>;
+  protected readonly entryNTs: ReadonlySet<string>;
   /** Current state is `states.at(-1)`. */
-  protected stateStack: BaseState<T, After>[];
+  protected stateStack: State[];
   /** string representation of state => state */
-  private allStatesCache: Map<string, BaseState<T, After>>;
+  protected allStatesCache: Map<string, State>;
   /** string representation of candidate => candidate */
-  private allInitialCandidates: Map<string, BaseCandidate<T, After>>;
+  protected allInitialCandidates: Map<string, Candidate>;
   debug: boolean;
 
   constructor(
     allGrammarRules: readonly GrammarRule<T, After>[],
     entryNTs: ReadonlySet<string>,
-    NTs: ReadonlySet<string>
+    NTs: ReadonlySet<string>,
+    CandidateClass: new (props: {
+      gr: GrammarRule<T, After>;
+      digested: number;
+    }) => Candidate,
+    StateClass: new (candidates: Candidate[]) => State
   ) {
     this.allGrammarRules = allGrammarRules;
     this.entryNTs = entryNTs;
@@ -32,13 +42,13 @@ export class BaseDFA<T, After> {
     // init all initial candidates
     this.allInitialCandidates = new Map();
     this.allGrammarRules.forEach((gr) => {
-      const c = new BaseCandidate({ gr, digested: 0 });
+      const c = new CandidateClass({ gr, digested: 0 });
       this.allInitialCandidates.set(c.toString(), c);
     });
 
-    this.entryState = new BaseState(
+    this.entryState = new StateClass(
       getGrammarRulesClosure(
-        allGrammarRules.filter((gr) => entryNTs.has(gr.NT)), // entry NT grammar rules
+        allGrammarRules.filter((gr) => entryNTs.has(gr.NT)),
         allGrammarRules
       ).map(
         (gr) =>
@@ -120,7 +130,7 @@ export class BaseDFA<T, After> {
    * Return all cached states. You might want to call `calculateAllState` first.
    */
   getAllStates() {
-    const result: BaseState<T, After>[] = [];
+    const result: State[] = [];
     this.allStatesCache.forEach((s) => result.push(s));
     return result;
   }

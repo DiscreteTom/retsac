@@ -1,18 +1,18 @@
-import { ILexer } from "../../../lexer/model";
-import { DFA } from "../DFA";
-import { GrammarRule } from "../model";
-import { Parser } from "../parser";
-import { LR_BuilderError } from "./error";
-import { DefinitionContextBuilder, RR_ResolverOptions } from "./ctx-builder";
-import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
+import { ILexer } from "../../../lexer";
+import { ASTNode } from "../../ast";
 import {
   Definition,
   ConflictType,
-  TempConflict,
-  Accepter,
   DefinitionContext,
-} from "./model";
-import { defToTempGRs } from "./utils/definition";
+  Accepter,
+  RR_ResolverOptions,
+  BaseParserBuilder,
+} from "../../base";
+import { LR_BuilderError } from "../../base/builder/error";
+import { defToTempGRs } from "../../base/builder/utils/definition";
+import { DFA } from "../DFA";
+import { Parser } from "../parser";
+import { DefinitionContextBuilder } from "./ctx-builder";
 import { getConflicts } from "./utils/conflict";
 
 /**
@@ -22,82 +22,9 @@ import { getConflicts } from "./utils/conflict";
  *
  * It's recommended to use `checkAll` before `build` when debug.
  */
-export class ParserBuilder<T> {
-  private tempGrammarRules: TempGrammarRule<T>[];
-  private entryNTs: Set<string>;
-  private NTs: Set<string>;
-  private resolved: TempConflict<T>[];
-
+export class ParserBuilder<T> extends BaseParserBuilder<T, ASTNode<T>[]> {
   constructor() {
-    this.tempGrammarRules = [];
-    this.entryNTs = new Set();
-    this.NTs = new Set();
-    this.resolved = [];
-  }
-
-  /** Declare top-level NT's. */
-  entry(...defs: string[]) {
-    this.entryNTs = new Set(defs);
-    return this;
-  }
-
-  /**
-   * Definition syntax:
-   * - `A | B` means `A` or `B`
-   * - `A B` means `A` then `B`
-   * - `'xxx'` or `"xxx"` means literal string `xxx`
-   *   - Escaped quote is supported. E.g.: `'abc\'def'`
-   *
-   * E.g.:
-   *
-   * ```js
-   * define({ exp: `A B | 'xxx' B` })
-   * // means `A B` or `'xxx' B`, and reduce to `exp`
-   * // equals to:
-   * define({ exp: [`A B`, `'xxx' B`] })
-   * ```
-   */
-  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
-    const ctx = ctxBuilder?.build();
-    const grs = defToTempGRs(defs, ctx);
-
-    this.tempGrammarRules.push(...grs);
-    grs.forEach((gr) => {
-      this.NTs.add(gr.NT);
-      if (ctx)
-        this.resolved.push(
-          ...ctx.resolved.map((r) => ({
-            ...r,
-            reducerRule: gr,
-          }))
-        );
-    });
-
-    return this;
-  }
-
-  /** Merge grammar rules, NTs and resolved conflicts of another parser builder. */
-  use(another: ParserBuilder<T>) {
-    this.tempGrammarRules.push(...another.tempGrammarRules);
-    this.NTs = new Set([...this.NTs, ...another.NTs]);
-    this.resolved.push(...another.resolved);
-    return this;
-  }
-
-  /**
-   * Turn temp grammar rules to grammar rules according to the known NTs.
-   * This should be called only if no more definitions will be defined.
-   */
-  private getGrammarRules() {
-    return this.tempGrammarRules.map(
-      (gr) =>
-        new GrammarRule<T>({
-          NT: gr.NT,
-          callback: gr.callback,
-          rejecter: gr.rejecter,
-          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
-        })
-    );
+    super();
   }
 
   private buildDFA() {
@@ -112,41 +39,6 @@ export class ParserBuilder<T> {
     dfa.debug = debug;
 
     return new Parser<T>(dfa, lexer);
-  }
-
-  /**
-   * Ensure all T/NTs have their definitions, and no duplication.
-   * If ok, return this.
-   */
-  checkSymbols(Ts: ReadonlySet<string>) {
-    /** T/NT names. */
-    const grammarSet: Set<string> = new Set();
-
-    // collect T/NT names in temp grammar rules
-    this.tempGrammarRules.map((g) => {
-      g.rule.map((grammar) => {
-        if (grammar.type == TempGrammarType.GRAMMAR)
-          grammarSet.add(grammar.content);
-      });
-    });
-
-    // all symbols should have its definition
-    grammarSet.forEach((g) => {
-      if (!Ts.has(g) && !this.NTs.has(g))
-        throw LR_BuilderError.unknownGrammar(g);
-    });
-
-    // check duplication
-    this.NTs.forEach((name) => {
-      if (Ts.has(name)) throw LR_BuilderError.duplicatedDefinition(name);
-    });
-
-    // entry NTs must in NTs
-    this.entryNTs.forEach((NT) => {
-      if (!this.NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
-    });
-
-    return this;
   }
 
   /**
@@ -275,7 +167,10 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  private resolve(reducerRule: Definition, ctx: DefinitionContext<T>) {
+  private resolve(
+    reducerRule: Definition,
+    ctx: DefinitionContext<T, ASTNode<T>[]>
+  ) {
     const grs = defToTempGRs(reducerRule, ctx);
 
     // update resolved
@@ -306,7 +201,7 @@ export class ParserBuilder<T> {
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
   ) {
     const ctx = DefinitionContextBuilder.resolveRS<T>(
       anotherRule,
@@ -320,7 +215,7 @@ export class ParserBuilder<T> {
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: RR_ResolverOptions<T>
+    options: RR_ResolverOptions<T, ASTNode<T>[]>
   ) {
     const ctx = DefinitionContextBuilder.resolveRR<T>(
       anotherRule,

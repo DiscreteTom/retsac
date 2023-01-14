@@ -1,12 +1,11 @@
 import { ASTNode } from "../../ast";
+import { GrammarRule, GrammarSet, GrammarType } from "../../base";
+import { BaseState } from "../../base/DFA/state";
 import { ParserOutput } from "../../model";
-import { GrammarSet, GrammarRule, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state. */
-export class State<T> {
-  /** Sorted candidates by candidates' string value. */
-  readonly candidates: readonly Candidate<T>[];
+export class State<T> extends BaseState<T, ASTNode<T>[], Candidate<T>> {
   private nextCache: Map<string, State<T> | null>;
 
   /**
@@ -18,15 +17,13 @@ export class State<T> {
    * This will ensure that all states are unique and only one instance exists.
    */
   constructor(candidates: Candidate<T>[]) {
-    this.candidates = candidates.sort((a, b) =>
-      a.toString() > b.toString() ? 1 : -1
-    );
+    super(candidates);
     this.nextCache = new Map();
   }
 
   getNext(
     next: Readonly<ASTNode<T>>,
-    NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
+    NTClosures: ReadonlyMap<string, GrammarRule<T, ASTNode<T>[]>[]>,
     allStatesCache: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
@@ -55,7 +52,7 @@ export class State<T> {
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
-      }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
+      }, [] as GrammarRule<T, ASTNode<T>[]>[]) // de-duplicated GrammarRule list
       .map(
         (gr) =>
           // get initial candidate from global cache
@@ -96,18 +93,5 @@ export class State<T> {
     }
 
     return { accept: false };
-  }
-
-  contains(gr: Readonly<GrammarRule<T>>, digested: number) {
-    return this.candidates.some((c) => c.eq({ gr, digested }));
-  }
-
-  /**
-   * Get the string representation of this state.
-   *
-   * Since candidates are sorted, the string representation of this state is unique.
-   */
-  toString() {
-    return this.candidates.map((c) => c.toString()).join("\n");
   }
 }

@@ -3,7 +3,10 @@ import { DFA } from "../DFA";
 import { GrammarRule } from "../model";
 import { BaseParser } from "../parser";
 import { LR_BuilderError } from "./error";
-import { DefinitionContextBuilder, RR_ResolverOptions } from "./ctx-builder";
+import {
+  BaseDefinitionContextBuilder,
+  RR_ResolverOptions,
+} from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import {
   Definition,
@@ -21,11 +24,11 @@ import { defToTempGRs } from "./utils/definition";
  *
  * It's recommended to use `checkAll` before `build` when debug.
  */
-export class ParserBuilder<T, After> {
-  private tempGrammarRules: TempGrammarRule<T, After>[];
-  private entryNTs: Set<string>;
-  private NTs: Set<string>;
-  private resolved: TempConflict<T, After>[];
+export class BaseParserBuilder<T, After> {
+  protected tempGrammarRules: TempGrammarRule<T, After>[];
+  protected entryNTs: Set<string>;
+  protected NTs: Set<string>;
+  protected resolved: TempConflict<T, After>[];
 
   constructor() {
     this.tempGrammarRules = [];
@@ -56,7 +59,10 @@ export class ParserBuilder<T, After> {
    * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
-  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T, After>) {
+  define(
+    defs: Definition,
+    ctxBuilder?: BaseDefinitionContextBuilder<T, After>
+  ) {
     const ctx = ctxBuilder?.build();
     const grs = defToTempGRs(defs, ctx);
 
@@ -76,7 +82,7 @@ export class ParserBuilder<T, After> {
   }
 
   /** Merge grammar rules, NTs and resolved conflicts of another parser builder. */
-  use(another: ParserBuilder<T, After>) {
+  use(another: BaseParserBuilder<T, After>) {
     this.tempGrammarRules.push(...another.tempGrammarRules);
     this.NTs = new Set([...this.NTs, ...another.NTs]);
     this.resolved.push(...another.resolved);
@@ -87,7 +93,7 @@ export class ParserBuilder<T, After> {
    * Turn temp grammar rules to grammar rules according to the known NTs.
    * This should be called only if no more definitions will be defined.
    */
-  private getGrammarRules() {
+  protected getGrammarRules() {
     return this.tempGrammarRules.map(
       (gr) =>
         new GrammarRule<T, After>({
@@ -97,20 +103,6 @@ export class ParserBuilder<T, After> {
           rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
         })
     );
-  }
-
-  private buildDFA() {
-    if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
-
-    return new DFA<T, After>(this.getGrammarRules(), this.entryNTs, this.NTs);
-  }
-
-  /** Generate the LR(1) parser. */
-  build(lexer: ILexer, debug = false) {
-    const dfa = this.buildDFA();
-    dfa.debug = debug;
-
-    return new BaseParser<T, After>(dfa, lexer);
   }
 
   /**

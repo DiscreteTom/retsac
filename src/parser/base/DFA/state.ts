@@ -1,27 +1,15 @@
-import { ASTNode } from "../../ast";
-import { ParserOutput } from "../../model";
-import { GrammarSet, GrammarRule, GrammarType } from "../model";
+import { GrammarRule } from "../model";
 import { BaseCandidate } from "./candidate";
 
 /** Base state for LR and ELR parsers. */
-export class BaseState<T, After> {
+export class BaseState<T, After, Candidate extends BaseCandidate<T, After>> {
   /** Sorted candidates by candidates' string value. */
-  readonly candidates: readonly BaseCandidate<T, After>[];
-  protected nextCache: Map<string, BaseState<T, After> | null>;
+  readonly candidates: readonly Candidate[];
 
-  /**
-   * State should only be created when:
-   *
-   * 1. DFA create entry state.
-   * 2. `State.getNext`.
-   *
-   * This will ensure that all states are unique and only one instance exists.
-   */
-  constructor(candidates: BaseCandidate<T, After>[]) {
+  constructor(candidates: Candidate[]) {
     this.candidates = candidates.sort((a, b) =>
       a.toString() > b.toString() ? 1 : -1
     );
-    this.nextCache = new Map();
   }
 
   contains(gr: Readonly<GrammarRule<T, After>>, digested: number) {

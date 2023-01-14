@@ -1,20 +1,24 @@
 import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
-import { IParser, ParserOutput } from "../model";
-import { DFA } from "./DFA";
 
 /** Base parser for LR and ELR parsers. */
-export class BaseParser<T, After> {
-  readonly dfa: DFA<T, After>;
+export class BaseParser<T, DFA, Child extends BaseParser<T, DFA, Child>> {
+  readonly dfa: DFA;
   readonly lexer: ILexer;
-  private buffer: ASTNode<T>[];
-  private errors: ASTNode<T>[];
+  protected buffer: ASTNode<T>[];
+  protected errors: ASTNode<T>[];
+  private ChildClass: new (dfa: DFA, lexer: ILexer) => Child;
 
-  constructor(dfa: DFA<T, After>, lexer: ILexer) {
+  constructor(
+    dfa: DFA,
+    lexer: ILexer,
+    ChildClass: new (dfa: DFA, lexer: ILexer) => Child
+  ) {
     this.dfa = dfa;
     this.lexer = lexer;
     this.buffer = [];
     this.errors = [];
+    this.ChildClass = ChildClass;
   }
 
   reset() {
@@ -26,14 +30,14 @@ export class BaseParser<T, After> {
   }
 
   clone() {
-    const res = new BaseParser(this.dfa, this.lexer.clone());
+    const res = new this.ChildClass(this.dfa, this.lexer.clone());
     res.buffer = [...this.buffer];
     res.errors = [...this.errors];
     return res;
   }
 
   dryClone() {
-    return new BaseParser(this.dfa, this.lexer.dryClone());
+    return new this.ChildClass(this.dfa, this.lexer.dryClone());
   }
 
   feed(input: string) {

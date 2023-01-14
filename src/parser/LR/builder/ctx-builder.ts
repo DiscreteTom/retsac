@@ -1,71 +1,26 @@
-import { Callback, ParserContext, Rejecter } from "../model";
+import { ASTNode } from "../../ast";
 import {
+  Accepter,
+  Callback,
+  Rejecter,
+  TempPartialConflict,
   ConflictType,
   Definition,
-  DefinitionContext,
-  Accepter,
-  TempPartialConflict,
-} from "./model";
-import { defToTempGRs } from "./utils/definition";
+  BaseDefinitionContextBuilder,
+  RR_ResolverOptions,
+} from "../../base";
+import { defToTempGRs } from "../../base/builder/utils/definition";
 
-export type RR_ResolverOptions<T> = {
-  reduce?: boolean | Accepter<T>;
-} & (
-  | {
-      next: string;
-      handleEnd?: boolean;
-    }
-  | {
-      next?: string;
-      handleEnd: boolean;
-    }
-);
-
-export class DefinitionContextBuilder<T> {
-  private _callback: Callback<T>;
-  private _rejecter: Rejecter<T>;
-  private resolved: TempPartialConflict<T>[];
-
+export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
+  T,
+  ASTNode<T>[]
+> {
   constructor(data: {
-    callback?: Callback<T>;
-    rejecter?: Rejecter<T>;
-    resolved?: TempPartialConflict<T>[];
+    callback?: Callback<T, ASTNode<T>[]>;
+    rejecter?: Rejecter<T, ASTNode<T>[]>;
+    resolved?: TempPartialConflict<T, ASTNode<T>[]>[];
   }) {
-    this._callback = data.callback ?? (() => {});
-    this._rejecter = data.rejecter ?? (() => false);
-    this.resolved = data.resolved ?? [];
-  }
-
-  /** Create a new DefinitionContext with a callback. */
-  static callback<T>(f: Callback<T>) {
-    return new DefinitionContextBuilder<T>({ callback: f });
-  }
-  /** Create a new DefinitionContextBuilder with a rejecter. */
-  static rejecter<T>(f: Rejecter<T>) {
-    return new DefinitionContextBuilder<T>({ rejecter: f });
-  }
-
-  /** Create a new DefinitionContextBuilder with the new callback appended. */
-  callback(f: Callback<T>) {
-    return new DefinitionContextBuilder<T>({
-      callback: (ctx) => {
-        this._callback(ctx);
-        f(ctx);
-      },
-      rejecter: this._rejecter,
-      resolved: this.resolved,
-    });
-  }
-
-  /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  rejecter(f: Rejecter<T>) {
-    return new DefinitionContextBuilder<T>({
-      callback: this._callback,
-      rejecter: (ctx) => {
-        return this._rejecter(ctx) || f(ctx);
-      },
-      resolved: this.resolved,
-    });
+    super(data);
   }
 
   /**
@@ -75,13 +30,15 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T>,
+    reduce: boolean | Accepter<T, ASTNode<T>[]>,
     handleEnd: boolean
   ) {
-    const anotherRule = defToTempGRs<T>(another)[0];
+    const anotherRule = defToTempGRs<T, ASTNode<T>[]>(another)[0];
     // TODO: use a dedicated lexer to parse next
     const nextGrammars =
-      next.length > 0 ? defToTempGRs<T>({ "": next })[0].rule : [];
+      next.length > 0
+        ? defToTempGRs<T, ASTNode<T>[]>({ "": next })[0].rule
+        : [];
 
     return new DefinitionContextBuilder<T>({
       rejecter: (ctx) => {
@@ -113,7 +70,7 @@ export class DefinitionContextBuilder<T> {
    */
   static resolveRS<T>(
     another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
   ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_SHIFT,
@@ -126,7 +83,10 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-R conflict.
    */
-  static resolveRR<T>(another: Definition, options: RR_ResolverOptions<T>) {
+  static resolveRR<T>(
+    another: Definition,
+    options: RR_ResolverOptions<T, ASTNode<T>[]>
+  ) {
     return DefinitionContextBuilder.resolve<T>(
       ConflictType.REDUCE_REDUCE,
       another,
@@ -140,7 +100,7 @@ export class DefinitionContextBuilder<T> {
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T>,
+    reduce: boolean | Accepter<T, ASTNode<T>[]>,
     handleEnd: boolean
   ) {
     const anotherCtx = DefinitionContextBuilder.resolve<T>(
@@ -161,7 +121,7 @@ export class DefinitionContextBuilder<T> {
   /** Create a new DefinitionContextBuilder with the new resolved R-S conflict appended. */
   resolveRS(
     another: Definition,
-    options: { next: string; reduce?: boolean | Accepter<T> }
+    options: { next: string; reduce?: boolean | Accepter<T, ASTNode<T>[]> }
   ) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
@@ -172,7 +132,7 @@ export class DefinitionContextBuilder<T> {
     );
   }
   /** Create a new DefinitionContextBuilder with the new resolved R-R conflict appended. */
-  resolveRR(another: Definition, options: RR_ResolverOptions<T>) {
+  resolveRR(another: Definition, options: RR_ResolverOptions<T, ASTNode<T>[]>) {
     return this.resolve(
       ConflictType.REDUCE_REDUCE,
       another,
@@ -180,33 +140,5 @@ export class DefinitionContextBuilder<T> {
       options.reduce ?? true,
       options.handleEnd ?? false
     );
-  }
-
-  /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
-  static reducer<T>(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
-  ) {
-    return DefinitionContextBuilder.callback<T>(
-      (context) =>
-        (context.data = f(
-          context.matched.map((node) => node.data),
-          context
-        ))
-    );
-  }
-  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  reducer(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
-  ) {
-    const anotherCtx = DefinitionContextBuilder.reducer(f);
-    return this.callback(anotherCtx._callback);
-  }
-
-  build(): DefinitionContext<T> {
-    return {
-      callback: this._callback,
-      rejecter: this._rejecter,
-      resolved: this.resolved,
-    };
   }
 }

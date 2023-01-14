@@ -14,10 +14,10 @@ export type RR_ResolverOptions<T, After> = {
     }
 );
 
-export class DefinitionContextBuilder<T, After> {
-  private _callback: Callback<T, After>;
-  private _rejecter: Rejecter<T, After>;
-  private resolved: TempPartialConflict<T, After>[];
+export class BaseDefinitionContextBuilder<T, After> {
+  protected _callback: Callback<T, After>;
+  protected _rejecter: Rejecter<T, After>;
+  protected resolved: TempPartialConflict<T, After>[];
 
   constructor(data: {
     callback?: Callback<T, After>;
@@ -31,16 +31,16 @@ export class DefinitionContextBuilder<T, After> {
 
   /** Create a new DefinitionContext with a callback. */
   static callback<T, After>(f: Callback<T, After>) {
-    return new DefinitionContextBuilder<T, After>({ callback: f });
+    return new BaseDefinitionContextBuilder<T, After>({ callback: f });
   }
   /** Create a new DefinitionContextBuilder with a rejecter. */
   static rejecter<T, After>(f: Rejecter<T, After>) {
-    return new DefinitionContextBuilder<T, After>({ rejecter: f });
+    return new BaseDefinitionContextBuilder<T, After>({ rejecter: f });
   }
 
   /** Create a new DefinitionContextBuilder with the new callback appended. */
   callback(f: Callback<T, After>) {
-    return new DefinitionContextBuilder<T, After>({
+    return new BaseDefinitionContextBuilder<T, After>({
       callback: (ctx) => {
         this._callback(ctx);
         f(ctx);
@@ -52,7 +52,7 @@ export class DefinitionContextBuilder<T, After> {
 
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
   rejecter(f: Rejecter<T, After>) {
-    return new DefinitionContextBuilder<T, After>({
+    return new BaseDefinitionContextBuilder<T, After>({
       callback: this._callback,
       rejecter: (ctx) => {
         return this._rejecter(ctx) || f(ctx);
@@ -68,7 +68,7 @@ export class DefinitionContextBuilder<T, After> {
       context: BaseParserContext<T, After>
     ) => T | undefined
   ) {
-    return DefinitionContextBuilder.callback<T, After>(
+    return BaseDefinitionContextBuilder.callback<T, After>(
       (context) =>
         (context.data = f(
           context.matched.map((node) => node.data),
@@ -83,7 +83,7 @@ export class DefinitionContextBuilder<T, After> {
       context: BaseParserContext<T, After>
     ) => T | undefined
   ) {
-    const anotherCtx = DefinitionContextBuilder.reducer(f);
+    const anotherCtx = BaseDefinitionContextBuilder.reducer(f);
     return this.callback(anotherCtx._callback);
   }
 
