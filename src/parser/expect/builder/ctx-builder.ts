@@ -101,8 +101,8 @@ export class DefinitionContextBuilder<T> {
                 .clone() // clone the lexer to avoid changing the original lexer
                 .lex({
                   expect: {
-                    types: [g.toGrammar().toASTNode().type],
-                    text: g.toGrammar().toASTNode().text,
+                    types: [g.toGrammar().toASTNode(ctx.lexer).type],
+                    text: g.toGrammar().toASTNode(ctx.lexer).text,
                   },
                 }) != null
           )
