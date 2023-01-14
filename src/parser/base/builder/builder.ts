@@ -1,4 +1,4 @@
-import { GrammarRule } from "../model";
+import { BaseParserContext, GrammarRule } from "../model";
 import { LR_BuilderError } from "./error";
 import { BaseDefinitionContextBuilder } from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
@@ -12,11 +12,15 @@ import { defToTempGRs } from "./utils/definition";
  *
  * It's recommended to use `checkAll` before `build` when debug.
  */
-export class BaseParserBuilder<T, After> {
-  protected tempGrammarRules: TempGrammarRule<T, After>[];
+export class BaseParserBuilder<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>
+> {
+  protected tempGrammarRules: TempGrammarRule<T, After, Ctx>[];
   protected entryNTs: Set<string>;
   protected NTs: Set<string>;
-  protected resolved: TempConflict<T, After>[];
+  protected resolved: TempConflict<T, After, Ctx>[];
 
   constructor() {
     this.tempGrammarRules = [];
@@ -49,7 +53,7 @@ export class BaseParserBuilder<T, After> {
    */
   define(
     defs: Definition,
-    ctxBuilder?: BaseDefinitionContextBuilder<T, After>
+    ctxBuilder?: BaseDefinitionContextBuilder<T, After, Ctx>
   ) {
     const ctx = ctxBuilder?.build();
     const grs = defToTempGRs(defs, ctx);
@@ -70,7 +74,7 @@ export class BaseParserBuilder<T, After> {
   }
 
   /** Merge grammar rules, NTs and resolved conflicts of another parser builder. */
-  use(another: BaseParserBuilder<T, After>) {
+  use(another: BaseParserBuilder<T, After, Ctx>) {
     this.tempGrammarRules.push(...another.tempGrammarRules);
     this.NTs = new Set([...this.NTs, ...another.NTs]);
     this.resolved.push(...another.resolved);

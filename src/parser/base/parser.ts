@@ -4,7 +4,7 @@ import { ASTNode } from "../ast";
 /** Base parser for LR and ELR parsers. */
 export class BaseParser<T, DFA, Child extends BaseParser<T, DFA, Child>> {
   readonly dfa: DFA;
-  readonly lexer: ILexer;
+  lexer: ILexer;
   protected buffer: ASTNode<T>[];
   protected errors: ASTNode<T>[];
   private ChildClass: new (dfa: DFA, lexer: ILexer) => Child;

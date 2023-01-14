@@ -1,6 +1,7 @@
 import { Lexer } from "../../../..";
 import { exact, stringLiteral } from "../../../../lexer";
 import { Token } from "../../../../lexer/model";
+import { BaseParserContext } from "../../model";
 import { LR_BuilderError } from "../error";
 import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../temp-grammar";
@@ -17,11 +18,11 @@ const grammarLexer = new Lexer.Builder()
   .build();
 
 /** Definition to TempGrammarRules. */
-export function defToTempGRs<T, After>(
+export function defToTempGRs<T, After, Ctx extends BaseParserContext<T, After>>(
   defs: Definition,
-  ctx?: DefinitionContext<T, After>
+  ctx?: DefinitionContext<T, After, Ctx>
 ) {
-  const result: TempGrammarRule<T, After>[] = [];
+  const result: TempGrammarRule<T, After, Ctx>[] = [];
 
   // parse rules
   for (const NT in defs) {
@@ -58,7 +59,7 @@ export function defToTempGRs<T, After>(
         throw LR_BuilderError.emptyLiteral(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<T, After>({
+        new TempGrammarRule<T, After, Ctx>({
           NT,
           rule: tokens.map((t) => {
             if (t.type == "grammar")

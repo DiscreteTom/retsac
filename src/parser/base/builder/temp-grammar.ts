@@ -5,6 +5,7 @@ import {
   GrammarRule,
   GrammarType,
   Rejecter,
+  BaseParserContext,
 } from "../model";
 
 /** Grammar type, but can't distinguish N or NT. */
@@ -64,23 +65,29 @@ export class TempGrammar {
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
-export class TempGrammarRule<T, After> {
+export class TempGrammarRule<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>
+> {
   rule: TempGrammar[];
   /** The reduce target. */
   NT: string;
-  callback?: Callback<T, After>;
-  rejecter?: Rejecter<T, After>;
+  callback?: Callback<T, After, Ctx>;
+  rejecter?: Rejecter<T, After, Ctx>;
 
   constructor(
-    data: Partial<Pick<TempGrammarRule<T, After>, "callback" | "rejecter">> &
-      Pick<TempGrammarRule<T, After>, "rule" | "NT">
+    data: Partial<
+      Pick<TempGrammarRule<T, After, Ctx>, "callback" | "rejecter">
+    > &
+      Pick<TempGrammarRule<T, After, Ctx>, "rule" | "NT">
   ) {
     Object.assign(this, data);
   }
 
   /** Only check whether NT and rules are equal. */
-  weakEq<_, __>(
-    rule: Readonly<TempGrammarRule<_, __>> | Readonly<GrammarRule<_, __>>
+  weakEq<_, __, ___ extends BaseParserContext<_, __>>(
+    rule: Readonly<TempGrammarRule<_, __, ___>> | Readonly<GrammarRule<_, __>>
   ) {
     return (
       this.NT == rule.NT &&

@@ -1,6 +1,12 @@
-import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
+import {
+  GrammarRule,
+  GrammarSet,
+  Grammar,
+  GrammarType,
+  BaseParserContext,
+} from "../../model";
 import { LR_BuilderError } from "../error";
-import { TempConflict, ConflictType, Conflict } from "../model";
+import { TempConflict, ConflictType } from "../model";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
@@ -43,8 +49,12 @@ export function getEndSet<T, After>(
 }
 
 /** Return conflicts that user didn't resolve. */
-export function getUnresolvedConflicts<T, After>(
-  resolved: readonly TempConflict<T, After>[],
+export function getUnresolvedConflicts<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>
+>(
+  resolved: readonly TempConflict<T, After, Ctx>[],
   NTs: ReadonlySet<string>,
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<T, After>>,

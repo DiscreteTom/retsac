@@ -11,9 +11,11 @@ export interface BaseParserContext<T, After> {
 }
 
 /** Will be called if the current grammar is accepted. */
-export type Callback<T, After> = (context: BaseParserContext<T, After>) => void;
+export type Callback<T, After, Ctx extends BaseParserContext<T, After>> = (
+  context: Ctx
+) => void;
 
 /** Grammar rejecter. Return `true` to reject to use the current grammar. */
-export type Rejecter<T, After> = (
-  context: BaseParserContext<T, After>
+export type Rejecter<T, After, Ctx extends BaseParserContext<T, After>> = (
+  context: Ctx
 ) => boolean;

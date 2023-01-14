@@ -1,3 +1,4 @@
+import { BaseParserContext } from "../model";
 import { Conflict, ConflictType } from "./model";
 import { TempGrammar, TempGrammarRule } from "./temp-grammar";
 
@@ -25,7 +26,9 @@ export class LR_BuilderError extends Error {
     Object.setPrototypeOf(this, LR_BuilderError.prototype);
   }
 
-  static grammarRuleNotFound<_, __>(gr: TempGrammarRule<_, __>) {
+  static grammarRuleNotFound<_, __, ___ extends BaseParserContext<_, __>>(
+    gr: TempGrammarRule<_, __, ___>
+  ) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
       `No such grammar rule: ${gr.toString()}`
@@ -105,7 +108,9 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<_, __>(rule: TempGrammarRule<_, __>) {
+  static tooManyEndHandler<_, __, ___ extends BaseParserContext<_, __>>(
+    rule: TempGrammarRule<_, __, ___>
+  ) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
