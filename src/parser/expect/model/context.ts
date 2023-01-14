@@ -1,9 +1,11 @@
+import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 
 export interface ParserContext<T> {
   readonly matched: ASTNode<T>[];
   readonly before: ASTNode<T>[];
   readonly after: string;
+  readonly lexer: ILexer;
   /** Data of the result AST node. */
   data?: T;
   error?: any;

@@ -101,6 +101,7 @@ export class Candidate<T> {
       matched: buffer.slice(-this.gr.rule.length),
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
+      lexer,
     };
 
     // check follow for LR(1) with the rest input string
