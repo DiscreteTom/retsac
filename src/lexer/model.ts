@@ -79,5 +79,5 @@ export interface ILexer {
    * Get error tokens.
    */
   getErrors(): readonly Token[];
-  hasError(): boolean;
+  hasErrors(): boolean;
 }

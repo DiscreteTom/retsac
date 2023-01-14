@@ -228,7 +228,7 @@ export class Lexer implements ILexer {
     return this.errors;
   }
 
-  hasError() {
+  hasErrors() {
     return this.errors.length != 0;
   }
 }
