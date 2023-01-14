@@ -36,13 +36,11 @@ export class Parser<T> implements IParser<T> {
     return new Parser(this.dfa, this.lexer.dryClone());
   }
 
-  /** Feed a string to the lexer. */
   feed(input: string) {
     this.lexer.feed(input);
     return this;
   }
 
-  /** Try to yield an entry NT. */
   parse(input = "", stopOnError = false): ParserOutput<T> {
     this.buffer = this.buffer.concat(
       this.lexer.lexAll(input).map((t) => ASTNode.from(t))
@@ -58,7 +56,6 @@ export class Parser<T> implements IParser<T> {
     return res;
   }
 
-  /** Try to reduce till the parser can't accept more. */
   parseAll(input = "", stopOnError = false): ParserOutput<T> {
     /** Aggregate results if the parser can accept more. */
     const summary: ParserOutput<T> = {
