@@ -7,7 +7,7 @@ import { State } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 import { LR_RuntimeError } from "./../error";
 
-/** LR(1) DFA. */
+/** LR(1) DFA. Stateless. */
 export class DFA<T> {
   private readonly allGrammarRules: readonly GrammarRule<T>[];
   private readonly NTClosures: Map<string, GrammarRule<T>[]>;
@@ -114,27 +114,31 @@ export class DFA<T> {
   }
 
   /** Reset DFA then try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
+  parse(lexer: ILexer, stopOnError = false): ParserOutput<T> {
     this.reset();
 
-    let index = 0; // buffer index
     const errors: ASTNode<T>[] = [];
-    while (index < buffer.length) {
+    let buffer: ASTNode<T>[] = [];
+    let needLex = true;
+
+    while (true) {
       // try to construct next state
       const nextStateResult = this.stateStack
         .at(-1)!
         .getNext(
-          buffer[index],
+          needLex,
+          buffer,
           this.NTClosures,
           this.allStatesCache,
-          this.allInitialCandidates
+          this.allInitialCandidates,
+          lexer
         );
       if (nextStateResult.state == null) {
         if (this.debug)
           console.log(
-            `[End] No more candidate. Node=${buffer[
-              index
-            ].toString()} Candidates:\n${this.stateStack
+            `[End] No more candidate. Node=${buffer
+              .at(-1)
+              ?.toString()} Candidates:\n${this.stateStack
               .at(-1)!
               .candidates.map((c) => c.toString())
               .join("\n")}`
@@ -148,30 +152,27 @@ export class DFA<T> {
       // try reduce with the new state
       const res = this.stateStack
         .at(-1)!
-        .tryReduce(buffer, index, this.entryNTs, this.followSets, this.debug);
+        .tryReduce(buffer, this.entryNTs, this.followSets, lexer, this.debug);
       if (!res.accept) {
-        index++;
+        needLex = true;
         continue; // try to digest more
       }
 
       // accepted
+      needLex = false;
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
-      index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].type) && index == 0)
-        return { accept: true, buffer, errors };
+      if (this.entryNTs.has(buffer[0].type) && buffer.length == 1)
+        return { accept: true, buffer: buffer, errors };
       // if stop on error, return partial result
       if (stopOnError && errors.length > 0)
-        return { accept: true, buffer, errors };
+        return { accept: true, buffer: buffer, errors };
 
       // continue loop, try to digest more with the newly reduced buffer
     }
-
-    // index == buffer.length, maybe need more input
-    return { accept: false };
   }
 
   /**
@@ -188,16 +189,7 @@ export class DFA<T> {
       });
     });
     // convert to mock AST node
-    const mockNodes = gs.map((g) => {
-      if (g.type == GrammarType.LITERAL) {
-        if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
-        return new ASTNode<T>({
-          type: lexer.reset().lex(g.content)!.type,
-          text: g.content,
-          start: 0,
-        });
-      } else return new ASTNode<T>({ type: g.content, start: 0 });
-    });
+    const mockNodes = gs.map((g) => g.toASTNode<T>(lexer));
 
     while (true) {
       let changed = false;
@@ -205,10 +197,12 @@ export class DFA<T> {
         mockNodes.forEach((node) => {
           if (
             state.getNext(
-              node,
+              false,
+              [node],
               this.NTClosures,
               this.allStatesCache,
-              this.allInitialCandidates
+              this.allInitialCandidates,
+              lexer
             ).changed
           )
             changed = true;

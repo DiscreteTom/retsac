@@ -1,4 +1,6 @@
+import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
+import { LR_RuntimeError } from "../error";
 import { Callback, Rejecter } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -30,6 +32,17 @@ export class Grammar {
           this.content == g.text
         : // check type name
           this.content == g.type;
+  }
+
+  toASTNode<T>(lexer?: ILexer) {
+    if (this.type == GrammarType.LITERAL) {
+      if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
+      return new ASTNode<T>({
+        type: lexer.dryClone().lex(this.content)!.type,
+        text: this.content,
+        start: 0,
+      });
+    } else return new ASTNode<T>({ type: this.content, start: 0 });
   }
 
   /** Return `type name` or `"literal"` */

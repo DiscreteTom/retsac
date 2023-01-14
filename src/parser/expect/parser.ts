@@ -1,42 +1,83 @@
+import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
 import { IParser, ParserOutput } from "../model";
 import { DFA } from "./DFA";
 
 /** LR(1) parser. Stateless. Try to yield a top level NT each time. */
 export class Parser<T> implements IParser<T> {
-  dfa: DFA<T>;
+  readonly dfa: DFA<T>;
+  lexer: ILexer;
+  private errors: ASTNode<T>[];
 
-  constructor(dfa: DFA<T>) {
+  constructor(dfa: DFA<T>, lexer: ILexer) {
     this.dfa = dfa;
+    this.lexer = lexer;
+    this.errors = [];
   }
 
-  /** Try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
-    return this.dfa.parse(buffer, stopOnError);
+  reset() {
+    this.lexer.reset();
+    this.errors = [];
+    return this;
   }
 
-  /** Try to reduce till the parser can't accept more. */
-  parseAll(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
-    let lastRes: ParserOutput<T> = {
-      accept: false,
+  clone() {
+    const res = new Parser(this.dfa, this.lexer.clone());
+    res.errors = this.errors.slice();
+    return res;
+  }
+
+  dryClone() {
+    return new Parser(this.dfa, this.lexer.dryClone());
+  }
+
+  feed(input: string): this {
+    this.lexer.feed(input);
+    return this;
+  }
+
+  parse(input = "", stopOnError = false): ParserOutput<T> {
+    this.feed(input);
+
+    // clone lexer to avoid DFA changing the original lexer
+    const lexerClone = this.lexer.clone();
+
+    const res = this.dfa.parse(lexerClone, stopOnError);
+    if (res.accept) {
+      // update states
+      this.lexer = lexerClone; // lexer is stateful and may be changed in DFA, so we need to update it
+      this.errors.push(...res.errors);
+    }
+
+    return res;
+  }
+
+  parseAll(input = "", stopOnError = false): ParserOutput<T> {
+    /** Aggregate results if the parser can accept more. */
+    const summary: ParserOutput<T> = {
+      accept: true,
+      buffer: [],
+      errors: [],
     };
+    /** If the parser has accepted at least once. */
+    let accepted = false;
 
-    let lastBuffer = buffer;
+    this.feed(input);
 
     while (true) {
-      const res = this.parse(lastBuffer, stopOnError);
+      const res = this.parse("", stopOnError);
       if (res.accept) {
-        lastRes = res;
-        lastBuffer = res.buffer;
+        accepted = true;
+        summary.buffer = res.buffer;
+        summary.errors.push(...res.errors);
       } else {
-        return lastRes;
+        if (accepted) {
+          // at least one accept
+          return summary;
+        } else {
+          return res;
+        }
       }
     }
-  }
-
-  /** Actually this does nothing since each `DFA.parse` will reset itself. */
-  reset() {
-    // this.dfa.reset();
-    return this;
   }
 }

@@ -1,5 +1,7 @@
+import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
+import { LR_RuntimeError } from "../error";
 import { GrammarSet, GrammarRule, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 
@@ -24,12 +26,37 @@ export class State<T> {
     this.nextCache = new Map();
   }
 
+  /**
+   * Try to generate next state according to the nodes and the input string in lexer.
+   */
   getNext(
-    next: Readonly<ASTNode<T>>,
+    needLex: boolean,
+    nodes: ASTNode<T>[],
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
     allStatesCache: Map<string, State<T>>,
-    allInitialCandidates: ReadonlyMap<string, Candidate<T>>
+    allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
+    lexer?: ILexer
   ): { state: State<T> | null; changed: boolean } {
+    if (needLex) {
+      if (!lexer) throw LR_RuntimeError.missingLexerToParseLiteral();
+
+      let lexed = false;
+      // try to use lexer to yield an ASTNode with specific type and/or content
+      for (let i = 0; i < this.candidates.length; ++i) {
+        const node = this.candidates[i].tryLex(lexer);
+        if (node !== null) {
+          nodes.push(node);
+          lexed = true;
+          break; // for now we only consider the first candidate that can lex the input
+          // TODO: what if multiple candidates can lex the input?
+        }
+      }
+
+      // no candidate can lex the input, return null
+      if (!lexed) return { state: null, changed: false };
+    }
+
+    const next = nodes.at(-1)!;
     const key = JSON.stringify({ type: next.type, text: next.text });
 
     // try to get from local cache
@@ -84,14 +111,13 @@ export class State<T> {
   /** Traverse all candidates to try to reduce. */
   tryReduce(
     buffer: readonly ASTNode<T>[],
-    /** From where of the buffer to reduce. */
-    start: number,
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
+    lexer: ILexer,
     debug: boolean
   ): ParserOutput<T> {
     for (const c of this.candidates) {
-      const res = c.tryReduce(buffer, start, entryNTs, followSets, debug);
+      const res = c.tryReduce(buffer, entryNTs, followSets, lexer, debug);
       if (res.accept) return res;
     }
 

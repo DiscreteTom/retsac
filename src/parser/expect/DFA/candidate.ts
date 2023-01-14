@@ -1,6 +1,7 @@
+import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import { GrammarRule, GrammarSet, ParserContext } from "../model";
+import { GrammarRule, GrammarSet, GrammarType, ParserContext } from "../model";
 
 /** A.k.a: LR(1) Project. */
 export class Candidate<T> {
@@ -54,6 +55,34 @@ export class Candidate<T> {
   }
 
   /**
+   * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
+   */
+  tryLex(lexer: ILexer): ASTNode<T> | null {
+    if (this.current.type == GrammarType.NT) {
+      return null;
+    } else {
+      const expectType =
+        this.current.type == GrammarType.LITERAL
+          ? lexer.dryClone().lex(this.current.content)!.type // lex literal to get type
+          : this.current.content;
+      const expectContent =
+        this.current.type == GrammarType.LITERAL
+          ? this.current.content
+          : undefined;
+
+      // try to lex to get the token
+      const token = lexer.lex({
+        expect: { types: [expectType], text: expectContent },
+      });
+      if (token == null) {
+        return null;
+      } else {
+        return ASTNode.from<T>(token);
+      }
+    }
+  }
+
+  /**
    * Only failed if:
    * 1. Digestion not finished.
    * 2. Check follow set failed.
@@ -61,29 +90,45 @@ export class Candidate<T> {
    */
   tryReduce(
     buffer: readonly ASTNode<T>[],
-    /** From where of the buffer to reduce. */
-    index: number,
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
+    lexer: ILexer,
     debug: boolean
   ): ParserOutput<T> {
     if (this.canDigestMore()) return { accept: false };
 
     const context: ParserContext<T> = {
-      matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
-      before: buffer.slice(0, index + 1 - this.gr.rule.length),
-      after: buffer.slice(index + 1),
+      matched: buffer.slice(-this.gr.rule.length),
+      before: buffer.slice(0, -this.gr.rule.length),
+      after: lexer.getRest(),
     };
 
-    // peek next ASTNode and check follow for LR(1)
+    // check follow for LR(1) with the rest input string
     if (context.after.length > 0) {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
-      } else if (!followSets.get(this.gr.NT)!.has(context.after[0])) {
+      } else if (
+        !followSets
+          .get(this.gr.NT)!
+          .map((g) =>
+            lexer
+              .clone() // clone with state to prevent side effect
+              .lex({
+                expect: {
+                  types: [g.toASTNode(lexer).type],
+                  text: g.toASTNode(lexer).text,
+                },
+              })
+          )
+          .every((x) => x == null)
+      ) {
         if (debug)
           console.log(
-            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after[0].toString()}`
+            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
+              0,
+              10 // only show first 10 chars
+            )}`
           );
         return { accept: false };
       }
@@ -110,7 +155,7 @@ export class Candidate<T> {
 
     return {
       accept: true,
-      buffer: context.before.concat(node).concat(context.after),
+      buffer: context.before.concat(node),
       errors: context.error ? [node] : [],
     };
   }

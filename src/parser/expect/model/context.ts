@@ -3,7 +3,7 @@ import { ASTNode } from "../../ast";
 export interface ParserContext<T> {
   readonly matched: ASTNode<T>[];
   readonly before: ASTNode<T>[];
-  readonly after: ASTNode<T>[];
+  readonly after: string;
   /** Data of the result AST node. */
   data?: T;
   error?: any;
