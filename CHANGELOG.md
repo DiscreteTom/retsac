@@ -31,6 +31,8 @@
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
     - DFA will cache state transition on the fly to optimize runtime performance.
       - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
+  - ELR Parser: Expectational LR Parser
+    - Parser will actively use Lexer to lex input string to token according to the grammar rules.
 - Remove `Manager` since `Parser.parse` already accept string as input and keep a state.
 - Optimize document / comments.
   - Generate documentation with [typedoc](https://typedoc.org/).
