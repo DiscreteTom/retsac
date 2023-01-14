@@ -31,9 +31,7 @@
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
     - DFA will cache state transition on the fly to optimize runtime performance.
       - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
-- Manager
-  - Manager will use `ILexer` instead of `Lexer` in constructor.
-  - `Manager.parse/parseAll` will return `ParserOutput`.
+- Remove `Manager` since `Parser.parse` already accept string as input and keep a state.
 - Optimize document / comments.
   - Generate documentation with [typedoc](https://typedoc.org/).
 - Optimize code / performance.
