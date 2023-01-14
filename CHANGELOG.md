@@ -11,11 +11,12 @@
   - `Lexer.lex` add optional parameter `expect` to limit the output token type or/and token content.
   - Add `Lexer.trimStart`.
 - Parser
-  - Use `DefinitionContextBuilder` to define parser actions.
   - If ASTNode has no error, the error field will be `undefined`.
   - Add `ASTNode.toObj` for serialization.
   - Add optional `stopOnError` parameter to `IParser.parse`.
+  - `Parser.parse` will accept string as input instead of a list of ASTNode.
   - LR Parser
+    - Use `DefinitionContextBuilder` to define parser actions.
     - Rename `ReducerContext` to `ParserContext`.
     - If ReducerContext has no error, the error field will be `undefined`.
     - Change `ReducerContext` from type to interface.
