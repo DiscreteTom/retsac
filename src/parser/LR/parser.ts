@@ -84,4 +84,16 @@ export class Parser<T> implements IParser<T> {
       }
     }
   }
+
+  getErrors(): readonly ASTNode<T>[] {
+    return this.errors;
+  }
+
+  hasErrors(): boolean {
+    return this.errors.length > 0;
+  }
+
+  getBuffer(): readonly ASTNode<T>[] {
+    return this.buffer;
+  }
 }
