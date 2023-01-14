@@ -93,8 +93,20 @@ export class DefinitionContextBuilder<T> {
           else return false;
         }
         // else, not the end of input
-        // check if any next grammar match the after[0]
-        if (nextGrammars.some((g) => g.eq(ctx.after[0])))
+        // check if any next grammar match the next token
+        if (
+          nextGrammars.some(
+            (g) =>
+              ctx.lexer
+                .clone() // clone the lexer to avoid changing the original lexer
+                .lex({
+                  expect: {
+                    types: [g.toGrammar().toASTNode().type],
+                    text: g.toGrammar().toASTNode().text,
+                  },
+                }) != null
+          )
+        )
           return !(reduce instanceof Function ? reduce(ctx) : reduce);
         return false;
       },
