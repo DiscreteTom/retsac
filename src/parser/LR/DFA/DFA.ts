@@ -7,7 +7,7 @@ import { State } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 import { LR_RuntimeError } from "./../error";
 
-/** LR(1) DFA. */
+/** LR(1) DFA. Stateless. */
 export class DFA<T> {
   private readonly allGrammarRules: readonly GrammarRule<T>[];
   private readonly NTClosures: Map<string, GrammarRule<T>[]>;
