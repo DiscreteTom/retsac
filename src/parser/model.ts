@@ -11,7 +11,7 @@ export type ParserOutput<T> =
     };
 
 export type ParseExec<T> = (
-  input: string,
+  input?: string,
   stopOnError?: boolean
 ) => ParserOutput<T>;
 
