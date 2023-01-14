@@ -1,10 +1,14 @@
-import { GrammarRule, GrammarType } from "../model";
+import { BaseParserContext, GrammarRule, GrammarType } from "../model";
 
-export function getAllNTClosure<T, After>(
+export function getAllNTClosure<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>
+>(
   NTs: ReadonlySet<string>,
-  allGrammarRules: readonly GrammarRule<T, After>[]
-): Map<string, GrammarRule<T, After>[]> {
-  const result = new Map<string, GrammarRule<T, After>[]>();
+  allGrammarRules: readonly GrammarRule<T, After, Ctx>[]
+): Map<string, GrammarRule<T, After, Ctx>[]> {
+  const result = new Map<string, GrammarRule<T, After, Ctx>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
 }
@@ -15,10 +19,10 @@ export function getAllNTClosure<T, After>(
  * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
  * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
  */
-export function getNTClosure<T, After>(
+export function getNTClosure<T, After, Ctx extends BaseParserContext<T, After>>(
   NT: string,
-  allGrammarRules: readonly GrammarRule<T, After>[]
-): GrammarRule<T, After>[] {
+  allGrammarRules: readonly GrammarRule<T, After, Ctx>[]
+): GrammarRule<T, After, Ctx>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules
@@ -30,10 +34,14 @@ export function getNTClosure<T, After>(
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
  * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
-export function getGrammarRulesClosure<T, After>(
-  rules: readonly GrammarRule<T, After>[],
-  allGrammarRules: readonly GrammarRule<T, After>[]
-): GrammarRule<T, After>[] {
+export function getGrammarRulesClosure<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>
+>(
+  rules: readonly GrammarRule<T, After, Ctx>[],
+  allGrammarRules: readonly GrammarRule<T, After, Ctx>[]
+): GrammarRule<T, After, Ctx>[] {
   const result = [...rules];
 
   while (true) {

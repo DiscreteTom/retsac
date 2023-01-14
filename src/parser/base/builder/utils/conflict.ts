@@ -13,9 +13,9 @@ import { TempConflict, ConflictType } from "../model";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-export function getEndSet<T, After>(
+export function getEndSet<T, After, Ctx extends BaseParserContext<T, After>>(
   entryNTs: ReadonlySet<string>,
-  grs: readonly GrammarRule<T, After>[]
+  grs: readonly GrammarRule<T, After, Ctx>[]
 ) {
   const result = new GrammarSet();
 
@@ -57,8 +57,8 @@ export function getUnresolvedConflicts<
   resolved: readonly TempConflict<T, After, Ctx>[],
   NTs: ReadonlySet<string>,
   type: ConflictType,
-  reducerRule: Readonly<GrammarRule<T, After>>,
-  anotherRule: Readonly<GrammarRule<T, After>>,
+  reducerRule: Readonly<GrammarRule<T, After, Ctx>>,
+  anotherRule: Readonly<GrammarRule<T, After, Ctx>>,
   next: readonly Grammar[],
   checkHandleEnd: boolean,
   debug: boolean

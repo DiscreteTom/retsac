@@ -86,8 +86,10 @@ export class TempGrammarRule<
   }
 
   /** Only check whether NT and rules are equal. */
-  weakEq<_, __, ___ extends BaseParserContext<_, __>>(
-    rule: Readonly<TempGrammarRule<_, __, ___>> | Readonly<GrammarRule<_, __>>
+  weakEq<T, After, Ctx extends BaseParserContext<T, After>>(
+    rule:
+      | Readonly<TempGrammarRule<T, After, Ctx>>
+      | Readonly<GrammarRule<T, After, Ctx>>
   ) {
     return (
       this.NT == rule.NT &&
@@ -97,7 +99,7 @@ export class TempGrammarRule<
   }
 
   toString(formatter?: (NT: string, grammars: string[]) => string) {
-    return new GrammarRule<void, void>({
+    return new GrammarRule<T, After, Ctx>({
       NT: this.NT,
       rule: this.rule.map((g) => g.toGrammar()),
     }).toString(formatter);

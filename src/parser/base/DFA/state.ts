@@ -1,8 +1,13 @@
-import { GrammarRule } from "../model";
+import { BaseParserContext, GrammarRule } from "../model";
 import { BaseCandidate } from "./candidate";
 
 /** Base state for LR and ELR parsers. */
-export class BaseState<T, After, Candidate extends BaseCandidate<T, After>> {
+export class BaseState<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>,
+  Candidate extends BaseCandidate<T, After, Ctx>
+> {
   /** Sorted candidates by candidates' string value. */
   readonly candidates: readonly Candidate[];
 
@@ -12,7 +17,7 @@ export class BaseState<T, After, Candidate extends BaseCandidate<T, After>> {
     );
   }
 
-  contains(gr: Readonly<GrammarRule<T, After>>, digested: number) {
+  contains(gr: Readonly<GrammarRule<T, After, Ctx>>, digested: number) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
   }
 

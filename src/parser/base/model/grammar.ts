@@ -1,7 +1,7 @@
 import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 import { LR_RuntimeError } from "../error";
-import { Callback, Rejecter } from "./context";
+import { BaseParserContext, Callback, Rejecter } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
 export enum GrammarType {
@@ -55,16 +55,16 @@ export class Grammar {
   }
 }
 
-export class GrammarRule<T, After> {
+export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
   rule: Grammar[];
   /** The reduce target. */
   NT: string;
-  callback: Callback<T, After>;
-  rejecter: Rejecter<T, After>;
+  callback: Callback<T, After, Ctx>;
+  rejecter: Rejecter<T, After, Ctx>;
 
   constructor(
-    p: Partial<Pick<GrammarRule<T, After>, "callback" | "rejecter">> &
-      Pick<GrammarRule<T, After>, "rule" | "NT">
+    p: Partial<Pick<GrammarRule<T, After, Ctx>, "callback" | "rejecter">> &
+      Pick<GrammarRule<T, After, Ctx>, "rule" | "NT">
   ) {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
@@ -80,10 +80,10 @@ export class GrammarRule<T, After> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: Readonly<GrammarRule<T, After>>) {
+  checkRSConflict(another: Readonly<GrammarRule<T, After, Ctx>>) {
     const result = [] as {
-      reducerRule: GrammarRule<T, After>;
-      shifterRule: GrammarRule<T, After>;
+      reducerRule: GrammarRule<T, After, Ctx>;
+      shifterRule: GrammarRule<T, After, Ctx>;
       /** How many grammars are overlapped in rule. */
       length: number;
     }[];
@@ -105,7 +105,7 @@ export class GrammarRule<T, After> {
   }
 
   /** Check if the tail of this's rule is the same as another's whole rule. */
-  checkRRConflict(another: Readonly<GrammarRule<T, After>>) {
+  checkRRConflict(another: Readonly<GrammarRule<T, After, Ctx>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 

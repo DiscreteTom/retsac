@@ -1,4 +1,9 @@
-import { GrammarRule, GrammarSet, GrammarType } from "../model";
+import {
+  BaseParserContext,
+  GrammarRule,
+  GrammarSet,
+  GrammarType,
+} from "../model";
 import { BaseCandidate } from "./candidate";
 import { BaseState } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
@@ -7,11 +12,12 @@ import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 export class BaseDFA<
   T,
   After,
-  Candidate extends BaseCandidate<T, After>,
-  State extends BaseState<T, After, Candidate>
+  Ctx extends BaseParserContext<T, After>,
+  Candidate extends BaseCandidate<T, After, Ctx>,
+  State extends BaseState<T, After, Ctx, Candidate>
 > {
-  protected readonly allGrammarRules: readonly GrammarRule<T, After>[];
-  protected readonly NTClosures: Map<string, GrammarRule<T, After>[]>;
+  protected readonly allGrammarRules: readonly GrammarRule<T, After, Ctx>[];
+  protected readonly NTClosures: Map<string, GrammarRule<T, After, Ctx>[]>;
   private readonly entryState: State;
   /** `NT => Grammars` */
   private readonly firstSets: Map<string, GrammarSet>;
@@ -27,11 +33,11 @@ export class BaseDFA<
   debug: boolean;
 
   constructor(
-    allGrammarRules: readonly GrammarRule<T, After>[],
+    allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>,
     CandidateClass: new (props: {
-      gr: GrammarRule<T, After>;
+      gr: GrammarRule<T, After, Ctx>;
       digested: number;
     }) => Candidate,
     StateClass: new (candidates: Candidate[]) => State

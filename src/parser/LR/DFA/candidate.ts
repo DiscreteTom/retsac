@@ -5,7 +5,11 @@ import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 
 /** A.k.a: LR(1) Project. */
-export class Candidate<T> extends BaseCandidate<T, ASTNode<T>[]> {
+export class Candidate<T> extends BaseCandidate<
+  T,
+  ASTNode<T>[],
+  ParserContext<T>
+> {
   private nextCache: Map<string, Candidate<T> | null>;
 
   /**
@@ -17,7 +21,12 @@ export class Candidate<T> extends BaseCandidate<T, ASTNode<T>[]> {
    *
    * This will ensure that all candidates are unique and only one instance exists.
    */
-  constructor(data: Pick<BaseCandidate<T, ASTNode<T>[]>, "gr" | "digested">) {
+  constructor(
+    data: Pick<
+      BaseCandidate<T, ASTNode<T>[], ParserContext<T>>,
+      "gr" | "digested"
+    >
+  ) {
     super(data);
     this.nextCache = new Map();
   }

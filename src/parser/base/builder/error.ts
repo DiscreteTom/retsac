@@ -26,8 +26,8 @@ export class LR_BuilderError extends Error {
     Object.setPrototypeOf(this, LR_BuilderError.prototype);
   }
 
-  static grammarRuleNotFound<_, __, ___ extends BaseParserContext<_, __>>(
-    gr: TempGrammarRule<_, __, ___>
+  static grammarRuleNotFound<T, After, Ctx extends BaseParserContext<T, After>>(
+    gr: TempGrammarRule<T, After, Ctx>
   ) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
@@ -35,14 +35,16 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static nextGrammarNotFound<_>(next: TempGrammar, NT: string) {
+  static nextGrammarNotFound(next: TempGrammar, NT: string) {
     return new LR_BuilderError(
       "NEXT_GRAMMAR_NOT_FOUND",
       `Next grammar ${next.toString()} not in follow set of ${NT}`
     );
   }
 
-  static conflict<_, __>(c: Conflict<_, __>) {
+  static conflict<T, After, Ctx extends BaseParserContext<T, After>>(
+    c: Conflict<T, After, Ctx>
+  ) {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
@@ -108,8 +110,8 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<_, __, ___ extends BaseParserContext<_, __>>(
-    rule: TempGrammarRule<_, __, ___>
+  static tooManyEndHandler<T, After, Ctx extends BaseParserContext<T, After>>(
+    rule: TempGrammarRule<T, After, Ctx>
   ) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",

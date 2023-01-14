@@ -2,10 +2,16 @@ import { ASTNode } from "../../ast";
 import { GrammarRule, GrammarSet, GrammarType } from "../../base";
 import { BaseState } from "../../base/DFA/state";
 import { ParserOutput } from "../../model";
+import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state. */
-export class State<T> extends BaseState<T, ASTNode<T>[], Candidate<T>> {
+export class State<T> extends BaseState<
+  T,
+  ASTNode<T>[],
+  ParserContext<T>,
+  Candidate<T>
+> {
   private nextCache: Map<string, State<T> | null>;
 
   /**
@@ -23,7 +29,10 @@ export class State<T> extends BaseState<T, ASTNode<T>[], Candidate<T>> {
 
   getNext(
     next: Readonly<ASTNode<T>>,
-    NTClosures: ReadonlyMap<string, GrammarRule<T, ASTNode<T>[]>[]>,
+    NTClosures: ReadonlyMap<
+      string,
+      GrammarRule<T, ASTNode<T>[], ParserContext<T>>[]
+    >,
     allStatesCache: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
@@ -52,7 +61,7 @@ export class State<T> extends BaseState<T, ASTNode<T>[], Candidate<T>> {
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
-      }, [] as GrammarRule<T, ASTNode<T>[]>[]) // de-duplicated GrammarRule list
+      }, [] as GrammarRule<T, ASTNode<T>[], ParserContext<T>>[]) // de-duplicated GrammarRule list
       .map(
         (gr) =>
           // get initial candidate from global cache

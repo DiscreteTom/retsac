@@ -88,7 +88,7 @@ export class BaseParserBuilder<
   protected getGrammarRules() {
     return this.tempGrammarRules.map(
       (gr) =>
-        new GrammarRule<T, After>({
+        new GrammarRule<T, After, Ctx>({
           NT: gr.NT,
           callback: gr.callback,
           rejecter: gr.rejecter,

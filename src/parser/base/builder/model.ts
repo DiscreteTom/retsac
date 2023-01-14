@@ -57,12 +57,12 @@ export interface TempConflict<T, After, Ctx extends BaseParserContext<T, After>>
   reducerRule: TempGrammarRule<T, After, Ctx>;
 }
 
-export interface Conflict<T, After> {
+export interface Conflict<T, After, Ctx extends BaseParserContext<T, After>> {
   /** The rule that will try to reduce some grammars to an NT in a conflict. */
-  reducerRule: GrammarRule<T, After>;
+  reducerRule: GrammarRule<T, After, Ctx>;
   type: ConflictType;
   /** If this is a R-S conflict, this rule is a shifter. If this is a R-R conflict, this rule is a reducer. */
-  anotherRule: GrammarRule<T, After>;
+  anotherRule: GrammarRule<T, After, Ctx>;
   /** A list of grammars that will cause conflicts when appear at the next of input. */
   next: Grammar[];
   /** Whether to handle conflict if reach the end of input using `reject`. */

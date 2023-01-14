@@ -1,13 +1,12 @@
-import { ILexer } from "../../../lexer/model";
+import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
+import { GrammarType, GrammarSet } from "../../base";
+import { BaseCandidate } from "../../base/DFA/candidate";
 import { ParserOutput } from "../../model";
-import { GrammarRule, GrammarSet, GrammarType, ParserContext } from "../model";
+import { ParserContext } from "../model";
 
 /** A.k.a: LR(1) Project. */
-export class Candidate<T> {
-  readonly gr: GrammarRule<T>;
-  /** How many grammars are already matched in `this.gr`. */
-  readonly digested: number;
+export class Candidate<T> extends BaseCandidate<T, string, ParserContext<T>> {
   private nextCache: Map<string, Candidate<T> | null>;
 
   /**
@@ -20,17 +19,8 @@ export class Candidate<T> {
    * This will ensure that all candidates are unique and only one instance exists.
    */
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
-    Object.assign(this, data);
+    super(data);
     this.nextCache = new Map();
-  }
-
-  /** Current grammar. */
-  get current() {
-    return this.gr.rule[this.digested];
-  }
-
-  canDigestMore() {
-    return this.digested < this.gr.rule.length;
   }
 
   /**
@@ -160,29 +150,5 @@ export class Candidate<T> {
       buffer: context.before.concat(node),
       errors: context.error ? [node] : [],
     };
-  }
-
-  /** Return `NT <= ...before @ ...after`. */
-  toString(sep = " ", arrow = "<=", index = "@") {
-    return [
-      this.gr.NT,
-      arrow,
-      ...this.gr.rule.slice(0, this.digested).map((r) => r.toString()),
-      index,
-      ...this.gr.rule.slice(this.digested).map((r) => r.toString()),
-    ].join(sep);
-  }
-
-  static getString<_>(
-    data: Pick<Candidate<_>, "gr" | "digested">,
-    sep = " ",
-    arrow = "<=",
-    index = "@"
-  ) {
-    return new Candidate(data).toString(sep, arrow, index);
-  }
-
-  eq(other: { gr: Readonly<GrammarRule<T>>; digested: number }) {
-    return this.gr == other.gr && this.digested === other.digested;
   }
 }

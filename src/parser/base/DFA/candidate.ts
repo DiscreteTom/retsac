@@ -1,12 +1,12 @@
-import { GrammarRule } from "../model";
+import { BaseParserContext, GrammarRule } from "../model";
 
 /** Base candidate for LR and ELR parsers. */
-export class BaseCandidate<T, After> {
-  readonly gr: GrammarRule<T, After>;
+export class BaseCandidate<T, After, Ctx extends BaseParserContext<T, After>> {
+  readonly gr: GrammarRule<T, After, Ctx>;
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
 
-  constructor(data: Pick<BaseCandidate<T, After>, "gr" | "digested">) {
+  constructor(data: Pick<BaseCandidate<T, After, Ctx>, "gr" | "digested">) {
     Object.assign(this, data);
   }
 
@@ -30,8 +30,8 @@ export class BaseCandidate<T, After> {
     ].join(sep);
   }
 
-  static getString<_, __>(
-    data: Pick<BaseCandidate<_, __>, "gr" | "digested">,
+  static getString<T, After, Ctx extends BaseParserContext<T, After>>(
+    data: Pick<BaseCandidate<T, After, Ctx>, "gr" | "digested">,
     sep = " ",
     arrow = "<=",
     index = "@"
@@ -39,7 +39,7 @@ export class BaseCandidate<T, After> {
     return new BaseCandidate(data).toString(sep, arrow, index);
   }
 
-  eq(other: { gr: Readonly<GrammarRule<T, After>>; digested: number }) {
+  eq(other: { gr: Readonly<GrammarRule<T, After, Ctx>>; digested: number }) {
     return this.gr == other.gr && this.digested === other.digested;
   }
 }

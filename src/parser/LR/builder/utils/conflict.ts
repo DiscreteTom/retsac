@@ -18,7 +18,7 @@ import { ParserContext } from "../../model";
 export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
-  grs: readonly GrammarRule<T, ASTNode<T>[]>[],
+  grs: readonly GrammarRule<T, ASTNode<T>[], ParserContext<T>>[],
   // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
   // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
   resolved: readonly TempConflict<T, ASTNode<T>[], ParserContext<T>>[],
@@ -32,8 +32,8 @@ export function getConflicts<T>(
   const states = dfa.calculateAllStates(lexer).getAllStates();
 
   const result = new Map<
-    GrammarRule<T, ASTNode<T>[]>,
-    Conflict<T, ASTNode<T>[]>[]
+    GrammarRule<T, ASTNode<T>[], ParserContext<T>>,
+    Conflict<T, ASTNode<T>[], ParserContext<T>>[]
   >();
 
   // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
@@ -93,7 +93,7 @@ export function getConflicts<T>(
           );
 
           if (res.next.length > 0) {
-            const conflict: Conflict<T, ASTNode<T>[]> = {
+            const conflict: Conflict<T, ASTNode<T>[], ParserContext<T>> = {
               type: ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
@@ -136,7 +136,7 @@ export function getConflicts<T>(
               debug
             );
             if (res.next.length > 0) {
-              const conflict: Conflict<T, ASTNode<T>[]> = {
+              const conflict: Conflict<T, ASTNode<T>[], ParserContext<T>> = {
                 type: ConflictType.REDUCE_SHIFT,
                 reducerRule,
                 anotherRule,
@@ -185,7 +185,7 @@ export function getConflicts<T>(
               debug
             );
             if (res.next.length > 0) {
-              const conflict: Conflict<T, ASTNode<T>[]> = {
+              const conflict: Conflict<T, ASTNode<T>[], ParserContext<T>> = {
                 type: ConflictType.REDUCE_SHIFT,
                 reducerRule,
                 anotherRule,
@@ -259,7 +259,7 @@ export function getConflicts<T>(
           debug
         );
         if (res.next.length > 0 || res.end) {
-          const c: Conflict<T, ASTNode<T>[]> = {
+          const c: Conflict<T, ASTNode<T>[], ParserContext<T>> = {
             type: ConflictType.REDUCE_REDUCE,
             reducerRule,
             anotherRule,

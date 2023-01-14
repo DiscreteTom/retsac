@@ -5,11 +5,18 @@ import { Candidate } from "./candidate";
 import { State } from "./state";
 import { BaseDFA } from "../../base/DFA/DFA";
 import { GrammarRule, GrammarSet } from "../../base";
+import { ParserContext } from "../model";
 
 /** LR(1) DFA. Stateless. */
-export class DFA<T> extends BaseDFA<T, ASTNode<T>[], Candidate<T>, State<T>> {
+export class DFA<T> extends BaseDFA<
+  T,
+  ASTNode<T>[],
+  ParserContext<T>,
+  Candidate<T>,
+  State<T>
+> {
   constructor(
-    allGrammarRules: readonly GrammarRule<T, ASTNode<T>[]>[],
+    allGrammarRules: readonly GrammarRule<T, ASTNode<T>[], ParserContext<T>>[],
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
   ) {
