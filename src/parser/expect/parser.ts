@@ -93,4 +93,8 @@ export class Parser<T> implements IParser<T> {
   hasErrors(): boolean {
     return this.errors.length > 0;
   }
+
+  getBuffer(): readonly ASTNode<T>[] {
+    return this.buffer;
+  }
 }
