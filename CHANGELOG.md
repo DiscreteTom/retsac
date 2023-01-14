@@ -16,6 +16,7 @@
   - Add `ASTNode.toObj` for serialization.
   - Add optional `stopOnError` parameter to `IParser.parse`.
   - `Parser.parse` will accept string as input instead of a list of ASTNode.
+    - So each parser will have a lexer. Parser builders will need lexer when `build`.
   - LR Parser
     - Use `DefinitionContextBuilder` to define parser actions.
     - Rename `ReducerContext` to `ParserContext`.
