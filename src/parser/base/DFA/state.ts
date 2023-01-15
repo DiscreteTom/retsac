@@ -6,7 +6,7 @@ export class BaseState<
   T,
   After,
   Ctx extends BaseParserContext<T, After>,
-  Candidate extends BaseCandidate<T, After, Ctx>
+  Candidate extends BaseCandidate<T, After, Ctx, Candidate>
 > {
   /** Sorted candidates by candidates' string value. */
   readonly candidates: readonly Candidate[];

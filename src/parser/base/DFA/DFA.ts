@@ -13,7 +13,7 @@ export class BaseDFA<
   T,
   After,
   Ctx extends BaseParserContext<T, After>,
-  Candidate extends BaseCandidate<T, After, Ctx>,
+  Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate>
 > {
   protected readonly allGrammarRules: readonly GrammarRule<T, After, Ctx>[];

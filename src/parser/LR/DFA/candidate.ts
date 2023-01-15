@@ -8,10 +8,9 @@ import { ParserContext } from "../model";
 export class Candidate<T> extends BaseCandidate<
   T,
   ASTNode<T>[],
-  ParserContext<T>
+  ParserContext<T>,
+  Candidate<T>
 > {
-  private nextCache: Map<string, Candidate<T> | null>;
-
   /**
    * Candidate should only be created when:
    *
@@ -21,35 +20,8 @@ export class Candidate<T> extends BaseCandidate<
    *
    * This will ensure that all candidates are unique and only one instance exists.
    */
-  constructor(
-    data: Pick<
-      BaseCandidate<T, ASTNode<T>[], ParserContext<T>>,
-      "gr" | "digested"
-    >
-  ) {
-    super(data);
-    this.nextCache = new Map();
-  }
-
-  /**
-   * Accept the node and generate next candidate with `digested + 1`.
-   *
-   * Return `null` if the node can not be accepted.
-   */
-  getNext(node: Readonly<ASTNode<T>>): Candidate<T> | null {
-    const key = JSON.stringify({ type: node.type, text: node.text });
-
-    // try to get from cache
-    const cache = this.nextCache.get(key);
-    if (cache !== undefined) return cache;
-
-    // not in cache, calculate and cache
-    const res =
-      this.canDigestMore() && this.current.eq(node)
-        ? new Candidate({ gr: this.gr, digested: this.digested + 1 })
-        : null;
-    this.nextCache.set(key, res);
-    return res;
+  constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
+    super(data, Candidate);
   }
 
   /**
