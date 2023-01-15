@@ -17,7 +17,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   ASTNode<T>[],
   ParserContext<T>
 > {
-  constructor(data: {
+  constructor(data?: {
     callback?: Callback<T, ASTNode<T>[], ParserContext<T>>;
     rejecter?: Rejecter<T, ASTNode<T>[], ParserContext<T>>;
     resolved?: TempPartialConflict<T, ASTNode<T>[], ParserContext<T>>[];

@@ -33,14 +33,14 @@ export abstract class BaseDefinitionContextBuilder<
   protected _rejecter: Rejecter<T, After, Ctx>;
   protected resolved: TempPartialConflict<T, After, Ctx>[];
 
-  constructor(data: {
+  constructor(data?: {
     callback?: Callback<T, After, Ctx>;
     rejecter?: Rejecter<T, After, Ctx>;
     resolved?: TempPartialConflict<T, After, Ctx>[];
   }) {
-    this._callback = data.callback ?? (() => {});
-    this._rejecter = data.rejecter ?? (() => false);
-    this.resolved = data.resolved ?? [];
+    this._callback = data?.callback ?? (() => {});
+    this._rejecter = data?.rejecter ?? (() => false);
+    this.resolved = data?.resolved ?? [];
   }
 
   /** Create a new DefinitionContextBuilder with the new callback appended. */

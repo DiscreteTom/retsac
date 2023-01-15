@@ -16,7 +16,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   string,
   ParserContext<T>
 > {
-  constructor(data: {
+  constructor(data?: {
     callback?: Callback<T, string, ParserContext<T>>;
     rejecter?: Rejecter<T, string, ParserContext<T>>;
     resolved?: TempPartialConflict<T, string, ParserContext<T>>[];
