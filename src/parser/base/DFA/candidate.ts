@@ -1,5 +1,5 @@
 import { ASTNode } from "../../ast";
-import { BaseParserContext, GrammarRule } from "../model";
+import { BaseParserContext, CandidateClassCtor, GrammarRule } from "../model";
 
 /** Base candidate for LR and ELR parsers. */
 export class BaseCandidate<
@@ -12,15 +12,11 @@ export class BaseCandidate<
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
   protected nextCache: Map<string, Child | null>;
-  private ChildClass: new (
-    data: Pick<BaseCandidate<T, After, Ctx, Child>, "gr" | "digested">
-  ) => Child;
+  private ChildClass: CandidateClassCtor<T, After, Ctx, Child>;
 
   constructor(
     data: Pick<BaseCandidate<T, After, Ctx, Child>, "gr" | "digested">,
-    ChildClass: new (
-      data: Pick<BaseCandidate<T, After, Ctx, Child>, "gr" | "digested">
-    ) => Child
+    ChildClass: CandidateClassCtor<T, After, Ctx, Child>
   ) {
     Object.assign(this, data);
     this.ChildClass = ChildClass;

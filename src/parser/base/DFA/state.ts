@@ -1,5 +1,10 @@
 import { ASTNode } from "../../ast";
-import { BaseParserContext, GrammarRule, GrammarType } from "../model";
+import {
+  BaseParserContext,
+  GrammarRule,
+  GrammarType,
+  StateClassCtor,
+} from "../model";
 import { BaseCandidate } from "./candidate";
 
 /** Base state for LR and ELR parsers. */
@@ -13,11 +18,11 @@ export class BaseState<
   /** Sorted candidates by candidates' string value. */
   readonly candidates: readonly Candidate[];
   protected nextCache: Map<string, Child | null>;
-  private ChildClass: new (candidates: Candidate[]) => Child;
+  private ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>;
 
   constructor(
     candidates: Candidate[],
-    ChildClass: new (candidates: Candidate[]) => Child
+    ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>
   ) {
     this.candidates = candidates.sort((a, b) =>
       a.toString() > b.toString() ? 1 : -1

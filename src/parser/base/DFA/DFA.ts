@@ -1,9 +1,11 @@
 import { ILexer } from "../../../lexer";
 import {
   BaseParserContext,
+  CandidateClassCtor,
   GrammarRule,
   GrammarSet,
   GrammarType,
+  StateClassCtor,
 } from "../model";
 import { BaseCandidate } from "./candidate";
 import { BaseState } from "./state";
@@ -37,11 +39,8 @@ export class BaseDFA<
     allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>,
-    CandidateClass: new (props: {
-      gr: GrammarRule<T, After, Ctx>;
-      digested: number;
-    }) => Candidate,
-    StateClass: new (candidates: Candidate[]) => State
+    CandidateClass: CandidateClassCtor<T, After, Ctx, Candidate>,
+    StateClass: StateClassCtor<T, After, Ctx, Candidate, State>
   ) {
     this.allGrammarRules = allGrammarRules;
     this.entryNTs = entryNTs;

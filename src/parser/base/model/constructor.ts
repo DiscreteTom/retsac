@@ -1,9 +1,25 @@
 import { ILexer } from "../../../lexer";
-import { BaseDefinitionContextBuilder } from "../builder";
 import { BaseCandidate, BaseState, BaseDFA } from "../DFA";
 import { BaseParser } from "../parser";
 import { BaseParserContext } from "./context";
 import { GrammarRule } from "./grammar";
+
+export type CandidateClassCtor<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>,
+  Child extends BaseCandidate<T, After, Ctx, Child>
+> = new (
+  data: Pick<BaseCandidate<T, After, Ctx, Child>, "gr" | "digested">
+) => Child;
+
+export type StateClassCtor<
+  T,
+  After,
+  Ctx extends BaseParserContext<T, After>,
+  Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
+  Child extends BaseState<T, After, Ctx, Candidate, Child>
+> = new (candidates: Candidate[]) => Child;
 
 export type DFAClassCtor<
   T,
