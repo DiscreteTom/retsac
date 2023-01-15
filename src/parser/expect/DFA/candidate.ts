@@ -101,7 +101,7 @@ export class Candidate<T> extends BaseCandidate<T, string, ParserContext<T>> {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
       } else if (
-        !followSets
+        followSets
           .get(this.gr.NT)!
           .map((g) =>
             lexer
