@@ -1,6 +1,5 @@
 import { Lexer } from "../../../..";
-import { exact, stringLiteral } from "../../../../lexer";
-import { Token } from "../../../../lexer/model";
+import { exact, stringLiteral, Token } from "../../../../lexer";
 import { BaseParserContext } from "../../model";
 import { LR_BuilderError } from "../error";
 import { Definition, DefinitionContext } from "../model";

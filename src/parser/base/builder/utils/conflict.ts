@@ -1,7 +1,5 @@
 import { ILexer } from "../../../../lexer";
-import { BaseCandidate } from "../../DFA/candidate";
-import { BaseDFA } from "../../DFA/DFA";
-import { BaseState } from "../../DFA/state";
+import { BaseCandidate, BaseDFA, BaseState } from "../../DFA";
 import {
   GrammarRule,
   GrammarSet,
@@ -130,6 +128,9 @@ function getUnresolvedConflicts<
   };
 }
 
+/**
+ * Return conflicts that user didn't resolve and can't be automatically resolved.
+ */
 export function getConflicts<
   T,
   After,

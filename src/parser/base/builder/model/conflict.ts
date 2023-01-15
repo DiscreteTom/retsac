@@ -1,35 +1,5 @@
-import {
-  BaseParserContext,
-  Callback,
-  Grammar,
-  GrammarRule,
-  Rejecter,
-} from "../model";
-import { TempGrammar, TempGrammarRule } from "./temp-grammar";
-
-export interface Definition {
-  [NT: string]: string | string[];
-}
-
-export interface DefinitionContext<
-  T,
-  After,
-  Ctx extends BaseParserContext<T, After>
-> {
-  callback: Callback<T, After, Ctx>;
-  rejecter: Rejecter<T, After, Ctx>;
-  resolved: TempPartialConflict<T, After, Ctx>[];
-}
-
-/**
- * Same param & return value as Rejecter, but flip result.
- * Which means, if return true, accept. If return false, reject.
- */
-export type Accepter<
-  T,
-  After,
-  Ctx extends BaseParserContext<T, After>
-> = Rejecter<T, After, Ctx>;
+import { BaseParserContext, GrammarRule, Grammar } from "../../model";
+import { TempGrammarRule, TempGrammar } from "../temp-grammar";
 
 export enum ConflictType {
   REDUCE_SHIFT,

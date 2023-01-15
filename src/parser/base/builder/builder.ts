@@ -1,4 +1,9 @@
-import { BaseParserContext, GrammarRule } from "../model";
+import {
+  BaseParserContext,
+  DFAClassCtor,
+  GrammarRule,
+  ParserClassCtor,
+} from "../model";
 import { LR_BuilderError } from "./error";
 import {
   BaseDefinitionContextBuilder,
@@ -10,18 +15,17 @@ import {
   ConflictType,
   Definition,
   DefinitionContext,
+  DefinitionContextBuilderClassCtor,
   TempConflict,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
-import { BaseCandidate } from "../DFA/candidate";
-import { BaseState } from "../DFA/state";
-import { BaseDFA } from "../DFA/DFA";
+import { BaseCandidate, BaseState, BaseDFA } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { BaseParser } from "../parser";
 import { getConflicts } from "./utils/conflict";
 
 /**
- * Builder for LR(1) parsers.
+ * Base builder for LR and Expectational LR parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
@@ -41,22 +45,30 @@ export class BaseParserBuilder<
   protected entryNTs: Set<string>;
   protected NTs: Set<string>;
   protected resolved: TempConflict<T, After, Ctx>[];
-  private DFAClass: new (
-    allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
-    entryNTs: ReadonlySet<string>,
-    NTs: ReadonlySet<string>
-  ) => DFA;
-  private ParserClass: new (dfa: DFA, lexer: ILexer) => Parser;
-  private DefinitionContextBuilderClass: new () => DefinitionContextBuilder;
+  private DFAClass: DFAClassCtor<T, After, Ctx, Candidate, State, DFA>;
+  private ParserClass: ParserClassCtor<
+    T,
+    After,
+    Ctx,
+    Candidate,
+    State,
+    DFA,
+    Parser
+  >;
+  private DefinitionContextBuilderClass: DefinitionContextBuilderClassCtor<
+    T,
+    After,
+    Ctx
+  >;
 
   constructor(
-    DFAClass: new (
-      allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
-      entryNTs: ReadonlySet<string>,
-      NTs: ReadonlySet<string>
-    ) => DFA,
-    ParserClass: new (dfa: DFA, lexer: ILexer) => Parser,
-    DefinitionContextBuilderClass: new () => DefinitionContextBuilder
+    DFAClass: DFAClassCtor<T, After, Ctx, Candidate, State, DFA>,
+    ParserClass: ParserClassCtor<T, After, Ctx, Candidate, State, DFA, Parser>,
+    DefinitionContextBuilderClass: DefinitionContextBuilderClassCtor<
+      T,
+      After,
+      Ctx
+    >
   ) {
     this.tempGrammarRules = [];
     this.entryNTs = new Set();
@@ -188,7 +200,7 @@ export class BaseParserBuilder<
     return new this.DFAClass(this.getGrammarRules(), this.entryNTs, this.NTs);
   }
 
-  /** Generate the LR(1) parser. */
+  /** Generate the LR or ELR parser. */
   build(lexer: ILexer, debug = false) {
     const dfa = this.buildDFA();
     dfa.debug = debug;
