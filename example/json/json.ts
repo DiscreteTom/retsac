@@ -66,5 +66,3 @@ export const parser = new ELR.ParserBuilder<any>()
   // .generateResolver(lexer)
   .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer);
-
-console.log(parser.parse(`{"key": "value", "k": "v"}`));
