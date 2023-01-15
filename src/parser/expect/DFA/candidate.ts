@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { GrammarType, GrammarSet } from "../../base";
+import { GrammarType, GrammarSet, Grammar } from "../../base";
 import { BaseCandidate } from "../../base/DFA/candidate";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
@@ -47,30 +47,20 @@ export class Candidate<T> extends BaseCandidate<T, string, ParserContext<T>> {
   /**
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
    */
-  tryLex(lexer: ILexer): ASTNode<T> | null {
-    if (!this.canDigestMore()) return null;
-    if (this.current.type == GrammarType.NT) {
-      return null;
-    } else {
-      const expectType =
-        this.current.type == GrammarType.LITERAL
-          ? lexer.dryClone().lex(this.current.content)!.type // lex literal to get type
-          : this.current.content;
-      const expectContent =
-        this.current.type == GrammarType.LITERAL
-          ? this.current.content
-          : undefined;
+  tryLex(
+    lexer: ILexer,
+    followSets: ReadonlyMap<string, GrammarSet>
+  ): ASTNode<T> | null {
+    if (this.canDigestMore()) return lexGrammar(this.current, lexer);
 
-      // try to lex to get the token
-      const token = lexer.lex({
-        expect: { types: [expectType], text: expectContent },
-      });
-      if (token == null) {
-        return null;
-      } else {
-        return ASTNode.from<T>(token);
-      }
+    // else, digestion finished, check follow set
+    const followSet = followSets.get(this.gr.NT)!;
+    for (const g of followSet) {
+      const res = lexGrammar<T>(g, lexer);
+      if (res != null) return res;
     }
+
+    return null;
   }
 
   /**
@@ -150,5 +140,24 @@ export class Candidate<T> extends BaseCandidate<T, string, ParserContext<T>> {
       buffer: context.before.concat(node),
       errors: context.error ? [node] : [],
     };
+  }
+}
+
+function lexGrammar<T>(g: Grammar, lexer: ILexer): ASTNode<T> | null {
+  if (g.type == GrammarType.NT) {
+    return null;
+  } else {
+    // try to lex to get the token
+    const token = lexer.lex({
+      expect: {
+        types: [g.toASTNode(lexer).type],
+        text: g.toASTNode(lexer).text,
+      },
+    });
+    if (token == null) {
+      return null;
+    } else {
+      return ASTNode.from<T>(token);
+    }
   }
 }

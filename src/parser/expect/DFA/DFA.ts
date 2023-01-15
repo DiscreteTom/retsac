@@ -37,7 +37,7 @@ export class DFA<T> extends BaseDFA<
     while (true) {
       if (index >= buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
-        const res = this.stateStack.at(-1)!.tryLex(lexer);
+        const res = this.stateStack.at(-1)!.tryLex(lexer, this.followSets);
         // no more ASTNode can be lexed, end of parsing
         if (res == null) return { accept: false };
         // push new ASTNode to buffer

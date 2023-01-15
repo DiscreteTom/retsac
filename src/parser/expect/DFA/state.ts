@@ -31,10 +31,13 @@ export class State<T> extends BaseState<
   /**
    * Try to use lexer to yield an ASTNode with type and/or content needed by a candidate.
    */
-  tryLex(lexer: ILexer): ASTNode<T> | null {
+  tryLex(
+    lexer: ILexer,
+    followSets: ReadonlyMap<string, GrammarSet>
+  ): ASTNode<T> | null {
     // try to use lexer to yield an ASTNode with specific type and/or content
     for (let i = 0; i < this.candidates.length; ++i) {
-      const node = this.candidates[i].tryLex(lexer);
+      const node = this.candidates[i].tryLex(lexer, followSets);
       if (node !== null) {
         // for now we only consider the first candidate that can lex the input
         return node;
