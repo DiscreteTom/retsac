@@ -1,3 +1,4 @@
+import { ILexer } from "../../../lexer";
 import {
   BaseParserContext,
   GrammarRule,
@@ -130,6 +131,42 @@ export class BaseDFA<
   }
   getFollowSets() {
     return this.followSets;
+  }
+
+  /**
+   * Calculate state machine's state transition map ahead of time and cache.
+   * This action requires a lexer to calculate literal's type name.
+   * If you don't use literal grammar in your rules, you can omit the lexer.
+   */
+  calculateAllStates(lexer?: ILexer) {
+    // collect all grammars in rules
+    const gs = new GrammarSet();
+    this.allGrammarRules.forEach((gr) => {
+      gr.rule.forEach((g) => {
+        gs.add(g);
+      });
+    });
+    // convert to mock AST node
+    const mockNodes = gs.map((g) => g.toASTNode<T>(lexer));
+
+    while (true) {
+      let changed = false;
+      this.allStatesCache.forEach((state) => {
+        mockNodes.forEach((node) => {
+          if (
+            state.getNext(
+              node,
+              this.NTClosures,
+              this.allStatesCache,
+              this.allInitialCandidates
+            ).changed
+          )
+            changed = true;
+        });
+      });
+      if (!changed) break;
+    }
+    return this;
   }
 
   /**
