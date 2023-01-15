@@ -27,33 +27,4 @@ export class Parser<T>
 
     return res;
   }
-
-  parseAll(input = "", stopOnError = false): ParserOutput<T> {
-    /** Aggregate results if the parser can accept more. */
-    const summary: ParserOutput<T> = {
-      accept: true,
-      buffer: [],
-      errors: [],
-    };
-    /** If the parser has accepted at least once. */
-    let accepted = false;
-
-    this.feed(input);
-
-    while (true) {
-      const res = this.parse("", stopOnError);
-      if (res.accept) {
-        accepted = true;
-        summary.buffer = res.buffer;
-        summary.errors.push(...res.errors);
-      } else {
-        if (accepted) {
-          // at least one accept
-          return summary;
-        } else {
-          return res;
-        }
-      }
-    }
-  }
 }
