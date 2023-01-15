@@ -37,63 +37,36 @@ export class BaseDefinitionContextBuilder<
     this.resolved = data.resolved ?? [];
   }
 
-  /** Create a new DefinitionContext with a callback. */
-  static callback<T, After, Ctx extends BaseParserContext<T, After>>(
-    f: Callback<T, After, Ctx>
-  ) {
-    return new BaseDefinitionContextBuilder<T, After, Ctx>({ callback: f });
-  }
-  /** Create a new DefinitionContextBuilder with a rejecter. */
-  static rejecter<T, After, Ctx extends BaseParserContext<T, After>>(
-    f: Rejecter<T, After, Ctx>
-  ) {
-    return new BaseDefinitionContextBuilder<T, After, Ctx>({ rejecter: f });
-  }
-
   /** Create a new DefinitionContextBuilder with the new callback appended. */
   callback(f: Callback<T, After, Ctx>) {
-    return new BaseDefinitionContextBuilder<T, After, Ctx>({
-      callback: (ctx) => {
-        this._callback(ctx);
-        f(ctx);
-      },
-      rejecter: this._rejecter,
-      resolved: this.resolved,
-    });
+    const _callback = this._callback;
+    this._callback = (ctx) => {
+      _callback(ctx);
+      f(ctx);
+    };
+
+    return this;
   }
 
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
   rejecter(f: Rejecter<T, After, Ctx>) {
-    return new BaseDefinitionContextBuilder<T, After, Ctx>({
-      callback: this._callback,
-      rejecter: (ctx) => {
-        return this._rejecter(ctx) || f(ctx);
-      },
-      resolved: this.resolved,
-    });
+    const _rejecter = this._rejecter;
+    this._rejecter = (ctx) => {
+      return _rejecter(ctx) || f(ctx);
+    };
+
+    return this;
   }
 
-  /** Create a new DefinitionContextBuilder with a reducer which can reduce data. */
-  static reducer<T, After, Ctx extends BaseParserContext<T, After>>(
-    f: (data: (T | undefined)[], context: Ctx) => T | undefined
-  ) {
-    return BaseDefinitionContextBuilder.callback<T, After, Ctx>(
+  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
+  reducer(f: (data: (T | undefined)[], context: Ctx) => T | undefined) {
+    return this.callback(
       (context) =>
         (context.data = f(
           context.matched.map((node) => node.data),
           context
         ))
     );
-  }
-  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  reducer(
-    f: (
-      data: (T | undefined)[],
-      context: BaseParserContext<T, After>
-    ) => T | undefined
-  ) {
-    const anotherCtx = BaseDefinitionContextBuilder.reducer(f);
-    return this.callback(anotherCtx._callback);
   }
 
   build(): DefinitionContext<T, After, Ctx> {
