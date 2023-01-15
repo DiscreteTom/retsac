@@ -121,12 +121,16 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
 }
 
 /** A set of different grammars. */
-export class GrammarSet {
+export class GrammarSet implements Iterable<Grammar> {
   /** Grammars. */
   private gs: Grammar[];
 
   constructor() {
     this.gs = [];
+  }
+
+  [Symbol.iterator](): Iterator<Grammar, any, undefined> {
+    return this.gs[Symbol.iterator]();
   }
 
   has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
