@@ -1,5 +1,11 @@
 import { Callback, BaseParserContext, Rejecter } from "../model";
-import { DefinitionContext, Accepter, TempPartialConflict } from "./model";
+import {
+  DefinitionContext,
+  Accepter,
+  TempPartialConflict,
+  ConflictType,
+  Definition,
+} from "./model";
 
 export type RR_ResolverOptions<
   T,
@@ -18,7 +24,7 @@ export type RR_ResolverOptions<
     }
 );
 
-export class BaseDefinitionContextBuilder<
+export abstract class BaseDefinitionContextBuilder<
   T,
   After,
   Ctx extends BaseParserContext<T, After>
@@ -66,6 +72,43 @@ export class BaseDefinitionContextBuilder<
           context.matched.map((node) => node.data),
           context
         ))
+    );
+  }
+
+  /** Resolve a RS/RR conflict. */
+  protected abstract resolve(
+    type: ConflictType,
+    another: Definition,
+    next: string,
+    reduce: boolean | Accepter<T, After, Ctx>,
+    handleEnd: boolean
+  ): this;
+
+  /** Resolve an Reduce-Shift conflict. */
+  resolveRS(
+    another: Definition,
+    options: {
+      next: string;
+      reduce?: boolean | Accepter<T, After, Ctx>;
+    }
+  ) {
+    return this.resolve(
+      ConflictType.REDUCE_SHIFT,
+      another,
+      options.next,
+      options.reduce ?? true,
+      false
+    );
+  }
+
+  /** Resolve an Reduce-Reduce conflict. */
+  resolveRR(another: Definition, options: RR_ResolverOptions<T, After, Ctx>) {
+    return this.resolve(
+      ConflictType.REDUCE_REDUCE,
+      another,
+      options.next ?? "",
+      options.reduce ?? true,
+      options.handleEnd ?? false
     );
   }
 
