@@ -22,6 +22,7 @@ export class BaseState<
     this.candidates = candidates.sort((a, b) =>
       a.toString() > b.toString() ? 1 : -1
     );
+    this.nextCache = new Map();
     this.ChildClass = ChildClass;
   }
 
