@@ -14,7 +14,7 @@ export class BaseDFA<
   After,
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
-  State extends BaseState<T, After, Ctx, Candidate>
+  State extends BaseState<T, After, Ctx, Candidate, State>
 > {
   protected readonly allGrammarRules: readonly GrammarRule<T, After, Ctx>[];
   protected readonly NTClosures: Map<string, GrammarRule<T, After, Ctx>[]>;
