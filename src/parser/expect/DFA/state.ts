@@ -1,12 +1,12 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { GrammarSet } from "../../base";
-import { BaseState } from "../../base/DFA/state";
+import { BaseState } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
 
-/** LR(1) state machine's state. */
+/** LR(1) state machine's state for expectational LR parser. */
 export class State<T> extends BaseState<
   T,
   string,

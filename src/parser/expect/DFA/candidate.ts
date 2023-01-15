@@ -1,7 +1,7 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { GrammarType, GrammarSet, Grammar } from "../../base";
-import { BaseCandidate } from "../../base/DFA/candidate";
+import { BaseCandidate } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 

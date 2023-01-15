@@ -1,13 +1,13 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { GrammarRule, GrammarSet } from "../../base";
-import { BaseDFA } from "../../base/DFA/DFA";
+import { GrammarRule } from "../../base";
+import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
-/** LR(1) DFA. Stateless. */
+/** LR(1) DFA for expectational LR. Stateless. */
 export class DFA<T> extends BaseDFA<
   T,
   string,

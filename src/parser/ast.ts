@@ -1,4 +1,4 @@
-import { Token } from "../lexer/model";
+import { Token } from "../lexer";
 
 /** A structured interface for serialization. */
 export interface ASTObj {

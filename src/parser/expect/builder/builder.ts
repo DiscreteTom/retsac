@@ -5,7 +5,7 @@ import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 
 /**
- * Builder for Expectational LR(1) parsers.
+ * Builder for Expectational LR parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *

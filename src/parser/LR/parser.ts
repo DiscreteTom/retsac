@@ -1,4 +1,4 @@
-import { ILexer } from "../../lexer/model";
+import { ILexer } from "../../lexer";
 import { ASTNode } from "../ast";
 import { BaseParser } from "../base";
 import { IParser, ParserOutput } from "../model";

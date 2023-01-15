@@ -1,6 +1,6 @@
 import { ASTNode } from "../../ast";
 import { GrammarSet } from "../../base";
-import { BaseState } from "../../base/DFA/state";
+import { BaseState } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
