@@ -1,7 +1,7 @@
-import { manager } from "./json";
+import { parser } from "./json";
 
 function getResult(input: string) {
-  const res = manager.reset().parse(input);
+  const res = parser.reset().parse(input);
   if (!res.accept) throw new Error();
   if (res.buffer.length != 1) throw new Error();
   return res.buffer[0].data;
