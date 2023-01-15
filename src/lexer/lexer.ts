@@ -95,12 +95,14 @@ export class Lexer implements ILexer {
     while (true) {
       let muted = false;
       for (const def of this.defs) {
-        // if user provide expected types, skip unmatched type
-        if (expect.types && !expect.types.has(def.type)) continue;
-
         const res = def.action.exec(this.buffer);
         if (
           res.accept &&
+          // if user provide expected types, reject unmatched type
+          (!expect.types ||
+            expect.types.has(def.type) ||
+            // but if the unmatched type is muted (e.g. ignored), accept it
+            res.muted) &&
           // if user provide expected text, reject unmatched text
           (!expect.text ||
             expect.text == this.buffer.slice(0, res.digested) ||
