@@ -40,7 +40,7 @@ export class BaseParserBuilder<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State, DFA>,
+  DFA extends BaseDFA<T, After, Ctx, Candidate, State>,
   Parser extends BaseParser<T, DFA, Parser>,
   DefinitionContextBuilder extends BaseDefinitionContextBuilder<T, After, Ctx>
 > {
@@ -219,8 +219,7 @@ export class BaseParserBuilder<
           this.NTs,
           this.CandidateClass,
           this.StateClass
-        ),
-        this.DFAClass
+        )
       ),
       grs,
     };

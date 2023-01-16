@@ -27,7 +27,7 @@ export type DFAClassCtor<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  Child extends BaseDFA<T, After, Ctx, Candidate, State, Child>
+  Child extends BaseDFA<T, After, Ctx, Candidate, State>
 > = new (
   allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
   entryNTs: ReadonlySet<string>,
@@ -40,9 +40,7 @@ export type DFAClassCtor<
   /** string representation of candidate => candidate */
   allInitialCandidates: ReadonlyMap<string, Candidate>,
   /** string representation of state => state */
-  allStatesCache: Map<string, State>,
-  ChildClass: DFAClassCtor<T, After, Ctx, Candidate, State, Child>,
-  stateStack?: State[]
+  allStatesCache: Map<string, State>
 ) => Child;
 
 export type ParserClassCtor<
@@ -51,6 +49,6 @@ export type ParserClassCtor<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State, DFA>,
+  DFA extends BaseDFA<T, After, Ctx, Candidate, State>,
   Parser extends BaseParser<T, DFA, Parser>
 > = new (dfa: DFA, lexer: ILexer) => Parser;

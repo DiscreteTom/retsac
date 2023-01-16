@@ -12,8 +12,7 @@ export class DFA<T> extends BaseDFA<
   ASTNode<T>[],
   ParserContext<T>,
   Candidate<T>,
-  State<T>,
-  DFA<T>
+  State<T>
 > {
   constructor(
     allGrammarRules: readonly GrammarRule<T, ASTNode<T>[], ParserContext<T>>[],
@@ -30,16 +29,7 @@ export class DFA<T> extends BaseDFA<
     /** string representation of candidate => candidate */
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
     /** string representation of state => state */
-    allStatesCache: Map<string, State<T>>,
-    ChildClass: DFAClassCtor<
-      T,
-      ASTNode<T>[],
-      ParserContext<T>,
-      Candidate<T>,
-      State<T>,
-      DFA<T>
-    >,
-    stateStack?: State<T>[]
+    allStatesCache: Map<string, State<T>>
   ) {
     super(
       allGrammarRules,
@@ -49,9 +39,7 @@ export class DFA<T> extends BaseDFA<
       firstSets,
       followSets,
       allInitialCandidates,
-      allStatesCache,
-      ChildClass,
-      stateStack
+      allStatesCache
     );
   }
 

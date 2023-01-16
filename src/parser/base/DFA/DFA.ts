@@ -14,8 +14,7 @@ export class BaseDFA<
   After,
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
-  State extends BaseState<T, After, Ctx, Candidate, State>,
-  Child extends BaseDFA<T, After, Ctx, Candidate, State, Child>
+  State extends BaseState<T, After, Ctx, Candidate, State>
 > {
   /** Current state is `states.at(-1)`. */
   protected stateStack: State[];
@@ -36,34 +35,9 @@ export class BaseDFA<
     /** string representation of candidate => candidate */
     protected readonly allInitialCandidates: ReadonlyMap<string, Candidate>,
     /** string representation of state => state */
-    protected readonly allStatesCache: Map<string, State>,
-    private readonly ChildClass: DFAClassCtor<
-      T,
-      After,
-      Ctx,
-      Candidate,
-      State,
-      Child
-    >,
-    stateStack?: State[]
+    protected readonly allStatesCache: Map<string, State>
   ) {
-    if (stateStack) this.stateStack = stateStack;
-    else this.reset();
-  }
-
-  clone() {
-    return new this.ChildClass(
-      this.allGrammarRules,
-      this.entryNTs,
-      this.entryState,
-      this.NTClosures,
-      this.firstSets,
-      this.followSets,
-      this.allInitialCandidates,
-      this.allStatesCache,
-      this.ChildClass,
-      this.stateStack.slice() // clone state stack
-    );
+    this.reset();
   }
 
   reset() {
