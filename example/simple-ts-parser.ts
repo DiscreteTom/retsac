@@ -1,12 +1,11 @@
-import { Lexer, Manager, LR } from "../src";
+import { Lexer, ELR } from "../src";
 import * as fs from "fs";
-import * as path from "path";
+
+// To run this file, you can use `ts-node`: `ts-node example/simple-ts-parser.ts`.
+// The output is very long, so you can redirect it to a file: `ts-node example/simple-ts-parser.ts > output.txt`
 
 // process this file
-const code = fs.readFileSync(
-  path.join(__dirname, `/../../example/${path.basename(__filename, ".js")}.ts`),
-  "utf-8"
-);
+const code = fs.readFileSync(__filename, "utf-8");
 
 const lexer = new Lexer.Builder()
   .ignore(
@@ -45,7 +44,7 @@ const lexer = new Lexer.Builder()
   )
   .build();
 
-const parser = new LR.ParserBuilder()
+const parser = new ELR.ParserBuilder()
   .define({ import_stmt: `import '*' as identifier from string ';'` })
   .define({ import_stmt: `import '{' multi_identifier '}' from string ';'` })
   .define({
@@ -249,30 +248,145 @@ const parser = new LR.ParserBuilder()
     { exp: `identifier` },
     { next: `'}' ','`, reduce: true }
   )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: false }
+  )
+  .resolveRS(
+    { object_item: `identifier ':' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '.' identifier` },
+    { next: `'.'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '?' '.' identifier` },
+    { next: `'?'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '(' ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '(' exps ')'` },
+    { next: `'('`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '[' exp ']'` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '!=' exp` },
+    { next: `'!='`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ',' exp` },
+    { exp: `exp '&&' exp` },
+    { next: `'&&'`, reduce: false }
+  )
+  .resolveRS(
+    { exps: `exps ','` },
+    { exps: `exps ',' exp` },
+    { next: `'['`, reduce: false }
+  )
+  .resolveRR(
+    { exp: `identifier` },
+    { object_item: `identifier` },
+    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, reduce: true }
+  )
+  .resolveRR(
+    { object_item: `identifier` },
+    { exp: `identifier` },
+    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, reduce: false }
+  )
   // .generateResolver(lexer);
   .checkAll(lexer.getTokenTypes(), lexer)
-  .build(true); // enable debug mode
+  .build(lexer, true); // enable debug mode
 
-const manager = new Manager({
-  lexer,
-  parser,
-});
-
-manager.feed(code);
+parser.feed(code);
 
 while (true) {
   // parse one statement
-  if (!manager.parse().accept) break;
-  const stmt = manager.take();
+  if (!parser.parse().accept) break;
+  const stmt = parser.take();
   console.log(stmt?.toTreeString({ textQuote: '"' }));
 }
 
-if (manager.getBuffer().length) {
+if (parser.getNodes().length) {
   console.log("===========  Unreduced  ===========");
-  console.log(manager.getBuffer());
+  console.log(parser.getNodes());
 }
 
-if (lexer.hasRest()) {
+if (parser.lexer.hasRest()) {
   console.log(`===========  Undigested  ===========`);
-  console.log(lexer.getRest());
+  console.log(parser.lexer.getRest());
 }
