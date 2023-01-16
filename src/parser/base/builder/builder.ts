@@ -155,22 +155,6 @@ export class BaseParserBuilder<
   }
 
   /**
-   * Turn temp grammar rules to grammar rules according to the known NTs.
-   * This should be called only if no more definitions will be defined.
-   */
-  protected getGrammarRules() {
-    return this.tempGrammarRules.map(
-      (gr) =>
-        new GrammarRule<T, After, Ctx>({
-          NT: gr.NT,
-          callback: gr.callback,
-          rejecter: gr.rejecter,
-          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
-        })
-    );
-  }
-
-  /**
    * Ensure all T/NTs have their definitions, and no duplication.
    * If ok, return this.
    */
@@ -208,21 +192,42 @@ export class BaseParserBuilder<
   private buildDFA() {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
-    return new this.DFAClass(
-      ...DFABuilder.build<T, After, Ctx, Candidate, State>(
-        this.getGrammarRules(),
-        this.entryNTs,
-        this.NTs,
-        this.CandidateClass,
-        this.StateClass
+    /**
+     * Turn temp grammar rules to grammar rules according to the known NTs.
+     * This should be called only if no more definitions will be defined.
+     */
+    const getGrammarRules = () => {
+      return this.tempGrammarRules.map(
+        (gr) =>
+          new GrammarRule<T, After, Ctx>({
+            NT: gr.NT,
+            callback: gr.callback,
+            rejecter: gr.rejecter,
+            rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
+          })
+      );
+    };
+
+    const grs = getGrammarRules();
+
+    return {
+      dfa: new this.DFAClass(
+        ...DFABuilder.build<T, After, Ctx, Candidate, State>(
+          grs,
+          this.entryNTs,
+          this.NTs,
+          this.CandidateClass,
+          this.StateClass
+        ),
+        this.DFAClass
       ),
-      this.DFAClass
-    );
+      grs,
+    };
   }
 
   /** Generate the LR or ELR parser. */
   build(lexer: ILexer, debug = false) {
-    const dfa = this.buildDFA();
+    const { dfa } = this.buildDFA();
     dfa.debug = debug;
 
     return new this.ParserClass(dfa, lexer);
@@ -240,11 +245,11 @@ export class BaseParserBuilder<
    * If `debug` is true, print all auto-resolved / user-resolved / unresolved conflicts.
    */
   checkConflicts(lexer?: ILexer, printAll = false, debug = false) {
-    const dfa = this.buildDFA();
+    const { dfa, grs } = this.buildDFA();
     const conflicts = getConflicts<T, After, Ctx, Candidate, State, DFA>(
       this.entryNTs,
       this.NTs,
-      this.getGrammarRules(),
+      grs,
       this.resolved,
       dfa,
       lexer,
@@ -306,11 +311,11 @@ export class BaseParserBuilder<
     debug = false
   ) {
     style ??= "builder";
-    const dfa = this.buildDFA();
+    const { dfa, grs } = this.buildDFA();
     const conflicts = getConflicts<T, After, Ctx, Candidate, State, DFA>(
       this.entryNTs,
       this.NTs,
-      this.getGrammarRules(),
+      grs,
       this.resolved,
       dfa,
       lexer,

@@ -141,6 +141,7 @@ export function getConflicts<
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
+  /** This `grs` must be the grs in the DFA. */
   grs: readonly GrammarRule<T, After, Ctx>[],
   // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
   // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
