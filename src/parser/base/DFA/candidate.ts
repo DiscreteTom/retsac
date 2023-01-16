@@ -12,14 +12,12 @@ export class BaseCandidate<
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
   protected nextCache: Map<string, Child | null>;
-  private ChildClass: CandidateClassCtor<T, After, Ctx, Child>;
 
   constructor(
     data: Pick<BaseCandidate<T, After, Ctx, Child>, "gr" | "digested">,
-    ChildClass: CandidateClassCtor<T, After, Ctx, Child>
+    private readonly ChildClass: CandidateClassCtor<T, After, Ctx, Child>
   ) {
     Object.assign(this, data);
-    this.ChildClass = ChildClass;
     this.nextCache = new Map();
   }
 

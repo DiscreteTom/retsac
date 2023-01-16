@@ -12,18 +12,16 @@ export abstract class BaseParser<
   lexer: ILexer;
   protected buffer: ASTNode<T>[];
   protected errors: ASTNode<T>[];
-  private ChildClass: new (dfa: DFA, lexer: ILexer) => Child;
 
   constructor(
     dfa: DFA,
     lexer: ILexer,
-    ChildClass: new (dfa: DFA, lexer: ILexer) => Child
+    private readonly ChildClass: new (dfa: DFA, lexer: ILexer) => Child
   ) {
     this.dfa = dfa;
     this.lexer = lexer;
     this.buffer = [];
     this.errors = [];
-    this.ChildClass = ChildClass;
   }
 
   reset() {

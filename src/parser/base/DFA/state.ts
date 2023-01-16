@@ -18,17 +18,15 @@ export class BaseState<
   /** Sorted candidates by candidates' string value. */
   readonly candidates: readonly Candidate[];
   protected nextCache: Map<string, Child | null>;
-  private ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>;
 
   constructor(
     candidates: Candidate[],
-    ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>
+    private readonly ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>
   ) {
     this.candidates = candidates.sort((a, b) =>
       a.toString() > b.toString() ? 1 : -1
     );
     this.nextCache = new Map();
-    this.ChildClass = ChildClass;
   }
 
   getNext(

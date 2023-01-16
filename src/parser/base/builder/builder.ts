@@ -45,26 +45,26 @@ export class BaseParserBuilder<
   protected entryNTs: Set<string>;
   protected NTs: Set<string>;
   protected resolved: TempConflict<T, After, Ctx>[];
-  private DFAClass: DFAClassCtor<T, After, Ctx, Candidate, State, DFA>;
-  private ParserClass: ParserClassCtor<
-    T,
-    After,
-    Ctx,
-    Candidate,
-    State,
-    DFA,
-    Parser
-  >;
-  private DefinitionContextBuilderClass: DefinitionContextBuilderClassCtor<
-    T,
-    After,
-    Ctx
-  >;
 
   constructor(
-    DFAClass: DFAClassCtor<T, After, Ctx, Candidate, State, DFA>,
-    ParserClass: ParserClassCtor<T, After, Ctx, Candidate, State, DFA, Parser>,
-    DefinitionContextBuilderClass: DefinitionContextBuilderClassCtor<
+    private readonly DFAClass: DFAClassCtor<
+      T,
+      After,
+      Ctx,
+      Candidate,
+      State,
+      DFA
+    >,
+    private readonly ParserClass: ParserClassCtor<
+      T,
+      After,
+      Ctx,
+      Candidate,
+      State,
+      DFA,
+      Parser
+    >,
+    private readonly DefinitionContextBuilderClass: DefinitionContextBuilderClassCtor<
       T,
       After,
       Ctx
@@ -74,10 +74,6 @@ export class BaseParserBuilder<
     this.entryNTs = new Set();
     this.NTs = new Set();
     this.resolved = [];
-
-    this.DFAClass = DFAClass;
-    this.ParserClass = ParserClass;
-    this.DefinitionContextBuilderClass = DefinitionContextBuilderClass;
   }
 
   /** Declare top-level NT's. */
