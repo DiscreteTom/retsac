@@ -75,7 +75,12 @@ export class Candidate<T> extends BaseCandidate<
     };
 
     // check follow for LR(1) with the rest input string
-    if (context.after.length > 0) {
+    if (
+      context.after.length > 0 &&
+      // important! make sure lexer can still lex something not muted
+      // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
+      lexer.clone().trimStart().hasRest()
+    ) {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`

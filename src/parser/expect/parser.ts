@@ -32,7 +32,8 @@ export class Parser<T>
   parse(input = "", stopOnError = false): ParserOutput<T> {
     this.feed(input);
 
-    if (!this.lexer.hasRest()) return { accept: false };
+    // important! make sure lexer can still lex something not muted
+    if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
     // clone lexer to avoid DFA changing the original lexer
     const lexerClone = this.lexer.clone();
