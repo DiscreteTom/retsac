@@ -1,7 +1,7 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { GrammarRule } from "../../base";
-import { BaseDFA } from "../../base/DFA";
+import { BaseDFA, DFABuilder } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
@@ -20,7 +20,15 @@ export class DFA<T> extends BaseDFA<
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
   ) {
-    super(allGrammarRules, entryNTs, NTs, Candidate, State);
+    super(
+      ...DFABuilder.build<T, string, ParserContext<T>, Candidate<T>, State<T>>(
+        allGrammarRules,
+        entryNTs,
+        NTs,
+        Candidate,
+        State
+      )
+    );
   }
 
   /** Reset DFA then try to yield an entry NT. */

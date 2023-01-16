@@ -2,7 +2,7 @@ import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
-import { BaseDFA } from "../../base/DFA";
+import { BaseDFA, DFABuilder } from "../../base/DFA";
 import { GrammarRule, GrammarSet } from "../../base";
 import { ParserContext } from "../model";
 
@@ -19,7 +19,15 @@ export class DFA<T> extends BaseDFA<
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
   ) {
-    super(allGrammarRules, entryNTs, NTs, Candidate, State);
+    super(
+      ...DFABuilder.build<
+        T,
+        ASTNode<T>[],
+        ParserContext<T>,
+        Candidate<T>,
+        State<T>
+      >(allGrammarRules, entryNTs, NTs, Candidate, State)
+    );
   }
 
   /** Reset DFA then try to yield an entry NT. */
