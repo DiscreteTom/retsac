@@ -58,5 +58,5 @@ export const parser = new ELR.ParserBuilder<number>()
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
-  .checkAll(lexer.getTokenTypes(), lexer, true)
+  .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer);

@@ -48,5 +48,5 @@ export const parser = new ELR.ParserBuilder<number>()
     { next: `'-'`, reduce: true }
   )
   // .generateResolver(lexer);
-  .checkAll(lexer.getTokenTypes(), lexer, true)
+  .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer);
