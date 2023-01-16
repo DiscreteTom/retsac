@@ -47,7 +47,7 @@ export class DFABuilder {
 
     // init all states
     const allStatesCache = new Map<string, State>();
-    allStatesCache.set(entryState.toString(), entryState);
+    allStatesCache.set(entryState.toString(true), entryState);
 
     // construct first sets for all NTs
     const firstSets = new Map<string, GrammarSet>();

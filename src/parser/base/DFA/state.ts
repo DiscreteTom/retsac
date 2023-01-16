@@ -15,7 +15,6 @@ export class BaseState<
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   Child extends BaseState<T, After, Ctx, Candidate, Child>
 > {
-  /** Sorted candidates by candidates' string value. */
   readonly candidates: readonly Candidate[];
   protected nextCache: Map<string, Child | null>;
 
@@ -23,9 +22,7 @@ export class BaseState<
     candidates: Candidate[],
     private readonly ChildClass: StateClassCtor<T, After, Ctx, Candidate, Child>
   ) {
-    this.candidates = candidates.sort((a, b) =>
-      a.toString() > b.toString() ? 1 : -1
-    );
+    this.candidates = candidates;
     this.nextCache = new Map();
   }
 
@@ -75,12 +72,13 @@ export class BaseState<
 
     // check & update global state cache
     if (result != null) {
-      const cache = allStatesCache.get(result.toString());
+      const cacheKey = result.toString(true);
+      const cache = allStatesCache.get(cacheKey);
       if (cache !== undefined) {
         this.nextCache.set(key, cache);
         return { state: cache, changed: false };
       } else {
-        allStatesCache.set(result.toString(), result);
+        allStatesCache.set(cacheKey, result);
       }
     }
 
@@ -95,9 +93,13 @@ export class BaseState<
   /**
    * Get the string representation of this state.
    *
-   * Since candidates are sorted, the string representation of this state is unique.
+   * When `sort` is `true`, the string representation of this state is unique.
    */
-  toString() {
+  toString(sort = false) {
+    if (sort) {
+      const sorted = this.candidates.map((c) => c.toString()).sort();
+      return sorted.join("\n");
+    }
     return this.candidates.map((c) => c.toString()).join("\n");
   }
 }
