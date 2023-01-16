@@ -137,7 +137,7 @@ export function getConflicts<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State>
+  DFA extends BaseDFA<T, After, Ctx, Candidate, State, DFA>
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,

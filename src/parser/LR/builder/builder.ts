@@ -23,6 +23,6 @@ export class ParserBuilder<T> extends BaseParserBuilder<
   DefinitionContextBuilder<T>
 > {
   constructor() {
-    super(DFA, Parser, DefinitionContextBuilder);
+    super(Candidate, State, DFA, Parser, DefinitionContextBuilder);
   }
 }

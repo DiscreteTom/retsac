@@ -1,15 +1,12 @@
 import { ILexer } from "../../../lexer";
 import {
   BaseParserContext,
-  CandidateClassCtor,
+  DFAClassCtor,
   GrammarRule,
   GrammarSet,
-  GrammarType,
-  StateClassCtor,
 } from "../model";
 import { BaseCandidate } from "./candidate";
 import { BaseState } from "./state";
-import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 /** Base DFA for LR and ELR parsers. Stateless. */
 export class BaseDFA<
@@ -17,7 +14,8 @@ export class BaseDFA<
   After,
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
-  State extends BaseState<T, After, Ctx, Candidate, State>
+  State extends BaseState<T, After, Ctx, Candidate, State>,
+  Child extends BaseDFA<T, After, Ctx, Candidate, State, Child>
 > {
   /** Current state is `states.at(-1)`. */
   protected stateStack: State[];
@@ -38,9 +36,34 @@ export class BaseDFA<
     /** string representation of candidate => candidate */
     protected readonly allInitialCandidates: ReadonlyMap<string, Candidate>,
     /** string representation of state => state */
-    protected readonly allStatesCache: Map<string, State>
+    protected readonly allStatesCache: Map<string, State>,
+    private readonly ChildClass: DFAClassCtor<
+      T,
+      After,
+      Ctx,
+      Candidate,
+      State,
+      Child
+    >,
+    stateStack?: State[]
   ) {
-    this.reset();
+    if (stateStack) this.stateStack = stateStack;
+    else this.reset();
+  }
+
+  clone() {
+    return new this.ChildClass(
+      this.allGrammarRules,
+      this.entryNTs,
+      this.entryState,
+      this.NTClosures,
+      this.firstSets,
+      this.followSets,
+      this.allInitialCandidates,
+      this.allStatesCache,
+      this.ChildClass,
+      this.stateStack.slice() // clone state stack
+    );
   }
 
   reset() {

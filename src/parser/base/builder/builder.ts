@@ -1,8 +1,10 @@
 import {
   BaseParserContext,
+  CandidateClassCtor,
   DFAClassCtor,
   GrammarRule,
   ParserClassCtor,
+  StateClassCtor,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import {
@@ -19,7 +21,7 @@ import {
   TempConflict,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
-import { BaseCandidate, BaseState, BaseDFA } from "../DFA";
+import { BaseCandidate, BaseState, BaseDFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { BaseParser } from "../parser";
 import { getConflicts } from "./utils/conflict";
@@ -37,7 +39,7 @@ export class BaseParserBuilder<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State>,
+  DFA extends BaseDFA<T, After, Ctx, Candidate, State, DFA>,
   Parser extends BaseParser<T, DFA, Parser>,
   DefinitionContextBuilder extends BaseDefinitionContextBuilder<T, After, Ctx>
 > {
@@ -47,6 +49,19 @@ export class BaseParserBuilder<
   protected resolved: TempConflict<T, After, Ctx>[];
 
   constructor(
+    private readonly CandidateClass: CandidateClassCtor<
+      T,
+      After,
+      Ctx,
+      Candidate
+    >,
+    private readonly StateClass: StateClassCtor<
+      T,
+      After,
+      Ctx,
+      Candidate,
+      State
+    >,
     private readonly DFAClass: DFAClassCtor<
       T,
       After,
@@ -193,7 +208,16 @@ export class BaseParserBuilder<
   private buildDFA() {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
-    return new this.DFAClass(this.getGrammarRules(), this.entryNTs, this.NTs);
+    return new this.DFAClass(
+      ...DFABuilder.build<T, After, Ctx, Candidate, State>(
+        this.getGrammarRules(),
+        this.entryNTs,
+        this.NTs,
+        this.CandidateClass,
+        this.StateClass
+      ),
+      this.DFAClass
+    );
   }
 
   /** Generate the LR or ELR parser. */

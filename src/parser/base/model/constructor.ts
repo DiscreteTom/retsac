@@ -2,7 +2,7 @@ import { ILexer } from "../../../lexer";
 import { BaseCandidate, BaseState, BaseDFA } from "../DFA";
 import { BaseParser } from "../parser";
 import { BaseParserContext } from "./context";
-import { GrammarRule } from "./grammar";
+import { GrammarRule, GrammarSet } from "./grammar";
 
 export type CandidateClassCtor<
   T,
@@ -27,12 +27,23 @@ export type DFAClassCtor<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State>
+  Child extends BaseDFA<T, After, Ctx, Candidate, State, Child>
 > = new (
   allGrammarRules: readonly GrammarRule<T, After, Ctx>[],
   entryNTs: ReadonlySet<string>,
-  NTs: ReadonlySet<string>
-) => DFA;
+  entryState: State,
+  NTClosures: ReadonlyMap<string, GrammarRule<T, After, Ctx>[]>,
+  /** `NT => Grammars` */
+  firstSets: ReadonlyMap<string, GrammarSet>,
+  /** `NT => Grammars` */
+  followSets: ReadonlyMap<string, GrammarSet>,
+  /** string representation of candidate => candidate */
+  allInitialCandidates: ReadonlyMap<string, Candidate>,
+  /** string representation of state => state */
+  allStatesCache: Map<string, State>,
+  ChildClass: DFAClassCtor<T, After, Ctx, Candidate, State, Child>,
+  stateStack?: State[]
+) => Child;
 
 export type ParserClassCtor<
   T,
@@ -40,6 +51,6 @@ export type ParserClassCtor<
   Ctx extends BaseParserContext<T, After>,
   Candidate extends BaseCandidate<T, After, Ctx, Candidate>,
   State extends BaseState<T, After, Ctx, Candidate, State>,
-  DFA extends BaseDFA<T, After, Ctx, Candidate, State>,
+  DFA extends BaseDFA<T, After, Ctx, Candidate, State, DFA>,
   Parser extends BaseParser<T, DFA, Parser>
 > = new (dfa: DFA, lexer: ILexer) => Parser;

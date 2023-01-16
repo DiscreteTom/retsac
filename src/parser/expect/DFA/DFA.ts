@@ -1,7 +1,7 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { GrammarRule } from "../../base";
-import { BaseDFA, DFABuilder } from "../../base/DFA";
+import { DFAClassCtor, GrammarRule, GrammarSet } from "../../base";
+import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
 import { Candidate } from "./candidate";
@@ -13,21 +13,43 @@ export class DFA<T> extends BaseDFA<
   string,
   ParserContext<T>,
   Candidate<T>,
-  State<T>
+  State<T>,
+  DFA<T>
 > {
   constructor(
     allGrammarRules: readonly GrammarRule<T, string, ParserContext<T>>[],
     entryNTs: ReadonlySet<string>,
-    NTs: ReadonlySet<string>
+    entryState: State<T>,
+    NTClosures: ReadonlyMap<string, GrammarRule<T, string, ParserContext<T>>[]>,
+    /** `NT => Grammars` */
+    firstSets: ReadonlyMap<string, GrammarSet>,
+    /** `NT => Grammars` */
+    followSets: ReadonlyMap<string, GrammarSet>,
+    /** string representation of candidate => candidate */
+    allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
+    /** string representation of state => state */
+    allStatesCache: Map<string, State<T>>,
+    ChildClass: DFAClassCtor<
+      T,
+      string,
+      ParserContext<T>,
+      Candidate<T>,
+      State<T>,
+      DFA<T>
+    >,
+    stateStack?: State<T>[]
   ) {
     super(
-      ...DFABuilder.build<T, string, ParserContext<T>, Candidate<T>, State<T>>(
-        allGrammarRules,
-        entryNTs,
-        NTs,
-        Candidate,
-        State
-      )
+      allGrammarRules,
+      entryNTs,
+      entryState,
+      NTClosures,
+      firstSets,
+      followSets,
+      allInitialCandidates,
+      allStatesCache,
+      ChildClass,
+      stateStack
     );
   }
 
