@@ -5,7 +5,7 @@ describe("Lexer action constructor", () => {
     const input = "123";
     expect(Action.from((buffer) => buffer.length).exec(input)).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -15,7 +15,7 @@ describe("Lexer action constructor", () => {
     const input = "   ";
     expect(Action.from(/^\s*/).exec(input)).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -26,7 +26,7 @@ describe("Lexer action constructor", () => {
     const another = Action.from(/^\s*/);
     expect(Action.from(another).exec(input)).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -36,7 +36,7 @@ describe("Lexer action constructor", () => {
     const input = "   ";
     const output = {
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput;
@@ -45,11 +45,11 @@ describe("Lexer action constructor", () => {
 });
 
 describe("Action decorator", () => {
-  test("mute action", () => {
+  test("muted action", () => {
     const input = "   ";
     expect(Action.from(/^\s*/).mute().exec(input)).toEqual({
       accept: true,
-      mute: true,
+      muted: true,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -68,7 +68,7 @@ describe("Action decorator", () => {
         .exec(input)
     ).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -85,7 +85,7 @@ describe("Action decorator", () => {
         .exec(input)
     ).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: errMsg,
     } as ActionOutput);
@@ -95,7 +95,7 @@ describe("Action decorator", () => {
     const input = "   ";
     expect(Action.from(/^\s*/).exec(input)).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);
@@ -117,7 +117,7 @@ describe("Action decorator", () => {
 
     expect(output).toEqual({
       accept: true,
-      mute: false,
+      muted: false,
       digested: input.length,
       error: undefined,
     } as ActionOutput);

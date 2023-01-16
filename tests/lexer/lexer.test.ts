@@ -1,6 +1,5 @@
 import { Lexer } from "../../src";
-import { Action } from "../../src/lexer";
-import { Token } from "../../src/lexer/model";
+import { Action, Token } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
   .ignore(/^\s/)
@@ -71,7 +70,7 @@ test("reset lexer", () => {
   lexer.lexAll("error 123");
   lexer.reset();
   expect(lexer.hasRest()).toBe(false);
-  expect(lexer.hasError()).toBe(false);
+  expect(lexer.hasErrors()).toBe(false);
   expect(lexer.getLineChars()).toEqual([0]);
 });
 
