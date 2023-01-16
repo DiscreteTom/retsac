@@ -13,7 +13,8 @@ export type LR_BuilderErrorType =
   | "TOKENIZE_GRAMMAR_RULE_FAILED"
   | "EMPTY_RULE"
   | "EMPTY_LITERAL"
-  | "TOO_MANY_END_HANDLER";
+  | "TOO_MANY_END_HANDLER"
+  | "NO_SUCH_CONFLICT";
 
 export class LR_BuilderError extends Error {
   type: LR_BuilderErrorType;
@@ -116,6 +117,25 @@ export class LR_BuilderError extends Error {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
+    );
+  }
+
+  static noSuchConflict<T, After, Ctx extends BaseParserContext<T, After>>(
+    reducerRule: TempGrammarRule<T, After, Ctx>,
+    anotherRule: TempGrammarRule<T, After, Ctx>,
+    type: ConflictType,
+    next: TempGrammar[],
+    handleEnd: boolean
+  ) {
+    return new LR_BuilderError(
+      "NO_SUCH_CONFLICT",
+      `No such ${
+        type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+      } conflict: ${reducerRule.toString()} | ${anotherRule.toString()}` +
+        (next.length > 0
+          ? ` next: ${next.map((n) => n.toGrammar().toString()).join(",")}`
+          : "") +
+        (handleEnd ? " end of input" : "")
     );
   }
 }

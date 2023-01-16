@@ -14,6 +14,7 @@ import {
 import { TempGrammarRule, TempGrammarType } from "./temp-grammar";
 import {
   Accepter,
+  Conflict,
   ConflictType,
   Definition,
   DefinitionContext,
@@ -297,7 +298,64 @@ export class BaseParserBuilder<
       });
     });
 
-    // TODO: ensure all resolved are indeed conflicts
+    // ensure all resolved are indeed conflicts
+    // first, re-calculate all conflicts, ignore user resolve
+    const allConflicts = [] as Conflict<T, After, Ctx>[];
+    getConflicts<T, After, Ctx, Candidate, State, DFA>(
+      this.entryNTs,
+      this.NTs,
+      grs,
+      [], // ignore user resolve
+      dfa,
+      lexer,
+      false // don't print debug info
+    ).forEach((cs) => allConflicts.push(...cs));
+    // then, ensure all resolved are in the conflicts
+    this.resolved.every((c) => {
+      // check next
+      c.next.forEach((n) => {
+        if (
+          !allConflicts.some(
+            (conflict) =>
+              c.reducerRule.weakEq(conflict.reducerRule) &&
+              c.anotherRule.weakEq(conflict.anotherRule) &&
+              c.type == conflict.type &&
+              conflict.next.some((nn) => n.eq(nn))
+          )
+        ) {
+          const err = LR_BuilderError.noSuchConflict(
+            c.reducerRule,
+            c.anotherRule,
+            c.type,
+            [n],
+            false
+          );
+          if (printAll) console.log(err.message);
+          else throw err;
+        }
+      });
+      // check handleEnd
+      if (
+        c.handleEnd &&
+        !allConflicts.some(
+          (conflict) =>
+            c.reducerRule.weakEq(conflict.reducerRule) &&
+            c.anotherRule.weakEq(conflict.anotherRule) &&
+            c.type == conflict.type &&
+            conflict.handleEnd
+        )
+      ) {
+        const err = LR_BuilderError.noSuchConflict(
+          c.reducerRule,
+          c.anotherRule,
+          c.type,
+          [],
+          true
+        );
+        if (printAll) console.log(err.message);
+        else throw err;
+      }
+    });
     return this;
   }
 
