@@ -57,21 +57,82 @@ export class DFA<T> extends BaseDFA<
   parse(
     buffer: ASTNode<T>[],
     lexer: ILexer,
+    reLexStack: {
+      stateStack: State<T>[];
+      buffer: ASTNode<T>[];
+      lexer: ILexer;
+      index: number;
+      errors: ASTNode<T>[];
+    }[],
     stopOnError = false
-  ): ParserOutput<T> {
+  ): { output: ParserOutput<T>; lexer: ILexer } {
     this.reset();
 
     let index = 0; // buffer index
-    const errors: ASTNode<T>[] = [];
+    let errors: ASTNode<T>[] = [];
+
+    const reLex = () => {
+      const state = reLexStack.pop();
+      const restoredInput =
+        state!.buffer.at(-1)!.text +
+        state!.lexer
+          .getRest()
+          .slice(0, state!.lexer.getRest().length - lexer.getRest().length);
+
+      // apply state
+      this.stateStack = state!.stateStack;
+      buffer = state!.buffer;
+      lexer = state!.lexer;
+      index = state!.index;
+      errors = state!.errors;
+
+      if (this.debug)
+        console.log(
+          `[Re-Lex] Restored input: "${restoredInput}" Trying: ${buffer
+            .at(-1)!
+            .toString()}`
+        );
+    };
 
     while (true) {
       if (index >= buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
         const res = this.stateStack.at(-1)!.tryLex(lexer, this.followSets);
-        // no more ASTNode can be lexed, end of parsing
-        if (res == null) return { accept: false };
-        // push new ASTNode to buffer
-        buffer.push(res);
+        // if no more ASTNode can be lexed
+        if (res.length == 0) {
+          // try to restore from re-lex stack
+          if (reLexStack.length > 0) {
+            reLex();
+          } else {
+            // no more ASTNode can be lexed, parsing failed
+            if (this.debug)
+              console.log(
+                `[End] No matching token can be lexed. Rest of input: ${lexer
+                  .getRest()
+                  .slice(0, 10)}\nCandidates:\n${this.stateStack
+                  .at(-1)!
+                  .candidates.map((c) => c.toString())
+                  .join("\n")}`
+              );
+            return { output: { accept: false }, lexer };
+          }
+        } else {
+          // lex success, record all possible lexing results for later use
+          // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
+          for (let i = res.length - 1; i >= 0; --i) {
+            reLexStack.push({
+              stateStack: this.stateStack.slice(),
+              buffer: buffer.slice().concat(res[i].node),
+              lexer: res[i].lexer,
+              index,
+              errors: errors.slice(),
+            });
+          }
+          // use the first lexing result to continue parsing
+          const state = reLexStack.pop();
+          buffer = state!.buffer;
+          lexer = state!.lexer;
+        }
       }
 
       // try to construct next state
@@ -84,19 +145,26 @@ export class DFA<T> extends BaseDFA<
           this.allInitialCandidates
         );
       if (nextStateResult.state == null) {
-        if (this.debug)
-          console.log(
-            `[End] No more candidate. Node=${buffer
-              .at(-1)
-              ?.toString()} Candidates:\n${this.stateStack
-              .at(-1)!
-              .candidates.map((c) => c.toString())
-              .join("\n")}`
-          );
-        return { accept: false };
+        // try to restore from re-lex stack
+        if (reLexStack.length > 0) {
+          reLex();
+          continue;
+        } else {
+          // no more candidate can be constructed, parsing failed
+          if (this.debug)
+            console.log(
+              `[End] No more candidate. Node=${buffer
+                .at(-1)
+                ?.toString()} Candidates:\n${this.stateStack
+                .at(-1)!
+                .candidates.map((c) => c.toString())
+                .join("\n")}`
+            );
+          return { output: { accept: false }, lexer };
+        }
       }
 
-      // push stack
+      // next state exist, push stack
       this.stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
@@ -116,10 +184,10 @@ export class DFA<T> extends BaseDFA<
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
       if (this.entryNTs.has(buffer[0].type) && index == 0)
-        return { accept: true, buffer, errors };
+        return { output: { accept: true, buffer, errors }, lexer };
       // if stop on error, return partial result
       if (stopOnError && errors.length > 0)
-        return { accept: true, buffer, errors };
+        return { output: { accept: true, buffer, errors }, lexer };
 
       // continue loop, try to digest more with the newly reduced buffer
     }

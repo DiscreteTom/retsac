@@ -27,21 +27,29 @@ export class Candidate<T> extends BaseCandidate<
 
   /**
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
+   * Return all the possible results.
    */
   tryLex(
     lexer: ILexer,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): ASTNode<T> | null {
-    if (this.canDigestMore()) return lexGrammar(this.current, lexer);
+  ): { node: ASTNode<T>; lexer: ILexer }[] {
+    if (this.canDigestMore()) {
+      const res = lexGrammar<T>(this.current, lexer);
+      if (res != null) return [{ node: res, lexer }];
+      else return [];
+    }
 
     // else, digestion finished, check follow set
     const followSet = followSets.get(this.gr.NT)!;
-    for (const g of followSet) {
-      const res = lexGrammar<T>(g, lexer);
-      if (res != null) return res;
-    }
-
-    return null;
+    return followSet
+      .map((g) => {
+        const l = lexer.clone(); // clone lexer to avoid side effect
+        return {
+          node: lexGrammar<T>(g, l),
+          lexer: l,
+        };
+      })
+      .filter((r) => r.node != null) as { node: ASTNode<T>; lexer: ILexer }[];
   }
 
   /**
