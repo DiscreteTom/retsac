@@ -1,10 +1,5 @@
 import { ILexer } from "../../../lexer";
-import {
-  BaseParserContext,
-  DFAClassCtor,
-  GrammarRule,
-  GrammarSet,
-} from "../model";
+import { BaseParserContext, GrammarRule, GrammarSet } from "../model";
 import { BaseCandidate } from "./candidate";
 import { BaseState } from "./state";
 
