@@ -421,8 +421,13 @@ export class BaseParserBuilder<
     return this.resolve(reducerRule, ctx);
   }
 
-  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll)`.  */
-  checkAll(Ts: ReadonlySet<string>, lexer?: ILexer, printAll = false) {
-    return this.checkSymbols(Ts).checkConflicts(lexer, printAll);
+  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll, debug)`.  */
+  checkAll(
+    Ts: ReadonlySet<string>,
+    lexer?: ILexer,
+    printAll = false,
+    debug = false
+  ) {
+    return this.checkSymbols(Ts).checkConflicts(lexer, printAll, debug);
   }
 }
