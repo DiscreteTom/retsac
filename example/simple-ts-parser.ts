@@ -4,6 +4,13 @@ import * as fs from "fs";
 // To run this file, you can use `ts-node`: `ts-node example/simple-ts-parser.ts`.
 // The output is very long, so you can redirect it to a file: `ts-node example/simple-ts-parser.ts > output.txt`
 
+// if you want to run this file using node instead of ts-node, you can use the following code to read the code from the file
+// import * as path from "path";
+// const code = fs.readFileSync(
+//   path.join(__dirname, `/../../example/${path.basename(__filename, ".js")}.ts`),
+//   "utf-8"
+// );
+
 // process this file
 const code = fs.readFileSync(__filename, "utf-8");
 
