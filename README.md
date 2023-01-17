@@ -22,14 +22,12 @@ yarn add retsac
   - [Built-in util functions](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils.ts) makes it super easy to process the input.
   - Support custom error handling functions to prevent interruptions during the process.
   - Support custom functions to yield tokens from the input string.
-- The Parser, reduce a token list to an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
-  - By default the lib provides an LR(1) parser.
-    - Support conflict detection (for reduce-shift conflicts and reduce-reduce conflicts).
-      - As an LR(1) parser, the parser will try to **auto resolve conflicts** by peeking the next AST node.
-      - Provide a **code generator** to resolve conflict.
-      - Support custom rejecter to resolve conflicts.
+- The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
+  - By default the lib provides an LR parser and ELR(Expectational LR) parser.
+    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
-  - You can define your own parser as long as it implement the [`IParser`](https://github.com/DiscreteTom/retsac/blob/main/src/parser/model.ts) interface.
+    - ELR parser will expect lexer to yield specific token type and/or content to parse the input more smartly.
+    - ELR parser will try to re-lex the input if parsing failed.
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
 - Provide multi-level APIs to make this easy to use and highly customizable.
 
@@ -56,54 +54,54 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
-const parser = new LR.ParserBuilder<any>()
+export const parser = new ELR.ParserBuilder<any>()
   .entry("value")
   .define(
     { value: "string | number | true | false | null" },
     // especially, for string use `eval` to make `\\n` become `\n`
-    LR.reducer((_, { matched }) => eval(matched[0].text!))
+    ELR.reducer((_, { matched }) => eval(matched[0].text!))
   )
   .define(
     { value: "object | array" },
-    LR.reducer((values) => values[0])
+    ELR.reducer((values) => values[0])
   )
   .define(
     { array: `'[' ']'` },
-    LR.reducer(() => [])
+    ELR.reducer(() => [])
   )
   .define(
     { array: `'[' values ']'` },
-    LR.reducer((values) => values[1])
+    ELR.reducer((values) => values[1])
   )
   .define(
     { values: `value` },
-    LR.reducer((values) => values) // values => [values[0]]
+    ELR.reducer((values) => values) // values => [values[0]]
   )
   .define(
     { values: `values ',' value` },
-    LR.reducer((values) => values[0].concat([values[2]]))
+    ELR.reducer((values) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
-    LR.reducer(() => ({}))
+    ELR.reducer(() => ({}))
   )
   .define(
     { object: `'{' object_items '}'` },
-    LR.reducer((values) => values[1])
+    ELR.reducer((values) => values[1])
   )
   .define(
     { object_items: `object_item` },
-    LR.reducer((values) => values[0])
+    ELR.reducer((values) => values[0])
   )
   .define(
     { object_items: `object_items ',' object_item` },
     // merge objects
-    LR.reducer((values) => Object.assign(values[0], values[2]))
+    ELR.reducer((values) => Object.assign(values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
     // reduce to an object
-    LR.reducer((values, { matched }) => {
+    ELR.reducer((values, { matched }) => {
       const result: { [key: string]: any } = {};
       result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
@@ -111,7 +109,7 @@ const parser = new LR.ParserBuilder<any>()
   )
   // .generateResolver(lexer)
   .checkAll(lexer.getTokenTypes(), lexer)
-  .build();
+  .build(lexer);
 ```
 
 </details>
@@ -131,15 +129,15 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-const parser = new LR.ParserBuilder<number>()
+export const parser = new ELR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    LR.reducer((_, { matched }) => Number(matched[0].text))
+    ELR.reducer((_, { matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    LR.reducer<number>((values) => -values[1]!)
+    ELR.reducer<number>((values) => -values[1]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -147,11 +145,11 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `'(' exp ')'` },
-    LR.reducer((values) => values[1])
+    ELR.reducer((values) => values[1])
   )
   .define(
     { exp: `exp '+' exp` },
-    LR.reducer<number>((values) => values[0]! + values[2]!)
+    ELR.reducer<number>((values) => values[0]! + values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -159,7 +157,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '-' exp` },
-    LR.reducer<number>((values) => values[0]! - values[2]!)
+    ELR.reducer<number>((values) => values[0]! - values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -167,7 +165,7 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '*' exp` },
-    LR.reducer<number>((values) => values[0]! * values[2]!)
+    ELR.reducer<number>((values) => values[0]! * values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -175,14 +173,14 @@ const parser = new LR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '/' exp` },
-    LR.reducer<number>((values) => values[0]! / values[2]!)
+    ELR.reducer<number>((values) => values[0]! / values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
-  .checkAll(lexer.getTokenTypes(), lexer, true)
-  .build();
+  .checkAll(lexer.getTokenTypes(), lexer)
+  .build(lexer);
 ```
 
 </details>
