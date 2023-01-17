@@ -109,7 +109,7 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
     return ruleEndsWith(this.rule, another.rule);
   }
 
-  /** Return `NT <= grammar rules`. */
+  /** Return ``{ NT: `grammar rules` }``. */
   toString(formatter?: (NT: string, grammars: string[]) => string) {
     formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
 
