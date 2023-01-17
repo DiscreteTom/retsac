@@ -7,9 +7,10 @@
   - Change `Token` and `Definition` from type to interface.
   - If token has no error, the error field will be `undefined`.
   - Add interface `ILexer`.
-  - Add `Lexer.clone`.
+  - Add `Lexer.clone/dryClone`.
   - `Lexer.lex` add optional parameter `expect` to limit the output token type or/and token content.
   - Add `Lexer.trimStart`.
+  - Add `Lexer.take`.
   - Rename `Lexer.hasError` to `Lexer.hasErrors`.
 - Parser
   - If ASTNode has no error, the error field will be `undefined`.
@@ -17,11 +18,10 @@
   - Add optional `stopOnError` parameter to `IParser.parse`.
   - `Parser.parse` will accept string as input instead of a list of ASTNode.
     - So each parser will have a lexer. Parser builders will need lexer when `build`.
-  - LR Parser
+  - Add base parser as the parent class for LR parser and ELR parser.
     - Use `DefinitionContextBuilder` to define parser actions.
     - Rename `ReducerContext` to `ParserContext`.
     - If ReducerContext has no error, the error field will be `undefined`.
-    - Change `ReducerContext` from type to interface.
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
     - Add `ParserBuilder.checkConflicts` to ensure all reduce-shift and reduce-reduce conflicts are resolved.
       - It will also try to auto resolve conflicts by LR(1) peeking.
