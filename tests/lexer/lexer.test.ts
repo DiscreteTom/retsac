@@ -9,17 +9,33 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .define({
     someErr: Action.from(/^error/).check(() => "some error"),
+    mutedErr: Action.from(/^muted-error/)
+      .check(() => "muted error")
+      .mute(),
   })
   .build();
 
-test("lexer functions", () => {
+test("lexer basic functions", () => {
   expect(lexer.getRest()).toBe("");
   expect(lexer.feed("123").getRest()).toBe("123");
   expect(lexer.feed("123").hasRest()).toBe(true);
   expect(lexer.feed("123").reset().getRest()).toBe("");
   expect(Array.from(lexer.getTokenTypes()).sort()).toEqual(
-    ["", "number", "someErr"].sort()
+    ["", "number", "someErr", "mutedErr"].sort()
   );
+});
+
+test("trimStart", () => {
+  // trim start
+  expect(lexer.reset().trimStart("   123").getRest()).toBe("123");
+  // trim start with no input
+  expect(lexer.reset().trimStart().getRest()).toBe("");
+  // trim start without muted chars at the head of input
+  expect(lexer.reset().trimStart("123").getRest()).toBe("123");
+  // trim start with error
+  expect(lexer.reset().trimStart("muted-error").hasErrors()).toBe(true);
+  // trim start with no accept
+  expect(lexer.reset().trimStart("aaa").getRest()).toBe("aaa");
 });
 
 test("number", () => {
@@ -83,4 +99,74 @@ test("getLineChars & getPos", () => {
   expect(lexer.getPos(4)).toEqual({ line: 2, column: 1 });
   expect(lexer.getPos(9)).toEqual({ line: 2, column: 6 });
   expect(lexer.getPos(16)).toEqual({ line: 3, column: 7 });
+});
+
+test("clone & dryClone", () => {
+  // give lexer some state
+  lexer.reset().lex("\n  1\n123");
+
+  // ensure cloned state is the same as the original
+  const lexerClone = lexer.clone();
+  expect(lexerClone.getRest()).toBe(lexer.getRest());
+  expect(lexer.getPos(5)).toEqual(lexerClone.getPos(5));
+  expect(lexer.getErrors()).toEqual(lexerClone.getErrors());
+
+  // ensure cloned state is independent from the original
+  lexerClone.reset().lex("123");
+  expect(lexerClone.getRest()).not.toBe(lexer.getRest());
+
+  // ensure dryClone is independent from the original
+  const lexerDryClone = lexer.dryClone();
+  expect(lexerDryClone.getRest()).not.toBe(lexer.getRest());
+});
+
+test("expectation", () => {
+  // no expectation
+  expect(
+    lexer.reset().lex({
+      input: "123",
+    })?.content
+  ).toBe("123");
+
+  // wrong type
+  expect(
+    lexer.reset().lex({
+      input: "123",
+      expect: {
+        types: [""],
+        text: "+",
+      },
+    })
+  ).toBe(null);
+
+  // wrong type
+  expect(
+    lexer.reset().lex({
+      input: "123",
+      expect: {
+        types: new Set(),
+      },
+    })
+  ).toBe(null);
+
+  // wrong text
+  expect(
+    lexer.reset().lex({
+      input: "123",
+      expect: {
+        text: "1234",
+      },
+    })
+  ).toBe(null);
+
+  // starts with muted, yield token
+  expect(
+    lexer.reset().lex({
+      input: "  123",
+      expect: {
+        types: ["number"],
+        text: "123",
+      },
+    })?.content
+  ).toBe("123");
 });
