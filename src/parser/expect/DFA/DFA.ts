@@ -63,9 +63,7 @@ export class DFA<T> extends BaseDFA<
       const state = reLexStack.pop();
       const restoredInput =
         state!.buffer.at(-1)!.text +
-        state!.lexer
-          .getRest()
-          .slice(0, state!.lexer.getRest().length - lexer.getRest().length);
+        state!.lexer.getRest().slice(0, lexer.digested - state!.lexer.digested);
 
       // apply state
       this.stateStack = state!.stateStack;
