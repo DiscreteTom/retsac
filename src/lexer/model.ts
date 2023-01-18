@@ -35,7 +35,7 @@ export interface ILexer {
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
-   * You can provide `expect` to limit the token types/content to be accepted.
+   * You can provide `expect` to limit the token type/content to be accepted.
    */
   lex(
     input?:
@@ -43,7 +43,7 @@ export interface ILexer {
       | Readonly<{
           input?: string;
           expect?: Readonly<{
-            types?: ReadonlySet<string> | readonly string[];
+            type?: string;
             text?: string;
           }>;
         }>

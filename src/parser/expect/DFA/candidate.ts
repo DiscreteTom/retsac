@@ -92,7 +92,7 @@ export class Candidate<T> extends BaseCandidate<
               .clone() // clone with state to prevent side effect
               .lex({
                 expect: {
-                  types: [g.toASTNode(lexer).type],
+                  type: g.toASTNode(lexer).type,
                   text: g.toASTNode(lexer).text,
                 },
               })
@@ -144,7 +144,7 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer): ASTNode<T> | null {
     // try to lex to get the token
     const token = lexer.lex({
       expect: {
-        types: [g.toASTNode(lexer).type],
+        type: g.toASTNode(lexer).type,
         text: g.toASTNode(lexer).text,
       },
     });

@@ -20,6 +20,7 @@ test("lexer basic functions", () => {
   expect(lexer.feed("123").getRest()).toBe("123");
   expect(lexer.feed("123").hasRest()).toBe(true);
   expect(lexer.feed("123").reset().getRest()).toBe("");
+  expect(lexer.feed("123").lex()?.content).toBe("123");
   expect(Array.from(lexer.getTokenTypes()).sort()).toEqual(
     ["", "number", "someErr", "mutedErr"].sort()
   );
@@ -133,18 +134,8 @@ test("expectation", () => {
     lexer.reset().lex({
       input: "123",
       expect: {
-        types: [""],
+        type: "",
         text: "+",
-      },
-    })
-  ).toBe(null);
-
-  // wrong type
-  expect(
-    lexer.reset().lex({
-      input: "123",
-      expect: {
-        types: new Set(),
       },
     })
   ).toBe(null);
@@ -164,7 +155,7 @@ test("expectation", () => {
     lexer.reset().lex({
       input: "  123",
       expect: {
-        types: ["number"],
+        type: "number",
         text: "123",
       },
     })?.content
