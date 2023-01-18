@@ -362,7 +362,7 @@ export class BaseParserBuilder<
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  generateResolver(
+  generateResolvers(
     lexer?: ILexer,
     style?: "builder" | "context",
     debug = false

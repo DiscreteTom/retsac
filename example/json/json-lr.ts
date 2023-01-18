@@ -63,6 +63,6 @@ export const parser = new LR.ParserBuilder<any>()
       return result;
     })
   )
-  // .generateResolver(lexer)
+  // .generateResolvers(lexer)
   .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer);

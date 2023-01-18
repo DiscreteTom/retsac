@@ -375,7 +375,7 @@ const parser = new ELR.ParserBuilder()
     { exp: `identifier` },
     { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, reduce: false }
   )
-  // .generateResolver(lexer);
+  // .generateResolvers(lexer);
   .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer, true); // enable debug mode
 
