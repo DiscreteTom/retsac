@@ -1,4 +1,4 @@
-import { Grammar, GrammarRule, GrammarType } from "../../../../src";
+import { Grammar, GrammarType } from "../../../../src/parser";
 import {
   ruleStartsWith,
   ruleEndsWith,

@@ -1,12 +1,12 @@
+import { Lexer } from "../../../../src";
+import { exact } from "../../../../src/lexer";
 import {
-  ASTNode,
   Grammar,
+  GrammarType,
+  ASTNode,
   GrammarRule,
   GrammarSet,
-  GrammarType,
-  Lexer,
-} from "../../../../src";
-import { exact } from "../../../../src/lexer";
+} from "../../../../src/parser";
 
 test("Grammar.eq", () => {
   const literals = [
