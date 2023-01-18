@@ -1,4 +1,4 @@
-# ELR Parser
+<!-- # ELR Parser -->
 
 > ELR: Expectational LR
 

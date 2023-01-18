@@ -1,4 +1,4 @@
-# Lexer
+<!-- # Lexer -->
 
 The lexer digests the input string and yield a token or a token list.
 

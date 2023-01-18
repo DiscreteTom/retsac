@@ -1,4 +1,4 @@
-# LR Parser
+<!-- # LR Parser -->
 
 LR parser will first try to use a lexer to lex the whole input to a token list, and then try to reduce the token list to an AST.
 
