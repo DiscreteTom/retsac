@@ -31,6 +31,11 @@ yarn add retsac
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
 - Provide multi-level APIs to make this easy to use and highly customizable.
 
+## Resources
+
+- [Documentation](https://github.com/DiscreteTom/retsac/wiki).
+- [API reference](https://discretetom.github.io/retsac/).
+
 ## Contribute
 
 All issues and pull requests are highly welcomed.
