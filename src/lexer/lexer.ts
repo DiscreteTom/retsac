@@ -42,6 +42,10 @@ export class Lexer implements ILexer {
     return this;
   }
 
+  get digested() {
+    return this.offset;
+  }
+
   take(n = 1) {
     // update this state
     const content = this.buffer.slice(0, n);

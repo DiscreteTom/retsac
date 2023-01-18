@@ -26,6 +26,8 @@ export interface ILexer {
   dryClone(): ILexer;
   /** Append buffer with input. */
   feed(input: string): this;
+  /** How many chars are digested. */
+  get digested(): number;
   /**
    * Take `n` chars from buffer and update state.
    */
