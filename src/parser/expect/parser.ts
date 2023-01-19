@@ -24,13 +24,13 @@ export class Parser<T>
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
-  collapse() {
+  commit() {
     this.reLexStack = [];
     return this;
   }
 
   reset() {
-    return super.reset().collapse();
+    return super.reset().commit();
   }
 
   parse(input = "", stopOnError = false): ParserOutput<T> {
