@@ -27,7 +27,7 @@ yarn add retsac
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - ELR parser will expect lexer to yield specific token type and/or content to parse the input more smartly.
-    - ELR parser will try to re-lex the input if parsing failed.
+    - ELR parser will try to re-lex the input if parsing failed. You can rollback global state when re-lex, or commit existing changes to prevent re-lex.
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
 - Provide multi-level APIs to make this easy to use and highly customizable.
 
@@ -44,7 +44,7 @@ All issues and pull requests are highly welcomed.
 
 ### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json.ts)
 
-In this example, all conflicts are auto resolved by LR(1) parser.
+In this example, all conflicts are auto resolved by ELR(1) parser.
 
 <details open><summary>Click to Expand</summary>
 
