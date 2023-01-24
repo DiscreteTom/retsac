@@ -138,8 +138,18 @@ export class Lexer implements ILexer {
     }
   }
 
-  lexAll(input = "", stopOnError = false): Token[] {
-    this.feed(input);
+  lexAll(
+    input: string | { input?: string; stopOnError?: boolean } = ""
+  ): Token[] {
+    // feed input if provided
+    if (typeof input === "string") {
+      this.feed(input);
+    } else {
+      if (input?.input) this.feed(input.input);
+    }
+
+    const stopOnError =
+      typeof input === "string" ? false : input?.stopOnError ?? false;
 
     const result: Token[] = [];
     while (true) {

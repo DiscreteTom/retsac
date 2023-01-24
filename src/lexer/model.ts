@@ -51,7 +51,7 @@ export interface ILexer {
   /**
    * Try to retrieve a token list.
    */
-  lexAll(input?: string, stopOnError?: boolean): Token[];
+  lexAll(input?: string | { input?: string; stopOnError?: boolean }): Token[];
   /**
    * Remove ignored chars from the start of the buffer.
    */
