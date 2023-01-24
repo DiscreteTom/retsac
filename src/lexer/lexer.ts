@@ -3,6 +3,7 @@ import { Definition, ILexer, Token } from "./model";
 /** Transform text string to a token list. */
 export class Lexer implements ILexer {
   private readonly defs: readonly Definition[];
+  /** Only `feed`, `reset` can modify buffer. */
   private buffer: string;
   /** How many chars are digested. */
   private offset: number;
@@ -47,9 +48,8 @@ export class Lexer implements ILexer {
   }
 
   take(n = 1) {
-    // update this state
-    const content = this.buffer.slice(0, n);
-    this.buffer = this.buffer.slice(n);
+    // update this state, don't change buffer's value
+    const content = this.getRest().slice(0, n);
     this.offset += n;
     // calculate line chars
     content.split("\n").map((part, i, list) => {
@@ -87,12 +87,12 @@ export class Lexer implements ILexer {
       text: typeof input === "string" ? undefined : input?.expect?.text,
     };
 
-    if (this.buffer.length == 0) return null;
+    if (!this.hasRest()) return null;
 
     while (true) {
       let muted = false;
       for (const def of this.defs) {
-        const res = def.action.exec(this.buffer);
+        const res = def.action.exec(this.getRest());
         if (
           res.accept &&
           // if user provide expected type, reject unmatched type
@@ -102,7 +102,7 @@ export class Lexer implements ILexer {
             res.muted) &&
           // if user provide expected text, reject unmatched text
           (!expect.text ||
-            expect.text == this.buffer.slice(0, res.digested) ||
+            expect.text == this.getRest().slice(0, res.digested) ||
             // but if the unmatched text is muted (e.g. ignored), accept it
             res.muted)
         ) {
@@ -156,10 +156,10 @@ export class Lexer implements ILexer {
     this.feed(input);
 
     while (true) {
-      if (this.buffer.length == 0) return this;
+      if (!this.hasRest()) return this;
       let mute = false;
       for (const def of this.defs) {
-        const res = def.action.exec(this.buffer);
+        const res = def.action.exec(this.getRest());
         if (res.accept) {
           if (!res.muted) {
             // next token is not muted
@@ -195,11 +195,11 @@ export class Lexer implements ILexer {
   }
 
   getRest() {
-    return this.buffer;
+    return this.buffer.slice(this.offset);
   }
 
   hasRest() {
-    return this.buffer.length != 0;
+    return this.buffer.length > this.offset;
   }
 
   getTokenTypes() {
