@@ -43,7 +43,7 @@ export abstract class BaseDefinitionContextBuilder<
     this.resolved = data?.resolved ?? [];
   }
 
-  /** Create a new DefinitionContextBuilder with the new callback appended. */
+  /** Modify this context with the new callback appended. */
   callback(f: Callback<T, After, Ctx>) {
     const _callback = this._callback;
     this._callback = (ctx) => {
@@ -54,7 +54,7 @@ export abstract class BaseDefinitionContextBuilder<
     return this;
   }
 
-  /** Create a new DefinitionContextBuilder with the new rejecter appended. */
+  /** Modify this context with the new rejecter appended. */
   rejecter(f: Rejecter<T, After, Ctx>) {
     const _rejecter = this._rejecter;
     this._rejecter = (ctx) => {
@@ -64,7 +64,7 @@ export abstract class BaseDefinitionContextBuilder<
     return this;
   }
 
-  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
+  /** Modify this context with a reducer appended which can reduce data. */
   reducer(f: (data: (T | undefined)[], context: Ctx) => T | undefined) {
     return this.callback(
       (context) =>

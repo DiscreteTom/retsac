@@ -98,12 +98,15 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRR(another, options);
   }
+  /** Create a new DefinitionContextBuilder with the new callback appended. */
   static callback<T>(f: Callback<T, string, ParserContext<T>>) {
     return new DefinitionContextBuilder<T>({}).callback(f);
   }
+  /** Create a new DefinitionContextBuilder with the new rejecter appended. */
   static rejecter<T>(f: Rejecter<T, string, ParserContext<T>>) {
     return new DefinitionContextBuilder<T>({}).rejecter(f);
   }
+  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   static reducer<T>(
     f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
   ) {
