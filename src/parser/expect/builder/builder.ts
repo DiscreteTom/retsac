@@ -1,6 +1,6 @@
 import { BaseParserBuilder } from "../../base";
 import { Candidate, DFA, State } from "../DFA";
-import { ParserContext } from "../model";
+import { ELRParserContext } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 
@@ -14,7 +14,7 @@ import { DefinitionContextBuilder } from "./ctx-builder";
 export class ParserBuilder<T> extends BaseParserBuilder<
   T,
   string,
-  ParserContext<T>,
+  ELRParserContext<T>,
   Candidate<T>,
   State<T>,
   DFA<T>,

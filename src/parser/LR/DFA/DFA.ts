@@ -3,25 +3,23 @@ import { ParserOutput } from "../../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 import { BaseDFA } from "../../base/DFA";
-import { DFAClassCtor, GrammarRule, GrammarSet } from "../../base";
-import { ParserContext } from "../model";
+import { GrammarSet } from "../../base";
+import { LRParserContext } from "../model";
+import { LRGrammarRule } from "../model/grammar";
 
 /** LR(1) DFA. Stateless. */
 export class DFA<T> extends BaseDFA<
   T,
   ASTNode<T>[],
-  ParserContext<T>,
+  LRParserContext<T>,
   Candidate<T>,
   State<T>
 > {
   constructor(
-    allGrammarRules: readonly GrammarRule<T, ASTNode<T>[], ParserContext<T>>[],
+    allGrammarRules: readonly LRGrammarRule<T>[],
     entryNTs: ReadonlySet<string>,
     entryState: State<T>,
-    NTClosures: ReadonlyMap<
-      string,
-      GrammarRule<T, ASTNode<T>[], ParserContext<T>>[]
-    >,
+    NTClosures: ReadonlyMap<string, LRGrammarRule<T>[]>,
     /** `NT => Grammars` */
     firstSets: ReadonlyMap<string, GrammarSet>,
     /** `NT => Grammars` */

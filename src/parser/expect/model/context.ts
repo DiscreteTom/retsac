@@ -1,6 +1,8 @@
 import { ILexer } from "../../../lexer";
-import { BaseParserContext } from "../../base";
+import { BaseParserContext, Callback, Rejecter } from "../../base";
 
-export interface ParserContext<T> extends BaseParserContext<T, string> {
+export interface ELRParserContext<T> extends BaseParserContext<T, string> {
   readonly lexer: ILexer;
 }
+export type ELRCallback<T> = Callback<T, string, ELRParserContext<T>>;
+export type ELRRejecter<T> = Rejecter<T, string, ELRParserContext<T>>;

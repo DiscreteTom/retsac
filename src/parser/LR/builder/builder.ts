@@ -1,7 +1,7 @@
 import { ASTNode } from "../../ast";
 import { BaseParserBuilder } from "../../base";
 import { Candidate, DFA, State } from "../DFA";
-import { ParserContext } from "../model";
+import { LRParserContext } from "../model";
 import { Parser } from "../parser";
 import { DefinitionContextBuilder } from "./ctx-builder";
 
@@ -15,7 +15,7 @@ import { DefinitionContextBuilder } from "./ctx-builder";
 export class ParserBuilder<T> extends BaseParserBuilder<
   T,
   ASTNode<T>[],
-  ParserContext<T>,
+  LRParserContext<T>,
   Candidate<T>,
   State<T>,
   DFA<T>,

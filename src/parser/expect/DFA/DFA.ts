@@ -1,9 +1,10 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { Callback, GrammarRule, GrammarSet } from "../../base";
+import { Callback, GrammarSet } from "../../base";
 import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
-import { ParserContext } from "../model";
+import { ELRCallback, ELRParserContext } from "../model";
+import { ELRGrammarRule } from "../model/grammar";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
@@ -11,15 +12,15 @@ import { State } from "./state";
 export class DFA<T> extends BaseDFA<
   T,
   string,
-  ParserContext<T>,
+  ELRParserContext<T>,
   Candidate<T>,
   State<T>
 > {
   constructor(
-    allGrammarRules: readonly GrammarRule<T, string, ParserContext<T>>[],
+    allGrammarRules: readonly ELRGrammarRule<T>[],
     entryNTs: ReadonlySet<string>,
     entryState: State<T>,
-    NTClosures: ReadonlyMap<string, GrammarRule<T, string, ParserContext<T>>[]>,
+    NTClosures: ReadonlyMap<string, ELRGrammarRule<T>[]>,
     /** `NT => Grammars` */
     firstSets: ReadonlyMap<string, GrammarSet>,
     /** `NT => Grammars` */
@@ -53,8 +54,8 @@ export class DFA<T> extends BaseDFA<
       errors: ASTNode<T>[];
       rollbackStackLength: number;
     }[],
-    rollbackStack: Callback<T, string, ParserContext<T>>[],
-    ctxStack: ParserContext<T>[],
+    rollbackStack: ELRCallback<T>[],
+    ctxStack: ELRParserContext<T>[],
     stopOnError = false
   ): { output: ParserOutput<T>; lexer: ILexer } {
     this.reset();

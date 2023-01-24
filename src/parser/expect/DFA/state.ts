@@ -1,16 +1,16 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { Callback, GrammarSet } from "../../base";
+import { GrammarSet } from "../../base";
 import { BaseState } from "../../base/DFA";
 import { ParserOutput } from "../../model";
-import { ParserContext } from "../model";
+import { ELRCallback, ELRParserContext } from "../model";
 import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state for expectational LR parser. */
 export class State<T> extends BaseState<
   T,
   string,
-  ParserContext<T>,
+  ELRParserContext<T>,
   Candidate<T>,
   State<T>
 > {
@@ -51,8 +51,8 @@ export class State<T> extends BaseState<
     debug: boolean
   ): {
     res: ParserOutput<T>;
-    rollback?: Callback<T, string, ParserContext<T>>;
-    context?: ParserContext<T>;
+    rollback?: ELRCallback<T>;
+    context?: ELRParserContext<T>;
   } {
     for (const c of this.candidates) {
       const { res, context } = c.tryReduce(

@@ -2,13 +2,13 @@ import { ASTNode } from "../../ast";
 import { GrammarSet } from "../../base";
 import { BaseCandidate } from "../../base/DFA";
 import { ParserOutput } from "../../model";
-import { ParserContext } from "../model";
+import { LRParserContext } from "../model";
 
 /** A.k.a: LR(1) Project. */
 export class Candidate<T> extends BaseCandidate<
   T,
   ASTNode<T>[],
-  ParserContext<T>,
+  LRParserContext<T>,
   Candidate<T>
 > {
   /**
@@ -40,7 +40,7 @@ export class Candidate<T> extends BaseCandidate<
   ): ParserOutput<T> {
     if (this.canDigestMore()) return { accept: false };
 
-    const context: ParserContext<T> = {
+    const context: LRParserContext<T> = {
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),

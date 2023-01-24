@@ -1,25 +1,22 @@
 import {
-  Accepter,
   BaseDefinitionContextBuilder,
-  Callback,
-  Rejecter,
-  TempPartialConflict,
   ConflictType,
   Definition,
   RR_ResolverOptions,
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
-import { ParserContext } from "../model";
+import { ELRCallback, ELRParserContext, ELRRejecter } from "../model";
+import { ELRAccepter, ELRTempPartialConflict } from "./mode";
 
 export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   T,
   string,
-  ParserContext<T>
+  ELRParserContext<T>
 > {
   constructor(data?: {
-    callback?: Callback<T, string, ParserContext<T>>;
-    rejecter?: Rejecter<T, string, ParserContext<T>>;
-    resolved?: TempPartialConflict<T, string, ParserContext<T>>[];
+    callback?: ELRCallback<T>;
+    rejecter?: ELRRejecter<T>;
+    resolved?: ELRTempPartialConflict<T>[];
   }) {
     super(data);
   }
@@ -28,14 +25,16 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T, string, ParserContext<T>>,
+    reduce: boolean | ELRAccepter<T>,
     handleEnd: boolean
   ) {
-    const anotherRule = defToTempGRs<T, string, ParserContext<T>>(another)[0];
+    const anotherRule = defToTempGRs<T, string, ELRParserContext<T>>(
+      another
+    )[0];
     // TODO: use a dedicated lexer to parse next
     const nextGrammars =
       next.length > 0
-        ? defToTempGRs<T, string, ParserContext<T>>({ "": next })[0].rule
+        ? defToTempGRs<T, string, ELRParserContext<T>>({ "": next })[0].rule
         : [];
 
     // append the new rejecter
@@ -84,7 +83,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     another: Definition,
     options: {
       next: string;
-      reduce?: boolean | Accepter<T, string, ParserContext<T>>;
+      reduce?: boolean | ELRAccepter<T>;
     }
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRS(another, options);
@@ -94,26 +93,26 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
    */
   static resolveRR<T>(
     another: Definition,
-    options: RR_ResolverOptions<T, string, ParserContext<T>>
+    options: RR_ResolverOptions<T, string, ELRParserContext<T>>
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRR(another, options);
   }
   /** Create a new DefinitionContextBuilder with the new callback appended. */
-  static callback<T>(f: Callback<T, string, ParserContext<T>>) {
+  static callback<T>(f: ELRCallback<T>) {
     return new DefinitionContextBuilder<T>({}).callback(f);
   }
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  static rejecter<T>(f: Rejecter<T, string, ParserContext<T>>) {
+  static rejecter<T>(f: ELRRejecter<T>) {
     return new DefinitionContextBuilder<T>({}).rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   static reducer<T>(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
+    f: (data: (T | undefined)[], context: ELRParserContext<T>) => T | undefined
   ) {
     return new DefinitionContextBuilder<T>({}).reducer(f);
   }
   /** Create a new DefinitionContextBuilder with the new rollback function appended. */
-  static rollback<T>(f: Callback<T, string, ParserContext<T>>) {
+  static rollback<T>(f: ELRCallback<T>) {
     return new DefinitionContextBuilder<T>({}).rollback(f);
   }
 }

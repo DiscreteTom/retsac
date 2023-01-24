@@ -1,26 +1,23 @@
 import { ASTNode } from "../../ast";
 import {
-  Accepter,
-  Callback,
-  Rejecter,
-  TempPartialConflict,
   ConflictType,
   Definition,
   BaseDefinitionContextBuilder,
   RR_ResolverOptions,
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
-import { ParserContext } from "../model";
+import { LRCallback, LRParserContext, LRRejecter } from "../model";
+import { LRAccepter, LRTempPartialConflict } from "./model";
 
 export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   T,
   ASTNode<T>[],
-  ParserContext<T>
+  LRParserContext<T>
 > {
   constructor(data?: {
-    callback?: Callback<T, ASTNode<T>[], ParserContext<T>>;
-    rejecter?: Rejecter<T, ASTNode<T>[], ParserContext<T>>;
-    resolved?: TempPartialConflict<T, ASTNode<T>[], ParserContext<T>>[];
+    callback?: LRCallback<T>;
+    rejecter?: LRRejecter<T>;
+    resolved?: LRTempPartialConflict<T>[];
   }) {
     super(data);
   }
@@ -29,16 +26,17 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     type: ConflictType,
     another: Definition,
     next: string,
-    reduce: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>,
+    reduce: boolean | LRAccepter<T>,
     handleEnd: boolean
   ) {
-    const anotherRule = defToTempGRs<T, ASTNode<T>[], ParserContext<T>>(
+    const anotherRule = defToTempGRs<T, ASTNode<T>[], LRParserContext<T>>(
       another
     )[0];
     // TODO: use a dedicated lexer to parse next
     const nextGrammars =
       next.length > 0
-        ? defToTempGRs<T, ASTNode<T>[], ParserContext<T>>({ "": next })[0].rule
+        ? defToTempGRs<T, ASTNode<T>[], LRParserContext<T>>({ "": next })[0]
+            .rule
         : [];
 
     // append the new rejecter
@@ -75,7 +73,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     another: Definition,
     options: {
       next: string;
-      reduce?: boolean | Accepter<T, ASTNode<T>[], ParserContext<T>>;
+      reduce?: boolean | LRAccepter<T>;
     }
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRS(another, options);
@@ -85,21 +83,21 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
    */
   static resolveRR<T>(
     another: Definition,
-    options: RR_ResolverOptions<T, ASTNode<T>[], ParserContext<T>>
+    options: RR_ResolverOptions<T, ASTNode<T>[], LRParserContext<T>>
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRR(another, options);
   }
   /** Create a new DefinitionContextBuilder with the new callback appended. */
-  static callback<T>(f: Callback<T, ASTNode<T>[], ParserContext<T>>) {
+  static callback<T>(f: LRCallback<T>) {
     return new DefinitionContextBuilder<T>({}).callback(f);
   }
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  static rejecter<T>(f: Rejecter<T, ASTNode<T>[], ParserContext<T>>) {
+  static rejecter<T>(f: LRRejecter<T>) {
     return new DefinitionContextBuilder<T>({}).rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
   static reducer<T>(
-    f: (data: (T | undefined)[], context: ParserContext<T>) => T | undefined
+    f: (data: (T | undefined)[], context: LRParserContext<T>) => T | undefined
   ) {
     return new DefinitionContextBuilder<T>({}).reducer(f);
   }

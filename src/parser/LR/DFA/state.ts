@@ -2,14 +2,14 @@ import { ASTNode } from "../../ast";
 import { GrammarSet } from "../../base";
 import { BaseState } from "../../base/DFA";
 import { ParserOutput } from "../../model";
-import { ParserContext } from "../model";
+import { LRParserContext } from "../model";
 import { Candidate } from "./candidate";
 
 /** LR(1) state machine's state. */
 export class State<T> extends BaseState<
   T,
   ASTNode<T>[],
-  ParserContext<T>,
+  LRParserContext<T>,
   Candidate<T>,
   State<T>
 > {

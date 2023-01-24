@@ -3,7 +3,7 @@ import { ASTNode } from "../ast";
 import { BaseParser, Callback } from "../base";
 import { IParser, ParserOutput } from "../model";
 import { DFA, State } from "./DFA";
-import { ParserContext } from "./model";
+import { ELRCallback, ELRParserContext } from "./model";
 
 /** Expectational LR(1) parser. Try to yield a top level NT each time. */
 export class Parser<T>
@@ -18,8 +18,8 @@ export class Parser<T>
     errors: ASTNode<T>[];
     rollbackStackLength: number;
   }[];
-  private rollbackStack: Callback<T, string, ParserContext<T>>[];
-  private ctxStack: ParserContext<T>[];
+  private rollbackStack: ELRCallback<T>[];
+  private ctxStack: ELRParserContext<T>[];
   lexer: ILexer;
 
   constructor(dfa: DFA<T>, lexer: ILexer) {

@@ -3,13 +3,13 @@ import { ASTNode } from "../../ast";
 import { GrammarType, GrammarSet, Grammar } from "../../base";
 import { BaseCandidate } from "../../base/DFA";
 import { ParserOutput } from "../../model";
-import { ParserContext } from "../model";
+import { ELRParserContext } from "../model";
 
 /** A.k.a: LR(1) Project for expectational LR. */
 export class Candidate<T> extends BaseCandidate<
   T,
   string,
-  ParserContext<T>,
+  ELRParserContext<T>,
   Candidate<T>
 > {
   /**
@@ -64,10 +64,10 @@ export class Candidate<T> extends BaseCandidate<
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     debug: boolean
-  ): { res: ParserOutput<T>; context?: ParserContext<T> } {
+  ): { res: ParserOutput<T>; context?: ELRParserContext<T> } {
     if (this.canDigestMore()) return { res: { accept: false } };
 
-    const context: ParserContext<T> = {
+    const context: ELRParserContext<T> = {
       matched: buffer.slice(-this.gr.rule.length),
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
