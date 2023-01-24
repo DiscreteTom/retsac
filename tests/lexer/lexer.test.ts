@@ -77,7 +77,9 @@ test("lexAll", () => {
 });
 
 test("lexAll with error", () => {
-  const tokens = lexer.reset().lexAll("error 123", true);
+  const tokens = lexer
+    .reset()
+    .lexAll({ input: "error 123", stopOnError: true });
 
   expect(tokens.map((token) => token.content)).toEqual(["error"]);
   expect(lexer.getErrors()[0].error).toBe("some error");
