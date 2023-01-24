@@ -202,9 +202,9 @@ export class BaseParserBuilder<
         (gr) =>
           new GrammarRule<T, After, Ctx>({
             NT: gr.NT,
-            callback: gr.callback,
-            rejecter: gr.rejecter,
-            rollback: gr.rollback,
+            callback: gr.callback ?? (() => {}),
+            rejecter: gr.rejecter ?? (() => false),
+            rollback: gr.rollback ?? (() => {}),
             rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
           })
       );
