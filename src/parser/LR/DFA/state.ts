@@ -36,6 +36,7 @@ export class State<T> extends BaseState<
   ): ParserOutput<T> {
     for (const c of this.candidates) {
       const res = c.tryReduce(buffer, start, entryNTs, followSets, debug);
+      // since we've already resolved all reduce-reduce conflicts, we can return the first result
       if (res.accept) return res;
     }
 
