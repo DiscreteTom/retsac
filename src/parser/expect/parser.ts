@@ -2,7 +2,6 @@ import { ILexer } from "../../lexer";
 import { BaseParser } from "../base";
 import { IParser, ParserOutput } from "../model";
 import { DFA } from "./DFA";
-import { ELRCallback, ELRParserContext } from "./model";
 import { ReLexStack, RollbackStack } from "./model/re-lex";
 
 /** Expectational LR(1) parser. Try to yield a top level NT each time. */
