@@ -4,7 +4,7 @@ import { BaseParser } from "../base";
 import { IParser, ParserOutput } from "../model";
 import { DFA, State } from "./DFA";
 
-/** Expectational LR(1) parser. Stateless. Try to yield a top level NT each time. */
+/** Expectational LR(1) parser. Try to yield a top level NT each time. */
 export class Parser<T>
   extends BaseParser<T, DFA<T>, Parser<T>>
   implements IParser<T>
