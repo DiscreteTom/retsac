@@ -110,6 +110,9 @@ test("GrammarRule.checkRSConflicts", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   const rule2 = new GrammarRule({
     NT: "exp",
@@ -118,6 +121,9 @@ test("GrammarRule.checkRSConflicts", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "-" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   const rule3 = new GrammarRule({
     NT: "exp",
@@ -125,6 +131,9 @@ test("GrammarRule.checkRSConflicts", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
 
   // single RS conflicts
@@ -142,6 +151,9 @@ test("GrammarRule.checkRSConflicts", () => {
       new Grammar({ type: GrammarType.T, content: "number" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   const rule5 = new GrammarRule({
     NT: "exp",
@@ -150,6 +162,9 @@ test("GrammarRule.checkRSConflicts", () => {
       new Grammar({ type: GrammarType.T, content: "number" }),
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
 
   // multi RS conflicts
@@ -170,10 +185,16 @@ test("GrammarRule.checkRRConflicts", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   const rule2 = new GrammarRule({
     NT: "exp",
     rule: [new Grammar({ type: GrammarType.T, content: "number" })],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   const rule3 = new GrammarRule({
     NT: "exp",
@@ -181,6 +202,9 @@ test("GrammarRule.checkRRConflicts", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
 
   // self RR conflicts
@@ -198,6 +222,9 @@ test("GrammarRule.toString", () => {
       new Grammar({ type: GrammarType.LITERAL, content: "+" }),
       new Grammar({ type: GrammarType.T, content: "number" }),
     ],
+    callback: () => {},
+    rejecter: () => false,
+    rollback: () => {},
   });
   expect(rule.toString()).toBe("{ exp: `number '+' number` }");
   expect(rule.toString((NT, gs) => `${NT}: ${gs.join(" ")}`)).toBe(
