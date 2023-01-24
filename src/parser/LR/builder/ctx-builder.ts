@@ -4,6 +4,7 @@ import {
   Definition,
   BaseDefinitionContextBuilder,
   RR_ResolverOptions,
+  Reducer,
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
 import { LRCallback, LRParserContext, LRRejecter } from "../model";
@@ -96,9 +97,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     return new DefinitionContextBuilder<T>({}).rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  static reducer<T>(
-    f: (data: (T | undefined)[], context: LRParserContext<T>) => T | undefined
-  ) {
+  static reducer<T>(f: Reducer<T, LRParserContext<T>>) {
     return new DefinitionContextBuilder<T>({}).reducer(f);
   }
 }

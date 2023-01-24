@@ -9,3 +9,11 @@ export type Accepter<
   After,
   Ctx extends BaseParserContext<T, After>
 > = Rejecter<T, After, Ctx>;
+
+/**
+ * Reducer will use children's data to yield the parent's data.
+ */
+export type Reducer<T, Ctx> = (
+  data: (T | undefined)[],
+  context: Ctx
+) => T | undefined;

@@ -2,6 +2,7 @@ import {
   BaseDefinitionContextBuilder,
   ConflictType,
   Definition,
+  Reducer,
   RR_ResolverOptions,
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
@@ -106,9 +107,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     return new DefinitionContextBuilder<T>({}).rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  static reducer<T>(
-    f: (data: (T | undefined)[], context: ELRParserContext<T>) => T | undefined
-  ) {
+  static reducer<T>(f: Reducer<T, ELRParserContext<T>>) {
     return new DefinitionContextBuilder<T>({}).reducer(f);
   }
   /** Create a new DefinitionContextBuilder with the new rollback function appended. */

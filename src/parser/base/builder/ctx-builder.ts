@@ -5,6 +5,7 @@ import {
   TempPartialConflict,
   ConflictType,
   Definition,
+  Reducer,
 } from "./model";
 
 export type RR_ResolverOptions<
@@ -68,7 +69,7 @@ export abstract class BaseDefinitionContextBuilder<
   }
 
   /** Modify this context with a reducer appended which can reduce data. */
-  reducer(f: (data: (T | undefined)[], context: Ctx) => T | undefined) {
+  reducer(f: Reducer<T, Ctx>) {
     return this.callback(
       (context) =>
         (context.data = f(
