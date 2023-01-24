@@ -1,23 +1,16 @@
 import { ILexer } from "../../lexer";
-import { ASTNode } from "../ast";
-import { BaseParser, Callback } from "../base";
+import { BaseParser } from "../base";
 import { IParser, ParserOutput } from "../model";
-import { DFA, State } from "./DFA";
+import { DFA } from "./DFA";
 import { ELRCallback, ELRParserContext } from "./model";
+import { ReLexStack } from "./model/re-lex";
 
 /** Expectational LR(1) parser. Try to yield a top level NT each time. */
 export class Parser<T>
   extends BaseParser<T, DFA<T>, Parser<T>>
   implements IParser<T>
 {
-  private reLexStack: {
-    stateStack: State<T>[];
-    buffer: ASTNode<T>[];
-    lexer: ILexer;
-    index: number;
-    errors: ASTNode<T>[];
-    rollbackStackLength: number;
-  }[];
+  private reLexStack: ReLexStack<T>;
   private rollbackStack: ELRCallback<T>[];
   private ctxStack: ELRParserContext<T>[];
   lexer: ILexer;

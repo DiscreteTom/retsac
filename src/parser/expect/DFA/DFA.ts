@@ -1,10 +1,11 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { Callback, GrammarSet } from "../../base";
+import { GrammarSet } from "../../base";
 import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ELRCallback, ELRParserContext } from "../model";
 import { ELRGrammarRule } from "../model/grammar";
+import { ReLexStack } from "../model/re-lex";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
@@ -46,14 +47,7 @@ export class DFA<T> extends BaseDFA<
   parse(
     buffer: ASTNode<T>[],
     lexer: ILexer,
-    reLexStack: {
-      stateStack: State<T>[];
-      buffer: ASTNode<T>[];
-      lexer: ILexer;
-      index: number;
-      errors: ASTNode<T>[];
-      rollbackStackLength: number;
-    }[],
+    reLexStack: ReLexStack<T>,
     rollbackStack: ELRCallback<T>[],
     ctxStack: ELRParserContext<T>[],
     stopOnError = false
