@@ -23,6 +23,7 @@ export class Parser<T>
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
     this.reLexStack = [];
+    this.rollbackStack = [];
     return this;
   }
 
