@@ -3,7 +3,7 @@ import { BaseParser } from "../base";
 import { IParser, ParserOutput } from "../model";
 import { DFA } from "./DFA";
 import { ELRCallback, ELRParserContext } from "./model";
-import { ReLexStack } from "./model/re-lex";
+import { ReLexStack, RollbackStack } from "./model/re-lex";
 
 /** Expectational LR(1) parser. Try to yield a top level NT each time. */
 export class Parser<T>
@@ -11,15 +11,13 @@ export class Parser<T>
   implements IParser<T>
 {
   private reLexStack: ReLexStack<T>;
-  private rollbackStack: ELRCallback<T>[];
-  private ctxStack: ELRParserContext<T>[];
+  private rollbackStack: RollbackStack<T>;
   lexer: ILexer;
 
   constructor(dfa: DFA<T>, lexer: ILexer) {
     super(dfa, lexer, Parser);
     this.reLexStack = [];
     this.rollbackStack = [];
-    this.ctxStack = [];
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
@@ -46,7 +44,6 @@ export class Parser<T>
       lexerClone,
       this.reLexStack,
       this.rollbackStack,
-      this.ctxStack,
       stopOnError
     );
     if (output.accept) {

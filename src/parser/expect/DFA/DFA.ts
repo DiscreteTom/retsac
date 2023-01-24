@@ -5,7 +5,7 @@ import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ELRCallback, ELRParserContext } from "../model";
 import { ELRGrammarRule } from "../model/grammar";
-import { ReLexStack } from "../model/re-lex";
+import { ReLexStack, RollbackStack } from "../model/re-lex";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
@@ -48,8 +48,7 @@ export class DFA<T> extends BaseDFA<
     buffer: ASTNode<T>[],
     lexer: ILexer,
     reLexStack: ReLexStack<T>,
-    rollbackStack: ELRCallback<T>[],
-    ctxStack: ELRParserContext<T>[],
+    rollbackStack: RollbackStack<T>,
     stopOnError = false
   ): { output: ParserOutput<T>; lexer: ILexer } {
     this.reset();
@@ -65,7 +64,8 @@ export class DFA<T> extends BaseDFA<
 
       // rollback
       while (rollbackStack.length > state!.rollbackStackLength) {
-        rollbackStack.pop()!(ctxStack.pop()!);
+        const { context, rollback } = rollbackStack.pop()!;
+        rollback(context);
       }
 
       // apply state
@@ -167,8 +167,7 @@ export class DFA<T> extends BaseDFA<
       }
 
       // accepted
-      rollbackStack.push(rollback!);
-      ctxStack.push(context!);
+      rollbackStack.push({ rollback: rollback!, context: context! });
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;
