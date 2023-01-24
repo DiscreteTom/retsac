@@ -115,11 +115,19 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
 
   /** Return ``{ NT: `grammar rules` }``. */
   toString(formatter?: (NT: string, grammars: string[]) => string) {
+    return GrammarRule.getString(this, formatter);
+  }
+
+  /** Return ``{ NT: `grammar rules` }``. */
+  static getString(
+    gr: { NT: string; rule: Grammar[] },
+    formatter?: (NT: string, grammars: string[]) => string
+  ) {
     formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
 
     return formatter(
-      this.NT,
-      this.rule.map((g) => g.toString())
+      gr.NT,
+      gr.rule.map((g) => g.toString())
     );
   }
 }

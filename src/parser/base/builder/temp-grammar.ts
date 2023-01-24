@@ -100,9 +100,12 @@ export class TempGrammarRule<
   }
 
   toString(formatter?: (NT: string, grammars: string[]) => string) {
-    return new GrammarRule<T, After, Ctx>({
-      NT: this.NT,
-      rule: this.rule.map((g) => g.toGrammar()),
-    }).toString(formatter);
+    return GrammarRule.getString(
+      {
+        NT: this.NT,
+        rule: this.rule.map((g) => g.toGrammar()),
+      },
+      formatter
+    );
   }
 }
