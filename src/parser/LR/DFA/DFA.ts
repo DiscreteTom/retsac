@@ -42,7 +42,7 @@ export class DFA<T> extends BaseDFA<
   }
 
   /** Reset DFA then try to yield an entry NT. */
-  parse(buffer: ASTNode<T>[], stopOnError = false): ParserOutput<T> {
+  parse(buffer: readonly ASTNode<T>[], stopOnError = false): ParserOutput<T> {
     this.reset();
 
     let index = 0; // buffer index
@@ -85,7 +85,7 @@ export class DFA<T> extends BaseDFA<
       // accepted
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
-      buffer = res.buffer.slice();
+      buffer = res.buffer;
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
