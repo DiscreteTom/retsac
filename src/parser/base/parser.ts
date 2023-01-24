@@ -1,13 +1,14 @@
 import { ILexer } from "../../lexer/model";
 import { ASTNode } from "../ast";
-import { ParserOutput } from "../model";
+import { IParser, ParserOutput } from "../model";
 
 /** Base parser for LR and ELR parsers. */
 export abstract class BaseParser<
   T,
   DFA,
   Child extends BaseParser<T, DFA, Child>
-> {
+> implements IParser<T>
+{
   readonly dfa: DFA;
   lexer: ILexer;
   protected buffer: ASTNode<T>[];
