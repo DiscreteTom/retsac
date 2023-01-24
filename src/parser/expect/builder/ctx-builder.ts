@@ -7,7 +7,7 @@ import {
 } from "../../base";
 import { defToTempGRs } from "../../base/builder/utils/definition";
 import { ELRCallback, ELRParserContext, ELRRejecter } from "../model";
-import { ELRAccepter, ELRTempPartialConflict } from "./mode";
+import { ELRAccepter, ELRTempPartialConflict } from "./model";
 
 export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   T,
