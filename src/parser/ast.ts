@@ -20,7 +20,7 @@ export class ASTNode<T> {
   /** T's text content. */
   text?: string;
   /** NT's children. */
-  children?: ASTNode<T>[];
+  children?: readonly ASTNode<T>[];
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
   data?: T;

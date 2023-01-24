@@ -7,7 +7,7 @@ import { LRParserContext } from "../model";
 /** A.k.a: LR(1) Project. */
 export class Candidate<T> extends BaseCandidate<
   T,
-  ASTNode<T>[],
+  readonly ASTNode<T>[],
   LRParserContext<T>,
   Candidate<T>
 > {

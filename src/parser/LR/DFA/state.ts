@@ -8,7 +8,7 @@ import { Candidate } from "./candidate";
 /** LR(1) state machine's state. */
 export class State<T> extends BaseState<
   T,
-  ASTNode<T>[],
+  readonly ASTNode<T>[],
   LRParserContext<T>,
   Candidate<T>,
   State<T>

@@ -12,7 +12,7 @@ import { LRAccepter, LRTempPartialConflict } from "./model";
 
 export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   T,
-  ASTNode<T>[],
+  readonly ASTNode<T>[],
   LRParserContext<T>
 > {
   constructor(data?: {
@@ -30,14 +30,17 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     reduce: boolean | LRAccepter<T>,
     handleEnd: boolean
   ) {
-    const anotherRule = defToTempGRs<T, ASTNode<T>[], LRParserContext<T>>(
-      another
-    )[0];
+    const anotherRule = defToTempGRs<
+      T,
+      readonly ASTNode<T>[],
+      LRParserContext<T>
+    >(another)[0];
     // TODO: use a dedicated lexer to parse next
     const nextGrammars =
       next.length > 0
-        ? defToTempGRs<T, ASTNode<T>[], LRParserContext<T>>({ "": next })[0]
-            .rule
+        ? defToTempGRs<T, readonly ASTNode<T>[], LRParserContext<T>>({
+            "": next,
+          })[0].rule
         : [];
 
     // append the new rejecter
@@ -84,7 +87,7 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
    */
   static resolveRR<T>(
     another: Definition,
-    options: RR_ResolverOptions<T, ASTNode<T>[], LRParserContext<T>>
+    options: RR_ResolverOptions<T, readonly ASTNode<T>[], LRParserContext<T>>
   ) {
     return new DefinitionContextBuilder<T>({}).resolveRR(another, options);
   }

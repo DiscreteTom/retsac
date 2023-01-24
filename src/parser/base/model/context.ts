@@ -2,8 +2,8 @@ import { ASTNode } from "../../ast";
 
 /** Base parser context for LR and ELR parsers. */
 export interface BaseParserContext<T, After> {
-  readonly matched: ASTNode<T>[];
-  readonly before: ASTNode<T>[];
+  readonly matched: readonly ASTNode<T>[];
+  readonly before: readonly ASTNode<T>[];
   /** For LR parser, `after` is `ASTNode[]`. For ELR parser, `after` is `string`. */
   readonly after: After;
   /** Data of the result AST node. */

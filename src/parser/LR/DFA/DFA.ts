@@ -10,7 +10,7 @@ import { LRGrammarRule } from "../model/grammar";
 /** LR(1) DFA. Stateless. */
 export class DFA<T> extends BaseDFA<
   T,
-  ASTNode<T>[],
+  readonly ASTNode<T>[],
   LRParserContext<T>,
   Candidate<T>,
   State<T>

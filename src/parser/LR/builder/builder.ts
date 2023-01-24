@@ -14,7 +14,7 @@ import { DefinitionContextBuilder } from "./ctx-builder";
  */
 export class ParserBuilder<T> extends BaseParserBuilder<
   T,
-  ASTNode<T>[],
+  readonly ASTNode<T>[],
   LRParserContext<T>,
   Candidate<T>,
   State<T>,
