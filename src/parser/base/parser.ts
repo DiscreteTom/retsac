@@ -65,19 +65,31 @@ export abstract class BaseParser<
     return this.buffer.shift();
   }
 
-  abstract parse(input?: string, stopOnError?: boolean): ParserOutput<T>;
+  abstract parse(
+    input?: string | { input?: string; stopOnError?: boolean }
+  ): ParserOutput<T>;
 
-  parseAll(input = "", stopOnError = false): ParserOutput<T> {
+  parseAll(
+    input: string | { input?: string; stopOnError?: boolean } = ""
+  ): ParserOutput<T> {
     let buffer: readonly ASTNode<T>[] = [];
     /** Aggregate results if the parser can accept more. */
     const errors: ASTNode<T>[] = [];
     /** If the parser has accepted at least once. */
     let accepted = false;
 
-    this.feed(input);
+    // feed input if provided
+    if (typeof input === "string") {
+      this.feed(input);
+    } else {
+      if (input?.input) this.feed(input.input);
+    }
+
+    const stopOnError =
+      typeof input === "string" ? false : input?.stopOnError ?? false;
 
     while (true) {
-      const res = this.parse("", stopOnError);
+      const res = this.parse({ stopOnError });
       if (res.accept) {
         accepted = true;
         buffer = res.buffer;

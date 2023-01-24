@@ -13,9 +13,21 @@ export class Parser<T>
     super(dfa, lexer, Parser);
   }
 
-  parse(input = "", stopOnError = false): ParserOutput<T> {
+  parse(
+    input?: string | { input?: string; stopOnError?: boolean }
+  ): ParserOutput<T> {
+    // feed input if provided
+    if (typeof input === "string") {
+      this.feed(input);
+    } else {
+      if (input?.input) this.feed(input.input);
+    }
+
+    const stopOnError =
+      typeof input === "string" ? false : input?.stopOnError ?? false;
+
     this.buffer = this.buffer.concat(
-      this.lexer.lexAll(input).map((t) => ASTNode.from(t))
+      this.lexer.lexAll().map((t) => ASTNode.from(t))
     );
 
     const res = this.dfa.parse(this.buffer, stopOnError);

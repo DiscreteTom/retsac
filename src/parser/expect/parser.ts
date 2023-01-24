@@ -30,8 +30,18 @@ export class Parser<T>
     return super.reset().commit();
   }
 
-  parse(input = "", stopOnError = false): ParserOutput<T> {
-    this.feed(input);
+  parse(
+    input?: string | { input?: string; stopOnError?: boolean }
+  ): ParserOutput<T> {
+    // feed input if provided
+    if (typeof input === "string") {
+      this.feed(input);
+    } else {
+      if (input?.input) this.feed(input.input);
+    }
+
+    const stopOnError =
+      typeof input === "string" ? false : input?.stopOnError ?? false;
 
     // important! make sure lexer can still lex something not muted
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
