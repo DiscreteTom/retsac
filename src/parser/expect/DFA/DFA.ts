@@ -170,7 +170,7 @@ export class DFA<T> extends BaseDFA<
       rollbackStack.push({ rollback: rollback!, context: context! });
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
-      buffer = res.buffer;
+      buffer = res.buffer.slice();
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) this.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return

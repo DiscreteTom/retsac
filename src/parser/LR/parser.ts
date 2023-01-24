@@ -21,7 +21,7 @@ export class Parser<T>
     const res = this.dfa.parse(this.buffer, stopOnError);
     if (res.accept) {
       // update states
-      this.buffer = res.buffer;
+      this.buffer = res.buffer.slice();
       this.errors.push(...res.errors);
     }
 

@@ -67,12 +67,9 @@ export abstract class BaseParser<
   abstract parse(input?: string, stopOnError?: boolean): ParserOutput<T>;
 
   parseAll(input = "", stopOnError = false): ParserOutput<T> {
+    let buffer: readonly ASTNode<T>[] = [];
     /** Aggregate results if the parser can accept more. */
-    const summary: ParserOutput<T> = {
-      accept: true,
-      buffer: [],
-      errors: [],
-    };
+    const errors: ASTNode<T>[] = [];
     /** If the parser has accepted at least once. */
     let accepted = false;
 
@@ -82,12 +79,12 @@ export abstract class BaseParser<
       const res = this.parse("", stopOnError);
       if (res.accept) {
         accepted = true;
-        summary.buffer = res.buffer;
-        summary.errors.push(...res.errors);
+        buffer = res.buffer;
+        errors.push(...res.errors);
       } else {
         if (accepted) {
           // at least one accept
-          return summary;
+          return { accept: true, buffer, errors };
         } else {
           return res;
         }

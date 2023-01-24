@@ -5,9 +5,9 @@ export type ParserOutput<T> =
   | {
       accept: true;
       /** Result AST nodes. */
-      buffer: ASTNode<T>[];
+      buffer: readonly ASTNode<T>[];
       /** Empty if no error. */
-      errors: ASTNode<T>[];
+      errors: readonly ASTNode<T>[];
     };
 
 export type ParseExec<T> = (

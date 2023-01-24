@@ -50,7 +50,7 @@ export class Parser<T>
     if (output.accept) {
       // update states
       this.lexer = lexer; // lexer is stateful and may be changed in DFA, so we need to update it
-      this.buffer = output.buffer;
+      this.buffer = output.buffer.slice();
       this.errors.push(...output.errors);
     }
 
