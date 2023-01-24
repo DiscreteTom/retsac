@@ -37,6 +37,7 @@
     - Parser will actively use Lexer to lex input string to token according to the grammar rules.
     - Re-Lex: If the lexed token can't be accepted, the parser will try to restore & re-lex input.
       - `Parser.commit` will abandon all other possibilities and only keep the current state.
+      - `DefinitionContext` support `rollback` to rollback state when re-lex.
 - Remove `Manager` since `Parser.parse` already accept string as input and keep a state.
 - Optimize document / comments.
   - Generate documentation with [typedoc](https://typedoc.org/).

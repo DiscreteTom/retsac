@@ -64,8 +64,8 @@ export class Candidate<T> extends BaseCandidate<
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     debug: boolean
-  ): ParserOutput<T> {
-    if (this.canDigestMore()) return { accept: false };
+  ): { res: ParserOutput<T>; context?: ParserContext<T> } {
+    if (this.canDigestMore()) return { res: { accept: false } };
 
     const context: ParserContext<T> = {
       matched: buffer.slice(-this.gr.rule.length),
@@ -106,7 +106,7 @@ export class Candidate<T> extends BaseCandidate<
               10 // only show first 10 chars
             )}`
           );
-        return { accept: false };
+        return { res: { accept: false } };
       }
       // else, follow set matched, continue
     }
@@ -114,7 +114,7 @@ export class Candidate<T> extends BaseCandidate<
     // check rejecter
     if (this.gr.rejecter(context)) {
       if (debug) console.log(`[Reject] ${this.gr.toString()}`);
-      return { accept: false };
+      return { res: { accept: false } };
     }
 
     // accept
@@ -130,9 +130,12 @@ export class Candidate<T> extends BaseCandidate<
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);
 
     return {
-      accept: true,
-      buffer: context.before.concat(node),
-      errors: context.error ? [node] : [],
+      res: {
+        accept: true,
+        buffer: context.before.concat(node),
+        errors: context.error ? [node] : [],
+      },
+      context,
     };
   }
 }

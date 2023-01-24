@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { DFAClassCtor, GrammarRule, GrammarSet } from "../../base";
+import { Callback, GrammarRule, GrammarSet } from "../../base";
 import { BaseDFA } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
@@ -51,7 +51,10 @@ export class DFA<T> extends BaseDFA<
       lexer: ILexer;
       index: number;
       errors: ASTNode<T>[];
+      rollbackStackLength: number;
     }[],
+    rollbackStack: Callback<T, string, ParserContext<T>>[],
+    ctxStack: ParserContext<T>[],
     stopOnError = false
   ): { output: ParserOutput<T>; lexer: ILexer } {
     this.reset();
@@ -64,6 +67,11 @@ export class DFA<T> extends BaseDFA<
       const restoredInput =
         state!.buffer.at(-1)!.text +
         state!.lexer.getRest().slice(0, lexer.digested - state!.lexer.digested);
+
+      // rollback
+      while (rollbackStack.length > state!.rollbackStackLength) {
+        rollbackStack.pop()!(ctxStack.pop()!);
+      }
 
       // apply state
       this.stateStack = state!.stateStack;
@@ -112,6 +120,7 @@ export class DFA<T> extends BaseDFA<
               lexer: res[i].lexer,
               index,
               errors: errors.slice(),
+              rollbackStackLength: rollbackStack.length,
             });
           }
           // use the first lexing result to continue parsing
@@ -154,7 +163,7 @@ export class DFA<T> extends BaseDFA<
       this.stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
-      const res = this.stateStack
+      const { res, rollback, context } = this.stateStack
         .at(-1)!
         .tryReduce(buffer, this.entryNTs, this.followSets, lexer, this.debug);
       if (!res.accept) {
@@ -163,6 +172,8 @@ export class DFA<T> extends BaseDFA<
       }
 
       // accepted
+      rollbackStack.push(rollback!);
+      ctxStack.push(context!);
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;

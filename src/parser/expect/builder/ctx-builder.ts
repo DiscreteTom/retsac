@@ -112,4 +112,8 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   ) {
     return new DefinitionContextBuilder<T>({}).reducer(f);
   }
+  /** Create a new DefinitionContextBuilder with the new rollback function appended. */
+  static rollback<T>(f: Callback<T, string, ParserContext<T>>) {
+    return new DefinitionContextBuilder<T>({}).rollback(f);
+  }
 }

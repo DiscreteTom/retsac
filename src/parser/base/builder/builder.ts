@@ -204,6 +204,7 @@ export class BaseParserBuilder<
             NT: gr.NT,
             callback: gr.callback,
             rejecter: gr.rejecter,
+            rollback: gr.rollback,
             rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
           })
       );

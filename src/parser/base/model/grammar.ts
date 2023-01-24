@@ -61,13 +61,17 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
   NT: string;
   callback: Callback<T, After, Ctx>;
   rejecter: Rejecter<T, After, Ctx>;
+  rollback: Callback<T, After, Ctx>;
 
   constructor(
-    p: Partial<Pick<GrammarRule<T, After, Ctx>, "callback" | "rejecter">> &
+    p: Partial<
+      Pick<GrammarRule<T, After, Ctx>, "callback" | "rejecter" | "rollback">
+    > &
       Pick<GrammarRule<T, After, Ctx>, "rule" | "NT">
   ) {
     p.callback ??= () => {};
     p.rejecter ??= () => false;
+    p.rollback ??= () => {};
 
     // parser builder will ensure every rule has at least one grammar.
     // we don't need to check it here.

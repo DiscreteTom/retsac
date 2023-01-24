@@ -1,8 +1,9 @@
 import { ILexer } from "../../lexer";
 import { ASTNode } from "../ast";
-import { BaseParser } from "../base";
+import { BaseParser, Callback } from "../base";
 import { IParser, ParserOutput } from "../model";
 import { DFA, State } from "./DFA";
+import { ParserContext } from "./model";
 
 /** Expectational LR(1) parser. Try to yield a top level NT each time. */
 export class Parser<T>
@@ -15,12 +16,17 @@ export class Parser<T>
     lexer: ILexer;
     index: number;
     errors: ASTNode<T>[];
+    rollbackStackLength: number;
   }[];
+  private rollbackStack: Callback<T, string, ParserContext<T>>[];
+  private ctxStack: ParserContext<T>[];
   lexer: ILexer;
 
   constructor(dfa: DFA<T>, lexer: ILexer) {
     super(dfa, lexer, Parser);
     this.reLexStack = [];
+    this.rollbackStack = [];
+    this.ctxStack = [];
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
@@ -46,6 +52,8 @@ export class Parser<T>
       this.buffer,
       lexerClone,
       this.reLexStack,
+      this.rollbackStack,
+      this.ctxStack,
       stopOnError
     );
     if (output.accept) {

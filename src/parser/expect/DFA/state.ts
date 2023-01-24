@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
-import { GrammarSet } from "../../base";
+import { Callback, GrammarSet } from "../../base";
 import { BaseState } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ParserContext } from "../model";
@@ -49,13 +49,23 @@ export class State<T> extends BaseState<
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     debug: boolean
-  ): ParserOutput<T> {
+  ): {
+    res: ParserOutput<T>;
+    rollback?: Callback<T, string, ParserContext<T>>;
+    context?: ParserContext<T>;
+  } {
     for (const c of this.candidates) {
-      const res = c.tryReduce(buffer, entryNTs, followSets, lexer, debug);
+      const { res, context } = c.tryReduce(
+        buffer,
+        entryNTs,
+        followSets,
+        lexer,
+        debug
+      );
       // since we've already resolved all reduce-reduce conflicts, we can return the first result
-      if (res.accept) return res;
+      if (res.accept) return { res, rollback: c.gr.rollback, context };
     }
 
-    return { accept: false };
+    return { res: { accept: false } };
   }
 }

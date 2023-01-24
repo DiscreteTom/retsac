@@ -13,4 +13,5 @@ export interface DefinitionContext<
   callback: Callback<T, After, Ctx>;
   rejecter: Rejecter<T, After, Ctx>;
   resolved: TempPartialConflict<T, After, Ctx>[];
+  rollback: Callback<T, After, Ctx>;
 }

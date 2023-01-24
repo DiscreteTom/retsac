@@ -32,15 +32,18 @@ export abstract class BaseDefinitionContextBuilder<
   protected _callback: Callback<T, After, Ctx>;
   protected _rejecter: Rejecter<T, After, Ctx>;
   protected resolved: TempPartialConflict<T, After, Ctx>[];
+  protected undo: Callback<T, After, Ctx>;
 
   constructor(data?: {
     callback?: Callback<T, After, Ctx>;
     rejecter?: Rejecter<T, After, Ctx>;
     resolved?: TempPartialConflict<T, After, Ctx>[];
+    rollback?: Callback<T, After, Ctx>;
   }) {
     this._callback = data?.callback ?? (() => {});
     this._rejecter = data?.rejecter ?? (() => false);
     this.resolved = data?.resolved ?? [];
+    this.undo = data?.rollback ?? (() => {});
   }
 
   /** Modify this context with the new callback appended. */
@@ -73,6 +76,17 @@ export abstract class BaseDefinitionContextBuilder<
           context
         ))
     );
+  }
+
+  /** Modify this context with a rollback function appended. */
+  rollback(f: Callback<T, After, Ctx>) {
+    const undo = this.undo;
+    this.undo = (ctx) => {
+      undo(ctx);
+      f(ctx);
+    };
+
+    return this;
   }
 
   /** Resolve a RS/RR conflict. */
@@ -117,6 +131,7 @@ export abstract class BaseDefinitionContextBuilder<
       callback: this._callback,
       rejecter: this._rejecter,
       resolved: this.resolved,
+      rollback: this.undo,
     };
   }
 }
