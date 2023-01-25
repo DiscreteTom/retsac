@@ -113,6 +113,7 @@ test("GrammarRule.checkRSConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   const rule2 = new GrammarRule({
     NT: "exp",
@@ -124,6 +125,7 @@ test("GrammarRule.checkRSConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   const rule3 = new GrammarRule({
     NT: "exp",
@@ -134,6 +136,7 @@ test("GrammarRule.checkRSConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
 
   // single RS conflicts
@@ -154,6 +157,7 @@ test("GrammarRule.checkRSConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   const rule5 = new GrammarRule({
     NT: "exp",
@@ -165,6 +169,7 @@ test("GrammarRule.checkRSConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
 
   // multi RS conflicts
@@ -188,6 +193,7 @@ test("GrammarRule.checkRRConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   const rule2 = new GrammarRule({
     NT: "exp",
@@ -195,6 +201,7 @@ test("GrammarRule.checkRRConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   const rule3 = new GrammarRule({
     NT: "exp",
@@ -205,6 +212,7 @@ test("GrammarRule.checkRRConflicts", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
 
   // self RR conflicts
@@ -225,6 +233,7 @@ test("GrammarRule.toString", () => {
     callback: () => {},
     rejecter: () => false,
     rollback: () => {},
+    commit: () => false,
   });
   expect(rule.toString()).toBe("{ exp: `number '+' number` }");
   expect(rule.toString((NT, gs) => `${NT}: ${gs.join(" ")}`)).toBe(
