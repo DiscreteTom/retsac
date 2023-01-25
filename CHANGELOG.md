@@ -34,6 +34,7 @@
     - DFA will cache state transition on the fly to optimize runtime performance.
       - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
     - Remove `ParserBuilder.use`.
+    - Add `ParserContext.$` to find AST node by its type name or literal value.
   - ELR Parser: Expectational LR Parser
     - Parser will actively use Lexer to lex input string to token according to the grammar rules.
     - Re-Lex: If the lexed token can't be accepted, the parser will try to restore & re-lex input.

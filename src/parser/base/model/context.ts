@@ -9,6 +9,7 @@ export interface BaseParserContext<T, After> {
   /** Data of the result AST node. */
   data?: T;
   error?: any;
+  $(name: string, index?: number): ASTNode<T> | undefined;
 }
 
 /** Will be called if the current grammar is accepted. */

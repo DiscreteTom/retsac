@@ -1,6 +1,7 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { GrammarType, GrammarSet, Grammar } from "../../base";
+import { defToTempGRs } from "../../base/builder/utils/definition";
 import { BaseCandidate } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { ELRParserContext } from "../model";
@@ -72,6 +73,17 @@ export class Candidate<T> extends BaseCandidate<
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
       lexer,
+      $: (name, index = 0) => {
+        const matched = context.matched;
+        for (let i = 0; i < matched.length; i++) {
+          if (
+            defToTempGRs({ "": name })[0]?.rule[0]?.eq(matched[i]) &&
+            index-- === 0
+          )
+            return matched[i];
+        }
+        return undefined;
+      },
     };
 
     // check follow for LR(1) with the rest input string

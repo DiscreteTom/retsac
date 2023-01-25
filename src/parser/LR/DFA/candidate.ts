@@ -1,5 +1,6 @@
 import { ASTNode } from "../../ast";
 import { GrammarSet } from "../../base";
+import { defToTempGRs } from "../../base/builder/utils/definition";
 import { BaseCandidate } from "../../base/DFA";
 import { ParserOutput } from "../../model";
 import { LRParserContext } from "../model";
@@ -44,6 +45,17 @@ export class Candidate<T> extends BaseCandidate<
       matched: buffer.slice(index + 1 - this.gr.rule.length, index + 1),
       before: buffer.slice(0, index + 1 - this.gr.rule.length),
       after: buffer.slice(index + 1),
+      $: (name, index = 0) => {
+        const matched = context.matched;
+        for (let i = 0; i < matched.length; i++) {
+          if (
+            defToTempGRs({ "": name })[0]?.rule[0]?.eq(matched[i]) &&
+            index-- === 0
+          )
+            return matched[i];
+        }
+        return undefined;
+      },
     };
 
     // peek next ASTNode and check follow for LR(1)
