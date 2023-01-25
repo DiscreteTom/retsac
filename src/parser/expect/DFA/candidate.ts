@@ -136,10 +136,7 @@ export class Candidate<T> extends BaseCandidate<
         errors: context.error ? [node] : [],
       },
       context,
-      commit:
-        typeof this.gr.commit === "boolean"
-          ? this.gr.commit
-          : this.gr.commit(context),
+      commit: this.gr.commit(context),
     };
   }
 }

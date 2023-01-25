@@ -34,7 +34,7 @@ export abstract class BaseDefinitionContextBuilder<
   protected _rejecter: Rejecter<T, After, Ctx>;
   protected resolved: TempPartialConflict<T, After, Ctx>[];
   protected undo: Callback<T, After, Ctx>;
-  protected _commit: boolean | Accepter<T, After, Ctx>;
+  protected _commit: Accepter<T, After, Ctx>;
 
   constructor(data?: {
     callback?: Callback<T, After, Ctx>;
@@ -46,7 +46,7 @@ export abstract class BaseDefinitionContextBuilder<
     this._rejecter = data?.rejecter ?? (() => false);
     this.resolved = data?.resolved ?? [];
     this.undo = data?.rollback ?? (() => {});
-    this._commit = false;
+    this._commit = () => false;
   }
 
   /** Modify this context with the new callback appended. */
@@ -93,7 +93,7 @@ export abstract class BaseDefinitionContextBuilder<
   }
 
   commit(enable: boolean | Accepter<T, After, Ctx> = true) {
-    this._commit = enable;
+    this._commit = typeof enable === "boolean" ? () => enable : enable;
     return this;
   }
 

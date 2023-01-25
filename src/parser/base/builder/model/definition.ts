@@ -15,5 +15,5 @@ export interface DefinitionContext<
   rejecter: Rejecter<T, After, Ctx>;
   resolved: TempPartialConflict<T, After, Ctx>[];
   rollback: Callback<T, After, Ctx>;
-  commit: boolean | Accepter<T, After, Ctx>;
+  commit: Accepter<T, After, Ctx>;
 }

@@ -186,7 +186,7 @@ export class BaseParserBuilder<
             callback: gr.callback ?? (() => {}),
             rejecter: gr.rejecter ?? (() => false),
             rollback: gr.rollback ?? (() => {}),
-            commit: gr.commit,
+            commit: gr.commit ?? (() => false),
             rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
           })
       );
