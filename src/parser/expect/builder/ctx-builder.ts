@@ -1,4 +1,5 @@
 import {
+  Accepter,
   BaseDefinitionContextBuilder,
   ConflictType,
   Definition,
@@ -115,7 +116,9 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
     return new DefinitionContextBuilder<T>({}).rollback(f);
   }
   /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
-  static commit<T>(enable = true) {
+  static commit<T>(
+    enable: boolean | Accepter<T, string, ELRParserContext<T>> = true
+  ) {
     return new DefinitionContextBuilder<T>({}).commit(enable);
   }
 }

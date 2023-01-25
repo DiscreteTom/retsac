@@ -7,6 +7,7 @@ import {
   Rejecter,
   BaseParserContext,
 } from "../model";
+import { Accepter } from "./model";
 
 /** Grammar type, but can't distinguish N or NT. */
 export enum TempGrammarType {
@@ -76,7 +77,7 @@ export class TempGrammarRule<
   callback?: Callback<T, After, Ctx>;
   rejecter?: Rejecter<T, After, Ctx>;
   rollback?: Callback<T, After, Ctx>;
-  commit: boolean;
+  commit: boolean | Accepter<T, After, Ctx>;
 
   constructor(
     data: Partial<

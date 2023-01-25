@@ -1,5 +1,6 @@
 import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
+import { Accepter } from "../builder";
 import { LR_RuntimeError } from "../error";
 import { BaseParserContext, Callback, Rejecter } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
@@ -62,7 +63,7 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
   callback: Callback<T, After, Ctx>;
   rejecter: Rejecter<T, After, Ctx>;
   rollback: Callback<T, After, Ctx>;
-  commit: boolean;
+  commit: boolean | Accepter<T, After, Ctx>;
 
   constructor(
     p: Pick<

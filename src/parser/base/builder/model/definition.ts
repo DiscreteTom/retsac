@@ -1,5 +1,6 @@
 import { BaseParserContext, Callback, Rejecter } from "../../model";
 import { TempPartialConflict } from "./conflict";
+import { Accepter } from "./context";
 
 export interface Definition {
   [NT: string]: string | string[];
@@ -14,5 +15,5 @@ export interface DefinitionContext<
   rejecter: Rejecter<T, After, Ctx>;
   resolved: TempPartialConflict<T, After, Ctx>[];
   rollback: Callback<T, After, Ctx>;
-  commit: boolean;
+  commit: boolean | Accepter<T, After, Ctx>;
 }

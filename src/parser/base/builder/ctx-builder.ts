@@ -34,7 +34,7 @@ export abstract class BaseDefinitionContextBuilder<
   protected _rejecter: Rejecter<T, After, Ctx>;
   protected resolved: TempPartialConflict<T, After, Ctx>[];
   protected undo: Callback<T, After, Ctx>;
-  protected _commit: boolean;
+  protected _commit: boolean | Accepter<T, After, Ctx>;
 
   constructor(data?: {
     callback?: Callback<T, After, Ctx>;
@@ -92,7 +92,7 @@ export abstract class BaseDefinitionContextBuilder<
     return this;
   }
 
-  commit(enable = true) {
+  commit(enable: boolean | Accepter<T, After, Ctx> = true) {
     this._commit = enable;
     return this;
   }
