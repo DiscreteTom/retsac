@@ -54,7 +54,7 @@ export class Parser<T>
       lexerClone,
       this.reLexStack,
       this.rollbackStack,
-      this.commit,
+      () => this.commit(),
       stopOnError
     );
     if (output.accept) {
