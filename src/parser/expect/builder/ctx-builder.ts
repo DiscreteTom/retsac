@@ -114,4 +114,8 @@ export class DefinitionContextBuilder<T> extends BaseDefinitionContextBuilder<
   static rollback<T>(f: ELRCallback<T>) {
     return new DefinitionContextBuilder<T>({}).rollback(f);
   }
+  /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
+  static commit<T>(enable = true) {
+    return new DefinitionContextBuilder<T>({}).commit(enable);
+  }
 }

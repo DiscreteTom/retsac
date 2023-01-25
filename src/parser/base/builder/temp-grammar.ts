@@ -76,12 +76,13 @@ export class TempGrammarRule<
   callback?: Callback<T, After, Ctx>;
   rejecter?: Rejecter<T, After, Ctx>;
   rollback?: Callback<T, After, Ctx>;
+  commit: boolean;
 
   constructor(
     data: Partial<
       Pick<TempGrammarRule<T, After, Ctx>, "callback" | "rejecter" | "rollback">
     > &
-      Pick<TempGrammarRule<T, After, Ctx>, "rule" | "NT">
+      Pick<TempGrammarRule<T, After, Ctx>, "rule" | "NT" | "commit">
   ) {
     Object.assign(this, data);
   }

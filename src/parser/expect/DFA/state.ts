@@ -53,9 +53,10 @@ export class State<T> extends BaseState<
     res: ParserOutput<T>;
     rollback?: ELRCallback<T>;
     context?: ELRParserContext<T>;
+    commit?: boolean;
   } {
     for (const c of this.candidates) {
-      const { res, context } = c.tryReduce(
+      const { res, context, commit } = c.tryReduce(
         buffer,
         entryNTs,
         followSets,
@@ -63,7 +64,7 @@ export class State<T> extends BaseState<
         debug
       );
       // since we've already resolved all reduce-reduce conflicts, we can return the first result
-      if (res.accept) return { res, rollback: c.gr.rollback, context };
+      if (res.accept) return { res, rollback: c.gr.rollback, context, commit };
     }
 
     return { res: { accept: false } };

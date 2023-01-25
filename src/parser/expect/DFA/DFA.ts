@@ -49,6 +49,7 @@ export class DFA<T> extends BaseDFA<
     lexer: ILexer,
     reLexStack: ReLexStack<T>,
     rollbackStack: RollbackStack<T>,
+    commitParser: () => void,
     stopOnError = false
   ): { output: ParserOutput<T>; lexer: ILexer } {
     this.reset();
@@ -158,7 +159,7 @@ export class DFA<T> extends BaseDFA<
       this.stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
-      const { res, rollback, context } = this.stateStack
+      const { res, rollback, context, commit } = this.stateStack
         .at(-1)!
         .tryReduce(buffer, this.entryNTs, this.followSets, lexer, this.debug);
       if (!res.accept) {
@@ -167,7 +168,12 @@ export class DFA<T> extends BaseDFA<
       }
 
       // accepted
-      rollbackStack.push({ rollback: rollback!, context: context! });
+      if (commit) {
+        commitParser();
+      } else {
+        // update rollback stack
+        rollbackStack.push({ rollback: rollback!, context: context! });
+      }
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
       buffer = res.buffer;

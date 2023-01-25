@@ -21,8 +21,8 @@ export class Parser<T>
 
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
-    this.reLexStack = [];
-    this.rollbackStack = [];
+    this.reLexStack.length = 0; // clear re-lex stack
+    this.rollbackStack.length = 0; // clear rollback stack
     return this;
   }
 
@@ -54,6 +54,7 @@ export class Parser<T>
       lexerClone,
       this.reLexStack,
       this.rollbackStack,
+      this.commit,
       stopOnError
     );
     if (output.accept) {

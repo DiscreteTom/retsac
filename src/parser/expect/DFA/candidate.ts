@@ -64,7 +64,7 @@ export class Candidate<T> extends BaseCandidate<
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     debug: boolean
-  ): { res: ParserOutput<T>; context?: ELRParserContext<T> } {
+  ): { res: ParserOutput<T>; context?: ELRParserContext<T>; commit?: boolean } {
     if (this.canDigestMore()) return { res: { accept: false } };
 
     const context: ELRParserContext<T> = {
@@ -136,6 +136,7 @@ export class Candidate<T> extends BaseCandidate<
         errors: context.error ? [node] : [],
       },
       context,
+      commit: this.gr.commit,
     };
   }
 }

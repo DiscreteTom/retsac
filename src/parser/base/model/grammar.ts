@@ -62,11 +62,12 @@ export class GrammarRule<T, After, Ctx extends BaseParserContext<T, After>> {
   callback: Callback<T, After, Ctx>;
   rejecter: Rejecter<T, After, Ctx>;
   rollback: Callback<T, After, Ctx>;
+  commit: boolean;
 
   constructor(
     p: Pick<
       GrammarRule<T, After, Ctx>,
-      "rule" | "NT" | "callback" | "rejecter" | "rollback"
+      "rule" | "NT" | "callback" | "rejecter" | "rollback" | "commit"
     >
   ) {
     // parser builder will ensure every rule has at least one grammar.
