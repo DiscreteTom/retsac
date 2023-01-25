@@ -136,25 +136,6 @@ export class BaseParserBuilder<
     return this;
   }
 
-  /** Merge grammar rules, NTs and resolved conflicts of another parser builder. */
-  use(
-    another: BaseParserBuilder<
-      T,
-      After,
-      Ctx,
-      Candidate,
-      State,
-      DFA,
-      Parser,
-      DefinitionContextBuilder
-    >
-  ) {
-    this.tempGrammarRules.push(...another.tempGrammarRules);
-    this.NTs = new Set([...this.NTs, ...another.NTs]);
-    this.resolved.push(...another.resolved);
-    return this;
-  }
-
   /**
    * Ensure all T/NTs have their definitions, and no duplication.
    * If ok, return this.
