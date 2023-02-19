@@ -85,7 +85,7 @@ export class LR_BuilderError extends Error {
   static noEntryNT() {
     return new LR_BuilderError(
       "NO_ENTRY_NT",
-      `Entry NT is required for LR Parser`
+      `Entry NT is required for LR Parsers`
     );
   }
 

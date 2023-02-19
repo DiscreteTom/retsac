@@ -16,7 +16,7 @@ import { getConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 
 /**
- * Base builder for LR and Expectational LR parsers.
+ * Builder for ELR parsers.
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
@@ -140,7 +140,7 @@ export class ParserBuilder<T> {
     };
   }
 
-  /** Generate the LR or ELR parser. */
+  /** Generate the ELR parser. */
   build(lexer: ILexer, debug = false) {
     const { dfa } = this.buildDFA();
     dfa.debug = debug;
