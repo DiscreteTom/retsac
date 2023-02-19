@@ -2,7 +2,7 @@ import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import { GrammarRule, GrammarSet } from "../model";
-import { ReLexStack, RollbackStack } from "../model/re-lex";
+import { ReLexStack, RollbackStack } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
