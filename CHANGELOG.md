@@ -14,28 +14,28 @@
   - Add `Lexer.digested`.
   - Rename `Lexer.hasError` to `Lexer.hasErrors`.
 - Parser
-  - If ASTNode has no error, the error field will be `undefined`.
+  - If `ASTNode` has no error, the error field will be `undefined`.
   - Add `ASTNode.toObj` for serialization.
   - Add optional `stopOnError` parameter to `IParser.parse`.
   - `Parser.parse` will accept string as input instead of a list of ASTNode.
     - So each parser will have a lexer. Parser builders will need lexer when `build`.
-  - Add base parser as the parent class for LR parser and ELR parser.
+  - **Remove LR parser**.
+  - ELR Parser: Expectational LR Parser
     - Use `DefinitionContextBuilder` to define parser actions.
     - Rename `ReducerContext` to `ParserContext`.
-    - If ReducerContext has no error, the error field will be `undefined`.
+    - If `ReducerContext` has no error, the error field will be `undefined`.
     - Add optional `stopOnError` parameter to `DFA.parse` and `Parser.parse`.
     - Add `ParserBuilder.checkConflicts` to ensure all reduce-shift and reduce-reduce conflicts are resolved.
       - It will also try to auto resolve conflicts by LR(1) peeking.
       - Add `ParserBuilder.resolveRS/resolveRR` to manually resolve conflicts.
       - Add `ParserBuilder.generateResolvers` to auto generate resolver template.
     - Add `ParserBuilder.checkAll` to do all necessary checks.
-    - Replace `dataReducer` with `LR.reducer`.
+    - Replace `dataReducer` with `ELR.reducer`.
     - `GrammarRule/Candidate.toString` will output like user's definition using `:`, `` ` `` and `{}`.
     - DFA will cache state transition on the fly to optimize runtime performance.
       - Add `DFA.calculateAllStates` to calculate all state transitions ahead of time and cache them.
     - Remove `ParserBuilder.use`.
     - Add `ParserContext.$` to find AST node by its type name or literal value.
-  - ELR Parser: Expectational LR Parser
     - Parser will actively use Lexer to lex input string to token according to the grammar rules.
     - Re-Lex: If the lexed token can't be accepted, the parser will try to restore & re-lex input.
       - `Parser.commit` will abandon all other possibilities and only keep the current state.
