@@ -25,7 +25,7 @@ export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Condition<T>;
   private resolved: TempPartialConflict<T>[];
-  private undo: Callback<T>;
+  private _rollback: Callback<T>;
   private _commit: Condition<T>;
 
   constructor(data?: {
@@ -37,7 +37,7 @@ export class DefinitionContextBuilder<T> {
     this._callback = data?.callback ?? (() => {});
     this._rejecter = data?.rejecter ?? (() => false);
     this.resolved = data?.resolved ?? [];
-    this.undo = data?.rollback ?? (() => {});
+    this._rollback = data?.rollback ?? (() => {});
     this._commit = () => false;
   }
 
@@ -75,9 +75,9 @@ export class DefinitionContextBuilder<T> {
 
   /** Modify this context with a rollback function appended. */
   rollback(f: Callback<T>) {
-    const undo = this.undo;
-    this.undo = (ctx) => {
-      undo(ctx);
+    const _rollback = this._rollback;
+    this._rollback = (ctx) => {
+      _rollback(ctx);
       f(ctx);
     };
 
@@ -173,7 +173,7 @@ export class DefinitionContextBuilder<T> {
       callback: this._callback,
       rejecter: this._rejecter,
       resolved: this.resolved,
-      rollback: this.undo,
+      rollback: this._rollback,
       commit: this._commit,
     };
   }
