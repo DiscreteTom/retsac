@@ -14,13 +14,13 @@ export interface ASTObj {
 
 export class ASTNode<T> {
   /** T's or NT's name. */
-  type: string;
+  readonly type: string;
   /** Start position of the input string. Same as the first token's start position. */
-  start: number;
+  readonly start: number;
   /** T's text content. */
-  text?: string;
+  readonly text?: string;
   /** NT's children. */
-  children?: readonly ASTNode<T>[];
+  readonly children?: readonly ASTNode<T>[];
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
   data?: T;

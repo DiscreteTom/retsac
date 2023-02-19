@@ -2,9 +2,11 @@
 
 ## v0.5.0
 
-- ELR Parser
-  - Export `ELR.commit` and `ELR.rollback`.
-  - **Breaking Change**: Reducer will take `ReducerContext` as the parameter instead of `ParserContext`.
+- Parser
+  - Make `ASTNode.type/start/text/children` readonly.
+  - ELR Parser
+    - Export `ELR.commit` and `ELR.rollback`.
+    - **Breaking Change**: Reducer will take `ReducerContext` as the parameter instead of `ParserContext`.
 
 ## v0.4.0
 
