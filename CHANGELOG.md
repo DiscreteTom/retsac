@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.4.1
+
+- ELR Parser
+  - Export `ELR.commit` and `ELR.rollback`.
+
 ## v0.4.0
 
 - Lexer
