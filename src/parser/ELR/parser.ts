@@ -19,6 +19,8 @@ export class Parser<T> implements IParser<T> {
     this.lexer = lexer;
     this.buffer = [];
     this.errors = [];
+    this.reLexStack = [];
+    this.rollbackStack = [];
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
