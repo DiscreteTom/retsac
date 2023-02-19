@@ -7,7 +7,7 @@ import { Candidate } from "./candidate";
 import { State } from "./state";
 
 /** DFA for ELR parsers. Stateless. */
-export class BaseDFA<T> {
+export class DFA<T> {
   /** Current state is `states.at(-1)`. */
   protected stateStack: State<T>[];
   debug: boolean;
