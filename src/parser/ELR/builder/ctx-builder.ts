@@ -66,10 +66,10 @@ export class DefinitionContextBuilder<T> {
   reducer(f: Reducer<T>) {
     return this.callback(
       (context) =>
-        (context.data = f(
-          context.matched.map((node) => node.data),
-          context
-        ))
+        (context.data = f({
+          ...context,
+          values: context.matched.map((node) => node.data),
+        }))
     );
   }
 

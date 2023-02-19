@@ -12,11 +12,11 @@ export const parser = new ELR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    ELR.reducer((_, { matched }) => Number(matched[0].text))
+    ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>((values) => -values[1]!)
+    ELR.reducer<number>(({ values }) => -values[1]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -24,11 +24,11 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `'(' exp ')'` },
-    ELR.reducer((values) => values[1])
+    ELR.reducer(({ values }) => values[1])
   )
   .define(
     { exp: `exp '+' exp` },
-    ELR.reducer<number>((values) => values[0]! + values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! + values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -36,7 +36,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>((values) => values[0]! - values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -44,7 +44,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '*' exp` },
-    ELR.reducer<number>((values) => values[0]! * values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! * values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -52,7 +52,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '/' exp` },
-    ELR.reducer<number>((values) => values[0]! / values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! / values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
