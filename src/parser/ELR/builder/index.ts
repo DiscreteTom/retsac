@@ -9,3 +9,5 @@ export const rejecter = DefinitionContextBuilder.rejecter;
 export const resolveRS = DefinitionContextBuilder.resolveRS;
 export const resolveRR = DefinitionContextBuilder.resolveRR;
 export const reducer = DefinitionContextBuilder.reducer;
+export const rollback = DefinitionContextBuilder.rollback;
+export const commit = DefinitionContextBuilder.commit;
