@@ -26,6 +26,7 @@ yarn add retsac
   - By default the lib provides an ELR(Expectational LR) parser.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
+    - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
     - Expect lexer to yield specific token type and/or content to parse the input more smartly.
     - Try to re-lex the input if parsing failed. You can rollback global state when re-lex, or commit existing changes to prevent re-lex.
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).

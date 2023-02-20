@@ -26,6 +26,7 @@ yarn add retsac
   - By default the lib provides an ELR(Expectational LR) parser.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
+    - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
     - Expect lexer to yield specific token type and/or content to parse the input more smartly.
     - Try to re-lex the input if parsing failed. You can rollback global state when re-lex, or commit existing changes to prevent re-lex.
   - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
@@ -64,11 +65,11 @@ export const parser = new ELR.ParserBuilder<any>()
   .define(
     { value: "string | number | true | false | null" },
     // especially, for string use `eval` to make `\\n` become `\n`
-    ELR.reducer((_, { matched }) => eval(matched[0].text!))
+    ELR.reducer(({ matched }) => eval(matched[0].text!))
   )
   .define(
     { value: "object | array" },
-    ELR.reducer((values) => values[0])
+    ELR.reducer(({ values }) => values[0])
   )
   .define(
     { array: `'[' ']'` },
@@ -76,15 +77,15 @@ export const parser = new ELR.ParserBuilder<any>()
   )
   .define(
     { array: `'[' values ']'` },
-    ELR.reducer((values) => values[1])
+    ELR.reducer(({ values }) => values[1])
   )
   .define(
     { values: `value` },
-    ELR.reducer((values) => values) // values => [values[0]]
+    ELR.reducer(({ values }) => values) // values => [values[0]]
   )
   .define(
     { values: `values ',' value` },
-    ELR.reducer((values) => values[0].concat([values[2]]))
+    ELR.reducer(({ values }) => values[0].concat([values[2]]))
   )
   .define(
     { object: `'{' '}'` },
@@ -92,21 +93,21 @@ export const parser = new ELR.ParserBuilder<any>()
   )
   .define(
     { object: `'{' object_items '}'` },
-    ELR.reducer((values) => values[1])
+    ELR.reducer(({ values }) => values[1])
   )
   .define(
     { object_items: `object_item` },
-    ELR.reducer((values) => values[0])
+    ELR.reducer(({ values }) => values[0])
   )
   .define(
     { object_items: `object_items ',' object_item` },
     // merge objects
-    ELR.reducer((values) => Object.assign(values[0], values[2]))
+    ELR.reducer(({ values }) => Object.assign(values[0], values[2]))
   )
   .define(
     { object_item: `string ':' value` },
     // reduce to an object
-    ELR.reducer((values, { matched }) => {
+    ELR.reducer(({ matched, values }) => {
       const result: { [key: string]: any } = {};
       result[matched[0].text!.slice(1, -1)] = values[2];
       return result;
@@ -138,11 +139,11 @@ export const parser = new ELR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
-    ELR.reducer((_, { matched }) => Number(matched[0].text))
+    ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>((values) => -values[1]!)
+    ELR.reducer<number>(({ values }) => -values[1]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -150,11 +151,11 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `'(' exp ')'` },
-    ELR.reducer((values) => values[1])
+    ELR.reducer(({ values }) => values[1])
   )
   .define(
     { exp: `exp '+' exp` },
-    ELR.reducer<number>((values) => values[0]! + values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! + values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -162,7 +163,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>((values) => values[0]! - values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
@@ -170,7 +171,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '*' exp` },
-    ELR.reducer<number>((values) => values[0]! * values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! * values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
@@ -178,7 +179,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '/' exp` },
-    ELR.reducer<number>((values) => values[0]! / values[2]!)
+    ELR.reducer<number>(({ values }) => values[0]! / values[2]!)
       .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
       .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
