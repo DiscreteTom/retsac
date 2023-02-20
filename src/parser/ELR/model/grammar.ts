@@ -1,6 +1,7 @@
 import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
 import { Traverser } from "../../model";
+import { defToTempGRs } from "../builder/utils/definition";
 import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
@@ -131,6 +132,15 @@ export class GrammarRule<T> {
       gr.NT,
       gr.rule.map((g) => g.toString())
     );
+  }
+
+  /** Query the index of a grammar string. Return -1 if not found. */
+  queryIndex(s: string, index = 0) {
+    const tempGrammar = defToTempGRs({ "": s })[0]?.rule[0];
+    for (let i = 0; i < this.rule.length; i++) {
+      if (tempGrammar.eq(this.rule[i]) && index-- === 0) return i;
+    }
+    return -1;
   }
 }
 
