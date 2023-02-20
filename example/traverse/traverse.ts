@@ -6,7 +6,8 @@ const lexer = new Lexer.Builder()
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^[a-zA-Z_][a-zA-Z0-9_]*/,
   })
-  .anonymous(Lexer.exact(..."=+;"))
+  .define(Lexer.wordType("function", "return"))
+  .anonymous(Lexer.exact(..."=+;(){}"))
   .build();
 
 /** name => value */
@@ -54,3 +55,35 @@ export const parser = new ELR.ParserBuilder<number>()
   .checkAll(lexer.getTokenTypes(), lexer)
   .build(lexer);
 
+export const parser2 = new ELR.ParserBuilder<number>()
+  .entry("fn_def_stmt")
+  .define(
+    {
+      fn_def_stmt: `
+        function identifier '(' identifier ')' '{'
+          stmt ';'
+        '}'
+      `,
+    },
+    ELR.traverser(({ children }) => {
+      // store the function name to the var map, with a random value to test
+      varMap.set(children![1].text!, 123);
+      // store the parameter name to the var map, with a random value to test
+      varMap.set(children![3].text!, 456);
+      // traverse the function body
+      children![6].traverse();
+    })
+  )
+  .define(
+    { stmt: `return exp` },
+    // return expression value
+    ELR.traverser(({ children }) => children![1].traverse())
+  )
+  .define(
+    { exp: `identifier` },
+    // get the value of the variable from the map
+    ELR.traverser(({ children }) => varMap.get(children![0].text!)!)
+  )
+  // .generateResolvers(lexer)
+  .checkAll(lexer.getTokenTypes(), lexer)
+  .build(lexer);
