@@ -22,10 +22,10 @@ export const parser = new ELR.ParserBuilder<number>()
   .define({ stmts: `stmts stmt` })
   .define(
     { stmt: `identifier '=' exp ';'` },
-    ELR.traverser(({ children }) => {
+    ELR.traverser(({ $ }) => {
       // store the value of the expression to the variable
       // remember to use `child.traverse()` instead of `child.data` to get the data
-      varMap.set(children![0].text!, children![2].traverse()!);
+      varMap.set($(`identifier`)!.text!, $(`exp`)!.traverse()!);
     })
   )
   .define(
@@ -65,13 +65,13 @@ export const parser2 = new ELR.ParserBuilder<number>()
         '}'
       `,
     },
-    ELR.traverser(({ children }) => {
+    ELR.traverser(({ $ }) => {
       // store the function name to the var map, with a random value to test
-      varMap.set(children![1].text!, 123);
+      varMap.set($(`identifier`)!.text!, 123);
       // store the parameter name to the var map, with a random value to test
-      varMap.set(children![3].text!, 456);
+      varMap.set($(`identifier`, 1)!.text!, 456);
       // traverse the function body
-      children![6].traverse();
+      $(`stmt`)!.traverse();
     })
   )
   .define(
