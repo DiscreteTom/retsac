@@ -24,6 +24,7 @@ jobs:
           mv README.md README.md.bk
           yarn build:doc
           diff README.md README.md.bk
+          rm README.md.bk
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
