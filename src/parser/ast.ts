@@ -22,6 +22,8 @@ export class ASTNode<T> {
   readonly text?: string;
   /** NT's children. */
   readonly children?: readonly ASTNode<T>[];
+  /** Find AST node by its type name or literal value. */
+  readonly $: (name: string, index?: number) => ASTNode<T> | undefined;
   private traverser?: Traverser<T>;
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
@@ -30,7 +32,7 @@ export class ASTNode<T> {
 
   constructor(
     p: Partial<
-      Pick<ASTNode<T>, "text" | "children" | "parent" | "data" | "error">
+      Pick<ASTNode<T>, "text" | "children" | "parent" | "data" | "error" | "$">
     > &
       Pick<ASTNode<T>, "type" | "start"> & { traverser?: Traverser<T> }
   ) {

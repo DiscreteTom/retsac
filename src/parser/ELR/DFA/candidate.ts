@@ -181,6 +181,7 @@ export class Candidate<T> {
       error: context.error,
       start: context.matched[0].start,
       traverser: this.gr.traverser,
+      $: context.$,
     });
     node.children!.map((c) => (c.parent = node)); // link parent
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);

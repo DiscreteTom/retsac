@@ -4,6 +4,7 @@
 
 - Parser
   - Make `ASTNode.type/start/text/children` readonly.
+  - Add `ASTNode.$` to query children by its type name or literal value.
   - Add `ASTNode.traverse` to traverse AST after parsing.
   - ELR Parser
     - Export `ELR.commit` and `ELR.rollback`.
