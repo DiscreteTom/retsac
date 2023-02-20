@@ -8,6 +8,7 @@
   - ELR Parser
     - Export `ELR.commit` and `ELR.rollback`.
     - **Breaking Change**: Reducer will take `ReducerContext` as the parameter instead of `ParserContext`.
+- Optimize performance.
 
 ## v0.4.0
 

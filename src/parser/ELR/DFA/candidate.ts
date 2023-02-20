@@ -124,15 +124,8 @@ export class Candidate<T> {
       after: lexer.getRest(),
       lexer,
       $: (name, index = 0) => {
-        const matched = context.matched;
-        for (let i = 0; i < matched.length; i++) {
-          if (
-            defToTempGRs({ "": name })[0]?.rule[0]?.eq(matched[i]) &&
-            index-- === 0
-          )
-            return matched[i];
-        }
-        return undefined;
+        const i = this.gr.queryIndex(name, index);
+        return i == -1 ? undefined : context.matched[i];
       },
     };
 
