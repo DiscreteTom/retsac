@@ -72,6 +72,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
           rejecter: ctx?.rejecter,
           rollback: ctx?.rollback,
           commit: ctx?.commit,
+          traverser: ctx?.traverser,
         })
       );
     });

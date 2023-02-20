@@ -1,3 +1,4 @@
+import { Traverser } from "../../model";
 import { Callback, Condition } from "../model";
 import {
   DefinitionContext,
@@ -27,6 +28,7 @@ export class DefinitionContextBuilder<T> {
   private resolved: TempPartialConflict<T>[];
   private _rollback: Callback<T>;
   private _commit: Condition<T>;
+  private _traverser?: Traverser<T>;
 
   constructor(data?: {
     callback?: Callback<T>;
@@ -39,6 +41,7 @@ export class DefinitionContextBuilder<T> {
     this.resolved = data?.resolved ?? [];
     this._rollback = data?.rollback ?? (() => {});
     this._commit = () => false;
+    this._traverser = undefined;
   }
 
   /** Modify this context with the new callback appended. */
@@ -81,6 +84,12 @@ export class DefinitionContextBuilder<T> {
       f(ctx);
     };
 
+    return this;
+  }
+
+  /** Set the traverser for this grammar rule. */
+  traverser(f: Traverser<T>) {
+    this._traverser = f;
     return this;
   }
 
@@ -175,6 +184,7 @@ export class DefinitionContextBuilder<T> {
       resolved: this.resolved,
       rollback: this._rollback,
       commit: this._commit,
+      traverser: this._traverser,
     };
   }
 
@@ -215,5 +225,9 @@ export class DefinitionContextBuilder<T> {
   /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
   static commit<T>(enable: boolean | Condition<T> = true) {
     return new DefinitionContextBuilder<T>({}).commit(enable);
+  }
+  /** Create a new DefinitionContextBuilder with the traverser set. */
+  static traverser<T>(f: Traverser<T>) {
+    return new DefinitionContextBuilder<T>({}).traverser(f);
   }
 }

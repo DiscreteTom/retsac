@@ -1,5 +1,6 @@
 import { ILexer } from "../../../lexer/model";
 import { ASTNode } from "../../ast";
+import { Traverser } from "../../model";
 import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
@@ -64,11 +65,18 @@ export class GrammarRule<T> {
   rejecter: Condition<T>;
   rollback: Callback<T>;
   commit: Condition<T>;
+  traverser?: Traverser<T>;
 
   constructor(
     p: Pick<
       GrammarRule<T>,
-      "rule" | "NT" | "callback" | "rejecter" | "rollback" | "commit"
+      | "rule"
+      | "NT"
+      | "callback"
+      | "rejecter"
+      | "rollback"
+      | "commit"
+      | "traverser"
     >
   ) {
     Object.assign(this, p);

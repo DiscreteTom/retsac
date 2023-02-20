@@ -1,4 +1,5 @@
 import { Token } from "../lexer";
+import { defaultTraverser, Traverser } from "./model";
 
 /** A structured interface for serialization. */
 export interface ASTObj {
@@ -21,6 +22,7 @@ export class ASTNode<T> {
   readonly text?: string;
   /** NT's children. */
   readonly children?: readonly ASTNode<T>[];
+  readonly traverser?: Traverser<T>;
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
   data?: T;
@@ -28,7 +30,10 @@ export class ASTNode<T> {
 
   constructor(
     p: Partial<
-      Pick<ASTNode<T>, "text" | "children" | "parent" | "data" | "error">
+      Pick<
+        ASTNode<T>,
+        "text" | "children" | "parent" | "data" | "error" | "traverser"
+      >
     > &
       Pick<ASTNode<T>, "type" | "start">
   ) {
@@ -71,5 +76,11 @@ export class ASTNode<T> {
       text: this.text || "",
       children: this.children?.map((c) => c.toObj()) ?? [],
     };
+  }
+
+  /** Try to use the traverser to calculate data and return the data. */
+  traverse(): T | undefined {
+    this.data = (this.traverser ?? defaultTraverser)(this) ?? undefined;
+    return this.data;
   }
 }

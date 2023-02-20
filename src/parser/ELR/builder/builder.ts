@@ -127,6 +127,7 @@ export class ParserBuilder<T> {
             rejecter: gr.rejecter ?? (() => false),
             rollback: gr.rollback ?? (() => {}),
             commit: gr.commit ?? (() => false),
+            traverser: gr.traverser,
             rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
           })
       );

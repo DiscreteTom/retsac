@@ -11,3 +11,4 @@ export const resolveRR = DefinitionContextBuilder.resolveRR;
 export const reducer = DefinitionContextBuilder.reducer;
 export const rollback = DefinitionContextBuilder.rollback;
 export const commit = DefinitionContextBuilder.commit;
+export const traverser = DefinitionContextBuilder.traverser;

@@ -1,4 +1,5 @@
 import { ASTNode } from "./ast";
+import { LR_RuntimeError } from "./ELR/error";
 
 export type ParserOutput<T> =
   | { accept: false }
@@ -34,4 +35,19 @@ export interface IParser<T> {
   getNodes(): readonly ASTNode<T>[];
   /** Take the first AST node. */
   take(): ASTNode<T> | undefined;
+}
+
+export type Traverser<T> = (self: ASTNode<T>) => T | void;
+
+export function defaultTraverser<T>(self: ASTNode<T>): T | void {
+  if (self.children !== undefined) {
+    // if there is only one child, use its data or traverse to get its data
+    if (self.children.length == 1)
+      return self.children![0].data ?? self.children![0].traverse();
+    // if there are multiple children, traverse all, don't return anything
+    self.children.forEach((c) => c.traverse());
+  } else {
+    // if there is no children, this node is a T and the traverse should not be called
+    throw LR_RuntimeError.traverserNotDefined();
+  }
 }

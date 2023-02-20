@@ -1,4 +1,5 @@
 import { ASTNode } from "../../../ast";
+import { Traverser } from "../../../model";
 import {
   Grammar,
   Callback,
@@ -72,10 +73,14 @@ export class TempGrammarRule<T> {
   rejecter?: Condition<T>;
   rollback?: Callback<T>;
   commit?: Condition<T>;
+  traverser?: Traverser<T>;
 
   constructor(
     data: Partial<
-      Pick<TempGrammarRule<T>, "callback" | "rejecter" | "rollback">
+      Pick<
+        TempGrammarRule<T>,
+        "callback" | "rejecter" | "rollback" | "traverser"
+      >
     > &
       Pick<TempGrammarRule<T>, "rule" | "NT" | "commit">
   ) {
