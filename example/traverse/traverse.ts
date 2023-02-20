@@ -52,4 +52,5 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   // .generateResolvers(lexer)
   .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer, true);
+  .build(lexer);
+
