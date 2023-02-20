@@ -22,23 +22,27 @@ export const parser = new ELR.ParserBuilder<number>()
   .define(
     { stmt: `identifier '=' exp ';'` },
     ELR.traverser(({ children }) => {
+      // store the value of the expression to the variable
+      // remember to use `child.traverse()` instead of `child.data` to get the data
       varMap.set(children![0].text!, children![2].traverse()!);
     })
   )
   .define(
     { exp: `exp '+' exp` },
     ELR.traverser(
+      // remember to use `child.traverse()` instead of `child.data` to get the data
       ({ children }) => children![0].traverse()! + children![2].traverse()!
     )
   )
   .define(
     { exp: `number` },
     ELR.traverser(({ children }) => Number(children![0].text!))
-    // reducer can still be used. if there is no traverser, the data will be returned.
+    // reducer can still be used to set the data before traversing
     // ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `identifier` },
+    // get the value of the variable from the map
     ELR.traverser(({ children }) => varMap.get(children![0].text!)!)
   )
   .resolveRS(
