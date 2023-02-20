@@ -7,3 +7,9 @@ CHANGELOG.md
 coverage
 docs
 tests
+.vscode
+.prettierrc
+example.tsconfig.json
+jest.config.js
+README.src.md
+typedoc.json
