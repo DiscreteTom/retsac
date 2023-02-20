@@ -77,10 +77,10 @@ export class ParserBuilder<T> {
   }
 
   /**
-   * Ensure all T/NTs have their definitions, and no duplication.
+   * Ensure all T/NTs have their definitions, and no duplication, and all literals are valid.
    * If ok, return this.
    */
-  checkSymbols(Ts: ReadonlySet<string>) {
+  checkSymbols(Ts: ReadonlySet<string>, lexer: ILexer) {
     /** T/NT names. */
     const grammarSet: Set<string> = new Set();
 
@@ -106,6 +106,17 @@ export class ParserBuilder<T> {
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
       if (!this.NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
+    });
+
+    // all literals must can be tokenized by lexer
+    lexer = lexer.dryClone();
+    this.tempGrammarRules.forEach((gr) => {
+      gr.rule.forEach((grammar) => {
+        if (grammar.type == TempGrammarType.LITERAL) {
+          if (lexer.reset().lex(grammar.content) == null)
+            throw LR_BuilderError.invalidLiteral(grammar.content, gr);
+        }
+      });
     });
 
     return this;
@@ -394,10 +405,10 @@ export class ParserBuilder<T> {
   /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll, debug)`.  */
   checkAll(
     Ts: ReadonlySet<string>,
-    lexer?: ILexer,
+    lexer: ILexer,
     printAll = false,
     debug = false
   ) {
-    return this.checkSymbols(Ts).checkConflicts(lexer, printAll, debug);
+    return this.checkSymbols(Ts, lexer).checkConflicts(lexer, printAll, debug);
   }
 }

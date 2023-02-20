@@ -13,6 +13,7 @@ export type LR_BuilderErrorType =
   | "TOKENIZE_GRAMMAR_RULE_FAILED"
   | "EMPTY_RULE"
   | "EMPTY_LITERAL"
+  | "INVALID_LITERAL"
   | "TOO_MANY_END_HANDLER"
   | "NO_SUCH_CONFLICT";
 
@@ -130,6 +131,13 @@ export class LR_BuilderError extends Error {
           ? ` next: ${next.map((n) => n.toGrammar().toString()).join(",")}`
           : "") +
         (handleEnd ? " end of input" : "")
+    );
+  }
+
+  static invalidLiteral<T>(literal: string, gr: TempGrammarRule<T>) {
+    return new LR_BuilderError(
+      "INVALID_LITERAL",
+      `Invalid literal: '${literal}' in rule ${gr.toString()}`
     );
   }
 }
