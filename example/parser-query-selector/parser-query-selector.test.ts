@@ -1,4 +1,4 @@
-import { parser, fName, returnType } from "./parser-ctx-find";
+import { parser, fName, returnType } from "./parser-query-selector";
 
 test("parser-ctx-find", () => {
   parser.parse(`pub fn foo() : i32 { }`);
