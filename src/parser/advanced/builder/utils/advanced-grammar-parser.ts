@@ -116,7 +116,7 @@ export function resetAll() {
 export function generatePlaceholderGrammarRules() {
   const result = new Map<string, string>();
   placeholderMap.p2g.forEach((gs, p) => {
-    result.set(p, `${gs} | ${gs} ${p}`);
+    result.set(p, `${gs} | ${p} ${gs}`);
   });
   return result;
 }
