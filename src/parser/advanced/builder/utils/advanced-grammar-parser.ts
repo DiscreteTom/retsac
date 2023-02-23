@@ -15,6 +15,7 @@ const lexer = new Lexer.Builder()
 
 type Placeholder = string;
 type GrammarSnippet = string;
+let placeholderPrefix = `__`;
 class PlaceholderMap {
   readonly p2g = new Map<Placeholder, GrammarSnippet>();
   readonly g2p = new Map<GrammarSnippet, Placeholder>();
@@ -30,7 +31,7 @@ class PlaceholderMap {
   add(gs: GrammarSnippet): Placeholder {
     let placeholder = this.g2p.get(gs);
     if (placeholder === undefined) {
-      placeholder = `$${this.g2p.size}`;
+      placeholder = placeholderPrefix + this.g2p.size;
       this.g2p.set(gs, placeholder);
       this.p2g.set(placeholder, gs);
     }
@@ -119,4 +120,8 @@ export function generatePlaceholderGrammarRules() {
     result.set(p, `${gs} | ${p} ${gs}`);
   });
   return result;
+}
+
+export function setPrefix(prefix: string) {
+  placeholderPrefix = prefix;
 }
