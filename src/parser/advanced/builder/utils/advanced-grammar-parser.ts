@@ -13,6 +13,38 @@ const lexer = new Lexer.Builder()
   .anonymous(exact(...`|+*()?`))
   .build();
 
+type Placeholder = string;
+type GrammarSnippet = string;
+class PlaceholderMap {
+  readonly p2g = new Map<Placeholder, GrammarSnippet>();
+  private g2p = new Map<GrammarSnippet, Placeholder>();
+
+  get(p: Placeholder): GrammarSnippet | undefined {
+    return this.p2g.get(p);
+  }
+
+  /**
+   * Try to add a grammar snippet and return a placeholder.
+   * If the grammar snippet is already in the map, return the placeholder.
+   */
+  add(gs: GrammarSnippet): Placeholder {
+    let placeholder = this.g2p.get(gs);
+    if (placeholder === undefined) {
+      placeholder = `$${this.g2p.size}`;
+      this.g2p.set(gs, placeholder);
+      this.p2g.set(placeholder, gs);
+    }
+    return placeholder;
+  }
+
+  reset() {
+    this.p2g.clear();
+    this.g2p.clear();
+  }
+}
+
+export const placeholderMap = new PlaceholderMap();
+
 const parserBuilder = new ELR.ParserBuilder<string[]>()
   .entry("gr") // grammar rule
   .define(
@@ -31,17 +63,17 @@ const parserBuilder = new ELR.ParserBuilder<string[]>()
   )
   .define(
     { gr: `gr '*'` },
-    // expand to '' and `gr+`
+    // expand to '' and `gr+`, and use a placeholder to represent `gr+`
     ELR.traverser(({ children }) => [
       "",
-      ...children![0].traverse()!.map((s) => `(${s})+`),
+      ...children![0].traverse()!.map((s) => placeholderMap.add(s.trim())),
     ])
   )
   .define(
     { gr: `gr '+'` },
-    // keep the `gr+`, we will process it later.
+    // keep the `gr+`, we use a placeholder to represent it
     ELR.traverser(({ children }) =>
-      children![0].traverse()!.map((s) => `(${s})+`)
+      children![0].traverse()!.map((s) => placeholderMap.add(s.trim()))
     )
   )
   .define(
@@ -73,5 +105,10 @@ const parserBuilder = new ELR.ParserBuilder<string[]>()
 
 applyResolvers(parserBuilder);
 
-/** This parser will expand grammar rules, except `gr+`. */
+/** This parser will expand grammar rules, and collect placeholders for `gr+`. */
 export const parser = parserBuilder.build(lexer);
+
+export function resetAll() {
+  parser.reset();
+  placeholderMap.reset();
+}
