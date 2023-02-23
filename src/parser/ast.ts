@@ -13,6 +13,8 @@ export interface ASTObj {
   children: ASTObj[];
 }
 
+export type ASTNodeQuerySelector<T> = (name: string) => ASTNode<T>[];
+
 export class ASTNode<T> {
   /** T's or NT's name. */
   readonly type: string;
@@ -23,7 +25,7 @@ export class ASTNode<T> {
   /** NT's children. */
   readonly children?: readonly ASTNode<T>[];
   /** Find AST node by its type name or literal value. */
-  readonly $: (name: string, index?: number) => ASTNode<T> | undefined;
+  readonly $: ASTNodeQuerySelector<T>;
   private traverser?: Traverser<T>;
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;

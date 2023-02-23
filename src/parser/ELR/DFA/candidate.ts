@@ -123,9 +123,9 @@ export class Candidate<T> {
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
       lexer,
-      $: (name, index = 0) => {
-        const i = this.gr.queryIndex(name, index);
-        return i == -1 ? undefined : context.matched[i];
+      $: (name) => {
+        const tempGrammar = defToTempGRs({ "": name })[0]?.rule[0];
+        return context.matched.filter((n) => tempGrammar.eq(n));
       },
     };
 
