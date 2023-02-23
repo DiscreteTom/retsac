@@ -17,7 +17,7 @@ type Placeholder = string;
 type GrammarSnippet = string;
 class PlaceholderMap {
   readonly p2g = new Map<Placeholder, GrammarSnippet>();
-  private g2p = new Map<GrammarSnippet, Placeholder>();
+  readonly g2p = new Map<GrammarSnippet, Placeholder>();
 
   get(p: Placeholder): GrammarSnippet | undefined {
     return this.p2g.get(p);
@@ -43,7 +43,7 @@ class PlaceholderMap {
   }
 }
 
-export const placeholderMap = new PlaceholderMap();
+const placeholderMap = new PlaceholderMap();
 
 const parserBuilder = new ELR.ParserBuilder<string[]>()
   .entry("gr") // grammar rule
@@ -111,4 +111,12 @@ export const parser = parserBuilder.build(lexer);
 export function resetAll() {
   parser.reset();
   placeholderMap.reset();
+}
+
+export function generatePlaceholderGrammarRules() {
+  const result = new Map<string, string>();
+  placeholderMap.p2g.forEach((gs, p) => {
+    result.set(p, `${gs} | ${gs} ${p}`);
+  });
+  return result;
 }
