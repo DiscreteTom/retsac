@@ -1,8 +1,8 @@
-import { ELR, Lexer } from "../../../..";
-import { exact, stringLiteral } from "../../../../lexer";
+import { Builder, exact, stringLiteral } from "../../../../lexer";
+import { ParserBuilder, traverser } from "../../../ELR";
 import { applyResolvers } from "./resolvers";
 
-const lexer = new Lexer.Builder()
+const lexer = new Builder()
   .ignore(
     /^\s/ // blank
   )
@@ -47,26 +47,26 @@ class PlaceholderMap {
 
 const placeholderMap = new PlaceholderMap();
 
-const parserBuilder = new ELR.ParserBuilder<string[]>()
+const parserBuilder = new ParserBuilder<string[]>()
   .entry("gr") // grammar rule
   .define(
     { gr: `grammar | literal` },
     // return the matched token text as a list
-    ELR.traverser(({ children }) => [children![0].text!])
+    traverser(({ children }) => [children![0].text!])
   )
   .define(
     { gr: `'(' gr ')'` },
-    ELR.traverser(({ children }) => [...children![1].traverse()!])
+    traverser(({ children }) => [...children![1].traverse()!])
   )
   .define(
     { gr: `gr '?'` },
     // append the possibility with empty string
-    ELR.traverser(({ children }) => [...children![0].traverse()!, ""])
+    traverser(({ children }) => [...children![0].traverse()!, ""])
   )
   .define(
     { gr: `gr '*'` },
     // expand to '' and `gr+`, and use a placeholder to represent `gr+`
-    ELR.traverser(({ children }) => [
+    traverser(({ children }) => [
       "",
       ...children![0].traverse()!.map((s) => placeholderMap.add(s.trim())),
     ])
@@ -74,14 +74,14 @@ const parserBuilder = new ELR.ParserBuilder<string[]>()
   .define(
     { gr: `gr '+'` },
     // keep the `gr+`, we use a placeholder to represent it
-    ELR.traverser(({ children }) =>
+    traverser(({ children }) =>
       children![0].traverse()!.map((s) => placeholderMap.add(s.trim()))
     )
   )
   .define(
     { gr: `gr '|' gr` },
     // merge the two possibility lists
-    ELR.traverser(({ children }) => [
+    traverser(({ children }) => [
       ...children![0].traverse()!,
       ...children![2].traverse()!,
     ])
@@ -89,7 +89,7 @@ const parserBuilder = new ELR.ParserBuilder<string[]>()
   .define(
     { gr: `gr gr` },
     // get cartesian product of the two possibility lists
-    ELR.traverser(({ children }) => {
+    traverser(({ children }) => {
       const result: string[] = [];
       const grs1 = children![0].traverse()!;
       const grs2 = children![1].traverse()!;
