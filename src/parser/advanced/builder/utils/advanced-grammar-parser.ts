@@ -15,6 +15,7 @@ const lexer = new Lexer.Builder()
 
 type Placeholder = string;
 type GrammarSnippet = string;
+// TODO: don't use a global variable, use a class instead
 let placeholderPrefix = `__`;
 class PlaceholderMap {
   readonly p2g = new Map<Placeholder, GrammarSnippet>();
