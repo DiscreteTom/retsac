@@ -1,6 +1,6 @@
 import { parser } from "./advanced-builder";
 
-test("advanced", () => {
+test("advanced parser & cascade query & rename nodes", () => {
   const res = parser.parseAll(`
     pub fn main(p1: i32, p2: i32): i32 {
       let a: i32 = 1;
@@ -10,11 +10,24 @@ test("advanced", () => {
     }
   `);
 
+  // console.log(res);
   expect(res.accept).toBe(true);
 
   if (res.accept) {
+    // calculate the length of stmts & params
+    res.buffer[0].traverse();
+
     expect(res.buffer.length).toBe(1);
     expect(parser.lexer.getRest()).toBe("");
+
+    // cascade query nested nodes
+    expect(res.buffer[0].$(`param`).length).toBe(2);
+    expect(res.buffer[0].$(`stmt`).length).toBe(4);
+
+    // rename nodes
+    expect(res.buffer[0].$(`funcName`).length).toBe(1);
+    expect(res.buffer[0].$(`retType`).length).toBe(1);
+    expect(res.buffer[0].$(`identifier`).length).toBe(0);
 
     // console.log(res.buffer[0].toTreeString());
   }
