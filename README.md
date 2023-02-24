@@ -190,7 +190,7 @@ export const parser = new ELR.ParserBuilder<number>()
 
 ### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
 
-In this example, we use meta characters like `+*?` in grammar rules to simplify the grammar rule.
+In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the grammar rule.
 
 <details><summary>Click to Expand</summary>
 
