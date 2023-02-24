@@ -20,8 +20,10 @@ export class TempGrammar {
   type: TempGrammarType;
   /** Literal content, or T/NT's type name. */
   content: string;
+  /** The name of the grammar. By default the value is equal to the type name(this.content). */
+  name: string;
 
-  constructor(p: Pick<TempGrammar, "type" | "content">) {
+  constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     Object.assign(this, p);
   }
 
@@ -32,6 +34,7 @@ export class TempGrammar {
           ? TempGrammarType.LITERAL
           : TempGrammarType.GRAMMAR,
       content: g.content,
+      name: g.name,
     });
   }
 
@@ -60,6 +63,7 @@ export class TempGrammar {
           ? GrammarType.NT
           : GrammarType.T,
       content: this.content,
+      name: this.name,
     });
   }
 }

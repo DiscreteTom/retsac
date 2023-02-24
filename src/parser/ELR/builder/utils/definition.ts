@@ -9,7 +9,7 @@ const grammarLexer = new Lexer.Builder()
     /^\s/ // blank
   )
   .define({
-    grammar: /^\w+/,
+    grammar: [/^\w+/, /^\w+@\w+/],
     or: exact("|"),
     literal: stringLiteral({ single: true, double: true }),
   })
@@ -60,12 +60,14 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
             if (t.type == "grammar")
               return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
-                content: t.content,
+                content: t.content.split("@")[0],
+                name: t.content.split("@")[1] || t.content,
               });
             else
               return new TempGrammar({
                 type: TempGrammarType.LITERAL,
                 content: t.content.slice(1, -1), // remove quotes
+                name: "", // literal has no name
               });
           }),
           callback: ctx?.callback,

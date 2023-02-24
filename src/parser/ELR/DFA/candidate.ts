@@ -1,7 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import { defToTempGRs } from "../builder/utils/definition";
 import {
   Grammar,
   GrammarRule,
@@ -126,15 +125,15 @@ export class Candidate<T> {
       lexer,
       $: (name) => {
         const result: ASTNode<T>[] = [];
-        context.matched.map((n) => {
-          if (n.type === name) result.push(n);
+        this.gr.rule.forEach((g, i) => {
+          if (g.name === name) result.push(context.matched[i]);
 
           // cascade query
           if (
             cascadeQueryPrefix !== undefined &&
-            n.type.startsWith(cascadeQueryPrefix)
+            g.name.startsWith(cascadeQueryPrefix)
           )
-            result.push(...n.$(name));
+            result.push(...context.matched[i].$(name));
         });
         return result;
       },
