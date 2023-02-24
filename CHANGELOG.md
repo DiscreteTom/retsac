@@ -6,7 +6,8 @@
   - **Breaking Change**: `ASTNodeQuerySelector` a.k.a the `$` function will return a list of `ASTNode` instead of `ASTNode | undefined`, and can only query by type name not literals.
   - **Breaking Change**: Remove `GrammarRule.queryIndex`.
   - Add `ParserBuilder.cascadeQueryPrefix` to use cascade query in the `$` function.
-  - Add `AdvancedBuilder` to build ELR parser, you can use `|+*()?` in your grammar rules.
+  - Support `@` in grammar rules to rename a grammar when query using `$`.
+  - Add `ELR.AdvancedBuilder` to build ELR parser, you can use `|+*()?` in your grammar rules.
 
 ## v0.5.1
 
