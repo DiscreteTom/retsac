@@ -27,12 +27,14 @@ export class ParserBuilder<T> {
   private entryNTs: Set<string>;
   private NTs: Set<string>;
   private resolved: TempConflict<T>[];
+  private cascadeQueryPrefix?: string;
 
-  constructor() {
+  constructor(options?: { cascadeQueryPrefix?: string }) {
     this.tempGrammarRules = [];
     this.entryNTs = new Set();
     this.NTs = new Set();
     this.resolved = [];
+    this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
   /** Declare top-level NT's. */
@@ -147,7 +149,10 @@ export class ParserBuilder<T> {
     const grs = getGrammarRules();
 
     return {
-      dfa: new DFA<T>(...DFABuilder.build<T>(grs, this.entryNTs, this.NTs)),
+      dfa: new DFA<T>(
+        ...DFABuilder.build<T>(grs, this.entryNTs, this.NTs),
+        this.cascadeQueryPrefix
+      ),
       grs,
     };
   }

@@ -19,7 +19,9 @@ export class AdvancedBuilder<T> {
 
   /** Expand this into a ParserBuilder. */
   expand() {
-    const builder = new ParserBuilder<T>();
+    const builder = new ParserBuilder<T>({
+      cascadeQueryPrefix: this.expander.placeholderPrefix,
+    });
     this.data.forEach(({ defs, ctxBuilder }) => {
       for (const NT in defs) {
         const def = defs[NT];

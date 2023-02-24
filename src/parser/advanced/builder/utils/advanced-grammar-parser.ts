@@ -38,8 +38,11 @@ export class GrammarExpander {
   private readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: Parser<string[]>;
+  readonly placeholderPrefix: string;
 
   constructor(options?: { placeholderPrefix?: string }) {
+    this.placeholderPrefix = options?.placeholderPrefix ?? `__`;
+
     const lexer = new Builder()
       .ignore(
         /^\s/ // blank
@@ -52,7 +55,7 @@ export class GrammarExpander {
       .build();
 
     this.placeholderMap = new PlaceholderMap({
-      placeholderPrefix: options?.placeholderPrefix ?? `__`,
+      placeholderPrefix: this.placeholderPrefix,
     });
 
     const parserBuilder = new ParserBuilder<string[]>()

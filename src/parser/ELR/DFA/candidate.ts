@@ -114,6 +114,7 @@ export class Candidate<T> {
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
+    cascadeQueryPrefix: string | undefined,
     debug: boolean
   ): { res: ParserOutput<T>; context?: ParserContext<T>; commit?: boolean } {
     if (this.canDigestMore()) return { res: { accept: false } };
@@ -124,7 +125,18 @@ export class Candidate<T> {
       after: lexer.getRest(),
       lexer,
       $: (name) => {
-        return context.matched.filter((n) => n.type === name);
+        const result: ASTNode<T>[] = [];
+        context.matched.map((n) => {
+          if (n.type === name) result.push(n);
+
+          // cascade query
+          if (
+            cascadeQueryPrefix !== undefined &&
+            n.type.startsWith(cascadeQueryPrefix)
+          )
+            result.push(...n.$(name));
+        });
+        return result;
       },
     };
 

@@ -117,6 +117,7 @@ export class State<T> {
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
+    cascadeQueryPrefix: string | undefined,
     debug: boolean
   ): {
     res: ParserOutput<T>;
@@ -130,6 +131,7 @@ export class State<T> {
         entryNTs,
         followSets,
         lexer,
+        cascadeQueryPrefix,
         debug
       );
       // since we've already resolved all reduce-reduce conflicts, we can return the first result

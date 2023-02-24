@@ -24,7 +24,8 @@ export class DFA<T> {
     /** string representation of candidate => candidate */
     protected readonly allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
     /** string representation of state => state */
-    protected readonly allStatesCache: Map<string, State<T>>
+    protected readonly allStatesCache: Map<string, State<T>>,
+    private readonly cascadeQueryPrefix: string | undefined
   ) {
     this.reset();
   }
@@ -204,7 +205,14 @@ export class DFA<T> {
       // try reduce with the new state
       const { res, rollback, context, commit } = this.stateStack
         .at(-1)!
-        .tryReduce(buffer, this.entryNTs, this.followSets, lexer, this.debug);
+        .tryReduce(
+          buffer,
+          this.entryNTs,
+          this.followSets,
+          lexer,
+          this.cascadeQueryPrefix,
+          this.debug
+        );
       if (!res.accept) {
         index++;
         continue; // try to digest more
