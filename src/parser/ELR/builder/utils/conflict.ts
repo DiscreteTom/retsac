@@ -16,21 +16,16 @@ function getEndSet<T>(
   const result = new GrammarSet();
 
   // entry NTs might be the last input grammar of course
-  entryNTs.forEach((nt) =>
-    result.add(new Grammar({ content: nt, type: GrammarType.NT }))
-  );
+  entryNTs.forEach((nt) => result.add(Grammar.NT(nt)));
 
   while (true) {
     let changed = false;
     grs.forEach((gr) => {
-      if (result.has(new Grammar({ content: gr.NT, type: GrammarType.NT }))) {
+      if (result.has(Grammar.NT(gr.NT))) {
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type == GrammarType.NT) {
           // last grammar is a NT, so we need to check it in result
-          const last = new Grammar({
-            content: gr.rule.at(-1)!.content,
-            type: GrammarType.NT,
-          });
+          const last = Grammar.NT(gr.rule.at(-1)!.content);
           if (!result.has(last)) {
             result.add(last);
             changed = true;
@@ -235,7 +230,7 @@ export function getConflicts<T>(
               ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
-              [new Grammar({ content: E.content, type: GrammarType.T })],
+              [Grammar.T(E.content)],
               false, // for a RS conflict, we don't need to handle end of input
               debug
             );
@@ -279,12 +274,7 @@ export function getConflicts<T>(
               ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
-              [
-                new Grammar({
-                  content: E.content,
-                  type: GrammarType.LITERAL,
-                }),
-              ],
+              [Grammar.Literal(E.content)],
               false, // for a RS conflict, we don't need to handle end of input
               debug
             );
@@ -354,12 +344,8 @@ export function getConflicts<T>(
           anotherRule,
           overlap,
           // for a RR conflict, we need to handle end of input if both's NT in end sets
-          endSet.has(
-            new Grammar({ type: GrammarType.NT, content: reducerRule.NT })
-          ) &&
-            endSet.has(
-              new Grammar({ type: GrammarType.NT, content: anotherRule.NT })
-            ),
+          endSet.has(Grammar.NT(reducerRule.NT)) &&
+            endSet.has(Grammar.NT(anotherRule.NT)),
           debug
         );
         if (res.next.length > 0 || res.end) {

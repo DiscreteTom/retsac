@@ -55,16 +55,11 @@ export class TempGrammar {
   }
 
   toGrammar(isNT = true) {
-    return new Grammar({
-      type:
-        this.type == TempGrammarType.LITERAL
-          ? GrammarType.LITERAL
-          : isNT
-          ? GrammarType.NT
-          : GrammarType.T,
-      content: this.content,
-      name: this.name,
-    });
+    return this.type == TempGrammarType.LITERAL
+      ? Grammar.Literal(this.content)
+      : isNT
+      ? Grammar.NT(this.content, this.name)
+      : Grammar.T(this.content, this.name);
   }
 }
 

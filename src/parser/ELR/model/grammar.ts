@@ -25,8 +25,23 @@ export class Grammar {
    */
   name: string;
 
-  constructor(p: Pick<Grammar, "type" | "content" | "name">) {
+  private constructor(p: Pick<Grammar, "type" | "content" | "name">) {
     Object.assign(this, p);
+  }
+
+  static T(content: string, name?: string) {
+    return new Grammar({ type: GrammarType.T, content, name: name ?? content });
+  }
+  static NT(content: string, name?: string) {
+    return new Grammar({
+      type: GrammarType.NT,
+      content,
+      name: name ?? content,
+    });
+  }
+  static Literal(content: string) {
+    // literals don't have a name
+    return new Grammar({ type: GrammarType.LITERAL, content, name: "" });
   }
 
   /** Equals to. */
