@@ -14,9 +14,6 @@ test("advanced parser & cascade query & rename nodes", () => {
   expect(res.accept).toBe(true);
 
   if (res.accept) {
-    // calculate the length of stmts & params
-    res.buffer[0].traverse();
-
     expect(res.buffer.length).toBe(1);
     expect(parser.lexer.getRest()).toBe("");
 
