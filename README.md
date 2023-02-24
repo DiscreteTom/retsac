@@ -24,6 +24,7 @@ yarn add retsac
   - Support custom functions to yield tokens from the input string.
 - The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
   - By default the lib provides an ELR(Expectational LR) parser.
+    - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
@@ -37,13 +38,9 @@ yarn add retsac
 - [Documentation](https://github.com/DiscreteTom/retsac/wiki).
 - [API reference](https://discretetom.github.io/retsac/).
 
-## Contribute
-
-All issues and pull requests are highly welcomed.
-
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 
-### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json.ts)
+### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json/json.ts)
 
 In this example, all conflicts are auto resolved by ELR(1) parser.
 
@@ -190,5 +187,54 @@ export const parser = new ELR.ParserBuilder<number>()
 ```
 
 </details>
+
+### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
+
+In this example, we use meta characters like `+*?` in grammar rules to simplify the grammar rule.
+
+<details><summary>Click to Expand</summary>
+
+```ts
+const lexer = new Lexer.Builder()
+  .ignore(/^\s/) // ignore blank chars
+  .define(Lexer.wordType("pub", "fn", "return", "let")) // keywords
+  .define({
+    integer: /^([1-9][0-9]*|0)/,
+    identifier: /^[a-zA-Z_]\w*/,
+  })
+  .anonymous(Lexer.exact(..."+-*/():{};=,")) // single char operator
+  .build();
+
+export const parser = new ELR.AdvancedBuilder()
+  .define({
+    fn_def: `
+      pub fn identifier@funcName '(' (param (',' param)*)? ')' ':' identifier@retType '{'
+        stmt*
+      '}'
+    `,
+  })
+  .define({ param: `identifier ':' identifier` })
+  .define({ stmt: `assign_stmt | ret_stmt` })
+  .define({ assign_stmt: `let identifier ':' identifier '=' exp ';'` })
+  .define({ ret_stmt: `return exp ';'` })
+  .define({ exp: `integer | identifier` })
+  .define({ exp: `exp '+' exp` })
+  .expand() // return a normal ELR.ParserBuilder
+  .entry("fn_def")
+  .resolveRS(
+    { exp: `exp '+' exp` },
+    { exp: `exp '+' exp` },
+    { next: `'+'`, reduce: true }
+  )
+  .generateResolvers(lexer)
+  .checkAll(lexer.getTokenTypes(), lexer)
+  .build(lexer);
+```
+
+</details>
+
+## Contribute
+
+All issues and pull requests are highly welcomed.
 
 ## [CHANGELOG](https://github.com/DiscreteTom/retsac/blob/main/CHANGELOG.md)

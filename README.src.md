@@ -24,6 +24,7 @@ yarn add retsac
   - Support custom functions to yield tokens from the input string.
 - The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
   - By default the lib provides an ELR(Expectational LR) parser.
+    - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
@@ -37,13 +38,9 @@ yarn add retsac
 - [Documentation](https://github.com/DiscreteTom/retsac/wiki).
 - [API reference](https://discretetom.github.io/retsac/).
 
-## Contribute
-
-All issues and pull requests are highly welcomed.
-
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 
-### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json.ts)
+### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json/json.ts)
 
 In this example, all conflicts are auto resolved by ELR(1) parser.
 
@@ -60,5 +57,18 @@ In this example, there are many conflicts in the grammar. We use code generator 
 <summary>Click to Expand</summary>
 <include path="./example/calculator/core.ts" from="3" to="62" />
 </details>
+
+### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
+
+In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the grammar rule.
+
+<details>
+<summary>Click to Expand</summary>
+<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="36" />
+</details>
+
+## Contribute
+
+All issues and pull requests are highly welcomed.
 
 ## [CHANGELOG](https://github.com/DiscreteTom/retsac/blob/main/CHANGELOG.md)
