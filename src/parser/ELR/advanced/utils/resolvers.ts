@@ -1,6 +1,6 @@
-import { ELR } from "../../..";
+import { ParserBuilder } from "../../builder";
 
-export function applyResolvers<T>(builder: ELR.ParserBuilder<T>) {
+export function applyResolvers<T>(builder: ParserBuilder<T>) {
   builder
     .resolveRS(
       { gr: `gr '|' gr` },

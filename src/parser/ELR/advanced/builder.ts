@@ -1,4 +1,8 @@
-import { Definition, DefinitionContextBuilder, ParserBuilder } from "../../ELR";
+import {
+  Definition,
+  DefinitionContextBuilder,
+  ParserBuilder,
+} from "../builder";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<T> {

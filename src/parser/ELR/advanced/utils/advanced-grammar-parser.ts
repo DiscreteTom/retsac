@@ -1,5 +1,6 @@
-import { Builder, exact, stringLiteral } from "../../../../lexer";
-import { Parser, ParserBuilder, traverser } from "../../../ELR";
+import { Builder, stringLiteral, exact } from "../../../../lexer";
+import { ParserBuilder, traverser } from "../../builder";
+import { Parser } from "../../parser";
 import { applyResolvers } from "./resolvers";
 
 type Placeholder = string;
