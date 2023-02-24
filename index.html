@@ -42,6 +42,7 @@
 </li>
 <li>The Parser, co-work with the lexer and produce an <a href="https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts">AST (Abstract Syntax Tree)</a>.<ul>
 <li>By default the lib provides an ELR(Expectational LR) parser.<ul>
+<li>Support <strong>meta characters</strong> like <code>+*?</code> when defining a grammar rule, just like in Regex.</li>
 <li>Support <strong>conflict detection</strong> (for reduce-shift conflicts and reduce-reduce conflicts), try to <strong>auto resolve conflicts</strong> by peeking the rest of input, and provide a <strong>code generator</strong> to manually resolve conflict.</li>
 <li>Optional data reducer to make it possible to get a result value when the parse is done.</li>
 <li>Optional traverser to make it easy to invoke a top-down traverse after the AST is build.</li>
@@ -63,17 +64,12 @@
 <li><a href="https://discretetom.github.io/retsac/">API reference</a>.</li>
 </ul>
 
-<a href="#contribute" id="contribute" style="color: inherit; text-decoration: none;">
-  <h2>Contribute</h2>
-</a>
-<p>All issues and pull requests are highly welcomed.</p>
-
 <a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
   <h2><a href="https://github.com/DiscreteTom/retsac/tree/main/example">Examples</a></h2>
 </a>
 
 <a href="#json-parser" id="json-parser" style="color: inherit; text-decoration: none;">
-  <h3><a href="https://github.com/DiscreteTom/retsac/blob/main/example/json.ts">JSON Parser</a></h3>
+  <h3><a href="https://github.com/DiscreteTom/retsac/blob/main/example/json/json.ts">JSON Parser</a></h3>
 </a>
 <p>In this example, all conflicts are auto resolved by ELR(1) parser.</p>
 <details open><summary>Click to Expand</summary>
@@ -93,6 +89,22 @@
 </code></pre>
 </details>
 
+
+<a href="#advancedbuilder" id="advancedbuilder" style="color: inherit; text-decoration: none;">
+  <h3><a href="https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts">AdvancedBuilder</a></h3>
+</a>
+<p>In this example, we use <code>AdvancedBuilder</code> with meta characters like <code>+*?</code> in grammar rules to simplify the grammar rule.</p>
+<details><summary>Click to Expand</summary>
+
+<pre><code class="language-ts"><span class="hl-2">const</span><span class="hl-0"> </span><span class="hl-3">lexer</span><span class="hl-0"> = </span><span class="hl-2">new</span><span class="hl-0"> </span><span class="hl-4">Lexer</span><span class="hl-0">.</span><span class="hl-5">Builder</span><span class="hl-0">()</span><br/><span class="hl-0">  .</span><span class="hl-5">ignore</span><span class="hl-0">(</span><span class="hl-6">/</span><span class="hl-7">^</span><span class="hl-6">\s/</span><span class="hl-0">) </span><span class="hl-13">// ignore blank chars</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">(</span><span class="hl-4">Lexer</span><span class="hl-0">.</span><span class="hl-5">wordType</span><span class="hl-0">(</span><span class="hl-1">&quot;pub&quot;</span><span class="hl-0">, </span><span class="hl-1">&quot;fn&quot;</span><span class="hl-0">, </span><span class="hl-1">&quot;return&quot;</span><span class="hl-0">, </span><span class="hl-1">&quot;let&quot;</span><span class="hl-0">)) </span><span class="hl-13">// keywords</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-4">integer:</span><span class="hl-6"> /</span><span class="hl-7">^</span><span class="hl-9">([</span><span class="hl-6">1-9</span><span class="hl-9">][</span><span class="hl-6">0-9</span><span class="hl-9">]</span><span class="hl-8">*</span><span class="hl-7">|</span><span class="hl-6">0</span><span class="hl-9">)</span><span class="hl-6">/</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-4">identifier:</span><span class="hl-6"> /</span><span class="hl-7">^</span><span class="hl-9">[</span><span class="hl-6">a-zA-Z_</span><span class="hl-9">]</span><span class="hl-6">\w</span><span class="hl-8">*</span><span class="hl-6">/</span><span class="hl-0">,</span><br/><span class="hl-0">  })</span><br/><span class="hl-0">  .</span><span class="hl-5">anonymous</span><span class="hl-0">(</span><span class="hl-4">Lexer</span><span class="hl-0">.</span><span class="hl-5">exact</span><span class="hl-0">(...</span><span class="hl-1">&quot;+-*/():{};=,&quot;</span><span class="hl-0">)) </span><span class="hl-13">// single char operator</span><br/><span class="hl-0">  .</span><span class="hl-5">build</span><span class="hl-0">();</span><br/><br/><span class="hl-11">export</span><span class="hl-0"> </span><span class="hl-2">const</span><span class="hl-0"> </span><span class="hl-3">parser</span><span class="hl-0"> = </span><span class="hl-2">new</span><span class="hl-0"> </span><span class="hl-3">ELR</span><span class="hl-0">.</span><span class="hl-5">AdvancedBuilder</span><span class="hl-0">()</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-4">fn_def:</span><span class="hl-0"> </span><span class="hl-1">`</span><br/><span class="hl-1">      pub fn identifier@funcName &#39;(&#39; (param (&#39;,&#39; param)*)? &#39;)&#39; &#39;:&#39; identifier@retType &#39;{&#39;</span><br/><span class="hl-1">        stmt*</span><br/><span class="hl-1">      &#39;}&#39;</span><br/><span class="hl-1">    `</span><span class="hl-0">,</span><br/><span class="hl-0">  })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">param:</span><span class="hl-0"> </span><span class="hl-1">`identifier &#39;:&#39; identifier`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">stmt:</span><span class="hl-0"> </span><span class="hl-1">`assign_stmt | ret_stmt`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">assign_stmt:</span><span class="hl-0"> </span><span class="hl-1">`let identifier &#39;:&#39; identifier &#39;=&#39; exp &#39;;&#39;`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">ret_stmt:</span><span class="hl-0"> </span><span class="hl-1">`return exp &#39;;&#39;`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">exp:</span><span class="hl-0"> </span><span class="hl-1">`integer | identifier`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">define</span><span class="hl-0">({ </span><span class="hl-4">exp:</span><span class="hl-0"> </span><span class="hl-1">`exp &#39;+&#39; exp`</span><span class="hl-0"> })</span><br/><span class="hl-0">  .</span><span class="hl-5">expand</span><span class="hl-0">() </span><span class="hl-13">// return a normal ELR.ParserBuilder</span><br/><span class="hl-0">  .</span><span class="hl-5">entry</span><span class="hl-0">(</span><span class="hl-1">&quot;fn_def&quot;</span><span class="hl-0">)</span><br/><span class="hl-0">  .</span><span class="hl-5">resolveRS</span><span class="hl-0">(</span><br/><span class="hl-0">    { </span><span class="hl-4">exp:</span><span class="hl-0"> </span><span class="hl-1">`exp &#39;+&#39; exp`</span><span class="hl-0"> },</span><br/><span class="hl-0">    { </span><span class="hl-4">exp:</span><span class="hl-0"> </span><span class="hl-1">`exp &#39;+&#39; exp`</span><span class="hl-0"> },</span><br/><span class="hl-0">    { </span><span class="hl-4">next:</span><span class="hl-0"> </span><span class="hl-1">`&#39;+&#39;`</span><span class="hl-0">, </span><span class="hl-4">reduce:</span><span class="hl-0"> </span><span class="hl-2">true</span><span class="hl-0"> }</span><br/><span class="hl-0">  )</span><br/><span class="hl-0">  .</span><span class="hl-5">generateResolvers</span><span class="hl-0">(</span><span class="hl-4">lexer</span><span class="hl-0">)</span><br/><span class="hl-0">  .</span><span class="hl-5">checkAll</span><span class="hl-0">(</span><span class="hl-4">lexer</span><span class="hl-0">.</span><span class="hl-5">getTokenTypes</span><span class="hl-0">(), </span><span class="hl-4">lexer</span><span class="hl-0">)</span><br/><span class="hl-0">  .</span><span class="hl-5">build</span><span class="hl-0">(</span><span class="hl-4">lexer</span><span class="hl-0">);</span>
+</code></pre>
+</details>
+
+
+<a href="#contribute" id="contribute" style="color: inherit; text-decoration: none;">
+  <h2>Contribute</h2>
+</a>
+<p>All issues and pull requests are highly welcomed.</p>
 
 <a href="#changelog" id="changelog" style="color: inherit; text-decoration: none;">
   <h2><a href="https://github.com/DiscreteTom/retsac/blob/main/CHANGELOG.md">CHANGELOG</a></h2>
