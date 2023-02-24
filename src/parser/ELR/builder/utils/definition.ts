@@ -9,7 +9,7 @@ const grammarLexer = new Lexer.Builder()
     /^\s/ // blank
   )
   .define({
-    grammar: [/^\w+/, /^\w+@\w+/],
+    grammar: [/^\w+@\w+/, /^\w+/],
     or: exact("|"),
     literal: stringLiteral({ single: true, double: true }),
   })

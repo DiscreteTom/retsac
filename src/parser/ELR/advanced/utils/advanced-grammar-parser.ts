@@ -49,7 +49,7 @@ export class GrammarExpander {
         /^\s/ // blank
       )
       .define({
-        grammar: /^\w+/,
+        grammar: [/^\w+@\w+/, /^\w+/],
         literal: stringLiteral({ single: true, double: true }),
       })
       .anonymous(exact(...`|+*()?`))
