@@ -6,7 +6,7 @@ export interface ParserContext<T> {
   readonly matched: readonly ASTNode<T>[];
   readonly before: readonly ASTNode<T>[];
   readonly after: string;
-  /** Find AST node by its type name or literal value. */
+  /** Find AST node by its type name. */
   readonly $: ASTNodeQuerySelector<T>;
   readonly lexer: ILexer;
   /** Data of the result AST node. */

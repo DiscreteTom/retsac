@@ -124,8 +124,7 @@ export class Candidate<T> {
       after: lexer.getRest(),
       lexer,
       $: (name) => {
-        const tempGrammar = defToTempGRs({ "": name })[0]?.rule[0];
-        return context.matched.filter((n) => tempGrammar.eq(n));
+        return context.matched.filter((n) => n.type === name);
       },
     };
 

@@ -3,7 +3,7 @@
 ## v0.6.0
 
 - Parser
-  - **Breaking Change**: `ASTNodeQuerySelector` a.k.a the `$` function will return a list of `ASTNode` instead of `ASTNode | undefined`.
+  - **Breaking Change**: `ASTNodeQuerySelector` a.k.a the `$` function will return a list of `ASTNode` instead of `ASTNode | undefined`, and can only query by type name not literals.
   - **Breaking Change**: Remove `GrammarRule.queryIndex`.
   - Add `AdvancedBuilder` to build ELR parser, you can use `|+*()?` in your grammar rules.
 
