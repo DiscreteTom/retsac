@@ -1,18 +1,15 @@
 import { Definition, DefinitionContextBuilder, ParserBuilder } from "../../ELR";
-import {
-  generatePlaceholderGrammarRules,
-  parser,
-  setPrefix,
-} from "./utils/advanced-grammar-parser";
+import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<T> {
   private readonly data: {
     defs: Definition;
     ctxBuilder?: DefinitionContextBuilder<T>;
   }[] = [];
+  private readonly expander: GrammarExpander;
 
   constructor(options?: { prefix?: string }) {
-    if (options?.prefix) setPrefix(options?.prefix);
+    this.expander = new GrammarExpander({ placeholderPrefix: options?.prefix });
   }
 
   define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
@@ -27,9 +24,9 @@ export class AdvancedBuilder<T> {
       for (const NT in defs) {
         const def = defs[NT];
         const defStr = def instanceof Array ? def.join("|") : def;
-        const res = parser.reset().parseAll(defStr);
+        const res = this.expander.parseAll(defStr);
 
-        if (!res.accept || parser.lexer.hasRest() || res.buffer.length != 1)
+        if (!res.accept || !this.expander.allParsed())
           throw new Error("Invalid grammar rule: " + defStr);
 
         const expanded = res.buffer[0].traverse()!;
@@ -39,9 +36,9 @@ export class AdvancedBuilder<T> {
         builder.define(resultDef, ctxBuilder);
       }
     });
-    generatePlaceholderGrammarRules().forEach((gr, NT) =>
-      builder.define({ [NT]: gr })
-    );
+    this.expander
+      .generatePlaceholderGrammarRules()
+      .forEach((gr, NT) => builder.define({ [NT]: gr }));
     return builder;
   }
 }
