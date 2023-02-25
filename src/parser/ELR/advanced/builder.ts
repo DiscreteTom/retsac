@@ -22,7 +22,7 @@ export class AdvancedBuilder<T> {
   }
 
   /** Expand this into a ParserBuilder. */
-  expand() {
+  expand(options?: { debug?: boolean }) {
     const builder = new ParserBuilder<T>({
       cascadeQueryPrefix: this.expander.placeholderPrefix,
     });
@@ -39,12 +39,15 @@ export class AdvancedBuilder<T> {
 
         const resultDef: Definition = {};
         resultDef[NT] = expanded;
+        if (options?.debug)
+          console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
         builder.define(resultDef, ctxBuilder);
       }
     });
-    this.expander
-      .generatePlaceholderGrammarRules()
-      .forEach((gr, NT) => builder.define({ [NT]: gr }));
+    this.expander.generatePlaceholderGrammarRules().forEach((gr, NT) => {
+      if (options?.debug) console.log(`Generated: ${NT}: \`${gr}\``);
+      builder.define({ [NT]: gr });
+    });
     return builder;
   }
 }

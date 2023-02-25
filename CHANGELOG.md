@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.1
+
+- Parser
+  - Add `debug` option to `AdvancedBuilder.expand`.
+
 ## v0.6.0
 
 - Parser
