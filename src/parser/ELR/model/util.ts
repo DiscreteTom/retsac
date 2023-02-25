@@ -1,18 +1,18 @@
 import { Grammar } from "./grammar";
 
-/** Return whether reducerRule starts with another rule. */
+/** Return whether `anotherRule` starts with the `reducerRule`. */
 export function ruleStartsWith(
-  reducerRule: readonly Grammar[],
-  anotherRule: readonly Grammar[]
+  anotherRule: readonly Grammar[],
+  reducerRule: readonly Grammar[]
 ) {
-  if (reducerRule.length < anotherRule.length) return false;
-  for (let i = 0; i < anotherRule.length; i++) {
+  if (reducerRule.length > anotherRule.length) return false;
+  for (let i = 0; i < reducerRule.length; i++) {
     if (!reducerRule[i].eq(anotherRule[i])) return false;
   }
   return true;
 }
 
-/** Return whether reducerRule ends with `anotherRule`. */
+/** Return whether `reducerRule` ends with `anotherRule`. */
 export function ruleEndsWith(
   reducerRule: readonly Grammar[],
   anotherRule: readonly Grammar[]
