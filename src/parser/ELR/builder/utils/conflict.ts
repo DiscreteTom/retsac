@@ -94,16 +94,16 @@ function getUnresolvedConflicts<T>(
       // user didn't handle end of input
       unresolvedEnd = true;
     }
-  }
-  if (debug) {
-    if (unresolvedEnd)
-      console.log(
-        `[unresolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
-      );
-    if (unresolvedNext.length > 0)
-      console.log(
-        `[user resolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
-      );
+    if (debug) {
+      if (unresolvedEnd)
+        console.log(
+          `[unresolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+        );
+      if (unresolvedNext.length > 0)
+        console.log(
+          `[user resolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+        );
+    }
   }
 
   return {
