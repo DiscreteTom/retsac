@@ -41,13 +41,17 @@ export class DFABuilder {
       grs.map((gr) => gs!.add(gr.rule[0]));
     });
 
-    // construct follow sets for all NTs
+    // construct follow sets for all grammars
     const followSets = new Map<string, GrammarSet>();
-    NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init
+    NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
     allGrammarRules.map((gr) => {
       gr.rule.map((g, i, rule) => {
-        if (i < rule.length - 1 && g.type == GrammarType.NT) {
-          // current grammar is NT and next grammar exists, merge the NT's follow set with next grammar
+        if (!followSets.has(g.content)) {
+          // if g is a T/Literal, it might not have a follow set
+          followSets.set(g.content, new GrammarSet());
+        }
+        if (i < rule.length - 1) {
+          // next grammar exists, merge the current grammar's follow set with next grammar
           const gs = followSets.get(g.content)!;
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
@@ -56,23 +60,20 @@ export class DFABuilder {
         }
       });
     });
-    // if the last grammar is NT, that NT's follow set should merge with the target NT's follow set, vice versa
+    // the last grammar's follow set should merge with the target NT's follow set, vice versa
     while (true) {
       let changed = false;
 
-      allGrammarRules
-        .filter((gr) => gr.rule.at(-1)!.type == GrammarType.NT) // last grammar if NT
-        .map((gr) => {
-          followSets
-            .get(gr.NT)! // target NT's follow set
-            .map(
-              (g) =>
-                (changed ||= followSets.get(gr.rule.at(-1)!.content)!.add(g))
-            );
-          followSets
-            .get(gr.rule.at(-1)!.content)! // last grammar's follow set
-            .map((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
-        });
+      allGrammarRules.map((gr) => {
+        followSets
+          .get(gr.NT)! // target NT's follow set
+          .map(
+            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.content)!.add(g))
+          );
+        followSets
+          .get(gr.rule.at(-1)!.content)! // last grammar's follow set
+          .map((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
+      });
 
       if (!changed) break;
     }

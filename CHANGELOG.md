@@ -4,6 +4,8 @@
 
 - Parser
   - Add `debug` option to `AdvancedBuilder.expand`.
+- Fix
+  - Parser can detect R-S conflict like: `` exp: `a b | a b c` `` where `b` is a terminator.
 
 ## v0.6.0
 

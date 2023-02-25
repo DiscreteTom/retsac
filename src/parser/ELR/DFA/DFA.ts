@@ -19,7 +19,7 @@ export class DFA<T> {
     protected readonly NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
     /** `NT => Grammars` */
     private readonly firstSets: ReadonlyMap<string, GrammarSet>,
-    /** `NT => Grammars` */
+    /** `Grammar => Grammars` */
     protected readonly followSets: ReadonlyMap<string, GrammarSet>,
     /** string representation of candidate => candidate */
     protected readonly allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
