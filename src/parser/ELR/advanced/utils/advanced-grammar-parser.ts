@@ -150,7 +150,21 @@ export class GrammarExpander {
     builder.define(resultDef, ctxBuilder);
 
     // auto resolve R-S conflict
-    // TODO
+    expanded.forEach((reducerRule, i) => {
+      expanded.forEach((anotherRule, j) => {
+        if (i == j) return;
+        if (!anotherRule.startsWith(reducerRule)) return;
+        const next = this.parser.lexer
+          .dryClone()
+          .lex(anotherRule.slice(reducerRule.length))!.content;
+        builder.resolveRS(
+          { [NT]: reducerRule },
+          { [NT]: anotherRule },
+          // in most cases we want the `+*?` to be greedy
+          { next, reduce: false }
+        );
+      });
+    });
 
     return this;
   }
