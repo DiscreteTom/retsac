@@ -59,6 +59,7 @@ export class GrammarExpander {
       placeholderPrefix: this.placeholderPrefix,
     });
 
+    // the data `string[]` represent all the expanded possibilities of the grammar rule
     const parserBuilder = new ParserBuilder<string[]>()
       .entry("gr") // grammar rule
       .define(
