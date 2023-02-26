@@ -141,7 +141,7 @@ export class GrammarExpander {
   generatePlaceholderGrammarRules() {
     const result = new Map<string, string>();
     this.placeholderMap.p2g.forEach((gs, p) => {
-      result.set(p, `${gs} | ${p} ${gs}`);
+      result.set(p, `${gs} | ${gs} ${p}`);
     });
     return result;
   }
