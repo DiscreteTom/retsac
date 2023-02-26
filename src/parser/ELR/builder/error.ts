@@ -1,4 +1,4 @@
-import { ParserContext } from "../model";
+import { Grammar } from "../model";
 import { Conflict, ConflictType } from "./model";
 import { TempGrammar, TempGrammarRule } from "./model/temp-grammar";
 
@@ -46,7 +46,9 @@ export class LR_BuilderError extends Error {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
-        ? `Unresolved R-S conflict (length: ${c.length}, next: \`${c.next
+        ? `Unresolved R-S conflict (length: ${c.length}, next: \`${(
+            c.next as Grammar[]
+          )
             .map((g) => g.toString())
             .join(
               " "
@@ -54,7 +56,7 @@ export class LR_BuilderError extends Error {
         : `Unresolved R-R conflict (${
             (c.handleEnd ? "end of input" : "") +
             (c.next.length > 0
-              ? `${c.handleEnd ? ", " : ""}next: \`${c.next
+              ? `${c.handleEnd ? ", " : ""}next: \`${(c.next as Grammar[])
                   .map((g) => g.toString())
                   .join(" ")}\``
               : "")
