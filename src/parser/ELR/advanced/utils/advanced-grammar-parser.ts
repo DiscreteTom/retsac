@@ -154,9 +154,17 @@ export class GrammarExpander {
       expanded.forEach((anotherRule, j) => {
         if (i == j) return;
         if (!anotherRule.startsWith(reducerRule)) return;
-        const next = this.parser.lexer
+
+        let next = this.parser.lexer
           .dryClone()
           .lex(anotherRule.slice(reducerRule.length))!.content;
+
+        // if the next token is a placeholder, get it's first grammar rule
+        if (next.startsWith(this.placeholderPrefix))
+          next = this.parser.lexer
+            .dryClone()
+            .lex(this.placeholderMap.p2g.get(next)!)!.content;
+
         builder.resolveRS(
           { [NT]: reducerRule },
           { [NT]: anotherRule },
