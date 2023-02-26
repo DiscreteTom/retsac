@@ -1,6 +1,10 @@
-import { GrammarRule, Condition } from "../model";
+import { GrammarRule, Grammar } from "../model";
 import { LR_BuilderError } from "./error";
-import { DefinitionContextBuilder, RR_ResolverOptions } from "./ctx-builder";
+import {
+  DefinitionContextBuilder,
+  RR_ResolverOptions,
+  RS_ResolverOptions,
+} from "./ctx-builder";
 import { TempGrammarRule, TempGrammarType } from "./model";
 import {
   Conflict,
@@ -189,6 +193,7 @@ export class ParserBuilder<T> {
     );
     const followSets = dfa.getFollowSets();
 
+    // ensure all conflicts are resolved
     conflicts.forEach((cs) => {
       cs.forEach((c) => {
         const err = LR_BuilderError.conflict(c);
@@ -216,6 +221,7 @@ export class ParserBuilder<T> {
 
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
     this.resolved.forEach((g) => {
+      if (g.next == "*") return;
       g.next.forEach((n) => {
         if (
           !followSets
@@ -242,29 +248,30 @@ export class ParserBuilder<T> {
       false // don't print debug info
     ).forEach((cs) => allConflicts.push(...cs));
     // then, ensure all resolved are in the conflicts
-    this.resolved.every((c) => {
+    this.resolved.forEach((c) => {
       // check next
-      c.next.forEach((n) => {
-        if (
-          !allConflicts.some(
-            (conflict) =>
-              c.reducerRule.weakEq(conflict.reducerRule) &&
-              c.anotherRule.weakEq(conflict.anotherRule) &&
-              c.type == conflict.type &&
-              conflict.next.some((nn) => n.eq(nn))
-          )
-        ) {
-          const err = LR_BuilderError.noSuchConflict(
-            c.reducerRule,
-            c.anotherRule,
-            c.type,
-            [n],
-            false
-          );
-          if (printAll) console.log(err.message);
-          else throw err;
-        }
-      });
+      if (c.next != "*")
+        c.next.forEach((n) => {
+          if (
+            !allConflicts.some(
+              (conflict) =>
+                c.reducerRule.weakEq(conflict.reducerRule) &&
+                c.anotherRule.weakEq(conflict.anotherRule) &&
+                c.type == conflict.type &&
+                (conflict.next as Grammar[]).some((nn) => n.eq(nn))
+            )
+          ) {
+            const err = LR_BuilderError.noSuchConflict(
+              c.reducerRule,
+              c.anotherRule,
+              c.type,
+              [n],
+              false
+            );
+            if (printAll) console.log(err.message);
+            else throw err;
+          }
+        });
       // check handleEnd
       if (
         c.handleEnd &&
@@ -320,7 +327,9 @@ export class ParserBuilder<T> {
                 c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
               }(${c.reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
                 c.next.length > 0
-                  ? `next: \`${c.next.map((g) => g.toString()).join(" ")}\`, `
+                  ? `next: \`${(c.next as Grammar[])
+                      .map((g) => g.toString())
+                      .join(" ")}\`, `
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
           )
@@ -338,7 +347,9 @@ export class ParserBuilder<T> {
                   c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
                 }(${c.anotherRule.toString()}, { ${
                   c.next.length > 0
-                    ? `next: \`${c.next.map((g) => g.toString()).join(" ")}\`, `
+                    ? `next: \`${(c.next as Grammar[])
+                        .map((g) => g.toString())
+                        .join(" ")}\`, `
                     : ""
                 }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
             )
@@ -382,10 +393,7 @@ export class ParserBuilder<T> {
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
-    options: {
-      next: string;
-      reduce?: boolean | Condition<T>;
-    }
+    options: RS_ResolverOptions<T>
   ) {
     const ctx = new DefinitionContextBuilder<T>()
       .resolveRS(anotherRule, options)

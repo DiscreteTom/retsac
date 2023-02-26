@@ -57,16 +57,29 @@ function getUnresolvedConflicts<T>(
       r.anotherRule.weakEq(anotherRule)
   );
 
-  // collect resolve next & calculate unresolved next
+  // collect resolved next & calculate unresolved next
   const resolvedNext = [] as Grammar[];
-  related.forEach((r) =>
-    r.next.forEach((n) => resolvedNext.push(n.toGrammar(NTs.has(n.content))))
-  );
-  const unresolvedNext = next.filter(
-    (n) => !resolvedNext.some((rn) => n.eq(rn))
-  );
+  let resolveAll = false;
+  related.forEach((r) => {
+    if (r.next == "*") {
+      resolveAll = true;
+      resolvedNext.length = 0; // clear
+    } else if (!resolveAll)
+      r.next.forEach((n) => {
+        resolvedNext.push(n.toGrammar(NTs.has(n.content)));
+      });
+  });
+  const unresolvedNext = resolveAll
+    ? []
+    : next.filter((n) => !resolvedNext.some((rn) => n.eq(rn)));
 
   if (debug) {
+    if (resolveAll)
+      console.log(
+        `[user resolved ${
+          type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: *`
+      );
     if (resolvedNext.length > 0)
       console.log(
         `[user resolved ${

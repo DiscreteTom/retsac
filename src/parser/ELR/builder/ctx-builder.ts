@@ -10,17 +10,24 @@ import {
 import { defToTempGRs } from "./utils/definition";
 
 export type RR_ResolverOptions<T> = {
+  /** Default: true */
   reduce?: boolean | Condition<T>;
 } & (
   | {
-      next: string;
+      next: (string & {}) | "*";
       handleEnd?: boolean;
     }
   | {
-      next?: string;
+      next?: (string & {}) | "*";
       handleEnd: boolean;
     }
 );
+
+export type RS_ResolverOptions<T> = {
+  next: (string & {}) | "*";
+  /** Default: true */
+  reduce?: boolean | Condition<T>;
+};
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
@@ -106,9 +113,13 @@ export class DefinitionContextBuilder<T> {
     handleEnd: boolean
   ) {
     const anotherRule = defToTempGRs<T>(another)[0];
-    // TODO: use a dedicated lexer to parse next
     const nextGrammars =
-      next.length > 0 ? defToTempGRs<T>({ "": next })[0].rule : [];
+      next == "*"
+        ? []
+        : next.length > 0
+        ? // TODO: use a dedicated lexer to parse next
+          defToTempGRs<T>({ "": next })[0].rule
+        : [];
 
     // append the new rejecter
     this.rejecter((ctx) => {
@@ -122,11 +133,13 @@ export class DefinitionContextBuilder<T> {
       // else, not the end of input
       // check if any next grammar match the next token
       if (
+        next == "*" ||
         nextGrammars.some(
           (g) =>
             ctx.lexer
-              .clone() // clone the lexer to avoid changing the original lexer
+              .clone() // clone the lexer with state to peek next and avoid changing the original lexer
               .lex({
+                // peek with expectation
                 expect: {
                   type: g.toGrammar().toASTNode(ctx.lexer).type,
                   text: g.toGrammar().toASTNode(ctx.lexer).text,
@@ -134,6 +147,7 @@ export class DefinitionContextBuilder<T> {
               }) != null
         )
       )
+        // next match, apply the `reduce`
         return !(reduce instanceof Function ? reduce(ctx) : reduce);
       return false;
     });
@@ -142,7 +156,7 @@ export class DefinitionContextBuilder<T> {
     this.resolved.push({
       type,
       anotherRule,
-      next: nextGrammars,
+      next: next == "*" ? "*" : nextGrammars,
       handleEnd: handleEnd,
     });
 
@@ -150,13 +164,7 @@ export class DefinitionContextBuilder<T> {
   }
 
   /** Resolve an Reduce-Shift conflict. */
-  resolveRS(
-    another: Definition,
-    options: {
-      next: string;
-      reduce?: boolean | Condition<T>;
-    }
-  ) {
+  resolveRS(another: Definition, options: RS_ResolverOptions<T>) {
     return this.resolve(
       ConflictType.REDUCE_SHIFT,
       another,
@@ -191,13 +199,7 @@ export class DefinitionContextBuilder<T> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T>(
-    another: Definition,
-    options: {
-      next: string;
-      reduce?: boolean | Condition<T>;
-    }
-  ) {
+  static resolveRS<T>(another: Definition, options: RS_ResolverOptions<T>) {
     return new DefinitionContextBuilder<T>({}).resolveRS(another, options);
   }
   /**
