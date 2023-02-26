@@ -1,5 +1,10 @@
 import { Builder, stringLiteral, exact } from "../../../../lexer";
-import { ParserBuilder, traverser } from "../../builder";
+import {
+  Definition,
+  DefinitionContextBuilder,
+  ParserBuilder,
+  traverser,
+} from "../../builder";
 import { Parser } from "../../parser";
 import { applyResolvers } from "./resolvers";
 
@@ -125,11 +130,32 @@ export class GrammarExpander {
     this.parser = parserBuilder.build(lexer);
   }
 
-  parseAll(s: string) {
-    return this.parser.reset().parseAll(s);
+  expand<T>(
+    builder: ParserBuilder<T>,
+    s: string,
+    NT: string,
+    ctxBuilder: DefinitionContextBuilder<T> | undefined,
+    debug: boolean | undefined
+  ) {
+    const res = this.parser.reset().parseAll(s);
+
+    if (!res.accept || !this.allParsed())
+      throw new Error("Invalid grammar rule: " + s);
+
+    const expanded = res.buffer[0].traverse()!;
+
+    const resultDef: Definition = {};
+    resultDef[NT] = expanded;
+    if (debug) console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
+    builder.define(resultDef, ctxBuilder);
+
+    // auto resolve R-S conflict
+    // TODO
+
+    return this;
   }
 
-  allParsed() {
+  private allParsed() {
     return !this.parser.lexer.hasRest() && this.parser.getNodes().length == 1;
   }
 
@@ -138,11 +164,27 @@ export class GrammarExpander {
     this.placeholderMap.reset();
   }
 
-  generatePlaceholderGrammarRules() {
-    const result = new Map<string, string>();
+  generatePlaceholderGrammarRules<T>(
+    builder: ParserBuilder<T>,
+    debug: boolean | undefined
+  ) {
     this.placeholderMap.p2g.forEach((gs, p) => {
-      result.set(p, `${gs} | ${gs} ${p}`);
+      const gr = `${gs} | ${gs} ${p}`;
+      const next = this.parser.lexer.dryClone().lex(gs)!.content; // the first grammar in the grammar rule
+
+      builder
+        .define({ [p]: gr })
+        // the gr will introduce an RS conflict, so we need to resolve it
+        .resolveRS(
+          { [p]: `${gs}` },
+          { [p]: `${gs} ${p}` },
+          // in most cases we want the `+*?` to be greedy
+          { next, reduce: false }
+        );
+
+      if (debug) console.log(`Generated: ${p}: \`${gr}\``);
     });
-    return result;
+
+    return this;
   }
 }

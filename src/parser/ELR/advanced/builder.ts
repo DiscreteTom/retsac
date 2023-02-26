@@ -30,24 +30,10 @@ export class AdvancedBuilder<T> {
       for (const NT in defs) {
         const def = defs[NT];
         const defStr = def instanceof Array ? def.join("|") : def;
-        const res = this.expander.parseAll(defStr);
-
-        if (!res.accept || !this.expander.allParsed())
-          throw new Error("Invalid grammar rule: " + defStr);
-
-        const expanded = res.buffer[0].traverse()!;
-
-        const resultDef: Definition = {};
-        resultDef[NT] = expanded;
-        if (options?.debug)
-          console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
-        builder.define(resultDef, ctxBuilder);
+        this.expander.expand(builder, defStr, NT, ctxBuilder, options?.debug);
       }
     });
-    this.expander.generatePlaceholderGrammarRules().forEach((gr, NT) => {
-      if (options?.debug) console.log(`Generated: ${NT}: \`${gr}\``);
-      builder.define({ [NT]: gr });
-    });
+    this.expander.generatePlaceholderGrammarRules(builder, options?.debug);
     return builder;
   }
 }
