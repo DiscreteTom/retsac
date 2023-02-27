@@ -7,27 +7,8 @@ import {
   Definition,
   Reducer,
 } from "./model";
+import { RS_ResolverOptions, RR_ResolverOptions } from "./model";
 import { defToTempGRs } from "./utils/definition";
-
-export type RR_ResolverOptions<T> = {
-  /** Default: true */
-  reduce?: boolean | Condition<T>;
-} & (
-  | {
-      next: (string & {}) | "*";
-      handleEnd?: boolean;
-    }
-  | {
-      next?: (string & {}) | "*";
-      handleEnd: boolean;
-    }
-);
-
-export type RS_ResolverOptions<T> = {
-  next: (string & {}) | "*";
-  /** Default: true */
-  reduce?: boolean | Condition<T>;
-};
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
