@@ -1,5 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode, ASTNodeQuerySelector } from "../../ast";
+import { GrammarRule, GrammarSet } from "./grammar";
 
 /** Parser context for ELR parsers. */
 export interface ParserContext<T> {
@@ -9,6 +10,12 @@ export interface ParserContext<T> {
   /** Find AST node by its type name. */
   readonly $: ASTNodeQuerySelector<T>;
   readonly lexer: ILexer;
+  /** `NT => Grammars` */
+  readonly firstSets: ReadonlyMap<string, GrammarSet>;
+  /** `Grammar => Grammars` */
+  readonly followSets: ReadonlyMap<string, GrammarSet>;
+  /** Current grammar rule. */
+  readonly gr: Readonly<GrammarRule<T>>;
   /** Data of the result AST node. */
   data?: T;
   error?: any;

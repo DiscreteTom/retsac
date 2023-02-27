@@ -115,6 +115,7 @@ export class State<T> {
   tryReduce(
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
+    firstSets: ReadonlyMap<string, GrammarSet>,
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     cascadeQueryPrefix: string | undefined,
@@ -129,6 +130,7 @@ export class State<T> {
       const { res, context, commit } = c.tryReduce(
         buffer,
         entryNTs,
+        firstSets,
         followSets,
         lexer,
         cascadeQueryPrefix,

@@ -6,6 +6,7 @@
   - Add `debug` option to `AdvancedBuilder.expand`.
   - Auto resolve R-S conflicts when `AdvancedBuilder.expand`.
   - Allow `'*'` as the `next` when resolve RS/RR conflicts.
+  - Add `ParserContext.gr/firstSets/followSets`.
 - Fix
   - Parser can detect R-S conflict like: `` exp: `a b | a b c` `` where `b` is a terminator.
   - Parser won't print `[user resolved RR]` when it's actually an R-S conflict.
