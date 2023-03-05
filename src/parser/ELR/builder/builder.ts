@@ -163,9 +163,44 @@ export class ParserBuilder<T> {
   }
 
   /** Generate the ELR parser. */
-  build(lexer: ILexer, debug = false) {
-    const { dfa } = this.buildDFA();
-    dfa.debug = debug;
+  build(
+    lexer: ILexer,
+    options?: {
+      debug?: boolean;
+      generateResolvers?: "builder" | "context";
+      /** If `printAll` is true, print all errors instead of throwing errors. */
+      printAll?: boolean;
+      checkSymbols?: boolean;
+      checkConflicts?: boolean;
+      checkAll?: boolean;
+    }
+  ) {
+    const { dfa, grs } = this.buildDFA();
+    dfa.debug = options?.debug ?? false;
+
+    // first, check symbols
+    if (options?.checkAll || options?.checkSymbols)
+      this.checkSymbols(lexer.getTokenTypes(), lexer);
+
+    // then, generate resolvers
+    if (options?.generateResolvers)
+      this.generateResolvers(
+        dfa,
+        grs,
+        lexer,
+        options?.generateResolvers,
+        options?.debug ?? false
+      );
+
+    // finally, check conflicts
+    if (options?.checkAll || options?.checkConflicts)
+      this.checkConflicts(
+        dfa,
+        grs,
+        lexer,
+        options?.printAll || false,
+        options?.debug || false
+      );
 
     return new Parser(dfa, lexer);
   }
@@ -181,8 +216,13 @@ export class ParserBuilder<T> {
    *
    * If `debug` is true, print all auto-resolved / user-resolved / unresolved conflicts.
    */
-  checkConflicts(lexer?: ILexer, printAll = false, debug = false) {
-    const { dfa, grs } = this.buildDFA();
+  private checkConflicts(
+    dfa: DFA<T>,
+    grs: GrammarRule<T>[],
+    lexer: ILexer,
+    printAll: boolean,
+    debug: boolean
+  ) {
     const conflicts = getConflicts<T>(
       this.entryNTs,
       this.NTs,
@@ -302,13 +342,13 @@ export class ParserBuilder<T> {
    * This action requires a lexer to calculate literal's type name.
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
-  generateResolvers(
-    lexer?: ILexer,
-    style?: "builder" | "context",
-    debug = false
+  private generateResolvers(
+    dfa: DFA<T>,
+    grs: GrammarRule<T>[],
+    lexer: ILexer,
+    style: "builder" | "context",
+    debug: boolean
   ) {
-    style ??= "builder";
-    const { dfa, grs } = this.buildDFA();
     const conflicts = getConflicts<T>(
       this.entryNTs,
       this.NTs,
@@ -414,15 +454,5 @@ export class ParserBuilder<T> {
       .build();
 
     return this.resolve(reducerRule, ctx);
-  }
-
-  /** Shortcut for `this.checkSymbols(Ts).checkConflicts(lexer, printAll, debug)`.  */
-  checkAll(
-    Ts: ReadonlySet<string>,
-    lexer: ILexer,
-    printAll = false,
-    debug = false
-  ) {
-    return this.checkSymbols(Ts, lexer).checkConflicts(lexer, printAll, debug);
   }
 }
