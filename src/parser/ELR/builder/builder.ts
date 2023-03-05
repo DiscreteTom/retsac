@@ -132,26 +132,19 @@ export class ParserBuilder<T> {
   private buildDFA() {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
-    /**
-     * Turn temp grammar rules to grammar rules according to the known NTs.
-     * This should be called only if no more definitions will be defined.
-     */
-    const getGrammarRules = () => {
-      return this.tempGrammarRules.map(
-        (gr) =>
-          new GrammarRule<T>({
-            NT: gr.NT,
-            callback: gr.callback ?? (() => {}),
-            rejecter: gr.rejecter ?? (() => false),
-            rollback: gr.rollback ?? (() => {}),
-            commit: gr.commit ?? (() => false),
-            traverser: gr.traverser,
-            rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
-          })
-      );
-    };
-
-    const grs = getGrammarRules();
+    // transform temp grammar rules to grammar rules
+    const grs = this.tempGrammarRules.map(
+      (gr) =>
+        new GrammarRule<T>({
+          NT: gr.NT,
+          callback: gr.callback ?? (() => {}),
+          rejecter: gr.rejecter ?? (() => false),
+          rollback: gr.rollback ?? (() => {}),
+          commit: gr.commit ?? (() => false),
+          traverser: gr.traverser,
+          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
+        })
+    );
 
     return {
       dfa: new DFA<T>(
