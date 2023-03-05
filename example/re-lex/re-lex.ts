@@ -51,6 +51,4 @@ export const parser = new ELR.ParserBuilder<number>()
     { exp: `exp '-' exp` },
     { next: `'-'`, reduce: true }
   )
-  // .generateResolvers(lexer);
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { checkAll: true });

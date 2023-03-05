@@ -48,9 +48,7 @@ export const parser_1 = new ELR.ParserBuilder<number>()
     { exp: `exp '-' exp` },
     { next: `'-'`, reduce: true }
   )
-  // .generateResolvers(lexer);
-  .checkAll(lexer.getTokenTypes(), lexer.dryClone())
-  .build(lexer.clone());
+  .build(lexer.clone(), { checkAll: true });
 
 export const parser_2 = new ELR.ParserBuilder<number>()
   .entry("exp")
@@ -91,6 +89,4 @@ export const parser_2 = new ELR.ParserBuilder<number>()
     { exp: `exp '-' exp` },
     { next: `'-'`, reduce: true }
   )
-  // .generateResolvers(lexer);
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { checkAll: true });
