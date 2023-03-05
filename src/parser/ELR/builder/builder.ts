@@ -25,7 +25,7 @@ import { Parser } from "../parser";
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
- * It's recommended to use `checkAll` before `build` when debug.
+ * When build, it's recommended to set `checkAll` to `true` when developing.
  */
 export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
@@ -218,12 +218,7 @@ export class ParserBuilder<T> {
    * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
    * If ok, return this.
    *
-   * This action requires a lexer to calculate literal's type name.
-   * If you don't use literal grammar in your rules, you can omit the lexer.
-   *
    * If `printAll` is true, print all conflicts instead of throwing error.
-   *
-   * If `debug` is true, print all auto-resolved / user-resolved / unresolved conflicts.
    */
   private checkConflicts(
     dfa: DFA<T>,
