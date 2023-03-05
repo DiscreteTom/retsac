@@ -1,11 +1,12 @@
 import { GrammarRule, Grammar } from "../model";
 import { LR_BuilderError } from "./error";
+import { DefinitionContextBuilder } from "./ctx-builder";
 import {
-  DefinitionContextBuilder,
   RR_ResolverOptions,
   RS_ResolverOptions,
-} from "./ctx-builder";
-import { TempGrammarRule, TempGrammarType } from "./model";
+  TempGrammarRule,
+  TempGrammarType,
+} from "./model";
 import {
   Conflict,
   ConflictType,
