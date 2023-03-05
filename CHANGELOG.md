@@ -14,6 +14,7 @@
 - Optimize code & comments.
 - Optimize performance.
   - Merge `ParserBuilder.generateResolvers/checkConflicts` to `ParserBuilder.build` to avoid unnecessary DFA build.
+  - Re-use computed conflicts when generate resolvers and check conflicts.
 - More tests.
 
 ## v0.6.0

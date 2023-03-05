@@ -178,29 +178,38 @@ export class ParserBuilder<T> {
     const { dfa, grs } = this.buildDFA();
     dfa.debug = options?.debug ?? false;
 
-    // first, check symbols
+    // check symbols first
     if (options?.checkAll || options?.checkSymbols)
       this.checkSymbols(lexer.getTokenTypes(), lexer);
 
-    // then, generate resolvers
-    if (options?.generateResolvers)
-      this.generateResolvers(
-        dfa,
+    // deal with conflicts
+    if (
+      options?.checkAll ||
+      options?.checkConflicts ||
+      options?.generateResolvers
+    ) {
+      const conflicts = getConflicts<T>(
+        this.entryNTs,
+        this.NTs,
         grs,
+        this.resolved,
+        dfa,
         lexer,
-        options?.generateResolvers,
-        options?.debug ?? false
+        options?.debug
       );
 
-    // finally, check conflicts
-    if (options?.checkAll || options?.checkConflicts)
-      this.checkConflicts(
-        dfa,
-        grs,
-        lexer,
-        options?.printAll || false,
-        options?.debug || false
-      );
+      if (options?.generateResolvers)
+        this.generateResolvers(conflicts, options?.generateResolvers);
+
+      if (options?.checkAll || options?.checkConflicts)
+        this.checkConflicts(
+          dfa,
+          grs,
+          conflicts,
+          lexer,
+          options?.printAll || false
+        );
+    }
 
     return new Parser(dfa, lexer);
   }
@@ -219,19 +228,10 @@ export class ParserBuilder<T> {
   private checkConflicts(
     dfa: DFA<T>,
     grs: GrammarRule<T>[],
+    conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
     lexer: ILexer,
-    printAll: boolean,
-    debug: boolean
+    printAll: boolean
   ) {
-    const conflicts = getConflicts<T>(
-      this.entryNTs,
-      this.NTs,
-      grs,
-      this.resolved,
-      dfa,
-      lexer,
-      debug
-    );
     const followSets = dfa.getFollowSets();
 
     // ensure all conflicts are resolved
@@ -338,27 +338,10 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  /**
-   * This action requires a lexer to calculate literal's type name.
-   * If you don't use literal grammar in your rules, you can omit the lexer.
-   */
   private generateResolvers(
-    dfa: DFA<T>,
-    grs: GrammarRule<T>[],
-    lexer: ILexer,
-    style: "builder" | "context",
-    debug: boolean
+    conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
+    style: "builder" | "context"
   ) {
-    const conflicts = getConflicts<T>(
-      this.entryNTs,
-      this.NTs,
-      grs,
-      this.resolved,
-      dfa,
-      lexer,
-      debug
-    );
-
     if (style == "builder") {
       conflicts.forEach((v, k) => {
         const txt = v
