@@ -9,11 +9,13 @@
   - **Breaking Change**: `ParserBuilder.generateResolvers/checkConflicts` is now private, and `ParserBuilder.checkAll` is removed. Use `options` in `ParserBuilder.build` instead.
 - Fix
   - Parser can detect R-S conflict like: `` exp: `a b | a b c` `` where `b` is a terminator.
-  - Parser won't print `[user resolved RR]` when it's actually an R-S conflict.
+  - Parser won't print `[user resolved RR]` in debug mode when it's actually an R-S conflict.
 - Optimize code & comments.
 - Optimize performance.
   - Merge `ParserBuilder.generateResolvers/checkConflicts` to `ParserBuilder.build` to avoid unnecessary DFA build.
   - Re-use computed conflicts when generate resolvers and check conflicts.
+  - Pre-calculate values before the parser is built to avoid repeated calculation.
+  - Reduce the use of `TempGrammar/TempGrammarRule`, use `Grammar/GrammarRule` instead.
 - More tests.
 
 ## v0.6.0
