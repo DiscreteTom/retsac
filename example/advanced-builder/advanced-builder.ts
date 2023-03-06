@@ -19,7 +19,7 @@ export const parser = new ELR.AdvancedBuilder()
     `,
   })
   .define({ param: `identifier ':' identifier` })
-  .define({ stmt: `assign_stmt | ret_stmt` })
+  .define({ stmt: `assign_stmt | ret_stmt` }, ELR.commit()) // commit to prevent re-lex, optimize performance
   .define({ assign_stmt: `let identifier ':' identifier '=' exp ';'` })
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
@@ -31,6 +31,4 @@ export const parser = new ELR.AdvancedBuilder()
     { exp: `exp '+' exp` },
     { next: `'+'`, reduce: true }
   )
-  .generateResolvers(lexer)
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { generateResolvers: "builder", checkAll: true });
