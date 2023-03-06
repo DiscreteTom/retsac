@@ -155,21 +155,11 @@ export class GrammarExpander {
         if (i == j) return;
         if (!anotherRule.startsWith(reducerRule)) return;
 
-        let next = this.parser.lexer
-          .dryClone()
-          .lex(anotherRule.slice(reducerRule.length))!.content;
-
-        // if the next token is a placeholder, get it's first grammar rule
-        if (next.startsWith(this.placeholderPrefix))
-          next = this.parser.lexer
-            .dryClone()
-            .lex(this.placeholderMap.p2g.get(next)!)!.content;
-
         builder.resolveRS(
           { [NT]: reducerRule },
           { [NT]: anotherRule },
           // in most cases we want the `+*?` to be greedy
-          { next, reduce: false }
+          { next: "*", reduce: false }
         );
       });
     });
@@ -192,7 +182,6 @@ export class GrammarExpander {
   ) {
     this.placeholderMap.p2g.forEach((gs, p) => {
       const gr = `${gs} | ${gs} ${p}`;
-      const next = this.parser.lexer.dryClone().lex(gs)!.content; // the first grammar in the grammar rule
 
       builder
         .define({ [p]: gr })
@@ -201,7 +190,7 @@ export class GrammarExpander {
           { [p]: `${gs}` },
           { [p]: `${gs} ${p}` },
           // in most cases we want the `+*?` to be greedy
-          { next, reduce: false }
+          { next: "*", reduce: false }
         );
 
       if (debug) console.log(`Generated: ${p}: \`${gr}\``);
