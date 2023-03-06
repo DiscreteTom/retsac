@@ -111,7 +111,6 @@ export class Candidate<T> {
   tryReduce(
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
-    firstSets: ReadonlyMap<string, GrammarSet>,
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     cascadeQueryPrefix: string | undefined,
@@ -123,9 +122,6 @@ export class Candidate<T> {
       matched: buffer.slice(-this.gr.rule.length),
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
-      firstSets,
-      followSets,
-      gr: this.gr,
       lexer,
       $: (name) => {
         const result: ASTNode<T>[] = [];
