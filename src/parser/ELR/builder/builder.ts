@@ -1,19 +1,15 @@
-import { GrammarRule, Grammar } from "../model";
+import { GrammarRule, Grammar, Condition, GrammarType } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
+  ResolvedConflict,
+  ResolvedTempConflict,
   RR_ResolverOptions,
   RS_ResolverOptions,
   TempGrammarRule,
   TempGrammarType,
 } from "./model";
-import {
-  Conflict,
-  ConflictType,
-  Definition,
-  DefinitionContext,
-  TempConflict,
-} from "./model";
+import { Conflict, ConflictType, Definition } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
@@ -31,14 +27,14 @@ export class ParserBuilder<T> {
   private tempGrammarRules: TempGrammarRule<T>[];
   private entryNTs: Set<string>;
   private NTs: Set<string>;
-  private resolved: TempConflict<T>[];
+  private resolvedTemp: ResolvedTempConflict<T>[];
   private cascadeQueryPrefix?: string;
 
   constructor(options?: { cascadeQueryPrefix?: string }) {
     this.tempGrammarRules = [];
     this.entryNTs = new Set();
     this.NTs = new Set();
-    this.resolved = [];
+    this.resolvedTemp = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
@@ -71,13 +67,33 @@ export class ParserBuilder<T> {
     this.tempGrammarRules.push(...grs);
     grs.forEach((gr) => {
       this.NTs.add(gr.NT);
-      if (ctx)
-        this.resolved.push(
-          ...ctx.resolved.map((r) => ({
-            ...r,
-            reducerRule: gr,
-          }))
-        );
+    });
+
+    // handle resolved conflicts
+    ctx?.resolved?.map((r) => {
+      if (r.type == ConflictType.REDUCE_REDUCE) {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            this.resolvedTemp.push({
+              type: ConflictType.REDUCE_REDUCE,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      } else {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            this.resolvedTemp.push({
+              type: ConflictType.REDUCE_SHIFT,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      }
     });
 
     return this;
@@ -129,7 +145,7 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  private buildDFA() {
+  private buildDFA(lexer: ILexer) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
     // transform temp grammar rules to grammar rules
@@ -146,12 +162,115 @@ export class ParserBuilder<T> {
         })
     );
 
+    // build the DFA
+    const dfa = new DFA<T>(
+      ...DFABuilder.build<T>(grs, this.entryNTs, this.NTs),
+      this.cascadeQueryPrefix
+    );
+
+    // transform resolved temp conflicts to resolved conflicts
+    const resolved: ResolvedConflict<T>[] = this.resolvedTemp.map((r) => {
+      // find the grammar rules
+      const reducerRule = grs.find((gr) => r.reducerRule.weakEq(gr));
+      if (!reducerRule)
+        throw LR_BuilderError.grammarRuleNotFound(r.reducerRule);
+      const anotherRule = grs.find((gr) => r.anotherRule.weakEq(gr));
+      if (!anotherRule)
+        throw LR_BuilderError.grammarRuleNotFound(r.anotherRule);
+
+      const next =
+        r.options.next == "*"
+          ? "*"
+          : // TODO: use a dedicated lexer to parse next
+            defToTempGRs<T>({ "": r.options.next ?? "" })[0]?.rule.map((g) =>
+              g.toGrammar(this.NTs.has(g.content))
+            ) ?? [];
+
+      return {
+        reducerRule,
+        anotherRule,
+        type: r.type,
+        next,
+        handleEnd:
+          r.type == ConflictType.REDUCE_REDUCE
+            ? r.options.handleEnd ?? false
+            : false,
+        reduce: r.options.reduce ?? true,
+      };
+    });
+
+    // apply resolved conflicts to grammar rule rejecters
+    const firstSets = dfa.getFirstSets();
+    const followSets = dfa.getFollowSets();
+    resolved.forEach((r) => {
+      const nextGrammars =
+        r.next != "*"
+          ? r.next
+          : r.type == ConflictType.REDUCE_SHIFT
+          ? r.reducerRule
+              .checkRSConflict(r.anotherRule)
+              .map((c) => {
+                const result: Grammar[] = [];
+                const g = c.shifterRule.rule[c.length];
+                if (g.type == GrammarType.NT)
+                  result.push(
+                    // TODO: exclude NT, deduplicate
+                    ...firstSets.get(g.content)!.map((g) => g)
+                  );
+                else result.push(g);
+                return result;
+              })
+              .reduce((a, b) => a.concat(b), [] as Grammar[])
+          : r.reducerRule.checkRRConflict(r.anotherRule)
+          ? followSets
+              .get(r.anotherRule.NT)!
+              // TODO: exclude NT, deduplicate
+              .map((g) => g)
+          : []; // no conflict
+      // pre-calculate next nodes to avoid repeated calculation
+      const nextNodes = nextGrammars.map((g) => g.toASTNode(lexer));
+
+      const generated: Condition<T> = (ctx) => {
+        if (r.type == ConflictType.REDUCE_REDUCE) {
+          // if reach end of input
+          if (ctx.after.length == 0) {
+            // if handle the end of input
+            if (r.handleEnd)
+              return !(r.reduce instanceof Function ? r.reduce(ctx) : r.reduce);
+            else return false;
+          }
+        }
+        // else, not the end of input
+        // check if any next grammar match the next token
+        if (
+          nextNodes.some(
+            (g) =>
+              ctx.lexer
+                .clone() // clone the lexer with state to peek next and avoid changing the original lexer
+                .lex({
+                  // peek with expectation
+                  expect: {
+                    type: g.type,
+                    text: g.text,
+                  },
+                }) != null
+          )
+        )
+          // next match, apply the `reduce`
+          return !(r.reduce instanceof Function ? r.reduce(ctx) : r.reduce);
+        return false;
+      };
+
+      const rejecter = r.reducerRule.rejecter; // get the original rejecter
+      r.reducerRule.rejecter = (ctx) => {
+        return rejecter(ctx) || generated(ctx);
+      };
+    });
+
     return {
-      dfa: new DFA<T>(
-        ...DFABuilder.build<T>(grs, this.entryNTs, this.NTs),
-        this.cascadeQueryPrefix
-      ),
+      dfa,
       grs,
+      resolved,
     };
   }
 
@@ -168,7 +287,7 @@ export class ParserBuilder<T> {
       checkAll?: boolean;
     }
   ) {
-    const { dfa, grs } = this.buildDFA();
+    const { dfa, grs, resolved } = this.buildDFA(lexer);
     dfa.debug = options?.debug ?? false;
 
     // check symbols first
@@ -185,7 +304,7 @@ export class ParserBuilder<T> {
         this.entryNTs,
         this.NTs,
         grs,
-        this.resolved,
+        resolved,
         dfa,
         lexer,
         options?.debug
@@ -199,6 +318,7 @@ export class ParserBuilder<T> {
           dfa,
           grs,
           conflicts,
+          resolved,
           lexer,
           options?.printAll || false
         );
@@ -217,6 +337,7 @@ export class ParserBuilder<T> {
     dfa: DFA<T>,
     grs: GrammarRule<T>[],
     conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
+    resolved: ResolvedConflict<T>[],
     lexer: ILexer,
     printAll: boolean
   ) {
@@ -232,31 +353,13 @@ export class ParserBuilder<T> {
     });
 
     // ensure all grammar rules resolved are appeared in the grammar rules
-    this.resolved.forEach((g) => {
-      // reducer rule must be in grammar rules, because we already checked it in this.resolve()
-      // so we can omit this check
-      // if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.reducerRule))) {
-      //   const errMsg = `No such grammar rule: ${g.reducerRule.toString()}`;
-      //   if (printAll) console.log(errMsg);
-      //   else
-      //     throw new ParserError(ParserErrorType.NO_SUCH_GRAMMAR_RULE, errMsg);
-      // }
-      if (!this.tempGrammarRules.some((gr) => gr.weakEq(g.anotherRule))) {
-        const err = LR_BuilderError.grammarRuleNotFound(g.anotherRule);
-        if (printAll) console.log(err.message);
-        else throw err;
-      }
-    });
+    // this is done in `buildDFA`
 
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
-    this.resolved.forEach((g) => {
+    resolved.forEach((g) => {
       if (g.next == "*") return;
       g.next.forEach((n) => {
-        if (
-          !followSets
-            .get(g.reducerRule.NT)!
-            .has(n.toGrammar(this.NTs.has(n.content)))
-        ) {
+        if (!followSets.get(g.reducerRule.NT)!.has(n)) {
           const err = LR_BuilderError.nextGrammarNotFound(n, g.reducerRule.NT);
           if (printAll) console.log(err.message);
           else throw err;
@@ -277,15 +380,15 @@ export class ParserBuilder<T> {
       false // don't print debug info
     ).forEach((cs) => allConflicts.push(...cs));
     // then, ensure all resolved are in the conflicts
-    this.resolved.forEach((c) => {
+    resolved.forEach((c) => {
       // check next
       if (c.next != "*")
         c.next.forEach((n) => {
           if (
             !allConflicts.some(
               (conflict) =>
-                c.reducerRule.weakEq(conflict.reducerRule) &&
-                c.anotherRule.weakEq(conflict.anotherRule) &&
+                c.reducerRule == conflict.reducerRule &&
+                c.anotherRule == conflict.anotherRule &&
                 c.type == conflict.type &&
                 (conflict.next as Grammar[]).some((nn) => n.eq(nn))
             )
@@ -306,8 +409,8 @@ export class ParserBuilder<T> {
         c.handleEnd &&
         !allConflicts.some(
           (conflict) =>
-            c.reducerRule.weakEq(conflict.reducerRule) &&
-            c.anotherRule.weakEq(conflict.anotherRule) &&
+            c.reducerRule == conflict.reducerRule &&
+            c.anotherRule == conflict.anotherRule &&
             c.type == conflict.type &&
             conflict.handleEnd
         )
@@ -374,44 +477,25 @@ export class ParserBuilder<T> {
     return this;
   }
 
-  private resolve(reducerRule: Definition, ctx: DefinitionContext<T>) {
-    const grs = defToTempGRs(reducerRule, ctx);
-
-    // update resolved
-    grs.forEach((gr) => {
-      this.resolved.push(
-        ...ctx.resolved.map((r) => ({
-          ...r,
-          reducerRule: gr,
-        }))
-      );
-    });
-
-    // apply rejecter
-    grs.forEach((gr) => {
-      // find the grammar rule
-      const idx = this.tempGrammarRules.findIndex((g) => g.weakEq(gr));
-      if (idx < 0) throw LR_BuilderError.grammarRuleNotFound(gr);
-      // apply rejecter
-      const r = this.tempGrammarRules[idx].rejecter;
-      this.tempGrammarRules[idx].rejecter = (ctx) =>
-        (r?.(ctx) ?? false) || gr.rejecter!(ctx);
-    });
-
-    return this;
-  }
-
   /** Resolve a reduce-shift conflict. */
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
     options: RS_ResolverOptions<T>
   ) {
-    const ctx = new DefinitionContextBuilder<T>()
-      .resolveRS(anotherRule, options)
-      .build();
-
-    return this.resolve(reducerRule, ctx);
+    const reducerRules = defToTempGRs<T>(reducerRule);
+    const anotherRules = defToTempGRs<T>(anotherRule);
+    reducerRules.forEach((r) => {
+      anotherRules.forEach((a) => {
+        this.resolvedTemp.push({
+          type: ConflictType.REDUCE_SHIFT,
+          reducerRule: r,
+          anotherRule: a,
+          options,
+        });
+      });
+    });
+    return this;
   }
 
   /** Resolve a reduce-reduce conflict. */
@@ -420,10 +504,18 @@ export class ParserBuilder<T> {
     anotherRule: Definition,
     options: RR_ResolverOptions<T>
   ) {
-    const ctx = new DefinitionContextBuilder<T>()
-      .resolveRR(anotherRule, options)
-      .build();
-
-    return this.resolve(reducerRule, ctx);
+    const reducerRules = defToTempGRs<T>(reducerRule);
+    const anotherRules = defToTempGRs<T>(anotherRule);
+    reducerRules.forEach((r) => {
+      anotherRules.forEach((a) => {
+        this.resolvedTemp.push({
+          type: ConflictType.REDUCE_REDUCE,
+          reducerRule: r,
+          anotherRule: a,
+          options,
+        });
+      });
+    });
+    return this;
   }
 }

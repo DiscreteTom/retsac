@@ -2,18 +2,17 @@ import { Traverser } from "../../model";
 import { Callback, Condition } from "../model";
 import {
   DefinitionContext,
-  TempPartialConflict,
   ConflictType,
   Definition,
   Reducer,
+  ResolvedPartialTempConflict,
 } from "./model";
 import { RS_ResolverOptions, RR_ResolverOptions } from "./model";
-import { defToTempGRs } from "./utils/definition";
 
 export class DefinitionContextBuilder<T> {
   private _callback: Callback<T>;
   private _rejecter: Condition<T>;
-  private resolved: TempPartialConflict<T>[];
+  private resolved: ResolvedPartialTempConflict<T>[];
   private _rollback: Callback<T>;
   private _commit: Condition<T>;
   private _traverser?: Traverser<T>;
@@ -21,14 +20,13 @@ export class DefinitionContextBuilder<T> {
   constructor(data?: {
     callback?: Callback<T>;
     rejecter?: Condition<T>;
-    resolved?: TempPartialConflict<T>[];
     rollback?: Callback<T>;
   }) {
     this._callback = data?.callback ?? (() => {});
     this._rejecter = data?.rejecter ?? (() => false);
-    this.resolved = data?.resolved ?? [];
     this._rollback = data?.rollback ?? (() => {});
     this._commit = () => false;
+    this.resolved = [];
     this._traverser = undefined;
   }
 
@@ -86,84 +84,24 @@ export class DefinitionContextBuilder<T> {
     return this;
   }
 
-  private resolve(
-    type: ConflictType,
-    another: Definition,
-    next: string,
-    reduce: boolean | Condition<T>,
-    handleEnd: boolean
-  ) {
-    const anotherRule = defToTempGRs<T>(another)[0];
-    const nextGrammars =
-      next == "*"
-        ? []
-        : next.length > 0
-        ? // TODO: use a dedicated lexer to parse next
-          defToTempGRs<T>({ "": next })[0].rule
-        : [];
-
-    // append the new rejecter
-    this.rejecter((ctx) => {
-      // if reach end of input
-      if (ctx.after.length == 0) {
-        // if handle the end of input
-        if (handleEnd)
-          return !(reduce instanceof Function ? reduce(ctx) : reduce);
-        else return false;
-      }
-      // else, not the end of input
-      // check if any next grammar match the next token
-      if (
-        next == "*" ||
-        nextGrammars.some(
-          (g) =>
-            ctx.lexer
-              .clone() // clone the lexer with state to peek next and avoid changing the original lexer
-              .lex({
-                // peek with expectation
-                expect: {
-                  type: g.toGrammar().toASTNode(ctx.lexer).type,
-                  text: g.toGrammar().toASTNode(ctx.lexer).text,
-                },
-              }) != null
-        )
-      )
-        // next match, apply the `reduce`
-        return !(reduce instanceof Function ? reduce(ctx) : reduce);
-      return false;
-    });
-
-    // append the new resolved conflict
-    this.resolved.push({
-      type,
-      anotherRule,
-      next: next == "*" ? "*" : nextGrammars,
-      handleEnd: handleEnd,
-    });
-
-    return this;
-  }
-
   /** Resolve an Reduce-Shift conflict. */
   resolveRS(another: Definition, options: RS_ResolverOptions<T>) {
-    return this.resolve(
-      ConflictType.REDUCE_SHIFT,
-      another,
-      options.next,
-      options.reduce ?? true,
-      false
-    );
+    this.resolved.push({
+      type: ConflictType.REDUCE_SHIFT,
+      anotherRule: another,
+      options,
+    });
+    return this;
   }
 
   /** Resolve an Reduce-Reduce conflict. */
   resolveRR(another: Definition, options: RR_ResolverOptions<T>) {
-    return this.resolve(
-      ConflictType.REDUCE_REDUCE,
-      another,
-      options.next ?? "",
-      options.reduce ?? true,
-      options.handleEnd ?? false
-    );
+    this.resolved.push({
+      type: ConflictType.REDUCE_REDUCE,
+      anotherRule: another,
+      options,
+    });
+    return this;
   }
 
   build(): DefinitionContext<T> {

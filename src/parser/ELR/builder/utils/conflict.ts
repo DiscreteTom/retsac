@@ -2,7 +2,7 @@ import { ILexer } from "../../../../lexer";
 import { DFA } from "../../DFA";
 import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
 import { LR_BuilderError } from "../error";
-import { TempConflict, ConflictType, Conflict } from "../model";
+import { ConflictType, Conflict, ResolvedConflict } from "../model";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
@@ -41,7 +41,7 @@ function getEndSet<T>(
 
 /** Return conflicts that user didn't resolve. */
 function getUnresolvedConflicts<T>(
-  resolved: readonly TempConflict<T>[],
+  resolved: readonly ResolvedConflict<T>[],
   NTs: ReadonlySet<string>,
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<T>>,
@@ -53,8 +53,8 @@ function getUnresolvedConflicts<T>(
   const related = resolved.filter(
     (r) =>
       r.type == type &&
-      r.reducerRule.weakEq(reducerRule) &&
-      r.anotherRule.weakEq(anotherRule)
+      r.reducerRule == reducerRule &&
+      r.anotherRule == anotherRule
   );
 
   // collect resolved next & calculate unresolved next
@@ -64,10 +64,7 @@ function getUnresolvedConflicts<T>(
     if (r.next == "*") {
       resolveAll = true;
       resolvedNext.length = 0; // clear
-    } else if (!resolveAll)
-      r.next.forEach((n) => {
-        resolvedNext.push(n.toGrammar(NTs.has(n.content)));
-      });
+    } else if (!resolveAll) r.next.forEach((n) => resolvedNext.push(n));
   });
   const unresolvedNext = resolveAll
     ? []
@@ -132,11 +129,8 @@ function getUnresolvedConflicts<T>(
 export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
-  /** This `grs` must be the grs in the DFA. */
   grs: readonly GrammarRule<T>[],
-  // `resolved` should be TempConflict instead of Conflict, because check GrammarRule equality using Object reference instead of content.
-  // If we construct Conflict(GrammarRule) which is not in `grs`, then the equality check will fail in DFA `candidate.eq`.
-  resolved: readonly TempConflict<T>[],
+  resolved: readonly ResolvedConflict<T>[],
   dfa: DFA<T>,
   lexer?: ILexer,
   debug = false

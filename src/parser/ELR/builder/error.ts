@@ -1,6 +1,6 @@
-import { Grammar } from "../model";
+import { Grammar, GrammarRule } from "../model";
 import { Conflict, ConflictType } from "./model";
-import { TempGrammar, TempGrammarRule } from "./model/temp-grammar";
+import { TempGrammarRule } from "./model/temp-grammar";
 
 export type LR_BuilderErrorType =
   | "GRAMMAR_RULE_NOT_FOUND"
@@ -35,7 +35,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static nextGrammarNotFound(next: TempGrammar, NT: string) {
+  static nextGrammarNotFound(next: Grammar, NT: string) {
     return new LR_BuilderError(
       "NEXT_GRAMMAR_NOT_FOUND",
       `Next grammar ${next.toString()} not in follow set of ${NT}`
@@ -110,7 +110,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<T>(rule: TempGrammarRule<T>) {
+  static tooManyEndHandler<T>(rule: GrammarRule<T>) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
@@ -118,10 +118,10 @@ export class LR_BuilderError extends Error {
   }
 
   static noSuchConflict<T>(
-    reducerRule: TempGrammarRule<T>,
-    anotherRule: TempGrammarRule<T>,
+    reducerRule: GrammarRule<T>,
+    anotherRule: GrammarRule<T>,
     type: ConflictType,
-    next: TempGrammar[],
+    next: Grammar[],
     handleEnd: boolean
   ) {
     return new LR_BuilderError(
@@ -130,7 +130,7 @@ export class LR_BuilderError extends Error {
         type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
       } conflict: ${reducerRule.toString()} | ${anotherRule.toString()}` +
         (next.length > 0
-          ? ` next: ${next.map((n) => n.toGrammar().toString()).join(",")}`
+          ? ` next: ${next.map((n) => n.toString()).join(",")}`
           : "") +
         (handleEnd ? " end of input" : "")
     );
