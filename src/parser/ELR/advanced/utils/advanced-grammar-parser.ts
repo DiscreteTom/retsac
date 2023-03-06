@@ -163,6 +163,10 @@ export class GrammarExpander {
           // in most cases we want the `+*?` to be greedy
           { next: "*", reduce: false }
         );
+        if (debug)
+          console.log(
+            `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", reduce: false }`
+          );
       });
     });
 
@@ -195,7 +199,12 @@ export class GrammarExpander {
           { next: "*", reduce: false }
         );
 
-      if (debug) console.log(`Generated: ${p}: \`${gr}\``);
+      if (debug) {
+        console.log(`Generated: ${p}: \`${gr}\``);
+        console.log(
+          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", reduce: false }`
+        );
+      }
     });
 
     return this;
