@@ -26,6 +26,7 @@ yarn add retsac
   - By default the lib provides an ELR(Expectational LR) parser.
     - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
+    - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
     - Expect lexer to yield specific token type and/or content to parse the input more smartly.
@@ -46,7 +47,7 @@ In this example, all conflicts are auto resolved by ELR(1) parser.
 
 <details open>
 <summary>Click to Expand</summary>
-<include path="./example/json/json.ts" from="3" to="68" />
+<include path="./example/json/json.ts" from="3" to="66" />
 </details>
 
 ### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/example/calculator/core.ts)
@@ -55,16 +56,16 @@ In this example, there are many conflicts in the grammar. We use code generator 
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/calculator/core.ts" from="3" to="62" />
+<include path="./example/calculator/core.ts" from="3" to="61" />
 </details>
 
 ### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
 
-In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the grammar rule.
+In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the definition. The `AdvancedBuilder` will auto generate resolvers if the `+*?` introduced conflicts.
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="36" />
+<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="34" />
 </details>
 
 ## Contribute

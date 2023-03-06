@@ -26,6 +26,7 @@ yarn add retsac
   - By default the lib provides an ELR(Expectational LR) parser.
     - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
     - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
+    - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
     - Expect lexer to yield specific token type and/or content to parse the input more smartly.
@@ -110,9 +111,7 @@ export const parser = new ELR.ParserBuilder<any>()
       return result;
     })
   )
-  // .generateResolvers(lexer)
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { checkAll: true });
 ```
 
 </details>
@@ -182,15 +181,14 @@ export const parser = new ELR.ParserBuilder<number>()
       .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
       .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { checkAll: true });
 ```
 
 </details>
 
 ### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
 
-In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the grammar rule.
+In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the definition. The `AdvancedBuilder` will auto generate resolvers if the `+*?` introduced conflicts.
 
 <details><summary>Click to Expand</summary>
 
@@ -214,7 +212,7 @@ export const parser = new ELR.AdvancedBuilder()
     `,
   })
   .define({ param: `identifier ':' identifier` })
-  .define({ stmt: `assign_stmt | ret_stmt` })
+  .define({ stmt: `assign_stmt | ret_stmt` }, ELR.commit()) // commit to prevent re-lex, optimize performance
   .define({ assign_stmt: `let identifier ':' identifier '=' exp ';'` })
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
@@ -226,9 +224,7 @@ export const parser = new ELR.AdvancedBuilder()
     { exp: `exp '+' exp` },
     { next: `'+'`, reduce: true }
   )
-  .generateResolvers(lexer)
-  .checkAll(lexer.getTokenTypes(), lexer)
-  .build(lexer);
+  .build(lexer, { generateResolvers: "builder", checkAll: true });
 ```
 
 </details>
