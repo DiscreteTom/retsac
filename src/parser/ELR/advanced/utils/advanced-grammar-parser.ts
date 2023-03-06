@@ -122,11 +122,13 @@ export class GrammarExpander {
           return result;
         })
       );
-    // .generateResolvers(grammarLexer)
-    // .checkAll(grammarLexer.getTokenTypes(), grammarLexer)
 
     applyResolvers(parserBuilder);
 
+    // this.parser = parserBuilder.build(lexer, {
+    //   generateResolvers: "builder",
+    //   checkAll: true,
+    // });
     this.parser = parserBuilder.build(lexer);
   }
 
