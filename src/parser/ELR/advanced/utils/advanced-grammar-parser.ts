@@ -121,9 +121,8 @@ export class GrammarExpander {
           });
           return result;
         })
-      );
-
-    applyResolvers(parserBuilder);
+      )
+      .use(applyResolvers);
 
     // this.parser = parserBuilder.build(lexer, {
     //   generateResolvers: "builder",

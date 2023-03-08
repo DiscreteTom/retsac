@@ -15,7 +15,11 @@ import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-import { BuildOptions, IParserBuilder } from "../model/builder";
+import {
+  BuilderDecorator,
+  BuildOptions,
+  IParserBuilder,
+} from "../model/builder";
 
 /**
  * Builder for ELR parsers.
@@ -536,5 +540,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       });
     });
     return this;
+  }
+
+  use(f: BuilderDecorator<T>): this {
+    return f(this) as this;
   }
 }

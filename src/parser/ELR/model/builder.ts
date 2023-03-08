@@ -31,4 +31,7 @@ export interface IParserBuilder<T> {
     anotherRule: Definition,
     options: RR_ResolverOptions<T>
   ): this;
+  use(f: BuilderDecorator<T>): this;
 }
+
+export type BuilderDecorator<T> = (pb: IParserBuilder<T>) => IParserBuilder<T>; // return `this`

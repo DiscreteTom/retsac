@@ -1,7 +1,7 @@
-import { ParserBuilder } from "../../builder";
+import { IParserBuilder } from "../../model/builder";
 
-export function applyResolvers<T>(builder: ParserBuilder<T>) {
-  builder
+export function applyResolvers<T>(builder: IParserBuilder<T>) {
+  return builder
     .resolveRS(
       { gr: `gr '|' gr` },
       { gr: `gr '?'` },
