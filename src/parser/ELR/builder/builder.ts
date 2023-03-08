@@ -24,16 +24,16 @@ import { Parser } from "../parser";
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
 export class ParserBuilder<T> {
-  private tempGrammarRules: TempGrammarRule<T>[];
+  private readonly data: {
+    defs: Definition;
+    ctxBuilder?: DefinitionContextBuilder<T>;
+  }[] = [];
   private entryNTs: Set<string>;
-  private NTs: Set<string>;
   private resolvedTemp: ResolvedTempConflict<T>[];
   private cascadeQueryPrefix?: string;
 
   constructor(options?: { cascadeQueryPrefix?: string }) {
-    this.tempGrammarRules = [];
     this.entryNTs = new Set();
-    this.NTs = new Set();
     this.resolvedTemp = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
@@ -61,54 +61,76 @@ export class ParserBuilder<T> {
    * ```
    */
   define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
-    const ctx = ctxBuilder?.build();
-    const grs = defToTempGRs(defs, ctx);
-
-    this.tempGrammarRules.push(...grs);
-    grs.forEach((gr) => {
-      this.NTs.add(gr.NT);
-    });
-
-    // handle resolved conflicts
-    ctx?.resolved?.map((r) => {
-      if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
-          grs.forEach((gr) => {
-            this.resolvedTemp.push({
-              type: ConflictType.REDUCE_REDUCE,
-              reducerRule: gr,
-              anotherRule: a,
-              options: r.options,
-            });
-          });
-        });
-      } else {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
-          grs.forEach((gr) => {
-            this.resolvedTemp.push({
-              type: ConflictType.REDUCE_SHIFT,
-              reducerRule: gr,
-              anotherRule: a,
-              options: r.options,
-            });
-          });
-        });
-      }
-    });
-
+    this.data.push({ defs, ctxBuilder });
     return this;
+  }
+
+  private processDefinitions(): {
+    tempGrammarRules: readonly TempGrammarRule<T>[];
+    NTs: ReadonlySet<string>;
+  } {
+    const tempGrammarRules: TempGrammarRule<T>[] = [];
+    const NTs: Set<string> = new Set();
+
+    this.data.forEach((d) => {
+      const ctxBuilder = d.ctxBuilder;
+      const defs = d.defs;
+      const ctx = ctxBuilder?.build();
+      const grs = defToTempGRs(defs, ctx);
+
+      tempGrammarRules.push(...grs);
+      grs.forEach((gr) => {
+        NTs.add(gr.NT);
+      });
+
+      // handle resolved conflicts
+      ctx?.resolved?.map((r) => {
+        if (r.type == ConflictType.REDUCE_REDUCE) {
+          defToTempGRs<T>(r.anotherRule).forEach((a) => {
+            grs.forEach((gr) => {
+              this.resolvedTemp.push({
+                type: ConflictType.REDUCE_REDUCE,
+                reducerRule: gr,
+                anotherRule: a,
+                options: r.options,
+              });
+            });
+          });
+        } else {
+          defToTempGRs<T>(r.anotherRule).forEach((a) => {
+            grs.forEach((gr) => {
+              this.resolvedTemp.push({
+                type: ConflictType.REDUCE_SHIFT,
+                reducerRule: gr,
+                anotherRule: a,
+                options: r.options,
+              });
+            });
+          });
+        }
+      });
+    });
+
+    return { tempGrammarRules, NTs };
   }
 
   /**
    * Ensure all T/NTs have their definitions, and no duplication, and all literals are valid.
    * If ok, return this.
+   *
    */
-  checkSymbols(Ts: ReadonlySet<string>, lexer: ILexer) {
+  private checkSymbols(
+    NTs: ReadonlySet<string>,
+    Ts: ReadonlySet<string>,
+    tempGrammarRules: readonly TempGrammarRule<T>[],
+    lexer: ILexer
+  ) {
+    // TODO: use grammar rule instead of temp grammar rule
     /** T/NT names. */
     const grammarSet: Set<string> = new Set();
 
     // collect T/NT names in temp grammar rules
-    this.tempGrammarRules.map((g) => {
+    tempGrammarRules.map((g) => {
       g.rule.map((grammar) => {
         if (grammar.type == TempGrammarType.GRAMMAR)
           grammarSet.add(grammar.content);
@@ -117,23 +139,22 @@ export class ParserBuilder<T> {
 
     // all symbols should have its definition
     grammarSet.forEach((g) => {
-      if (!Ts.has(g) && !this.NTs.has(g))
-        throw LR_BuilderError.unknownGrammar(g);
+      if (!Ts.has(g) && !NTs.has(g)) throw LR_BuilderError.unknownGrammar(g);
     });
 
     // check duplication
-    this.NTs.forEach((name) => {
+    NTs.forEach((name) => {
       if (Ts.has(name)) throw LR_BuilderError.duplicatedDefinition(name);
     });
 
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
-      if (!this.NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
+      if (!NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
     });
 
     // all literals must can be tokenized by lexer
     lexer = lexer.dryClone();
-    this.tempGrammarRules.forEach((gr) => {
+    tempGrammarRules.forEach((gr) => {
       gr.rule.forEach((grammar) => {
         if (grammar.type == TempGrammarType.LITERAL) {
           if (lexer.reset().lex(grammar.content) == null)
@@ -148,8 +169,10 @@ export class ParserBuilder<T> {
   private buildDFA(lexer: ILexer) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
+    const { tempGrammarRules, NTs } = this.processDefinitions();
+
     // transform temp grammar rules to grammar rules
-    const grs = this.tempGrammarRules.map(
+    const grs = tempGrammarRules.map(
       (gr) =>
         new GrammarRule<T>({
           NT: gr.NT,
@@ -158,13 +181,13 @@ export class ParserBuilder<T> {
           rollback: gr.rollback ?? (() => {}),
           commit: gr.commit ?? (() => false),
           traverser: gr.traverser,
-          rule: gr.rule.map((g) => g.toGrammar(this.NTs.has(g.content))),
+          rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
         })
     );
 
     // build the DFA
     const dfa = new DFA<T>(
-      ...DFABuilder.build<T>(grs, this.entryNTs, this.NTs),
+      ...DFABuilder.build<T>(grs, this.entryNTs, NTs),
       this.cascadeQueryPrefix
     );
 
@@ -183,7 +206,7 @@ export class ParserBuilder<T> {
           ? "*"
           : // TODO: use a dedicated lexer to parse next
             defToTempGRs<T>({ "": r.options.next ?? "" })[0]?.rule.map((g) =>
-              g.toGrammar(this.NTs.has(g.content))
+              g.toGrammar(NTs.has(g.content))
             ) ?? [];
 
       return {
@@ -271,6 +294,8 @@ export class ParserBuilder<T> {
       dfa,
       grs,
       resolved,
+      NTs,
+      tempGrammarRules,
     };
   }
 
@@ -287,12 +312,12 @@ export class ParserBuilder<T> {
       checkAll?: boolean;
     }
   ) {
-    const { dfa, grs, resolved } = this.buildDFA(lexer);
+    const { dfa, grs, resolved, NTs, tempGrammarRules } = this.buildDFA(lexer);
     dfa.debug = options?.debug ?? false;
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
-      this.checkSymbols(lexer.getTokenTypes(), lexer);
+      this.checkSymbols(NTs, lexer.getTokenTypes(), tempGrammarRules, lexer);
 
     // deal with conflicts
     if (
@@ -302,7 +327,7 @@ export class ParserBuilder<T> {
     ) {
       const conflicts = getConflicts<T>(
         this.entryNTs,
-        this.NTs,
+        NTs,
         grs,
         resolved,
         dfa,
@@ -320,6 +345,7 @@ export class ParserBuilder<T> {
           conflicts,
           resolved,
           lexer,
+          NTs,
           options?.printAll || false
         );
     }
@@ -339,6 +365,7 @@ export class ParserBuilder<T> {
     conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
     resolved: ResolvedConflict<T>[],
     lexer: ILexer,
+    NTs: ReadonlySet<string>,
     printAll: boolean
   ) {
     const followSets = dfa.getFollowSets();
@@ -372,7 +399,7 @@ export class ParserBuilder<T> {
     const allConflicts = [] as Conflict<T>[];
     getConflicts<T>(
       this.entryNTs,
-      this.NTs,
+      NTs,
       grs,
       [], // ignore user resolve
       dfa,

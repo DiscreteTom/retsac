@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.8.0
+
+- Parser
+  - **Breaking Change**: `ParserBuilder.checkSymbols` is now private, use `options` in `ParserBuilder.build` instead.
+
 ## v0.7.0
 
 - Parser
