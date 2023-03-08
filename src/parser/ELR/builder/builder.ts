@@ -16,6 +16,16 @@ import { ILexer } from "../../../lexer";
 import { getConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 
+export type BuildOptions = {
+  debug?: boolean;
+  generateResolvers?: "builder" | "context";
+  /** If `printAll` is true, print all errors instead of throwing errors. */
+  printAll?: boolean;
+  checkSymbols?: boolean;
+  checkConflicts?: boolean;
+  checkAll?: boolean;
+};
+
 /**
  * Builder for ELR parsers.
  *
@@ -24,7 +34,7 @@ import { Parser } from "../parser";
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
 export class ParserBuilder<T> {
-  private readonly data: {
+  protected data: {
     defs: Definition;
     ctxBuilder?: DefinitionContextBuilder<T>;
   }[] = [];
@@ -65,6 +75,7 @@ export class ParserBuilder<T> {
     return this;
   }
 
+  // TODO: move to DFA builder
   private processDefinitions(): {
     tempGrammarRules: readonly TempGrammarRule<T>[];
     NTs: ReadonlySet<string>;
@@ -169,6 +180,7 @@ export class ParserBuilder<T> {
   private buildDFA(lexer: ILexer) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
+    // TODO: move to DFA builder
     const { tempGrammarRules, NTs } = this.processDefinitions();
 
     // transform temp grammar rules to grammar rules
@@ -300,18 +312,7 @@ export class ParserBuilder<T> {
   }
 
   /** Generate the ELR parser. */
-  build(
-    lexer: ILexer,
-    options?: {
-      debug?: boolean;
-      generateResolvers?: "builder" | "context";
-      /** If `printAll` is true, print all errors instead of throwing errors. */
-      printAll?: boolean;
-      checkSymbols?: boolean;
-      checkConflicts?: boolean;
-      checkAll?: boolean;
-    }
-  ) {
+  build(lexer: ILexer, options?: BuildOptions) {
     const { dfa, grs, resolved, NTs, tempGrammarRules } = this.buildDFA(lexer);
     dfa.debug = options?.debug ?? false;
 
