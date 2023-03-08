@@ -124,11 +124,11 @@ export class GrammarExpander {
       )
       .use(applyResolvers);
 
-    // this.parser = parserBuilder.build(lexer, {
-    //   generateResolvers: "builder",
-    //   checkAll: true,
-    // });
-    this.parser = parserBuilder.build(lexer);
+    this.parser = parserBuilder.build(lexer, {
+      // for debug
+      // checkAll: true,
+      // generateResolvers: "builder",
+    });
   }
 
   expand<T>(

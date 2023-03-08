@@ -43,7 +43,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
-  /** Declare top-level NT's. */
   entry(...defs: string[]) {
     this.entryNTs = new Set(defs);
     return this;
@@ -306,7 +305,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     };
   }
 
-  /** Generate the ELR parser. */
   build(lexer: ILexer, options?: BuildOptions) {
     const { dfa, grs, resolved, NTs, tempGrammarRules } = this.buildDFA(lexer);
     dfa.debug = options?.debug ?? false;
@@ -500,7 +498,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  /** Resolve a reduce-shift conflict. */
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
@@ -521,7 +518,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  /** Resolve a reduce-reduce conflict. */
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,

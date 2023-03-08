@@ -18,14 +18,18 @@ export type BuildOptions = {
 };
 
 export interface IParserBuilder<T> {
+  /** Declare top-level NT's. */
   entry(...defs: string[]): this;
   define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>): this;
+  /** Generate the ELR parser. */
   build(lexer: ILexer, options?: BuildOptions): IParser<T>;
+  /** Resolve a reduce-shift conflict. */
   resolveRS(
     reducerRule: Definition,
     anotherRule: Definition,
     options: RS_ResolverOptions<T>
   ): this;
+  /** Resolve a reduce-reduce conflict. */
   resolveRR(
     reducerRule: Definition,
     anotherRule: Definition,
