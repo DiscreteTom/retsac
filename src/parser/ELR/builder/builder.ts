@@ -15,16 +15,7 @@ import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-
-export type BuildOptions = {
-  debug?: boolean;
-  generateResolvers?: "builder" | "context";
-  /** If `printAll` is true, print all errors instead of throwing errors. */
-  printAll?: boolean;
-  checkSymbols?: boolean;
-  checkConflicts?: boolean;
-  checkAll?: boolean;
-};
+import { BuildOptions, IParserBuilder } from "../model/builder";
 
 /**
  * Builder for ELR parsers.
@@ -33,7 +24,7 @@ export type BuildOptions = {
  *
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
-export class ParserBuilder<T> {
+export class ParserBuilder<T> implements IParserBuilder<T> {
   protected data: {
     defs: Definition;
     ctxBuilder?: DefinitionContextBuilder<T>;
