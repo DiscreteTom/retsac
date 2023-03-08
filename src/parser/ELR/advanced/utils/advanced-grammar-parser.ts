@@ -46,8 +46,8 @@ export class GrammarExpander {
   private readonly parser: Parser<string[]>;
   readonly placeholderPrefix: string;
 
-  constructor(options?: { placeholderPrefix?: string }) {
-    this.placeholderPrefix = options?.placeholderPrefix ?? `__`;
+  constructor(options: { placeholderPrefix: string }) {
+    this.placeholderPrefix = options.placeholderPrefix;
 
     const lexer = new Builder()
       .ignore(

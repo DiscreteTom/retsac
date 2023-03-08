@@ -10,8 +10,9 @@ export class AdvancedBuilder<T>
   private readonly expander: GrammarExpander;
 
   constructor(options?: { prefix?: string }) {
-    super({ cascadeQueryPrefix: options?.prefix });
-    this.expander = new GrammarExpander({ placeholderPrefix: options?.prefix });
+    const prefix = options?.prefix ?? `__`;
+    super({ cascadeQueryPrefix: prefix });
+    this.expander = new GrammarExpander({ placeholderPrefix: prefix });
   }
 
   build(lexer: ILexer, options?: BuildOptions) {
