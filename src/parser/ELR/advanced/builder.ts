@@ -31,4 +31,11 @@ export class AdvancedBuilder<T>
 
     return super.build(lexer, options);
   }
+
+  // TODO
+  // resolveRS()
+  // resolveRR()
+  // leftSA()
+  // rightSA()
+  // priority()
 }

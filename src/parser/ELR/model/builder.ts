@@ -36,6 +36,11 @@ export interface IParserBuilder<T> {
     options: RR_ResolverOptions<T>
   ): this;
   use(f: BuilderDecorator<T>): this;
+  priority(...defs: Definition[][]): this;
+  /** Mark these definitions left-self-associative. */
+  leftSA(...defs: Definition[]): this;
+  /** Mark these definitions right-self-associative. */
+  rightSA(...defs: Definition[]): this;
 }
 
 export type BuilderDecorator<T> = (pb: IParserBuilder<T>) => IParserBuilder<T>; // return `this`

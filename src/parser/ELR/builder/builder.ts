@@ -541,4 +541,44 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   use(f: BuilderDecorator<T>): this {
     return f(this) as this;
   }
+
+  priority(...defs: Definition[][]) {
+    // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
+    defs.forEach((def, i) => {
+      // def: [{ exp: `exp '*' exp` }]
+      def.forEach((d) => {
+        // d: { exp: `exp '*' exp` }
+        defs.forEach((def2, j) => {
+          if (j <= i) return;
+          // def2: [{ exp: `exp '+' exp` }]
+          def2.forEach((d2) => {
+            // d2: { exp: `exp '+' exp` }
+            this.resolveRS(d, d2, { next: `*`, reduce: true });
+            this.resolveRR(d, d2, { next: `*`, reduce: true, handleEnd: true });
+            this.resolveRS(d2, d, { next: `*`, reduce: false });
+            this.resolveRR(d2, d, {
+              next: `*`,
+              reduce: false,
+              handleEnd: true,
+            });
+          });
+        });
+      });
+    });
+    return this;
+  }
+
+  leftSA(...defs: Definition[]) {
+    defs.forEach((def) => {
+      this.resolveRS(def, def, { next: `*`, reduce: true });
+    });
+    return this;
+  }
+
+  rightSA(...defs: Definition[]) {
+    defs.forEach((def) => {
+      this.resolveRS(def, def, { next: `*`, reduce: false });
+    });
+    return this;
+  }
 }
