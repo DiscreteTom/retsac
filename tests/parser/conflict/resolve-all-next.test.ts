@@ -27,7 +27,6 @@ test("Use '*' as next in RS conflict", () => {
       .define({
         test: `a b c?`,
       })
-      .expand()
       .entry("test")
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).not.toThrow(`Unresolved R-S conflict`);
@@ -67,7 +66,6 @@ test("Use '*' as next in RR conflict", () => {
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
-      .expand()
       .entry("test")
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).not.toThrow(`Unresolved R-R conflict`);

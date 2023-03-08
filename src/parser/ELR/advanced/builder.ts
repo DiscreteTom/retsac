@@ -1,39 +1,33 @@
-import {
-  Definition,
-  DefinitionContextBuilder,
-  ParserBuilder,
-} from "../builder";
+import { ILexer } from "../../../lexer";
+import { ParserBuilder } from "../builder";
+import { BuildOptions, IParserBuilder } from "../model/builder";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
-export class AdvancedBuilder<T> {
-  private readonly data: {
-    defs: Definition;
-    ctxBuilder?: DefinitionContextBuilder<T>;
-  }[] = [];
+export class AdvancedBuilder<T>
+  extends ParserBuilder<T>
+  implements IParserBuilder<T>
+{
   private readonly expander: GrammarExpander;
 
   constructor(options?: { prefix?: string }) {
+    super({ cascadeQueryPrefix: options?.prefix });
     this.expander = new GrammarExpander({ placeholderPrefix: options?.prefix });
   }
 
-  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
-    this.data.push({ defs, ctxBuilder });
-    return this;
-  }
-
-  /** Expand this into a ParserBuilder. */
-  expand(options?: { debug?: boolean }) {
-    const builder = new ParserBuilder<T>({
-      cascadeQueryPrefix: this.expander.placeholderPrefix,
-    });
-    this.data.forEach(({ defs, ctxBuilder }) => {
+  build(lexer: ILexer, options?: BuildOptions) {
+    // re-generate this.data
+    const raw = this.data;
+    this.data = [];
+    raw.forEach(({ defs, ctxBuilder }) => {
       for (const NT in defs) {
         const def = defs[NT];
         const defStr = def instanceof Array ? def.join("|") : def;
-        this.expander.expand(builder, defStr, NT, ctxBuilder, options?.debug);
+        // expand raw's rule to this.data
+        this.expander.expand(this, defStr, NT, ctxBuilder, options?.debug);
       }
     });
-    this.expander.generatePlaceholderGrammarRules(builder, options?.debug);
-    return builder;
+    this.expander.generatePlaceholderGrammarRules(this, options?.debug);
+
+    return super.build(lexer, options);
   }
 }

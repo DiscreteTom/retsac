@@ -4,6 +4,7 @@
 
 - Parser
   - **Breaking Change**: `ParserBuilder.checkSymbols` is now private, use `options` in `ParserBuilder.build` instead.
+  - **Breaking Change**: Remove `AdvancedBuilder.expand`, make `AdvancedBuilder` extend `ParserBuilder`, they both implement `IParserBuilder`.
 
 ## v0.7.0
 

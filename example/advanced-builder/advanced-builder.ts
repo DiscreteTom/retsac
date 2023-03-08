@@ -24,7 +24,6 @@ export const parser = new ELR.AdvancedBuilder()
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
   .define({ exp: `exp '+' exp` })
-  .expand() // return a normal ELR.ParserBuilder
   .entry("fn_def")
   .resolveRS(
     { exp: `exp '+' exp` },
