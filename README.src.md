@@ -38,6 +38,8 @@ yarn add retsac
 
 - [Documentation](https://github.com/DiscreteTom/retsac/wiki).
 - [API reference](https://discretetom.github.io/retsac/).
+- [VSCode extension](https://github.com/DiscreteTom/vscode-retsac)
+- [Demo programming language](https://github.com/DiscreteTom/dt0)
 
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 

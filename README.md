@@ -38,6 +38,8 @@ yarn add retsac
 
 - [Documentation](https://github.com/DiscreteTom/retsac/wiki).
 - [API reference](https://discretetom.github.io/retsac/).
+- [VSCode extension](https://github.com/DiscreteTom/vscode-retsac)
+- [Demo programming language](https://github.com/DiscreteTom/dt0)
 
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 
@@ -217,7 +219,6 @@ export const parser = new ELR.AdvancedBuilder()
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
   .define({ exp: `exp '+' exp` })
-  .expand() // return a normal ELR.ParserBuilder
   .entry("fn_def")
   .resolveRS(
     { exp: `exp '+' exp` },
@@ -225,6 +226,7 @@ export const parser = new ELR.AdvancedBuilder()
     { next: `'+'`, reduce: true }
   )
   .build(lexer, { generateResolvers: "builder", checkAll: true });
+
 ```
 
 </details>
