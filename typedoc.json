@@ -2,5 +2,20 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/index.ts"],
   "exclude": ["**/*.test.ts"],
-  "out": "docs"
+  "out": "docs",
+  "versions": {},
+  "pluginPages": {
+    "pages": [
+      {
+        "title": "Get Started",
+        "children": [
+          { "title": "Lexer", "source": "01-Lexer.md" },
+          {
+            "title": "ELR Parser",
+            "source": "02-ELR-Parser.md"
+          }
+        ]
+      }
+    ]
+  }
 }
