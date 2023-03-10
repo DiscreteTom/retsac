@@ -36,7 +36,7 @@ export interface IParserBuilder<T> {
     options: RR_ResolverOptions<T>
   ): this;
   use(f: BuilderDecorator<T>): this;
-  priority(...defs: Definition[][]): this;
+  priority(...defs: (Definition | Definition[])[]): this;
   /** Mark these definitions left-self-associative. */
   leftSA(...defs: Definition[]): this;
   /** Mark these definitions right-self-associative. */

@@ -542,16 +542,16 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return f(this) as this;
   }
 
-  priority(...defs: Definition[][]) {
+  priority(...defs: (Definition | Definition[])[]) {
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
     defs.forEach((def, i) => {
       // def: [{ exp: `exp '*' exp` }]
-      def.forEach((d) => {
+      (def instanceof Array ? def : [def]).forEach((d) => {
         // d: { exp: `exp '*' exp` }
         defs.forEach((def2, j) => {
           if (j <= i) return;
           // def2: [{ exp: `exp '+' exp` }]
-          def2.forEach((d2) => {
+          (def2 instanceof Array ? def2 : [def2]).forEach((d2) => {
             // d2: { exp: `exp '+' exp` }
             this.resolveRS(d, d2, { next: `*`, reduce: true });
             this.resolveRR(d, d2, { next: `*`, reduce: true, handleEnd: true });
