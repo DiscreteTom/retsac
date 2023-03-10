@@ -126,6 +126,7 @@ export class GrammarExpander {
 
     this.parser = parserBuilder.build(lexer, {
       // for debug
+      // debug: true,
       // checkAll: true,
       // generateResolvers: "builder",
     });
