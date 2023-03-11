@@ -12,7 +12,7 @@ test("literal value", () => {
   expect(getResult(`true`)).toBe(true);
   expect(getResult(`null`)).toBe(null);
   expect(getResult(`"123"`)).toBe("123");
-  expect(getResult(`"123\\""`)).toBe('123"');
+  expect(getResult('"123\\""')).toBe('123"');
   expect(getResult(`123`)).toBe(123);
   expect(getResult(`-123.456`)).toBe(-123.456);
 });
