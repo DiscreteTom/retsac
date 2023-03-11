@@ -19,7 +19,7 @@ import { Conflict, ConflictType, Definition } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
-import { getUnresolvedConflicts } from "./utils/conflict";
+import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import {
   BuilderDecorator,
@@ -177,7 +177,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  private buildDFA(lexer: ILexer) {
+  private buildDFA(lexer: ILexer, debug: boolean | undefined) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
     // TODO: move to DFA builder
@@ -233,6 +233,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         reduce: r.options.reduce ?? true,
       };
     });
+
+    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, lexer, debug);
 
     // apply resolved conflicts to grammar rule rejecters
     const firstSets = dfa.getFirstSets();
@@ -291,15 +293,18 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
     return {
       dfa,
-      grs,
       resolved,
       NTs,
       tempGrammarRules,
+      conflicts,
     };
   }
 
   build(lexer: ILexer, options?: BuildOptions) {
-    const { dfa, grs, resolved, NTs, tempGrammarRules } = this.buildDFA(lexer);
+    const { dfa, resolved, NTs, tempGrammarRules, conflicts } = this.buildDFA(
+      lexer,
+      options?.debug
+    );
     dfa.debug = options?.debug ?? false;
 
     // check symbols first
@@ -312,25 +317,21 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       options?.checkConflicts ||
       options?.generateResolvers
     ) {
-      const conflicts = getUnresolvedConflicts<T>(
-        this.entryNTs,
-        grs,
+      const unresolved = getUnresolvedConflicts<T>(
+        conflicts,
         resolved,
-        dfa,
-        lexer,
         options?.debug
       );
 
       if (options?.generateResolvers)
-        this.generateResolvers(conflicts, options?.generateResolvers);
+        this.generateResolvers(unresolved, options?.generateResolvers);
 
       if (options?.checkAll || options?.checkConflicts)
         this.checkConflicts(
           dfa,
-          grs,
+          unresolved,
           conflicts,
           resolved,
-          lexer,
           options?.printAll || false
         );
     }
@@ -346,16 +347,15 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
    */
   private checkConflicts(
     dfa: DFA<T>,
-    grs: GrammarRule<T>[],
-    conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
+    unresolved: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
+    conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
     resolved: ResolvedConflict<T>[],
-    lexer: ILexer,
     printAll: boolean
   ) {
     const followSets = dfa.getFollowSets();
 
     // ensure all conflicts are resolved
-    conflicts.forEach((cs) => {
+    unresolved.forEach((cs) => {
       cs.forEach((c) => {
         const err = LR_BuilderError.conflict(c);
         if (printAll) console.log(err.message);
@@ -379,16 +379,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     });
 
     // ensure all resolved are indeed conflicts
-    // first, re-calculate all conflicts, ignore user resolve
+    // first, transform the conflicts to a single array
     const allConflicts = [] as Conflict<T>[];
-    getUnresolvedConflicts<T>(
-      this.entryNTs,
-      grs,
-      [], // ignore user resolve
-      dfa,
-      lexer,
-      false // don't print debug info
-    ).forEach((cs) => allConflicts.push(...cs));
+    conflicts.forEach((cs) => allConflicts.push(...cs));
     // then, ensure all resolved are in the conflicts
     resolved.forEach((c) => {
       // check next
@@ -441,11 +434,11 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   private generateResolvers(
-    conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
+    unresolved: Map<GrammarRule<T>, Conflict<T>[]>,
     style: "builder" | "context"
   ) {
     if (style == "builder") {
-      conflicts.forEach((v, k) => {
+      unresolved.forEach((v, k) => {
         const txt = v
           .map(
             (c) =>
@@ -463,7 +456,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         console.log(txt);
       });
     } else {
-      conflicts.forEach((v, k) => {
+      unresolved.forEach((v, k) => {
         const txt =
           `=== ${k.toString()} ===\nLR` +
           v

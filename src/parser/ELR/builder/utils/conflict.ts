@@ -123,12 +123,11 @@ function getUserUnresolvedConflicts<T>(
 }
 
 /**
- * Return conflicts that user didn't resolve and can't be automatically resolved.
+ * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  */
-export function getUnresolvedConflicts<T>(
+export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
-  resolved: readonly ResolvedConflict<T>[],
   dfa: DFA<T>,
   lexer?: ILexer,
   debug = false
@@ -184,30 +183,17 @@ export function getUnresolvedConflicts<T>(
             return;
           }
 
-          // auto resolve failed, check if the conflicts are resolved by user
-          const res = getUserUnresolvedConflicts(
-            resolved,
-            ConflictType.REDUCE_SHIFT,
+          // auto resolve failed
+          const conflict: Conflict<T> = {
+            type: ConflictType.REDUCE_SHIFT,
             reducerRule,
             anotherRule,
-            overlap,
-            false, // for a RS conflict, we don't need to handle end of input
-            debug
-          );
-
-          if (res.next.length > 0) {
-            const conflict: Conflict<T> = {
-              type: ConflictType.REDUCE_SHIFT,
-              reducerRule,
-              anotherRule,
-              handleEnd: false,
-              next: res.next,
-              length: c.length,
-            };
-            if (result.has(reducerRule))
-              result.get(reducerRule)!.push(conflict);
-            else result.set(reducerRule, [conflict]);
-          }
+            handleEnd: false,
+            next: overlap,
+            length: c.length,
+          };
+          if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
+          else result.set(reducerRule, [conflict]);
         } else if (E.type == GrammarType.T) {
           // E is a T, check if A's follow has E
           if (AFollow.has(E)) {
@@ -227,29 +213,18 @@ export function getUnresolvedConflicts<T>(
               return;
             }
 
-            // auto resolve failed, check if the conflicts are resolved by user
-            const res = getUserUnresolvedConflicts(
-              resolved,
-              ConflictType.REDUCE_SHIFT,
+            // auto resolve failed
+            const conflict: Conflict<T> = {
+              type: ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
-              [Grammar.T(E.content)],
-              false, // for a RS conflict, we don't need to handle end of input
-              debug
-            );
-            if (res.next.length > 0) {
-              const conflict: Conflict<T> = {
-                type: ConflictType.REDUCE_SHIFT,
-                reducerRule,
-                anotherRule,
-                handleEnd: false,
-                next: res.next,
-                length: c.length,
-              };
-              if (result.has(reducerRule))
-                result.get(reducerRule)!.push(conflict);
-              else result.set(reducerRule, [conflict]);
-            }
+              handleEnd: false,
+              next: [Grammar.T(E.content)],
+              length: c.length,
+            };
+            if (result.has(reducerRule))
+              result.get(reducerRule)!.push(conflict);
+            else result.set(reducerRule, [conflict]);
           }
         } else {
           // E is a literal, check if A's follow has E
@@ -270,29 +245,18 @@ export function getUnresolvedConflicts<T>(
               return;
             }
 
-            // auto resolve failed, check if the conflicts are resolved by user
-            const res = getUserUnresolvedConflicts(
-              resolved,
-              ConflictType.REDUCE_SHIFT,
+            // auto resolve failed
+            const conflict: Conflict<T> = {
+              type: ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
-              [Grammar.Literal(E.content)],
-              false, // for a RS conflict, we don't need to handle end of input
-              debug
-            );
-            if (res.next.length > 0) {
-              const conflict: Conflict<T> = {
-                type: ConflictType.REDUCE_SHIFT,
-                reducerRule,
-                anotherRule,
-                handleEnd: false,
-                next: res.next,
-                length: c.length,
-              };
-              if (result.has(reducerRule))
-                result.get(reducerRule)!.push(conflict);
-              else result.set(reducerRule, [conflict]);
-            }
+              handleEnd: false,
+              next: [Grammar.Literal(E.content)],
+              length: c.length,
+            };
+            if (result.has(reducerRule))
+              result.get(reducerRule)!.push(conflict);
+            else result.set(reducerRule, [conflict]);
           }
         }
       });
@@ -337,32 +301,88 @@ export function getUnresolvedConflicts<T>(
           continue;
         }
 
-        // auto resolve failed, check if the conflict is resolved by user
-        const res = getUserUnresolvedConflicts(
-          resolved,
-          ConflictType.REDUCE_REDUCE,
+        // auto resolve failed
+        const c: Conflict<T> = {
+          type: ConflictType.REDUCE_REDUCE,
           reducerRule,
           anotherRule,
-          overlap,
+          next: overlap,
           // for a RR conflict, we need to handle end of input if both's NT in end sets
-          endSet.has(Grammar.NT(reducerRule.NT)) &&
+          handleEnd:
+            endSet.has(Grammar.NT(reducerRule.NT)) &&
             endSet.has(Grammar.NT(anotherRule.NT)),
-          debug
-        );
-        if (res.next.length > 0 || res.end) {
-          const c: Conflict<T> = {
-            type: ConflictType.REDUCE_REDUCE,
-            reducerRule,
-            anotherRule,
-            handleEnd: res.end,
-            next: res.next,
-          };
-          if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
-          else result.set(reducerRule, [c]);
-        }
+        };
+        if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
+        else result.set(reducerRule, [c]);
       }
     }
   }
+
+  return result;
+}
+
+/**
+ * Return conflicts that user didn't resolve and can't be automatically resolved.
+ */
+export function getUnresolvedConflicts<T>(
+  conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
+  resolved: readonly ResolvedConflict<T>[],
+  debug = false
+) {
+  const result = new Map<GrammarRule<T>, Conflict<T>[]>();
+
+  conflicts.forEach((cs) => {
+    cs.forEach((c) => {
+      if (c.type == ConflictType.REDUCE_SHIFT) {
+        const res = getUserUnresolvedConflicts(
+          resolved,
+          ConflictType.REDUCE_SHIFT,
+          c.reducerRule,
+          c.anotherRule,
+          c.next as Grammar[],
+          false, // for a RS conflict, we don't need to handle end of input
+          debug
+        );
+
+        if (res.next.length > 0) {
+          const conflict: Conflict<T> = {
+            type: ConflictType.REDUCE_SHIFT,
+            reducerRule: c.reducerRule,
+            anotherRule: c.anotherRule,
+            handleEnd: false,
+            next: res.next,
+            length: c.length,
+          };
+          if (result.has(c.reducerRule))
+            result.get(c.reducerRule)!.push(conflict);
+          else result.set(c.reducerRule, [conflict]);
+        }
+      } else {
+        // RR conflict
+        const res = getUserUnresolvedConflicts(
+          resolved,
+          ConflictType.REDUCE_REDUCE,
+          c.reducerRule,
+          c.anotherRule,
+          c.next as Grammar[],
+          c.handleEnd,
+          debug
+        );
+        if (res.next.length > 0 || res.end) {
+          const conflict: Conflict<T> = {
+            type: ConflictType.REDUCE_REDUCE,
+            reducerRule: c.reducerRule,
+            anotherRule: c.anotherRule,
+            handleEnd: res.end,
+            next: res.next,
+          };
+          if (result.has(c.reducerRule))
+            result.get(c.reducerRule)!.push(conflict);
+          else result.set(c.reducerRule, [conflict]);
+        }
+      }
+    });
+  });
 
   return result;
 }

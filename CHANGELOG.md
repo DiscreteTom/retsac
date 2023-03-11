@@ -9,8 +9,11 @@
   - Add `ParserBuilder.use` to apply custom decorators with chain call.
   - Add `IParserBuilder.priority/leftSA/rightSA` for simplified conflict resolution.
   - `AdvancedBuilder.resolveRS/resolveRR` support `+*?|()`.
+  - Parser will calculate all DFA states at the start.
 - Fix
   - Return `null` from `Traverser` will be transformed to `undefined`.
+- Optimize performance.
+  - Remove unnecessary conflict calculation.
 - Versioned documentation.
 
 ## v0.7.0
