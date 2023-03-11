@@ -35,11 +35,33 @@ export interface IParserBuilder<T> {
     anotherRule: Definition,
     options: RR_ResolverOptions<T>
   ): this;
+  /** Apply a function to this builder. */
   use(f: BuilderDecorator<T>): this;
+  /**
+   * Generate resolvers to implement grammar rules' priorities.
+   *
+   * ```ts
+   * // gr1 > gr2 = gr3
+   * builder.priority(gr1, [gr2, gr3])
+   * ```
+   */
   priority(...defs: (Definition | Definition[])[]): this;
-  /** Mark these definitions left-self-associative. */
+  /**
+   * Generate resolvers to make these definitions left-self-associative.
+   *
+   * ```ts
+   * // 1 - 2 - 3 = (1 - 2) - 3 instead of 1 - (2 - 3)
+   * builder.leftSA({ exp: `exp '-' exp` })
+   * ```
+   */
   leftSA(...defs: Definition[]): this;
-  /** Mark these definitions right-self-associative. */
+  /**
+   * Generate resolvers to make these definitions right-self-associative.
+   * ```ts
+   * // 1 - 2 - 3 = 1 - (2 - 3) instead of (1 - 2) - 3
+   * builder.rightSA({ exp: `exp '-' exp` })
+   * ```
+   */
   rightSA(...defs: Definition[]): this;
 }
 
