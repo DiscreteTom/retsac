@@ -35,6 +35,7 @@ jobs:
         run: |
           rm -rf docs/dev
           rm -rf docs/stable
+          ls | grep -E '^v[0-9]+\.[0-9]+@?$' | xargs rm -rf --
           mv README.md README.md.bk
           yarn build:doc
           diff README.md README.md.bk
