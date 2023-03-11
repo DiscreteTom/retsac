@@ -587,9 +587,22 @@ function parseResolved<T>(
     needHandleEnd: false,
   };
 
-  if (r.next != "*") {
-    // just apply the next
-    result.nextGrammars = r.next;
+  if (r.type == ConflictType.REDUCE_REDUCE) {
+    if (r.next != "*") {
+      // just apply the next
+      result.nextGrammars = r.next;
+    } else {
+      // r.next == '*', so we need to calculate the next
+      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
+        .filter(
+          (c) =>
+            c.type == ConflictType.REDUCE_REDUCE &&
+            c.anotherRule == r.anotherRule
+        )
+        .map((c) => c.next as Grammar[])
+        .flat();
+    }
+
     // check handleEnd
     result.needHandleEnd = (conflicts.get(r.reducerRule) ?? []).some((c) => {
       return (
@@ -599,8 +612,12 @@ function parseResolved<T>(
       );
     });
   } else {
-    // r.next == '*', so we need to calculate the next
-    if (r.type == ConflictType.REDUCE_SHIFT) {
+    // this is a reduce-shift conflict
+    if (r.next != "*") {
+      // just apply the next
+      result.nextGrammars = r.next;
+    } else {
+      // r.next == '*', so we need to calculate the next
       result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
         .filter(
           (c) =>
@@ -609,23 +626,6 @@ function parseResolved<T>(
         )
         .map((c) => c.next as Grammar[])
         .flat();
-    } else {
-      // this is a reduce-reduce conflict
-      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
-        .filter(
-          (c) =>
-            c.type == ConflictType.REDUCE_REDUCE &&
-            c.anotherRule == r.anotherRule
-        )
-        .map((c) => c.next as Grammar[])
-        .flat();
-      result.needHandleEnd = (conflicts.get(r.reducerRule) ?? []).some((c) => {
-        return (
-          c.type == ConflictType.REDUCE_REDUCE &&
-          c.anotherRule == r.anotherRule &&
-          c.handleEnd
-        );
-      });
     }
   }
 
