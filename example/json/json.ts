@@ -10,56 +10,38 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
-export const parser = new ELR.ParserBuilder<any>()
+export const parser = new ELR.AdvancedBuilder<any>()
   .entry("value")
   .define(
-    { value: "string | number | true | false | null" },
-    // especially, for string use `eval` to make `\\n` become `\n`
-    ELR.reducer(({ matched }) => eval(matched[0].text!))
+    { value: `string | number | true | false | null` },
+    // especially, for string use `eval` to make `\\x` become `\x`
+    ELR.traverser(({ children }) => eval(children![0].text!))
   )
   .define(
-    { value: "object | array" },
-    ELR.reducer(({ values }) => values[0])
+    { value: `object | array` },
+    ELR.traverser(({ children }) => children![0].traverse())
   )
   .define(
-    { array: `'[' ']'` },
-    ELR.reducer(() => [])
+    { array: `'[' (value (',' value)*)? ']'` },
+    ELR.traverser(({ $ }) => $(`value`).map((v) => v.traverse()))
   )
   .define(
-    { array: `'[' values ']'` },
-    ELR.reducer(({ values }) => values[1])
-  )
-  .define(
-    { values: `value` },
-    ELR.reducer(({ values }) => values) // values => [values[0]]
-  )
-  .define(
-    { values: `values ',' value` },
-    ELR.reducer(({ values }) => values[0].concat([values[2]]))
-  )
-  .define(
-    { object: `'{' '}'` },
-    ELR.reducer(() => ({}))
-  )
-  .define(
-    { object: `'{' object_items '}'` },
-    ELR.reducer(({ values }) => values[1])
-  )
-  .define(
-    { object_items: `object_item` },
-    ELR.reducer(({ values }) => values[0])
-  )
-  .define(
-    { object_items: `object_items ',' object_item` },
-    // merge objects
-    ELR.reducer(({ values }) => Object.assign(values[0], values[2]))
+    { object: `'{' (object_item (',' object_item)*)? '}'` },
+    ELR.traverser(({ $ }) => {
+      // every object_item's traverse result is an object, we need to merge them
+      const result: { [key: string]: any } = {};
+      $(`object_item`).forEach((item) => {
+        Object.assign(result, item.traverse());
+      });
+      return result;
+    })
   )
   .define(
     { object_item: `string ':' value` },
-    // reduce to an object
-    ELR.reducer(({ matched, values }) => {
+    // return an object
+    ELR.traverser(({ $ }) => {
       const result: { [key: string]: any } = {};
-      result[matched[0].text!.slice(1, -1)] = values[2];
+      result[$(`string`)[0].text!.slice(1, -1)] = $(`value`)[0].traverse();
       return result;
     })
   )
