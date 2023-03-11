@@ -24,6 +24,12 @@ jobs:
         with:
           ref: gh-pages
           clean: false
+          path: gh-pages
+
+      - name: Move existing docs
+        run: |
+          mv gh-pages/docs ./docs
+          rmdir gh-pages
 
       - name: Build Doc & Check Generated README
         run: |
