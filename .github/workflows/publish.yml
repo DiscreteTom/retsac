@@ -29,7 +29,7 @@ jobs:
       - name: Move existing docs
         run: |
           mv gh-pages/docs ./docs
-          rmdir gh-pages
+          rm -rf gh-pages
 
       - name: Build Doc & Check Generated README
         run: |
