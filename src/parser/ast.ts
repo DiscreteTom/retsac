@@ -81,7 +81,13 @@ export class ASTNode<T> {
 
   /** Try to use the traverser to calculate data and return the data. */
   traverse(): T | undefined {
-    this.data = (this.traverser ?? defaultTraverser)(this);
+    const res = (this.traverser ?? defaultTraverser)(this);
+    this.data =
+      res ??
+      (res === null
+        ? (null as T)
+        : // undefined or void
+          undefined);
     return this.data;
   }
 }
