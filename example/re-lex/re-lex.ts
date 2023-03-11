@@ -31,24 +31,6 @@ export const parser = new ELR.ParserBuilder<number>()
     { exp: `exp '-' exp` },
     ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
   )
-  .resolveRS(
-    { exp: `'-' exp` },
-    { exp: `exp '--'` },
-    { next: `'--'`, reduce: true }
-  )
-  .resolveRS(
-    { exp: `'-' exp` },
-    { exp: `exp '-' exp` },
-    { next: `'-'`, reduce: true }
-  )
-  .resolveRS(
-    { exp: `exp '-' exp` },
-    { exp: `exp '--'` },
-    { next: `'--'`, reduce: true }
-  )
-  .resolveRS(
-    { exp: `exp '-' exp` },
-    { exp: `exp '-' exp` },
-    { next: `'-'`, reduce: true }
-  )
+  .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
+  .leftSA({ exp: `exp '-' exp` })
   .build(lexer, { checkAll: true });

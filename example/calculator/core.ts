@@ -17,10 +17,6 @@ export const parser = new ELR.ParserBuilder<number>()
   .define(
     { exp: `'-' exp` },
     ELR.reducer<number>(({ values }) => -values[1]!)
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
   .define(
     { exp: `'(' exp ')'` },
@@ -29,33 +25,28 @@ export const parser = new ELR.ParserBuilder<number>()
   .define(
     { exp: `exp '+' exp` },
     ELR.reducer<number>(({ values }) => values[0]! + values[2]!)
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '-' exp` },
     ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: false })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: false })
   )
   .define(
     { exp: `exp '*' exp` },
     ELR.reducer<number>(({ values }) => values[0]! * values[2]!)
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
   )
   .define(
     { exp: `exp '/' exp` },
     ELR.reducer<number>(({ values }) => values[0]! / values[2]!)
-      .resolveRS({ exp: `exp '+' exp` }, { next: `'+'`, reduce: true })
-      .resolveRS({ exp: `exp '-' exp` }, { next: `'-'`, reduce: true })
-      .resolveRS({ exp: `exp '*' exp` }, { next: `'*'`, reduce: true })
-      .resolveRS({ exp: `exp '/' exp` }, { next: `'/'`, reduce: true })
+  )
+  .priority(
+    { exp: `'-' exp` },
+    [{ exp: `exp '*' exp` }, { exp: `exp '/' exp` }],
+    [{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }]
+  )
+  .leftSA(
+    { exp: `exp '*' exp` },
+    { exp: `exp '/' exp` },
+    { exp: `exp '+' exp` },
+    { exp: `exp '-' exp` }
   )
   .build(lexer, { checkAll: true });
