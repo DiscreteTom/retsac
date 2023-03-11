@@ -6,6 +6,7 @@ import {
   traverser,
 } from "../../builder";
 import { Parser } from "../../parser";
+import { LR_AdvancedBuilderError } from "../error";
 import { applyResolvers } from "./resolvers";
 
 type Placeholder = string;
@@ -149,7 +150,7 @@ export class GrammarExpander {
     const res = this.parser.reset().parseAll(s);
 
     if (!res.accept || !this.allParsed())
-      throw new Error("Invalid grammar rule: " + s);
+      throw LR_AdvancedBuilderError.invalidGrammarRule(s);
 
     const expanded = res.buffer[0].traverse()!;
 
