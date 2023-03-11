@@ -50,7 +50,7 @@ export interface IParserBuilder<T> {
    * Generate resolvers to make these definitions left-self-associative.
    *
    * ```ts
-   * // 1 - 2 - 3 = (1 - 2) - 3 instead of 1 - (2 - 3)
+   * // 1 - 2 - 3 means (1 - 2) - 3 instead of 1 - (2 - 3)
    * builder.leftSA({ exp: `exp '-' exp` })
    * ```
    */
@@ -58,8 +58,8 @@ export interface IParserBuilder<T> {
   /**
    * Generate resolvers to make these definitions right-self-associative.
    * ```ts
-   * // 1 - 2 - 3 = 1 - (2 - 3) instead of (1 - 2) - 3
-   * builder.rightSA({ exp: `exp '-' exp` })
+   * // a = b = 1 means a = (b = 1) instead of (a = b) = 1
+   * builder.rightSA({ exp: `var '=' exp` })
    * ```
    */
   rightSA(...defs: Definition[]): this;
