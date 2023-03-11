@@ -537,6 +537,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   priority(...defs: (Definition | Definition[])[]) {
+    // grammar rules with higher priority will always be reduced first
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
     defs.forEach((def, i) => {
       // def: [{ exp: `exp '*' exp` }]
@@ -559,6 +560,23 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         });
       });
     });
+
+    // grammar rules with the same priority will be reduced from left to right
+    // e.g. priority([{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }])
+    defs.forEach((def) => {
+      if (def instanceof Array) {
+        def.forEach((d, i) => {
+          def.forEach((d2, j) => {
+            if (i == j) return;
+            this.resolveRS(d, d2, { next: `*`, reduce: true });
+            this.resolveRR(d, d2, { next: `*`, reduce: true, handleEnd: true });
+            this.resolveRS(d2, d, { next: `*`, reduce: true });
+            this.resolveRR(d2, d, { next: `*`, reduce: true, handleEnd: true });
+          });
+        });
+      }
+    });
+
     return this;
   }
 
