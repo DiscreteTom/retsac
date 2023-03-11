@@ -13,7 +13,17 @@
           { "title": "Lexer", "source": "lexer.md" },
           {
             "title": "ELR Parser",
-            "source": "ELR-parser.md"
+            "source": "ELR-parser.md",
+            "children": [
+              {
+                "title": "Expectation & Re-Lex",
+                "source": "expectation-re-lex.md"
+              },
+              {
+                "title": "Advanced Parser",
+                "source": "advanced-parser.md"
+              }
+            ]
           }
         ]
       }
