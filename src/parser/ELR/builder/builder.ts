@@ -1,10 +1,4 @@
-import {
-  GrammarRule,
-  Grammar,
-  Condition,
-  GrammarType,
-  GrammarSet,
-} from "../model";
+import { GrammarRule, Grammar, Condition } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
