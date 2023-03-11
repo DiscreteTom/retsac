@@ -4,10 +4,11 @@
 ![coverage](https://img.shields.io/codecov/c/github/DiscreteTom/retsac?style=flat-square)
 ![build](https://img.shields.io/github/actions/workflow/status/DiscreteTom/retsac/publish.yml?style=flat-square)
 ![license](https://img.shields.io/github/license/DiscreteTom/retsac?style=flat-square)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/DiscreteTom.vscode-retsac?label=VSCode%20extension&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=DiscreteTom.vscode-retsac)
 
-Text lexer and parser.
+Text lexer and parser implemented in pure TypeScript with no external dependencies.
 
-Can be used to fast prototype your own programming language compiler/translator frontend, or parse your domain specific language.
+This can be used to **fast prototype** your own programming language compiler/translator frontend, or parse your domain specific language.
 
 ## Installation
 
@@ -23,10 +24,10 @@ yarn add retsac
   - Support custom error handling functions to prevent interruptions during the process.
   - Support custom functions to yield tokens from the input string.
 - The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
-  - By default the lib provides an ELR(Expectational LR) parser.
+  - By default retsac provides an ELR(Expectational LR) parser.
     - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
-    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, and provide a **code generator** to manually resolve conflict.
-    - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`.
+    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, you can also set grammar rule's **priority** or self-associativity to auto generate resolvers. Besides, we provide a **code generator** as the low-level API to manually resolve conflict, .
+    - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`. You can also rename nodes if you want to query nodes with same type using different names.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
     - Expect lexer to yield specific token type and/or content to parse the input more smartly.
@@ -36,8 +37,7 @@ yarn add retsac
 
 ## Resources
 
-- [Documentation](https://github.com/DiscreteTom/retsac/wiki).
-- [API reference](https://discretetom.github.io/retsac/).
+- [Documentation & API reference](https://discretetom.github.io/retsac/)
 - [VSCode extension](https://github.com/DiscreteTom/vscode-retsac)
 - [Demo programming language](https://github.com/DiscreteTom/dt0)
 
@@ -45,29 +45,33 @@ yarn add retsac
 
 ### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json/json.ts)
 
-In this example, all conflicts are auto resolved by ELR(1) parser.
+In this example, we use `AdvancedBuilder` to define grammar rules using `+*?`, define top-down traversers using `traverser`, and query nodes in grammar rules using `$`.
+
+All conflicts are auto resolved.
 
 <details open>
 <summary>Click to Expand</summary>
-<include path="./example/json/json.ts" from="3" to="66" />
+<include path="./example/json/json.ts" from="3" to="48" />
 </details>
 
 ### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/example/calculator/core.ts)
 
-In this example, there are many conflicts in the grammar. We use code generator to generate `.resolveRS( ... )` to resolve those conflicts.
+In this example, we use `reducer` to define bottom-up data reducers, so we can get result when the AST is built.
+
+There are conflicts introduced by those grammar rules, we use high-level resolver APIs `priority/leftSA` to resolve them.
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/calculator/core.ts" from="3" to="61" />
+<include path="./example/calculator/core.ts" from="3" to="53" />
 </details>
 
-### [AdvancedBuilder](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
+### [Function Definition](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
 
-In this example, we use `AdvancedBuilder` with meta characters like `+*?` in grammar rules to simplify the definition. The `AdvancedBuilder` will auto generate resolvers if the `+*?` introduced conflicts.
+This example shows you how to define a simple `fn_def` grammar rule if you want to build a programming language compiler.
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="34" />
+<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="30" />
 </details>
 
 ## Contribute
