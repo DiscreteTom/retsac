@@ -33,6 +33,8 @@ jobs:
 
       - name: Build Doc & Check Generated README
         run: |
+          rm docs/dev
+          rm docs/stable
           mv README.md README.md.bk
           yarn build:doc
           diff README.md README.md.bk
