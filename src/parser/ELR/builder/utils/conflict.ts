@@ -40,9 +40,8 @@ function getEndSet<T>(
 }
 
 /** Return conflicts that user didn't resolve. */
-function getUnresolvedConflicts<T>(
+function getUserUnresolvedConflicts<T>(
   resolved: readonly ResolvedConflict<T>[],
-  NTs: ReadonlySet<string>,
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<T>>,
   anotherRule: Readonly<GrammarRule<T>>,
@@ -126,7 +125,7 @@ function getUnresolvedConflicts<T>(
 /**
  * Return conflicts that user didn't resolve and can't be automatically resolved.
  */
-export function getConflicts<T>(
+export function getUnresolvedConflicts<T>(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
@@ -187,9 +186,8 @@ export function getConflicts<T>(
           }
 
           // auto resolve failed, check if the conflicts are resolved by user
-          const res = getUnresolvedConflicts(
+          const res = getUserUnresolvedConflicts(
             resolved,
-            NTs,
             ConflictType.REDUCE_SHIFT,
             reducerRule,
             anotherRule,
@@ -231,9 +229,8 @@ export function getConflicts<T>(
             }
 
             // auto resolve failed, check if the conflicts are resolved by user
-            const res = getUnresolvedConflicts(
+            const res = getUserUnresolvedConflicts(
               resolved,
-              NTs,
               ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
@@ -275,9 +272,8 @@ export function getConflicts<T>(
             }
 
             // auto resolve failed, check if the conflicts are resolved by user
-            const res = getUnresolvedConflicts(
+            const res = getUserUnresolvedConflicts(
               resolved,
-              NTs,
               ConflictType.REDUCE_SHIFT,
               reducerRule,
               anotherRule,
@@ -343,9 +339,8 @@ export function getConflicts<T>(
         }
 
         // auto resolve failed, check if the conflict is resolved by user
-        const res = getUnresolvedConflicts(
+        const res = getUserUnresolvedConflicts(
           resolved,
-          NTs,
           ConflictType.REDUCE_REDUCE,
           reducerRule,
           anotherRule,

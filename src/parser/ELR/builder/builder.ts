@@ -19,7 +19,7 @@ import { Conflict, ConflictType, Definition } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
-import { getConflicts } from "./utils/conflict";
+import { getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import {
   BuilderDecorator,
@@ -312,7 +312,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       options?.checkConflicts ||
       options?.generateResolvers
     ) {
-      const conflicts = getConflicts<T>(
+      const conflicts = getUnresolvedConflicts<T>(
         this.entryNTs,
         NTs,
         grs,
@@ -384,7 +384,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     // ensure all resolved are indeed conflicts
     // first, re-calculate all conflicts, ignore user resolve
     const allConflicts = [] as Conflict<T>[];
-    getConflicts<T>(
+    getUnresolvedConflicts<T>(
       this.entryNTs,
       NTs,
       grs,
