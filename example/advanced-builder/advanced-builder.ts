@@ -12,6 +12,7 @@ const lexer = new Lexer.Builder()
 
 export const parser = new ELR.AdvancedBuilder()
   .define({
+    // use `@` to rename a node, this is effective only when using `$` to query nodes
     fn_def: `
       pub fn identifier@funcName '(' (param (',' param)*)? ')' ':' identifier@retType '{'
         stmt*
@@ -25,9 +26,5 @@ export const parser = new ELR.AdvancedBuilder()
   .define({ exp: `integer | identifier` })
   .define({ exp: `exp '+' exp` })
   .entry("fn_def")
-  .resolveRS(
-    { exp: `exp '+' exp` },
-    { exp: `exp '+' exp` },
-    { next: `'+'`, reduce: true }
-  )
+  .leftSA({ exp: `exp '+' exp` })
   .build(lexer, { generateResolvers: "builder", checkAll: true });

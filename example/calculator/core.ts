@@ -1,7 +1,7 @@
 import { Lexer, ELR } from "../../src";
 
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(/^\s/) // ignore blank characters
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
   })
@@ -39,11 +39,12 @@ export const parser = new ELR.ParserBuilder<number>()
     ELR.reducer<number>(({ values }) => values[0]! / values[2]!)
   )
   .priority(
-    { exp: `'-' exp` },
+    { exp: `'-' exp` }, // highest priority
     [{ exp: `exp '*' exp` }, { exp: `exp '/' exp` }],
-    [{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }]
+    [{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }] // lowest priority
   )
   .leftSA(
+    // left-self-associative, e.g. 1 - 2 - 3 = (1 - 2) - 3 instead of 1 - (2 - 3)
     { exp: `exp '*' exp` },
     { exp: `exp '/' exp` },
     { exp: `exp '+' exp` },

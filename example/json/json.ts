@@ -1,12 +1,12 @@
 import { Lexer, ELR } from "../../src";
 
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(/^\s/) // ignore blank characters
   .define({
-    string: Lexer.stringLiteral({ double: true }),
+    string: Lexer.stringLiteral({ double: true }), // double quote string literal
     number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
-  .define(Lexer.wordType("true", "false", "null"))
+  .define(Lexer.wordType("true", "false", "null")) // type's name is the literal value
   .anonymous(Lexer.exact(..."[]{},:"))
   .build();
 
