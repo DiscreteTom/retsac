@@ -81,7 +81,7 @@ export class ASTNode<T> {
 
   /** Try to use the traverser to calculate data and return the data. */
   traverse(): T | undefined {
-    this.data = (this.traverser ?? defaultTraverser)(this) ?? undefined;
+    this.data = (this.traverser ?? defaultTraverser)(this);
     return this.data;
   }
 }

@@ -37,9 +37,9 @@ export interface IParser<T> {
   take(): ASTNode<T> | undefined;
 }
 
-export type Traverser<T> = (self: ASTNode<T>) => T | void;
+export type Traverser<T> = (self: ASTNode<T>) => T | undefined;
 
-export function defaultTraverser<T>(self: ASTNode<T>): T | void {
+export function defaultTraverser<T>(self: ASTNode<T>): T | undefined {
   if (self.children !== undefined) {
     // if there is only one child, use its data or traverse to get its data
     if (self.children.length == 1)
