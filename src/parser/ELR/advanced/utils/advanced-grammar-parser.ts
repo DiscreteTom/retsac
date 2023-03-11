@@ -1,8 +1,8 @@
 import { Builder, stringLiteral, exact } from "../../../../lexer";
 import {
   Definition,
-  DefinitionContextBuilder,
   ParserBuilder,
+  RS_ResolverOptions,
   traverser,
 } from "../../builder";
 import { Parser } from "../../parser";
@@ -133,12 +133,19 @@ export class GrammarExpander {
   }
 
   expand<T>(
-    builder: ParserBuilder<T>,
     s: string,
     NT: string,
-    ctxBuilder: DefinitionContextBuilder<T> | undefined,
-    debug: boolean | undefined
+    debug: boolean | undefined,
+    resolve: boolean
   ) {
+    const result = {
+      defs: [] as Definition[],
+      rs: [] as {
+        reducerRule: Definition;
+        anotherRule: Definition;
+        options: RS_ResolverOptions<T>;
+      }[],
+    };
     const res = this.parser.reset().parseAll(s);
 
     if (!res.accept || !this.allParsed())
@@ -149,28 +156,29 @@ export class GrammarExpander {
     const resultDef: Definition = {};
     resultDef[NT] = expanded;
     if (debug) console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
-    builder.define(resultDef, ctxBuilder);
+    result.defs.push(resultDef);
 
     // auto resolve R-S conflict
-    expanded.forEach((reducerRule, i) => {
-      expanded.forEach((anotherRule, j) => {
-        if (i == j) return;
-        if (!anotherRule.startsWith(reducerRule)) return;
+    if (resolve)
+      expanded.forEach((reducerRule, i) => {
+        expanded.forEach((anotherRule, j) => {
+          if (i == j) return;
+          if (!anotherRule.startsWith(reducerRule)) return;
 
-        builder.resolveRS(
-          { [NT]: reducerRule },
-          { [NT]: anotherRule },
-          // in most cases we want the `+*?` to be greedy
-          { next: "*", reduce: false }
-        );
-        if (debug)
-          console.log(
-            `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", reduce: false }`
-          );
+          result.rs.push({
+            reducerRule: { [NT]: reducerRule },
+            anotherRule: { [NT]: anotherRule },
+            // in most cases we want the `+*?` to be greedy
+            options: { next: "*", reduce: false },
+          });
+          if (debug)
+            console.log(
+              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", reduce: false }`
+            );
+        });
       });
-    });
 
-    return this;
+    return result;
   }
 
   private allParsed() {
@@ -182,22 +190,27 @@ export class GrammarExpander {
     this.placeholderMap.reset();
   }
 
-  generatePlaceholderGrammarRules<T>(
-    builder: ParserBuilder<T>,
-    debug: boolean | undefined
-  ) {
+  generatePlaceholderGrammarRules<T>(debug: boolean | undefined) {
+    const result = {
+      defs: [] as Definition[],
+      rs: [] as {
+        reducerRule: Definition;
+        anotherRule: Definition;
+        options: RS_ResolverOptions<T>;
+      }[],
+    };
+
     this.placeholderMap.p2g.forEach((gs, p) => {
       const gr = `${gs} | ${gs} ${p}`;
 
-      builder
-        .define({ [p]: gr })
-        // the gr will introduce an RS conflict, so we need to resolve it
-        .resolveRS(
-          { [p]: `${gs}` },
-          { [p]: `${gs} ${p}` },
-          // in most cases we want the `+*?` to be greedy
-          { next: "*", reduce: false }
-        );
+      result.defs.push({ [p]: gr });
+      // the gr will introduce an RS conflict, so we need to resolve it
+      result.rs.push({
+        reducerRule: { [p]: `${gs}` },
+        anotherRule: { [p]: `${gs} ${p}` },
+        // in most cases we want the `+*?` to be greedy
+        options: { next: "*", reduce: false },
+      });
 
       if (debug) {
         console.log(`Generated: ${p}: \`${gr}\``);
@@ -207,6 +220,6 @@ export class GrammarExpander {
       }
     });
 
-    return this;
+    return result;
   }
 }

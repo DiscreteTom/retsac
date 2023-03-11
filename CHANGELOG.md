@@ -7,6 +7,7 @@
   - **Breaking Change**: Remove `AdvancedBuilder.expand`, make `AdvancedBuilder` extend `ParserBuilder`, they both implement `IParserBuilder`.
   - Add `ParserBuilder.use` to apply custom decorators with chain call.
   - Add `IParserBuilder.priority/leftSA/rightSA` for simplified conflict resolution.
+  - `AdvancedBuilder.resolveRS/resolveRR` support `+*?|()`.
 - Versioned documentation.
 
 ## v0.7.0
