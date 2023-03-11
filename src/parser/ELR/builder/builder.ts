@@ -237,24 +237,18 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, lexer, debug);
 
     // apply resolved conflicts to grammar rule rejecters
-    const firstSets = dfa.getFirstSets();
-    const followSets = dfa.getFollowSets();
     resolved.forEach((r) => {
-      const { nextGrammars, hasRRConflict } = parseResolved(
-        r,
-        firstSets,
-        followSets
-      );
+      const { nextGrammars, needHandleEnd } = parseResolved(r, conflicts);
       // if no conflict, no need to update rejecter
-      if (nextGrammars.length == 0 && !hasRRConflict) return;
+      if (nextGrammars.length == 0 && !needHandleEnd) return;
       // pre-calculate next nodes to avoid repeated calculation
       const nextNodes = nextGrammars.map((g) => g.toASTNode(lexer));
 
       const generated: Condition<T> = (ctx) => {
         if (
           r.type == ConflictType.REDUCE_REDUCE &&
-          // we have to make sure there is indeed an RR conflict, because when next is "*", it will not be check when checkConflicts
-          hasRRConflict
+          // we have to make sure the end is needed to be checked
+          needHandleEnd
         ) {
           // if reach end of input
           if (ctx.after.length == 0) {
@@ -586,47 +580,52 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
 function parseResolved<T>(
   r: Readonly<ResolvedConflict<T>>,
-  firstSets: ReadonlyMap<string, GrammarSet>,
-  followSets: ReadonlyMap<string, GrammarSet>
+  conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>
 ) {
   const result = {
     nextGrammars: [] as Grammar[],
-    hasRRConflict: false,
+    needHandleEnd: false,
   };
 
   if (r.next != "*") {
     // just apply the next
     result.nextGrammars = r.next;
-    // check rr conflict
-    if (r.reducerRule.checkRRConflict(r.anotherRule)) {
-      result.hasRRConflict = true;
-    }
+    // check handleEnd
+    result.needHandleEnd = (conflicts.get(r.reducerRule) ?? []).some((c) => {
+      return (
+        c.type == ConflictType.REDUCE_REDUCE &&
+        c.anotherRule == r.anotherRule &&
+        c.handleEnd
+      );
+    });
   } else {
     // r.next == '*', so we need to calculate the next
     if (r.type == ConflictType.REDUCE_SHIFT) {
-      result.nextGrammars = r.reducerRule
-        .checkRSConflict(r.anotherRule)
-        .map((c) => {
-          const result: Grammar[] = [];
-          const g = c.shifterRule.rule[c.length];
-          if (g.type == GrammarType.NT)
-            result.push(
-              // TODO: exclude NT, deduplicate
-              ...firstSets.get(g.content)!.map((g) => g)
-            );
-          else result.push(g);
-          return result;
-        })
-        .reduce((a, b) => a.concat(b), [] as Grammar[]);
+      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
+        .filter(
+          (c) =>
+            c.type == ConflictType.REDUCE_SHIFT &&
+            c.anotherRule == r.anotherRule
+        )
+        .map((c) => c.next as Grammar[])
+        .flat();
     } else {
       // this is a reduce-reduce conflict
-      if (r.reducerRule.checkRRConflict(r.anotherRule)) {
-        result.nextGrammars = followSets
-          .get(r.anotherRule.NT)!
-          // TODO: exclude NT, deduplicate
-          .map((g) => g);
-        result.hasRRConflict = true;
-      }
+      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
+        .filter(
+          (c) =>
+            c.type == ConflictType.REDUCE_REDUCE &&
+            c.anotherRule == r.anotherRule
+        )
+        .map((c) => c.next as Grammar[])
+        .flat();
+      result.needHandleEnd = (conflicts.get(r.reducerRule) ?? []).some((c) => {
+        return (
+          c.type == ConflictType.REDUCE_REDUCE &&
+          c.anotherRule == r.anotherRule &&
+          c.handleEnd
+        );
+      });
     }
   }
 

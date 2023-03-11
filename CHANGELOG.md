@@ -14,6 +14,7 @@
   - Return `null` from `Traverser` will be transformed to `undefined`.
 - Optimize performance.
   - Remove unnecessary conflict calculation.
+  - Only handle conflicts that exactly exists in rejecter.
 - Versioned documentation.
 
 ## v0.7.0
