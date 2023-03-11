@@ -127,7 +127,6 @@ function getUserUnresolvedConflicts<T>(
  */
 export function getUnresolvedConflicts<T>(
   entryNTs: ReadonlySet<string>,
-  NTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
   resolved: readonly ResolvedConflict<T>[],
   dfa: DFA<T>,

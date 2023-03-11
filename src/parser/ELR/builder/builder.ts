@@ -314,7 +314,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     ) {
       const conflicts = getUnresolvedConflicts<T>(
         this.entryNTs,
-        NTs,
         grs,
         resolved,
         dfa,
@@ -332,7 +331,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
           conflicts,
           resolved,
           lexer,
-          NTs,
           options?.printAll || false
         );
     }
@@ -352,7 +350,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     conflicts: Map<GrammarRule<T>, Conflict<T>[]>,
     resolved: ResolvedConflict<T>[],
     lexer: ILexer,
-    NTs: ReadonlySet<string>,
     printAll: boolean
   ) {
     const followSets = dfa.getFollowSets();
@@ -386,7 +383,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     const allConflicts = [] as Conflict<T>[];
     getUnresolvedConflicts<T>(
       this.entryNTs,
-      NTs,
       grs,
       [], // ignore user resolve
       dfa,
