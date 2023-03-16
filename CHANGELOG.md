@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.8.1
+
+- Parser
+  - Export `IParserBuilder/BuilderDecorator` in the top level.
+
 ## v0.8.0
 
 - Parser
