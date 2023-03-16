@@ -7,7 +7,7 @@ const lexer = new Lexer.Builder()
     number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
   .define(Lexer.wordType("true", "false", "null")) // type's name is the literal value
-  .anonymous(Lexer.exact(..."[]{},:"))
+  .anonymous(Lexer.exact(..."[]{},:")) // single char borders
   .build();
 
 export const parser = new ELR.AdvancedBuilder<any>()
