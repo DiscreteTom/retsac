@@ -48,6 +48,7 @@ export class DFA<T> {
    * If you don't use literal grammar in your rules, you can omit the lexer.
    */
   calculateAllStates(lexer?: ILexer) {
+    // TODO: buildDFA will call this function, so we can move this into DFA.constructor or DFABuilder
     // collect all grammars in rules
     const gs = new GrammarSet();
     this.allGrammarRules.forEach((gr) => {
