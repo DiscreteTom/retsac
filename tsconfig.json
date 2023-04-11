@@ -1,16 +1,4 @@
 {
-  "include": ["src"],
-  "compilerOptions": {
-    "target": "ES6",
-    "outDir": "out",
-    "module": "CommonJS",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "skipLibCheck": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
-  }
+  "extends": "./base.tsconfig.json",
+  "include": ["src"]
 }
