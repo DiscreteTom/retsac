@@ -20,9 +20,9 @@ export interface Definition {
 
 export interface ILexer {
   reset(): this;
-  /** Clone a new lexer with the same state. */
+  /** Clone a new lexer with the same state and definitions. */
   clone(): ILexer;
-  /** Clone a new lexer with the same definitions. */
+  /** Clone a new lexer with the same definitions, without states. */
   dryClone(): ILexer;
   /** Append buffer with input. */
   feed(input: string): this;
@@ -49,7 +49,7 @@ export interface ILexer {
         }>
   ): Token | null;
   /**
-   * Try to retrieve a token list.
+   * Try to retrieve a token list exhaustively.
    */
   lexAll(input?: string | { input?: string; stopOnError?: boolean }): Token[];
   /**
@@ -57,7 +57,7 @@ export interface ILexer {
    */
   trimStart(input?: string): this;
   /**
-   * Get the rest string buffer.
+   * Get the un-lexed string buffer.
    */
   getRest(): string;
   /**
