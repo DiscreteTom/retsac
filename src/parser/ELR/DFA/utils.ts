@@ -38,11 +38,11 @@ export function getGrammarRulesClosure<T>(
 
   while (true) {
     let changed = false;
-    result.map((gr) => {
+    result.forEach((gr) => {
       if (gr.rule[0].type == GrammarType.NT) {
         allGrammarRules
           .filter((gr2) => gr2.NT == gr.rule[0].content)
-          .map((gr) => {
+          .forEach((gr) => {
             if (result.includes(gr)) return;
             changed = true;
             result.push(gr);
