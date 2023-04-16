@@ -1,5 +1,5 @@
 import { Token } from "../lexer";
-import { defaultTraverser, Traverser } from "./model";
+import { ParserTraverseError } from "./error";
 
 /** A structured interface for serialization. */
 export interface ASTObj {
@@ -89,5 +89,20 @@ export class ASTNode<T> {
         : // undefined or void
           undefined);
     return this.data;
+  }
+}
+
+export type Traverser<T> = (self: ASTNode<T>) => T | undefined | void;
+
+export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
+  if (self.children !== undefined) {
+    // if there is only one child, use its data or traverse to get its data
+    if (self.children.length == 1)
+      return self.children![0].data ?? self.children![0].traverse();
+    // if there are multiple children, traverse all, don't return anything
+    self.children.forEach((c) => c.traverse());
+  } else {
+    // if there is no children, this node is a T and the traverse should not be called
+    throw ParserTraverseError.traverserNotDefined();
   }
 }

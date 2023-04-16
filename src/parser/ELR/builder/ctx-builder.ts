@@ -1,4 +1,4 @@
-import { Traverser } from "../../model";
+import { Traverser } from "../../ast";
 import { Callback, Condition } from "../model";
 import {
   DefinitionContext,

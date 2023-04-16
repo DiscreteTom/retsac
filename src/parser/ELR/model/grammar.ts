@@ -1,6 +1,5 @@
 import { ILexer } from "../../../lexer/model";
-import { ASTNode } from "../../ast";
-import { Traverser } from "../../model";
+import { ASTNode, Traverser } from "../../ast";
 import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";

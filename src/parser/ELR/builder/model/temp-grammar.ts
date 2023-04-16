@@ -1,5 +1,4 @@
-import { ASTNode } from "../../../ast";
-import { Traverser } from "../../../model";
+import { ASTNode, Traverser } from "../../../ast";
 import {
   Grammar,
   Callback,
