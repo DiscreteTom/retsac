@@ -129,7 +129,7 @@ export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
   dfa: DFA<T>,
-  lexer?: ILexer,
+  lexer: ILexer,
   debug = false
 ) {
   const firstSets = dfa.getFirstSets();
