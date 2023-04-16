@@ -7,7 +7,7 @@
   - **Breaking Change**: change `LR_RuntimeError`, add `ParserTraverseError`.
 - Optimize performance.
   - Prevent unnecessary string copy.
-  - Cache string manipulation results.
+  - Cache string manipulation results and other temp results.
   - Add `Lexer.Action.maybeMuted` to accelerate expectational lexing & `trimStart`.
 
 ## v0.8.0

@@ -25,6 +25,8 @@ export class Grammar {
   readonly name: string;
   /** Cache the string expression. */
   private str?: string;
+  /** Cache the temporary ast node. */
+  private node?: Readonly<ASTNode<any>>;
 
   private constructor(p: Pick<Grammar, "type" | "content" | "name">) {
     Object.assign(this, p);
@@ -57,17 +59,22 @@ export class Grammar {
           this.content == g.type;
   }
 
-  /** Lexer is used to parse literal value's type name. */
-  toASTNode<T>(lexer: ILexer) {
+  /**
+   * This function is used to create temporary ASTNode for comparison.
+   * Lexer is used to parse literal value's type name.
+   * The result will be cached to prevent duplicated calculation.
+   */
+  toTempASTNode(lexer: ILexer) {
+    if (this.node) return this.node;
     if (this.type == GrammarType.LITERAL) {
       const token = lexer.dryClone().lex(this.content);
       if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
-      return new ASTNode<T>({
+      return (this.node = new ASTNode({
         type: token.type,
         text: this.content,
         start: 0,
-      });
-    } else return new ASTNode<T>({ type: this.content, start: 0 });
+      }));
+    } else return (this.node = new ASTNode({ type: this.content, start: 0 }));
   }
 
   /** Return `type name` or `'literal value'` */

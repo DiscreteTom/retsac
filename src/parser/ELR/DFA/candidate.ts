@@ -35,7 +35,7 @@ export class Candidate<T> {
    *
    * Return `null` if the node can not be accepted.
    */
-  getNext(node: Readonly<ASTNode<T>>): Candidate<T> | null {
+  getNext(node: Readonly<ASTNode<any>>): Candidate<T> | null {
     const key = JSON.stringify({ type: node.type, text: node.text });
 
     // try to get from cache
@@ -157,8 +157,8 @@ export class Candidate<T> {
               .clone() // clone with state to prevent side effect
               .lex({
                 expect: {
-                  type: g.toASTNode(lexer).type,
-                  text: g.toASTNode(lexer).text,
+                  type: g.toTempASTNode(lexer).type,
+                  text: g.toTempASTNode(lexer).text,
                 },
               })
           )
@@ -215,8 +215,8 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer): ASTNode<T> | null {
     // try to lex to get the token
     const token = lexer.lex({
       expect: {
-        type: g.toASTNode(lexer).type,
-        text: g.toASTNode(lexer).text,
+        type: g.toTempASTNode(lexer).type,
+        text: g.toTempASTNode(lexer).text,
       },
     });
     if (token == null) {

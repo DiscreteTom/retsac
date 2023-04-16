@@ -57,7 +57,7 @@ export class DFA<T> {
       });
     });
     // convert to mock AST node
-    const mockNodes = gs.map((g) => g.toASTNode<T>(lexer));
+    const mockNodes = gs.map((g) => g.toTempASTNode(lexer));
 
     while (true) {
       let changed = false;

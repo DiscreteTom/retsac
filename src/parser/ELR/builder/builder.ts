@@ -236,7 +236,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       // if no conflict, no need to update rejecter
       if (nextGrammars.length == 0 && !needHandleEnd) return;
       // pre-calculate next nodes to avoid repeated calculation
-      const nextNodes = nextGrammars.map((g) => g.toASTNode(lexer));
+      const nextNodes = nextGrammars.map((g) => g.toTempASTNode(lexer));
 
       const generated: Condition<T> = (ctx) => {
         if (

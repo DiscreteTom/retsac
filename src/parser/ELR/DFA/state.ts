@@ -21,7 +21,7 @@ export class State<T> {
   }
 
   getNext(
-    next: Readonly<ASTNode<T>>,
+    next: Readonly<ASTNode<any>>,
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
     allStatesCache: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
