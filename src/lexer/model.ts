@@ -29,7 +29,7 @@ export interface ILexer {
   /** How many chars are digested. */
   get digested(): number;
   /**
-   * Take `n` chars from buffer and update state.
+   * Take `n` chars from the rest of buffer and update state.
    */
   take(n?: number): string;
   /**
@@ -53,7 +53,7 @@ export interface ILexer {
    */
   lexAll(input?: string | { input?: string; stopOnError?: boolean }): Token[];
   /**
-   * Remove ignored chars from the start of the buffer.
+   * Remove ignored chars from the start of the rest of buffer.
    */
   trimStart(input?: string): this;
   /**
@@ -61,7 +61,7 @@ export interface ILexer {
    */
   getRest(): string;
   /**
-   * Buffer not empty.
+   * The rest of buffer not empty.
    */
   hasRest(): boolean;
   /**
