@@ -7,7 +7,7 @@
 - Optimize performance.
   - Prevent unnecessary string copy.
   - Cache string manipulation results.
-  - Add `Lexer.Action.maybeMuted` to accelerate expectational lexing.
+  - Add `Lexer.Action.maybeMuted` to accelerate expectational lexing & `trimStart`.
 
 ## v0.8.0
 

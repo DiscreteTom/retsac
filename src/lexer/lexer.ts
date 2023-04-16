@@ -204,6 +204,9 @@ export class Lexer implements ILexer {
       if (!this.hasRest()) return this;
       let mute = false;
       for (const def of this.defs) {
+        // if def is not mute-able, ignore it
+        if (!def.action.maybeMuted) continue;
+
         const res = def.action.exec(this.rest);
         if (res.accept) {
           if (!res.muted) {
