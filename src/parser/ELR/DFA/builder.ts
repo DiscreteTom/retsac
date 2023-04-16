@@ -31,8 +31,8 @@ export class DFABuilder {
     const NTClosures = getAllNTClosure(NTs, allGrammarRules);
 
     // init all states
-    const allStatesCache = new Map<string, State<T>>();
-    allStatesCache.set(entryState.toString(), entryState);
+    const allStates = new Map<string, State<T>>();
+    allStates.set(entryState.toString(), entryState);
 
     // construct first sets for all NTs
     const firstSets = new Map<string, GrammarSet>();
@@ -40,14 +40,14 @@ export class DFABuilder {
     NTClosures.forEach((grs, NT) => {
       const gs = firstSets.get(NT);
       // for each direct/indirect grammar rule, add first grammar to first set
-      grs.map((gr) => gs!.add(gr.rule[0]));
+      grs.forEach((gr) => gs!.add(gr.rule[0]));
     });
 
     // construct follow sets for all grammars
     const followSets = new Map<string, GrammarSet>();
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
-    allGrammarRules.map((gr) => {
-      gr.rule.map((g, i, rule) => {
+    allGrammarRules.forEach((gr) => {
+      gr.rule.forEach((g, i, rule) => {
         if (!followSets.has(g.content)) {
           // if g is a T/Literal, it might not have a follow set
           followSets.set(g.content, new GrammarSet());
@@ -58,7 +58,7 @@ export class DFABuilder {
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
-            firstSets.get(rule[i + 1].content)!.map((g) => gs.add(g));
+            firstSets.get(rule[i + 1].content)!.forEach((g) => gs.add(g));
         }
       });
     });
@@ -66,15 +66,15 @@ export class DFABuilder {
     while (true) {
       let changed = false;
 
-      allGrammarRules.map((gr) => {
+      allGrammarRules.forEach((gr) => {
         followSets
           .get(gr.NT)! // target NT's follow set
-          .map(
+          .forEach(
             (g) => (changed ||= followSets.get(gr.rule.at(-1)!.content)!.add(g))
           );
         followSets
           .get(gr.rule.at(-1)!.content)! // last grammar's follow set
-          .map((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
+          .forEach((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
       });
 
       if (!changed) break;
@@ -83,7 +83,7 @@ export class DFABuilder {
     calculateAllStates(
       lexer,
       allGrammarRules,
-      allStatesCache,
+      allStates,
       NTClosures,
       allInitialCandidates
     );
@@ -96,7 +96,7 @@ export class DFABuilder {
       firstSets,
       followSets,
       allInitialCandidates,
-      allStatesCache,
+      allStates,
     ] as const;
   }
 }

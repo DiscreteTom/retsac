@@ -198,6 +198,10 @@ export class GrammarSet {
     return result;
   }
 
+  forEach(f: (g: Grammar) => void) {
+    for (const g of this.gs.values()) f(g);
+  }
+
   toArray() {
     return Array.from(this.gs.values());
   }
