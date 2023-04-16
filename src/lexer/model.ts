@@ -30,6 +30,7 @@ export interface ILexer {
   get digested(): number;
   /**
    * Take `n` chars from the rest of buffer and update state.
+   * This is useful when you have external logic to handle the token.
    */
   take(n?: number): string;
   /**
