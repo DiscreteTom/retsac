@@ -14,12 +14,15 @@ export class Candidate<T> {
   readonly gr: Readonly<GrammarRule<T>>;
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
-  /** `ast node str => candidate` */
-  protected nextCache: Map<string, Candidate<T> | null>;
+  /**
+   * `ast node str => candidate`.
+   * This will be calculated during `DFA.calculateAllStates`.
+   */
+  protected readonly nextMap: Map<string, Candidate<T> | null>;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
     Object.assign(this, data);
-    this.nextCache = new Map();
+    this.nextMap = new Map();
   }
 
   /** Current grammar. */
@@ -40,7 +43,7 @@ export class Candidate<T> {
     const key = node.toString();
 
     // try to get from cache
-    const cache = this.nextCache.get(key);
+    const cache = this.nextMap.get(key);
     if (cache !== undefined) return cache;
 
     // not in cache, calculate and cache
@@ -48,7 +51,7 @@ export class Candidate<T> {
       this.canDigestMore() && this.current.eq(node)
         ? new Candidate<T>({ gr: this.gr, digested: this.digested + 1 })
         : null;
-    this.nextCache.set(key, res);
+    this.nextMap.set(key, res);
     return res;
   }
 
@@ -154,10 +157,10 @@ export class Candidate<T> {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
-      } else if (
-        followSets
-          .get(this.gr.NT)!
-          .map((g) =>
+      } else {
+        let mismatch = true;
+        for (const g of followSets.get(this.gr.NT)!.toArray()) {
+          if (
             lexer
               .clone() // clone with state to prevent side effect
               .lex({
@@ -165,18 +168,22 @@ export class Candidate<T> {
                   type: g.toTempASTNode(lexer).type,
                   text: g.toTempASTNode(lexer).text,
                 },
-              })
-          )
-          .every((x) => x == null)
-      ) {
-        if (debug)
-          console.log(
-            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
-              0,
-              10 // only show first 10 chars
-            )}`
-          );
-        return { res: { accept: false } };
+              }) != null
+          ) {
+            mismatch = false;
+            break;
+          }
+        }
+        if (mismatch) {
+          if (debug)
+            console.log(
+              `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
+                0,
+                10 // only show first 10 chars
+              )}`
+            );
+          return { res: { accept: false } };
+        }
       }
       // else, follow set matched, continue
     }
@@ -198,7 +205,7 @@ export class Candidate<T> {
       traverser: this.gr.traverser,
       $: context.$,
     });
-    node.children!.map((c) => (c.parent = node)); // link parent
+    node.children!.forEach((c) => (c.parent = node)); // link parent
     if (debug) console.log(`[Accept] ${this.gr.toString()}`);
 
     return {

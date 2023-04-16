@@ -195,6 +195,10 @@ export class GrammarSet {
     return result;
   }
 
+  toArray() {
+    return Array.from(this.gs.values());
+  }
+
   /** Return a list of grammars that in both `this` and `gs`. */
   overlap(gs: Readonly<GrammarSet>) {
     const result = [] as Grammar[];
