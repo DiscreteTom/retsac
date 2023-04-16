@@ -1,5 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode, Traverser } from "../../ast";
+import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -54,11 +55,13 @@ export class Grammar {
           this.content == g.type;
   }
 
-  /** If `this.type` is `LITERAL`, then the `lexer` parameter is required. */
+  /** Lexer is used to parse literal value's type name. */
   toASTNode<T>(lexer: ILexer) {
     if (this.type == GrammarType.LITERAL) {
+      const token = lexer.dryClone().lex(this.content);
+      if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
       return new ASTNode<T>({
-        type: lexer.dryClone().lex(this.content)!.type,
+        type: token.type,
         text: this.content,
         start: 0,
       });

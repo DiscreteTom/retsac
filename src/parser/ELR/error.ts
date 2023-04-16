@@ -1,4 +1,4 @@
-export type LR_RuntimeErrorType = "MISSING_LEXER";
+export type LR_RuntimeErrorType = "INVALID_LITERAL";
 
 export class LR_RuntimeError extends Error {
   type: LR_RuntimeErrorType;
@@ -11,10 +11,10 @@ export class LR_RuntimeError extends Error {
     Object.setPrototypeOf(this, LR_RuntimeError.prototype);
   }
 
-  static missingLexerToParseLiteral() {
+  static invalidLiteral(content: string) {
     return new LR_RuntimeError(
-      "MISSING_LEXER",
-      `Lexer is required to parse literal grammars`
+      "INVALID_LITERAL",
+      `Lexer can't transform '${content}' to a grammar type.`
     );
   }
 }
