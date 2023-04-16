@@ -19,6 +19,8 @@ export class Candidate<T> {
    * This will be calculated during `DFA.calculateAllStates`.
    */
   protected readonly nextMap: Map<string, Candidate<T> | null>;
+  /** Cache the string representation. */
+  private str?: string;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
     Object.assign(this, data);
@@ -55,10 +57,12 @@ export class Candidate<T> {
     return res;
   }
 
-  /** Return `NT <= ...before @ ...after`. */
-  toString(sep = " ", arrow = "<=", index = "@") {
-    // TODO: cache?
-    return Candidate.getString(this, sep, arrow, index);
+  /**
+   * Return `NT <= ...before @ ...after`.
+   * The result will be cached for future use.
+   */
+  toString() {
+    return this.str ?? (this.str = Candidate.getString(this));
   }
 
   static getString<T>(
