@@ -1,24 +1,23 @@
-export type ActionOutput =
-  | Readonly<{ accept: false }>
-  | Readonly<{
-      /** This action can accept some input as a token. */
-      accept: true;
-      /** Don't emit token, continue lex. */
-      muted: boolean;
-      /** How many chars are accepted by this action. */
-      digested: number;
-      /**
-       * The content of the token.
-       * This field is to cache the result of `input.slice(0, digested)` to prevent duplicate calculation.
-       */
-      content: string;
-      /**
-       *  The rest of the input.
-       * This field is to cache the result of `input.slice(digested)` to prevent duplicate calculation.
-       */
-      rest: string;
-      error?: any;
-    }>;
+export type ActionAcceptedOutput = Readonly<{
+  /** This action can accept some input as a token. */
+  accept: true;
+  /** Don't emit token, continue lex. */
+  muted: boolean;
+  /** How many chars are accepted by this action. */
+  digested: number;
+  /**
+   * The content of the token.
+   * This field is to cache the result of `input.slice(0, digested)` to prevent duplicate calculation.
+   */
+  content: string;
+  /**
+   *  The rest of the input.
+   * This field is to cache the result of `input.slice(digested)` to prevent duplicate calculation.
+   */
+  rest: string;
+  error?: any;
+}>;
+export type ActionOutput = Readonly<{ accept: false }> | ActionAcceptedOutput;
 
 export type ActionExec = (buffer: string) => ActionOutput;
 /**
