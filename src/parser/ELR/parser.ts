@@ -42,6 +42,8 @@ export class Parser<T> implements IParser<T> {
     const res = new Parser<T>(this.dfa, this.lexer.clone());
     res.buffer = [...this.buffer];
     res.errors = [...this.errors];
+    res.reLexStack = [...this.reLexStack];
+    res.rollbackStack = [...this.rollbackStack];
     return res;
   }
 
