@@ -31,6 +31,8 @@ export class ASTNode<T> {
   parent?: ASTNode<T>;
   data?: T;
   error?: any;
+  /** Cache the string expression. */
+  private str?: string;
 
   constructor(
     p: Partial<
@@ -66,7 +68,7 @@ export class ASTNode<T> {
 
   /** Return type name. If the type is anonymous, return "literal value". */
   toString() {
-    return this.type || `"${this.text}"`;
+    return this.str ?? (this.str = this.type || `"${this.text}"`);
   }
 
   /** Return an ASTObj for serialization. */
