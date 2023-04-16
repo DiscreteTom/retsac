@@ -1,6 +1,6 @@
 import { Definition, ILexer, Token } from "./model";
 
-/** Transform text string to a token list. */
+/** Extract tokens from the input string. */
 export class Lexer implements ILexer {
   private readonly defs: readonly Definition[];
   /** Only `feed`, `reset` can modify buffer. */
