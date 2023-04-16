@@ -8,17 +8,17 @@ export class Lexer implements ILexer {
   /**
    * The un-digested string.
    * This var is used to cache the result of `buffer.slice(offset)` to prevent unnecessary string copy.
-   * Only `feed`, `reset`, `take` can modify this var.
+   * Only `feed`, `reset`, `update` can modify this var.
    */
   private rest: string;
   /**
    * How many chars are digested.
-   * Only `take`, `reset` can modify this var.
+   * Only `update`, `reset` can modify this var.
    */
   private offset: number;
   /**
    * How many chars in each line.
-   * Only `take`, `reset` can modify this var.
+   * Only `update`, `reset` can modify this var.
    */
   private lineChars: number[];
   /** Error token list. */
@@ -63,10 +63,16 @@ export class Lexer implements ILexer {
   }
 
   take(n = 1) {
-    // update this state, don't change buffer's value
     const content = this.rest.slice(0, n);
-    this.offset += n;
-    this.rest = this.buffer.slice(this.offset);
+    const rest = this.rest.slice(n);
+
+    this.update(n, content, rest);
+    return content;
+  }
+
+  private update(digested: number, content: string, rest: string) {
+    this.offset += digested;
+    this.rest = rest;
     // calculate line chars
     content.split("\n").forEach((part, i, list) => {
       this.lineChars[this.lineChars.length - 1] += part.length;
@@ -75,8 +81,7 @@ export class Lexer implements ILexer {
         this.lineChars.push(0); // new line with 0 chars
       }
     });
-
-    return content;
+    return this;
   }
 
   lex(
@@ -123,9 +128,10 @@ export class Lexer implements ILexer {
             res.muted)
         ) {
           // update this state
-          const content = this.take(res.digested); // TODO: optimize
+          this.update(res.digested, res.content, res.rest);
 
           // construct token
+          const content = res.content;
           const token: Token = {
             type: def.type,
             content,
@@ -194,9 +200,10 @@ export class Lexer implements ILexer {
           }
 
           // next token is muted, update this state
-          const content = this.take(res.digested);
+          this.update(res.digested, res.content, res.rest);
 
           // construct token
+          const content = res.content;
           const token: Token = {
             type: def.type,
             content,
