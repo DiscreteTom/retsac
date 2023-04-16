@@ -4,6 +4,9 @@
 
 - Parser
   - Export `IParserBuilder/BuilderDecorator` in the top level.
+- Optimize performance.
+  - Prevent unnecessary string copy.
+  - Cache string manipulation results.
 
 ## v0.8.0
 
