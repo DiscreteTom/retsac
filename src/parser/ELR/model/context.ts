@@ -1,6 +1,5 @@
 import { ILexer } from "../../../lexer";
 import { ASTNode, ASTNodeQuerySelector } from "../../ast";
-import { GrammarRule, GrammarSet } from "./grammar";
 
 /** Parser context for ELR parsers. */
 export interface ParserContext<T> {

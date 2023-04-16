@@ -1,4 +1,4 @@
-import { ILexer } from "../../../lexer/model";
+import { ILexer } from "../../../lexer";
 import { ASTNode, Traverser } from "../../ast";
 import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
