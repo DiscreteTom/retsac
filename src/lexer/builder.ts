@@ -16,14 +16,12 @@ export class Builder {
   define(defs: { [type: string]: ActionSource | ActionSource[] }) {
     for (const type in defs) {
       const raw = defs[type];
-      const actionSources = raw instanceof Array ? raw : [raw];
-
-      for (const src of actionSources) {
+      (raw instanceof Array ? raw : [raw]).forEach((src) => {
         this.defs.push({
           type,
           action: Action.from(src),
         });
-      }
+      });
     }
     return this;
   }
@@ -32,16 +30,14 @@ export class Builder {
    * Define tokens with empty type.
    */
   anonymous(...actions: ActionSource[]) {
-    actions.map((a) => this.define({ "": a }));
-    return this;
+    return this.define({ "": actions });
   }
 
   /**
-   * Define muted anonymous action.
+   * Define muted anonymous actions.
    */
   ignore(...actions: ActionSource[]) {
-    this.anonymous(...actions.map((a) => Action.from(a).mute()));
-    return this;
+    return this.define({ "": actions.map((a) => Action.from(a).mute()) });
   }
 
   /**
