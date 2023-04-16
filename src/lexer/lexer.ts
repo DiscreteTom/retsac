@@ -11,9 +11,15 @@ export class Lexer implements ILexer {
    * Only `feed`, `reset`, `take` can modify this var.
    */
   private rest: string;
-  /** How many chars are digested. */
+  /**
+   * How many chars are digested.
+   * Only `take`, `reset` can modify this var.
+   */
   private offset: number;
-  /** How many chars in each line. */
+  /**
+   * How many chars in each line.
+   * Only `take`, `reset` can modify this var.
+   */
   private lineChars: number[];
   /** Error token list. */
   private errors: Token[];
