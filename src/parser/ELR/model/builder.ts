@@ -44,6 +44,9 @@ export interface IParserBuilder<T> {
    * // gr1 > gr2 = gr3
    * builder.priority(gr1, [gr2, gr3])
    * ```
+   *
+   * Grammar rules with higher priority will always be reduced first,
+   * and grammar rules with the same priority will be reduced from left to right.
    */
   priority(...defs: (Definition | Definition[])[]): this;
   /**
