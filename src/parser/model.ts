@@ -1,15 +1,17 @@
 import { ASTNode } from "./ast";
 import { LR_RuntimeError } from "./ELR/error";
 
+export type ParserAcceptedOutput<T> = Readonly<{
+  accept: true;
+  /** Result AST nodes. */
+  buffer: readonly ASTNode<T>[];
+  /** Empty if no error. */
+  errors: readonly ASTNode<T>[];
+}>;
+
 export type ParserOutput<T> =
-  | { accept: false }
-  | {
-      accept: true;
-      /** Result AST nodes. */
-      buffer: readonly ASTNode<T>[];
-      /** Empty if no error. */
-      errors: readonly ASTNode<T>[];
-    };
+  | Readonly<{ accept: false }>
+  | ParserAcceptedOutput<T>;
 
 export type ParseExec<T> = (
   input?: string | { input?: string; stopOnError?: boolean }
