@@ -39,6 +39,12 @@ test("trimStart", () => {
   expect(lexer.reset().trimStart("aaa").getRest()).toBe("aaa");
 });
 
+test("lexer take", () => {
+  expect(lexer.reset().feed("123").take(3)).toBe("123");
+  expect(lexer.getRest()).toBe("");
+  expect(lexer.digested).toBe(3);
+});
+
 test("number", () => {
   ["1", "123", "0123", "01230"].forEach((str) => {
     expect(lexer.reset().lex(str)).toEqual({
