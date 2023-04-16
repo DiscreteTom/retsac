@@ -193,7 +193,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
     // build the DFA
     const dfa = new DFA<T>(
-      ...DFABuilder.build<T>(grs, this.entryNTs, NTs),
+      ...DFABuilder.build<T>(lexer, grs, this.entryNTs, NTs),
       this.cascadeQueryPrefix
     );
 

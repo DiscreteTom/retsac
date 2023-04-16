@@ -135,7 +135,7 @@ export function getConflicts<T>(
   const firstSets = dfa.getFirstSets();
   const followSets = dfa.getFollowSets();
   const endSet = getEndSet(entryNTs, grs);
-  const states = dfa.calculateAllStates(lexer).getAllStates();
+  const states = dfa.getAllStates();
 
   const result = new Map<GrammarRule<T>, Conflict<T>[]>();
 

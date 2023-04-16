@@ -1,3 +1,4 @@
+import { ILexer } from "../../../lexer";
 import { GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
@@ -5,6 +6,7 @@ import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 export class DFABuilder {
   static build<T>(
+    lexer: ILexer,
     allGrammarRules: readonly GrammarRule<T>[],
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
@@ -78,6 +80,14 @@ export class DFABuilder {
       if (!changed) break;
     }
 
+    calculateAllStates(
+      lexer,
+      allGrammarRules,
+      allStatesCache,
+      NTClosures,
+      allInitialCandidates
+    );
+
     return [
       allGrammarRules,
       entryNTs,
@@ -88,5 +98,40 @@ export class DFABuilder {
       allInitialCandidates,
       allStatesCache,
     ] as const;
+  }
+}
+
+/**
+ * Calculate state machine's state transition map ahead of time and cache.
+ */
+function calculateAllStates<T>(
+  lexer: ILexer,
+  allGrammarRules: readonly GrammarRule<T>[],
+  allStates: Map<string, State<T>>,
+  NTClosures: Map<string, GrammarRule<T>[]>,
+  allInitialCandidates: Map<string, Candidate<T>>
+) {
+  // collect all grammars in rules
+  const gs = new GrammarSet();
+  allGrammarRules.forEach((gr) => {
+    gr.rule.forEach((g) => {
+      gs.add(g);
+    });
+  });
+  // convert to mock AST node
+  const mockNodes = gs.map((g) => g.toTempASTNode(lexer));
+
+  while (true) {
+    let changed = false;
+    allStates.forEach((state) => {
+      mockNodes.forEach((node) => {
+        if (
+          state.getNext(node, NTClosures, allStates, allInitialCandidates)
+            .changed
+        )
+          changed = true;
+      });
+    });
+    if (!changed) break;
   }
 }

@@ -33,46 +33,6 @@ export class DFA<T> {
     return this.followSets;
   }
 
-  /**
-   * Calculate state machine's state transition map ahead of time and cache.
-   * This action requires a lexer to calculate literal's type name.
-   * If you don't use literal grammar in your rules, you can omit the lexer.
-   */
-  calculateAllStates(lexer: ILexer) {
-    // TODO: buildDFA will call this function, so we can move this into DFA.constructor or DFABuilder
-    // collect all grammars in rules
-    const gs = new GrammarSet();
-    this.allGrammarRules.forEach((gr) => {
-      gr.rule.forEach((g) => {
-        gs.add(g);
-      });
-    });
-    // convert to mock AST node
-    const mockNodes = gs.map((g) => g.toTempASTNode(lexer));
-
-    while (true) {
-      let changed = false;
-      this.allStates.forEach((state) => {
-        mockNodes.forEach((node) => {
-          if (
-            state.getNext(
-              node,
-              this.NTClosures,
-              this.allStates,
-              this.allInitialCandidates
-            ).changed
-          )
-            changed = true;
-        });
-      });
-      if (!changed) break;
-    }
-    return this;
-  }
-
-  /**
-   * Return all cached states. You might want to call `calculateAllState` first.
-   */
   getAllStates() {
     const result: State<T>[] = [];
     this.allStates.forEach((s) => result.push(s));
