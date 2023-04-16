@@ -89,7 +89,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       });
 
       // handle resolved conflicts
-      ctx?.resolved?.map((r) => {
+      ctx?.resolved?.forEach((r) => {
         if (r.type == ConflictType.REDUCE_REDUCE) {
           defToTempGRs<T>(r.anotherRule).forEach((a) => {
             grs.forEach((gr) => {
@@ -135,8 +135,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     const grammarSet: Set<string> = new Set();
 
     // collect T/NT names in temp grammar rules
-    tempGrammarRules.map((g) => {
-      g.rule.map((grammar) => {
+    tempGrammarRules.forEach((g) => {
+      g.rule.forEach((grammar) => {
         if (grammar.type == TempGrammarType.GRAMMAR)
           grammarSet.add(grammar.content);
       });
