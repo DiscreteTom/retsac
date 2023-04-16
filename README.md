@@ -26,7 +26,7 @@ yarn add retsac
 - The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
   - By default retsac provides an ELR(Expectational LR) parser.
     - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
-    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, you can also set grammar rule's **priority** or self-associativity to auto generate resolvers. Besides, we provide a **code generator** as the low-level API to manually resolve conflict, .
+    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, you can also set grammar rule's **priority** or **self-associativity** to auto generate resolvers. Besides, we provide a **code generator** as the low-level API to manually resolve conflict, .
     - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`. You can also rename nodes if you want to query nodes with same type using different names.
     - Optional data reducer to make it possible to get a result value when the parse is done.
     - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
@@ -37,9 +37,9 @@ yarn add retsac
 
 ## Resources
 
-- [Documentation & API reference](https://discretetom.github.io/retsac/)
-- [VSCode extension](https://github.com/DiscreteTom/vscode-retsac)
-- [Demo programming language](https://github.com/DiscreteTom/dt0)
+- [Documentation & API reference.](https://discretetom.github.io/retsac/)
+- [VSCode extension.](https://github.com/DiscreteTom/vscode-retsac)
+- [Demo programming language which compiles to WebAssembly.](https://github.com/DiscreteTom/dt0)
 
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
 
@@ -59,7 +59,7 @@ const lexer = new Lexer.Builder()
     number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
   .define(Lexer.wordType("true", "false", "null")) // type's name is the literal value
-  .anonymous(Lexer.exact(..."[]{},:"))
+  .anonymous(Lexer.exact(..."[]{},:")) // single char borders
   .build();
 
 export const parser = new ELR.AdvancedBuilder<any>()
