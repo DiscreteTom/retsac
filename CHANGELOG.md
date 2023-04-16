@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## v0.8.1
+## v0.9.0
 
 - Parser
   - Export `IParserBuilder/BuilderDecorator` in the top level.
+  - **Breaking Change**: change `LR_RuntimeError`, add `ParserTraverseError`.
 - Optimize performance.
   - Prevent unnecessary string copy.
   - Cache string manipulation results.
