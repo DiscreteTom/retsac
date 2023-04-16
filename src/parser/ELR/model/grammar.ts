@@ -23,6 +23,8 @@ export class Grammar {
    * The name is only used in ASTNode query selector.
    */
   readonly name: string;
+  /** Cache the string expression. */
+  private str?: string;
 
   private constructor(p: Pick<Grammar, "type" | "content" | "name">) {
     Object.assign(this, p);
@@ -70,11 +72,15 @@ export class Grammar {
 
   /** Return `type name` or `'literal value'` */
   toString() {
-    return this.type == GrammarType.LITERAL
-      ? // literal content
-        `'${this.content}'`
-      : // type name
-        this.content;
+    return (
+      this.str ??
+      (this.str =
+        this.type == GrammarType.LITERAL
+          ? // literal content
+            `'${this.content}'`
+          : // type name
+            this.content)
+    );
   }
 }
 
