@@ -1,5 +1,5 @@
 import { ASTNode } from "./ast";
-import { LR_RuntimeError } from "./ELR/error";
+import { ParserTraverseError } from "./error";
 
 export type ParserAcceptedOutput<T> = Readonly<{
   accept: true;
@@ -50,6 +50,6 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
     self.children.forEach((c) => c.traverse());
   } else {
     // if there is no children, this node is a T and the traverse should not be called
-    throw LR_RuntimeError.traverserNotDefined();
+    throw ParserTraverseError.traverserNotDefined();
   }
 }

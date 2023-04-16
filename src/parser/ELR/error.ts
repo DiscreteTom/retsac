@@ -1,4 +1,4 @@
-export type LR_RuntimeErrorType = "MISSING_LEXER" | "MISSING_TRAVERSER";
+export type LR_RuntimeErrorType = "MISSING_LEXER";
 
 export class LR_RuntimeError extends Error {
   type: LR_RuntimeErrorType;
@@ -16,9 +16,5 @@ export class LR_RuntimeError extends Error {
       "MISSING_LEXER",
       `Lexer is required to parse literal grammars`
     );
-  }
-
-  static traverserNotDefined() {
-    return new LR_RuntimeError("MISSING_TRAVERSER", `Traverser is not defined`);
   }
 }
