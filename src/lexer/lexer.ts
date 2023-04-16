@@ -102,13 +102,13 @@ export class Lexer implements ILexer {
       if (input?.input) this.feed(input.input);
     }
 
+    if (!this.hasRest()) return null;
+
     // calculate expect
     const expect = {
       type: typeof input === "string" ? undefined : input?.expect?.type,
       text: typeof input === "string" ? undefined : input?.expect?.text,
     };
-
-    if (!this.hasRest()) return null;
 
     while (true) {
       let muted = false;
