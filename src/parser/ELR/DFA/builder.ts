@@ -1,4 +1,11 @@
 import { ILexer } from "../../../lexer";
+import {
+  TempGrammarRule,
+  ConflictType,
+  ResolvedTempConflict,
+  ParserBuilderData,
+} from "../builder";
+import { defToTempGRs } from "../builder/utils/definition";
 import { GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
@@ -7,28 +14,44 @@ import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 export class DFABuilder {
   static build<T>(
     lexer: ILexer,
-    allGrammarRules: readonly GrammarRule<T>[],
     entryNTs: ReadonlySet<string>,
-    NTs: ReadonlySet<string>
+    data: ParserBuilderData<T>,
+    resolvedTemp: ResolvedTempConflict<T>[]
   ) {
+    const { tempGrammarRules, NTs } = processDefinitions<T>(data, resolvedTemp);
+
+    // transform temp grammar rules to grammar rules
+    const grs = tempGrammarRules.map(
+      (gr) =>
+        new GrammarRule<T>({
+          NT: gr.NT,
+          callback: gr.callback ?? (() => {}),
+          rejecter: gr.rejecter ?? (() => false),
+          rollback: gr.rollback ?? (() => {}),
+          commit: gr.commit ?? (() => false),
+          traverser: gr.traverser,
+          rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+        })
+    );
+
     // init all initial candidates, initial candidate is candidate with digested=0
     const allInitialCandidates = new Map<string, Candidate<T>>();
-    allGrammarRules.forEach((gr) => {
+    grs.forEach((gr) => {
       const c = new Candidate<T>({ gr, digested: 0 });
       allInitialCandidates.set(c.toString(), c);
     });
 
     const entryState = new State<T>(
       getGrammarRulesClosure(
-        allGrammarRules.filter((gr) => entryNTs.has(gr.NT)),
-        allGrammarRules
+        grs.filter((gr) => entryNTs.has(gr.NT)),
+        grs
       ).map(
         (gr) =>
           // get initial candidate from global cache
           allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
       )
     );
-    const NTClosures = getAllNTClosure(NTs, allGrammarRules);
+    const NTClosures = getAllNTClosure(NTs, grs);
 
     // init all states
     const allStates = new Map<string, State<T>>();
@@ -46,7 +69,7 @@ export class DFABuilder {
     // construct follow sets for all grammars
     const followSets = new Map<string, GrammarSet>();
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
-    allGrammarRules.forEach((gr) => {
+    grs.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
         if (!followSets.has(g.content)) {
           // if g is a T/Literal, it might not have a follow set
@@ -66,7 +89,7 @@ export class DFABuilder {
     while (true) {
       let changed = false;
 
-      allGrammarRules.forEach((gr) => {
+      grs.forEach((gr) => {
         followSets
           .get(gr.NT)! // target NT's follow set
           .forEach(
@@ -80,16 +103,10 @@ export class DFABuilder {
       if (!changed) break;
     }
 
-    calculateAllStates(
-      lexer,
-      allGrammarRules,
-      allStates,
-      NTClosures,
-      allInitialCandidates
-    );
+    calculateAllStates(lexer, grs, allStates, NTClosures, allInitialCandidates);
 
-    return [
-      allGrammarRules,
+    return {
+      grs,
       entryNTs,
       entryState,
       NTClosures,
@@ -97,7 +114,9 @@ export class DFABuilder {
       followSets,
       allInitialCandidates,
       allStates,
-    ] as const;
+      NTs,
+      tempGrammarRules,
+    };
   }
 }
 
@@ -134,4 +153,56 @@ function calculateAllStates<T>(
     });
     if (!changed) break;
   }
+}
+
+function processDefinitions<T>(
+  data: ParserBuilderData<T>,
+  resolvedTemp: ResolvedTempConflict<T>[]
+): {
+  tempGrammarRules: readonly TempGrammarRule<T>[];
+  NTs: ReadonlySet<string>;
+} {
+  const tempGrammarRules: TempGrammarRule<T>[] = [];
+  const NTs: Set<string> = new Set();
+
+  data.forEach((d) => {
+    const ctxBuilder = d.ctxBuilder;
+    const defs = d.defs;
+    const ctx = ctxBuilder?.build();
+    const grs = defToTempGRs(defs, ctx);
+
+    tempGrammarRules.push(...grs);
+    grs.forEach((gr) => {
+      NTs.add(gr.NT);
+    });
+
+    // handle resolved conflicts
+    ctx?.resolved?.forEach((r) => {
+      if (r.type == ConflictType.REDUCE_REDUCE) {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            resolvedTemp.push({
+              type: ConflictType.REDUCE_REDUCE,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      } else {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            resolvedTemp.push({
+              type: ConflictType.REDUCE_SHIFT,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      }
+    });
+  });
+
+  return { tempGrammarRules, NTs };
 }

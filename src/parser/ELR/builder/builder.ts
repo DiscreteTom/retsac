@@ -1,25 +1,30 @@
-import { GrammarRule, Grammar, Condition } from "../model";
+import {
+  GrammarRule,
+  Grammar,
+  Condition,
+  BuilderDecorator,
+  BuildOptions,
+  IParserBuilder,
+} from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
+  ParserBuilderData,
   ResolvedConflict,
   ResolvedTempConflict,
   RR_ResolverOptions,
   RS_ResolverOptions,
   TempGrammarRule,
   TempGrammarType,
+  Conflict,
+  ConflictType,
+  Definition,
 } from "./model";
-import { Conflict, ConflictType, Definition } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-import {
-  BuilderDecorator,
-  BuildOptions,
-  IParserBuilder,
-} from "../model/builder";
 
 /**
  * Builder for ELR parsers.
@@ -29,10 +34,7 @@ import {
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
 export class ParserBuilder<T> implements IParserBuilder<T> {
-  protected data: {
-    defs: Definition;
-    ctxBuilder?: DefinitionContextBuilder<T>;
-  }[] = [];
+  protected data: ParserBuilderData<T> = [];
   private entryNTs: Set<string>;
   private resolvedTemp: ResolvedTempConflict<T>[];
   private cascadeQueryPrefix?: string;
@@ -67,56 +69,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
     this.data.push({ defs, ctxBuilder });
     return this;
-  }
-
-  // TODO: move to DFA builder
-  private processDefinitions(): {
-    tempGrammarRules: readonly TempGrammarRule<T>[];
-    NTs: ReadonlySet<string>;
-  } {
-    const tempGrammarRules: TempGrammarRule<T>[] = [];
-    const NTs: Set<string> = new Set();
-
-    this.data.forEach((d) => {
-      const ctxBuilder = d.ctxBuilder;
-      const defs = d.defs;
-      const ctx = ctxBuilder?.build();
-      const grs = defToTempGRs(defs, ctx);
-
-      tempGrammarRules.push(...grs);
-      grs.forEach((gr) => {
-        NTs.add(gr.NT);
-      });
-
-      // handle resolved conflicts
-      ctx?.resolved?.forEach((r) => {
-        if (r.type == ConflictType.REDUCE_REDUCE) {
-          defToTempGRs<T>(r.anotherRule).forEach((a) => {
-            grs.forEach((gr) => {
-              this.resolvedTemp.push({
-                type: ConflictType.REDUCE_REDUCE,
-                reducerRule: gr,
-                anotherRule: a,
-                options: r.options,
-              });
-            });
-          });
-        } else {
-          defToTempGRs<T>(r.anotherRule).forEach((a) => {
-            grs.forEach((gr) => {
-              this.resolvedTemp.push({
-                type: ConflictType.REDUCE_SHIFT,
-                reducerRule: gr,
-                anotherRule: a,
-                options: r.options,
-              });
-            });
-          });
-        }
-      });
-    });
-
-    return { tempGrammarRules, NTs };
   }
 
   /**
@@ -174,26 +126,28 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   private buildDFA(lexer: ILexer, debug: boolean | undefined) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
-    // TODO: move to DFA builder
-    const { tempGrammarRules, NTs } = this.processDefinitions();
-
-    // transform temp grammar rules to grammar rules
-    const grs = tempGrammarRules.map(
-      (gr) =>
-        new GrammarRule<T>({
-          NT: gr.NT,
-          callback: gr.callback ?? (() => {}),
-          rejecter: gr.rejecter ?? (() => false),
-          rollback: gr.rollback ?? (() => {}),
-          commit: gr.commit ?? (() => false),
-          traverser: gr.traverser,
-          rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
-        })
-    );
-
     // build the DFA
+    const {
+      grs,
+      entryNTs,
+      entryState,
+      NTClosures,
+      firstSets,
+      followSets,
+      allInitialCandidates,
+      allStates,
+      NTs,
+      tempGrammarRules,
+    } = DFABuilder.build<T>(lexer, this.entryNTs, this.data, this.resolvedTemp);
     const dfa = new DFA<T>(
-      ...DFABuilder.build<T>(lexer, grs, this.entryNTs, NTs),
+      grs,
+      entryNTs,
+      entryState,
+      NTClosures,
+      firstSets,
+      followSets,
+      allInitialCandidates,
+      allStates,
       this.cascadeQueryPrefix
     );
 
