@@ -30,9 +30,17 @@ export type ActionSource = RegExp | Action | SimpleActionExec;
 
 export class Action {
   readonly exec: ActionExec;
+  /**
+   * This flag is to indicate whether this action's output might be muted.
+   * The lexer will based on this flag to accelerate the lexing process.
+   * If `true`, this action's output could be muted.
+   * If `false`, this action's output should never be muted.
+   */
+  maybeMuted: boolean;
 
-  constructor(exec: ActionExec) {
+  constructor(exec: ActionExec, options?: Partial<Pick<Action, "maybeMuted">>) {
     this.exec = exec;
+    this.maybeMuted = options?.maybeMuted ?? false;
   }
 
   private static simple(f: SimpleActionExec) {
@@ -78,11 +86,14 @@ export class Action {
    * Mute action if `accept` is `true`.
    */
   mute(muted = true) {
-    return new Action((buffer) => {
-      const output = this.exec(buffer);
-      if (output.accept) return { ...output, muted };
-      return output;
-    });
+    return new Action(
+      (buffer) => {
+        const output = this.exec(buffer);
+        if (output.accept) return { ...output, muted };
+        return output;
+      },
+      { maybeMuted: muted }
+    );
   }
 
   /**

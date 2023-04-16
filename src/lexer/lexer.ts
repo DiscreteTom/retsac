@@ -113,6 +113,15 @@ export class Lexer implements ILexer {
     while (true) {
       let muted = false;
       for (const def of this.defs) {
+        // if user provide expected type, ignore unmatched type, unless it's muted.
+        // so if an action is never muted, we can skip it safely
+        if (
+          !def.action.maybeMuted &&
+          expect.type !== undefined &&
+          def.type != expect.type
+        )
+          continue;
+
         const res = def.action.exec(this.rest);
         if (
           res.accept &&
@@ -146,7 +155,7 @@ export class Lexer implements ILexer {
             // emit token
             return token;
           } else {
-            // mute, re-loop all definitions
+            // accept but muted, don't emit token, re-loop all definitions
             muted = true;
             break;
           }
