@@ -77,7 +77,10 @@ export class Grammar {
     } else return (this.node = new ASTNode({ type: this.content, start: 0 }));
   }
 
-  /** Return `type name` or `'literal value'` */
+  /**
+   * Return `type name` or `'literal value'`.
+   * The result will be cached for future use.
+   */
   toString() {
     return (
       this.str ??
