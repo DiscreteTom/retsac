@@ -14,15 +14,15 @@ export enum GrammarType {
 }
 
 export class Grammar {
-  type: GrammarType;
+  readonly type: GrammarType;
   /** Literal content, or T/NT's type name. */
-  content: string;
+  readonly content: string;
   /**
    * The name of the grammar.
    * By default the value is equal to the type name(this.content).
    * The name is only used in ASTNode query selector.
    */
-  name: string;
+  readonly name: string;
 
   private constructor(p: Pick<Grammar, "type" | "content" | "name">) {
     Object.assign(this, p);
