@@ -30,7 +30,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">Candidate</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L13">parser/ELR/DFA/candidate.ts:13</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L13">src/parser/ELR/DFA/candidate.ts:13</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -44,7 +44,8 @@
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="Parser.ELR.Candidate.html#digested" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>digested</span></a>
 <a href="Parser.ELR.Candidate.html#gr" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>gr</span></a>
-<a href="Parser.ELR.Candidate.html#nextCache" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>next<wbr/>Cache</span></a>
+<a href="Parser.ELR.Candidate.html#nextMap" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>next<wbr/>Map</span></a>
+<a href="Parser.ELR.Candidate.html#str" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>str?</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Accessors</h3>
@@ -79,7 +80,7 @@
 <h5>data: <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;digested&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;gr&quot;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L19">parser/ELR/DFA/candidate.ts:19</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L25">src/parser/ELR/DFA/candidate.ts:25</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="digested" class="tsd-anchor"></a>
@@ -88,17 +89,27 @@
 <div class="tsd-comment tsd-typography"><p>How many grammars are already matched in <code>this.gr</code>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L16">parser/ELR/DFA/candidate.ts:16</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L16">src/parser/ELR/DFA/candidate.ts:16</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="gr" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>gr</span><a href="#gr" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">gr<span class="tsd-signature-symbol">:</span> <a href="Parser.ELR.GrammarRule.html" class="tsd-signature-type" data-tsd-kind="Class">GrammarRule</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
+<div class="tsd-signature">gr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ELR.GrammarRule.html" class="tsd-signature-type" data-tsd-kind="Class">GrammarRule</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L14">parser/ELR/DFA/candidate.ts:14</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a id="nextCache" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>next<wbr/>Cache</span><a href="#nextCache" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">next<wbr/>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L14">src/parser/ELR/DFA/candidate.ts:14</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a id="nextMap" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>next<wbr/>Map</span><a href="#nextMap" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">next<wbr/>Map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p><code>ast node str =&gt; candidate</code>.
+This will be calculated during <code>DFA.calculateAllStates</code>.</p>
+</div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L17">parser/ELR/DFA/candidate.ts:17</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L21">src/parser/ELR/DFA/candidate.ts:21</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="str" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <code class="tsd-tag ts-flagOptional">Optional</code> <span>str</span><a href="#str" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">str<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Cache the string representation.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L23">src/parser/ELR/DFA/candidate.ts:23</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="current" class="tsd-anchor"></a>
@@ -110,7 +121,7 @@
 </div>
 <h4 class="tsd-returns-title">Returns <a href="Parser.ELR.Grammar.html" class="tsd-signature-type" data-tsd-kind="Class">Grammar</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L25">parser/ELR/DFA/candidate.ts:25</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L31">src/parser/ELR/DFA/candidate.ts:31</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="canDigestMore" class="tsd-anchor"></a>
@@ -120,7 +131,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L29">parser/ELR/DFA/candidate.ts:29</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L35">src/parser/ELR/DFA/candidate.ts:35</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="eq" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>eq</span><a href="#eq" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -138,11 +149,11 @@
 <h5>gr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ELR.GrammarRule.html" class="tsd-signature-type" data-tsd-kind="Class">GrammarRule</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L74">parser/ELR/DFA/candidate.ts:74</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L83">src/parser/ELR/DFA/candidate.ts:83</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getNext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Next</span><a href="#getNext" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getNext.getNext-1">get<wbr/>Next<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ASTNode.html" class="tsd-signature-type" data-tsd-kind="Class">ASTNode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><a href="#getNext.getNext-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getNext.getNext-1">get<wbr/>Next<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ASTNode.html" class="tsd-signature-type" data-tsd-kind="Class">ASTNode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><a href="#getNext.getNext-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Accept the node and generate next candidate with <code>digested + 1</code>.</p>
 <p>Return <code>null</code> if the node can not be accepted.</p>
@@ -151,29 +162,21 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>node: <span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ASTNode.html" class="tsd-signature-type" data-tsd-kind="Class">ASTNode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h5>node: <span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><a href="Parser.ASTNode.html" class="tsd-signature-type" data-tsd-kind="Class">ASTNode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="Parser.ELR.Candidate.html" class="tsd-signature-type" data-tsd-kind="Class">Candidate</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L38">parser/ELR/DFA/candidate.ts:38</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L44">src/parser/ELR/DFA/candidate.ts:44</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toString" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>to<wbr/>String</span><a href="#toString" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="toString.toString-1">to<wbr/>String<span class="tsd-signature-symbol">(</span>sep<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, arrow<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, index<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#toString.toString-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="toString.toString-1">to<wbr/>String<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#toString.toString-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Return <code>NT &lt;= ...before @ ...after</code>.</p>
+<div class="tsd-comment tsd-typography"><p>Return <code>NT &lt;= ...before @ ...after</code>.
+The result will be cached for future use.</p>
 </div>
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>sep: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot; &quot;</span></h5></li>
-<li>
-<h5>arrow: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&lt;=&quot;</span></h5></li>
-<li>
-<h5>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;@&quot;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L55">parser/ELR/DFA/candidate.ts:55</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L64">src/parser/ELR/DFA/candidate.ts:64</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="tryLex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>try<wbr/>Lex</span><a href="#tryLex" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -191,7 +194,7 @@ Return all the possible results.</p>
 <h5>followSets: <span class="tsd-signature-type">ReadonlyMap</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="Parser.ELR.GrammarSet.html" class="tsd-signature-type" data-tsd-kind="Class">GrammarSet</a><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>lexer<span class="tsd-signature-symbol">: </span><a href="../interfaces/Lexer.ILexer.html" class="tsd-signature-type" data-tsd-kind="Interface">ILexer</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>node<span class="tsd-signature-symbol">: </span><a href="Parser.ASTNode.html" class="tsd-signature-type" data-tsd-kind="Class">ASTNode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L82">parser/ELR/DFA/candidate.ts:82</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L94">src/parser/ELR/DFA/candidate.ts:94</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="tryReduce" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>try<wbr/>Reduce</span><a href="#tryReduce" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -228,7 +231,7 @@ Return all the possible results.</p>
 <li class="tsd-parameter">
 <h5>res<span class="tsd-signature-symbol">: </span><a href="../types/Parser.ParserOutput.html" class="tsd-signature-type" data-tsd-kind="Type alias">ParserOutput</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L111">parser/ELR/DFA/candidate.ts:111</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L123">src/parser/ELR/DFA/candidate.ts:123</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getString" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>get<wbr/>String</span><a href="#getString" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -252,7 +255,7 @@ Return all the possible results.</p>
 <h5>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;@&quot;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7ea06e7/src/parser/ELR/DFA/candidate.ts#L59">parser/ELR/DFA/candidate.ts:59</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/parser/ELR/DFA/candidate.ts#L68">src/parser/ELR/DFA/candidate.ts:68</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -292,7 +295,8 @@ Return all the possible results.</p>
 <li class="tsd-kind-constructor tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-512-path"></use><use href="#icon-512-text"></use></svg>constructor</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#digested" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>digested</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#gr" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>gr</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="Parser.ELR.Candidate.html#nextCache" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>next<wbr/>Cache</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="Parser.ELR.Candidate.html#nextMap" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>next<wbr/>Map</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="Parser.ELR.Candidate.html#str" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>str?</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#current" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>current</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#canDigestMore" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>can<wbr/>Digest<wbr/>More</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Parser.ELR.Candidate.html#eq" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>eq</a></li>
