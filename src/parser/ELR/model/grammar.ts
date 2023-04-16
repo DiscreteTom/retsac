@@ -156,35 +156,36 @@ export class GrammarRule<T> {
 }
 
 /** A set of different grammars. */
-export class GrammarSet /* implements Iterable<Grammar> */ {
-  /** Grammars. */
-  private gs: Grammar[];
+export class GrammarSet {
+  /** Grammars. `string exp => grammar` */
+  private gs: Map<string, Grammar>;
 
   constructor() {
-    this.gs = [];
+    this.gs = new Map();
   }
 
-  // [Symbol.iterator](): Iterator<Grammar, any, undefined> {
-  //   return this.gs[Symbol.iterator]();
-  // }
-
   has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
-    return !this.gs.every((gg) => !gg.eq(g));
+    if ("name" in g) return this.gs.has(g.toString()); // Grammar
+    return this.gs.has(g.type); // ASTNode, check type name
   }
 
   /** Return `true` if successfully added. */
   add(g: Grammar) {
     if (this.has(g)) return false;
-    this.gs.push(g);
+    this.gs.set(g.toString(), g);
     return true;
   }
 
   map<R>(f: (g: Grammar) => R) {
-    return this.gs.map(f);
+    const result = [] as R[];
+    for (const g of this.gs.values()) result.push(f(g));
+    return result;
   }
 
   /** Return a list of grammars that in both `this` and `gs`. */
   overlap(gs: Readonly<GrammarSet>) {
-    return this.gs.filter((g) => gs.has(g));
+    const result = [] as Grammar[];
+    for (const g of this.gs.values()) if (gs.has(g)) result.push(g);
+    return result as readonly Grammar[];
   }
 }
