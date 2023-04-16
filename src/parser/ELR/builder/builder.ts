@@ -228,7 +228,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       };
     });
 
-    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, lexer, debug);
+    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, debug);
 
     // apply resolved conflicts to grammar rule rejecters
     resolved.forEach((r) => {

@@ -129,7 +129,6 @@ export function getConflicts<T>(
   entryNTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
   dfa: DFA<T>,
-  lexer: ILexer,
   debug = false
 ) {
   const firstSets = dfa.getFirstSets();
@@ -148,7 +147,7 @@ export function getConflicts<T>(
       const reducerRule = grs[i];
       const anotherRule = grs[j];
       const conflicts = reducerRule.checkRSConflict(anotherRule);
-      conflicts.map((c) => {
+      conflicts.forEach((c) => {
         // try to auto resolve conflicts if possible
         // e.g. for a reduce-shift conflict: `A <= B C` and `D <= C E`
         // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking

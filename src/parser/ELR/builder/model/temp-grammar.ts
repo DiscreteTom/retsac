@@ -16,11 +16,11 @@ export enum TempGrammarType {
 
 /** Grammar, but can't distinguish N or NT. */
 export class TempGrammar {
-  type: TempGrammarType;
+  readonly type: TempGrammarType;
   /** Literal content, or T/NT's type name. */
-  content: string;
+  readonly content: string;
   /** The name of the grammar. By default the value is equal to the type name(this.content). */
-  name: string;
+  readonly name: string;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     Object.assign(this, p);
@@ -64,9 +64,9 @@ export class TempGrammar {
 
 /** Grammar rule, but can't distinguish N or NT. */
 export class TempGrammarRule<T> {
-  rule: TempGrammar[];
+  readonly rule: readonly TempGrammar[];
   /** The reduce target. */
-  NT: string;
+  readonly NT: string;
   callback?: Callback<T>;
   rejecter?: Condition<T>;
   rollback?: Callback<T>;

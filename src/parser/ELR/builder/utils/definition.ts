@@ -28,7 +28,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
     grammarLexer
       .reset()
       .lexAll(defStr)
-      .map((t) => {
+      .forEach((t) => {
         if (t.type == "or") rules.push([]); // new grammar rule
         else rules.at(-1)!.push(t); // append token to the last grammar rule
       });
@@ -41,7 +41,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
     if (rules.length == 1 && rules[0].length == 0)
       throw LR_BuilderError.emptyRule(NT, defStr);
 
-    rules.map((tokens) => {
+    rules.forEach((tokens) => {
       const ruleStr = tokens.map((t) => t.content).join(" ");
 
       if (tokens.length == 0) throw LR_BuilderError.emptyRule(NT, defStr);
