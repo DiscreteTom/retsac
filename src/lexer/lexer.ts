@@ -1,3 +1,4 @@
+import { ActionAcceptedOutput } from "./action";
 import { Definition, ILexer, Token } from "./model";
 
 /** Extract tokens from the input string. */
@@ -84,6 +85,15 @@ export class Lexer implements ILexer {
     return this;
   }
 
+  private res2token(res: ActionAcceptedOutput, def: Definition): Token {
+    return {
+      type: def.type,
+      content: res.content,
+      start: this.offset - res.content.length,
+      error: res.error,
+    };
+  }
+
   lex(
     input:
       | string
@@ -140,13 +150,7 @@ export class Lexer implements ILexer {
           this.update(res.digested, res.content, res.rest);
 
           // construct token
-          const content = res.content;
-          const token: Token = {
-            type: def.type,
-            content,
-            start: this.offset - content.length,
-            error: res.error,
-          };
+          const token = this.res2token(res, def);
 
           // collect errors
           if (token.error) this.errors.push(token);
@@ -212,13 +216,7 @@ export class Lexer implements ILexer {
           this.update(res.digested, res.content, res.rest);
 
           // construct token
-          const content = res.content;
-          const token: Token = {
-            type: def.type,
-            content,
-            start: this.offset - content.length,
-            error: res.error,
-          };
+          const token = this.res2token(res, def);
 
           // collect errors
           if (token.error) this.errors.push(token);
