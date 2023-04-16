@@ -4,7 +4,8 @@
 
 - Parser
   - Export `IParserBuilder/BuilderDecorator` in the top level.
-  - **Breaking Change**: change `LR_RuntimeError`, add `ParserTraverseError`.
+  - **Breaking Change**: Change `LR_RuntimeError`, add `ParserTraverseError`.
+  - **Breaking Change**: Remove `DFA.calculateAllStates` since all states will be calculated and cached when build DFA.
 - Optimize performance.
   - Prevent unnecessary string copy.
   - Cache string manipulation results and other temp results.
