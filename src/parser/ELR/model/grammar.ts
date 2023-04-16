@@ -79,9 +79,9 @@ export class Grammar {
 }
 
 export class GrammarRule<T> {
-  rule: Grammar[];
+  readonly rule: readonly Grammar[];
   /** The reduce target. */
-  NT: string;
+  readonly NT: string;
   callback: Callback<T>;
   rejecter: Condition<T>;
   rollback: Callback<T>;
@@ -109,8 +109,8 @@ export class GrammarRule<T> {
    */
   checkRSConflict(another: Readonly<GrammarRule<T>>) {
     const result = [] as {
-      reducerRule: GrammarRule<T>;
-      shifterRule: GrammarRule<T>;
+      reducerRule: Readonly<GrammarRule<T>>;
+      shifterRule: Readonly<GrammarRule<T>>;
       /** How many grammars are overlapped in rule. */
       length: number;
     }[];
@@ -137,14 +137,14 @@ export class GrammarRule<T> {
   }
 
   /** Return ``{ NT: `grammar rules` }``. */
-  toString(formatter?: (NT: string, grammars: string[]) => string) {
+  toString(formatter?: (NT: string, grammars: readonly string[]) => string) {
     return GrammarRule.getString(this, formatter);
   }
 
   /** Return ``{ NT: `grammar rules` }``. */
   static getString(
-    gr: { NT: string; rule: Grammar[] },
-    formatter?: (NT: string, grammars: string[]) => string
+    gr: { NT: string; rule: readonly Grammar[] },
+    formatter?: (NT: string, grammars: readonly string[]) => string
   ) {
     formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
 
