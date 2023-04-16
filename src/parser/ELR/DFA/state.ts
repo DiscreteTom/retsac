@@ -13,23 +13,27 @@ import { Candidate } from "./candidate";
 /** State for ELR parsers. */
 export class State<T> {
   readonly candidates: readonly Candidate<T>[];
-  protected nextCache: Map<string, State<T> | null>;
+  /**
+   * `ast node str => state`.
+   * This will be calculated during `DFA.calculateAllStates`.
+   */
+  protected nextMap: Map<string, State<T> | null>;
 
   constructor(candidates: Candidate<T>[]) {
     this.candidates = candidates;
-    this.nextCache = new Map();
+    this.nextMap = new Map();
   }
 
   getNext(
     next: Readonly<ASTNode<any>>,
     NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
-    allStatesCache: Map<string, State<T>>,
+    allStates: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
-    const key = JSON.stringify({ type: next.type, text: next.text });
+    const key = next.toString();
 
     // try to get from local cache
-    const cache = this.nextCache.get(key);
+    const cache = this.nextMap.get(key);
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, calculate and cache
@@ -55,6 +59,7 @@ export class State<T> {
       .map(
         (gr) =>
           // get initial candidate from global cache
+          // TODO: shall we store candidates in allCandidates? should this get candidate cache?
           allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
@@ -64,17 +69,17 @@ export class State<T> {
 
     // check & update global state cache
     if (result != null) {
-      const cacheKey = result.toString(true);
-      const cache = allStatesCache.get(cacheKey);
+      const cacheKey = result.toString();
+      const cache = allStates.get(cacheKey);
       if (cache !== undefined) {
-        this.nextCache.set(key, cache);
+        this.nextMap.set(key, cache);
         return { state: cache, changed: false };
       } else {
-        allStatesCache.set(cacheKey, result);
+        allStates.set(cacheKey, result);
       }
     }
 
-    this.nextCache.set(key, result);
+    this.nextMap.set(key, result);
     return { state: result, changed: true };
   }
 
@@ -84,15 +89,11 @@ export class State<T> {
 
   /**
    * Get the string representation of this state.
-   *
-   * When `sort` is `true`, the string representation of this state is unique.
+   * The result is sorted by candidate string, so that the same state will have the same string representation.
    */
-  toString(sort = false) {
-    if (sort) {
-      const sorted = this.candidates.map((c) => c.toString()).sort();
-      return sorted.join("\n");
-    }
-    return this.candidates.map((c) => c.toString()).join("\n");
+  toString() {
+    const sorted = this.candidates.map((c) => c.toString()).sort();
+    return sorted.join("\n");
   }
 
   /**
@@ -104,7 +105,7 @@ export class State<T> {
     followSets: ReadonlyMap<string, GrammarSet>
   ): { node: ASTNode<T>; lexer: ILexer }[] {
     const res: { node: ASTNode<T>; lexer: ILexer }[] = [];
-    this.candidates.map((c) => {
+    this.candidates.forEach((c) => {
       const l = lexer.clone(); // each candidate should have its own lexer to avoid side effect
       res.push(...c.tryLex(l, followSets));
     });
