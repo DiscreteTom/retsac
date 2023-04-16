@@ -39,7 +39,7 @@ export class DFA<T> {
     return result;
   }
 
-  /** Reset DFA then try to yield an entry NT. */
+  /** Try to yield an entry NT. */
   parse(
     buffer: readonly ASTNode<T>[],
     lexer: ILexer,
@@ -55,24 +55,27 @@ export class DFA<T> {
     let index = 0; // buffer index
     let errors: ASTNode<T>[] = [];
 
+    /**
+     * Before reLex, make sure the reLexStack is not empty!
+     */
     const reLex = () => {
-      const state = reLexStack.pop();
+      const state = reLexStack.pop()!;
       const restoredInput =
-        state!.buffer.at(-1)!.text +
-        state!.lexer.getRest().slice(0, lexer.digested - state!.lexer.digested);
+        state.buffer.at(-1)!.text +
+        state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested);
 
       // rollback
-      while (rollbackStack.length > state!.rollbackStackLength) {
+      while (rollbackStack.length > state.rollbackStackLength) {
         const { context, rollback } = rollbackStack.pop()!;
         rollback(context);
       }
 
       // apply state
-      stateStack = state!.stateStack;
-      buffer = state!.buffer;
-      lexer = state!.lexer;
-      index = state!.index;
-      errors = state!.errors;
+      stateStack = state.stateStack;
+      buffer = state.buffer;
+      lexer = state.lexer;
+      index = state.index;
+      errors = state.errors;
 
       if (this.debug)
         console.log(
@@ -109,7 +112,7 @@ export class DFA<T> {
           // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
           for (let i = res.length - 1; i >= 0; --i) {
             reLexStack.push({
-              stateStack: stateStack.slice(),
+              stateStack: stateStack.slice(), // make a copy
               buffer: buffer.slice().concat(res[i].node),
               lexer: res[i].lexer,
               index,
@@ -118,9 +121,9 @@ export class DFA<T> {
             });
           }
           // use the first lexing result to continue parsing
-          const state = reLexStack.pop();
-          buffer = state!.buffer;
-          lexer = state!.lexer;
+          const state = reLexStack.pop()!;
+          buffer = state.buffer;
+          lexer = state.lexer;
         }
       }
 
