@@ -118,12 +118,12 @@ export class Lexer implements ILexer {
             res.muted) &&
           // if user provide expected text, reject unmatched text
           (!expect.text ||
-            expect.text == this.rest.slice(0, res.digested) ||
+            expect.text == res.content ||
             // but if the unmatched text is muted (e.g. ignored), accept it
             res.muted)
         ) {
           // update this state
-          const content = this.take(res.digested);
+          const content = this.take(res.digested); // TODO: optimize
 
           // construct token
           const token: Token = {
