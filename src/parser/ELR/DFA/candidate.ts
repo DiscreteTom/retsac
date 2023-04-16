@@ -11,9 +11,10 @@ import {
 
 /** Candidate for ELR parsers. */
 export class Candidate<T> {
-  readonly gr: GrammarRule<T>;
+  readonly gr: Readonly<GrammarRule<T>>;
   /** How many grammars are already matched in `this.gr`. */
   readonly digested: number;
+  /** `ast node str => candidate` */
   protected nextCache: Map<string, Candidate<T> | null>;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
@@ -36,7 +37,7 @@ export class Candidate<T> {
    * Return `null` if the node can not be accepted.
    */
   getNext(node: Readonly<ASTNode<any>>): Candidate<T> | null {
-    const key = JSON.stringify({ type: node.type, text: node.text });
+    const key = node.toString();
 
     // try to get from cache
     const cache = this.nextCache.get(key);
@@ -53,6 +54,7 @@ export class Candidate<T> {
 
   /** Return `NT <= ...before @ ...after`. */
   toString(sep = " ", arrow = "<=", index = "@") {
+    // TODO: cache?
     return Candidate.getString(this, sep, arrow, index);
   }
 
@@ -72,7 +74,10 @@ export class Candidate<T> {
   }
 
   eq(other: { gr: Readonly<GrammarRule<T>>; digested: number }) {
-    return this.gr == other.gr && this.digested === other.digested;
+    return (
+      this.gr == other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
+      this.digested === other.digested
+    );
   }
 
   /**
@@ -208,6 +213,7 @@ export class Candidate<T> {
   }
 }
 
+/** Try to use lexer to get the specified grammar. */
 function lexGrammar<T>(g: Grammar, lexer: ILexer): ASTNode<T> | null {
   if (g.type == GrammarType.NT) {
     return null;
