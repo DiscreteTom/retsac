@@ -3,8 +3,14 @@ import { Definition, ILexer, Token } from "./model";
 /** Extract tokens from the input string. */
 export class Lexer implements ILexer {
   private readonly defs: readonly Definition[];
-  /** Only `feed`, `reset` can modify buffer. */
+  /** Only `feed`, `reset` can modify this var. */
   private buffer: string;
+  /**
+   * The un-digested string.
+   * This var is used to cache the result of `buffer.slice(offset)` to prevent unnecessary string copy.
+   * Only `feed`, `reset`, `take` can modify this var.
+   */
+  private rest: string;
   /** How many chars are digested. */
   private offset: number;
   /** How many chars in each line. */
@@ -19,6 +25,7 @@ export class Lexer implements ILexer {
 
   reset() {
     this.buffer = "";
+    this.rest = "";
     this.offset = 0;
     this.lineChars = [0];
     this.errors = [];
@@ -28,6 +35,7 @@ export class Lexer implements ILexer {
   clone() {
     const res = new Lexer(this.defs);
     res.buffer = this.buffer;
+    res.rest = this.rest;
     res.offset = this.offset;
     res.lineChars = [...this.lineChars];
     res.errors = [...this.errors];
@@ -40,6 +48,7 @@ export class Lexer implements ILexer {
 
   feed(input: string) {
     this.buffer += input;
+    this.rest = this.buffer.slice(this.offset);
     return this;
   }
 
@@ -49,9 +58,11 @@ export class Lexer implements ILexer {
 
   take(n = 1) {
     // update this state, don't change buffer's value
-    const content = this.getRest().slice(0, n);
+    const content = this.rest.slice(0, n);
     this.offset += n;
+    this.rest = this.buffer.slice(this.offset);
     // calculate line chars
+    // TODO: optimize
     content.split("\n").map((part, i, list) => {
       this.lineChars[this.lineChars.length - 1] += part.length;
       if (i != list.length - 1) {
@@ -92,7 +103,7 @@ export class Lexer implements ILexer {
     while (true) {
       let muted = false;
       for (const def of this.defs) {
-        const res = def.action.exec(this.getRest());
+        const res = def.action.exec(this.rest);
         if (
           res.accept &&
           // if user provide expected type, reject unmatched type
@@ -102,7 +113,7 @@ export class Lexer implements ILexer {
             res.muted) &&
           // if user provide expected text, reject unmatched text
           (!expect.text ||
-            expect.text == this.getRest().slice(0, res.digested) ||
+            expect.text == this.rest.slice(0, res.digested) ||
             // but if the unmatched text is muted (e.g. ignored), accept it
             res.muted)
         ) {
@@ -169,7 +180,7 @@ export class Lexer implements ILexer {
       if (!this.hasRest()) return this;
       let mute = false;
       for (const def of this.defs) {
-        const res = def.action.exec(this.getRest());
+        const res = def.action.exec(this.rest);
         if (res.accept) {
           if (!res.muted) {
             // next token is not muted
@@ -205,11 +216,11 @@ export class Lexer implements ILexer {
   }
 
   getRest() {
-    return this.buffer.slice(this.offset);
+    return this.rest;
   }
 
   hasRest() {
-    return this.buffer.length > this.offset;
+    return this.rest.length != 0;
   }
 
   getTokenTypes() {
