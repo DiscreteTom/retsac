@@ -11,7 +11,7 @@ export class DFABuilder {
     entryNTs: ReadonlySet<string>,
     NTs: ReadonlySet<string>
   ) {
-    // init all initial candidates
+    // init all initial candidates, initial candidate is candidate with digested=0
     const allInitialCandidates = new Map<string, Candidate<T>>();
     allGrammarRules.forEach((gr) => {
       const c = new Candidate<T>({ gr, digested: 0 });

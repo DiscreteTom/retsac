@@ -59,7 +59,6 @@ export class State<T> {
       .map(
         (gr) =>
           // get initial candidate from global cache
-          // TODO: shall we store candidates in allCandidates? should this get candidate cache?
           allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
