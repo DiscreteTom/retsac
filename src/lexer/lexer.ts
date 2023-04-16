@@ -214,7 +214,7 @@ export class Lexer implements ILexer {
 
   getTokenTypes() {
     const res: Set<string> = new Set();
-    this.defs.map((d) => res.add(d.type));
+    this.defs.forEach((d) => res.add(d.type));
     return res;
   }
 
