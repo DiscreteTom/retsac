@@ -7,6 +7,8 @@ describe("Lexer action constructor", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
   });
@@ -17,6 +19,8 @@ describe("Lexer action constructor", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
   });
@@ -28,6 +32,8 @@ describe("Lexer action constructor", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
   });
@@ -38,6 +44,8 @@ describe("Lexer action constructor", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput;
     expect(new Action((buffer) => output).exec(input)).toEqual(output);
@@ -51,6 +59,8 @@ describe("Action decorator", () => {
       accept: true,
       muted: true,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
 
@@ -70,6 +80,8 @@ describe("Action decorator", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
 
@@ -87,6 +99,8 @@ describe("Action decorator", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: errMsg,
     } as ActionOutput);
   });
@@ -97,6 +111,8 @@ describe("Action decorator", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
 
@@ -119,6 +135,8 @@ describe("Action decorator", () => {
       accept: true,
       muted: false,
       digested: input.length,
+      content: input,
+      rest: "",
       error: undefined,
     } as ActionOutput);
     expect(result).toBe(input);
