@@ -53,7 +53,7 @@ All conflicts are auto resolved.
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank characters
+  .ignore(Lexer.whitespaces) // ignore blank characters
   .define({
     string: Lexer.stringLiteral({ double: true }), // double quote string literal
     number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
@@ -112,7 +112,7 @@ There are conflicts introduced by those grammar rules, we use high-level resolve
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank characters
+  .ignore(Lexer.whitespaces) // ignore blank characters
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
   })
@@ -174,7 +174,7 @@ This example shows you how to define a simple `fn_def` grammar rule if you want 
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank chars
+  .ignore(Lexer.whitespaces) // ignore blank chars
   .define(Lexer.wordType("pub", "fn", "return", "let")) // keywords
   .define({
     integer: /^([1-9][0-9]*|0)/,

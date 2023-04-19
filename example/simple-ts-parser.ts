@@ -16,7 +16,7 @@ const code = fs.readFileSync(__filename, "utf-8");
 
 const lexer = new Lexer.Builder()
   .ignore(
-    /^\s/, // blank
+    Lexer.whitespaces, // blank
     Lexer.from_to("//", "\n", true), // single line comments
     Lexer.from_to("/*", "*/", true) // multi-line comments
   )

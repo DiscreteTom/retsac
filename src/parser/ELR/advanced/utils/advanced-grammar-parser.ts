@@ -1,4 +1,4 @@
-import { Builder, stringLiteral, exact } from "../../../../lexer";
+import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
 import {
   Definition,
   ParserBuilder,
@@ -52,7 +52,7 @@ export class GrammarExpander {
 
     const lexer = new Builder()
       .ignore(
-        /^\s/ // blank
+        whitespaces // blank
       )
       .define({
         grammar: [/^\w+@\w+/, /^\w+/],

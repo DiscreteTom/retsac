@@ -6,7 +6,7 @@ import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 
 const grammarLexer = new Lexer.Builder()
   .ignore(
-    /^\s/ // blank
+    Lexer.whitespaces // blank
   )
   .define({
     grammar: [/^\w+@\w+/, /^\w+/],

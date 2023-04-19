@@ -2,7 +2,7 @@ import { Lexer } from "../../src";
 import { Action, Token } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(Lexer.whitespaces)
   .define({
     number: /^[0-9]+/,
   })

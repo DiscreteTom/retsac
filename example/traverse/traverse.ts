@@ -1,7 +1,7 @@
 import { Lexer, ELR } from "../../src";
 
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(Lexer.whitespaces)
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^[a-zA-Z_][a-zA-Z0-9_]*/,

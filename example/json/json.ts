@@ -1,7 +1,7 @@
 import { Lexer, ELR } from "../../src";
 
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank characters
+  .ignore(Lexer.whitespaces) // ignore blank characters
   .define({
     string: Lexer.stringLiteral({ double: true }), // double quote string literal
     number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,

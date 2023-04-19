@@ -14,7 +14,7 @@ function findUnescaped(s: string, target: string) {
 }
 
 export const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(Lexer.whitespaces)
   .define({
     tempStr: Lexer.stringLiteral({ back: true, multiline: true }).reject(
       (s) => findUnescaped(s, "${") // reject if find '${` without escape

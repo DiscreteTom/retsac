@@ -1,7 +1,7 @@
 import { Lexer } from "../../src";
 
 export const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(Lexer.whitespaces)
   .define({
     simpleStr: Lexer.stringLiteral({
       single: true,
