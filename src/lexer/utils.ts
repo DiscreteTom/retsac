@@ -2,11 +2,25 @@ import { Action } from "./action";
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
+ * @deprecated use `fromTo` instead.
  */
 export function from_to(
   from: string | RegExp,
   to: string | RegExp,
   acceptEof: boolean
+) {
+  return fromTo(from, to, { acceptEof });
+}
+
+/**
+ * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
+ */
+export function fromTo(
+  from: string | RegExp,
+  to: string | RegExp,
+  options: {
+    acceptEof: boolean;
+  }
 ): Action {
   return Action.from((buffer) => {
     // check 'from'
@@ -34,7 +48,7 @@ export function from_to(
     // construct result
     if (toDigested == 0)
       // 'to' not found
-      return acceptEof
+      return options.acceptEof
         ? // accept whole buffer
           buffer.length
         : // reject

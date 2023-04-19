@@ -17,8 +17,8 @@ const code = fs.readFileSync(__filename, "utf-8");
 const lexer = new Lexer.Builder()
   .ignore(
     Lexer.whitespaces, // blank
-    Lexer.from_to("//", "\n", true), // single line comments
-    Lexer.from_to("/*", "*/", true) // multi-line comments
+    Lexer.fromTo("//", "\n", { acceptEof: true }), // single line comments
+    Lexer.fromTo("/*", "*/", { acceptEof: true }) // multi-line comments
   )
   .define(
     Lexer.wordType(
@@ -38,7 +38,7 @@ const lexer = new Lexer.Builder()
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^\w+/,
-    regex: Lexer.from_to("/", "/", false), // for simplicity, we don't support complex regex
+    regex: Lexer.fromTo("/", "/", { acceptEof: false }), // for simplicity, we don't support complex regex
     string: [
       Lexer.stringLiteral({ double: true, single: true }),
       Lexer.stringLiteral({ back: true, multiline: true }),

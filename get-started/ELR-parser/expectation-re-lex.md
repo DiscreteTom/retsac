@@ -8,7 +8,7 @@ For example, if we have the following lexer:
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank
+  .ignore(Lexer.whitespaces) // ignore blank
   .define({ identifier: /^\w+/ })
   .anonymous(Lexer.exact(..."<>")) // single char operators
   .anonymous(Lexer.exact("<<", ">>")) // double char operators
@@ -21,7 +21,7 @@ Since we define `<` before `<<`, the lexer will emit `<` when lexing. So the out
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank
+  .ignore(Lexer.whitespaces) // ignore blank
   .define({ identifier: /^\w+/ })
   .anonymous(Lexer.exact("<<", ">>")) // double char operators
   .anonymous(Lexer.exact(..."<>")) // single char operators
@@ -55,7 +55,7 @@ For example, if we have the following lexer and parser:
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/)
+  .ignore(Lexer.whitespaces)
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
   })

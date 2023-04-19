@@ -1,19 +1,12 @@
 import { Lexer } from "../../src";
-import {
-  Action,
-  exact,
-  from_to,
-  stringLiteral,
-  word,
-  wordType,
-} from "../../src/lexer";
+import { exact, fromTo, stringLiteral, word, wordType } from "../../src/lexer";
 
-test("lexer utils from_to", () => {
+test("lexer utils fromTo", () => {
   const lexer = new Lexer.Builder()
     .define({
-      a: from_to("a", "b", false),
-      c: from_to("c", "d", true),
-      e: from_to(/^e/, /f/, false),
+      a: fromTo("a", "b", { acceptEof: false }),
+      c: fromTo("c", "d", { acceptEof: true }),
+      e: fromTo(/^e/, /f/, { acceptEof: false }),
     })
     .build();
   expect(lexer.reset().lex("ab")?.content).toBe("ab");

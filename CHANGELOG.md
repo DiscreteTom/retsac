@@ -4,6 +4,7 @@
 
 - Lexer
   - Add utils: `Lexer.whitespaces`.
+  - Deprecate `Lexer.from_to`, use `Lexer.fromTo` instead.
 
 ## v0.9.0
 

@@ -6,7 +6,7 @@ The lexer digests the input string and yields a token or a token list.
 
 ```ts
 const lexer = new Lexer.Builder()
-  .ignore(/^\s/) // ignore blank chars
+  .ignore(Lexer.whitespaces) // ignore blank chars
   .define({
     number: /^[0-9]+(?:\.[0-9]+)?/,
   })
@@ -23,7 +23,7 @@ For `Lexer.Builder`, you have the following methods to define your rules:
 - `anonymous`: define a rule which will yield tokens with no type name(the type name is an empty string).
   - In the example above, we use an util function `Lexer.exact` to define a rule which will yield tokens with no type name.
 - `ignore`: define a rule which will yield anonymous muted tokens. _Muted_ means the token will not be emitted when `lex/lexAll`.
-  - In the example above, we use a regex `/^\s/` to ignore all blank chars.
+  - In the example above, we use a regex `Lexer.whitespaces` to ignore all blank chars.
 
 The lexer will use those rules to lex your input string, from left to right. The lexer will apply those rules by the order you define them, thus the above lexer will first try to ignore blank chars, then try to yield numbers, if no numbers can be yielded, it will try to yield those anonymous operators.
 
