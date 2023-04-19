@@ -162,3 +162,21 @@ export function stringLiteral(
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
 export const whitespaces = Action.from(/^\s+/);
+
+/**
+ * Match from the `start` to the `end`, accept EOF by default.
+ *
+ * E.g.
+ *
+ * ```ts
+ * comment('//'); // single line comment
+ * comment('/*', '*' + '/'); // multiline comment
+ * ```
+ */
+export function comment(
+  start: string | RegExp,
+  end: string | RegExp = "\n",
+  options?: { acceptEof?: boolean }
+) {
+  return fromTo(start, end, { acceptEof: options?.acceptEof ?? true });
+}

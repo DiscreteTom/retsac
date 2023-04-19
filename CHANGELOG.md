@@ -3,7 +3,7 @@
 ## v0.9.1
 
 - Lexer
-  - Add utils: `Lexer.whitespaces`.
+  - Add utils: `Lexer.whitespaces/comment`. #5
   - Deprecate `Lexer.from_to`, use `Lexer.fromTo` instead.
 
 ## v0.9.0

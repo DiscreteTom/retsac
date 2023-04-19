@@ -17,8 +17,8 @@ const code = fs.readFileSync(__filename, "utf-8");
 const lexer = new Lexer.Builder()
   .ignore(
     Lexer.whitespaces, // blank
-    Lexer.fromTo("//", "\n", { acceptEof: true }), // single line comments
-    Lexer.fromTo("/*", "*/", { acceptEof: true }) // multi-line comments
+    Lexer.comment("//"), // single line comment
+    Lexer.comment("/*", "*/") // multiline comment
   )
   .define(
     Lexer.wordType(
