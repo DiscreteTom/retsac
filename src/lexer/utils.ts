@@ -143,3 +143,8 @@ export function stringLiteral(
     return 0;
   });
 }
+
+/**
+ * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
+ */
+export const whitespaces = Action.from(/^\s+/);

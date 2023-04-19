@@ -94,3 +94,16 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("&123")).toBe(null);
   expect(lexer.reset().lex("&123\\&")).toBe(null);
 });
+
+test("lexer utils whitespaces", () => {
+  const lexer = new Lexer.Builder().define({ ws: Lexer.whitespaces }).build();
+
+  expect(lexer.reset().lex(`123`)).toBe(null);
+  expect(lexer.reset().lex(` `)?.content).toBe(` `);
+  expect(lexer.reset().lex(`  `)?.content).toBe(`  `);
+  expect(lexer.reset().lex(`\t`)?.content).toBe(`\t`);
+  expect(lexer.reset().lex(`\t\t`)?.content).toBe(`\t\t`);
+  expect(lexer.reset().lex(`\n`)?.content).toBe(`\n`);
+  expect(lexer.reset().lex(`\n\n`)?.content).toBe(`\n\n`);
+  expect(lexer.reset().lex(` \t\n`)?.content).toBe(` \t\n`);
+});

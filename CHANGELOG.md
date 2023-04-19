@@ -2,6 +2,9 @@
 
 ## v0.9.1
 
+- Lexer
+  - Add utils: `Lexer.whitespaces`.
+
 ## v0.9.0
 
 - Parser
