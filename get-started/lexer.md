@@ -8,7 +8,7 @@ The lexer digests the input string and yields a token or a token list.
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces) // ignore blank chars
   .define({
-    number: /^[0-9]+(?:\.[0-9]+)?/,
+    number: /^[0-9]+(?:\.[0-9]+)?/, // use non-capturing group to optimize performance
   })
   .anonymous(Lexer.exact(..."+-*/()")) // single-char operators
   .build();
