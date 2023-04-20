@@ -180,3 +180,59 @@ export function comment(
 ) {
   return fromTo(start, end, { acceptEof: options?.acceptEof ?? true });
 }
+
+/**
+ * Match the literal representations of numbers in JavaScript code.
+ * You can use `Number(str.replaceAll(numericSeparator, ''))` to get the numeric value.
+ *
+ * If `options.acceptInvalid` is `true` (by default), common invalid numeric literals will also be matched and marked with error.
+ *
+ * E.g.
+ * - Valid numeric literals
+ *   - `42`
+ *   - `3.1415`
+ *   - `1.5e10`
+ *   - `0.123e-4`
+ *   - `0x2a`
+ *   - `0xFF`
+ *   - `0o755`
+ *   - `1_000_000`
+ *   - `1_000_000.000_001`
+ *   - `1e6_000`
+ * - Invalid numeric literals
+ *   - `0[0-7]+[89]`: Octal literals that include the digits 8 or 9.
+ *   - `0x[^\da-f]`: Hexadecimal literals that include non-hexadecimal characters.
+ *   - `(?:\d+\.){2,}`: Numeric literals that include more than one decimal point.
+ *   - `\d+\.\d+\.`: Numeric literals that include more than one decimal point without any other characters in between.
+ *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
+ *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
+ */
+export function numericLiteral(options?: {
+  acceptInvalid?: boolean;
+  numericSeparator?: string | false;
+}) {
+  const acceptInvalid = options?.acceptInvalid ?? true;
+  const numericSeparator = {
+    enabled: options?.numericSeparator ?? true,
+    separator: options?.numericSeparator ?? "_",
+  };
+
+  const valid = Action.from(
+    /^(0x[\da-f]+|0o[0-7]+|\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?(?:[eE][-+]?\d+(?:_\d+)*)?)/i
+  );
+  const invalid = Action.from(
+    /^0[0-7]+[89]|0x[^\da-f]|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
+  ).check(() => "Invalid numeric literal."); // TODO: use typed error?
+
+  if (acceptInvalid) {
+    return new Action((buffer) => {
+      // try match valid first
+      const res = valid.exec(buffer);
+      if (res.accept) return res;
+      return invalid.exec(buffer);
+    });
+  } else {
+    // only accept valid numbers
+    return valid;
+  }
+}
