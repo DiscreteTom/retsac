@@ -38,8 +38,8 @@ test("builder define using array", () => {
   const lexer = new Lexer.Builder()
     .define({
       string: [
-        Lexer.stringLiteral({ double: true, single: true }),
-        Lexer.stringLiteral({ back: true, multiline: true }),
+        Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
+        Lexer.stringLiteral("`", { multiline: true }),
       ],
     })
     .build();
