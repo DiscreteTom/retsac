@@ -83,6 +83,14 @@ export class Action {
   }
 
   /**
+   * Reduce actions to one action.
+   * This will reduce the lexer loop times to optimize the performance.
+   */
+  static reduce(...actions: ActionSource[]) {
+    return Action.from(actions.reduce((a, b) => Action.from(a).or(b)));
+  }
+
+  /**
    * Mute action if `accept` is `true`.
    */
   mute(muted = true) {
