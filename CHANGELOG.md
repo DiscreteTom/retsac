@@ -5,6 +5,7 @@
 - Lexer
   - Feat: Add `Action.or` to cascade actions.
   - Add utils: `Lexer.whitespaces/comment`. #5
+  - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
   - **Breaking Change**: new `Lexer.stringLiteral`.
 
 ## v0.9.0

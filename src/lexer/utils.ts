@@ -2,18 +2,6 @@ import { Action } from "./action";
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
- * @deprecated use `fromTo` instead.
- */
-export function from_to(
-  from: string | RegExp,
-  to: string | RegExp,
-  acceptEof: boolean
-) {
-  return fromTo(from, to, { acceptEof });
-}
-
-/**
- * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
 export function fromTo(
   from: string | RegExp,
@@ -172,7 +160,11 @@ export function comment(
 
 /**
  * Match the literal representations of numbers in JavaScript code.
- * You can use `Number(str.replaceAll(numericSeparator, ''))` to get the numeric value.
+ *
+ * You can use `Number(token.content.replaceAll(numericSeparator, ''))` to get the numeric value.
+ * The default numeric separator is `_`, you can customize it by setting `options.numericSeparator` to a string.
+ *
+ * If you want to disable the numeric separator, set `options.numericSeparator` to `false`.
  *
  * If `options.acceptInvalid` is `true` (by default), common invalid numeric literals will also be matched and marked with error.
  *
@@ -206,8 +198,9 @@ export function numericLiteral(options?: {
     separator: options?.numericSeparator ?? "_",
   };
 
+  // ensure non-capture group to optimize performance
   const valid = Action.from(
-    /^(0x[\da-f]+|0o[0-7]+|\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?(?:[eE][-+]?\d+(?:_\d+)*)?)/i
+    /^(?:0x[\da-f]+|0o[0-7]+|\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?(?:[eE][-+]?\d+(?:_\d+)*)?)/i
   );
   const invalid = Action.from(
     /^0[0-7]+[89]|0x[^\da-f]|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
