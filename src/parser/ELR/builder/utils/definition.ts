@@ -11,7 +11,7 @@ const grammarLexer = new Lexer.Builder()
   .define({
     grammar: [/^\w+@\w+/, /^\w+/],
     or: exact("|"),
-    literal: stringLiteral({ single: true, double: true }),
+    literal: stringLiteral(`"`).or(stringLiteral(`'`)),
   })
   .build();
 

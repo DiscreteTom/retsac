@@ -16,28 +16,26 @@ function findUnescaped(s: string, target: string) {
 export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
-    tempStr: Lexer.stringLiteral({ back: true, multiline: true }).reject(
+    tempStr: Lexer.stringLiteral("`", { multiline: true }).reject(
       (s) => findUnescaped(s, "${") // reject if find '${` without escape
     ),
-    tempStrLeft: Lexer.stringLiteral({
-      from: "`",
-      to: "${",
+    tempStrLeft: Lexer.stringLiteral("`", {
+      close: "${",
       multiline: true,
     }).then(() => tempStrDepth++), // use closure to store state
-    tempStrRight: Lexer.stringLiteral({ from: "}", to: "`", multiline: true })
+    tempStrRight: Lexer.stringLiteral("}", { close: "`", multiline: true })
       .reject(
         (s) =>
           tempStrDepth == 0 || // not in template string
           findUnescaped(s, "${") // contains another '${'
       )
       .then(() => tempStrDepth--),
-    tempStrMiddle: Lexer.stringLiteral({
-      from: "}",
-      to: "${",
+    tempStrMiddle: Lexer.stringLiteral("}", {
+      close: "${",
       multiline: true,
     }).reject(() => tempStrDepth == 0), // check state
     exp: /^\w+/,
-    simpleString: Lexer.stringLiteral({ single: true, double: true }),
+    simpleString: Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
   })
   .anonymous(Lexer.exact(..."+"))
   .build();

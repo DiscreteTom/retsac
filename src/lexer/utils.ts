@@ -96,65 +96,54 @@ export function wordType(...words: readonly string[]): {
 }
 
 /**
- * Match a string literal, quoted in `''`(single) or `""`(double) or ``` `` ```(back).
+ * Match a string literal.
  *
- * Escape `\` will be handled correctly for quote, not for the string content.
+ * Escape (`\`) will be handled correctly for quote, not for the string content,
+ * so you have to parse those escaped content by yourself.
  *
- * You can also use `from`/`to` or `quote` to specify your own string boundary.
+ * E.g. `stringLiteral('"')` will match `"abc\"def"` and return `"abc\"def"`.
  *
  * Set `multiline: true` to allow multiline string literals.
  */
 export function stringLiteral(
-  p: (
-    | {
-        single?: boolean;
-        double?: boolean;
-        back?: boolean;
-      }
-    | {
-        from: string;
-        to: string;
-      }
-    | { quote: string }
-  ) & { multiline?: boolean }
+  /** The open quote. */
+  open: string,
+  options?: {
+    /** The close quote. Equals to the open quote by default. */
+    close?: string;
+    /** Default: false. */
+    multiline?: boolean;
+    /** Default: true. */
+    escape?: boolean;
+  }
 ) {
+  const close = options?.close ?? open;
+
+  // if not escaped
+  if (!(options?.escape ?? true))
+    return fromTo(open, close, { acceptEof: false });
+  // else, escaped
+
+  // calculate vars before action creation to optimize runtime performance
+  const escapedClose = close.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+  const closeOrEscapeRegex =
+    options?.multiline ?? false
+      ? new RegExp(`\\\\.|${escapedClose}`, "g") // multiline is allowed, so don't match \n
+      : new RegExp(`\\\\.|${escapedClose}|\\n`, "g"); // multiline is not allowed, match \n to reject
+
   return Action.from((buffer) => {
     let digested = 0;
-    let endQuote = "";
-    if ("single" in p && p.single && buffer.startsWith(`'`)) {
-      endQuote = "'";
-      digested = 1;
-    } else if ("double" in p && p.double && buffer.startsWith(`"`)) {
-      endQuote = '"';
-      digested = 1;
-    } else if ("back" in p && p.back && buffer.startsWith("`")) {
-      endQuote = "`";
-      digested = 1;
-    } else if ("from" in p && buffer.startsWith(p.from)) {
-      endQuote = p.to;
-      digested = p.from.length;
-    } else if ("quote" in p && buffer.startsWith(p.quote)) {
-      endQuote = p.quote;
-      digested = p.quote.length;
-    } else return 0;
+    if (buffer.startsWith(open)) digested += open.length;
+    else return 0;
 
-    for (let i = digested; i < buffer.length - endQuote.length + 1; ++i) {
-      if (buffer[i] == "\\") {
-        i++; // escape next
-        continue;
-      }
-      if (buffer.slice(i, i + endQuote.length) == endQuote) {
-        if (
-          p.multiline ||
-          !buffer.slice(digested, i + endQuote.length).includes("\n")
-        )
-          return i + endQuote.length;
-        else return 0; // multiline not allowed
-      }
+    closeOrEscapeRegex.lastIndex = digested; // ignore the open quote
+    while (true) {
+      const match = closeOrEscapeRegex.exec(buffer);
+      if (!match) return 0; // close quote not found
+      if (match[0] == close) return match.index + match[0].length; // close quote found
+      if (match[0] == "\n") return 0; // multiline is not allowed, reject
+      // else, escape found, continue
     }
-
-    // eof, return
-    return 0;
   });
 }
 

@@ -10,9 +10,9 @@ export const lexer = new Lexer.Builder()
     // mark error when a string literal is not closed
     string: [
       // first, try to match a string literal with double quotes and no multiline
-      stringLiteral({ double: true, multiline: false }),
+      stringLiteral(`"`),
       // if it fails, try to match a string literal starts with a double quote and ends with a new line
-      stringLiteral({ from: `"`, to: "\n", multiline: true }).check(
+      stringLiteral(`"`, { close: "\n", multiline: true }).check(
         // mark this as an error
         () => "Unclosed string literal"
       ),
