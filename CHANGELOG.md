@@ -3,6 +3,7 @@
 ## v0.9.1
 
 - Lexer
+  - Feat: Add `Action.or` to cascade actions.
   - Add utils: `Lexer.whitespaces/comment`. #5
   - Deprecate `Lexer.from_to`, use `Lexer.fromTo` instead.
 

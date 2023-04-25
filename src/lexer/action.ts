@@ -131,4 +131,16 @@ export class Action {
       return output;
     });
   }
+
+  /**
+   * Execute the new action if current action can't accept input.
+   */
+  or(a: ActionSource) {
+    const other = Action.from(a);
+    return new Action((buffer) => {
+      const output = this.exec(buffer);
+      if (output.accept) return output;
+      return other.exec(buffer);
+    });
+  }
 }
