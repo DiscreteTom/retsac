@@ -138,10 +138,15 @@ export class Action {
    */
   or(a: ActionSource) {
     const other = Action.from(a);
-    return new Action((buffer) => {
-      const output = this.exec(buffer);
-      if (output.accept) return output;
-      return other.exec(buffer);
-    });
+    return new Action(
+      (buffer) => {
+        const output = this.exec(buffer);
+        if (output.accept) return output;
+        return other.exec(buffer);
+      },
+      {
+        maybeMuted: this.maybeMuted || other.maybeMuted,
+      }
+    );
   }
 }
