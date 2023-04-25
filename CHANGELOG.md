@@ -4,9 +4,10 @@
 
 - Lexer
   - Feat: Add `Action.or` to cascade actions.
-  - Add utils: `Lexer.whitespaces/comment`. #5
+  - Feat: Add utils: `Lexer.whitespaces/comment`. #5
+  - Fix: Reset regex state for regex based actions.
   - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
-  - **Breaking Change**: new `Lexer.stringLiteral`.
+  - **Breaking Change**: New `Lexer.stringLiteral`.
 
 ## v0.9.0
 

@@ -61,6 +61,7 @@ export class Action {
     // use `new Action` instead of `Action.simple` to re-use the `res[0]` to prevent unnecessary string copy.
     return new Action((buffer) => {
       const res = r.exec(buffer);
+      r.lastIndex = 0; // reset state if r has the flag 'g'
       if (res && res.index != -1)
         return {
           accept: true,
