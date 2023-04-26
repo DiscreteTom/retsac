@@ -122,33 +122,119 @@ export function stringLiteral(
     multiline?: boolean;
     /** Default: true. */
     escape?: boolean;
+    /**
+     * If true (by default), unclosed string(`\n` or EOF for single line string, and EOF for multiline string)
+     * will also be accepted and marked as `options.unclosedError`.
+     */
+    acceptUnclosed?: boolean;
+    /** Default: `'unclosed string'` */
+    unclosedError?: any;
   }
 ) {
   const close = options?.close ?? open;
+  const multiline = options?.multiline ?? false;
+  const escape = options?.escape ?? true;
+  const acceptUnclosed = options?.acceptUnclosed ?? true;
+  const unclosedError = options?.unclosedError ?? "unclosed string literal";
 
   // if not escaped
-  if (!(options?.escape ?? true))
-    return fromTo(open, close, { acceptEof: false });
+  if (!escape) {
+    if (multiline) {
+      if (acceptUnclosed) {
+        const action = fromTo(open, close, { acceptEof: true });
+        return new Action((buffer) => {
+          const res = action.exec(buffer);
+          if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
+          // else, accepted, which means `open` is found, and whether `close` is found or EOF is reached
+          if (!res.content.endsWith(close))
+            // EOF is reached, set unclosed error and accept
+            return { ...res, error: unclosedError };
+          return res; // `close` is found, accept
+        });
+      }
+      // else, multiline but not accept unclosed
+      return fromTo(open, close, { acceptEof: false });
+    }
+    // else, multiline not allowed
+
+    const closeRegex = new RegExp(`${esc4regex(close)}|\\n`, "g");
+    if (acceptUnclosed) {
+      /** Accept when `close` is found or `\n` is found, or EOF. */
+      const action = fromTo(open, closeRegex, { acceptEof: true });
+      return new Action((buffer) => {
+        const res = action.exec(buffer);
+        if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
+        // else, whether `close` is found or `\n` is found or EOF is reached
+        if (res.content == "\n") return { ...res, error: unclosedError };
+        if (res.content == close) return res;
+        return { ...res, error: unclosedError }; // EOF is reached
+      });
+    }
+    // else, multiline not allowed and not accept unclosed
+    /** Accept when `close` is found or `\n` is found. */
+    const action = fromTo(open, closeRegex, { acceptEof: false });
+    return new Action((buffer) => {
+      const res = action.exec(buffer);
+      if (!res.accept) return res; // `open` not found or `close`/`\n` not found
+      // else, whether `close` is found or `\n` is found
+      if (res.content == "\n") return { accept: false }; // reject
+      return res; // `close` is found, accept
+    });
+  }
   // else, escaped
 
-  // calculate vars before action creation to optimize runtime performance
-  const escapedClose = close.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
-  const closeOrEscapeRegex =
-    options?.multiline ?? false
-      ? new RegExp(`\\\\.|${escapedClose}`, "g") // multiline is allowed, so don't match \n
-      : new RegExp(`\\\\.|${escapedClose}|\\n`, "g"); // multiline is not allowed, match \n to reject
+  /** Match escaped char (`\.`) or `close` or `\n`. */
+  const regex = new RegExp(`\\\\.|${esc4regex(close)}|\\n`, "g");
+  return new Action((buffer) => {
+    if (buffer.startsWith(open))
+      regex.lastIndex = open.length; // ignore the open quote
+    else return { accept: false }; // open quote not found
 
-  return Action.from((buffer) => {
-    let digested = 0;
-    if (buffer.startsWith(open)) digested += open.length;
-    else return 0;
-
-    closeOrEscapeRegex.lastIndex = digested; // ignore the open quote
     while (true) {
-      const match = closeOrEscapeRegex.exec(buffer);
-      if (!match) return 0; // close quote not found
-      if (match[0] == close) return match.index + match[0].length; // close quote found
-      if (match[0] == "\n") return 0; // multiline is not allowed, reject
+      const match = regex.exec(buffer);
+      if (!match) {
+        // close quote not found, EOF reached
+        if (acceptUnclosed)
+          // accept unclosed string
+          return {
+            accept: true,
+            digested: buffer.length,
+            content: buffer,
+            muted: false,
+            rest: "",
+            error: unclosedError,
+          };
+        return { accept: false }; // reject unclosed string
+      }
+      if (match[0] == close) {
+        // close quote found
+        const digested = match.index + match[0].length;
+        return {
+          accept: true,
+          digested,
+          content: buffer.slice(0, digested),
+          rest: buffer.slice(digested),
+          muted: false,
+        };
+      }
+      if (match[0] == "\n") {
+        // multiline is allowed, continue
+        if (multiline) continue;
+        // else, multiline is not allowed
+        if (acceptUnclosed) {
+          // accept unclosed string
+          const digested = match.index + 1; // match[0].length == 1
+          return {
+            accept: true,
+            digested,
+            content: buffer.slice(0, digested),
+            rest: buffer.slice(digested),
+            muted: false,
+          };
+        }
+        // else, not accept unclosed string
+        return { accept: false };
+      }
       // else, escape found, continue
     }
   });

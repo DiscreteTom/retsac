@@ -10,7 +10,7 @@
   - Feat: Add utils: `Lexer.whitespaces/comment`. #5
   - Fix: Reset regex state for regex based actions.
   - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
-  - **Breaking Change**: New `Lexer.stringLiteral`.
+  - **Breaking Change**: New `Lexer.stringLiteral`, more options, more powerful.
 
 ## v0.9.0
 
