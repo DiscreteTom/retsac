@@ -1,4 +1,3 @@
-import { ILexer } from "../../../../lexer";
 import { DFA } from "../../DFA";
 import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
 import { LR_BuilderError } from "../error";
