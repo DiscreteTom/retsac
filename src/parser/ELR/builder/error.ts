@@ -15,7 +15,8 @@ export type LR_BuilderErrorType =
   | "EMPTY_LITERAL"
   | "INVALID_LITERAL"
   | "TOO_MANY_END_HANDLER"
-  | "NO_SUCH_CONFLICT";
+  | "NO_SUCH_CONFLICT"
+  | "NO_RENAME_TARGET";
 
 export class LR_BuilderError extends Error {
   type: LR_BuilderErrorType;
@@ -140,6 +141,13 @@ export class LR_BuilderError extends Error {
     return new LR_BuilderError(
       "INVALID_LITERAL",
       `Invalid literal: '${literal}' in rule ${gr.toString()}`
+    );
+  }
+
+  static noRenameTarget(def: string | string[], rename: string) {
+    return new LR_BuilderError(
+      "NO_RENAME_TARGET",
+      `No rename target in rule ${def} for rename ${rename}`
     );
   }
 }

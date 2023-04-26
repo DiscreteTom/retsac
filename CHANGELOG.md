@@ -11,6 +11,8 @@
   - Fix: Reset regex state for regex based actions.
   - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
   - **Breaking Change**: New `Lexer.stringLiteral`, more options, more powerful.
+- Parser
+  - Feat: Literals in grammar rules also have name and can be renamed. #4
 
 ## v0.9.0
 

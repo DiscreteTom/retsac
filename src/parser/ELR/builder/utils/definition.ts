@@ -5,11 +5,10 @@ import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 
 const grammarLexer = new Lexer.Builder()
-  .ignore(
-    Lexer.whitespaces // blank
-  )
+  .ignore(Lexer.whitespaces)
   .define({
-    grammar: [/^\w+@\w+/, /^\w+/],
+    rename: /^@\w+/,
+    grammar: /^\w+/,
     or: exact("|"),
     literal: stringLiteral(`"`).or(stringLiteral(`'`)),
   })
@@ -22,7 +21,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    const rules: Token[][] = [[]];
+    const rules: ({ name: string } & Token)[][] = [[]];
     const def = defs[NT];
     const defStr = def instanceof Array ? def.join("|") : def;
     grammarLexer
@@ -30,7 +29,13 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
       .lexAll(defStr)
       .forEach((t) => {
         if (t.type == "or") rules.push([]); // new grammar rule
-        else rules.at(-1)!.push(t); // append token to the last grammar rule
+        else if (t.type == "rename") {
+          const token = rules.at(-1)?.at(-1);
+          if (!token) throw LR_BuilderError.noRenameTarget(def, t.content);
+          token.name = t.content.slice(1); // remove `@`
+        }
+        // append token to the last grammar rule with name
+        else rules.at(-1)!.push({ ...t, name: t.content });
       });
 
     if (grammarLexer.hasRest())
@@ -61,13 +66,13 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
               return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
                 content: t.content.split("@")[0],
-                name: t.content.split("@")[1] || t.content,
+                name: t.name,
               });
             else
               return new TempGrammar({
                 type: TempGrammarType.LITERAL,
                 content: t.content.slice(1, -1), // remove quotes
-                name: "", // literal has no name
+                name: t.name,
               });
           }),
           callback: ctx?.callback,
