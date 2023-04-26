@@ -7,7 +7,7 @@
   - Feat: Add utils `Lexer.esc4regex`.
   - Feat: Add `Action.reduce` to reduce actions.
     - Apply this in `Lexer.Builder.define` to optimize performance.
-  - Feat: Add utils: `Lexer.whitespaces/comment`. #5
+  - Feat: Add utils: `Lexer.whitespaces/comment/numericLiteral`. #5
   - Fix: Reset regex state for regex based actions.
   - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
   - **Breaking Change**: New `Lexer.stringLiteral`, more options, more powerful.

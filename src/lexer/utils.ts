@@ -294,22 +294,31 @@ export function comment(
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
 export function numericLiteral(options?: {
-  acceptInvalid?: boolean;
   numericSeparator?: string | false;
+  /**
+   * If `true` (by default), common invalid numeric literals will also be accepted and marked with `options.invalidError`.
+   */
+  acceptInvalid?: boolean;
+  /** Default: `"invalid numeric literal"` */
+  invalidError?: any;
 }) {
+  const enableSeparator = !(options?.numericSeparator === false);
+  const separator = esc4regex((options?.numericSeparator ?? "_") as string);
   const acceptInvalid = options?.acceptInvalid ?? true;
-  const numericSeparator = {
-    enabled: options?.numericSeparator ?? true,
-    separator: options?.numericSeparator ?? "_",
-  };
+  const invalidError = options?.invalidError ?? "invalid numeric literal";
 
   // ensure non-capture group to optimize performance
   const valid = Action.from(
-    /^(?:0x[\da-f]+|0o[0-7]+|\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?(?:[eE][-+]?\d+(?:_\d+)*)?)/i
+    enableSeparator
+      ? new RegExp(
+          `^(?:0x[\da-f]+|0o[0-7]+|\d+(?:${separator}\d+)*(?:\.\d+(?:${separator}\d+)*)?(?:[eE][-+]?\d+(?:${separator}\d+)*)?)`,
+          "i"
+        )
+      : /^(?:0x[\da-f]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/i
   );
   const invalid = Action.from(
     /^0[0-7]+[89]|0x[^\da-f]|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
-  ).check(() => "Invalid numeric literal."); // TODO: use typed error?
+  ).check(() => invalidError);
 
   if (acceptInvalid) {
     return new Action((buffer) => {
