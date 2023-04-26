@@ -16,11 +16,9 @@ export class Builder {
   define(defs: { [type: string]: ActionSource | ActionSource[] }) {
     for (const type in defs) {
       const raw = defs[type];
-      (raw instanceof Array ? raw : [raw]).forEach((src) => {
-        this.defs.push({
-          type,
-          action: Action.from(src),
-        });
+      this.defs.push({
+        type,
+        action: Action.reduce(...(raw instanceof Array ? raw : [raw])),
       });
     }
     return this;
