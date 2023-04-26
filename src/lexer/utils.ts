@@ -10,38 +10,50 @@ export function fromTo(
     acceptEof: boolean;
   }
 ): Action {
-  return Action.from((buffer) => {
-    // check 'from'
-    let fromDigested = 0;
-    if (from instanceof RegExp) {
-      const res = from.exec(buffer);
-      if (!res || res.index == -1) return 0;
-      fromDigested = res.index + res[0].length;
-    } else {
-      if (!buffer.startsWith(from)) return 0;
-      fromDigested = from.length;
-    }
+  /** Return how many chars are digested, return 0 for reject. */
+  const checkFrom =
+    from instanceof RegExp
+      ? (buffer: string) => {
+          const res = from.exec(buffer);
+          if (!res || res.index == -1) return 0;
+          return res.index + res[0].length;
+        }
+      : (buffer: string) => {
+          if (!buffer.startsWith(from)) return 0;
+          return from.length;
+        };
+  /** Return how many chars are digested(including digested by `from`), return 0 for reject. */
+  const checkTo =
+    to instanceof RegExp
+      ? (buffer: string, digested: number) => {
+          const rest = buffer.slice(digested); // TODO: optimize using `regex.lastIndex` to prevent slicing?
+          const res = to.exec(rest);
+          if (res && res.index != -1)
+            return res.index + res[0].length + digested;
+          return 0;
+        }
+      : (buffer: string, digested: number) => {
+          const index = buffer.indexOf(to, digested);
+          if (index != -1) return index + to.length;
+          return 0;
+        };
 
-    // check 'to'
-    const rest = buffer.slice(fromDigested);
-    let toDigested = 0;
-    if (to instanceof RegExp) {
-      const res = to.exec(rest);
-      if (res && res.index != -1) toDigested = res.index + res[0].length;
-    } else {
-      const index = rest.indexOf(to);
-      if (index != -1) toDigested = index + to.length;
-    }
+  return Action.from((buffer) => {
+    const fromDigested = checkFrom(buffer);
+    if (fromDigested == 0) return 0;
+
+    const digested = checkTo(buffer, fromDigested);
 
     // construct result
-    if (toDigested == 0)
+    if (digested == 0)
       // 'to' not found
       return options.acceptEof
         ? // accept whole buffer
           buffer.length
         : // reject
           0;
-    else return fromDigested + toDigested;
+
+    return digested; // `to` found
   });
 }
 
