@@ -84,6 +84,13 @@ export function wordType(...words: readonly string[]): {
 }
 
 /**
+ * Escape regex special characters.
+ */
+export function esc4regex(str: string) {
+  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+}
+
+/**
  * Match a string literal.
  *
  * Escape (`\`) will be handled correctly for quote, not for the string content,

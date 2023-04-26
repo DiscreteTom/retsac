@@ -4,6 +4,7 @@
 
 - Lexer
   - Feat: Add `Action.or` to cascade actions.
+  - Feat: Add utils `Lexer.esc4regex`.
   - Feat: Add `Action.reduce` to reduce actions.
     - Apply this in `Lexer.Builder.define` to optimize performance.
   - Feat: Add utils: `Lexer.whitespaces/comment`. #5
