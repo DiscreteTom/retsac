@@ -39,10 +39,9 @@ const lexer = new Lexer.Builder()
     number: /^[0-9]+(?:\.[0-9]+)?/,
     identifier: /^\w+/,
     regex: Lexer.fromTo("/", "/", { acceptEof: false }), // for simplicity, we don't support complex regex
-    string: [
-      Lexer.stringLiteral({ double: true, single: true }),
-      Lexer.stringLiteral({ back: true, multiline: true }),
-    ],
+    string: Lexer.stringLiteral(`"`)
+      .or(Lexer.stringLiteral(`'`))
+      .or(Lexer.stringLiteral("`", { multiline: true })),
   })
   .anonymous(
     Lexer.exact("..."), // 3-char operator
