@@ -33,4 +33,4 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
-  .build(lexer, { checkAll: true });
+  .build(lexer, { checkAll: true, rollback: true });

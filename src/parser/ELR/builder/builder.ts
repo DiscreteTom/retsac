@@ -126,7 +126,12 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
   private buildDFA(
     lexer: ILexer,
-    options?: { debug?: boolean; logger?: Logger }
+    options?: {
+      debug?: boolean;
+      logger?: Logger;
+      rollback?: boolean;
+      reLex?: boolean;
+    }
   ) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
@@ -153,6 +158,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       allInitialCandidates,
       allStates,
       this.cascadeQueryPrefix,
+      options?.rollback ?? false,
+      options?.reLex ?? true,
       options?.debug ?? false,
       options?.logger ?? console.log
     );

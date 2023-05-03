@@ -17,6 +17,14 @@ export type BuildOptions = {
   checkSymbols?: boolean;
   checkConflicts?: boolean;
   checkAll?: boolean;
+  /**
+   * If `true` (`false` by default), you can use `rollback` in your `DefinitionContextBuilder`.
+   */
+  rollback?: boolean;
+  /**
+   * If `true` (by default), the parser will try to re-lex the input.
+   */
+  reLex?: boolean;
 };
 
 export interface IParserBuilder<T> {

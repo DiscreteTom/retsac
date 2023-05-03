@@ -23,6 +23,8 @@ export class DFA<T> {
     /** `string representation of state => state` */
     protected readonly allStates: Map<string, State<T>>,
     private readonly cascadeQueryPrefix: string | undefined,
+    public readonly rollback: boolean,
+    public readonly reLex: boolean,
     public debug: boolean,
     public logger: Logger
   ) {}
@@ -70,9 +72,11 @@ export class DFA<T> {
         state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested);
 
       // rollback
-      while (rollbackStack.length > state.rollbackStackLength) {
-        const { context, rollback } = rollbackStack.pop()!;
-        rollback(context);
+      if (this.rollback) {
+        while (rollbackStack.length > state.rollbackStackLength) {
+          const { context, rollback } = rollbackStack.pop()!;
+          rollback(context);
+        }
       }
 
       // apply state
@@ -96,7 +100,7 @@ export class DFA<T> {
         // if no more ASTNode can be lexed
         if (res.length == 0) {
           // try to restore from re-lex stack
-          if (reLexStack.length > 0) {
+          if (this.reLex && reLexStack.length > 0) {
             reLex();
           } else {
             // no more ASTNode can be lexed, parsing failed
@@ -113,20 +117,22 @@ export class DFA<T> {
         } else {
           // lex success, record all possible lexing results for later use
           // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
-          for (let i = res.length - 1; i >= 0; --i) {
-            reLexStack.push({
-              stateStack: stateStack.slice(), // make a copy
-              buffer: buffer.slice().concat(res[i].node),
-              lexer: res[i].lexer,
-              index,
-              errors: errors.slice(),
-              rollbackStackLength: rollbackStack.length,
-            });
+          if (this.reLex) {
+            for (let i = res.length - 1; i >= 0; --i) {
+              reLexStack.push({
+                stateStack: stateStack.slice(), // make a copy
+                buffer: buffer.slice().concat(res[i].node),
+                lexer: res[i].lexer,
+                index,
+                errors: errors.slice(),
+                rollbackStackLength: rollbackStack.length,
+              });
+            }
+            // use the first lexing result to continue parsing
+            const state = reLexStack.pop()!;
+            buffer = state.buffer;
+            lexer = state.lexer;
           }
-          // use the first lexing result to continue parsing
-          const state = reLexStack.pop()!;
-          buffer = state.buffer;
-          lexer = state.lexer;
         }
       }
 
@@ -141,7 +147,7 @@ export class DFA<T> {
         );
       if (nextStateResult.state == null) {
         // try to restore from re-lex stack
-        if (reLexStack.length > 0) {
+        if (this.reLex && reLexStack.length > 0) {
           reLex();
           continue;
         } else {
@@ -182,7 +188,8 @@ export class DFA<T> {
         commitParser();
       } else {
         // update rollback stack
-        rollbackStack.push({ rollback: rollback!, context: context! });
+        if (this.rollback)
+          rollbackStack.push({ rollback: rollback!, context: context! });
       }
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1

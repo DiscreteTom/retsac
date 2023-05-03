@@ -19,6 +19,8 @@
   - Feat: Literals in grammar rules also have name and can be renamed. #4
   - Feat: Add `logger` option. #11
     - **_Breaking Change_**: Update `IParser` model to adopt debug/logger options.
+  - Feat: Optional re-lex and rollback by setting `ParserBuilder.options.reLex/rollback`.
+    - **_Breaking Change_**: Disable rollback by default to optimize the performance.
   - **_Breaking Change_**: Export `IParserBuilder/BuilderDecorator` in the `ELR` namespace, instead of the top level.
 
 ## v0.9.0
