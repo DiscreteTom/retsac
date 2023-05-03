@@ -128,11 +128,6 @@ export class Lexer implements ILexer {
       if (input?.input) this.feed(input.input);
     }
 
-    if (!this.hasRest()) {
-      this.log(`[Lexer.lex] no rest`);
-      return null;
-    }
-
     // calculate expect
     const expect = {
       type: typeof input === "string" ? undefined : input?.expect?.type,
@@ -143,6 +138,13 @@ export class Lexer implements ILexer {
       this.log(`[Lexer.lex] expect ${JSON.stringify(expect)}`);
 
     while (true) {
+      // first, check rest
+      // since maybe some token is muted which cause the rest is empty
+      if (!this.hasRest()) {
+        this.log(`[Lexer.lex] no rest`);
+        return null;
+      }
+
       let muted = false;
       for (const def of this.defs) {
         // if user provide expected type, ignore unmatched type, unless it's muted.
