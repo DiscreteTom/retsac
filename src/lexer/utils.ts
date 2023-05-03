@@ -14,6 +14,7 @@ export function fromTo(
   const checkFrom =
     from instanceof RegExp
       ? (buffer: string) => {
+          from.lastIndex = 0;
           const res = from.exec(buffer);
           if (!res || res.index == -1) return 0;
           return res.index + res[0].length;
@@ -26,6 +27,7 @@ export function fromTo(
   const checkTo =
     to instanceof RegExp
       ? (buffer: string, digested: number) => {
+          to.lastIndex = 0;
           const rest = buffer.slice(digested); // TODO: optimize using `regex.lastIndex` to prevent slicing?
           const res = to.exec(rest);
           if (res && res.index != -1)
