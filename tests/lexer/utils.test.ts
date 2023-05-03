@@ -50,10 +50,12 @@ test("lexer utils wordType", () => {
 test("lexer utils stringLiteral", () => {
   const lexer = new Lexer.Builder()
     .define({
-      str1: stringLiteral(`'`).or(stringLiteral(`"`)),
-      str2: stringLiteral("`", { multiline: true }),
-      str3: stringLiteral("a", { close: "b" }),
-      str4: stringLiteral("&"),
+      str1: stringLiteral(`'`, { acceptUnclosed: false }).or(
+        stringLiteral(`"`, { acceptUnclosed: false })
+      ),
+      str2: stringLiteral("`", { multiline: true, acceptUnclosed: false }),
+      str3: stringLiteral("a", { close: "b", acceptUnclosed: false }),
+      str4: stringLiteral("&", { acceptUnclosed: false }),
     })
     .build();
 
