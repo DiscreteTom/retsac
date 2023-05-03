@@ -25,6 +25,7 @@ import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
+import { Logger } from "../../../model";
 
 /**
  * Builder for ELR parsers.
@@ -123,7 +124,10 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  private buildDFA(lexer: ILexer, debug: boolean | undefined) {
+  private buildDFA(
+    lexer: ILexer,
+    options?: { debug?: boolean; logger?: Logger }
+  ) {
     if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
 
     // build the DFA
@@ -148,7 +152,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       followSets,
       allInitialCandidates,
       allStates,
-      this.cascadeQueryPrefix
+      this.cascadeQueryPrefix,
+      options?.debug ?? false,
+      options?.logger ?? console.log
     );
 
     // transform resolved temp conflicts to resolved conflicts
@@ -182,7 +188,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       };
     });
 
-    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, debug);
+    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, options?.debug);
 
     // apply resolved conflicts to grammar rule rejecters
     resolved.forEach((r) => {
@@ -245,7 +251,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   build(lexer: ILexer, options?: BuildOptions) {
     const { dfa, resolved, NTs, tempGrammarRules, conflicts } = this.buildDFA(
       lexer,
-      options?.debug
+      options
     );
     dfa.debug = options?.debug ?? false;
 

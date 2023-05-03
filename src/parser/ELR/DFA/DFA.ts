@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import { GrammarRule, GrammarSet } from "../model";
@@ -8,8 +9,6 @@ import { State } from "./state";
 
 /** DFA for ELR parsers. Stateless. */
 export class DFA<T> {
-  debug: boolean;
-
   constructor(
     protected readonly allGrammarRules: readonly GrammarRule<T>[],
     protected readonly entryNTs: ReadonlySet<string>,
@@ -23,8 +22,14 @@ export class DFA<T> {
     protected readonly allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
     /** `string representation of state => state` */
     protected readonly allStates: Map<string, State<T>>,
-    private readonly cascadeQueryPrefix: string | undefined
+    private readonly cascadeQueryPrefix: string | undefined,
+    public debug: boolean,
+    public logger: Logger
   ) {}
+
+  private log(msg: string) {
+    if (this.debug) this.logger(msg);
+  }
 
   getFirstSets() {
     return this.firstSets;
@@ -77,12 +82,11 @@ export class DFA<T> {
       index = state.index;
       errors = state.errors;
 
-      if (this.debug)
-        console.log(
-          `[Re-Lex] Restored input: "${restoredInput}" Trying: ${buffer
-            .at(-1)!
-            .toString()}`
-        );
+      this.log(
+        `[Re-Lex] Restored input: "${restoredInput}" Trying: ${buffer
+          .at(-1)!
+          .toString()}`
+      );
     };
 
     while (true) {
@@ -96,15 +100,14 @@ export class DFA<T> {
             reLex();
           } else {
             // no more ASTNode can be lexed, parsing failed
-            if (this.debug)
-              console.log(
-                `[End] No matching token can be lexed. Rest of input: ${lexer
-                  .getRest()
-                  .slice(0, 10)}\nCandidates:\n${stateStack
-                  .at(-1)!
-                  .candidates.map((c) => c.toString())
-                  .join("\n")}`
-              );
+            this.log(
+              `[End] No matching token can be lexed. Rest of input: ${lexer
+                .getRest()
+                .slice(0, 10)}\nCandidates:\n${stateStack
+                .at(-1)!
+                .candidates.map((c) => c.toString())
+                .join("\n")}`
+            );
             return { output: { accept: false }, lexer };
           }
         } else {
@@ -143,15 +146,14 @@ export class DFA<T> {
           continue;
         } else {
           // no more candidate can be constructed, parsing failed
-          if (this.debug)
-            console.log(
-              `[End] No more candidate. Node=${buffer
-                .at(-1)
-                ?.toString()} Candidates:\n${stateStack
-                .at(-1)!
-                .candidates.map((c) => c.toString())
-                .join("\n")}`
-            );
+          this.log(
+            `[End] No more candidate. Node=${buffer
+              .at(-1)
+              ?.toString()} Candidates:\n${stateStack
+              .at(-1)!
+              .candidates.map((c) => c.toString())
+              .join("\n")}`
+          );
           return { output: { accept: false }, lexer };
         }
       }
@@ -168,7 +170,7 @@ export class DFA<T> {
           this.followSets,
           lexer,
           this.cascadeQueryPrefix,
-          this.debug
+          this.log.bind(this)
         );
       if (!res.accept) {
         index++;

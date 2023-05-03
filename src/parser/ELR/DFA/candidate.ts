@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import {
@@ -126,7 +127,7 @@ export class Candidate<T> {
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     cascadeQueryPrefix: string | undefined,
-    debug: boolean
+    logger: Logger
   ): { res: ParserOutput<T>; context?: ParserContext<T>; commit?: boolean } {
     if (this.canDigestMore()) return { res: { accept: false } };
 
@@ -179,13 +180,12 @@ export class Candidate<T> {
           }
         }
         if (mismatch) {
-          if (debug)
-            console.log(
-              `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
-                0,
-                10 // only show first 10 chars
-              )}`
-            );
+          logger(
+            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
+              0,
+              10 // only show first 10 chars
+            )}`
+          );
           return { res: { accept: false } };
         }
       }
@@ -194,7 +194,7 @@ export class Candidate<T> {
 
     // check rejecter
     if (this.gr.rejecter(context)) {
-      if (debug) console.log(`[Reject] ${this.gr.toString()}`);
+      logger(`[Reject] ${this.gr.toString()}`);
       return { res: { accept: false } };
     }
 
@@ -210,7 +210,7 @@ export class Candidate<T> {
       $: context.$,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
-    if (debug) console.log(`[Accept] ${this.gr.toString()}`);
+    logger(`[Accept] ${this.gr.toString()}`);
 
     return {
       res: {

@@ -1,4 +1,5 @@
 import { ILexer } from "../../lexer";
+import { Logger } from "../../model";
 import { ASTNode } from "../ast";
 import { IParser, ParserOutput } from "../model";
 import { DFA, State } from "./DFA";
@@ -6,13 +7,26 @@ import { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
 export class Parser<T> implements IParser<T> {
-  readonly dfa: DFA<T>;
   lexer: ILexer;
+  readonly dfa: DFA<T>;
   protected buffer: ASTNode<T>[];
   protected errors: ASTNode<T>[];
 
   private reLexStack: ReLexStack<State<T>, T>;
   private rollbackStack: RollbackStack<T>;
+
+  get debug() {
+    return this.dfa.debug;
+  }
+  set debug(v: boolean) {
+    this.dfa.debug = v;
+  }
+  get logger() {
+    return this.dfa.logger;
+  }
+  set logger(v: Logger) {
+    this.dfa.logger = v;
+  }
 
   constructor(dfa: DFA<T>, lexer: ILexer) {
     this.dfa = dfa;

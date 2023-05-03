@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import { IParser } from "../../model";
 import {
   Definition,
@@ -9,6 +10,7 @@ import {
 
 export type BuildOptions = {
   debug?: boolean;
+  logger?: Logger;
   generateResolvers?: "builder" | "context";
   /** If `printAll` is true, print all errors instead of throwing errors. */
   printAll?: boolean;

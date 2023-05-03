@@ -1,3 +1,4 @@
+import { Logger } from "../model";
 import { ASTNode } from "./ast";
 
 export type ParserAcceptedOutput<T> = Readonly<{
@@ -17,6 +18,8 @@ export type ParseExec<T> = (
 ) => ParserOutput<T>;
 
 export interface IParser<T> {
+  debug: boolean;
+  logger: Logger;
   /** Reset state. */
   reset(): this;
   /** Clone a new parser with the same states. */

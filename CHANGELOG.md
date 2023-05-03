@@ -3,8 +3,8 @@
 ## v0.10.0
 
 - Lexer
-  - Feat: Add `debug/logger` option.
-    - **_Breaking Change_**: Update `ILexer` model to accept debug/logger options.
+  - Feat: Add `debug/logger` option. #11
+    - **_Breaking Change_**: Update `ILexer` model to adopt debug/logger options.
   - Feat: Add `Action.or` to cascade actions.
   - Feat: Add `Action.reduce` to reduce actions.
     - Perf: Apply this in `Lexer.Builder.define` to optimize performance.
@@ -17,6 +17,8 @@
   - **_Breaking Change_**: New `Lexer.stringLiteral`, more options, more powerful.
 - Parser
   - Feat: Literals in grammar rules also have name and can be renamed. #4
+  - Feat: Add `logger` option. #11
+    - **_Breaking Change_**: Update `IParser` model to adopt debug/logger options.
   - **_Breaking Change_**: Export `IParserBuilder/BuilderDecorator` in the `ELR` namespace, instead of the top level.
 
 ## v0.9.0

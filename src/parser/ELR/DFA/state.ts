@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import {
@@ -118,7 +119,7 @@ export class State<T> {
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: ILexer,
     cascadeQueryPrefix: string | undefined,
-    debug: boolean
+    logger: Logger
   ): {
     res: ParserOutput<T>;
     rollback?: Callback<T>;
@@ -132,7 +133,7 @@ export class State<T> {
         followSets,
         lexer,
         cascadeQueryPrefix,
-        debug
+        logger
       );
       // since we've already resolved all reduce-reduce conflicts, we can return the first result
       if (res.accept) return { res, rollback: c.gr.rollback, context, commit };
