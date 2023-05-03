@@ -230,6 +230,7 @@ export function stringLiteral(
             content: buffer.slice(0, digested),
             rest: buffer.slice(digested),
             muted: false,
+            error: unclosedError,
           };
         }
         // else, not accept unclosed string
