@@ -8,11 +8,11 @@ describe("lexer error handling", () => {
 
     const token2 = lexer.reset().lex(`"123\n123`);
     expect(token2!.content).toBe(`"123\n`);
-    expect(token2!.error).toBe("Unclosed string literal");
+    expect(token2!.error).toBe("unclosed string literal");
 
     const token3 = lexer.reset().lex(`"123`);
     expect(token3!.content).toBe(`"123`);
-    expect(token3!.error).toBe("Unclosed string literal");
+    expect(token3!.error).toBe("unclosed string literal");
   });
 
   test("invalid number", () => {
@@ -20,8 +20,25 @@ describe("lexer error handling", () => {
     expect(token1!.content).toBe(`123`);
     expect(token1!.error).toBeUndefined();
 
-    const token2 = lexer.reset().lex(`123456`);
-    expect(token2!.content).toBe(`123456`);
-    expect(token2!.error).toBe("Number is too big");
+    const token2 = lexer.reset().lex(`12e34e56`);
+    expect(token2!.content).toBe(`12e34e56`);
+    expect(token2!.error).toBe("invalid numeric literal");
+  });
+
+  test("invalid identifier", () => {
+    const token1 = lexer.reset().lex(`abc`);
+    expect(token1!.content).toBe(`abc`);
+    expect(token1!.error).toBeUndefined();
+
+    const token2 = lexer.reset().lex(`123abc`);
+    expect(token2!.content).toBe(`123abc`);
+    expect(token2!.error).toBe("identifier should not starts with a number");
+  });
+
+  test("fallback handler", () => {
+    const token1 = lexer.reset().lex(`123#abc`);
+    expect(token1!.content).toBe(`123`);
+    const token2 = lexer.lex(); // this will ignore `#`
+    expect(token2!.content).toBe(`abc`);
   });
 });
