@@ -153,7 +153,9 @@ export class Lexer implements ILexer {
           def.type != expect.type
         ) {
           this.log(
-            `[Lexer.lex] skip ${def.type} (not-maybe-muted or unexpected)`
+            `[Lexer.lex] skip ${
+              def.type || "<anonymous>"
+            } (not-maybe-muted or unexpected)`
           );
           continue;
         }
@@ -173,7 +175,9 @@ export class Lexer implements ILexer {
             res.muted)
         ) {
           this.log(
-            `[Lexer.lex] accept ${def.type}: ${JSON.stringify(res.content)}`
+            `[Lexer.lex] accept ${def.type || "<anonymous>"}: ${JSON.stringify(
+              res.content
+            )}`
           );
           // update this state
           this.update(res.digested, res.content, res.rest);
@@ -194,12 +198,13 @@ export class Lexer implements ILexer {
           }
         } else {
           // not accept, try next def
-          if (!res.accept) this.log(`[Lexer.lex] rejected: ${def.type}`);
+          if (!res.accept)
+            this.log(`[Lexer.lex] rejected: ${def.type || "<anonymous>"}`);
           else if (res.muted)
             this.log(
-              `[Lexer.lex] muted: ${def.type} content: ${JSON.stringify(
-                res.content
-              )}`
+              `[Lexer.lex] muted: ${
+                def.type || "<anonymous>"
+              } content: ${JSON.stringify(res.content)}`
             );
           else
             this.log(
@@ -255,7 +260,11 @@ export class Lexer implements ILexer {
       for (const def of this.defs) {
         // if def is not mute-able, ignore it
         if (!def.action.maybeMuted) {
-          this.log(`[Lexer.trimStart] skip ${def.type}: not-maybe-muted`);
+          this.log(
+            `[Lexer.trimStart] skip ${
+              def.type || "<anonymous>"
+            }: not-maybe-muted`
+          );
           continue;
         }
 
@@ -264,14 +273,18 @@ export class Lexer implements ILexer {
           if (!res.muted) {
             // next token is not muted
             // don't update state, just return
-            this.log(`[Lexer.trimStart] not muted: ${def.type}, return`);
+            this.log(
+              `[Lexer.trimStart] not muted: ${
+                def.type || "<anonymous>"
+              }, return`
+            );
             return this;
           }
 
           this.log(
-            `[Lexer.trimStart] trim: ${def.type} content: ${JSON.stringify(
-              res.content
-            )}`
+            `[Lexer.trimStart] trim: ${
+              def.type || "<anonymous>"
+            } content: ${JSON.stringify(res.content)}`
           );
 
           // next token is muted, update this state
@@ -288,7 +301,7 @@ export class Lexer implements ILexer {
           break;
         } else {
           // not accept, try next def
-          this.log(`[Lexer.trimStart] rejected: ${def.type}`);
+          this.log(`[Lexer.trimStart] rejected: ${def.type || "<anonymous>"}`);
         }
       }
       if (!mute) {
