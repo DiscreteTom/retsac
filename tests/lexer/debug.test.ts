@@ -1,12 +1,12 @@
 import { Lexer } from "../../src";
 
-test("prepare lexer log", () => {
-  // const logger = jest.fn();
-  const logger = console.log;
+test("lexer debug lex", () => {
+  const logger = jest.fn();
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces)
     .define({
-      string: Lexer.stringLiteral(`'`),
+      hash: /^#/,
+      string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
       number: Lexer.numericLiteral(),
     })
     .build({ debug: true, logger });
@@ -20,15 +20,23 @@ test("prepare lexer log", () => {
     lexer.lex({ input: "45", expect: { type: "number", text: "12345" } })
       ?.content
   ).toBe("12345");
+  expect(lexer.lex({ input: `'123'`, expect: { type: "number" } })).toBe(null); // unexpected
 
   expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] no rest");
   expect(logger).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
   expect(logger).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
   expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] expect "{\\"type\\":\\"number\\",\\"text\\":\\"12345\\"}"'
+    '[Lexer.lex] expect {"type":"number","text":"12345"}'
   );
-  expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected:");
+  expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: <anonymous>");
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.lex] skip hash (not-maybe-muted or unexpected)"
+  );
+  expect(logger).toHaveBeenCalledWith('[Lexer.lex] accept number: "12345"');
+  expect(logger).toHaveBeenCalledWith(
+    '[Lexer.lex] unexpected: {"type":"string","content":"\'123\'"}'
+  );
 });
 
 test("lexer clone with debug", () => {
