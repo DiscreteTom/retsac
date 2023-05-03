@@ -289,8 +289,8 @@ export function comment(
  *   - `1_000_000.000_001`
  *   - `1e6_000`
  * - Invalid numeric literals
- *   - `0[0-7]+[89]`: Octal literals that include the digits 8 or 9.
- *   - `0x[^\da-f]`: Hexadecimal literals that include non-hexadecimal characters.
+ *   - `0o[0-7]*[^0-7]+`: Octal literals that include non-octal characters.
+ *   - `0x[\da-f]*[^\da-f]+`: Hexadecimal literals that include non-hexadecimal characters.
  *   - `(?:\d+\.){2,}`: Numeric literals that include more than one decimal point.
  *   - `\d+\.\d+\.`: Numeric literals that include more than one decimal point without any other characters in between.
  *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
@@ -332,7 +332,7 @@ export function numericLiteral(options?: {
         )
   );
   const invalid = Action.from(
-    /^0[0-7]+[89]|0x[^\da-f]|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
+    /^0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
   ).check(() => invalidError);
 
   if (acceptInvalid) {
