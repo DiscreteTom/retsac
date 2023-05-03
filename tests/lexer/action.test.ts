@@ -1,4 +1,4 @@
-import { Action, ActionOutput } from "../../src/lexer";
+import { Action, ActionAcceptedOutput, ActionOutput } from "../../src/lexer";
 
 describe("Lexer action constructor", () => {
   test("from simple", () => {
@@ -55,6 +55,8 @@ describe("Lexer action constructor", () => {
 describe("Action decorator", () => {
   test("muted action", () => {
     const input = "   ";
+
+    // muted
     expect(Action.from(/^\s*/).mute().exec(input)).toEqual({
       accept: true,
       muted: true,
@@ -64,6 +66,45 @@ describe("Action decorator", () => {
       error: undefined,
     } as ActionOutput);
 
+    // not muted
+    expect(Action.from(/^\s*/).mute(false).exec(input)).toEqual({
+      accept: true,
+      muted: false,
+      digested: input.length,
+      content: input,
+      rest: "",
+      error: undefined,
+    } as ActionOutput);
+
+    // muted with a function
+    expect(
+      Action.from(/^\s*/)
+        .mute((content) => content == input)
+        .exec(input)
+    ).toEqual({
+      accept: true,
+      muted: true,
+      digested: input.length,
+      content: input,
+      rest: "",
+      error: undefined,
+    } as ActionOutput);
+
+    // not muted with a function
+    expect(
+      Action.from(/^\s*/)
+        .mute((content) => content != input)
+        .exec(input)
+    ).toEqual({
+      accept: true,
+      muted: false,
+      digested: input.length,
+      content: input,
+      rest: "",
+      error: undefined,
+    } as ActionOutput);
+
+    // not matched
     expect(Action.from(/^123/).mute().exec(input)).toEqual({
       accept: false,
     } as ActionOutput);
@@ -105,8 +146,23 @@ describe("Action decorator", () => {
     } as ActionOutput);
   });
 
+  test("error action", () => {
+    // if accept, set error
+    expect(
+      (Action.from(/^123/).error("msg").exec("123") as ActionAcceptedOutput)
+        .error
+    ).toBe("msg");
+
+    // if reject, do nothing
+    expect(Action.from(/^123/).error("msg").exec("456")).toEqual({
+      accept: false,
+    });
+  });
+
   test("reject action", () => {
     const input = "   ";
+
+    // accept
     expect(Action.from(/^\s*/).exec(input)).toEqual({
       accept: true,
       muted: false,
@@ -116,11 +172,28 @@ describe("Action decorator", () => {
       error: undefined,
     } as ActionOutput);
 
+    // reject with a function
     expect(
       Action.from(/^\s*/)
         .reject((content) => content == input)
         .exec(input)
     ).toEqual({ accept: false } as ActionOutput);
+
+    // directly reject
+    expect(Action.from(/^\s*/).reject().exec(input)).toEqual({
+      accept: false,
+    } as ActionOutput);
+
+    // reject with a value
+    expect(Action.from(/^\s*/).reject(true).exec(input)).toEqual({
+      accept: false,
+    } as ActionOutput);
+    expect(Action.from(/^\s*/).reject(false).exec(input).accept).toBe(true);
+
+    // if already rejected, do nothing
+    expect(Action.from(/^123/).reject().exec("456")).toEqual({
+      accept: false,
+    });
   });
 
   test("then action", () => {
