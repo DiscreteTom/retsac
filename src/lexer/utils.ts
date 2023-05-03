@@ -320,13 +320,13 @@ export function numericLiteral(options?: {
     enableSeparator
       ? new RegExp(
           `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
-            boundary ? "\\b" : ""
+            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }`,
           "i"
         )
       : new RegExp(
           `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
-            boundary ? "\\b" : ""
+            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }}`,
           "i"
         )
