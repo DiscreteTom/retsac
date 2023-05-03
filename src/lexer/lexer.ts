@@ -49,20 +49,20 @@ export class Lexer implements ILexer {
     return this;
   }
 
-  clone(options?: { withDebug?: boolean }) {
+  clone(options?: { debug?: boolean }) {
     const res = new Lexer(this.defs);
     res.buffer = this.buffer;
     res.rest = this.rest;
     res.offset = this.offset;
     res.lineChars = [...this.lineChars];
     res.errors = [...this.errors];
-    if (options?.withDebug ?? true) res.debug = this.debug;
+    res.debug = options?.debug ?? this.debug;
     return res;
   }
 
-  dryClone(options?: { withDebug?: boolean }) {
+  dryClone(options?: { debug?: boolean }) {
     const res = new Lexer(this.defs);
-    if (options?.withDebug ?? false) res.debug = this.debug;
+    res.debug = options?.debug ?? false;
     return res;
   }
 
