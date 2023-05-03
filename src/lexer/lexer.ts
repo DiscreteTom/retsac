@@ -202,12 +202,13 @@ export class Lexer implements ILexer {
           // not accept, try next def
           if (!res.accept)
             this.log(`[Lexer.lex] rejected: ${def.type || "<anonymous>"}`);
-          else if (res.muted)
-            this.log(
-              `[Lexer.lex] muted: ${
-                def.type || "<anonymous>"
-              } content: ${JSON.stringify(res.content)}`
-            );
+          // this won't happen, res.muted is always false here
+          // else if (res.muted)
+          //   this.log(
+          //     `[Lexer.lex] muted: ${
+          //       def.type || "<anonymous>"
+          //     } content: ${JSON.stringify(res.content)}`
+          //   );
           else
             this.log(
               `[Lexer.lex] unexpected: ${JSON.stringify({
