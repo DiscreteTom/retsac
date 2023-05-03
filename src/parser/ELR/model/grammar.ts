@@ -19,7 +19,7 @@ export class Grammar {
   readonly content: string;
   /**
    * The name of the grammar.
-   * By default the value is equal to the type name(this.content).
+   * By default the value is equal to `this.content`.
    * The name is only used in ASTNode query selector.
    */
   readonly name: string;
