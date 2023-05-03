@@ -312,7 +312,7 @@ export function numericLiteral(options?: {
   const valid = Action.from(
     enableSeparator
       ? new RegExp(
-          `^(?:0x[\da-f]+|0o[0-7]+|\d+(?:${separator}\d+)*(?:\.\d+(?:${separator}\d+)*)?(?:[eE][-+]?\d+(?:${separator}\d+)*)?)`,
+          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)`,
           "i"
         )
       : /^(?:0x[\da-f]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/i
