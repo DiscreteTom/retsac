@@ -125,3 +125,25 @@ test("lexer utils whitespaces", () => {
   expect(lexer.reset().lex(`\n\n`)?.content).toBe(`\n\n`);
   expect(lexer.reset().lex(` \t\n`)?.content).toBe(` \t\n`);
 });
+
+test("lexer utils comment", () => {
+  const lexer = new Lexer.Builder()
+    .define({
+      comment: Lexer.comment("//")
+        .or(Lexer.comment("/*", "*/"))
+        .or(Lexer.comment("#", "\n", { acceptEof: false })),
+    })
+    .build();
+
+  expect(lexer.reset().lex(`123`)).toBe(null);
+  expect(lexer.reset().lex(`// 123`)?.content).toBe(`// 123`);
+  expect(lexer.reset().lex(`// 123\n`)?.content).toBe(`// 123\n`);
+  expect(lexer.reset().lex(`// 123\n123`)?.content).toBe(`// 123\n`);
+  expect(lexer.reset().lex(`/* 123 */`)?.content).toBe(`/* 123 */`);
+  expect(lexer.reset().lex(`/* 123\n123 */`)?.content).toBe(`/* 123\n123 */`);
+  expect(lexer.reset().lex(`/* 123\n123 */123`)?.content).toBe(
+    `/* 123\n123 */`
+  );
+  expect(lexer.reset().lex(`# 123\n123`)?.content).toBe(`# 123\n`);
+  expect(lexer.reset().lex(`# 123`)).toBe(null);
+});
