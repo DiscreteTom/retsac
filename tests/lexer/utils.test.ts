@@ -64,6 +64,12 @@ test("lexer utils stringLiteral", () => {
             escape: false,
             acceptUnclosed: false,
           })
+        )
+        .or(
+          stringLiteral("g", {
+            escape: false,
+            acceptUnclosed: false,
+          })
         ),
     })
     .build();
@@ -84,6 +90,7 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex(`"123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`"123\\""`)?.content).toBe(`"123\\"`);
   expect(lexer.reset().lex(`"123\n"`)?.error).toBe(`unclosed string literal`);
+  expect(lexer.reset().lex(`"123`)?.error).toBe(`unclosed string literal`);
   // enable multiline
   expect(lexer.reset().lex("`123`")?.content).toBe("`123`");
   expect(lexer.reset().lex("`123\n123`")?.content).toBe("`123\n123`");
@@ -99,6 +106,10 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("e123\n123")?.content).toBe("e123\n123");
   // not escape, multiline, reject unclosed
   expect(lexer.reset().lex("f123\n123")).toBe(null);
+  // not escape, reject unclosed, not multiline
+  expect(lexer.reset().lex("g123")).toBe(null);
+  expect(lexer.reset().lex("g123\ng")).toBe(null);
+  expect(lexer.reset().lex("g123g")).not.toBe(null);
 });
 
 test("lexer utils whitespaces", () => {
