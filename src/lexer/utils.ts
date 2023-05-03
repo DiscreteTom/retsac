@@ -157,7 +157,7 @@ export function stringLiteral(
     }
     // else, multiline not allowed
 
-    const closeRegex = new RegExp(`${esc4regex(close)}|\\n`, "g");
+    const closeRegex = new RegExp(`${esc4regex(close)}|\\n`);
     if (acceptUnclosed) {
       /** Accept when `close` is found or `\n` is found, or EOF. */
       const action = fromTo(open, closeRegex, { acceptEof: true });
@@ -165,8 +165,8 @@ export function stringLiteral(
         const res = action.exec(buffer);
         if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
         // else, whether `close` is found or `\n` is found or EOF is reached
-        if (res.content == "\n") return { ...res, error: unclosedError };
-        if (res.content == close) return res;
+        if (res.content.endsWith("\n")) return { ...res, error: unclosedError };
+        if (res.content.endsWith(close)) return res;
         return { ...res, error: unclosedError }; // EOF is reached
       });
     }
