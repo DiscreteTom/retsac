@@ -266,7 +266,7 @@ export class Lexer implements ILexer {
           this.log(
             `[Lexer.trimStart] skip ${
               def.type || "<anonymous>"
-            }: not-maybe-muted`
+            } (not-maybe-muted)`
           );
           continue;
         }
