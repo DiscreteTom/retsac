@@ -100,6 +100,7 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("c123")?.error).toBe("my error");
   // reject unclosed
   expect(lexer.reset().lex("d123")).toBe(null);
+  expect(lexer.reset().lex("d123\nd")).toBe(null);
   // not escape, but multiline
   expect(lexer.reset().lex("e123\ne")?.content).toBe("e123\ne");
   expect(lexer.reset().lex("e123\n\\ee")?.content).toBe("e123\n\\e");
