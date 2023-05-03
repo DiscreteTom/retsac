@@ -147,3 +147,64 @@ test("lexer utils comment", () => {
   expect(lexer.reset().lex(`# 123\n123`)?.content).toBe(`# 123\n`);
   expect(lexer.reset().lex(`# 123`)).toBe(null);
 });
+
+test("lexer utils numericLiteral", () => {
+  const lexer = new Lexer.Builder()
+    .define({ number: Lexer.numericLiteral() })
+    .build();
+
+  // valid
+  expect(lexer.reset().lex(`42`)?.content).toBe(`42`);
+  expect(lexer.reset().lex(`3.1415`)?.content).toBe(`3.1415`);
+  expect(lexer.reset().lex(`1.5e10`)?.content).toBe(`1.5e10`);
+  expect(lexer.reset().lex(`0.123e-4`)?.content).toBe(`0.123e-4`);
+  expect(lexer.reset().lex(`0x2a`)?.content).toBe(`0x2a`);
+  expect(lexer.reset().lex(`0xFF`)?.content).toBe(`0xFF`);
+  expect(lexer.reset().lex(`0o755`)?.content).toBe(`0o755`);
+  expect(lexer.reset().lex(`1_000_000`)?.content).toBe(`1_000_000`);
+  expect(lexer.reset().lex(`1_000_000.000_001`)?.content).toBe(
+    `1_000_000.000_001`
+  );
+  expect(lexer.reset().lex(`1e6_000`)?.content).toBe(`1e6_000`);
+
+  // invalid
+  expect(lexer.reset().lex(`0o79`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`0xyz`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`1.2.`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`1..2`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`1e1e1`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`1e`)?.error).toBe("invalid numeric literal");
+
+  // boundary
+  expect(lexer.reset().lex(`123abc`)).toBe(null); // no boundary
+  expect(lexer.reset().lex(`123 abc`)).not.toBe(null); // boundary
+
+  // disable/custom numericSeparator
+  const lexer2 = new Lexer.Builder()
+    .define({
+      number: Lexer.numericLiteral({ numericSeparator: false }).or(
+        Lexer.numericLiteral({ numericSeparator: "-" })
+      ),
+    })
+    .build();
+  expect(lexer2.reset().lex(`1_000_000`)).toBe(null);
+  expect(lexer2.reset().lex(`1-000-000`)?.content).toBe(`1-000-000`);
+
+  // disable boundary check
+  const lexer3 = new Lexer.Builder()
+    .define({ number: Lexer.numericLiteral({ boundary: false }) })
+    .build();
+  expect(lexer3.reset().lex(`123abc`)?.content).toBe(`123`); // ignore boundary
+
+  // reject invalid
+  const lexer4 = new Lexer.Builder()
+    .define({ number: Lexer.numericLiteral({ acceptInvalid: false }) })
+    .build();
+  expect(lexer4.reset().lex(`0o79`)).toBe(null);
+
+  // custom invalid error
+  const lexer5 = new Lexer.Builder()
+    .define({ number: Lexer.numericLiteral({ invalidError: "my error" }) })
+    .build();
+  expect(lexer5.reset().lex(`0o79`)?.error).toBe("my error");
+});
