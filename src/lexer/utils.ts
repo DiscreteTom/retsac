@@ -177,7 +177,7 @@ export function stringLiteral(
       const res = action.exec(buffer);
       if (!res.accept) return res; // `open` not found or `close`/`\n` not found
       // else, whether `close` is found or `\n` is found
-      if (res.content == "\n") return { accept: false }; // reject
+      if (res.content.endsWith("\n")) return { accept: false }; // reject
       return res; // `close` is found, accept
     });
   }
