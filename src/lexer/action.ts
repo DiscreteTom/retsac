@@ -145,6 +145,7 @@ export class Action {
    * Execute the new action if current action can't accept input.
    */
   or(a: ActionSource) {
+    // sadly there is no operator overloading in typescript
     const other = Action.from(a);
     return new Action(
       (buffer) => {
