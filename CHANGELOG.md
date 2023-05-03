@@ -10,6 +10,7 @@
   - Feat: Add `Action.reduce` to reduce actions.
     - Perf: Apply this in `Lexer.Builder.define` to optimize performance.
   - Feat: Add utils: `Lexer.whitespaces/comment/numericLiteral`. #5
+  - Feat: `Lexer.Action.mute` can accept a function, `Lexer.Action.reject` can accept a boolean.
   - Fix: Reset regex state for regex based actions.
   - **_Breaking Change_**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
   - **_Breaking Change_**: New `Lexer.stringLiteral`, more options, more powerful.

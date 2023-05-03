@@ -93,14 +93,23 @@ export class Action {
   /**
    * Mute action if `accept` is `true`.
    */
-  mute(muted = true) {
+  mute(muted: boolean | ((content: string) => boolean) = true) {
+    if (typeof muted === "boolean")
+      return new Action(
+        (buffer) => {
+          const output = this.exec(buffer);
+          if (output.accept) return { ...output, muted };
+          return output;
+        },
+        { maybeMuted: muted }
+      );
     return new Action(
       (buffer) => {
         const output = this.exec(buffer);
-        if (output.accept) return { ...output, muted };
+        if (output.accept) return { ...output, muted: muted(output.content) };
         return output;
       },
-      { maybeMuted: muted }
+      { maybeMuted: true }
     );
   }
 
@@ -119,7 +128,16 @@ export class Action {
   /**
    * Reject if `accept` is `true` and `rejecter` returns `true`.
    */
-  reject(rejecter: (content: string) => any) {
+  reject(rejecter: boolean | ((content: string) => any) = true) {
+    if (typeof rejecter === "boolean")
+      return new Action((buffer) => {
+        const output = this.exec(buffer);
+        if (output.accept) {
+          if (rejecter) return { accept: false };
+          else return output;
+        }
+        return output;
+      });
     return new Action((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
