@@ -9,8 +9,8 @@
     - Apply this in `Lexer.Builder.define` to optimize performance.
   - Feat: Add utils: `Lexer.whitespaces/comment/numericLiteral`. #5
   - Fix: Reset regex state for regex based actions.
-  - **Breaking Change**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
-  - **Breaking Change**: New `Lexer.stringLiteral`, more options, more powerful.
+  - **_Breaking Change_**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.
+  - **_Breaking Change_**: New `Lexer.stringLiteral`, more options, more powerful.
 - Parser
   - Feat: Literals in grammar rules also have name and can be renamed. #4
 
@@ -18,8 +18,8 @@
 
 - Parser
   - Export `IParserBuilder/BuilderDecorator` in the top level.
-  - **Breaking Change**: Change `LR_RuntimeError`, add `ParserTraverseError`.
-  - **Breaking Change**: Remove `DFA.calculateAllStates` since all states will be calculated and cached when build DFA.
+  - **_Breaking Change_**: Change `LR_RuntimeError`, add `ParserTraverseError`.
+  - **_Breaking Change_**: Remove `DFA.calculateAllStates` since all states will be calculated and cached when build DFA.
 - Optimize performance.
   - Prevent unnecessary string copy.
   - Cache string manipulation results and other temp results.
@@ -28,8 +28,8 @@
 ## v0.8.0
 
 - Parser
-  - **Breaking Change**: `ParserBuilder.checkSymbols` is now private, use `options` in `ParserBuilder.build` instead.
-  - **Breaking Change**: Remove `AdvancedBuilder.expand`, make `AdvancedBuilder` extend `ParserBuilder`, they both implement `IParserBuilder`.
+  - **_Breaking Change_**: `ParserBuilder.checkSymbols` is now private, use `options` in `ParserBuilder.build` instead.
+  - **_Breaking Change_**: Remove `AdvancedBuilder.expand`, make `AdvancedBuilder` extend `ParserBuilder`, they both implement `IParserBuilder`.
   - Add `ParserBuilder.use` to apply custom decorators with chain call.
   - Add `IParserBuilder.priority/leftSA/rightSA` for simplified conflict resolution.
   - `AdvancedBuilder.resolveRS/resolveRR` support `+*?|()`.
@@ -47,7 +47,7 @@
   - Add `debug` option to `AdvancedBuilder.expand`.
   - Auto resolve R-S conflicts when `AdvancedBuilder.expand`.
   - Allow `'*'` as the `next` when resolve RS/RR conflicts.
-  - **Breaking Change**: `ParserBuilder.generateResolvers/checkConflicts` is now private, and `ParserBuilder.checkAll` is removed. Use `options` in `ParserBuilder.build` instead.
+  - **_Breaking Change_**: `ParserBuilder.generateResolvers/checkConflicts` is now private, and `ParserBuilder.checkAll` is removed. Use `options` in `ParserBuilder.build` instead.
 - Fix
   - Parser can detect R-S conflict like: `` exp: `a b | a b c` `` where `b` is a terminator.
   - Parser won't print `[user resolved RR]` in debug mode when it's actually an R-S conflict.
@@ -62,8 +62,8 @@
 ## v0.6.0
 
 - Parser
-  - **Breaking Change**: `ASTNodeQuerySelector` a.k.a the `$` function will return a list of `ASTNode` instead of `ASTNode | undefined`, and can only query by type name not literals.
-  - **Breaking Change**: Remove `GrammarRule.queryIndex`.
+  - **_Breaking Change_**: `ASTNodeQuerySelector` a.k.a the `$` function will return a list of `ASTNode` instead of `ASTNode | undefined`, and can only query by type name not literals.
+  - **_Breaking Change_**: Remove `GrammarRule.queryIndex`.
   - Add `ParserBuilder.cascadeQueryPrefix` to use cascade query in the `$` function.
   - Support `@` in grammar rules to rename a grammar when query using `$`.
   - Add `ELR.AdvancedBuilder` to build ELR parser, you can use `|+*()?` in your grammar rules.
@@ -80,8 +80,8 @@
   - Add `ASTNode.traverse` to traverse AST after parsing.
   - ELR Parser
     - Export `ELR.commit` and `ELR.rollback`.
-    - **Breaking Change**: Reducer will take `ReducerContext` as the parameter instead of `ParserContext`.
-    - **Breaking Change**: `ParserBuilder.checkSymbols/checkAll` will require a lexer to check if literals in grammar rules are valid.
+    - **_Breaking Change_**: Reducer will take `ReducerContext` as the parameter instead of `ParserContext`.
+    - **_Breaking Change_**: `ParserBuilder.checkSymbols/checkAll` will require a lexer to check if literals in grammar rules are valid.
 - Optimize performance.
 
 ## v0.4.0
