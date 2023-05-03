@@ -297,6 +297,10 @@ export function comment(
 export function numericLiteral(options?: {
   numericSeparator?: string | false;
   /**
+   * If `true` (by default), the numeric literal must have a boundary at the end (non inclusive).
+   */
+  boundary?: boolean;
+  /**
    * If `true` (by default), common invalid numeric literals will also be accepted and marked with `options.invalidError`.
    */
   acceptInvalid?: boolean;
@@ -305,6 +309,7 @@ export function numericLiteral(options?: {
 }) {
   const enableSeparator = !(options?.numericSeparator === false);
   const separator = esc4regex((options?.numericSeparator ?? "_") as string);
+  const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
   const invalidError = options?.invalidError ?? "invalid numeric literal";
 
@@ -312,10 +317,17 @@ export function numericLiteral(options?: {
   const valid = Action.from(
     enableSeparator
       ? new RegExp(
-          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)`,
+          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
+            boundary ? "\\b" : ""
+          }`,
           "i"
         )
-      : /^(?:0x[\da-f]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/i
+      : new RegExp(
+          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
+            boundary ? "\\b" : ""
+          }}`,
+          "i"
+        )
   );
   const invalid = Action.from(
     /^0[0-7]+[89]|0x[^\da-f]|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
