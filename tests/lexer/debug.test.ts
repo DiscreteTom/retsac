@@ -22,6 +22,7 @@ test("lexer debug lex", () => {
   ).toBe("12345");
   expect(lexer.lex({ input: `'123'`, expect: { type: "number" } })).toBe(null); // unexpected
 
+  // check logs
   expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] no rest");
   expect(logger).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
@@ -37,6 +38,39 @@ test("lexer debug lex", () => {
   expect(logger).toHaveBeenCalledWith(
     '[Lexer.lex] unexpected: {"type":"string","content":"\'123\'"}'
   );
+});
+
+test("lexer debug trimStart", () => {
+  const logger = jest.fn();
+  const lexer = new Lexer.Builder()
+    .ignore(Lexer.whitespaces)
+    .define({
+      hash: /^#/,
+      string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
+      number: Lexer.numericLiteral().mute(() => false),
+    })
+    .build({ debug: true, logger });
+
+  // generate logs
+  lexer.reset();
+  lexer.trimStart(); // no rest
+  lexer.trimStart(" 123");
+  lexer.reset().trimStart("$"); // no accept
+
+  // check logs
+  expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
+  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no rest");
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.trimStart] skip hash (not-maybe-muted)"
+  );
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.trimStart] not muted: number, return"
+  );
+  expect(logger).toHaveBeenCalledWith(
+    '[Lexer.trimStart] trim: <anonymous> content: " "'
+  );
+  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] rejected: string");
+  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
 });
 
 test("lexer clone with debug", () => {
