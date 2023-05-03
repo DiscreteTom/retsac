@@ -13,6 +13,7 @@
   - **_Breaking Change_**: New `Lexer.stringLiteral`, more options, more powerful.
 - Parser
   - Feat: Literals in grammar rules also have name and can be renamed. #4
+  - **_Breaking Change_**: Export `IParserBuilder/BuilderDecorator` in the `ELR` namespace, instead of the top level.
 
 ## v0.9.0
 
