@@ -64,7 +64,7 @@ export class Lexer implements ILexer {
   }
 
   feed(input: string) {
-    this.log(`[Lexer.feed] ${input.length} chars`);
+    if (input.length > 0) this.log(`[Lexer.feed] ${input.length} chars`);
     this.buffer += input;
     this.rest = this.buffer.slice(this.offset);
     return this;
@@ -78,7 +78,7 @@ export class Lexer implements ILexer {
     const content = this.rest.slice(0, n);
     const rest = this.rest.slice(n);
 
-    this.log(`[Lexer.take] ${n} chars: ${JSON.stringify(content)}`);
+    if (n > 0) this.log(`[Lexer.take] ${n} chars: ${JSON.stringify(content)}`);
 
     this.update(n, content, rest);
     return content;
@@ -136,7 +136,8 @@ export class Lexer implements ILexer {
       text: typeof input === "string" ? undefined : input?.expect?.text,
     };
 
-    this.log(`[Lexer.lex] expect ${JSON.stringify(expect)}`);
+    if (expect.type || expect.text)
+      this.log(`[Lexer.lex] expect ${JSON.stringify(expect)}`);
 
     while (true) {
       let muted = false;
