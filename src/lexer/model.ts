@@ -1,3 +1,4 @@
+import { Logger } from "../model";
 import { Action } from "./action";
 
 /** The output of a lexer. */
@@ -18,8 +19,14 @@ export interface Definition {
   action: Action;
 }
 
+export type LexerBuildOptions = {
+  debug?: boolean;
+  logger?: Logger;
+};
+
 export interface ILexer {
   debug: boolean;
+  logger: Logger;
   reset(): this;
   /** Clone a new lexer with the same state and definitions. */
   clone(options?: { withDebug?: boolean }): ILexer;

@@ -1,6 +1,6 @@
 import { Action, ActionSource } from "./action";
 import { Lexer } from "./lexer";
-import { Definition } from "./model";
+import { Definition, LexerBuildOptions } from "./model";
 
 /** Lexer builder. */
 export class Builder {
@@ -45,7 +45,7 @@ export class Builder {
     return this.build().getTokenTypes();
   }
 
-  build(options?: { debug?: boolean }) {
+  build(options?: LexerBuildOptions) {
     return new Lexer(this.defs, options);
   }
 }

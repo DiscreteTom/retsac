@@ -3,11 +3,12 @@
 ## v0.10.0
 
 - Lexer
-  - Feat: Add `debug` option. Update `ILexer` model to accept debug options.
+  - Feat: Add `debug/logger` option.
+    - **_Breaking Change_**: Update `ILexer` model to accept debug/logger options.
   - Feat: Add `Action.or` to cascade actions.
   - Feat: Add utils `Lexer.esc4regex`.
   - Feat: Add `Action.reduce` to reduce actions.
-    - Apply this in `Lexer.Builder.define` to optimize performance.
+    - Perf: Apply this in `Lexer.Builder.define` to optimize performance.
   - Feat: Add utils: `Lexer.whitespaces/comment/numericLiteral`. #5
   - Fix: Reset regex state for regex based actions.
   - **_Breaking Change_**: Remove `Lexer.from_to`, use `Lexer.fromTo` instead.

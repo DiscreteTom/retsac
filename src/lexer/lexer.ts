@@ -1,9 +1,11 @@
+import { Logger } from "../model";
 import { ActionAcceptedOutput } from "./action";
-import { Definition, ILexer, Token } from "./model";
+import { Definition, ILexer, LexerBuildOptions, Token } from "./model";
 
 /** Extract tokens from the input string. */
 export class Lexer implements ILexer {
   debug: boolean;
+  logger: Logger;
   private readonly defs: readonly Definition[];
   /** Only `feed`, `reset` can modify this var. */
   private buffer: string;
@@ -26,14 +28,15 @@ export class Lexer implements ILexer {
   /** Error token list. */
   private errors: Token[];
 
-  constructor(defs: readonly Definition[], options?: { debug?: boolean }) {
+  constructor(defs: readonly Definition[], options?: LexerBuildOptions) {
     this.defs = defs;
     this.debug = options?.debug ?? false;
+    this.logger = options?.logger ?? console.log;
     this.reset();
   }
 
   private log(msg: string) {
-    if (this.debug) console.log(msg);
+    if (this.debug) this.logger(msg);
   }
 
   reset() {
