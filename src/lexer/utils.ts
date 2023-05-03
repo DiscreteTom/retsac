@@ -292,7 +292,7 @@ export function comment(
  *   - `0o[0-7]*[^0-7]+`: Octal literals that include non-octal characters.
  *   - `0x[\da-f]*[^\da-f]+`: Hexadecimal literals that include non-hexadecimal characters.
  *   - `(?:\d+\.){2,}`: Numeric literals that include more than one decimal point.
- *   - `\d+\.\d+\.`: Numeric literals that include more than one decimal point without any other characters in between.
+ *   - `\d+\.\.\d+`: Numeric literals that include more than one decimal point without any other characters in between.
  *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
@@ -310,7 +310,7 @@ export function numericLiteral(options?: {
   invalidError?: any;
 }) {
   const enableSeparator = !(options?.numericSeparator === false);
-  const separator = esc4regex((options?.numericSeparator ?? "_") as string);
+  const separator = esc4regex(String(options?.numericSeparator ?? "_"));
   const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
   const invalidError = options?.invalidError ?? "invalid numeric literal";
@@ -332,7 +332,7 @@ export function numericLiteral(options?: {
         )
   );
   const invalid = Action.from(
-    /^0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\d+\.|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
+    /^0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
   ).check(() => invalidError);
 
   if (acceptInvalid) {
