@@ -126,6 +126,17 @@ export class Action {
   }
 
   /**
+   * Set error if `accept` is `true`.
+   */
+  error(error: any) {
+    return new Action((buffer) => {
+      const output = this.exec(buffer);
+      if (output.accept) return { ...output, error };
+      return output;
+    });
+  }
+
+  /**
    * Reject if `accept` is `true` and `rejecter` returns `true`.
    */
   reject(rejecter: boolean | ((content: string) => any) = true) {
