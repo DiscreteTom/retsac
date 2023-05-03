@@ -45,7 +45,7 @@ export class Builder {
     return this.build().getTokenTypes();
   }
 
-  build() {
-    return new Lexer(this.defs);
+  build(options?: { debug?: boolean }) {
+    return new Lexer(this.defs, options);
   }
 }

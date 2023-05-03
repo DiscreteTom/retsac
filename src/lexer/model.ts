@@ -19,11 +19,12 @@ export interface Definition {
 }
 
 export interface ILexer {
+  debug: boolean;
   reset(): this;
   /** Clone a new lexer with the same state and definitions. */
-  clone(): ILexer;
+  clone(options?: { withDebug?: boolean }): ILexer;
   /** Clone a new lexer with the same definitions, without states. */
-  dryClone(): ILexer;
+  dryClone(options?: { withDebug?: boolean }): ILexer;
   /** Append buffer with input. */
   feed(input: string): this;
   /** How many chars are digested. */

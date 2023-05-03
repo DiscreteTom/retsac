@@ -3,6 +3,7 @@ import { Definition, ILexer, Token } from "./model";
 
 /** Extract tokens from the input string. */
 export class Lexer implements ILexer {
+  debug: boolean;
   private readonly defs: readonly Definition[];
   /** Only `feed`, `reset` can modify this var. */
   private buffer: string;
@@ -25,12 +26,18 @@ export class Lexer implements ILexer {
   /** Error token list. */
   private errors: Token[];
 
-  constructor(defs: readonly Definition[]) {
+  constructor(defs: readonly Definition[], options?: { debug?: boolean }) {
     this.defs = defs;
+    this.debug = options?.debug ?? false;
     this.reset();
   }
 
+  private log(msg: string) {
+    if (this.debug) console.log(msg);
+  }
+
   reset() {
+    this.log(`[Lexer.reset]`);
     this.buffer = "";
     this.rest = "";
     this.offset = 0;
@@ -39,21 +46,25 @@ export class Lexer implements ILexer {
     return this;
   }
 
-  clone() {
+  clone(options?: { withDebug?: boolean }) {
     const res = new Lexer(this.defs);
     res.buffer = this.buffer;
     res.rest = this.rest;
     res.offset = this.offset;
     res.lineChars = [...this.lineChars];
     res.errors = [...this.errors];
+    if (options?.withDebug ?? true) res.debug = this.debug;
     return res;
   }
 
-  dryClone() {
-    return new Lexer(this.defs);
+  dryClone(options?: { withDebug?: boolean }) {
+    const res = new Lexer(this.defs);
+    if (options?.withDebug ?? false) res.debug = this.debug;
+    return res;
   }
 
   feed(input: string) {
+    this.log(`[Lexer.feed] ${input.length} chars`);
     this.buffer += input;
     this.rest = this.buffer.slice(this.offset);
     return this;
@@ -66,6 +77,8 @@ export class Lexer implements ILexer {
   take(n = 1) {
     const content = this.rest.slice(0, n);
     const rest = this.rest.slice(n);
+
+    this.log(`[Lexer.take] ${n} chars: ${JSON.stringify(content)}`);
 
     this.update(n, content, rest);
     return content;
@@ -112,13 +125,18 @@ export class Lexer implements ILexer {
       if (input?.input) this.feed(input.input);
     }
 
-    if (!this.hasRest()) return null;
+    if (!this.hasRest()) {
+      this.log(`[Lexer.lex] no rest`);
+      return null;
+    }
 
     // calculate expect
     const expect = {
       type: typeof input === "string" ? undefined : input?.expect?.type,
       text: typeof input === "string" ? undefined : input?.expect?.text,
     };
+
+    this.log(`[Lexer.lex] expect ${JSON.stringify(expect)}`);
 
     while (true) {
       let muted = false;
@@ -129,8 +147,12 @@ export class Lexer implements ILexer {
           !def.action.maybeMuted &&
           expect.type !== undefined &&
           def.type != expect.type
-        )
+        ) {
+          this.log(
+            `[Lexer.lex] skip ${def.type} (not-maybe-muted or unexpected)`
+          );
           continue;
+        }
 
         const res = def.action.exec(this.rest);
         if (
@@ -146,6 +168,9 @@ export class Lexer implements ILexer {
             // but if the unmatched text is muted (e.g. ignored), accept it
             res.muted)
         ) {
+          this.log(
+            `[Lexer.lex] accept ${def.type}: ${JSON.stringify(res.content)}`
+          );
           // update this state
           this.update(res.digested, res.content, res.rest);
 
@@ -163,12 +188,29 @@ export class Lexer implements ILexer {
             muted = true;
             break;
           }
+        } else {
+          // not accept, try next def
+          if (!res.accept) this.log(`[Lexer.lex] rejected: ${def.type}`);
+          else if (res.muted)
+            this.log(
+              `[Lexer.lex] muted: ${def.type} content: ${JSON.stringify(
+                res.content
+              )}`
+            );
+          else
+            this.log(
+              `[Lexer.lex] unexpected: ${JSON.stringify({
+                type: def.type,
+                content: res.content,
+              })}`
+            );
         }
-        // not accept, try next def
       }
-      if (!muted)
+      if (!muted) {
         // all definition checked, no accept
+        this.log(`[Lexer.lex] no accept`);
         return null;
+      }
       // else, muted, re-loop all definitions
     }
   }
@@ -201,19 +243,32 @@ export class Lexer implements ILexer {
     this.feed(input);
 
     while (true) {
-      if (!this.hasRest()) return this;
+      if (!this.hasRest()) {
+        this.log(`[Lexer.trimStart] no rest`);
+        return this;
+      }
       let mute = false;
       for (const def of this.defs) {
         // if def is not mute-able, ignore it
-        if (!def.action.maybeMuted) continue;
+        if (!def.action.maybeMuted) {
+          this.log(`[Lexer.trimStart] skip ${def.type}: not-maybe-muted`);
+          continue;
+        }
 
         const res = def.action.exec(this.rest);
         if (res.accept) {
           if (!res.muted) {
             // next token is not muted
             // don't update state, just return
+            this.log(`[Lexer.trimStart] not muted: ${def.type}, return`);
             return this;
           }
+
+          this.log(
+            `[Lexer.trimStart] trim: ${def.type} content: ${JSON.stringify(
+              res.content
+            )}`
+          );
 
           // next token is muted, update this state
           this.update(res.digested, res.content, res.rest);
@@ -227,12 +282,16 @@ export class Lexer implements ILexer {
           // since muted, re-loop all definitions
           mute = true;
           break;
+        } else {
+          // not accept, try next def
+          this.log(`[Lexer.trimStart] rejected: ${def.type}`);
         }
-        // not accept, try next def
       }
-      if (!mute)
+      if (!mute) {
         // all definition checked, no accept
+        this.log(`[Lexer.trimStart] no accept`);
         return this;
+      }
       // else, muted, re-loop all definitions
     }
   }

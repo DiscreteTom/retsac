@@ -3,6 +3,7 @@
 ## v0.10.0
 
 - Lexer
+  - Feat: Add `debug` option. Update `ILexer` model to accept debug options.
   - Feat: Add `Action.or` to cascade actions.
   - Feat: Add utils `Lexer.esc4regex`.
   - Feat: Add `Action.reduce` to reduce actions.
