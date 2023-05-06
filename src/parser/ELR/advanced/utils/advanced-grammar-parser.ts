@@ -183,7 +183,10 @@ export class GrammarExpander {
   }
 
   private allParsed() {
-    return !this.parser.lexer.hasRest() && this.parser.getNodes().length == 1;
+    return (
+      !this.parser.lexer.trimStart().hasRest() &&
+      this.parser.getNodes().length == 1
+    );
   }
 
   resetAll() {
