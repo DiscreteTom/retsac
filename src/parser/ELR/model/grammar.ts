@@ -105,6 +105,7 @@ export class GrammarRule<T> {
   traverser?: Traverser<T>;
   /** Cache the string representation. */
   private str?: string;
+  // TODO: add a `conflicts` field, #7
 
   constructor(
     p: Pick<
