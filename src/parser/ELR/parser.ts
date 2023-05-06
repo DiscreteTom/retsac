@@ -105,6 +105,7 @@ export class Parser<T> implements IParser<T> {
       typeof input === "string" ? false : input?.stopOnError ?? false;
 
     // important! make sure lexer can still lex something not muted
+    // TODO: move this into DFA.parse?
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
     // clone lexer to avoid DFA changing the original lexer
