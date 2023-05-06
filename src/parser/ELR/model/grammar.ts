@@ -153,21 +153,13 @@ export class GrammarRule<T> {
   }
 
   /** Return ``{ NT: `grammar rules` }``. */
-  toString(formatter?: (NT: string, grammars: readonly string[]) => string) {
-    return GrammarRule.getString(this, formatter);
+  toString() {
+    return GrammarRule.getString(this);
   }
 
   /** Return ``{ NT: `grammar rules` }``. */
-  static getString(
-    gr: { NT: string; rule: readonly Grammar[] },
-    formatter?: (NT: string, grammars: readonly string[]) => string
-  ) {
-    formatter ??= (NT, grammars) => `{ ${NT}: \`${grammars.join(" ")}\` }`;
-
-    return formatter(
-      gr.NT,
-      gr.rule.map((g) => g.toString())
-    );
+  static getString(gr: { NT: string; rule: readonly Grammar[] }) {
+    return `{ ${gr.NT}: \`${gr.rule.map((g) => g.toString()).join(" ")}\` }`;
   }
 }
 

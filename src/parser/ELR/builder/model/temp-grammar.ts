@@ -94,13 +94,10 @@ export class TempGrammarRule<T> {
     );
   }
 
-  toString(formatter?: (NT: string, grammars: readonly string[]) => string) {
-    return GrammarRule.getString(
-      {
-        NT: this.NT,
-        rule: this.rule.map((g) => g.toGrammar()),
-      },
-      formatter
-    );
+  toString() {
+    return GrammarRule.getString({
+      NT: this.NT,
+      rule: this.rule.map((g) => g.toGrammar()),
+    });
   }
 }
