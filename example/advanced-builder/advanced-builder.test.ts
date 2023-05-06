@@ -15,7 +15,7 @@ test("advanced parser & cascade query & rename nodes", () => {
 
   if (res.accept) {
     expect(res.buffer.length).toBe(1);
-    expect(parser.lexer.getRest()).toBe("");
+    expect(parser.lexer.trimStart().getRest()).toBe("");
 
     // cascade query nested nodes
     expect(res.buffer[0].$(`param`).length).toBe(2);
