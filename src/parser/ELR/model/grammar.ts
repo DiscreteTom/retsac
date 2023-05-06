@@ -87,7 +87,7 @@ export class Grammar {
       (this.str =
         this.type == GrammarType.LITERAL
           ? // literal content
-            `'${this.content}'`
+            JSON.stringify(this.content)
           : // type name
             this.content)
     );
