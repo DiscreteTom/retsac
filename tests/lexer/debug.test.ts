@@ -79,7 +79,9 @@ test("lexer clone with debug", () => {
   expect(lexer.clone().debug).toBe(true); // inherit debug
   expect(lexer.clone({ debug: false }).debug).toBe(false); // override debug
   expect(lexer.clone({ debug: true }).debug).toBe(true); // override debug
-  expect(lexer.dryClone().debug).toBe(false); // dry clone
+  expect(lexer.clone({ logger: console.log }).logger).toBe(console.log); // override logger
+  expect(lexer.dryClone().debug).toBe(true); // dry clone also inherit debug
   expect(lexer.dryClone({ debug: true }).debug).toBe(true); // override debug
   expect(lexer.dryClone({ debug: false }).debug).toBe(false); // override debug
+  expect(lexer.dryClone({ logger: console.log }).logger).toBe(console.log); // override logger
 });

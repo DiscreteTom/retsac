@@ -30,14 +30,14 @@ export interface ILexer {
   reset(): this;
   /**
    * Clone a new lexer with the same state and definitions.
-   * If `options.debug` is omitted, the new lexer will inherit the debug flag from the original one.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  clone(options?: { debug?: boolean }): ILexer;
+  clone(options?: { debug?: boolean; logger?: Logger }): ILexer;
   /**
    * Clone a new lexer with the same definitions, without states.
-   * If `options.debug` is omitted, the new lexer will have debug disabled.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(options?: { debug?: boolean }): ILexer;
+  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer;
   /** Append buffer with input. */
   feed(input: string): this;
   /** How many chars are digested. */
