@@ -23,7 +23,7 @@ export class Grammar {
    * The name is only used in ASTNode query selector.
    */
   readonly name: string;
-  /** Cache the string expression. */
+  /** Cache the string representation. */
   private str?: string;
   /** Cache the temporary ast node. */
   private node?: Readonly<ASTNode<any>>;
@@ -103,7 +103,7 @@ export class GrammarRule<T> {
   rollback: Callback<T>;
   commit: Condition<T>;
   traverser?: Traverser<T>;
-  /** Cache the string expression. */
+  /** Cache the string representation. */
   private str?: string;
 
   constructor(

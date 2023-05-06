@@ -35,7 +35,7 @@ export class ASTNode<T> {
   parent?: ASTNode<T>;
   data?: T;
   error?: any;
-  /** Cache the string expression. */
+  /** Cache the string representation. */
   private str?: string;
 
   constructor(
