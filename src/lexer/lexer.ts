@@ -27,6 +27,8 @@ export class Lexer implements ILexer {
   private lineChars: number[];
   /** Error token list. */
   private errors: Token[];
+  /** Cache whether this lexer already trim start. */
+  private trimmed: boolean;
 
   constructor(defs: readonly Definition[], options?: LexerBuildOptions) {
     this.defs = defs;
@@ -46,6 +48,7 @@ export class Lexer implements ILexer {
     this.offset = 0;
     this.lineChars = [0];
     this.errors = [];
+    this.trimmed = true; // no input yet, so no need to trim
     return this;
   }
 
@@ -63,6 +66,7 @@ export class Lexer implements ILexer {
     res.offset = this.offset;
     res.lineChars = [...this.lineChars];
     res.errors = [...this.errors];
+    res.trimmed = this.trimmed;
     return res;
   }
 
@@ -70,6 +74,7 @@ export class Lexer implements ILexer {
     if (input.length > 0) this.log(`[Lexer.feed] ${input.length} chars`);
     this.buffer += input;
     this.rest = this.buffer.slice(this.offset);
+    this.trimmed = false;
     return this;
   }
 
@@ -90,6 +95,7 @@ export class Lexer implements ILexer {
   private update(digested: number, content: string, rest: string) {
     this.offset += digested;
     this.rest = rest;
+    this.trimmed = false;
     // calculate line chars
     content.split("\n").forEach((part, i, list) => {
       this.lineChars[this.lineChars.length - 1] += part.length;
@@ -254,9 +260,13 @@ export class Lexer implements ILexer {
   trimStart(input = "") {
     this.feed(input);
 
+    // already trimmed
+    if (this.trimmed) return this;
+
     while (true) {
       if (!this.hasRest()) {
         this.log(`[Lexer.trimStart] no rest`);
+        this.trimmed = true;
         return this;
       }
       let mute = false;
@@ -281,6 +291,7 @@ export class Lexer implements ILexer {
                 def.type || "<anonymous>"
               }, return`
             );
+            this.trimmed = true;
             return this;
           }
 
@@ -310,6 +321,7 @@ export class Lexer implements ILexer {
       if (!mute) {
         // all definition checked, no accept
         this.log(`[Lexer.trimStart] no accept`);
+        this.trimmed = true;
         return this;
       }
       // else, muted, re-loop all definitions
