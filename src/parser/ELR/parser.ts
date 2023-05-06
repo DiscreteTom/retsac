@@ -104,8 +104,9 @@ export class Parser<T> implements IParser<T> {
     const stopOnError =
       typeof input === "string" ? false : input?.stopOnError ?? false;
 
-    // important! make sure lexer can still lex something not muted
-    // TODO: move this into DFA.parse?
+    // important! make sure lexer can still lex something not muted.
+    // DON'T put this in `DFA.parse` because we need to update lexer using `trimStart`.
+    // If we put this in `DFA.parse` and parse failed, the lexer won't be updated.
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
     const res = this.dfa.parse(
