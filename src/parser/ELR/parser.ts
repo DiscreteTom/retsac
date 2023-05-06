@@ -52,17 +52,22 @@ export class Parser<T> implements IParser<T> {
     return this.commit();
   }
 
-  clone() {
+  clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = new Parser<T>(this.dfa, this.lexer.clone());
     res.buffer = [...this.buffer];
     res.errors = [...this.errors];
     res.reLexStack = [...this.reLexStack];
     res.rollbackStack = [...this.rollbackStack];
+    res.debug = options?.debug ?? this.debug;
+    res.logger = options?.logger ?? this.logger;
     return res;
   }
 
-  dryClone() {
-    return new Parser<T>(this.dfa, this.lexer.dryClone());
+  dryClone(options?: { debug?: boolean; logger?: Logger }) {
+    const res = new Parser<T>(this.dfa, this.lexer.dryClone());
+    res.debug = options?.debug ?? this.debug;
+    res.logger = options?.logger ?? this.logger;
+    return res;
   }
 
   feed(input: string) {

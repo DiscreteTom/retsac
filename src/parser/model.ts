@@ -23,9 +23,9 @@ export interface IParser<T> {
   /** Reset state. */
   reset(): this;
   /** Clone a new parser with the same states. */
-  clone(): IParser<T>;
+  clone(options?: { debug?: boolean; logger?: Logger }): IParser<T>;
   /** Clone a new parser without states. */
-  dryClone(): IParser<T>;
+  dryClone(options?: { debug?: boolean; logger?: Logger }): IParser<T>;
   /** Feed a string to the lexer. */
   feed(input: string): this;
   /** Try to yield an entry NT. */
