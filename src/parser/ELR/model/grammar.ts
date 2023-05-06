@@ -176,6 +176,9 @@ export class GrammarSet {
   }
 
   has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
+    // `g instanceof Grammar` and `g instanceof Readonly<Grammar>` are not working
+    // so we have to use `in` operator
+    // TODO: find a better way to do this
     if ("name" in g) return this.gs.has(g.toString()); // Grammar
     return this.gs.has(g.type); // ASTNode, check type name
   }
