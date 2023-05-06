@@ -108,25 +108,23 @@ export class Parser<T> implements IParser<T> {
     // TODO: move this into DFA.parse?
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
-    // clone lexer to avoid DFA changing the original lexer
-    const lexerClone = this.lexer.clone();
-
-    const { output, lexer } = this.dfa.parse(
+    const res = this.dfa.parse(
       this.buffer,
-      lexerClone,
+      this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
       this.reLexStack,
       this.rollbackStack,
       () => this.commit(),
       stopOnError
     );
-    if (output.accept) {
-      // update states
-      this.lexer = lexer; // lexer is stateful and may be changed in DFA, so we need to update it
-      this.buffer = output.buffer.slice(); // make a copy of buffer
-      this.errors.push(...output.errors);
+    if (res.output.accept) {
+      // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
+      // so we need to update it using `res.lexer`
+      this.lexer = res.lexer;
+      this.buffer = res.output.buffer.slice(); // make a copy of buffer
+      this.errors.push(...res.output.errors);
     }
 
-    return output;
+    return res.output;
   }
 
   parseAll(
