@@ -68,7 +68,7 @@ export class ASTNode<T> {
 
   /** Return type name. If the type is anonymous, return "literal value". */
   toString() {
-    return this.str ?? (this.str = this.type || `"${this.text}"`);
+    return this.str ?? (this.str = this.type || JSON.stringify(this.text));
   }
 
   /** Return an ASTObj for serialization. */
