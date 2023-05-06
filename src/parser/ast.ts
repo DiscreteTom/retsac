@@ -26,6 +26,10 @@ export class ASTNode<T> {
   readonly children?: readonly ASTNode<T>[];
   /** Find AST node by its type name or literal value. */
   readonly $: ASTNodeQuerySelector<T>;
+  /**
+   * `traverser` shouldn't be exposed
+   * because we want users to use `traverse` instead of `traverser` directly.
+   */
   private traverser?: Traverser<T>;
   /** Parent must be an NT unless this node is the root node, in this case parent is null. */
   parent?: ASTNode<T>;
