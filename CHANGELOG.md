@@ -22,6 +22,7 @@
   - Feat: Optional re-lex and rollback by setting `ParserBuilder.options.reLex/rollback`.
     - **_Breaking Change_**: Disable rollback by default to optimize the performance.
   - **_Breaking Change_**: Export `IParserBuilder/BuilderDecorator` in the `ELR` namespace, instead of the top level.
+  - **_Breaking Change_**: New `ASTNode.toTreeString`.
 
 ## v0.9.0
 

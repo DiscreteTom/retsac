@@ -66,6 +66,6 @@ test("to tree string", () => {
   });
 
   expect(node.toTreeString()).toBe(
-    "exp: \n  num: 123\n  <anonymous>: +\n  num: 123\n"
+    'exp: \n  num: "123"\n  <anonymous>: "+"\n  num: "123"\n'
   );
 });

@@ -53,19 +53,23 @@ export class ASTNode<T> {
 
   /** Return a tree-structured string. */
   toTreeString(options?: {
+    initialIndent?: string;
     indent?: string;
     anonymous?: string;
-    textQuote?: string;
   }) {
-    const indent = options?.indent ?? "";
+    const initialIndent = options?.initialIndent ?? "";
+    const indent = options?.indent ?? "  ";
     const anonymous = options?.anonymous ?? "<anonymous>";
-    const textQuote = options?.textQuote ?? "";
 
-    let res = `${indent}${this.type || anonymous}: `;
-    if (this.text) res += `${textQuote}${this.text}${textQuote}`;
+    let res = `${initialIndent}${this.type || anonymous}: `;
+    if (this.text) res += JSON.stringify(this.text);
     res += "\n";
     this.children?.forEach((c) => {
-      res += c.toTreeString({ indent: indent + "  ", anonymous, textQuote });
+      res += c.toTreeString({
+        initialIndent: initialIndent + indent,
+        indent,
+        anonymous,
+      });
     });
     return res;
   }
