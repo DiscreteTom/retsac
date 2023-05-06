@@ -78,7 +78,7 @@ export class Grammar {
   }
 
   /**
-   * Return `type name` or `'literal value'`.
+   * Return `type name` or `"literal value"`.
    * The result will be cached for future use.
    */
   toString() {
