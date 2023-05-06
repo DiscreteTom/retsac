@@ -103,6 +103,8 @@ export class GrammarRule<T> {
   rollback: Callback<T>;
   commit: Condition<T>;
   traverser?: Traverser<T>;
+  /** Cache the string expression. */
+  private str?: string;
 
   constructor(
     p: Pick<
@@ -154,7 +156,7 @@ export class GrammarRule<T> {
 
   /** Return ``{ NT: `grammar rules` }``. */
   toString() {
-    return GrammarRule.getString(this);
+    return this.str ?? (this.str = GrammarRule.getString(this));
   }
 
   /** Return ``{ NT: `grammar rules` }``. */
