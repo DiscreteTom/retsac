@@ -1,6 +1,10 @@
 # CHANGELOG
 
+## v0.12.0
+
 ## v0.11.0
+
+Published by mistake :)
 
 ## v0.10.0
 
