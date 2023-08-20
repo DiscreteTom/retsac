@@ -9,13 +9,13 @@ export type ActionAcceptedOutput = Readonly<{
    * The content of the token.
    * This field is to cache the result of `input.slice(0, digested)` to prevent duplicate calculation.
    */
-  content: string;
+  content: string; // TODO: make this lazy?
   /**
    *  The rest of the input.
    * This field is to cache the result of `input.slice(digested)` to prevent duplicate calculation.
    */
-  rest: string;
-  error?: any;
+  rest: string; // TODO: make this lazy?
+  error?: any; // TODO: use generic type?
 }>;
 export type ActionOutput = Readonly<{ accept: false }> | ActionAcceptedOutput;
 
