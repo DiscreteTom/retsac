@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## v0.11.0
+
 ## v0.10.0
 
 - Lexer
