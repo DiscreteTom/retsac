@@ -182,3 +182,12 @@ builder
 ```
 
 > **Note**: `undefined` means no errors. Errors won't stop `lexAll`, unless you use `lexAll({ stopOnError: true })`.
+
+## Performance Optimization
+
+Here are some ways to improve the performance:
+
+1. Reduce the use of `ActionAcceptedOutput.content` and `ActionAcceptedOutput.rest` if possible to prevent the lexer from calculating them. However, you can set the `ActionAcceptedOutput._content` and/or `_rest` field if your `ActionExec` can yield them so the lexer can reuse them. But don't set them if your `ActionExec` can't yield them, they will be calculated lazily and cached.
+2. Reduce the use of `ActionInput.rest`. It is calculated lazily and cached, but abuse it will still cause too many long temporary strings to be created.
+3. Keep the `Action.maybeMuted` as `false` if possible. If an `Action` is never muted, the lexer can skip some checks when lexing.
+4. Merge multiple `Action` into one `Action` if possible by using `Action.reduce` or `Action.or`. This will reduce the lexer loop times to optimize the performance.
