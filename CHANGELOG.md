@@ -2,6 +2,11 @@
 
 ## v0.12.0
 
+- Lexer
+  - **_Breaking Change_**: `ActionExec` will take `ActionInput` as the input. [#6](https://github.com/DiscreteTom/retsac/issues/6)
+    - Rename `ActionAcceptedOutput` to `AcceptedActionOutput`, and make it a class, rewrite its logics.
+    - `Action.mute/check/reject/then` will take `AcceptedActionOutput` as the callback's param.
+
 ## v0.11.0
 
 Published by mistake :)

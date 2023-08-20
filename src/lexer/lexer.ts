@@ -1,5 +1,5 @@
 import { Logger } from "../model";
-import { ActionAcceptedOutput } from "./action";
+import { AcceptedActionOutput } from "./action";
 import { Definition, ILexer, LexerBuildOptions, Token } from "./model";
 
 /** Extract tokens from the input string. */
@@ -107,7 +107,7 @@ export class Lexer implements ILexer {
     return this;
   }
 
-  private res2token(res: ActionAcceptedOutput, def: Definition): Token {
+  private res2token(res: AcceptedActionOutput, def: Definition): Token {
     return {
       type: def.type,
       content: res.content,
