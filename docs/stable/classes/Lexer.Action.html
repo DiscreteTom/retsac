@@ -21,7 +21,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">Action</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L30">src/lexer/action.ts:30</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L30">src/lexer/action.ts:30</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -39,11 +39,14 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="Lexer.Action.html#check" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>check</span></a>
+<a href="Lexer.Action.html#error" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>error</span></a>
 <a href="Lexer.Action.html#mute" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>mute</span></a>
+<a href="Lexer.Action.html#or" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>or</span></a>
 <a href="Lexer.Action.html#reject" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>reject</span></a>
 <a href="Lexer.Action.html#then" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>then</span></a>
 <a href="Lexer.Action.html#from" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>from</span></a>
 <a href="Lexer.Action.html#match" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>match</span></a>
+<a href="Lexer.Action.html#reduce" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>reduce</span></a>
 <a href="Lexer.Action.html#simple" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>simple</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
@@ -62,14 +65,14 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> options: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;maybeMuted&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L40">src/lexer/action.ts:40</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L40">src/lexer/action.ts:40</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="exec" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>exec</span><a href="#exec" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">exec<span class="tsd-signature-symbol">:</span> <a href="../types/Lexer.ActionExec.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionExec</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L31">src/lexer/action.ts:31</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L31">src/lexer/action.ts:31</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="maybeMuted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>maybe<wbr/>Muted</span><a href="#maybeMuted" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">maybe<wbr/>Muted<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -79,7 +82,7 @@ If <code>true</code>, this action&#39;s output could be muted.
 If <code>false</code>, this action&#39;s output should never be muted.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L38">src/lexer/action.ts:38</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L38">src/lexer/action.ts:38</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="check" class="tsd-anchor"></a>
@@ -108,11 +111,26 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L102">src/lexer/action.ts:102</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L120">src/lexer/action.ts:120</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="error" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>error</span><a href="#error" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="error.error-1">error<span class="tsd-signature-symbol">(</span>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#error.error-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set error if <code>accept</code> is <code>true</code>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>error: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L131">src/lexer/action.ts:131</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="mute" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>mute</span><a href="#mute" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="mute.mute-1">mute<span class="tsd-signature-symbol">(</span>muted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#mute.mute-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="mute.mute-1">mute<span class="tsd-signature-symbol">(</span>muted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#mute.mute-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Mute action if <code>accept</code> is <code>true</code>.</p>
 </div>
@@ -120,14 +138,29 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>muted: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5></li></ul></div>
+<h5>muted: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = true</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L87">src/lexer/action.ts:87</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L96">src/lexer/action.ts:96</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="or" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>or</span><a href="#or" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="or.or-1">or<span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><a href="../types/Lexer.ActionSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionSource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#or.or-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Execute the new action if current action can&#39;t accept input.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>a: <a href="../types/Lexer.ActionSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionSource</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L176">src/lexer/action.ts:176</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reject</span><a href="#reject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="reject.reject-1">reject<span class="tsd-signature-symbol">(</span>rejecter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#reject.reject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="reject.reject-1">reject<span class="tsd-signature-symbol">(</span>rejecter<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#reject.reject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Reject if <code>accept</code> is <code>true</code> and <code>rejecter</code> returns <code>true</code>.</p>
 </div>
@@ -135,21 +168,10 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>rejecter: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
-<ul class="tsd-parameters">
-<li class="tsd-parameter-signature">
-<ul class="tsd-signatures tsd-kind-type-literal">
-<li class="tsd-signature"><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>content: <span class="tsd-signature-type">string</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></li></ul></li></ul></li></ul></div>
+<h5>rejecter: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = true</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L113">src/lexer/action.ts:113</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L142">src/lexer/action.ts:142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="then" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>then</span><a href="#then" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -175,7 +197,7 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L127">src/lexer/action.ts:127</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L165">src/lexer/action.ts:165</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="from" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>from</span><a href="#from" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -188,7 +210,7 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h5>r: <a href="../types/Lexer.ActionSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionSource</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L76">src/lexer/action.ts:76</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L77">src/lexer/action.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="match" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagPrivate">Private</code> <span>match</span><a href="#match" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -201,7 +223,23 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h5>r: <span class="tsd-signature-type">RegExp</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L60">src/lexer/action.ts:60</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L60">src/lexer/action.ts:60</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reduce" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>reduce</span><a href="#reduce" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="reduce.reduce-1">reduce<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>actions<span class="tsd-signature-symbol">: </span><a href="../types/Lexer.ActionSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionSource</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a><a href="#reduce.reduce-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Reduce actions to one action.
+This will reduce the lexer loop times to optimize the performance.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>actions: <a href="../types/Lexer.ActionSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">ActionSource</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L89">src/lexer/action.ts:89</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="simple" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagPrivate">Private</code> <span>simple</span><a href="#simple" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -214,7 +252,7 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <h5>f: <a href="../types/Lexer.SimpleActionExec.html" class="tsd-signature-type" data-tsd-kind="Type alias">SimpleActionExec</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="Lexer.Action.html" class="tsd-signature-type" data-tsd-kind="Class">Action</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/7a5c974/src/lexer/action.ts#L45">src/lexer/action.ts:45</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/DiscreteTom/retsac/blob/0ad6695/src/lexer/action.ts#L45">src/lexer/action.ts:45</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -255,11 +293,14 @@ If <code>false</code>, this action&#39;s output should never be muted.</p>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="Lexer.Action.html#exec" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>exec</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="Lexer.Action.html#maybeMuted" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>maybe<wbr/>Muted</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#check" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>check</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#error" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>error</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#mute" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>mute</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#or" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>or</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#reject" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>reject</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#then" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>then</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#from" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>from</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="Lexer.Action.html#match" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>match</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="Lexer.Action.html#reduce" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>reduce</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="Lexer.Action.html#simple" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>simple</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
