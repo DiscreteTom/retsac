@@ -170,3 +170,58 @@ describe("Action decorator", () => {
     expect(result).toBe(buffer);
   });
 });
+
+describe("sticky regex related", () => {
+  test("auto sticky", () => {
+    const buffer = "123123";
+    const action = Action.from(/123/);
+    const input = new ActionInput({ buffer, start: 3 });
+    const output = action.exec(input) as AcceptedActionOutput;
+    expect(output.accept).toBe(true);
+    expect(output.buffer).toBe(buffer);
+    expect(output.start).toBe(3);
+    expect(output.digested).toBe(3);
+    expect(output.content).toBe("123");
+    expect(output.rest).toBe("");
+    expect(output.error).toBe(undefined);
+    expect(output.muted).toBe(false);
+  });
+
+  test("explicit sticky", () => {
+    const buffer = "123123";
+    const action = Action.from(/123/y);
+    const input = new ActionInput({ buffer, start: 3 });
+    const output = action.exec(input) as AcceptedActionOutput;
+    expect(output.accept).toBe(true);
+    expect(output.buffer).toBe(buffer);
+    expect(output.start).toBe(3);
+    expect(output.digested).toBe(3);
+    expect(output.content).toBe("123");
+    expect(output.rest).toBe("");
+    expect(output.error).toBe(undefined);
+    expect(output.muted).toBe(false);
+  });
+
+  test("disable auto sticky", () => {
+    const buffer = "123123";
+    const action = Action.match(/123/g, { autoSticky: false });
+    const input = new ActionInput({ buffer, start: 3 });
+    const output = action.exec(input) as AcceptedActionOutput;
+    expect(output.accept).toBe(true);
+    expect(output.buffer).toBe(buffer);
+    expect(output.start).toBe(3);
+    expect(output.digested).toBe(3);
+    expect(output.content).toBe("123");
+    expect(output.rest).toBe("");
+    expect(output.error).toBe(undefined);
+    expect(output.muted).toBe(false);
+  });
+
+  test("reject caret", () => {
+    expect(() => Action.match(/^123/)).toThrow();
+  });
+
+  test("allow caret", () => {
+    expect(() => Action.match(/^123/, { rejectCaret: false })).not.toThrow();
+  });
+});
