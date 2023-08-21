@@ -92,8 +92,8 @@ export class Lexer implements ILexer {
     this.trimmed = false;
     // calculate line chars
     for (const c of content) {
+      this.lineChars[this.lineChars.length - 1]++;
       if (c == "\n") this.lineChars.push(0);
-      else this.lineChars[this.lineChars.length - 1]++;
     }
     // TODO: check if above is more efficient than below
     // content.split("\n").forEach((part, i, list) => {
