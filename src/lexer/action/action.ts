@@ -74,7 +74,7 @@ export class Action {
     r: RegExp,
     options?: {
       /**
-       * Auto add the sticky flag to the regex.
+       * Auto add the sticky flag to the regex if `g` and `y` is not set.
        * Default: `true`.
        */
       autoSticky?: boolean;
@@ -86,8 +86,8 @@ export class Action {
     }
   ) {
     if (options?.autoSticky ?? true) {
-      if (!r.sticky)
-        // make sure r has the flag 'y' so we can use `r.lastIndex` to reset state.
+      if (!r.sticky && !r.global)
+        // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
         r = new RegExp(r.source, r.flags + "y");
     }
     if (options?.rejectCaret ?? true) {
