@@ -382,7 +382,7 @@ while (true) {
   // parse one statement
   if (!parser.parse().accept) break;
   const stmt = parser.take();
-  console.log(stmt?.toTreeString({ textQuote: '"' }));
+  console.log(stmt?.toTreeString());
 }
 
 if (parser.getNodes().length) {

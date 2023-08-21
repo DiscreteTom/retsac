@@ -17,7 +17,7 @@ export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
     tempStr: Lexer.stringLiteral("`", { multiline: true }).reject(
-      (s) => findUnescaped(s, "${") // reject if find '${` without escape
+      ({ content }) => findUnescaped(content, "${") // reject if find '${` without escape
     ),
     tempStrLeft: Lexer.stringLiteral("`", {
       close: "${",
@@ -25,9 +25,9 @@ export const lexer = new Lexer.Builder()
     }).then(() => tempStrDepth++), // use closure to store state
     tempStrRight: Lexer.stringLiteral("}", { close: "`", multiline: true })
       .reject(
-        (s) =>
+        ({ content }) =>
           tempStrDepth == 0 || // not in template string
-          findUnescaped(s, "${") // contains another '${'
+          findUnescaped(content, "${") // contains another '${'
       )
       .then(() => tempStrDepth--),
     tempStrMiddle: Lexer.stringLiteral("}", {

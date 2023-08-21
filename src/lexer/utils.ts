@@ -1,4 +1,4 @@
-import { Action } from "./action";
+import { AcceptedActionOutput, Action, ActionInput } from "./action";
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
@@ -10,52 +10,60 @@ export function fromTo(
     acceptEof: boolean;
   }
 ): Action {
+  // make sure regex has the flag 'g' so we can use `regex.lastIndex` to reset state.
+  if (from instanceof RegExp && !from.global)
+    from = new RegExp(from.source, from.flags + "g");
+  if (to instanceof RegExp && !to.global)
+    to = new RegExp(to.source, to.flags + "g");
+
   /** Return how many chars are digested, return 0 for reject. */
   const checkFrom =
     from instanceof RegExp
-      ? (buffer: string) => {
-          from.lastIndex = 0;
-          const res = from.exec(buffer);
+      ? (input: ActionInput) => {
+          (from as RegExp).lastIndex = input.start;
+          const res = (from as RegExp).exec(input.buffer);
           if (!res || res.index == -1) return 0;
           return res.index + res[0].length;
         }
-      : (buffer: string) => {
-          if (!buffer.startsWith(from)) return 0;
-          return from.length;
+      : (input: ActionInput) => {
+          if (!input.buffer.startsWith(from as string, input.start)) return 0;
+          return (from as string).length;
         };
   /** Return how many chars are digested(including digested by `from`), return 0 for reject. */
   const checkTo =
     to instanceof RegExp
-      ? (buffer: string, digested: number) => {
-          to.lastIndex = 0;
-          const rest = buffer.slice(digested); // TODO: optimize using `regex.lastIndex` to prevent slicing?
-          const res = to.exec(rest);
+      ? (input: ActionInput, fromDigested: number) => {
+          (to as RegExp).lastIndex = input.start + fromDigested;
+          const res = (to as RegExp).exec(input.buffer);
           if (res && res.index != -1)
-            return res.index + res[0].length + digested;
+            return res.index + res[0].length + fromDigested;
           return 0;
         }
-      : (buffer: string, digested: number) => {
-          const index = buffer.indexOf(to, digested);
-          if (index != -1) return index + to.length;
+      : (input: ActionInput, fromDigested: number) => {
+          const index = input.buffer.indexOf(
+            to as string,
+            input.start + fromDigested
+          );
+          if (index != -1) return index + (to as string).length;
           return 0;
         };
 
-  return Action.from((buffer) => {
-    const fromDigested = checkFrom(buffer);
+  return Action.from((input) => {
+    const fromDigested = checkFrom(input);
     if (fromDigested == 0) return 0;
 
-    const digested = checkTo(buffer, fromDigested);
+    const totalDigested = checkTo(input, fromDigested);
 
     // construct result
-    if (digested == 0)
+    if (totalDigested == 0)
       // 'to' not found
       return options.acceptEof
         ? // accept whole buffer
-          buffer.length
+          input.buffer.length - input.start
         : // reject
           0;
 
-    return digested; // `to` found
+    return totalDigested; // `to` found
   });
 }
 
@@ -63,8 +71,8 @@ export function fromTo(
  * Match a list of strings exactly, no lookahead.
  */
 export function exact(...ss: readonly string[]): Action {
-  return Action.from((buffer) => {
-    for (const s of ss) if (buffer.startsWith(s)) return s.length;
+  return Action.from((input) => {
+    for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
   });
 }
@@ -73,13 +81,14 @@ export function exact(...ss: readonly string[]): Action {
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
 export function word(...words: readonly string[]): Action {
-  return Action.from((buffer) => {
+  return Action.from((input) => {
     for (const word of words)
       if (
-        buffer.startsWith(word) &&
-        (buffer.length == word.length || /^\W/.test(buffer[word.length]))
+        input.buffer.startsWith(word, input.start) &&
+        (input.buffer.length == word.length || // end of input
+          /^\W/.test(input.buffer[word.length])) // next char is word boundary
       )
-        return word.length;
+        return word;
     return 0;
   });
 }
@@ -130,7 +139,7 @@ export function stringLiteral(
      */
     acceptUnclosed?: boolean;
     /** Default: `'unclosed string'` */
-    unclosedError?: any;
+    unclosedError?: any; // TODO: use generic type?
   }
 ) {
   const close = options?.close ?? open;
@@ -144,13 +153,13 @@ export function stringLiteral(
     if (multiline) {
       if (acceptUnclosed) {
         const action = fromTo(open, close, { acceptEof: true });
-        return new Action((buffer) => {
-          const res = action.exec(buffer);
+        return new Action((input) => {
+          const res = action.exec(input);
           if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
           // else, accepted, which means `open` is found, and whether `close` is found or EOF is reached
           if (!res.content.endsWith(close))
             // EOF is reached, set unclosed error and accept
-            return { ...res, error: unclosedError };
+            return AcceptedActionOutput.from(res, { error: unclosedError });
           return res; // `close` is found, accept
         });
       }
@@ -163,20 +172,21 @@ export function stringLiteral(
     if (acceptUnclosed) {
       /** Accept when `close` is found or `\n` is found, or EOF. */
       const action = fromTo(open, closeRegex, { acceptEof: true });
-      return new Action((buffer) => {
-        const res = action.exec(buffer);
+      return new Action((input) => {
+        const res = action.exec(input);
         if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
         // else, whether `close` is found or `\n` is found or EOF is reached
-        if (res.content.endsWith("\n")) return { ...res, error: unclosedError };
+        if (res.content.endsWith("\n"))
+          return AcceptedActionOutput.from(res, { error: unclosedError });
         if (res.content.endsWith(close)) return res;
-        return { ...res, error: unclosedError }; // EOF is reached
+        return AcceptedActionOutput.from(res, { error: unclosedError }); // EOF is reached
       });
     }
     // else, multiline not allowed and not accept unclosed
     /** Accept when `close` is found or `\n` is found. */
     const action = fromTo(open, closeRegex, { acceptEof: false });
-    return new Action((buffer) => {
-      const res = action.exec(buffer);
+    return new Action((input) => {
+      const res = action.exec(input);
       if (!res.accept) return res; // `open` not found or `close`/`\n` not found
       // else, whether `close` is found or `\n` is found
       if (res.content.endsWith("\n")) return { accept: false }; // reject
@@ -187,36 +197,29 @@ export function stringLiteral(
 
   /** Match escaped char (`\.`) or `close` or `\n`. */
   const regex = new RegExp(`\\\\.|${esc4regex(close)}|\\n`, "g");
-  return new Action((buffer) => {
-    if (buffer.startsWith(open))
+  return Action.from((input) => {
+    if (input.buffer.startsWith(open, input.start))
       regex.lastIndex = open.length; // ignore the open quote
-    else return { accept: false }; // open quote not found
+    else return 0; // open quote not found
 
     while (true) {
-      const match = regex.exec(buffer);
+      regex.lastIndex = input.start + open.length;
+      const match = regex.exec(input.buffer);
       if (!match) {
         // close quote not found, EOF reached
         if (acceptUnclosed)
-          // accept unclosed string
+          // accept whole unclosed string
           return {
-            accept: true,
-            digested: buffer.length,
-            content: buffer,
-            muted: false,
-            rest: "",
+            content: input.buffer,
             error: unclosedError,
           };
-        return { accept: false }; // reject unclosed string
+        return 0; // reject unclosed string
       }
       if (match[0] == close) {
         // close quote found
         const digested = match.index + match[0].length;
         return {
-          accept: true,
           digested,
-          content: buffer.slice(0, digested),
-          rest: buffer.slice(digested),
-          muted: false,
         };
       }
       if (match[0] == "\n") {
@@ -227,16 +230,12 @@ export function stringLiteral(
           // accept unclosed string
           const digested = match.index + 1; // match[0].length == 1
           return {
-            accept: true,
             digested,
-            content: buffer.slice(0, digested),
-            rest: buffer.slice(digested),
-            muted: false,
             error: unclosedError,
           };
         }
         // else, not accept unclosed string
-        return { accept: false };
+        return 0;
       }
       // else, escape found, continue
     }
@@ -260,12 +259,14 @@ export const whitespaces = Action.from(/^\s+/);
  */
 export function comment(
   start: string | RegExp,
+  /** Default: `\n` */
   end: string | RegExp = "\n",
   options?: { acceptEof?: boolean }
 ) {
   return fromTo(start, end, { acceptEof: options?.acceptEof ?? true });
 }
 
+// TODO: split this into multiple functions?
 /**
  * Match the literal representations of numbers in JavaScript code.
  *
