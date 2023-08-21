@@ -18,16 +18,16 @@ When you want to create a lexer, the simplest way is to use `Lexer.Builder.build
 
 For `Lexer.Builder`, you have the following methods to define your rules:
 
-- `define`: define a rule which will yield the specified token type name.
+- `define`: define rules which will yield the specified token type name.
   - In the example above, we use a regex `/^[0-9]+(?:\.[0-9]+)?/` to define a rule which will yield tokens with the type `number`.
 - `anonymous`: define a rule which will yield tokens with no type name(the type name is an empty string).
   - In the example above, we use an util function `Lexer.exact` to define a rule which will yield tokens with no type name.
-- `ignore`: define a rule which will yield anonymous muted tokens. _Muted_ means the token will not be emitted when `lex/lexAll`.
+- `ignore`: define a rule which will yield anonymous _muted_ tokens. _Muted_ means the token will not be emitted when `lex/lexAll`.
   - In the example above, we use a regex `Lexer.whitespaces` to ignore all blank chars.
 
 The lexer will use those rules to lex your input string, from left to right. The lexer will apply those rules by the order you define them, thus the above lexer will first try to ignore blank chars, then try to yield numbers, if no numbers can be yielded, it will try to yield those anonymous operators.
 
-> **Note**: If you use regex as the rule, you might want to make the regex starts with `^` to make it matching from the start of the input string.
+> **Note**: If you use regex as the rule, you might want to make the regex starts with `^` to make it matching from the start of the rest string.
 
 Now we have the lexer, let's lex some string:
 
@@ -57,10 +57,10 @@ As you can see, the input string will be stored in the lexer, so you can feed on
 When you call `lexer.lex`, you can specify the token type and/or content you expected.
 
 ```ts
-lexer.lex({ expect: { type: "number" } });
-lexer.lex({ expect: { type: "number", text: "123" } });
-lexer.lex({ expect: { text: "+" } });
-lexer.lex({ input: "1 + 1", expect: { text: "+" } });
+lexer.lex({ expect: { type: "number" } }); // type only
+lexer.lex({ expect: { type: "number", text: "123" } }); // type & text
+lexer.lex({ expect: { text: "+" } }); // text only
+lexer.lex({ input: "1 + 1", expect: { text: "+" } }); // also feed input
 ```
 
 > **Note**: For anonymous tokens, the token type is an empty string.
@@ -81,40 +81,70 @@ lexer.getPos(6); // => { line: 2, column: 1 }
 When we use `define`/`ignore`/`anonymous` we need to provide an `Action` to specify how to digest the input. Those functions' signature are like:
 
 ```ts
-function define(defs: { [type: string]: Action });
-function ignore(...actions: Action[]);
-function anonymous(...actions: Action[]);
+function define(defs: { [type: string]: ActionSource | ActionSource[] });
+function ignore(...actions: ActionSource[]);
+function anonymous(...actions: ActionSource[]);
 ```
 
-The `Action` will take the input string as it's parameter, and return an `ActionOutput`:
+The `ActionSource` will be transformed to an `Action` inside the lexer builder.
+
+The `Action` will take `ActionInput` as it's parameter, and return an `ActionOutput`:
 
 ```ts
-export type ActionOutput =
-  | { accept: false }
-  | {
-      /** This action can accept some input as a token. */
-      accept: true;
-      /** Don't emit token, continue lex. */
-      muted: boolean;
-      /** How many chars are accepted by this action. */
-      digested: number;
-      error?: any;
-    };
+interface IActionInput {
+  // the whole input string
+  readonly buffer: string;
+  // from where to start lex
+  readonly start: number;
+  // equals to buffer.slice(start), lazy and cached for reuse
+  readonly rest: string;
+}
+interface IAcceptedActionOutput {
+  /** This action can accept some input as a token. */
+  readonly accept: true;
+  /** The whole input string. */
+  readonly buffer: string;
+  /** From where to lex. */
+  readonly start: number;
+  /** Don't emit token, continue lex. */
+  readonly muted: boolean;
+  /** How many chars are accepted by this action. */
+  readonly digested: number;
+  /** Accept, but set an error to mark this token. */
+  readonly error?: any;
+  /**
+   * The content of the token, equals to `input.slice(start, start + digested)`.
+   * This is not lazy since we need this to calculate `lexer.lineChars`.
+   */
+  readonly content: string;
+  // equals to buffer.slice(start + digested), lazy and cached for reuse
+  readonly rest: string;
+}
+export type ActionOutput = Readonly<{ accept: false }> | IAcceptedActionOutput;
 ```
 
 So when you use `define`/`ignore`/`anonymous`, you can write your own `Action`:
 
 ```ts
 // use `new` to create an Action.
-builder.ignore(new Action((buffer) => ({ accept: false })));
+builder.ignore(new Action(({ buffer }) => ({ accept: false })));
 ```
 
-We also provide a `SimpleAction`, you only need to return how many chars are digested, instead of returning an `ActionOutput`:
+We also provide a `SimpleAction` for you to easily create an `Action`:
 
 ```ts
 // use `Action.from` to transform SimpleAction to Action.
-builder.ignore(Action.from((buffer) => buffer.length)); // accept the whole input
-builder.ignore(Action.from((buffer) => 0)); // returning 0 or negative numbers means reject
+builder.ignore(Action.from(({ buffer }) => 1)); // return a number which is the length of the token
+builder.ignore(Action.from(({ buffer, start }) => buffer.length - start)); // accept the whole input
+builder.ignore(Action.from(({ buffer }) => 0)); // returning 0 or negative numbers means reject
+builder.ignore(Action.from(({ buffer }) => "123")); // return a string as the lex result
+// return an SimpleAcceptedActionOutput which is a subset of IAcceptedActionOutput
+builder.ignore(
+  Action.from(({ buffer }) => ({
+    digested: 1,
+    // more fields...
+  }))
+);
 ```
 
 `Action.from` can also accept regex as it's parameter:
@@ -128,8 +158,8 @@ For simplicity, you can directly use `RegEx` / `Action` / `SimpleAction` when yo
 ```ts
 builder.ignore(
   /^123/, // regex
-  (buffer) => buffer.length, // simple action function
-  new Action((buffer) => ({ accept: false })) // Action object
+  ({ buffer }) => 0, // simple action function
+  new Action(({ buffer }) => ({ accept: false })) // Action object
 );
 ```
 
@@ -137,8 +167,8 @@ You can also modify existing `Action` by using `.mute` / `.check` / `.reject` / 
 
 ```ts
 builder.define({
-  number: Action.from(/^\d+/).check((s) =>
-    Number(s) < 65535 ? undefined : "Literal number overflow"
+  number: Action.from(/^\d+/).check(({ content }) =>
+    Number(content) < 65535 ? undefined : "Literal number overflow"
   ),
 });
 ```
@@ -147,7 +177,7 @@ builder.define({
 
 ## Util Functions
 
-Shut up and show you my [code](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils.ts).
+Shut up and see my [code](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils.ts).
 
 ## Error Handling
 
@@ -162,9 +192,10 @@ Here is an example about how to deal with those scenarios:
 builder
   .define({
     number: [
-      // for scenario-1, you can use `check` to check the token value and set an error message
-      Action.from(/^\d+/).check((s) =>
-        Number(s) < 65535 ? undefined : "Literal number overflow"
+      // for scenario-1, you can use `check` to check the token value and set an error message.
+      // undefined means no errors.
+      Action.from(/^\d+/).check(({ content }) =>
+        Number(content) < 65535 ? undefined : "Literal number overflow"
       ),
       // for scenario-2, if you have some known errors which will cause the lexing failed,
       // define it and make the lexer return a normal token with error
@@ -175,8 +206,10 @@ builder
     ],
   })
   // for scenario-2, if all rules were failed, you can set a default action to ignore one char
-  .ignore((s) => {
-    console.log(`Unable to yield a token, try to skip a char: ${s[0]}`);
+  .ignore(({ buffer, start }) => {
+    console.log(
+      `Unable to yield a token, try to skip a char: ${buffer[start]}`
+    );
     return 1;
   });
 ```
@@ -191,3 +224,5 @@ Here are some ways to improve the performance:
 2. Reduce the use of `ActionInput.rest`. It is calculated lazily and cached, but abuse it will still cause too many long temporary strings to be created.
 3. Keep the `Action.maybeMuted` as `false` if possible. If an `Action` is never muted, the lexer can skip some checks when lexing.
 4. Merge multiple `Action` into one `Action` if possible by using `Action.reduce` or `Action.or`. This will reduce the lexer loop times to optimize the performance.
+5. Reduce the use of `Lexer.getRest`. If you have to use it, cache the result by yourself.
+6. Use util functions in `lexer/utils.ts` which are usually optimized.
