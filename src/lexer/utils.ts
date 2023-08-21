@@ -158,7 +158,7 @@ export function stringLiteral(
      * will also be accepted and marked as `options.unclosedError`.
      */
     acceptUnclosed?: boolean;
-    /** Default: `'unclosed string'` */
+    /** Default: `'unclosed string literal'` */
     unclosedError?: any; // TODO: use generic type?
   }
 ) {
@@ -222,8 +222,9 @@ export function stringLiteral(
       regex.lastIndex = open.length; // ignore the open quote
     else return 0; // open quote not found
 
+    let offset = input.start + open.length;
     while (true) {
-      regex.lastIndex = input.start + open.length;
+      regex.lastIndex = offset;
       const match = regex.exec(input.buffer);
       if (!match) {
         // close quote not found, EOF reached
@@ -244,9 +245,12 @@ export function stringLiteral(
       }
       if (match[0] == "\n") {
         // multiline is allowed, continue
-        if (multiline) continue;
+        if (multiline) {
+          offset = match.index + match[0].length;
+          continue;
+        }
         // else, multiline is not allowed
-        if (acceptUnclosed) {
+        else if (acceptUnclosed) {
           // accept unclosed string
           const digested = match.index + 1; // match[0].length == 1
           return {
@@ -258,6 +262,7 @@ export function stringLiteral(
         return 0;
       }
       // else, escape found, continue
+      offset = match.index + match[0].length;
     }
   });
 }
