@@ -102,7 +102,7 @@ export class Action {
       if (res && res.index != -1)
         return new AcceptedActionOutput({
           muted: false,
-          digested: res.index + res[0].length,
+          digested: res[0].length,
           buffer: input.buffer,
           start: input.start,
           content: res[0], // reuse the regex result
