@@ -8,6 +8,7 @@
     - `Action.mute/check/reject/then` will take `AcceptedActionOutput` as the callback's param.
     - Regex should not starts with `^` and will auto have sticky flag.
     - Export `Action.simple/match`. Add `options.autoSticky/rejectCaret` for `Action.match`.
+    - Add `options.autoSticky/autoGlobal` for `fromTo`.
   - Feat: `SimpleActionExec` can accept `string/SimpleAcceptedActionOutput` as the output.
 - Optimize performance & comments.
 

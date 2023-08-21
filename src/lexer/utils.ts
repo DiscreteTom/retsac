@@ -8,12 +8,32 @@ export function fromTo(
   to: string | RegExp,
   options: {
     acceptEof: boolean;
+    /**
+     * Auto add the sticky flag to the `from` regex if `g` and `y` is not set.
+     * Default: `true`.
+     */
+    autoSticky?: boolean;
+    /**
+     * Auto add the global flag to the `to` regex if `g` and `y` is not set.
+     * Default: `true`.
+     */
+    autoGlobal?: boolean;
   }
 ): Action {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
-  if (from instanceof RegExp && !from.sticky)
+  if (
+    from instanceof RegExp &&
+    (options.autoSticky ?? true) &&
+    !from.sticky &&
+    !from.global
+  )
     from = new RegExp(from.source, from.flags + "y");
-  if (to instanceof RegExp && !to.global)
+  if (
+    to instanceof RegExp &&
+    (options.autoGlobal ?? true) &&
+    !to.sticky &&
+    !to.global
+  )
     to = new RegExp(to.source, to.flags + "g");
 
   /** Return how many chars are digested, return 0 for reject. */
@@ -36,7 +56,7 @@ export function fromTo(
           (to as RegExp).lastIndex = input.start + fromDigested;
           const res = (to as RegExp).exec(input.buffer);
           if (res && res.index != -1)
-            return res.index + res[0].length + fromDigested - input.start;
+            return res.index + res[0].length - input.start;
           return 0;
         }
       : (input: ActionInput, fromDigested: number) => {
@@ -44,7 +64,7 @@ export function fromTo(
             to as string,
             input.start + fromDigested
           );
-          if (index != -1) return index + (to as string).length;
+          if (index != -1) return index + (to as string).length - input.start;
           return 0;
         };
 
@@ -58,7 +78,7 @@ export function fromTo(
     if (totalDigested == 0)
       // 'to' not found
       return options.acceptEof
-        ? // accept whole buffer
+        ? // accept whole rest buffer
           input.buffer.length - input.start
         : // reject
           0;
