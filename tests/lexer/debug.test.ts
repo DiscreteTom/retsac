@@ -33,7 +33,7 @@ test("lexer debug lex", () => {
   );
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: <anonymous>");
   expect(logger).toHaveBeenCalledWith(
-    "[Lexer.lex] skip hash (not-maybe-muted or unexpected)"
+    "[Lexer.lex] skip hash (unexpected and never muted)"
   );
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: string");
   expect(lexer.lex({ input: `'123'`, expect: { type: "number" } })).toBe(null); // unexpected
@@ -65,10 +65,10 @@ test("lexer debug trimStart", () => {
   expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
   expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no rest");
   expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip hash (not-maybe-muted)"
+    "[Lexer.trimStart] skip hash (never muted)"
   );
   expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] not muted: number, return"
+    "[Lexer.trimStart] not muted: number, stop trimming"
   );
   expect(logger).toHaveBeenCalledWith(
     '[Lexer.trimStart] trim: <anonymous> content: " "'
