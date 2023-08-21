@@ -6,6 +6,8 @@
   - **_Breaking Change_**: `ActionExec` will take `ActionInput` as the input. [#6](https://github.com/DiscreteTom/retsac/issues/6)
     - Rename `ActionAcceptedOutput` to `AcceptedActionOutput`, and make it a class, rewrite its logics.
     - `Action.mute/check/reject/then` will take `AcceptedActionOutput` as the callback's param.
+  - Feat: `SimpleActionExec` can accept `string/SimpleAcceptedActionOutput` as the output.
+- Optimize performance & comments.
 
 ## v0.11.0
 

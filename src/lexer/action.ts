@@ -77,10 +77,22 @@ export class ActionInput {
 
 export type ActionExec = (input: ActionInput) => ActionOutput;
 
+export type SimpleAcceptedActionOutput = {
+  /** Default: `false` */
+  readonly muted?: boolean;
+  readonly error?: any; // TODO: use generic type?
+  readonly rest?: string;
+} & (
+  | { digested: number; content?: string }
+  | { digested?: number; content: string }
+);
+
 /**
- * Only return how many chars are accepted. If > 0, accept.
+ * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  */
-export type SimpleActionExec = (input: ActionInput) => number;
+export type SimpleActionExec = (
+  input: ActionInput
+) => number | string | SimpleAcceptedActionOutput;
 export type ActionSource = RegExp | Action | SimpleActionExec;
 
 export class Action {
@@ -102,15 +114,38 @@ export class Action {
 
   private static simple(f: SimpleActionExec) {
     return new Action((input) => {
-      const n = f(input);
-      return n > 0
-        ? new AcceptedActionOutput({
-            buffer: input.buffer,
-            start: input.start,
-            muted: false,
-            digested: n,
-          })
-        : { accept: false };
+      const res = f(input);
+      if (typeof res == "number") {
+        if (res <= 0) return { accept: false };
+        return new AcceptedActionOutput({
+          buffer: input.buffer,
+          start: input.start,
+          muted: false,
+          digested: res,
+        });
+      }
+      if (typeof res == "string") {
+        if (res.length <= 0) return { accept: false };
+        return new AcceptedActionOutput({
+          buffer: input.buffer,
+          start: input.start,
+          muted: false,
+          digested: res.length,
+          content: res,
+        });
+      }
+      // else, res is SimpleAcceptedActionOutput
+      res.digested ??= res.content!.length ?? 0; // if digested is undefined, content must be defined
+      if (res.digested <= 0) return { accept: false };
+      return new AcceptedActionOutput({
+        buffer: input.buffer,
+        start: input.start,
+        muted: res.muted ?? false,
+        digested: res.digested,
+        error: res.error,
+        content: res.content,
+        _rest: res.rest,
+      });
     });
   }
 
