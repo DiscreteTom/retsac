@@ -112,7 +112,7 @@ export class Action {
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
-  private static simple(f: SimpleActionExec) {
+  static simple(f: SimpleActionExec) {
     return new Action((input) => {
       const res = f(input);
       if (typeof res == "number") {
@@ -149,11 +149,30 @@ export class Action {
     });
   }
 
-  private static match(r: RegExp) {
-    // make sure r has the flag 'y' so we can use `r.lastIndex` to reset state.
-    if (!r.sticky) r = new RegExp(r.source, r.flags + "y");
-
-    // TODO: show a warning if r begins with '^'? it will cause the sticky flag useless.
+  static match(
+    r: RegExp,
+    options?: {
+      /**
+       * Auto add the sticky flag to the regex.
+       * Default: `true`.
+       */
+      autoSticky?: boolean;
+      /**
+       * Reject if the regex starts with `^`.
+       * Default: `true`.
+       */
+      rejectCaret?: boolean;
+    }
+  ) {
+    if (options?.autoSticky ?? true) {
+      if (!r.sticky)
+        // make sure r has the flag 'y' so we can use `r.lastIndex` to reset state.
+        r = new RegExp(r.source, r.flags + "y");
+    }
+    if (options?.rejectCaret ?? true) {
+      if (r.source.startsWith("^"))
+        throw new Error("regex starts with '^' is not allowed"); // TODO: use typed error
+    }
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`
     return new Action((input) => {
