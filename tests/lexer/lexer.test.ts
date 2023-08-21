@@ -4,12 +4,12 @@ import { Action, Token } from "../../src/lexer";
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
-    number: [0-9]+/,
+    number: /[0-9]+/,
   })
   .anonymous(Lexer.exact(..."+-*/()"))
   .define({
-    someErr: Action.from(error/).check(() => "some error"),
-    mutedErr: Action.from(muted-error/)
+    someErr: Action.from(/error/).check(() => "some error"),
+    mutedErr: Action.from(/muted-error/)
       .check(() => "muted error")
       .mute(),
   })
