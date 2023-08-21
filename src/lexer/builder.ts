@@ -18,7 +18,7 @@ export class Builder {
       const raw = defs[type];
       this.defs.push({
         type,
-        action: Action.reduce(...(raw instanceof Array ? raw : [raw])),
+        action: raw instanceof Array ? Action.reduce(...raw) : Action.from(raw),
       });
     }
     return this;
