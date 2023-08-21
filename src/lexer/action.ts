@@ -11,8 +11,12 @@ export class AcceptedActionOutput {
   readonly digested: number;
   /** Accept, but set an error to mark this token. */
   readonly error?: any; // TODO: use generic type?
+  /**
+   * The content of the token, equals to `input.slice(start, start + digested)`.
+   * This is not lazy since we need this to calculate `lexer.lineChars`.
+   */
+  readonly content: string;
 
-  private _content: string;
   private _rest: string;
 
   constructor(
@@ -22,12 +26,13 @@ export class AcceptedActionOutput {
     > & {
       // if ActionExec can yield the content/rest,
       // we can directly use them to prevent unnecessary calculation.
-      _content?: string;
+      content?: string;
       _rest?: string;
     }
   ) {
     this.accept = true;
     Object.assign(this, data);
+    this.content ??= this.buffer.slice(this.start, this.start + this.digested);
   }
 
   static from(
@@ -35,20 +40,6 @@ export class AcceptedActionOutput {
     override: Partial<AcceptedActionOutput> = {}
   ) {
     return new AcceptedActionOutput({ ...another, ...override });
-  }
-
-  /**
-   * The content of the token, equals to `input.slice(start, start + digested)`.
-   * This is lazy and cached.
-   */
-  get content() {
-    return (
-      this._content ??
-      (this._content = this.buffer.slice(
-        this.start,
-        this.start + this.digested
-      ))
-    );
   }
 
   /**
@@ -137,7 +128,7 @@ export class Action {
           digested: res.index + res[0].length,
           buffer: input.buffer,
           start: input.start,
-          _content: res[0], // reuse the regex result
+          content: res[0], // reuse the regex result
         });
       return { accept: false };
     });
