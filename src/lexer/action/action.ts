@@ -92,6 +92,8 @@ export class Action {
     }
     if (options?.rejectCaret ?? true) {
       if (r.source.startsWith("^"))
+        // for most cases this is a mistake
+        // since when 'r' and 'g' is set, '^' will cause the regex to always fail when 'r.lastIndex' is not 0
         throw new Error("regex starts with '^' is not allowed"); // TODO: use typed error
     }
 
