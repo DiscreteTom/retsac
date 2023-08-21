@@ -150,8 +150,10 @@ export class Action {
   }
 
   private static match(r: RegExp) {
-    // make sure r has the flag 'g' so we can use `r.lastIndex` to reset state.
-    if (!r.global) r = new RegExp(r.source, r.flags + "g");
+    // make sure r has the flag 'y' so we can use `r.lastIndex` to reset state.
+    if (!r.sticky) r = new RegExp(r.source, r.flags + "y");
+
+    // TODO: show a warning if r begins with '^'? it will cause the sticky flag useless.
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`
     return new Action((input) => {

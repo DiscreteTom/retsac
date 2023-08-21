@@ -55,7 +55,7 @@ export class GrammarExpander {
         whitespaces // blank
       )
       .define({
-        grammar: [/^\w+@\w+/, /^\w+/],
+        grammar: [/\w+@\w+/, /\w+/],
         literal: stringLiteral(`"`).or(stringLiteral(`'`)),
       })
       .anonymous(exact(...`|+*()?`))

@@ -7,8 +7,8 @@ import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 const grammarLexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
-    rename: /^@\w+/,
-    grammar: /^\w+/,
+    rename: /@\w+/,
+    grammar: /\w+/,
     or: exact("|"),
     literal: stringLiteral(`"`).or(stringLiteral(`'`)),
   })

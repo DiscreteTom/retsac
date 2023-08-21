@@ -4,7 +4,7 @@ const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces) // ignore blank chars
   .define(Lexer.wordType("pub", "fn")) // keywords
   .define({
-    identifier: /^[a-zA-Z_]\w*/,
+    identifier: /[a-zA-Z_]\w*/,
   })
   .anonymous(Lexer.exact(..."+-*/():{};=")) // single char operator
   .build();

@@ -4,11 +4,11 @@ import { Action } from "../../src/lexer";
 const builder = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
-    number: /^[0-9]+/,
+    number: /[0-9]+/,
   })
   .anonymous(Lexer.exact(..."+-*/()"))
   .define({
-    someErr: Action.from(/^error/).check(() => "some error"),
+    someErr: Action.from(/error/).check(() => "some error"),
   });
 
 const lexer = builder.build();

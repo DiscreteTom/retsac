@@ -49,12 +49,12 @@ describe("Lexer action constructor", () => {
 
   test("from regex", () => {
     const buffer = "   ";
-    expectAccept(buffer, /^\s*/);
+    expectAccept(buffer, /\s*/);
   });
 
   test("from another action", () => {
     const buffer = "   ";
-    expectAccept(buffer, Action.from(/^\s*/));
+    expectAccept(buffer, Action.from(/\s*/));
   });
 
   test("action constructor", () => {
@@ -80,26 +80,26 @@ describe("Action decorator", () => {
     const buffer = "   ";
 
     // muted
-    expectAccept(buffer, Action.from(/^\s*/).mute(), { muted: true });
+    expectAccept(buffer, Action.from(/\s*/).mute(), { muted: true });
 
     // not muted
-    expectAccept(buffer, Action.from(/^\s*/).mute(false));
+    expectAccept(buffer, Action.from(/\s*/).mute(false));
 
     // muted with a function
     expectAccept(
       buffer,
-      Action.from(/^\s*/).mute(({ content }) => content == buffer),
+      Action.from(/\s*/).mute(({ content }) => content == buffer),
       { muted: true }
     );
 
     // not muted with a function
     expectAccept(
       buffer,
-      Action.from(/^\s*/).mute(({ content }) => content != buffer)
+      Action.from(/\s*/).mute(({ content }) => content != buffer)
     );
 
     // not matched
-    expectReject(buffer, Action.from(/^123/).mute());
+    expectReject(buffer, Action.from(/123/).mute());
   });
 
   test("check action", () => {
@@ -107,21 +107,21 @@ describe("Action decorator", () => {
     const errMsg = "err msg";
     expectAccept(
       buffer,
-      Action.from(/^\s*/).check(({ content }) =>
+      Action.from(/\s*/).check(({ content }) =>
         content == buffer ? undefined : errMsg
       )
     );
 
     expectReject(
       buffer,
-      Action.from(/^123/).check(({ content }) =>
+      Action.from(/123/).check(({ content }) =>
         content == buffer ? undefined : errMsg
       )
     );
 
     expectAccept(
       buffer,
-      Action.from(/^\s*/).check(({ content }) =>
+      Action.from(/\s*/).check(({ content }) =>
         content == buffer ? errMsg : undefined
       ),
       { error: errMsg }
@@ -130,33 +130,33 @@ describe("Action decorator", () => {
 
   test("error action", () => {
     // if accept, set error
-    expectAccept("123", Action.from(/^123/).error("msg"), { error: "msg" });
+    expectAccept("123", Action.from(/123/).error("msg"), { error: "msg" });
 
     // if reject, do nothing
-    expectReject("456", Action.from(/^123/).error("msg"));
+    expectReject("456", Action.from(/123/).error("msg"));
   });
 
   test("reject action", () => {
     const buffer = "   ";
 
     // accept
-    expectAccept(buffer, Action.from(/^\s*/));
+    expectAccept(buffer, Action.from(/\s*/));
 
     // reject with a function
     expectReject(
       buffer,
-      Action.from(/^\s*/).reject(({ content }) => content == buffer)
+      Action.from(/\s*/).reject(({ content }) => content == buffer)
     );
 
     // directly reject
-    expectReject(buffer, Action.from(/^\s*/).reject());
+    expectReject(buffer, Action.from(/\s*/).reject());
 
     // reject with a value
-    expectReject(buffer, Action.from(/^\s*/).reject(true));
-    expectAccept(buffer, Action.from(/^\s*/).reject(false));
+    expectReject(buffer, Action.from(/\s*/).reject(true));
+    expectAccept(buffer, Action.from(/\s*/).reject(false));
 
     // if already rejected, do nothing
-    expectReject(buffer, Action.from(/^123/).reject());
+    expectReject(buffer, Action.from(/123/).reject());
   });
 
   test("then action", () => {
@@ -165,7 +165,7 @@ describe("Action decorator", () => {
 
     expectAccept(
       buffer,
-      Action.from(/^\s*/).then(({ content }) => (result = content))
+      Action.from(/\s*/).then(({ content }) => (result = content))
     );
     expect(result).toBe(buffer);
   });

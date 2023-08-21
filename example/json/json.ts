@@ -4,7 +4,7 @@ const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces) // ignore blank characters
   .define({
     string: Lexer.stringLiteral(`"`), // double quote string literal
-    number: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
+    number: /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
   .define(Lexer.wordType("true", "false", "null")) // type's name is the literal value
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders

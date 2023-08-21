@@ -36,8 +36,8 @@ const lexer = new Lexer.Builder()
     ) // keywords, not all typescript keywords are supported for simplicity
   )
   .define({
-    number: /^[0-9]+(?:\.[0-9]+)?/,
-    identifier: /^\w+/,
+    number: /[0-9]+(?:\.[0-9]+)?/,
+    identifier: /\w+/,
     regex: Lexer.fromTo("/", "/", { acceptEof: false }), // for simplicity, we don't support complex regex
     string: Lexer.stringLiteral(`"`)
       .or(Lexer.stringLiteral(`'`))

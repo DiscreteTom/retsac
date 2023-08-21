@@ -34,7 +34,7 @@ export const lexer = new Lexer.Builder()
       close: "${",
       multiline: true,
     }).reject(() => tempStrDepth == 0), // check state
-    exp: /^\w+/,
+    exp: /\w+/,
     simpleString: Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
   })
   .anonymous(Lexer.exact(..."+"))

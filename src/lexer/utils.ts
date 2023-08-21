@@ -12,9 +12,9 @@ export function fromTo(
 ): Action {
   // make sure regex has the flag 'g' so we can use `regex.lastIndex` to reset state.
   if (from instanceof RegExp && !from.global)
-    from = new RegExp(from.source, from.flags + "g");
+    from = new RegExp(from.source, from.flags + "y");
   if (to instanceof RegExp && !to.global)
-    to = new RegExp(to.source, to.flags + "g");
+    to = new RegExp(to.source, to.flags + "y");
 
   /** Return how many chars are digested, return 0 for reject. */
   const checkFrom =
@@ -245,7 +245,7 @@ export function stringLiteral(
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export const whitespaces = Action.from(/^\s+/);
+export const whitespaces = Action.from(/\s+/);
 
 /**
  * Match from the `start` to the `end`, accept EOF by default.
@@ -320,20 +320,20 @@ export function numericLiteral(options?: {
   const valid = Action.from(
     enableSeparator
       ? new RegExp(
-          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
+          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
             boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }`,
           "i"
         )
       : new RegExp(
-          `^(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
+          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
             boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }}`,
           "i"
         )
   );
   const invalid = Action.from(
-    /^0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
+    /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
   ).check(() => invalidError);
 
   if (acceptInvalid) {

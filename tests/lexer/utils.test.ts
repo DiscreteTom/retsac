@@ -6,7 +6,7 @@ test("lexer utils fromTo", () => {
     .define({
       a: fromTo("a", "b", { acceptEof: false }),
       c: fromTo("c", "d", { acceptEof: true }),
-      e: fromTo(/^e/, /f/, { acceptEof: false }),
+      e: fromTo(/e/, /f/, { acceptEof: false }),
     })
     .build();
   expect(lexer.reset().lex("ab")?.content).toBe("ab");

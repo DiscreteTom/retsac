@@ -12,13 +12,13 @@ export const lexer = new Lexer.Builder()
     string: stringLiteral(`"`),
     number: numericLiteral(),
     // you can customize your own error handling function using `check`
-    identifier: Action.from(/^\w+/).check(({ content }) =>
-      content.match(/^\d/)
+    identifier: Action.from(/\w+/).check(({ content }) =>
+      content.match(/\d/)
         ? "identifier should not starts with a number"
         : undefined
     ),
   })
   // if you are **not working with parser**, you can define a fallback rule
   // to accept one character at a time
-  .ignore(/^./)
+  .ignore(/./)
   .build();

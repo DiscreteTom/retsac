@@ -3,7 +3,7 @@ import { Lexer, ELR } from "../../src";
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
   .define({
-    number: /^[0-9]+(?:\.[0-9]+)?/,
+    number: /[0-9]+(?:\.[0-9]+)?/,
   })
   .anonymous(Lexer.exact("--")) // double character operators, will be lexed first
   .anonymous(Lexer.exact("-")) // single character operators, will be lexed second
