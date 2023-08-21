@@ -10,11 +10,11 @@ export function fromTo(
     acceptEof: boolean;
   }
 ): Action {
-  // make sure regex has the flag 'g' so we can use `regex.lastIndex` to reset state.
-  if (from instanceof RegExp && !from.global)
+  // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
+  if (from instanceof RegExp && !from.sticky)
     from = new RegExp(from.source, from.flags + "y");
   if (to instanceof RegExp && !to.global)
-    to = new RegExp(to.source, to.flags + "y");
+    to = new RegExp(to.source, to.flags + "g");
 
   /** Return how many chars are digested, return 0 for reject. */
   const checkFrom =
@@ -23,7 +23,7 @@ export function fromTo(
           (from as RegExp).lastIndex = input.start;
           const res = (from as RegExp).exec(input.buffer);
           if (!res || res.index == -1) return 0;
-          return res.index + res[0].length;
+          return res[0].length;
         }
       : (input: ActionInput) => {
           if (!input.buffer.startsWith(from as string, input.start)) return 0;
@@ -36,7 +36,7 @@ export function fromTo(
           (to as RegExp).lastIndex = input.start + fromDigested;
           const res = (to as RegExp).exec(input.buffer);
           if (res && res.index != -1)
-            return res.index + res[0].length + fromDigested;
+            return res.index + res[0].length + fromDigested - input.start;
           return 0;
         }
       : (input: ActionInput, fromDigested: number) => {
