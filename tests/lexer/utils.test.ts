@@ -295,6 +295,7 @@ test("lexer utils numericLiteral", () => {
 
   // disable/custom numericSeparator
   const lexer2 = new Lexer.Builder()
+    .ignore(whitespaces)
     .define({
       number: Lexer.numericLiteral({ numericSeparator: false }).or(
         Lexer.numericLiteral({ numericSeparator: "-" })
@@ -309,6 +310,7 @@ test("lexer utils numericLiteral", () => {
 
   // disable boundary check
   const lexer3 = new Lexer.Builder()
+    .ignore(whitespaces)
     .define({ number: Lexer.numericLiteral({ boundary: false }) })
     .build();
   expect(lexer3.reset().lex(`123abc`)?.content).toBe(`123`); // ignore boundary
@@ -317,6 +319,7 @@ test("lexer utils numericLiteral", () => {
 
   // reject invalid
   const lexer4 = new Lexer.Builder()
+    .ignore(whitespaces)
     .define({ number: Lexer.numericLiteral({ acceptInvalid: false }) })
     .build();
   expect(lexer4.reset().lex(`0o79`)).toBe(null);
@@ -325,6 +328,7 @@ test("lexer utils numericLiteral", () => {
 
   // custom invalid error
   const lexer5 = new Lexer.Builder()
+    .ignore(whitespaces)
     .define({ number: Lexer.numericLiteral({ invalidError: "my error" }) })
     .build();
   expect(lexer5.reset().lex(`0o79`)?.error).toBe("my error");
