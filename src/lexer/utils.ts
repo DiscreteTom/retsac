@@ -105,7 +105,7 @@ export function word(...words: readonly string[]): Action {
     for (const word of words)
       if (
         input.buffer.startsWith(word, input.start) &&
-        (input.buffer.length == word.length || // end of input
+        (input.buffer.length == word.length + input.start || // end of input
           /^\W/.test(input.buffer[input.start + word.length])) // next char is word boundary
       )
         return word;
@@ -231,7 +231,7 @@ export function stringLiteral(
         if (acceptUnclosed)
           // accept whole unclosed string
           return {
-            content: input.buffer,
+            digested: input.buffer.length - input.start,
             error: unclosedError,
           };
         return 0; // reject unclosed string
@@ -252,7 +252,7 @@ export function stringLiteral(
         // else, multiline is not allowed
         else if (acceptUnclosed) {
           // accept unclosed string
-          const digested = match.index + 1; // match is '\n', +1 to include '\n'
+          const digested = match.index + 1 - input.start; // match is '\n', +1 to include '\n'
           return {
             digested,
             error: unclosedError,
