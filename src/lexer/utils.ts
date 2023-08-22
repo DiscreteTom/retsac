@@ -238,7 +238,7 @@ export function stringLiteral(
       }
       if (match[0] == close) {
         // close quote found
-        const digested = match.index + match[0].length;
+        const digested = match.index + match[0].length - input.start;
         return {
           digested,
         };
@@ -252,7 +252,7 @@ export function stringLiteral(
         // else, multiline is not allowed
         else if (acceptUnclosed) {
           // accept unclosed string
-          const digested = match.index + 1; // match[0].length == 1
+          const digested = match.index + 1; // match is '\n', +1 to include '\n'
           return {
             digested,
             error: unclosedError,
