@@ -106,7 +106,7 @@ export function word(...words: readonly string[]): Action {
       if (
         input.buffer.startsWith(word, input.start) &&
         (input.buffer.length == word.length || // end of input
-          /^\W/.test(input.buffer[word.length])) // next char is word boundary
+          /^\W/.test(input.buffer[input.start + word.length])) // next char is word boundary
       )
         return word;
     return 0;
