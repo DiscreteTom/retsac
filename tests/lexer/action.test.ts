@@ -10,12 +10,28 @@ function expectAccept(
   src: ActionSource,
   override?: Partial<AcceptedActionOutput>
 ) {
-  const input = new ActionInput({ buffer, start: 0 });
-  const action = Action.from(src);
-  const output = action.exec(input) as AcceptedActionOutput;
+  // normal test
+  let input = new ActionInput({ buffer, start: 0 });
+  let action = Action.from(src);
+  let output = action.exec(input) as AcceptedActionOutput;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
+  expect(output.digested).toBe(override?.digested ?? buffer.length);
+  expect(output.content).toBe(override?.content ?? buffer);
+  expect(output.rest).toBe(override?.rest ?? "");
+  expect(output.error).toBe(override?.error ?? undefined);
+  expect(output.muted).toBe(override?.muted ?? false);
+
+  // additional test for #6
+  // set start to 1 to verify that action's output's digest is not affected
+  buffer = "1" + buffer;
+  input = new ActionInput({ buffer, start: 1 });
+  action = Action.from(src);
+  output = action.exec(input) as AcceptedActionOutput;
+  expect(output.accept).toBe(true);
+  expect(output.buffer).toBe(override?.buffer ?? buffer);
+  expect(output.start).toBe((override?.start ?? 0) + 1);
   expect(output.digested).toBe(override?.digested ?? buffer.length);
   expect(output.content).toBe(override?.content ?? buffer);
   expect(output.rest).toBe(override?.rest ?? "");
@@ -34,10 +50,10 @@ describe("Lexer action constructor", () => {
   test("from simple", () => {
     const buffer = "123";
     expectAccept(buffer, ({ buffer }) => buffer); // return string
-    expectAccept(buffer, ({ buffer }) => buffer.length); // return number
+    expectAccept(buffer, ({}) => buffer.length); // return number
     // simple accepted output
     expectAccept(buffer, ({ buffer }) => ({ content: buffer }));
-    expectAccept(buffer, ({ buffer }) => ({ digested: buffer.length }));
+    expectAccept(buffer, ({}) => ({ digested: buffer.length }));
     expectAccept(buffer, ({ buffer }) => ({
       digested: buffer.length,
       content: buffer,
