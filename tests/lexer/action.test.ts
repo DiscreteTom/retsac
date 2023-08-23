@@ -25,15 +25,15 @@ function expectAccept(
 
   // additional test for #6
   // set start to 1 to verify that action's output's digest is not affected
-  buffer = "1" + buffer;
+  buffer = " " + buffer;
   input = new ActionInput({ buffer, start: 1 });
   action = Action.from(src);
   output = action.exec(input) as AcceptedActionOutput;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe((override?.start ?? 0) + 1);
-  expect(output.digested).toBe(override?.digested ?? buffer.length);
-  expect(output.content).toBe(override?.content ?? buffer);
+  expect(output.digested).toBe(override?.digested ?? buffer.length - 1);
+  expect(output.content).toBe(override?.content ?? buffer.slice(1));
   expect(output.rest).toBe(override?.rest ?? "");
   expect(output.error).toBe(override?.error ?? undefined);
   expect(output.muted).toBe(override?.muted ?? false);
@@ -49,14 +49,18 @@ function expectReject(buffer: string, src: ActionSource) {
 describe("Lexer action constructor", () => {
   test("from simple", () => {
     const buffer = "123";
-    expectAccept(buffer, ({ buffer }) => buffer); // return string
-    expectAccept(buffer, ({}) => buffer.length); // return number
+    expectAccept(buffer, ({ buffer, start }) => buffer.slice(start)); // return string
+    expectAccept(buffer, ({ buffer, start }) => buffer.length - start); // return number
     // simple accepted output
-    expectAccept(buffer, ({ buffer }) => ({ content: buffer }));
-    expectAccept(buffer, ({}) => ({ digested: buffer.length }));
-    expectAccept(buffer, ({ buffer }) => ({
-      digested: buffer.length,
-      content: buffer,
+    expectAccept(buffer, ({ buffer, start }) => ({
+      content: buffer.slice(start),
+    }));
+    expectAccept(buffer, ({ buffer, start }) => ({
+      digested: buffer.length - start,
+    }));
+    expectAccept(buffer, ({ rest }) => ({
+      digested: rest.length,
+      content: rest,
       error: undefined,
       rest: "",
       muted: false,
@@ -78,12 +82,12 @@ describe("Lexer action constructor", () => {
     expectAccept(
       buffer,
       new Action(
-        ({ buffer }) =>
+        ({ rest, buffer, start }) =>
           new AcceptedActionOutput({
-            digested: buffer.length,
-            content: buffer,
+            digested: rest.length,
+            content: rest,
             buffer,
-            start: 0,
+            start,
             muted: false,
           })
       )
