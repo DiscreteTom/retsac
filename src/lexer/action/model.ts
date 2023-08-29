@@ -1,5 +1,5 @@
 // This has to be a class, since we need to cache the `rest` of the input.
-export class AcceptedActionOutput {
+export class AcceptedActionOutput<E> {
   /** This action can accept some input as a token. */
   readonly accept: true;
   /** The whole input string. */
@@ -11,7 +11,7 @@ export class AcceptedActionOutput {
   /** How many chars are accepted by this action. */
   readonly digested: number;
   /** Accept, but set an error to mark this token. */
-  readonly error?: any; // TODO: use generic type?
+  readonly error?: E;
   /**
    * The content of the token, equals to `input.slice(start, start + digested)`.
    * This is not lazy since we need this to calculate `lexer.lineChars`.
@@ -22,12 +22,12 @@ export class AcceptedActionOutput {
 
   constructor(
     data: Pick<
-      AcceptedActionOutput,
+      AcceptedActionOutput<E>,
       "buffer" | "start" | "muted" | "digested" | "error"
     > & {
       // if ActionExec can yield the content/rest,
       // we can directly use them to prevent unnecessary calculation.
-      content?: string;
+      content?: string; // TODO: make this required, since this class should not be directly used by user
       _rest?: string;
     }
   ) {
@@ -36,9 +36,11 @@ export class AcceptedActionOutput {
     this.content ??= this.buffer.slice(this.start, this.start + this.digested);
   }
 
-  static from(
-    another: AcceptedActionOutput,
-    override: Partial<AcceptedActionOutput> = {}
+  // TODO: maybe change this into a non-static method?
+  // e.g. `this.override`
+  static from<E>(
+    another: AcceptedActionOutput<E>,
+    override: Partial<AcceptedActionOutput<E>> = {}
   ) {
     return new AcceptedActionOutput({ ...another, ...override });
   }
@@ -54,7 +56,9 @@ export class AcceptedActionOutput {
   }
 }
 
-export type ActionOutput = Readonly<{ accept: false }> | AcceptedActionOutput;
+export type ActionOutput<E> =
+  | Readonly<{ accept: false }>
+  | AcceptedActionOutput<E>;
 
 export class ActionInput {
   /** The whole input string. */
@@ -76,12 +80,13 @@ export class ActionInput {
   }
 }
 
-export type SimpleAcceptedActionOutput = {
+export type SimpleAcceptedActionOutput<E> = {
   /** Default: `false` */
   readonly muted?: boolean;
-  readonly error?: any; // TODO: use generic type?
+  readonly error?: E;
   readonly rest?: string;
 } & (
-  | { digested: number; content?: string }
+  | // at least one of `digested` and `content` must be defined
+  { digested: number; content?: string }
   | { digested?: number; content: string }
 );

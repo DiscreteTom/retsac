@@ -32,7 +32,7 @@ export interface IParserBuilder<T> {
   entry(...defs: string[]): this;
   define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>): this;
   /** Generate the ELR parser. */
-  build(lexer: ILexer, options?: BuildOptions): IParser<T>;
+  build(lexer: ILexer<any>, options?: BuildOptions): IParser<T>;
   /** Resolve a reduce-shift conflict. */
   resolveRS(
     reducerRule: Definition,

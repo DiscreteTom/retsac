@@ -8,7 +8,7 @@ export interface ParserContext<T> {
   readonly after: string;
   /** Find AST node by its name. */
   readonly $: ASTNodeQuerySelector<T>;
-  readonly lexer: ILexer;
+  readonly lexer: ILexer<any>;
   /** Data of the result AST node. */
   data?: T;
   error?: any;

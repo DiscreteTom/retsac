@@ -93,9 +93,9 @@ export class Candidate<T> {
    * Return all the possible results.
    */
   tryLex(
-    lexer: ILexer,
+    lexer: ILexer<any>,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): { node: ASTNode<T>; lexer: ILexer }[] {
+  ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
     if (this.canDigestMore()) {
       const res = lexGrammar<T>(this.current, lexer);
       if (res != null) return [{ node: res, lexer }];
@@ -112,7 +112,10 @@ export class Candidate<T> {
           lexer: l,
         };
       })
-      .filter((r) => r.node != null) as { node: ASTNode<T>; lexer: ILexer }[];
+      .filter((r) => r.node != null) as {
+      node: ASTNode<T>;
+      lexer: ILexer<any>;
+    }[];
   }
 
   /**
@@ -125,7 +128,7 @@ export class Candidate<T> {
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: ILexer,
+    lexer: ILexer<any>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
   ): { res: ParserOutput<T>; context?: ParserContext<T>; commit?: boolean } {
@@ -225,7 +228,7 @@ export class Candidate<T> {
 }
 
 /** Try to use lexer to get the specified grammar. */
-function lexGrammar<T>(g: Grammar, lexer: ILexer): ASTNode<T> | null {
+function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
   if (g.type == GrammarType.NT) {
     return null;
   } else {

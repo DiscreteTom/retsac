@@ -13,7 +13,7 @@ import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 export class DFABuilder {
   static build<T>(
-    lexer: ILexer,
+    lexer: ILexer<any>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<T>,
     resolvedTemp: ResolvedTempConflict<T>[]
@@ -124,7 +124,7 @@ export class DFABuilder {
  * Calculate state machine's state transition map ahead of time and cache.
  */
 function calculateAllStates<T>(
-  lexer: ILexer,
+  lexer: ILexer<any>,
   allGrammarRules: readonly GrammarRule<T>[],
   allStates: Map<string, State<T>>,
   NTClosures: Map<string, GrammarRule<T>[]>,

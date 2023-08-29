@@ -19,7 +19,7 @@ export function fromTo(
      */
     autoGlobal?: boolean;
   }
-): Action {
+): Action<any> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -90,7 +90,7 @@ export function fromTo(
 /**
  * Match a list of strings exactly, no lookahead.
  */
-export function exact(...ss: readonly string[]): Action {
+export function exact(...ss: readonly string[]): Action<any> {
   return Action.from((input) => {
     for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
@@ -100,7 +100,7 @@ export function exact(...ss: readonly string[]): Action {
 /**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function word(...words: readonly string[]): Action {
+export function word(...words: readonly string[]): Action<any> {
   return Action.from((input) => {
     for (const word of words)
       if (
@@ -117,9 +117,9 @@ export function word(...words: readonly string[]): Action {
  * Define types which name is the same as its literal value.
  */
 export function wordType(...words: readonly string[]): {
-  [type: string]: Action;
+  [type: string]: Action<any>;
 } {
-  const result: { [type: string]: Action } = {};
+  const result: { [type: string]: Action<any> } = {};
   for (const w of words) {
     result[w] = word(w);
   }
@@ -270,7 +270,7 @@ export function stringLiteral(
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export const whitespaces = Action.from(/\s+/);
+export const whitespaces = Action.from<any>(/\s+/);
 
 /**
  * Match from the `start` to the `end`, accept EOF by default.

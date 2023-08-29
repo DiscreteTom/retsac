@@ -64,7 +64,7 @@ export class Grammar {
    * Lexer is used to parse literal value's type name.
    * The result will be cached to prevent duplicated calculation.
    */
-  toTempASTNode(lexer: ILexer) {
+  toTempASTNode(lexer: ILexer<any>) {
     if (this.node) return this.node;
     if (this.type == GrammarType.LITERAL) {
       const token = lexer.dryClone().lex(this.content);

@@ -7,13 +7,13 @@ import {
 
 function expectAccept(
   buffer: string,
-  src: ActionSource,
-  override?: Partial<AcceptedActionOutput>
+  src: ActionSource<any>,
+  override?: Partial<AcceptedActionOutput<any>>
 ) {
   // normal test
   let input = new ActionInput({ buffer, start: 0 });
   let action = Action.from(src);
-  let output = action.exec(input) as AcceptedActionOutput;
+  let output = action.exec(input) as AcceptedActionOutput<any>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
@@ -28,7 +28,7 @@ function expectAccept(
   buffer = " " + buffer;
   input = new ActionInput({ buffer, start: 1 });
   action = Action.from(src);
-  output = action.exec(input) as AcceptedActionOutput;
+  output = action.exec(input) as AcceptedActionOutput<any>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe((override?.start ?? 0) + 1);
@@ -39,7 +39,7 @@ function expectAccept(
   expect(output.muted).toBe(override?.muted ?? false);
 }
 
-function expectReject(buffer: string, src: ActionSource) {
+function expectReject(buffer: string, src: ActionSource<any>) {
   const input = new ActionInput({ buffer, start: 0 });
   const action = Action.from(src);
   const output = action.exec(input);
@@ -196,7 +196,7 @@ describe("sticky regex related", () => {
     const buffer = "123123";
     const action = Action.from(/123/);
     const input = new ActionInput({ buffer, start: 3 });
-    const output = action.exec(input) as AcceptedActionOutput;
+    const output = action.exec(input) as AcceptedActionOutput<any>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -211,7 +211,7 @@ describe("sticky regex related", () => {
     const buffer = "123123";
     const action = Action.from(/123/y);
     const input = new ActionInput({ buffer, start: 3 });
-    const output = action.exec(input) as AcceptedActionOutput;
+    const output = action.exec(input) as AcceptedActionOutput<any>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -226,7 +226,7 @@ describe("sticky regex related", () => {
     const buffer = "123123";
     const action = Action.match(/123/g, { autoSticky: false });
     const input = new ActionInput({ buffer, start: 3 });
-    const output = action.exec(input) as AcceptedActionOutput;
+    const output = action.exec(input) as AcceptedActionOutput<any>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);

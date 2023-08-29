@@ -7,7 +7,7 @@ import { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
 export class Parser<T> implements IParser<T> {
-  lexer: ILexer;
+  lexer: ILexer<any>;
   readonly dfa: DFA<T>;
   protected buffer: ASTNode<T>[];
   protected errors: ASTNode<T>[];
@@ -28,7 +28,7 @@ export class Parser<T> implements IParser<T> {
     this.dfa.logger = v;
   }
 
-  constructor(dfa: DFA<T>, lexer: ILexer) {
+  constructor(dfa: DFA<T>, lexer: ILexer<any>) {
     this.dfa = dfa;
     this.lexer = lexer;
     this.buffer = [];

@@ -81,7 +81,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
     tempGrammarRules: readonly TempGrammarRule<T>[],
-    lexer: ILexer
+    lexer: ILexer<any>
   ) {
     // TODO: use grammar rule instead of temp grammar rule
     /** T/NT names. */
@@ -125,7 +125,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   private buildDFA(
-    lexer: ILexer,
+    lexer: ILexer<any>,
     options?: {
       debug?: boolean;
       logger?: Logger;
@@ -255,7 +255,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     };
   }
 
-  build(lexer: ILexer, options?: BuildOptions) {
+  build(lexer: ILexer<any>, options?: BuildOptions) {
     const { dfa, resolved, NTs, tempGrammarRules, conflicts } = this.buildDFA(
       lexer,
       options

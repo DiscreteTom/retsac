@@ -47,7 +47,7 @@ export class ASTNode<T> {
     Object.assign(this, p);
   }
 
-  static from<T>(t: Readonly<Token>) {
+  static from<T>(t: Readonly<Token<any>>) {
     return new ASTNode<T>({ type: t.type, text: t.content, start: t.start });
   }
 

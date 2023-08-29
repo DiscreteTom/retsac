@@ -49,12 +49,12 @@ export class DFA<T> {
   /** Try to yield an entry NT. */
   parse(
     buffer: readonly ASTNode<T>[],
-    lexer: ILexer,
+    lexer: ILexer<any>,
     reLexStack: ReLexStack<State<T>, T>,
     rollbackStack: RollbackStack<T>,
     commitParser: () => void,
     stopOnError = false
-  ): { output: ParserOutput<T>; lexer: ILexer } {
+  ): { output: ParserOutput<T>; lexer: ILexer<any> } {
     // reset state stack with entry state
     /** Current state is `states.at(-1)`. */
     let stateStack = [this.entryState];

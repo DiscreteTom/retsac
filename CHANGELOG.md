@@ -10,6 +10,7 @@
     - Export `Action.simple/match`. Add `options.autoSticky/rejectCaret` for `Action.match`.
     - Add `options.autoSticky/autoGlobal` for `fromTo`.
   - Feat: `SimpleActionExec` can accept `string/SimpleAcceptedActionOutput` as the output.
+  - Feat: add generic parameter for Lexer family as the `Token.error` type.
 - Optimize performance & comments.
 
 ## v0.11.0

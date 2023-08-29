@@ -3,10 +3,10 @@ import { AcceptedActionOutput, ActionInput } from "./action";
 import { Definition, ILexer, LexerBuildOptions, Token } from "./model";
 
 /** Extract tokens from the input string. */
-export class Lexer implements ILexer {
+export class Lexer<E> implements ILexer<E> {
   debug: boolean;
   logger: Logger;
-  private readonly defs: readonly Definition[];
+  private readonly defs: readonly Definition<E>[];
   /** Only `feed`, `reset` can modify this var. */
   private buffer: string;
   /**
@@ -20,11 +20,11 @@ export class Lexer implements ILexer {
    */
   private lineChars: number[];
   /** Error token list. */
-  private errors: Token[];
+  private errors: Token<E>[];
   /** Cache whether this lexer already trim start. */
   private trimmed: boolean;
 
-  constructor(defs: readonly Definition[], options?: LexerBuildOptions) {
+  constructor(defs: readonly Definition<E>[], options?: LexerBuildOptions) {
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? console.log;
@@ -106,7 +106,10 @@ export class Lexer implements ILexer {
     return this;
   }
 
-  private res2token(res: AcceptedActionOutput, def: Definition): Token {
+  private res2token(
+    res: AcceptedActionOutput<E>,
+    def: Definition<E>
+  ): Token<E> {
     return {
       type: def.type,
       content: res.content,
@@ -125,7 +128,7 @@ export class Lexer implements ILexer {
             text?: string;
           }>;
         }> = ""
-  ): Token | null {
+  ): Token<E> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -253,7 +256,7 @@ export class Lexer implements ILexer {
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = ""
-  ): Token[] {
+  ): Token<E>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -264,7 +267,7 @@ export class Lexer implements ILexer {
     const stopOnError =
       typeof input === "string" ? false : input?.stopOnError ?? false;
 
-    const result: Token[] = [];
+    const result: Token<E>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {
@@ -394,7 +397,7 @@ export class Lexer implements ILexer {
     return result;
   }
 
-  getErrors(): readonly Token[] {
+  getErrors(): readonly Token<E>[] {
     return this.errors;
   }
 

@@ -53,7 +53,7 @@ export class AdvancedBuilder<T>
     }
   }
 
-  build(lexer: ILexer, options?: BuildOptions) {
+  build(lexer: ILexer<any>, options?: BuildOptions) {
     // re-generate this.data
     const raw = this.data;
     this.data = [];

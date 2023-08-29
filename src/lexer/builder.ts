@@ -3,8 +3,8 @@ import { Lexer } from "./lexer";
 import { Definition, LexerBuildOptions } from "./model";
 
 /** Lexer builder. */
-export class Builder {
-  private defs: Definition[];
+export class Builder<E> {
+  private defs: Definition<E>[];
 
   constructor() {
     this.defs = [];
@@ -13,7 +13,7 @@ export class Builder {
   /**
    * Define token types.
    */
-  define(defs: { [type: string]: ActionSource | ActionSource[] }) {
+  define(defs: { [type: string]: ActionSource<E> | ActionSource<E>[] }) {
     for (const type in defs) {
       const raw = defs[type];
       this.defs.push({
@@ -27,14 +27,14 @@ export class Builder {
   /**
    * Define tokens with empty type.
    */
-  anonymous(...actions: ActionSource[]) {
+  anonymous(...actions: ActionSource<E>[]) {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(...actions: ActionSource[]) {
+  ignore(...actions: ActionSource<E>[]) {
     return this.define({ "": actions.map((a) => Action.from(a).mute()) });
   }
 

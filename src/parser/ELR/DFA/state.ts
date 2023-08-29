@@ -101,10 +101,10 @@ export class State<T> {
    * Return all the possible results.
    */
   tryLex(
-    lexer: ILexer,
+    lexer: ILexer<any>,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): { node: ASTNode<T>; lexer: ILexer }[] {
-    const res: { node: ASTNode<T>; lexer: ILexer }[] = [];
+  ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
+    const res: { node: ASTNode<T>; lexer: ILexer<any> }[] = [];
     this.candidates.forEach((c) => {
       const l = lexer.clone(); // each candidate should have its own lexer to avoid side effect
       res.push(...c.tryLex(l, followSets));
@@ -117,7 +117,7 @@ export class State<T> {
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: ILexer,
+    lexer: ILexer<any>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
   ): {

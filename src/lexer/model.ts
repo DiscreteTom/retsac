@@ -2,21 +2,21 @@ import { Logger } from "../model";
 import { Action } from "./action";
 
 /** The output of a lexer. */
-export interface Token {
+export interface Token<E> {
   /** User-defined type name. */
   type: string;
   /** Text content. */
   content: string;
   /** Start position of input string. */
   start: number;
-  error?: any;
+  error?: E;
 }
 
 /** Apply `action` and try to yield a token with `type`. */
-export interface Definition {
+export interface Definition<E> {
   /** Target token type. Empty string if anonymous. */
   type: string;
-  action: Action;
+  action: Action<E>;
 }
 
 export type LexerBuildOptions = {
@@ -24,7 +24,7 @@ export type LexerBuildOptions = {
   logger?: Logger;
 };
 
-export interface ILexer {
+export interface ILexer<E> {
   debug: boolean;
   logger: Logger;
   reset(): this;
@@ -32,12 +32,12 @@ export interface ILexer {
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  clone(options?: { debug?: boolean; logger?: Logger }): ILexer;
+  clone(options?: { debug?: boolean; logger?: Logger }): ILexer<E>;
   /**
    * Clone a new lexer with the same definitions, without states.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer;
+  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer<E>;
   /** Append buffer with input. */
   feed(input: string): this;
   /** How many chars are digested. */
@@ -62,11 +62,13 @@ export interface ILexer {
             text?: string;
           }>;
         }>
-  ): Token | null;
+  ): Token<E> | null;
   /**
    * Try to retrieve a token list exhaustively.
    */
-  lexAll(input?: string | { input?: string; stopOnError?: boolean }): Token[];
+  lexAll(
+    input?: string | { input?: string; stopOnError?: boolean }
+  ): Token<E>[];
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
@@ -95,6 +97,6 @@ export interface ILexer {
   /**
    * Get error tokens.
    */
-  getErrors(): readonly Token[];
+  getErrors(): readonly Token<E>[];
   hasErrors(): boolean;
 }
