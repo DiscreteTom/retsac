@@ -1,3 +1,4 @@
+// This has to be a class, since we need to cache the `rest` of the input.
 export class AcceptedActionOutput {
   /** This action can accept some input as a token. */
   readonly accept: true;
