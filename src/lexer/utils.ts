@@ -177,9 +177,11 @@ export function stringLiteral(
           const res = action.exec(input);
           if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
           // else, accepted, which means `open` is found, and whether `close` is found or EOF is reached
-          if (!res.content.endsWith(close))
+          if (!res.content.endsWith(close)) {
             // EOF is reached, set unclosed error and accept
-            return AcceptedActionOutput.from(res, { error: unclosedError });
+            res.error = unclosedError;
+            return res;
+          }
           return res; // `close` is found, accept
         });
       }
@@ -196,10 +198,14 @@ export function stringLiteral(
         const res = action.exec(input);
         if (!res.accept) return res; // when `acceptEof` is `true`, only reject when `open` not found
         // else, whether `close` is found or `\n` is found or EOF is reached
-        if (res.content.endsWith("\n"))
-          return AcceptedActionOutput.from(res, { error: unclosedError });
+        if (res.content.endsWith("\n")) {
+          res.error = unclosedError;
+          return res;
+        }
         if (res.content.endsWith(close)) return res;
-        return AcceptedActionOutput.from(res, { error: unclosedError }); // EOF is reached
+        // else, EOF is reached
+        res.error = unclosedError;
+        return res;
       });
     }
     // else, multiline not allowed and not accept unclosed

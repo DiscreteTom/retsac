@@ -2,7 +2,7 @@ import { Logger } from "../model";
 import { Action } from "./action";
 
 /** The output of a lexer. */
-export interface Token<E> {
+export type Token<E> = {
   /** User-defined type name. */
   type: string;
   /** Text content. */
@@ -10,18 +10,13 @@ export interface Token<E> {
   /** Start position of input string. */
   start: number;
   error?: E;
-}
+};
 
 /** Apply `action` and try to yield a token with `type`. */
-export interface Definition<E> {
+export type Definition<E> = {
   /** Target token type. Empty string if anonymous. */
   type: string;
   action: Action<E>;
-}
-
-export type LexerBuildOptions = {
-  debug?: boolean;
-  logger?: Logger;
 };
 
 export interface ILexer<E> {

@@ -1,10 +1,16 @@
+import { Logger } from "../model";
 import { Action, ActionSource } from "./action";
 import { Lexer } from "./lexer";
-import { Definition, LexerBuildOptions } from "./model";
+import { Definition } from "./model";
+
+export type LexerBuildOptions = {
+  debug?: boolean;
+  logger?: Logger;
+};
 
 /** Lexer builder. */
 export class Builder<E> {
-  private defs: Definition<E>[];
+  private defs: Readonly<Definition<E>>[];
 
   constructor() {
     this.defs = [];
@@ -18,7 +24,11 @@ export class Builder<E> {
       const raw = defs[type];
       this.defs.push({
         type,
-        action: raw instanceof Array ? Action.reduce(...raw) : Action.from(raw),
+        action:
+          raw instanceof Array
+            ? // use `reduce` to merge actions to optimize performance
+              Action.reduce(...raw)
+            : Action.from(raw),
       });
     }
     return this;
@@ -42,6 +52,7 @@ export class Builder<E> {
    * Get all defined token types.
    */
   getTokenTypes() {
+    // `this.build` is lightweight, so we don't cache the result
     return this.build().getTokenTypes();
   }
 

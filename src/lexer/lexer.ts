@@ -1,12 +1,13 @@
 import { Logger } from "../model";
 import { AcceptedActionOutput, ActionInput } from "./action";
-import { Definition, ILexer, LexerBuildOptions, Token } from "./model";
+import { LexerBuildOptions } from "./builder";
+import { Definition, ILexer, Token } from "./model";
 
 /** Extract tokens from the input string. */
 export class Lexer<E> implements ILexer<E> {
   debug: boolean;
   logger: Logger;
-  private readonly defs: readonly Definition<E>[];
+  private readonly defs: readonly Readonly<Definition<E>>[];
   /** Only `feed`, `reset` can modify this var. */
   private buffer: string;
   /**
@@ -23,17 +24,26 @@ export class Lexer<E> implements ILexer<E> {
   private errors: Token<E>[];
   /** Cache whether this lexer already trim start. */
   private trimmed: boolean;
+  /**
+   * This is lazy and cached. Only `update`, `reset` and `feed` can modify this var.
+   */
+  private rest?: string;
 
-  constructor(defs: readonly Definition<E>[], options?: LexerBuildOptions) {
+  constructor(
+    defs: readonly Readonly<Definition<E>>[],
+    options?: LexerBuildOptions
+  ) {
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? console.log;
     this.reset();
   }
 
-  /** Log message if debug. */
+  /**
+   * Log message if debug.
+   * Use factory to prevent unnecessary string concat.
+   */
   private log(factory: () => string) {
-    // use factory to prevent unnecessary string concat
     if (this.debug) this.logger(factory());
   }
 
@@ -44,6 +54,7 @@ export class Lexer<E> implements ILexer<E> {
     this.lineChars = [0];
     this.errors = [];
     this.trimmed = true; // no input yet, so no need to trim
+    this.rest = undefined;
     return this;
   }
 
@@ -61,6 +72,7 @@ export class Lexer<E> implements ILexer<E> {
     res.lineChars = [...this.lineChars];
     res.errors = [...this.errors];
     res.trimmed = this.trimmed;
+    res.rest = this.rest;
     return res;
   }
 
@@ -68,6 +80,7 @@ export class Lexer<E> implements ILexer<E> {
     if (input.length > 0) this.log(() => `[Lexer.feed] ${input.length} chars`);
     this.buffer += input;
     this.trimmed = false; // maybe the new feed chars can construct a new token
+    this.rest = undefined; // clear cache
     return this;
   }
 
@@ -90,7 +103,9 @@ export class Lexer<E> implements ILexer<E> {
   private update(digested: number, content: string) {
     this.offset += digested;
     this.trimmed = false;
+    this.rest = undefined; // clear cache
     // calculate line chars
+    // `split` is faster than iterate all chars
     content.split("\n").forEach((part, i, list) => {
       this.lineChars[this.lineChars.length - 1] += part.length;
       if (i != list.length - 1) {
@@ -102,8 +117,8 @@ export class Lexer<E> implements ILexer<E> {
   }
 
   private res2token(
-    res: AcceptedActionOutput<E>,
-    def: Definition<E>
+    res: Readonly<AcceptedActionOutput<E>>,
+    def: Readonly<Definition<E>>
   ): Token<E> {
     return {
       type: def.type,
@@ -148,13 +163,14 @@ export class Lexer<E> implements ILexer<E> {
         return null;
       }
 
-      // TODO: check expect text by peek, keep in mind that peek may be muted
+      // TODO: check expected text by peek, keep in mind that some tokens may be muted during the peeking
 
       let muted = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
         buffer: this.buffer,
         start: this.offset,
+        rest: this.rest,
       });
       for (const def of this.defs) {
         // if user provide expected type, ignore unmatched type, unless it's muted(still can be digested but not emit).
@@ -221,7 +237,7 @@ export class Lexer<E> implements ILexer<E> {
               () => `[Lexer.lex] rejected: ${def.type || "<anonymous>"}`
             );
           }
-          // this won't happen, res.muted is always false here
+          // below won't happen, res.muted is always false here
           // else if (res.muted)
           //   this.log(
           //     `[Lexer.lex] muted: ${
@@ -290,6 +306,7 @@ export class Lexer<E> implements ILexer<E> {
       const input = new ActionInput({
         buffer: this.buffer,
         start: this.offset,
+        rest: this.rest,
       });
       for (const def of this.defs) {
         // if def is never muted, ignore it
@@ -355,13 +372,8 @@ export class Lexer<E> implements ILexer<E> {
     }
   }
 
-  /**
-   * Get the rest of the input.
-   * Be ware, the rest of the input may be very long,
-   * you'd better cache the result.
-   */
   getRest() {
-    return this.buffer.slice(this.offset);
+    return this.rest ?? (this.rest = this.buffer.slice(this.offset));
   }
 
   hasRest() {
