@@ -170,12 +170,15 @@ export class Action<E> {
    * Check the output if `accept` is `true`.
    * `condition` should return error, `undefined` means no error.
    */
-  check(condition: (output: Readonly<AcceptedActionOutput<E>>) => E) {
-    return new Action((buffer) => {
+  check<T>(
+    condition: (output: Readonly<AcceptedActionOutput<E>>) => T | undefined
+  ) {
+    return new Action<T>((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
-        output.error = condition(output);
-        return output;
+        const converted = output as any as AcceptedActionOutput<T>;
+        converted.error = condition(output);
+        return converted;
       }
       return output;
     });
@@ -184,12 +187,13 @@ export class Action<E> {
   /**
    * Set error if `accept` is `true`.
    */
-  error(error: E) {
+  error<T>(error: T) {
     return new Action((input) => {
       const output = this.exec(input);
       if (output.accept) {
-        output.error = error;
-        return output;
+        const converted = output as any as AcceptedActionOutput<T>;
+        converted.error = error;
+        return converted;
       }
       return output;
     });
