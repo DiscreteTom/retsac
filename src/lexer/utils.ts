@@ -1,4 +1,4 @@
-import { AcceptedActionOutput, Action, ActionInput } from "./action";
+import { Action, ActionInput, rejectedActionOutput } from "./action";
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
@@ -143,7 +143,7 @@ export function esc4regex(str: string) {
  *
  * Set `multiline: true` to allow multiline string literals.
  */
-export function stringLiteral(
+export function stringLiteral<E>(
   /** The open quote. */
   open: string,
   options?: {
@@ -159,9 +159,9 @@ export function stringLiteral(
      */
     acceptUnclosed?: boolean;
     /** Default: `'unclosed string literal'` */
-    unclosedError?: any; // TODO: use generic type?
+    unclosedError?: E;
   }
-) {
+): Action<E> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
@@ -215,7 +215,7 @@ export function stringLiteral(
       const res = action.exec(input);
       if (!res.accept) return res; // `open` not found or `close`/`\n` not found
       // else, whether `close` is found or `\n` is found
-      if (res.content.endsWith("\n")) return { accept: false }; // reject
+      if (res.content.endsWith("\n")) return rejectedActionOutput; // reject
       return res; // `close` is found, accept
     });
   }
@@ -223,7 +223,7 @@ export function stringLiteral(
 
   /** Match escaped char (`\.`) or `close` or `\n`. */
   const regex = new RegExp(`\\\\.|${esc4regex(close)}|\\n`, "g");
-  return Action.from((input) => {
+  return Action.from<E>((input) => {
     if (input.buffer.startsWith(open, input.start))
       regex.lastIndex = open.length; // ignore the open quote
     else return 0; // open quote not found
@@ -238,7 +238,7 @@ export function stringLiteral(
           // accept whole unclosed string
           return {
             digested: input.buffer.length - input.start,
-            error: unclosedError,
+            error: unclosedError as E,
           };
         return 0; // reject unclosed string
       }
@@ -261,7 +261,7 @@ export function stringLiteral(
           const digested = match.index + 1 - input.start; // match is '\n', +1 to include '\n'
           return {
             digested,
-            error: unclosedError,
+            error: unclosedError as E,
           };
         }
         // else, not accept unclosed string
