@@ -328,7 +328,7 @@ export function comment(
  *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
-export function numericLiteral(options?: {
+export function numericLiteral<E>(options?: {
   numericSeparator?: string | false;
   /**
    * If `true` (by default), the numeric literal must have a boundary at the end (non inclusive).
@@ -339,8 +339,8 @@ export function numericLiteral(options?: {
    */
   acceptInvalid?: boolean;
   /** Default: `"invalid numeric literal"` */
-  invalidError?: any;
-}) {
+  invalidError?: E;
+}): Action<E> {
   const enableSeparator = !(options?.numericSeparator === false);
   const separator = esc4regex(String(options?.numericSeparator ?? "_"));
   const boundary = options?.boundary ?? true;
@@ -348,7 +348,7 @@ export function numericLiteral(options?: {
   const invalidError = options?.invalidError ?? "invalid numeric literal";
 
   // ensure non-capture group to optimize performance
-  const valid = Action.from(
+  const valid = Action.from<E>(
     enableSeparator
       ? new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
@@ -363,12 +363,12 @@ export function numericLiteral(options?: {
           "i"
         )
   );
-  const invalid = Action.from(
+  const invalid = Action.from<E>(
     /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
-  ).check(() => invalidError);
+  ).check(() => invalidError) as Action<E>;
 
   if (acceptInvalid) {
-    return new Action((buffer) => {
+    return new Action<E>((buffer) => {
       // try match valid first
       const res = valid.exec(buffer);
       if (res.accept) return res;
