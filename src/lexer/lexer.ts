@@ -163,8 +163,6 @@ export class Lexer<E> implements ILexer<E> {
         return null;
       }
 
-      // TODO: check expected text by peek, keep in mind that some tokens may be muted during the peeking
-
       let muted = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
@@ -176,11 +174,12 @@ export class Lexer<E> implements ILexer<E> {
         // if user provide expected type, ignore unmatched type, unless it's muted(still can be digested but not emit).
         // so if an action is never muted, we can skip it safely
         if (
-          // never muted
+          // never muted, so we can check the expectation
           !def.action.maybeMuted &&
           // expectation mismatch
-          expect.type !== undefined &&
-          def.type != expect.type
+          ((expect.type !== undefined && def.type != expect.type) ||
+            (expect.text !== undefined &&
+              !this.buffer.startsWith(expect.text, this.offset)))
         ) {
           this.log(
             () =>
