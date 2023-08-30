@@ -201,7 +201,7 @@ export class Action<E> {
   reject(
     rejecter:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<E>>) => any) = true
+      | ((output: Readonly<AcceptedActionOutput<E>>) => boolean) = true
   ) {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
