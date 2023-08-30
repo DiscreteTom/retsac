@@ -30,10 +30,9 @@ export class Action<E> {
   maybeMuted: boolean;
 
   /**
-   * Prevent external instantiation.
-   * The exec can only be set in the static constructors to make sure the `output.buffer` is correct.
+   * For most cases, you should use `Action.from/match/simple` instead of `new Action`.
    */
-  private constructor(
+  constructor(
     exec: ActionExec<E>,
     options?: Partial<Pick<Action<E>, "maybeMuted">>
   ) {
