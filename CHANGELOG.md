@@ -12,7 +12,9 @@
   - Feat: add `options.autoSticky/autoGlobal` for `fromTo`.
   - Feat: export `Action.simple/match`. Add `options.autoSticky/rejectCaret` for `Action.match`.
   - Feat: add typed error.
-- Optimize performance & comments.
+- Optimize performance.
+  - [#6](https://github.com/DiscreteTom/retsac/issues/6)
+  - Lexer will skip unexpected actions by checking expected text.
 
 ## v0.11.0
 
