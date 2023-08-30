@@ -3,15 +3,16 @@ import {
   ActionOutput,
   SimpleAcceptedActionOutput,
   AcceptedActionOutput,
+  rejectedActionOutput,
 } from "./model";
 
-export type ActionExec<E> = (input: ActionInput) => ActionOutput<E>;
+export type ActionExec<E> = (input: Readonly<ActionInput>) => ActionOutput<E>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  */
 export type SimpleActionExec<E> = (
-  input: ActionInput
+  input: Readonly<ActionInput>
 ) => number | string | SimpleAcceptedActionOutput<E>;
 
 export type ActionSource<E> = RegExp | Action<E> | SimpleActionExec<E>;
@@ -29,9 +30,10 @@ export class Action<E> {
   maybeMuted: boolean;
 
   /**
-   * Don't use this constructor directly, use `Action.from/simple/match` instead.
+   * Prevent external instantiation.
+   * The exec can only be set in the static constructors to make sure the `output.buffer` is correct.
    */
-  constructor(
+  private constructor(
     exec: ActionExec<E>,
     options?: Partial<Pick<Action<E>, "maybeMuted">>
   ) {
@@ -43,16 +45,17 @@ export class Action<E> {
     return new Action((input) => {
       const res = f(input);
       if (typeof res == "number") {
-        if (res <= 0) return { accept: false };
+        if (res <= 0) return rejectedActionOutput;
         return new AcceptedActionOutput<E>({
           buffer: input.buffer,
           start: input.start,
           muted: false,
           digested: res,
+          content: input.buffer.slice(input.start, input.start + res),
         });
       }
       if (typeof res == "string") {
-        if (res.length <= 0) return { accept: false };
+        if (res.length <= 0) return rejectedActionOutput;
         return new AcceptedActionOutput<E>({
           buffer: input.buffer,
           start: input.start,
@@ -63,15 +66,17 @@ export class Action<E> {
       }
       // else, res is SimpleAcceptedActionOutput
       res.digested ??= res.content!.length ?? 0; // if digested is undefined, content must be defined
-      if (res.digested <= 0) return { accept: false };
+      if (res.digested <= 0) return rejectedActionOutput;
       return new AcceptedActionOutput<E>({
         buffer: input.buffer,
         start: input.start,
         muted: res.muted ?? false,
         digested: res.digested,
         error: res.error,
-        content: res.content,
-        _rest: res.rest,
+        content:
+          res.content ??
+          input.buffer.slice(input.start, input.start + res.digested),
+        rest: res.rest,
       });
     });
   }
@@ -115,7 +120,7 @@ export class Action<E> {
           start: input.start,
           content: res[0], // reuse the regex result
         });
-      return { accept: false };
+      return rejectedActionOutput;
     });
   }
 
@@ -128,32 +133,33 @@ export class Action<E> {
   }
 
   /**
-   * Reduce actions to one action.
-   * This will reduce the lexer loop times to optimize the performance.
-   */
-  static reduce<E>(...actions: ActionSource<E>[]) {
-    return Action.from<E>(actions.reduce((a, b) => Action.from<E>(a).or(b)));
-  }
-
-  /**
    * Mute action if `accept` is `true` and `muted` is/returned `true`.
    */
-  mute(muted: boolean | ((output: AcceptedActionOutput<E>) => boolean) = true) {
+  mute(
+    muted:
+      | boolean
+      | ((output: Readonly<AcceptedActionOutput<E>>) => boolean) = true
+  ) {
     if (typeof muted === "boolean")
       return new Action(
         (input) => {
           const output = this.exec(input);
-          if (output.accept)
-            return AcceptedActionOutput.from(output, { muted });
+          if (output.accept) {
+            output.muted = muted;
+            return output;
+          }
           return output;
         },
         { maybeMuted: muted }
       );
+    // else, muted is a function
     return new Action(
       (input) => {
         const output = this.exec(input);
-        if (output.accept)
-          return AcceptedActionOutput.from(output, { muted: muted(output) });
+        if (output.accept) {
+          output.muted = muted(output);
+          return output;
+        }
         return output;
       },
       { maybeMuted: true }
@@ -164,11 +170,13 @@ export class Action<E> {
    * Check the output if `accept` is `true`.
    * `condition` should return error, `undefined` means no error.
    */
-  check(condition: (output: AcceptedActionOutput<E>) => E) {
+  check(condition: (output: Readonly<AcceptedActionOutput<E>>) => E) {
     return new Action((buffer) => {
       const output = this.exec(buffer);
-      if (output.accept)
-        return AcceptedActionOutput.from(output, { error: condition(output) });
+      if (output.accept) {
+        output.error = condition(output);
+        return output;
+      }
       return output;
     });
   }
@@ -176,10 +184,13 @@ export class Action<E> {
   /**
    * Set error if `accept` is `true`.
    */
-  error(error: any) {
+  error(error: E) {
     return new Action((input) => {
       const output = this.exec(input);
-      if (output.accept) return AcceptedActionOutput.from(output, { error });
+      if (output.accept) {
+        output.error = error;
+        return output;
+      }
       return output;
     });
   }
@@ -188,16 +199,18 @@ export class Action<E> {
    * Reject if `accept` is `true` and `rejecter` is/returns `true`.
    */
   reject(
-    rejecter: boolean | ((output: AcceptedActionOutput<E>) => any) = true
+    rejecter:
+      | boolean
+      | ((output: Readonly<AcceptedActionOutput<E>>) => any) = true
   ) {
     if (typeof rejecter === "boolean") {
-      if (rejecter) return new Action(() => ({ accept: false })); // always reject
-      return this; // just return self
+      if (rejecter) return new Action(() => rejectedActionOutput); // always reject
+      return this; // just return self, don't override the original output's accept
     }
     return new Action((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
-        if (rejecter(output)) return { accept: false };
+        if (rejecter(output)) return rejectedActionOutput;
         else return output;
       }
       return output;
@@ -207,7 +220,7 @@ export class Action<E> {
   /**
    * Call `f` if `accept` is `true`.
    */
-  then(f: (output: AcceptedActionOutput<E>) => void) {
+  then(f: (output: Readonly<AcceptedActionOutput<E>>) => void) {
     return new Action((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) f(output);
@@ -231,5 +244,13 @@ export class Action<E> {
         maybeMuted: this.maybeMuted || other.maybeMuted,
       }
     );
+  }
+
+  /**
+   * Reduce actions to one action.
+   * This will reduce the lexer loop times to optimize the performance.
+   */
+  static reduce<E>(...actions: ActionSource<E>[]) {
+    return Action.from<E>(actions.reduce((a, b) => Action.from<E>(a).or(b)));
   }
 }

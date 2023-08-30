@@ -1,48 +1,40 @@
 // This has to be a class, since we need to cache the `rest` of the input.
 export class AcceptedActionOutput<E> {
   /** This action can accept some input as a token. */
-  readonly accept: true;
+  accept: true;
   /** The whole input string. */
-  readonly buffer: string;
+  buffer: string;
   /** From where to lex. */
-  readonly start: number;
+  start: number;
   /** Don't emit token, continue lex. */
-  readonly muted: boolean;
+  muted: boolean;
   /** How many chars are accepted by this action. */
-  readonly digested: number;
+  digested: number;
   /** Accept, but set an error to mark this token. */
-  readonly error?: E;
+  error?: E;
   /**
    * The content of the token, equals to `input.slice(start, start + digested)`.
    * This is not lazy since we need this to calculate `lexer.lineChars`.
    */
-  readonly content: string;
+  content: string;
 
-  private _rest: string;
+  private _rest?: string;
 
   constructor(
     data: Pick<
       AcceptedActionOutput<E>,
-      "buffer" | "start" | "muted" | "digested" | "error"
-    > & {
-      // if ActionExec can yield the content/rest,
-      // we can directly use them to prevent unnecessary calculation.
-      content?: string; // TODO: make this required? since this class should not be directly used by user
-      _rest?: string;
-    }
+      "buffer" | "start" | "muted" | "digested" | "error" | "content"
+    > &
+      Partial<Pick<AcceptedActionOutput<E>, "rest">>
   ) {
     this.accept = true;
-    Object.assign(this, data);
-    this.content ??= this.buffer.slice(this.start, this.start + this.digested);
-  }
-
-  // TODO: maybe change this into a non-static method?
-  // e.g. `this.override`
-  static from<E>(
-    another: AcceptedActionOutput<E>,
-    override: Partial<AcceptedActionOutput<E>> = {}
-  ) {
-    return new AcceptedActionOutput({ ...another, ...override });
+    this.buffer = data.buffer;
+    this.start = data.start;
+    this.muted = data.muted;
+    this.digested = data.digested;
+    this.error = data.error;
+    this.content = data.content;
+    this._rest = data.rest;
   }
 
   /**
@@ -56,8 +48,10 @@ export class AcceptedActionOutput<E> {
   }
 }
 
+export const rejectedActionOutput = Object.freeze({ accept: false });
+
 export type ActionOutput<E> =
-  | Readonly<{ accept: false }>
+  | typeof rejectedActionOutput
   | AcceptedActionOutput<E>;
 
 export class ActionInput {
@@ -67,8 +61,14 @@ export class ActionInput {
   readonly start: number;
   private _rest?: string;
 
-  constructor(data: Pick<ActionInput, "buffer" | "start">) {
-    Object.assign(this, data);
+  constructor(
+    data: Pick<ActionInput, "buffer" | "start"> &
+      // maybe the rest is provided by the last accepted action's output
+      Partial<Pick<ActionInput, "rest">>
+  ) {
+    this.buffer = data.buffer;
+    this.start = data.start;
+    this._rest = data.rest;
   }
 
   /**
@@ -80,13 +80,13 @@ export class ActionInput {
   }
 }
 
-export type SimpleAcceptedActionOutput<E> = {
-  /** Default: `false` */
-  readonly muted?: boolean;
-  readonly error?: E;
-  readonly rest?: string;
-} & (
-  | // at least one of `digested` and `content` must be defined
-  { digested: number; content?: string }
-  | { digested?: number; content: string }
-);
+export type SimpleAcceptedActionOutput<E> = Partial<
+  Pick<
+    AcceptedActionOutput<E>,
+    "muted" | "error" | "rest" | "digested" | "content"
+  >
+> &
+  // at least one of `digested` and `content` must be defined
+  (| Pick<AcceptedActionOutput<E>, "digested">
+    | Pick<AcceptedActionOutput<E>, "content">
+  );
