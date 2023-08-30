@@ -11,6 +11,7 @@
   - Feat: add generic parameter for Lexer family as the `Token.error` type.
   - Feat: add `options.autoSticky/autoGlobal` for `fromTo`.
   - Feat: export `Action.simple/match`. Add `options.autoSticky/rejectCaret` for `Action.match`.
+  - Feat: add typed error.
 - Optimize performance & comments.
 
 ## v0.11.0

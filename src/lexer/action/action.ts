@@ -1,3 +1,4 @@
+import { CaretNotAllowedError } from "../error";
 import {
   ActionInput,
   ActionOutput,
@@ -104,7 +105,7 @@ export class Action<E> {
       if (r.source.startsWith("^"))
         // for most cases this is a mistake
         // since when 'r' and 'g' is set, '^' will cause the regex to always fail when 'r.lastIndex' is not 0
-        throw new Error("regex starts with '^' is not allowed"); // TODO: use typed error
+        throw new CaretNotAllowedError();
     }
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`

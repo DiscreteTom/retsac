@@ -1,0 +1,20 @@
+export type LexerErrorType = "CARET_NOT_ALLOWED";
+
+export class LexerError extends Error {
+  type: LexerErrorType;
+  constructor(type: LexerErrorType, msg: string) {
+    super(msg);
+    this.type = type;
+    Object.setPrototypeOf(this, LexerError.prototype);
+  }
+}
+
+export class CaretNotAllowedError extends LexerError {
+  constructor() {
+    super(
+      "CARET_NOT_ALLOWED",
+      "Regex starts with '^' is not allowed when use regex to create actions." +
+        "If this is intentional, use `Action.match(regex, { rejectCaret: false })` instead."
+    );
+  }
+}
