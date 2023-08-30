@@ -27,7 +27,7 @@ export class AcceptedActionOutput<E> {
     > & {
       // if ActionExec can yield the content/rest,
       // we can directly use them to prevent unnecessary calculation.
-      content?: string; // TODO: make this required, since this class should not be directly used by user
+      content?: string; // TODO: make this required? since this class should not be directly used by user
       _rest?: string;
     }
   ) {
