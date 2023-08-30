@@ -1,6 +1,13 @@
 import { Action, ActionInput, rejectedActionOutput } from "./action";
 
 /**
+ * Escape regex special characters.
+ */
+export function esc4regex(str: string) {
+  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+}
+
+/**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
 export function fromTo(
@@ -124,13 +131,6 @@ export function wordType(...words: readonly string[]): {
     result[w] = word(w);
   }
   return result;
-}
-
-/**
- * Escape regex special characters.
- */
-export function esc4regex(str: string) {
-  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
 /**
