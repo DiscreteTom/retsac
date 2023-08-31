@@ -124,8 +124,57 @@ export function comment(
   });
 }
 
-export function regexLiteral() {
-  // TODO: is there more efficient way to match regex literal?
-  // TODO: catch errors? e.g. invalid escape
-  return Action.from<any>(/\/(?:[^\/\\]*(?:\\.[^\/\\]*)*)\/(?:[gimuy]*)/);
+export function regexLiteral<E>(options?: {
+  /**
+   * Default: `true`.
+   */
+  validate?: boolean;
+  /**
+   * If `true`, reject if the regex is invalid and `validate` is `true`.
+   * If `false`, set `invalidError` if the regex is invalid and `validate` is `true`.
+   * Default: `true`.
+   */
+  rejectOnInvalid?: boolean;
+  /**
+   * Default: `{ message: "Invalid regex", content: output.content }`.
+   */
+  invalidError?: E;
+  /**
+   * Ensure there is a border after the regex.
+   * This prevent to match something like `/a/g1`.
+   * Default: `true`.
+   */
+  requireBorder?: boolean;
+}) {
+  const action =
+    options?.requireBorder ?? true
+      ? Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
+      : Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
+
+  if (options?.validate ?? true) {
+    if (options?.rejectOnInvalid ?? true) {
+      return action.reject((output) => {
+        try {
+          new RegExp(output.content);
+        } catch (e) {
+          return true;
+        }
+        return false;
+      });
+    } else {
+      return action.check((output) => {
+        try {
+          new RegExp(output.content);
+        } catch (e) {
+          return (
+            options?.invalidError ?? {
+              message: "Invalid regex",
+              content: output.content,
+            }
+          );
+        }
+        return undefined;
+      });
+    }
+  }
 }
