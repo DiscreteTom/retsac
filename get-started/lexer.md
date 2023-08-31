@@ -189,7 +189,7 @@ Basically you need to handle errors in these two scenarios:
 Here is an example about how to deal with those scenarios:
 
 ```ts
-builder
+const lexer = builder
   .define({
     number: [
       // for scenario-1, you can use `check` to check the token value and set an error message.
@@ -206,12 +206,21 @@ builder
     ],
   })
   // for scenario-2, if all rules were failed, you can set a default action to ignore one char
+  // IMPORTANT: don't use this in ELR parsers! use `lexer.take/takeUntil` instead.
   .ignore(({ buffer, start }) => {
     console.log(
       `Unable to yield a token, try to skip a char: ${buffer[start]}`
     );
     return 1;
-  });
+  })
+  .build();
+
+// for scenario-2, you can also use `take` to take the first n chars out of the rest string
+lexer.take(n);
+// or you can use `takeUntil` to take chars until the specified string or regex
+lexer.takeUntil("\n");
+lexer.takeUntil("}");
+lexer.takeUntil(/\W/);
 ```
 
 > **Note**: `undefined` means no errors. Errors won't stop `lexAll`, unless you use `lexAll({ stopOnError: true })`.
