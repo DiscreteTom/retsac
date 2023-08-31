@@ -39,9 +39,24 @@ export interface ILexer<E> {
   get digested(): number;
   /**
    * Take `n` chars from the rest of buffer and update state.
-   * This is useful when you have external logic to handle the token.
+   * This is useful when you have external logic to handle the token (e.g. error handling).
    */
   take(n?: number): string;
+  /**
+   * Take chars from the rest of buffer and update state until `pattern` matches.
+   * This is useful when you have external logic to handle the token (e.g. error handling).
+   * The pattern will be included in the result.
+   */
+  takeUntil(
+    pattern: string | RegExp,
+    options?: {
+      /**
+       * Auto add the `global` flag to the regex if `g` and 'y' is not set.
+       * Default: `true`.
+       */
+      autoGlobal?: boolean;
+    }
+  ): string;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *

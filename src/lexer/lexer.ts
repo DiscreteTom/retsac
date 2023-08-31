@@ -3,6 +3,7 @@ import { AcceptedActionOutput, ActionInput } from "./action";
 import { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import { Definition, ILexer, Token } from "./model";
+import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
 export class Lexer<E> implements ILexer<E> {
@@ -98,6 +99,34 @@ export class Lexer<E> implements ILexer<E> {
     else throw new InvalidLengthForTakeError(n);
 
     this.update(n, content);
+    return content;
+  }
+
+  takeUntil(
+    pattern: string | RegExp,
+    options?: {
+      autoGlobal?: boolean;
+    }
+  ) {
+    let regex =
+      typeof pattern === "string" ? new RegExp(esc4regex(pattern)) : pattern;
+    if ((options?.autoGlobal ?? true) && !regex.global && !regex.sticky)
+      regex = new RegExp(regex.source, regex.flags + "g");
+
+    regex.lastIndex = this.offset;
+    const res = regex.exec(this.buffer);
+
+    if (!res || res.index == -1) {
+      this.log(() => `[Lexer.takeUntil] no match with regex ${regex}`);
+      return "";
+    }
+
+    const content = this.buffer.slice(this.offset, res.index);
+    this.log(
+      () =>
+        `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`
+    );
+    this.update(content.length, content);
     return content;
   }
 
