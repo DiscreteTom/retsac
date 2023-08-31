@@ -13,6 +13,7 @@
   - Feat: export `Action.simple/match`. Add `options.autoSticky/rejectCaret` for `Action.match`.
   - Feat: add typed error.
   - Feat: add `ILexer.takeUntil`. [#16](https://github.com/DiscreteTom/retsac/issues/16)
+  - Feat: add `Lexer.utils.regexLiteral`. [#15](https://github.com/DiscreteTom/retsac/issues/15)
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - Lexer will skip unexpected actions by checking expected text.

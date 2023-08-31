@@ -117,3 +117,9 @@ export function comment(
 ) {
   return fromTo(start, end, { acceptEof: options?.acceptEof ?? true });
 }
+
+export function regexLiteral() {
+  // TODO: is there more efficient way to match regex literal?
+  // TODO: catch errors? e.g. invalid escape
+  return Action.from<any>(/\/(?:[^\/\\]*(?:\\.[^\/\\]*)*)\/(?:[gimuy]*)/);
+}
