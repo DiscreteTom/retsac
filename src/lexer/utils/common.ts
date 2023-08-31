@@ -1,4 +1,4 @@
-import { Action, ActionInput } from "../action";
+import { AcceptedActionOutput, Action, ActionInput } from "../action";
 
 /**
  * Escape regex special characters.
@@ -136,9 +136,9 @@ export function regexLiteral<E>(options?: {
    */
   rejectOnInvalid?: boolean;
   /**
-   * Default: `{ message: "Invalid regex", content: output.content }`.
+   * Default: `(output) => ({ message: "Invalid regex", content: output.content })`.
    */
-  invalidError?: E;
+  invalidErrorFactory?: (output: AcceptedActionOutput<any>) => E;
   /**
    * Ensure there is a border after the regex.
    * This prevent to match something like `/a/g1`.
@@ -150,6 +150,13 @@ export function regexLiteral<E>(options?: {
     options?.requireBorder ?? true
       ? Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
       : Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
+
+  const errorFactory =
+    options?.invalidErrorFactory ??
+    ((output) => ({
+      message: "Invalid regex",
+      content: output.content,
+    }));
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
@@ -166,12 +173,7 @@ export function regexLiteral<E>(options?: {
         try {
           new RegExp(output.content);
         } catch (e) {
-          return (
-            options?.invalidError ?? {
-              message: "Invalid regex",
-              content: output.content,
-            }
-          );
+          return errorFactory(output);
         }
         return undefined;
       });
