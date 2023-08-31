@@ -136,27 +136,22 @@ export function regexLiteral<E>(options?: {
    */
   rejectOnInvalid?: boolean;
   /**
-   * Default: `(output) => ({ message: "Invalid regex", content: output.content })`.
+   * Default: `"invalid regex literal"`.
    */
-  invalidErrorFactory?: (output: AcceptedActionOutput<any>) => E;
+  invalidError?: E;
   /**
    * Ensure there is a border after the regex.
    * This prevent to match something like `/a/g1`.
    * Default: `true`.
    */
   requireBorder?: boolean;
-}) {
+}): Action<E> {
   const action =
     options?.requireBorder ?? true
       ? Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
       : Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
 
-  const errorFactory =
-    options?.invalidErrorFactory ??
-    ((output) => ({
-      message: "Invalid regex",
-      content: output.content,
-    }));
+  const err = options?.invalidError ?? ("invalid regex literal" as E);
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
@@ -168,15 +163,19 @@ export function regexLiteral<E>(options?: {
         }
         return false;
       });
-    } else {
-      return action.check((output) => {
-        try {
-          new RegExp(output.content);
-        } catch (e) {
-          return errorFactory(output);
-        }
-        return undefined;
-      });
     }
+
+    // else, set error on invalid
+    return action.check((output) => {
+      try {
+        new RegExp(output.content);
+      } catch (e) {
+        return err;
+      }
+      return undefined;
+    });
   }
+
+  // else, no validation
+  return action;
 }
