@@ -54,6 +54,9 @@ export function stringLiteral<E>(
               `(?:${esc4regex(close)})|$${multiline ? "" : "|\\n"}`
             : esc4regex(close)
         })`
+      // DON'T set the `m` flag, because we want to match the whole string literal when `multiline` is true
+      // if we set the `m` flag, the `$` will match the end of each line, instead of the end of the whole string literal
+      // multiline ? "m" : undefined
     )
   );
 
