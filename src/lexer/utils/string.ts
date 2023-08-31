@@ -1,6 +1,7 @@
 import { Action, rejectedActionOutput } from "../action";
 import { esc4regex, fromTo } from "./common";
 
+// TODO: split this into multiple functions? e.g. stringLiteral, unclosedStringLiteral
 /**
  * Match a string literal.
  *

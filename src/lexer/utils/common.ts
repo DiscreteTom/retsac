@@ -21,12 +21,12 @@ export function fromTo(
   options: {
     acceptEof: boolean;
     /**
-     * Auto add the sticky flag to the `from` regex if `g` and `y` is not set.
+     * Auto add the `sticky` flag to the `from` regex if `g` and `y` is not set.
      * Default: `true`.
      */
     autoSticky?: boolean;
     /**
-     * Auto add the global flag to the `to` regex if `g` and `y` is not set.
+     * Auto add the `global` flag to the `to` regex if `g` and `y` is not set.
      * Default: `true`.
      */
     autoGlobal?: boolean;

@@ -1,7 +1,7 @@
 import { Action } from "../action";
 import { esc4regex } from "./common";
 
-// TODO: split this into multiple functions?
+// TODO: split this into multiple functions? e.g. numericLiteral, invalidNumericLiteral
 /**
  * Match the literal representations of numbers in JavaScript code.
  *
