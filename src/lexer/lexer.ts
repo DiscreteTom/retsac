@@ -1,6 +1,7 @@
 import { Logger } from "../model";
 import { AcceptedActionOutput, ActionInput } from "./action";
 import { LexerBuildOptions } from "./builder";
+import { InvalidLengthForTakeError } from "./error";
 import { Definition, ILexer, Token } from "./model";
 
 /** Extract tokens from the input string. */
@@ -94,6 +95,7 @@ export class Lexer<E> implements ILexer<E> {
     if (n > 0)
       // stringify to escape '\n'
       this.log(() => `[Lexer.take] ${n} chars: ${JSON.stringify(content)}`);
+    else throw new InvalidLengthForTakeError(n);
 
     this.update(n, content);
     return content;
