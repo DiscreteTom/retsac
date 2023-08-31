@@ -113,9 +113,15 @@ export function comment(
   start: string | RegExp,
   /** Default: `\n` */
   end: string | RegExp = "\n",
-  options?: { acceptEof?: boolean }
+  options?: Omit<Parameters<typeof fromTo>[2], "acceptEof"> & {
+    /** Default: `true`. */
+    acceptEof?: boolean;
+  }
 ) {
-  return fromTo(start, end, { acceptEof: options?.acceptEof ?? true });
+  return fromTo(start, end, {
+    ...options,
+    acceptEof: options?.acceptEof ?? true,
+  });
 }
 
 export function regexLiteral() {
