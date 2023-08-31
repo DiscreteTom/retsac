@@ -1,7 +1,7 @@
 import { Action } from "../action";
 
 /**
- * Match a list of strings exactly, no lookahead.
+ * Match a list of strings exactly, ***NO LOOKAHEAD***.
  */
 export function exact(...ss: readonly string[]): Action<any> {
   return Action.from((input) => {
