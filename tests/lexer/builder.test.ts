@@ -2,7 +2,7 @@ import { Lexer } from "../../src";
 import { Action } from "../../src/lexer";
 
 const builder = new Lexer.Builder()
-  .ignore(Lexer.whitespaces)
+  .ignore(Lexer.whitespaces())
   .define({
     number: /[0-9]+/,
   })

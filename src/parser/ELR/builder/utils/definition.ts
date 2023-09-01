@@ -5,7 +5,7 @@ import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 
 const grammarLexer = new Lexer.Builder()
-  .ignore(Lexer.whitespaces)
+  .ignore(Lexer.whitespaces())
   .define({
     rename: /@\w+/,
     grammar: /\w+/,

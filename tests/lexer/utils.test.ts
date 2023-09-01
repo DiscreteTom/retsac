@@ -11,7 +11,7 @@ import {
 
 test("lexer utils fromTo", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       a: fromTo("a", "b", { acceptEof: false }),
       c: fromTo("c", "d", { acceptEof: true }),
@@ -44,7 +44,7 @@ test("lexer utils fromTo", () => {
 
 test("lexer utils exact", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       a: exact("123"),
     })
@@ -61,7 +61,7 @@ test("lexer utils exact", () => {
 
 test("lexer utils word", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       a: word("123"),
     })
@@ -80,7 +80,7 @@ test("lexer utils word", () => {
 
 test("lexer utils wordType", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define(wordType("123"))
     .build();
 
@@ -89,7 +89,7 @@ test("lexer utils wordType", () => {
 
 test("lexer utils stringLiteral", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       string: stringLiteral(`'`)
         .or(stringLiteral(`"`, { escape: false }))
@@ -180,10 +180,10 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("  g123g")).not.toBe(null);
 });
 
-test("lexer utils whitespaces", () => {
+test("lexer utils whitespaces()", () => {
   const lexer = new Lexer.Builder()
     .ignore(word("ignore"))
-    .define({ ws: Lexer.whitespaces })
+    .define({ ws: Lexer.whitespaces() })
     .build();
 
   expect(lexer.reset().lex(`123`)).toBe(null);
@@ -208,7 +208,7 @@ test("lexer utils whitespaces", () => {
 
 test("lexer utils comment", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       comment: Lexer.comment("//")
         .or(Lexer.comment("/*", "*/"))
@@ -244,7 +244,7 @@ test("lexer utils comment", () => {
 
 test("lexer utils numericLiteral", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({ number: Lexer.numericLiteral() })
     .build();
 
@@ -299,7 +299,7 @@ test("lexer utils numericLiteral", () => {
 
   // disable/custom numericSeparator
   const lexer2 = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       number: [
         Lexer.numericLiteral({ numericSeparator: "-" }),
@@ -315,7 +315,7 @@ test("lexer utils numericLiteral", () => {
 
   // disable boundary check
   const lexer3 = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({ number: Lexer.numericLiteral({ boundary: false }) })
     .build();
   expect(lexer3.reset().lex(`123abc`)?.content).toBe(`123`); // ignore boundary
@@ -324,7 +324,7 @@ test("lexer utils numericLiteral", () => {
 
   // reject invalid
   const lexer4 = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({ number: Lexer.numericLiteral({ acceptInvalid: false }) })
     .build();
   expect(lexer4.reset().lex(`0o79`)).toBe(null);
@@ -333,7 +333,7 @@ test("lexer utils numericLiteral", () => {
 
   // custom invalid error
   const lexer5 = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({ number: Lexer.numericLiteral({ invalidError: "my error" }) })
     .build();
   expect(lexer5.reset().lex(`0o79`)?.error).toBe("my error");
@@ -341,7 +341,7 @@ test("lexer utils numericLiteral", () => {
   expect(lexer5.reset().lex(` 0o79`)?.error).toBe("my error");
 
   const lexer6 = new Lexer.Builder()
-    .ignore(whitespaces)
+    .ignore(whitespaces())
     .define({
       number: Lexer.numericLiteral({
         numericSeparator: false,

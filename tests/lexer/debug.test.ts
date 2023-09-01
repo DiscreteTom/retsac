@@ -3,7 +3,7 @@ import { Lexer } from "../../src";
 test("lexer debug lex", () => {
   const logger = jest.fn();
   const lexer = new Lexer.Builder()
-    .ignore(Lexer.whitespaces)
+    .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact(..."+-*/()"))
     .define({
       hash: /#/,
@@ -59,7 +59,7 @@ test("lexer debug lex", () => {
 test("lexer debug trimStart", () => {
   const logger = jest.fn();
   const lexer = new Lexer.Builder()
-    .ignore(Lexer.whitespaces)
+    .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact("!"))
     .anonymous(Lexer.exact(..."+-*/()").mute(() => false)) // set maybe-mute, but do not mute
     .define({

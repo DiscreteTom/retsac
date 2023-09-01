@@ -7,6 +7,7 @@
     - Rename `ActionAcceptedOutput` to `AcceptedActionOutput`, and make it a class, rewrite its logics.
     - `Action.mute/check/reject/then` will take `AcceptedActionOutput` as the callback's param.
     - Regex should not starts with `^` and will auto have sticky flag.
+  - **_Breaking Change_**: `Lexer.whitespaces` is now a function.
   - Feat: `SimpleActionExec` can accept `string/SimpleAcceptedActionOutput` as the output.
   - Feat: add generic parameter for Lexer family as the `Token.error` type.
   - Feat: add `options.autoSticky/autoGlobal` for `fromTo`.

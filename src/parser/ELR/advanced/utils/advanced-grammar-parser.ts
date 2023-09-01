@@ -52,7 +52,7 @@ export class GrammarExpander {
 
     const lexer = new Builder()
       .ignore(
-        whitespaces // blank
+        whitespaces() // blank
       )
       .define({
         grammar: [/\w+@\w+/, /\w+/],

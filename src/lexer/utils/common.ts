@@ -11,7 +11,9 @@ export function esc4regex(str: string) {
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export const whitespaces = Action.from<any>(/\s+/);
+export function whitespaces() {
+  return Action.from(/\s+/);
+}
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.

@@ -2,7 +2,7 @@ import { Lexer } from "../../src";
 import { Action, InvalidLengthForTakeError, Token } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
-  .ignore(Lexer.whitespaces)
+  .ignore(Lexer.whitespaces())
   .define({
     number: /[0-9]+/,
   })
