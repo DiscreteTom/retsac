@@ -1,5 +1,5 @@
 import { Token } from "../lexer";
-import { ParserTraverseError } from "./error";
+import { InvalidTraverseError } from "./error";
 
 /**
  * A structured type for serialization.
@@ -65,8 +65,8 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
     // if there are multiple children, traverse all, don't return anything
     self.children.forEach((c) => c.traverse());
   } else {
-    // if there is no children, this node is a T and the traverse should not be called
-    throw ParserTraverseError.traverserNotDefined();
+    // if there is no children, then this node is a T and the traverse should not be called
+    throw new InvalidTraverseError(self);
   }
 }
 
