@@ -85,6 +85,8 @@ export interface ILexer<E> {
   trimStart(input?: string): this;
   /**
    * Get the un-lexed string buffer.
+   * The rest string might be very long, be care of using this method.
+   * The result will be cached in the lexer until its state is changed.
    */
   getRest(): string;
   /**
