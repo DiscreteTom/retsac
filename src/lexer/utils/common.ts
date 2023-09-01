@@ -140,14 +140,14 @@ export function regexLiteral<E>(options?: {
    */
   invalidError?: E;
   /**
-   * Ensure there is a border after the regex.
+   * Ensure there is a boundary after the regex.
    * This prevent to match something like `/a/g1`.
    * Default: `true`.
    */
-  requireBorder?: boolean;
+  boundary?: boolean;
 }): Action<E> {
   const action =
-    options?.requireBorder ?? true
+    options?.boundary ?? true
       ? Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
       : Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
 
