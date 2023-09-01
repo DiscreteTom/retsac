@@ -1,16 +1,18 @@
 import { Logger } from "../model";
 import { ASTNode } from "./ast";
 
-export type ParserAcceptedOutput<T> = Readonly<{
+export type ParserAcceptedOutput<T> = {
   accept: true;
   /** Result AST nodes. */
   buffer: readonly ASTNode<T>[];
-  /** Empty if no error. */
+  /** Empty list if no error. */
   errors: readonly ASTNode<T>[];
-}>;
+};
+
+export const parserRejectedOutput = Object.freeze({ accept: false });
 
 export type ParserOutput<T> =
-  | Readonly<{ accept: false }>
+  | typeof parserRejectedOutput
   | ParserAcceptedOutput<T>;
 
 export type ParseExec<T> = (
