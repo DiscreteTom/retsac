@@ -65,7 +65,7 @@ export class Action<E> {
         });
       }
       // else, res is SimpleAcceptedActionOutput
-      res.digested ??= res.content!.length ?? 0; // if digested is undefined, content must be defined
+      res.digested ??= res.content!.length; // if digested is undefined, content must be defined
       if (res.digested <= 0) return rejectedActionOutput;
       return new AcceptedActionOutput<E>({
         buffer: input.buffer,
