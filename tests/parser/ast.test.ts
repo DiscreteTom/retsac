@@ -16,6 +16,7 @@ test("to obj", () => {
   const obj1 = node1.toObj();
 
   expect(obj1).toEqual({
+    name: "num",
     type: "num",
     start: 0,
     text: "123",
@@ -30,11 +31,13 @@ test("to obj", () => {
   const obj2 = node2.toObj();
 
   expect(obj2).toEqual({
+    name: "exp",
     type: "exp",
     start: 0,
     text: "",
     children: [
       {
+        name: "num",
         type: "num",
         start: 0,
         text: "123",
@@ -47,10 +50,10 @@ test("to obj", () => {
 test("to string", () => {
   expect(
     ASTNode.from({ start: 0, type: "num", content: "123" }).toString()
-  ).toBe("num");
+  ).toBe(`num: "123"`);
 
   expect(ASTNode.from({ start: 0, type: "", content: "+" }).toString()).toBe(
-    `"+"`
+    `<anonymous>: "+"`
   );
 });
 
