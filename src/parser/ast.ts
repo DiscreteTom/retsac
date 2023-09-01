@@ -36,32 +36,17 @@ export type ASTObj = {
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeQuerySelector<T> = (name: string) => ASTNode<T>[];
+export type ASTNodeChildrenSelector<T> = (name: string) => ASTNode<T>[];
 
-export function ASTNodeQuerySelectorFactory<T>(
-  nodes: readonly ASTNode<T>[],
-  cascadeQueryPrefix?: string
-): ASTNodeQuerySelector<T> {
-  return (name: string) => {
-    const result: ASTNode<T>[] = [];
-    nodes.forEach((n) => {
-      if (n.name === name) result.push(n);
-
-      // cascade query
-      if (
-        cascadeQueryPrefix !== undefined &&
-        n.name.startsWith(cascadeQueryPrefix)
-      )
-        result.push(...n.$(name));
-    });
-    return result;
-  };
-}
+export type ASTNodeSelector<T> = (
+  name: string,
+  nodes: readonly ASTNode<T>[]
+) => ASTNode<T>[];
 
 /**
  * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
  */
-export const mockASTNodeQuerySelector: ASTNodeQuerySelector<any> = () => [];
+export const mockASTNodeSelector: ASTNodeSelector<any> = () => [];
 
 /**
  * Traverser is called when a top-down traverse is performed.
@@ -86,11 +71,6 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
 }
 
 export class ASTNode<T> {
-  /**
-   * By default, this is the same as the type name.
-   * You can rename nodes in your grammar rules.
-   */
-  readonly name: string;
   /**
    * T's or NT's name.
    * If anonymous, the value is an empty string.
@@ -122,12 +102,17 @@ export class ASTNode<T> {
   /**
    * Select children nodes by the name.
    */
-  $: ASTNodeQuerySelector<T>;
+  readonly $: ASTNodeChildrenSelector<T>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    */
   private traverser: Traverser<T>;
+  /**
+   * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
+   */
+  private _name: string;
+  private selector: ASTNodeSelector<T>;
   /**
    * Cache the string representation.
    */
@@ -139,9 +124,10 @@ export class ASTNode<T> {
       "type" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
       traverser?: Traverser<T>;
-    } & Partial<Pick<ASTNode<T>, "name" | "$">>
+      selector?: ASTNodeSelector<T>;
+    } & Partial<Pick<ASTNode<T>, "name">>
   ) {
-    this.name = p.name ?? p.type;
+    this._name = p.name ?? p.type;
     this.type = p.type;
     this.start = p.start;
     this.text = p.text;
@@ -149,13 +135,27 @@ export class ASTNode<T> {
     this.parent = p.parent;
     this.data = p.data;
     this.error = p.error;
-    this.$ = p.$ ?? mockASTNodeQuerySelector;
+    this.selector = p.selector ?? mockASTNodeSelector;
     this.traverser = p.traverser ?? defaultTraverser;
+    this.$ = (name: string) => this.selector(name, this.children ?? []);
     // this.str = undefined;
   }
 
   static from<T>(t: Readonly<Token<any>>) {
     return new ASTNode<T>({ type: t.type, start: t.start, text: t.content });
+  }
+
+  /**
+   * By default, this is the same as the type name.
+   * You can rename nodes in your grammar rules.
+   */
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+    this.str = undefined; // clear the cache
   }
 
   /**
@@ -193,6 +193,7 @@ export class ASTNode<T> {
   /**
    * Format: `type(name): text`.
    * The result is cached.
+   * This value will be changed if you change the name/type/text of this node.
    */
   toString(options?: { anonymous?: string }) {
     const anonymous = options?.anonymous ?? "<anonymous>";

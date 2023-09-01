@@ -1,5 +1,5 @@
 import { ILexer } from "../../../lexer";
-import { ASTNode, ASTNodeQuerySelector } from "../../ast";
+import { ASTNode, ASTNodeChildrenSelector } from "../../ast";
 
 /** Parser context for ELR parsers. */
 export interface ParserContext<T> {
@@ -7,7 +7,7 @@ export interface ParserContext<T> {
   readonly before: readonly ASTNode<T>[];
   readonly after: string;
   /** Find AST node by its name. */
-  readonly $: ASTNodeQuerySelector<T>;
+  readonly $: ASTNodeChildrenSelector<T>;
   readonly lexer: ILexer<any>;
   /** Data of the result AST node. */
   data?: T;

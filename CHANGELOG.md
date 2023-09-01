@@ -21,6 +21,8 @@
   - **_Breaking Change_**: add `name` for `ASTNode` and `ASTObj`.
   - **_Breaking Change_**: `ASTNode.toTreeString` will also print `ASTNode.name`.
   - **_Breaking Change_**: refactor `ASTNode.toString`. The output format is changed.
+  - **_Breaking Change_**: rename `ASTNodeQuerySelector` to `ASTNodeChildrenSelector`.
+  - Feat: add `ASTNodeSelector`.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - Lexer will skip unexpected actions by checking expected text.

@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
-import { ASTNode, ASTNodeQuerySelectorFactory } from "../../ast";
+import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
 import { ParserOutput } from "../../model";
 import {
   Grammar,
@@ -135,12 +135,15 @@ export class Candidate<T> {
     if (this.canDigestMore()) return { res: { accept: false } };
 
     const matched = buffer.slice(-this.gr.rule.length);
+    matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
+    const rollback = () => matched.forEach((n, i) => (n.name = n.type)); // rollback the name
+
     const context: ParserContext<T> = {
       matched,
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
       lexer,
-      $: ASTNodeQuerySelectorFactory(matched, cascadeQueryPrefix),
+      $: ASTNodeChildrenSelectorFactory(matched, cascadeQueryPrefix),
     };
 
     // check follow for LR(1) with the rest input string
@@ -177,6 +180,7 @@ export class Candidate<T> {
               10 // only show first 10 chars
             )}`
           );
+          rollback();
           return { res: { accept: false } };
         }
       }
@@ -186,6 +190,7 @@ export class Candidate<T> {
     // check rejecter
     if (this.gr.rejecter(context)) {
       logger(`[Reject] ${this.gr.toString()}`);
+      rollback();
       return { res: { accept: false } };
     }
 
@@ -193,12 +198,12 @@ export class Candidate<T> {
     this.gr.callback(context);
     const node = new ASTNode({
       type: this.gr.NT,
-      children: context.matched,
+      children: matched,
       data: context.data,
       error: context.error,
-      start: context.matched[0].start,
+      start: matched[0].start,
       traverser: this.gr.traverser,
-      $: context.$,
+      selector: ASTNodeSelectorFactory(cascadeQueryPrefix),
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
     logger(`[Accept] ${this.gr.toString()}`);
@@ -233,4 +238,35 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
       return ASTNode.from<T>(token);
     }
   }
+}
+
+// below functions are especially for ELR parser
+// since the cascade query is only used in ELR parser
+// so don't move them into ast.ts file
+
+function ASTNodeSelectorFactory<T>(
+  cascadeQueryPrefix: string | undefined
+): ASTNodeSelector<T> {
+  return (name: string, nodes: readonly ASTNode<T>[]) => {
+    const result: ASTNode<T>[] = [];
+    nodes.forEach((n) => {
+      if (n.name === name) result.push(n);
+
+      // cascade query
+      if (
+        cascadeQueryPrefix !== undefined &&
+        n.name.startsWith(cascadeQueryPrefix)
+      )
+        result.push(...n.$(name));
+    });
+    return result;
+  };
+}
+
+function ASTNodeChildrenSelectorFactory<T>(
+  nodes: readonly ASTNode<T>[],
+  cascadeQueryPrefix: string | undefined
+): ASTNodeChildrenSelector<T> {
+  return (name: string) =>
+    ASTNodeSelectorFactory<T>(cascadeQueryPrefix)(name, nodes);
 }
