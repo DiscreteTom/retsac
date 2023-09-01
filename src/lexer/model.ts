@@ -22,6 +22,23 @@ export type Definition<E> = {
 export interface ILexer<E> {
   debug: boolean;
   logger: Logger;
+  get defs(): readonly Readonly<Definition<E>>[];
+  /**
+   * The entire input string.
+   */
+  get buffer(): string;
+  /**
+   * How many chars are digested.
+   */
+  get digested(): number;
+  /**
+   * Get how many chars in each line.
+   */
+  get lineChars(): readonly number[];
+  /**
+   * Get error tokens.
+   */
+  get errors(): readonly Token<E>[];
   reset(): this;
   /**
    * Clone a new lexer with the same state and definitions.
@@ -35,8 +52,6 @@ export interface ILexer<E> {
   dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer<E>;
   /** Append buffer with input. */
   feed(input: string): this;
-  /** How many chars are digested. */
-  get digested(): number;
   /**
    * Take `n` chars from the rest of buffer and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).
@@ -98,17 +113,9 @@ export interface ILexer<E> {
    */
   getTokenTypes(): Set<string>;
   /**
-   * Get how many chars in each line.
-   */
-  getLineChars(): readonly number[];
-  /**
    * Get line number (starts from 1) and column number (starts from 1)
    * from the index (starts from 0) of the input string.
    */
   getPos(index: number): { line: number; column: number };
-  /**
-   * Get error tokens.
-   */
-  getErrors(): readonly Token<E>[];
   hasErrors(): boolean;
 }

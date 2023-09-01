@@ -9,21 +9,21 @@ import { esc4regex } from "./utils";
 export class Lexer<E> implements ILexer<E> {
   debug: boolean;
   logger: Logger;
-  private readonly defs: readonly Readonly<Definition<E>>[];
+  readonly defs: readonly Readonly<Definition<E>>[];
   /** Only `feed`, `reset` can modify this var. */
-  private buffer: string;
+  private _buffer: string;
   /**
    * How many chars are digested.
    * Only `update`, `reset` can modify this var.
    */
-  private offset: number;
+  private _digested: number;
   /**
    * How many chars in each line.
    * Only `update`, `reset` can modify this var.
    */
-  private lineChars: number[];
+  private _lineChars: number[];
   /** Error token list. */
-  private errors: Token<E>[];
+  private _errors: Token<E>[];
   /**
    * Cache whether this lexer already trim start.
    * Only `update`, `feed`, `reset`, `trimStart` can modify this var.
@@ -45,6 +45,22 @@ export class Lexer<E> implements ILexer<E> {
     this.reset();
   }
 
+  get buffer() {
+    return this._buffer;
+  }
+
+  get digested() {
+    return this._digested;
+  }
+
+  get lineChars(): readonly number[] {
+    return this._lineChars;
+  }
+
+  get errors(): readonly Token<E>[] {
+    return this._errors;
+  }
+
   /**
    * Log message if debug.
    * Use factory to prevent unnecessary string concat.
@@ -55,10 +71,10 @@ export class Lexer<E> implements ILexer<E> {
 
   reset() {
     this.log(() => `[Lexer.reset]`);
-    this.buffer = "";
-    this.offset = 0;
-    this.lineChars = [0];
-    this.errors = [];
+    this._buffer = "";
+    this._digested = 0;
+    this._lineChars = [0];
+    this._errors = [];
     this.trimmed = true; // no input yet, so no need to trim
     this.rest = undefined;
     return this;
@@ -73,10 +89,10 @@ export class Lexer<E> implements ILexer<E> {
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = this.dryClone(options);
-    res.buffer = this.buffer;
-    res.offset = this.offset;
-    res.lineChars = [...this.lineChars];
-    res.errors = [...this.errors];
+    res._buffer = this._buffer;
+    res._digested = this._digested;
+    res._lineChars = [...this._lineChars];
+    res._errors = [...this._errors];
     res.trimmed = this.trimmed;
     res.rest = this.rest;
     return res;
@@ -85,18 +101,14 @@ export class Lexer<E> implements ILexer<E> {
   feed(input: string) {
     if (input.length == 0) return this;
     this.log(() => `[Lexer.feed] ${input.length} chars`);
-    this.buffer += input;
+    this._buffer += input;
     this.trimmed = false; // maybe the new feed chars can construct a new token
     this.rest = undefined; // clear cache
     return this;
   }
 
-  get digested() {
-    return this.offset;
-  }
-
   take(n = 1) {
-    const content = this.buffer.slice(this.offset, this.offset + n);
+    const content = this._buffer.slice(this._digested, this._digested + n);
 
     if (n > 0)
       // stringify to escape '\n'
@@ -118,15 +130,15 @@ export class Lexer<E> implements ILexer<E> {
     if ((options?.autoGlobal ?? true) && !regex.global && !regex.sticky)
       regex = new RegExp(regex.source, regex.flags + "g");
 
-    regex.lastIndex = this.offset;
-    const res = regex.exec(this.buffer);
+    regex.lastIndex = this._digested;
+    const res = regex.exec(this._buffer);
 
     if (!res || res.index == -1) {
       this.log(() => `[Lexer.takeUntil] no match with regex ${regex}`);
       return "";
     }
 
-    const content = this.buffer.slice(this.offset, res.index + 1);
+    const content = this._buffer.slice(this._digested, res.index + 1);
     this.log(
       () =>
         `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`
@@ -137,16 +149,16 @@ export class Lexer<E> implements ILexer<E> {
 
   /** Update inner states. */
   private update(digested: number, content: string) {
-    this.offset += digested;
-    this.trimmed = this.offset == this.buffer.length; // if all chars are digested, no need to trim
+    this._digested += digested;
+    this.trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
     this.rest = undefined; // clear cache
     // calculate line chars
     // `split` is faster than iterate all chars
     content.split("\n").forEach((part, i, list) => {
-      this.lineChars[this.lineChars.length - 1] += part.length;
+      this._lineChars[this._lineChars.length - 1] += part.length;
       if (i != list.length - 1) {
-        this.lineChars[this.lineChars.length - 1]++; // add '\n'
-        this.lineChars.push(0); // new line with 0 chars
+        this._lineChars[this._lineChars.length - 1]++; // add '\n'
+        this._lineChars.push(0); // new line with 0 chars
       }
     });
     return this;
@@ -202,8 +214,8 @@ export class Lexer<E> implements ILexer<E> {
       let muted = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
-        buffer: this.buffer,
-        start: this.offset,
+        buffer: this._buffer,
+        start: this._digested,
         rest: this.rest,
       });
       for (const def of this.defs) {
@@ -215,7 +227,7 @@ export class Lexer<E> implements ILexer<E> {
           // expectation mismatch
           ((expect.type !== undefined && def.type != expect.type) ||
             (expect.text !== undefined &&
-              !this.buffer.startsWith(expect.text, this.offset)))
+              !this._buffer.startsWith(expect.text, this._digested)))
         ) {
           this.log(
             () =>
@@ -253,7 +265,7 @@ export class Lexer<E> implements ILexer<E> {
           const token = this.res2token(res, def);
 
           // collect errors
-          if (token.error) this.errors.push(token);
+          if (token.error) this._errors.push(token);
 
           if (!res.muted) {
             // emit token
@@ -334,8 +346,8 @@ export class Lexer<E> implements ILexer<E> {
       let mute = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
-        buffer: this.buffer,
-        start: this.offset,
+        buffer: this._buffer,
+        start: this._digested,
         rest: this.rest,
       });
       for (const def of this.defs) {
@@ -380,7 +392,7 @@ export class Lexer<E> implements ILexer<E> {
           const token = this.res2token(res, def);
 
           // collect errors
-          if (token.error) this.errors.push(token);
+          if (token.error) this._errors.push(token);
 
           // since muted, re-loop all definitions
           mute = true;
@@ -403,21 +415,17 @@ export class Lexer<E> implements ILexer<E> {
   }
 
   getRest() {
-    return this.rest ?? (this.rest = this.buffer.slice(this.offset));
+    return this.rest ?? (this.rest = this._buffer.slice(this.digested));
   }
 
   hasRest() {
-    return this.offset < this.buffer.length;
+    return this.digested < this.buffer.length;
   }
 
   getTokenTypes() {
     const res: Set<string> = new Set();
     this.defs.forEach((d) => res.add(d.type));
     return res;
-  }
-
-  getLineChars(): readonly number[] {
-    return this.lineChars;
   }
 
   getPos(index: number): { line: number; column: number } {
@@ -434,11 +442,7 @@ export class Lexer<E> implements ILexer<E> {
     return result;
   }
 
-  getErrors(): readonly Token<E>[] {
-    return this.errors;
-  }
-
   hasErrors() {
-    return this.errors.length != 0;
+    return this._errors.length != 0;
   }
 }

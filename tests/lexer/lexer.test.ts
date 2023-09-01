@@ -101,12 +101,12 @@ test("lexAll with error", () => {
   // stop on error
   let tokens = lexer.reset().lexAll({ input: "error 123", stopOnError: true });
   expect(tokens.map((token) => token.content)).toEqual(["error"]);
-  expect(lexer.getErrors()[0].error).toBe("some error");
+  expect(lexer.errors[0].error).toBe("some error");
 
   // don't stop on error
   tokens = lexer.reset().lexAll({ input: "error 123" });
   expect(tokens.map((token) => token.content)).toEqual(["error", "123"]);
-  expect(lexer.getErrors()[0].error).toBe("some error");
+  expect(lexer.errors[0].error).toBe("some error");
 });
 
 test("reset lexer", () => {
@@ -114,12 +114,12 @@ test("reset lexer", () => {
   lexer.reset();
   expect(lexer.hasRest()).toBe(false);
   expect(lexer.hasErrors()).toBe(false);
-  expect(lexer.getLineChars()).toEqual([0]);
+  expect(lexer.lineChars).toEqual([0]);
 });
 
 test("getLineChars & getPos", () => {
   lexer.reset().feed("123\n12345\n1234567").lexAll();
-  expect(lexer.getLineChars()).toEqual([4, 6, 7]);
+  expect(lexer.lineChars).toEqual([4, 6, 7]);
   expect(lexer.getPos(0)).toEqual({ line: 1, column: 1 });
   expect(lexer.getPos(1)).toEqual({ line: 1, column: 2 });
   expect(lexer.getPos(3)).toEqual({ line: 1, column: 4 });
@@ -136,7 +136,7 @@ test("clone & dryClone", () => {
   const lexerClone = lexer.clone();
   expect(lexerClone.getRest()).toBe(lexer.getRest());
   expect(lexer.getPos(5)).toEqual(lexerClone.getPos(5));
-  expect(lexer.getErrors()).toEqual(lexerClone.getErrors());
+  expect(lexer.errors).toEqual(lexerClone.errors);
 
   // ensure cloned state is independent from the original
   lexerClone.reset().lex("123");
