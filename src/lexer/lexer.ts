@@ -174,13 +174,13 @@ export class Lexer<E> implements ILexer<E> {
     if (typeof input === "string") {
       this.feed(input);
     } else {
-      if (input?.input) this.feed(input.input);
+      if (input.input) this.feed(input.input);
     }
 
     // calculate expect
     const expect = {
-      type: typeof input === "string" ? undefined : input?.expect?.type,
-      text: typeof input === "string" ? undefined : input?.expect?.text,
+      type: typeof input === "string" ? undefined : input.expect?.type,
+      text: typeof input === "string" ? undefined : input.expect?.text,
     };
 
     if (expect.type || expect.text)
@@ -302,11 +302,11 @@ export class Lexer<E> implements ILexer<E> {
     if (typeof input === "string") {
       this.feed(input);
     } else {
-      if (input?.input) this.feed(input.input);
+      if (input.input) this.feed(input.input);
     }
 
     const stopOnError =
-      typeof input === "string" ? false : input?.stopOnError ?? false;
+      typeof input === "string" ? false : input.stopOnError ?? false;
 
     const result: Token<E>[] = [];
     while (true) {
