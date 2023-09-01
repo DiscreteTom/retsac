@@ -70,6 +70,7 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
   }
 }
 
+// TODO: default T
 export class ASTNode<T> {
   /**
    * T's or NT's name.

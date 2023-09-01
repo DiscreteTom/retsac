@@ -1,5 +1,6 @@
 export type ParserTraverseErrorType = "MISSING_TRAVERSER";
 
+// TODO: refactor this
 export class ParserTraverseError extends Error {
   type: ParserTraverseErrorType;
 
