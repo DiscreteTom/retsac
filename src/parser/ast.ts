@@ -203,7 +203,7 @@ export class ASTNode<T> {
       (this.str =
         `${this.type == "" ? anonymous : this.type}` +
         `${this.name == this.type ? "" : `(${this.name})`}` +
-        `${this.text ? `: ${this.text}` : ""}`)
+        `${this.text ? `: ${JSON.stringify(this.text)}` : ""}`)
     );
   }
 
