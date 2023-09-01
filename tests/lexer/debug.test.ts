@@ -4,6 +4,7 @@ test("lexer debug lex", () => {
   const logger = jest.fn();
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces)
+    .anonymous(Lexer.exact(..."+-*/()"))
     .define({
       hash: /#/,
       string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
@@ -11,7 +12,6 @@ test("lexer debug lex", () => {
     })
     .build({ debug: true, logger });
 
-  // generate logs
   lexer.reset();
   expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
 
@@ -42,28 +42,43 @@ test("lexer debug lex", () => {
   expect(logger).toHaveBeenCalledWith(
     '[Lexer.lex] unexpected: {"type":"string","content":"\'123\'"}'
   );
+
+  lexer.reset().lex({ input: "123", expect: { type: "number" } });
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.lex] skip <anonymous> (unexpected and never muted)"
+  );
+
+  lexer.reset().lex("+");
+  expect(logger).toHaveBeenCalledWith('[Lexer.lex] accept <anonymous>: "+"');
+  lexer.reset().lex(" ");
+  expect(logger).toHaveBeenCalledWith(
+    '[Lexer.lex] accept <anonymous>(muted): " "'
+  );
 });
 
 test("lexer debug trimStart", () => {
   const logger = jest.fn();
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces)
+    .anonymous(Lexer.exact("!"))
+    .anonymous(Lexer.exact(..."+-*/()").mute(() => false)) // set maybe-mute, but do not mute
     .define({
       hash: /#/,
       string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
-      number: Lexer.numericLiteral().mute(() => false),
+      number: Lexer.numericLiteral().mute(() => false), // set maybe-mute, but do not mute
     })
     .build({ debug: true, logger });
 
   // generate logs
   lexer.reset();
-  lexer.trimStart(); // no rest
   lexer.trimStart(" 123");
   lexer.reset().trimStart("$"); // no accept
 
   // check logs
   expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
-  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no rest");
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.trimStart] skip <anonymous> (never muted)"
+  );
   expect(logger).toHaveBeenCalledWith(
     "[Lexer.trimStart] skip hash (never muted)"
   );
@@ -75,6 +90,11 @@ test("lexer debug trimStart", () => {
   );
   expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] rejected: string");
   expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
+
+  lexer.reset().trimStart("+");
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.trimStart] not muted: <anonymous>, stop trimming"
+  );
 });
 
 test("lexer clone with debug", () => {
@@ -88,4 +108,12 @@ test("lexer clone with debug", () => {
   expect(lexer.dryClone({ debug: true }).debug).toBe(true); // override debug
   expect(lexer.dryClone({ debug: false }).debug).toBe(false); // override debug
   expect(lexer.dryClone({ logger: console.log }).logger).toBe(console.log); // override logger
+});
+
+test("lexer debug takeUntil", () => {
+  const logger = jest.fn();
+  const lexer = new Lexer.Builder().build({ debug: true, logger });
+
+  lexer.reset().feed("123").takeUntil("3");
+  expect(logger).toHaveBeenCalledWith('[Lexer.takeUntil] 3 chars: "123"');
 });

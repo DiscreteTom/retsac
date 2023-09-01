@@ -1,5 +1,5 @@
 import { Lexer } from "../../src";
-import { Action, Token } from "../../src/lexer";
+import { Action, InvalidLengthForTakeError, Token } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces)
@@ -43,6 +43,21 @@ test("lexer take", () => {
   expect(lexer.reset().feed("123").take(3)).toBe("123");
   expect(lexer.getRest()).toBe("");
   expect(lexer.digested).toBe(3);
+  expect(() => lexer.reset().feed("123").take(0)).toThrow(
+    InvalidLengthForTakeError
+  );
+  expect(() => lexer.reset().feed("123").take(-1)).toThrow(
+    InvalidLengthForTakeError
+  );
+});
+
+test("lexer takeUntil", () => {
+  expect(lexer.reset().feed("123").takeUntil("3")).toBe("123");
+  expect(lexer.reset().feed("123").takeUntil(/3/)).toBe("123");
+  expect(lexer.reset().feed("123").takeUntil(/4/)).toBe("");
+  expect(lexer.reset().feed("123").takeUntil(/3/g, { autoGlobal: false })).toBe(
+    "123"
+  );
 });
 
 test("number", () => {
@@ -83,11 +98,14 @@ test("lexAll", () => {
 });
 
 test("lexAll with error", () => {
-  const tokens = lexer
-    .reset()
-    .lexAll({ input: "error 123", stopOnError: true });
-
+  // stop on error
+  let tokens = lexer.reset().lexAll({ input: "error 123", stopOnError: true });
   expect(tokens.map((token) => token.content)).toEqual(["error"]);
+  expect(lexer.getErrors()[0].error).toBe("some error");
+
+  // don't stop on error
+  tokens = lexer.reset().lexAll({ input: "error 123" });
+  expect(tokens.map((token) => token.content)).toEqual(["error", "123"]);
   expect(lexer.getErrors()[0].error).toBe("some error");
 });
 

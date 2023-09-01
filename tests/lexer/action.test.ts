@@ -3,6 +3,7 @@ import {
   AcceptedActionOutput,
   ActionInput,
   ActionSource,
+  CaretNotAllowedError,
 } from "../../src/lexer";
 
 function expectAccept(
@@ -10,9 +11,10 @@ function expectAccept(
   src: ActionSource<any>,
   override?: Partial<AcceptedActionOutput<any>>
 ) {
+  const action = Action.from(src);
+
   // normal test
-  let input = new ActionInput({ buffer, start: 0 });
-  let action = Action.from(src);
+  let input = new ActionInput({ buffer, start: 0, rest: buffer });
   let output = action.exec(input) as AcceptedActionOutput<any>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
@@ -25,23 +27,22 @@ function expectAccept(
 
   // additional test for #6
   // set start to 1 to verify that action's output's digest is not affected
-  buffer = " " + buffer;
-  input = new ActionInput({ buffer, start: 1 });
-  action = Action.from(src);
+  const newBuffer = " " + buffer;
+  input = new ActionInput({ buffer: newBuffer, start: 1 });
   output = action.exec(input) as AcceptedActionOutput<any>;
   expect(output.accept).toBe(true);
-  expect(output.buffer).toBe(override?.buffer ?? buffer);
+  expect(output.buffer).toBe(" " + (override?.buffer ?? buffer));
   expect(output.start).toBe((override?.start ?? 0) + 1);
-  expect(output.digested).toBe(override?.digested ?? buffer.length - 1);
-  expect(output.content).toBe(override?.content ?? buffer.slice(1));
+  expect(output.digested).toBe(override?.digested ?? buffer.length);
+  expect(output.content).toBe(override?.content ?? buffer);
   expect(output.rest).toBe(override?.rest ?? "");
   expect(output.error).toBe(override?.error ?? undefined);
   expect(output.muted).toBe(override?.muted ?? false);
 }
 
 function expectReject(buffer: string, src: ActionSource<any>) {
-  const input = new ActionInput({ buffer, start: 0 });
   const action = Action.from(src);
+  const input = new ActionInput({ buffer, start: 0 });
   const output = action.exec(input);
   expect(output.accept).toBe(false);
 }
@@ -49,15 +50,19 @@ function expectReject(buffer: string, src: ActionSource<any>) {
 describe("Lexer action constructor", () => {
   test("from simple", () => {
     const buffer = "123";
-    expectAccept(buffer, ({ buffer, start }) => buffer.slice(start)); // return string
-    expectAccept(buffer, ({ buffer, start }) => buffer.length - start); // return number
+    expectAccept(buffer, ({ rest }) => rest); // return string, accept
+    expectReject(buffer, () => ""); // return string, reject
+    expectAccept(buffer, ({ buffer, start }) => buffer.length - start); // return number, accept
+    expectReject(buffer, () => 0); // return number, reject
     // simple accepted output
-    expectAccept(buffer, ({ buffer, start }) => ({
-      content: buffer.slice(start),
+    expectAccept(buffer, ({ rest }) => ({
+      content: rest,
     }));
+    expectReject(buffer, () => ({ content: "" }));
     expectAccept(buffer, ({ buffer, start }) => ({
       digested: buffer.length - start,
     }));
+    expectReject(buffer, () => ({ digested: 0 }));
     expectAccept(buffer, ({ rest }) => ({
       digested: rest.length,
       content: rest,
@@ -238,10 +243,12 @@ describe("sticky regex related", () => {
   });
 
   test("reject caret", () => {
-    expect(() => Action.match(/^123/)).toThrow();
+    expect(() => Action.match(/^123/)).toThrow(CaretNotAllowedError);
   });
 
   test("allow caret", () => {
-    expect(() => Action.match(/^123/, { rejectCaret: false })).not.toThrow();
+    expect(() => Action.match(/^123/, { rejectCaret: false })).not.toThrow(
+      CaretNotAllowedError
+    );
   });
 });
