@@ -1,9 +1,10 @@
-import { AcceptedActionOutput, Action, ActionInput } from "../action";
+import { Action, ActionInput } from "../action";
 
 /**
  * Escape regex special characters.
  */
 export function esc4regex(str: string) {
+  // use the `g` flag to replace all occurrences
   return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
