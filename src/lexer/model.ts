@@ -44,8 +44,8 @@ export interface ILexer<E> {
   take(n?: number): string;
   /**
    * Take chars from the rest of buffer and update state until `pattern` matches.
-   * This is useful when you have external logic to handle the token (e.g. error handling).
    * The pattern will be included in the result.
+   * This is useful when you have external logic to handle the token (e.g. error handling).
    */
   takeUntil(
     pattern: string | RegExp,
