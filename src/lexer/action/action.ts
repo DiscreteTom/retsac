@@ -251,7 +251,7 @@ export class Action<E> {
   }
 
   /**
-   * Reduce actions to one action.
+   * Reduce actions to one action. Actions will be executed in order.
    * This will reduce the lexer loop times to optimize the performance.
    */
   static reduce<E>(...actions: ActionSource<E>[]) {
