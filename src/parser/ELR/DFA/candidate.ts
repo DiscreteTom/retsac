@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
-import { ASTNode } from "../../ast";
+import { ASTNode, ASTNodeQuerySelectorFactory } from "../../ast";
 import { ParserOutput } from "../../model";
 import {
   Grammar,
@@ -134,25 +134,13 @@ export class Candidate<T> {
   ): { res: ParserOutput<T>; context?: ParserContext<T>; commit?: boolean } {
     if (this.canDigestMore()) return { res: { accept: false } };
 
+    const matched = buffer.slice(-this.gr.rule.length);
     const context: ParserContext<T> = {
-      matched: buffer.slice(-this.gr.rule.length),
+      matched,
       before: buffer.slice(0, -this.gr.rule.length),
       after: lexer.getRest(),
       lexer,
-      $: (name) => {
-        const result: ASTNode<T>[] = [];
-        this.gr.rule.forEach((g, i) => {
-          if (g.name === name) result.push(context.matched[i]);
-
-          // cascade query
-          if (
-            cascadeQueryPrefix !== undefined &&
-            g.name.startsWith(cascadeQueryPrefix)
-          )
-            result.push(...context.matched[i].$(name));
-        });
-        return result;
-      },
+      $: ASTNodeQuerySelectorFactory(matched, cascadeQueryPrefix),
     };
 
     // check follow for LR(1) with the rest input string

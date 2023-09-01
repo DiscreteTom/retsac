@@ -1,21 +1,69 @@
 import { Token } from "../lexer";
 import { ParserTraverseError } from "./error";
 
-/** A structured interface for serialization. */
-export interface ASTObj {
-  /** T's or NT's name. */
+/**
+ * A structured type for serialization.
+ * Every field is not null/undefined.
+ */
+export type ASTObj = {
+  /**
+   * By default, this is the same as the type name.
+   * You can rename nodes in your grammar rules.
+   */
+  name: string;
+  /**
+   * T's or NT's name.
+   * If anonymous, the value is an empty string.
+   */
   type: string;
-  /** Start position of the input string. Same as the first token's start position. */
+  /**
+   * Start position of the whole input string.
+   * Same as the first token's start position.
+   */
   start: number;
-  /** T's text content. */
+  /**
+   * T's text content.
+   * If this is not a T, the value is an empty string.
+   */
   text: string;
-  /** NT's children. */
+  /**
+   * NT's children.
+   * If this is not an NT, the value is an empty array.
+   */
   children: ASTObj[];
-}
+};
 
+/**
+ * Select children nodes by the name.
+ */
 export type ASTNodeQuerySelector<T> = (name: string) => ASTNode<T>[];
 
+export function ASTNodeQuerySelectorFactory<T>(
+  nodes: ASTNode<T>[],
+  cascadeQueryPrefix?: string
+): ASTNodeQuerySelector<T> {
+  return (name: string) => {
+    const result: ASTNode<T>[] = [];
+    nodes.forEach((n) => {
+      if (n.name === name) result.push(n);
+
+      // cascade query
+      if (
+        cascadeQueryPrefix !== undefined &&
+        n.name.startsWith(cascadeQueryPrefix)
+      )
+        result.push(...n.$(name));
+    });
+    return result;
+  };
+}
+
 export class ASTNode<T> {
+  /**
+   * By default, this is the same as the type name.
+   * You can rename nodes in your grammar rules.
+   */
+  name: string;
   /** T's or NT's name. */
   readonly type: string;
   /** Start position of the input string. Same as the first token's start position. */
@@ -24,7 +72,7 @@ export class ASTNode<T> {
   readonly text?: string;
   /** NT's children. */
   readonly children?: readonly ASTNode<T>[];
-  /** Find AST node by its type name or literal value. */
+  /** Find AST node by its name. */
   readonly $: ASTNodeQuerySelector<T>;
   /**
    * `traverser` shouldn't be exposed
@@ -82,6 +130,7 @@ export class ASTNode<T> {
   /** Return an ASTObj for serialization. */
   toObj(): ASTObj {
     return {
+      name: this.name,
       type: this.type,
       start: this.start,
       text: this.text || "",
