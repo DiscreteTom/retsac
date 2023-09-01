@@ -133,7 +133,7 @@ export class Lexer<E> implements ILexer<E> {
   /** Update inner states. */
   private update(digested: number, content: string) {
     this.offset += digested;
-    this.trimmed = false;
+    this.trimmed = this.offset == this.buffer.length; // if all chars are digested, no need to trim
     this.rest = undefined; // clear cache
     // calculate line chars
     // `split` is faster than iterate all chars
@@ -322,15 +322,10 @@ export class Lexer<E> implements ILexer<E> {
   trimStart(input = "") {
     this.feed(input);
 
-    // already trimmed
-    if (this.trimmed) return this;
-
     while (true) {
-      if (!this.hasRest()) {
-        this.log(() => `[Lexer.trimStart] no rest`);
-        this.trimmed = true;
-        return this;
-      }
+      // when no rest, this.trimmed is set to true by this.update
+      if (this.trimmed) return this;
+
       let mute = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
