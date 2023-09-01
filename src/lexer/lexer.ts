@@ -24,10 +24,14 @@ export class Lexer<E> implements ILexer<E> {
   private lineChars: number[];
   /** Error token list. */
   private errors: Token<E>[];
-  /** Cache whether this lexer already trim start. */
+  /**
+   * Cache whether this lexer already trim start.
+   * Only `update`, `feed`, `reset`, `trimStart` can modify this var.
+   */
   private trimmed: boolean;
   /**
-   * This is lazy and cached. Only `update`, `reset` and `feed` can modify this var.
+   * This is lazy and cached.
+   * Only `update`, `reset` and `feed` can modify this var.
    */
   private rest?: string;
 
