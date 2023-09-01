@@ -83,7 +83,8 @@ export class Lexer<E> implements ILexer<E> {
   }
 
   feed(input: string) {
-    if (input.length > 0) this.log(() => `[Lexer.feed] ${input.length} chars`);
+    if (input.length == 0) return this;
+    this.log(() => `[Lexer.feed] ${input.length} chars`);
     this.buffer += input;
     this.trimmed = false; // maybe the new feed chars can construct a new token
     this.rest = undefined; // clear cache
