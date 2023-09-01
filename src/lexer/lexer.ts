@@ -121,7 +121,7 @@ export class Lexer<E> implements ILexer<E> {
       return "";
     }
 
-    const content = this.buffer.slice(this.offset, res.index);
+    const content = this.buffer.slice(this.offset, res.index + 1);
     this.log(
       () =>
         `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`
