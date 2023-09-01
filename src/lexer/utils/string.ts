@@ -11,7 +11,7 @@ import { esc4regex } from "./common";
  *
  * Set `multiline: true` to allow multiline string literals.
  */
-export function stringLiteral<E>(
+export function stringLiteral<E = string>(
   /** The open quote. */
   open: string,
   options?: {

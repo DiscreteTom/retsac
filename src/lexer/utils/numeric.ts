@@ -31,7 +31,7 @@ import { esc4regex } from "./common";
  *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
-export function numericLiteral<E>(options?: {
+export function numericLiteral<E = string>(options?: {
   /**
    * Default: `_`.
    */

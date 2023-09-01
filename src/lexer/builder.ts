@@ -9,7 +9,7 @@ export type LexerBuildOptions = {
 };
 
 /** Lexer builder. */
-export class Builder<E> {
+export class Builder<E = string> {
   private defs: Readonly<Definition<E>>[];
 
   constructor() {

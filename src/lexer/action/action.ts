@@ -18,7 +18,7 @@ export type SimpleActionExec<E> = (
 
 export type ActionSource<E> = RegExp | Action<E> | SimpleActionExec<E>;
 
-export class Action<E> {
+export class Action<E = string> {
   readonly exec: ActionExec<E>;
   /**
    * This flag is to indicate whether this action's output might be muted.
@@ -41,7 +41,7 @@ export class Action<E> {
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
-  static simple<E>(f: SimpleActionExec<E>): Action<E> {
+  static simple<E = string>(f: SimpleActionExec<E>): Action<E> {
     return new Action((input) => {
       const res = f(input);
       if (typeof res == "number") {
@@ -81,7 +81,7 @@ export class Action<E> {
     });
   }
 
-  static match<E>(
+  static match<E = string>(
     r: RegExp,
     options?: {
       /**
@@ -124,7 +124,7 @@ export class Action<E> {
     });
   }
 
-  static from<E>(r: ActionSource<E>): Action<E> {
+  static from<E = string>(r: ActionSource<E>): Action<E> {
     return r instanceof RegExp
       ? Action.match<E>(r)
       : r instanceof Action
@@ -254,7 +254,7 @@ export class Action<E> {
    * Reduce actions to one action. Actions will be executed in order.
    * This will reduce the lexer loop times to optimize the performance.
    */
-  static reduce<E>(...actions: ActionSource<E>[]) {
+  static reduce<E = string>(...actions: ActionSource<E>[]) {
     return Action.from<E>(actions.reduce((a, b) => Action.from<E>(a).or(b)));
   }
 }
