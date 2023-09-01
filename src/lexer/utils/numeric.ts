@@ -1,7 +1,6 @@
 import { Action } from "../action";
 import { esc4regex } from "./common";
 
-// TODO: split this into multiple functions? e.g. numericLiteral, invalidNumericLiteral
 /**
  * Match the literal representations of numbers in JavaScript code.
  *
@@ -33,23 +32,31 @@ import { esc4regex } from "./common";
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
 export function numericLiteral<E>(options?: {
+  /**
+   * Default: `_`.
+   */
   numericSeparator?: string | false;
   /**
-   * If `true` (by default), the numeric literal must have a boundary at the end (non inclusive).
+   * If `true`, the numeric literal must have a boundary at the end (non inclusive).
+   * Default: `true`.
    */
   boundary?: boolean;
   /**
-   * If `true` (by default), common invalid numeric literals will also be accepted and marked with `options.invalidError`.
+   * If `true`, common invalid numeric literals will also be accepted and marked with `options.invalidError`.
+   * Default: `true`.
    */
   acceptInvalid?: boolean;
-  /** Default: `"invalid numeric literal"` */
+  /**
+   * Default: `"invalid numeric literal"`
+   */
   invalidError?: E;
 }): Action<E> {
   const enableSeparator = !(options?.numericSeparator === false);
-  const separator = esc4regex(String(options?.numericSeparator ?? "_"));
+  const separator = esc4regex(String(options?.numericSeparator ?? "_")); // use String to handle `false`
   const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
-  const invalidError = options?.invalidError ?? "invalid numeric literal";
+  const invalidError =
+    options?.invalidError ?? ("invalid numeric literal" as E);
 
   // ensure non-capture group to optimize performance
   const valid = Action.from<E>(
@@ -63,21 +70,16 @@ export function numericLiteral<E>(options?: {
       : new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
             boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
-          }}`,
+          }`,
           "i"
         )
   );
   const invalid = Action.from<E>(
     /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
-  ).check(() => invalidError) as Action<E>;
+  ).check(() => invalidError);
 
   if (acceptInvalid) {
-    return new Action<E>((buffer) => {
-      // try match valid first
-      const res = valid.exec(buffer);
-      if (res.accept) return res;
-      return invalid.exec(buffer);
-    });
+    return Action.reduce(valid, invalid);
   } else {
     // only accept valid numbers
     return valid;
