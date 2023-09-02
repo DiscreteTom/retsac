@@ -109,7 +109,7 @@ export class Grammar {
    * Format: `kind(name): text`.
    */
   static getString(data: Pick<Grammar, "kind" | "name" | "text">) {
-    return ASTNode.getString(data);
+    return ASTNode.getStringWithName(data);
   }
 
   /**
@@ -126,7 +126,7 @@ export class Grammar {
    * Format: `kind: text`.
    */
   static getUniqueString(data: Pick<Grammar, "kind" | "text">) {
-    return ASTNode.getUniqueString(data);
+    return ASTNode.getString(data);
   }
 
   /**
@@ -325,7 +325,7 @@ export class GrammarSet {
   }
 
   has(g: Readonly<Grammar> | Readonly<ASTNode<any>>) {
-    return this.gs.has(g.toUniqueString()); // Grammar & ASTNode has the same unique string format
+    return this.gs.has(g.toString()); // Grammar & ASTNode has the same unique string format
   }
 
   /**

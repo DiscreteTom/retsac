@@ -89,7 +89,7 @@ export class DFA<T> {
       this.log(
         `[Re-Lex] Restored input: "${restoredInput}" Trying: ${buffer
           .at(-1)!
-          .toString()}`
+          .toStringWithName()}`
       );
     };
 
@@ -155,7 +155,7 @@ export class DFA<T> {
           this.log(
             `[End] No more candidate. Node=${buffer
               .at(-1)
-              ?.toString()} Candidates:\n${stateStack
+              ?.toStringWithName()} Candidates:\n${stateStack
               .at(-1)!
               .candidates.map((c) => c.toString())
               .join("\n")}`

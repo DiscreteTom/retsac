@@ -113,10 +113,6 @@ export class ASTNode<T> {
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
   private _name: string;
-  /**
-   * Cache the string representation.
-   */
-  private str?: string;
 
   constructor(
     p: Pick<
@@ -155,39 +151,42 @@ export class ASTNode<T> {
 
   set name(name: string) {
     this._name = name;
-    this.str = undefined; // clear the cache
+    this.strWithName = undefined; // clear the cache
   }
 
   /**
    * Return a tree-structured string.
-   * The result is not cached.
+   * The result is NOT cached.
    */
-  toTreeString(options?: {
-    initialIndent?: string;
-    indent?: string;
-    anonymous?: string;
-  }) {
-    const initialIndent = options?.initialIndent ?? "";
-    const indent = options?.indent ?? "  ";
-    const anonymous = options?.anonymous ?? "<anonymous>";
+  toTreeString(options?: { indent?: string }) {
+    const indent = options?.indent ?? "";
 
-    let res = `${initialIndent}${
-      this.kind == ""
-        ? anonymous
-        : this.kind == this.name
-        ? this.kind
-        : `${this.kind}(${this.name})`
-    }: `;
-    if (this.text) res += JSON.stringify(this.text); // quote the text
+    let res = `${indent}${this.toStringWithName()}`;
     res += "\n";
     this.children?.forEach((c) => {
       res += c.toTreeString({
-        initialIndent: initialIndent + indent,
-        indent,
-        anonymous,
+        indent: indent + "  ",
       });
     });
     return res;
+  }
+
+  /**
+   * Format: `kind: text`.
+   * This is lazy and cached.
+   */
+  toString() {
+    return this.str ?? (this.str = ASTNode.getString(this));
+  }
+  private str?: string;
+  /**
+   * Format: `kind: text`.
+   */
+  static getString(data: Pick<ASTNode<any>, "kind" | "text">) {
+    return (
+      `${data.kind == "" ? "<anonymous>" : data.kind}` +
+      `${data.text == undefined ? "" : `: ${data.text}`}`
+    );
   }
 
   /**
@@ -195,37 +194,20 @@ export class ASTNode<T> {
    * The result is lazy and cached.
    * This value will be changed if you change the name of this node.
    */
-  toString() {
-    return this.str ?? (this.str = ASTNode.getString(this));
+  toStringWithName() {
+    return (
+      this.strWithName ?? (this.strWithName = ASTNode.getStringWithName(this))
+    );
   }
-
+  private strWithName?: string;
   /**
    * Format: `kind(name): text`.
    */
-  static getString(data: Pick<ASTNode<any>, "kind" | "name" | "text">) {
+  static getStringWithName(data: Pick<ASTNode<any>, "kind" | "name" | "text">) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.name == data.kind ? "" : `(${data.name})`}` +
       `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
-    );
-  }
-
-  /**
-   * Format: `kind: text`.
-   * This is not changed by the name, so it's suitable to be a key in a map.
-   * This is lazy and cached.
-   */
-  toUniqueString() {
-    return this.uniqueStr ?? (this.uniqueStr = ASTNode.getUniqueString(this));
-  }
-  private uniqueStr?: string;
-  /**
-   * Format: `kind: text`.
-   */
-  static getUniqueString(data: Pick<ASTNode<any>, "kind" | "text">) {
-    return (
-      `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.text == undefined ? "" : `: ${data.text}`}`
     );
   }
 
