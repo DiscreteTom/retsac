@@ -111,20 +111,19 @@ export class Grammar {
   }
 
   /**
-   * This function is used to create temporary ASTNode for comparison.
+   * This is used when calculate all DFA state.
    * The result will be cached to prevent duplicated calculation.
    */
-  toTempASTNode() {
-    if (this.node) return this.node;
-    if (this.type == GrammarType.LITERAL) {
-      // const token = lexer.dryClone().lex(this.content);
-      // if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
-      return (this.node = new ASTNode({
+  toMockASTNode() {
+    return (
+      this.node ??
+      (this.node = new ASTNode({
         kind: this.kind,
         text: this.text,
         start: 0,
-      }));
-    } else return (this.node = new ASTNode({ kind: this.kind, start: 0 }));
+        // don't set name, since the name is set by the parent node
+      }))
+    );
   }
 
   /**

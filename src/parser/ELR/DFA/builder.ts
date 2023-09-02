@@ -138,7 +138,7 @@ function calculateAllStates<T>(
     });
   });
   // convert to mock AST node
-  const mockNodes = gs.map((g) => g.toTempASTNode());
+  const mockNodes = gs.map((g) => g.toMockASTNode());
 
   while (true) {
     let changed = false;
