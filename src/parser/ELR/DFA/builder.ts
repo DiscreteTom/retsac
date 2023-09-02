@@ -14,7 +14,12 @@ import {
 } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
-import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
+import {
+  getGrammarRulesClosure,
+  getAllNTClosure,
+  calculateAllStates,
+  processDefinitions,
+} from "./utils";
 
 export class DFABuilder {
   static build<T>(
@@ -126,91 +131,4 @@ export class DFABuilder {
       tempGrammarRules,
     };
   }
-}
-
-/**
- * Calculate state machine's state transition map ahead of time and cache.
- */
-function calculateAllStates<T>(
-  lexer: ILexer<any>,
-  allGrammarRules: readonly GrammarRule<T>[],
-  allStates: Map<string, State<T>>,
-  NTClosures: Map<string, GrammarRule<T>[]>,
-  allInitialCandidates: Map<string, Candidate<T>>
-) {
-  // collect all grammars in rules
-  const gs = new GrammarSet();
-  allGrammarRules.forEach((gr) => {
-    gr.rule.forEach((g) => {
-      gs.add(g);
-    });
-  });
-  // convert to mock AST node
-  const mockNodes = gs.map((g) => g.toMockASTNode());
-
-  while (true) {
-    let changed = false;
-    allStates.forEach((state) => {
-      mockNodes.forEach((node) => {
-        if (
-          state.getNext(node, NTClosures, allStates, allInitialCandidates)
-            .changed
-        )
-          changed = true;
-      });
-    });
-    if (!changed) break;
-  }
-}
-
-function processDefinitions<T>(
-  data: ParserBuilderData<T>,
-  resolvedTemp: ResolvedTempConflict<T>[]
-): {
-  tempGrammarRules: readonly TempGrammarRule<T>[];
-  NTs: ReadonlySet<string>;
-} {
-  const tempGrammarRules: TempGrammarRule<T>[] = [];
-  const NTs: Set<string> = new Set();
-
-  data.forEach((d) => {
-    const ctxBuilder = d.ctxBuilder;
-    const defs = d.defs;
-    const ctx = ctxBuilder?.build();
-    const grs = defToTempGRs(defs, ctx);
-
-    tempGrammarRules.push(...grs);
-    grs.forEach((gr) => {
-      NTs.add(gr.NT);
-    });
-
-    // handle resolved conflicts
-    ctx?.resolved?.forEach((r) => {
-      if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
-          grs.forEach((gr) => {
-            resolvedTemp.push({
-              type: ConflictType.REDUCE_REDUCE,
-              reducerRule: gr,
-              anotherRule: a,
-              options: r.options,
-            });
-          });
-        });
-      } else {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
-          grs.forEach((gr) => {
-            resolvedTemp.push({
-              type: ConflictType.REDUCE_SHIFT,
-              reducerRule: gr,
-              anotherRule: a,
-              options: r.options,
-            });
-          });
-        });
-      }
-    });
-  });
-
-  return { tempGrammarRules, NTs };
 }

@@ -1,6 +1,20 @@
 import { ILexer } from "../../../lexer";
 import { ASTNodeSelector, ASTNode } from "../../ast";
-import { Grammar, GrammarRule, GrammarType } from "../model";
+import {
+  ParserBuilderData,
+  ResolvedTempConflict,
+  TempGrammarRule,
+} from "../builder";
+import { defToTempGRs } from "../builder/utils/definition";
+import {
+  ConflictType,
+  Grammar,
+  GrammarRule,
+  GrammarSet,
+  GrammarType,
+} from "../model";
+import { Candidate } from "./candidate";
+import { State } from "./state";
 
 export function getAllNTClosure<T>(
   NTs: ReadonlySet<string>,
@@ -103,4 +117,91 @@ export function lexGrammar<T>(
   });
   if (token == null) return null;
   return { node: ASTNode.from<T>(token), lexer };
+}
+
+/**
+ * Calculate state machine's state transition map ahead of time and cache.
+ */
+export function calculateAllStates<T>(
+  lexer: ILexer<any>,
+  allGrammarRules: readonly GrammarRule<T>[],
+  allStates: Map<string, State<T>>,
+  NTClosures: Map<string, GrammarRule<T>[]>,
+  allInitialCandidates: Map<string, Candidate<T>>
+) {
+  // collect all grammars in rules
+  const gs = new GrammarSet();
+  allGrammarRules.forEach((gr) => {
+    gr.rule.forEach((g) => {
+      gs.add(g);
+    });
+  });
+  // convert to mock AST node
+  const mockNodes = gs.map((g) => g.toMockASTNode());
+
+  while (true) {
+    let changed = false;
+    allStates.forEach((state) => {
+      mockNodes.forEach((node) => {
+        if (
+          state.getNext(node, NTClosures, allStates, allInitialCandidates)
+            .changed
+        )
+          changed = true;
+      });
+    });
+    if (!changed) break;
+  }
+}
+
+export function processDefinitions<T>(
+  data: ParserBuilderData<T>,
+  resolvedTemp: ResolvedTempConflict<T>[]
+): {
+  tempGrammarRules: readonly TempGrammarRule<T>[];
+  NTs: ReadonlySet<string>;
+} {
+  const tempGrammarRules: TempGrammarRule<T>[] = [];
+  const NTs: Set<string> = new Set();
+
+  data.forEach((d) => {
+    const ctxBuilder = d.ctxBuilder;
+    const defs = d.defs;
+    const ctx = ctxBuilder?.build();
+    const grs = defToTempGRs(defs, ctx);
+
+    tempGrammarRules.push(...grs);
+    grs.forEach((gr) => {
+      NTs.add(gr.NT);
+    });
+
+    // handle resolved conflicts
+    ctx?.resolved?.forEach((r) => {
+      if (r.type == ConflictType.REDUCE_REDUCE) {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            resolvedTemp.push({
+              type: ConflictType.REDUCE_REDUCE,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      } else {
+        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+          grs.forEach((gr) => {
+            resolvedTemp.push({
+              type: ConflictType.REDUCE_SHIFT,
+              reducerRule: gr,
+              anotherRule: a,
+              options: r.options,
+            });
+          });
+        });
+      }
+    });
+  });
+
+  return { tempGrammarRules, NTs };
 }
