@@ -249,6 +249,7 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
 // the function is especially for ELR parser
 // since the cascade query is only used in ELR parser
 // so don't move this into ast.ts file
+// TODO: move to utils to export
 function ASTNodeSelectorFactory<T>(
   cascadeQueryPrefix: string | undefined
 ): ASTNodeSelector<T> {
