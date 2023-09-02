@@ -14,10 +14,9 @@ export type AcceptedParserOutput<T> = {
 };
 
 export const rejectedParserOutput = Object.freeze({ accept: false });
+export type RejectedParserOutput = typeof rejectedParserOutput;
 
-export type ParserOutput<T> =
-  | typeof rejectedParserOutput
-  | AcceptedParserOutput<T>;
+export type ParserOutput<T> = RejectedParserOutput | AcceptedParserOutput<T>;
 
 /**
  * The `input` will be fed to the lexer.
