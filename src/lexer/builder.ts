@@ -1,12 +1,8 @@
-import { Logger } from "../model";
 import { Action, ActionSource } from "./action";
 import { Lexer } from "./lexer";
-import { Definition } from "./model";
+import { Definition, ILexer } from "./model";
 
-export type LexerBuildOptions = {
-  debug?: boolean;
-  logger?: Logger;
-};
+export type LexerBuildOptions = Partial<Pick<ILexer<any>, "logger" | "debug">>;
 
 /** Lexer builder. */
 export class Builder<E = string> {
