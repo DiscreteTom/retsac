@@ -1,5 +1,6 @@
+import { ILexer } from "../../../lexer";
 import { ASTNodeSelector, ASTNode } from "../../ast";
-import { GrammarRule, GrammarType } from "../model";
+import { Grammar, GrammarRule, GrammarType } from "../model";
 
 export function getAllNTClosure<T>(
   NTs: ReadonlySet<string>,
@@ -77,4 +78,27 @@ export function ASTNodeSelectorFactory<T>(
     });
     return result;
   };
+}
+
+/** Try to use lexer to get the specified grammar. */
+export function lexGrammar<T>(
+  g: Grammar,
+  lexer: ILexer<any>
+): ASTNode<T> | null {
+  if (g.type == GrammarType.NT) {
+    return null;
+  } else {
+    // try to lex to get the token
+    const token = lexer.lex({
+      expect: {
+        kind: g.kind,
+        text: g.text,
+      },
+    });
+    if (token == null) {
+      return null;
+    } else {
+      return ASTNode.from<T>(token);
+    }
+  }
 }

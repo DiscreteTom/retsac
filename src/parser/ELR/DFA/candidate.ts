@@ -2,14 +2,8 @@ import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
-import {
-  Grammar,
-  GrammarRule,
-  GrammarSet,
-  GrammarType,
-  GrammarRuleContext,
-} from "../model";
-import { ASTNodeSelectorFactory } from "./utils";
+import { GrammarRule, GrammarSet, GrammarRuleContext } from "../model";
+import { ASTNodeSelectorFactory, lexGrammar } from "./utils";
 
 /** Candidate for ELR parsers. */
 export class Candidate<T> {
@@ -224,25 +218,5 @@ export class Candidate<T> {
       context,
       commit: this.gr.commit(context),
     };
-  }
-}
-
-/** Try to use lexer to get the specified grammar. */
-function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
-  if (g.type == GrammarType.NT) {
-    return null;
-  } else {
-    // try to lex to get the token
-    const token = lexer.lex({
-      expect: {
-        kind: g.kind,
-        text: g.text,
-      },
-    });
-    if (token == null) {
-      return null;
-    } else {
-      return ASTNode.from<T>(token);
-    }
   }
 }
