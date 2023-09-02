@@ -18,6 +18,7 @@
   - Feat: add typed error.
   - Feat: add `ILexer.takeUntil`. [#16](https://github.com/DiscreteTom/retsac/issues/16)
   - Feat: add `Lexer.utils.regexLiteral`. [#15](https://github.com/DiscreteTom/retsac/issues/15)
+  - Feat: add `ILexer.lex.peek`.
 - Parser
   - Feat: add `name` for `ASTNode` and `ASTObj`.
     - **_Breaking Change_**: `ASTNode.toTreeString` will also print `ASTNode.name`.

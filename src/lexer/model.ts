@@ -98,6 +98,11 @@ export interface ILexer<E> {
             kind?: string;
             text?: string;
           }>;
+          /**
+           * If `true`, the lexer will not update its state.
+           * Default: `false`.
+           */
+          peek?: boolean;
         }>
   ): Token<E> | null;
   /**

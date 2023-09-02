@@ -181,6 +181,7 @@ export class Lexer<E> implements ILexer<E> {
             kind?: string;
             text?: string;
           }>;
+          peek?: boolean;
         }> = ""
   ): Token<E> | null {
     // feed input if provided
@@ -190,14 +191,22 @@ export class Lexer<E> implements ILexer<E> {
       if (input.input) this.feed(input.input);
     }
 
-    // calculate expect
+    // calculate expect & peek
     const expect = {
       kind: typeof input === "string" ? undefined : input.expect?.kind,
       text: typeof input === "string" ? undefined : input.expect?.text,
     };
+    const peek = typeof input === "string" ? false : input.peek ?? false;
 
-    if (expect.kind || expect.text)
-      this.log(() => `[Lexer.lex] expect ${JSON.stringify(expect)}`);
+    // debug output
+    if (expect.kind || expect.text) {
+      this.log(
+        () =>
+          `[Lexer.lex] expect${peek ? "(peek)" : ""} ${JSON.stringify(expect)}`
+      );
+    } else {
+      if (peek) this.log(() => `[Lexer.lex] peek`);
+    }
 
     while (true) {
       // first, check rest
@@ -255,13 +264,13 @@ export class Lexer<E> implements ILexer<E> {
               }: ${JSON.stringify(res.content)}`
           );
           // update this state
-          this.update(res.digested, res.content);
+          if (!peek) this.update(res.digested, res.content);
 
           // construct token
           const token = this.res2token(res, def);
 
           // collect errors
-          if (token.error) this.errors.push(token);
+          if (!peek && token.error) this.errors.push(token);
 
           if (!res.muted) {
             // emit token
