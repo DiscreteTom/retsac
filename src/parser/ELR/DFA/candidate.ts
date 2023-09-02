@@ -23,7 +23,7 @@ export class Candidate<T> {
    */
   readonly digested: number;
   /**
-   * `ASTNode.uniqueString => candidate`.
+   * `ASTNode.toString => candidate`.
    * This will be calculated during `DFA.calculateAllStates`.
    * `null` means the node can not be accepted.
    */
