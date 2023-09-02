@@ -1,8 +1,8 @@
 import { ASTNode } from "../../src/parser";
 
 test("from token", () => {
-  const node = ASTNode.from({ content: "123", type: "num", start: 0 });
-  expect(node.type).toBe("num");
+  const node = ASTNode.from({ content: "123", kind: "num", start: 0 });
+  expect(node.kind).toBe("num");
   expect(node.start).toBe(0);
   expect(node.text).toBe("123");
   expect(node.children).toBe(undefined);
@@ -12,19 +12,19 @@ test("from token", () => {
 });
 
 test("to obj", () => {
-  const node1 = ASTNode.from({ content: "123", type: "num", start: 0 });
+  const node1 = ASTNode.from({ content: "123", kind: "num", start: 0 });
   const obj1 = node1.toObj();
 
   expect(obj1).toEqual({
     name: "num",
-    type: "num",
+    kind: "num",
     start: 0,
     text: "123",
     children: [],
   });
 
   const node2 = new ASTNode({
-    type: "exp",
+    kind: "exp",
     start: 0,
     children: [node1],
   });
@@ -32,13 +32,13 @@ test("to obj", () => {
 
   expect(obj2).toEqual({
     name: "exp",
-    type: "exp",
+    kind: "exp",
     start: 0,
     text: "",
     children: [
       {
         name: "num",
-        type: "num",
+        kind: "num",
         start: 0,
         text: "123",
         children: [],
@@ -49,22 +49,22 @@ test("to obj", () => {
 
 test("to string", () => {
   expect(
-    ASTNode.from({ start: 0, type: "num", content: "123" }).toString()
+    ASTNode.from({ start: 0, kind: "num", content: "123" }).toString()
   ).toBe(`num: "123"`);
 
-  expect(ASTNode.from({ start: 0, type: "", content: "+" }).toString()).toBe(
+  expect(ASTNode.from({ start: 0, kind: "", content: "+" }).toString()).toBe(
     `<anonymous>: "+"`
   );
 });
 
 test("to tree string", () => {
   const node = new ASTNode({
-    type: "exp",
+    kind: "exp",
     start: 0,
     children: [
-      new ASTNode({ type: "num", start: 0, text: "123" }),
-      new ASTNode({ type: "", start: 4, text: "+" }),
-      new ASTNode({ type: "num", start: 5, text: "123" }),
+      new ASTNode({ kind: "num", start: 0, text: "123" }),
+      new ASTNode({ kind: "", start: 4, text: "+" }),
+      new ASTNode({ kind: "num", start: 5, text: "123" }),
     ],
   });
 

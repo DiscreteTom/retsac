@@ -6,7 +6,7 @@ import {
   stringLiteral,
   whitespaces,
   word,
-  wordType,
+  wordKind,
 } from "../../src/lexer";
 
 test("lexer utils fromTo", () => {
@@ -81,10 +81,10 @@ test("lexer utils word", () => {
 test("lexer utils wordType", () => {
   const lexer = new Lexer.Builder()
     .ignore(whitespaces())
-    .define(wordType("123"))
+    .define(wordKind("123"))
     .build();
 
-  expect(lexer.reset().lex("123")?.type).toBe("123");
+  expect(lexer.reset().lex("123")?.kind).toBe("123");
 });
 
 test("lexer utils stringLiteral", () => {

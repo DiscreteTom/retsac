@@ -21,7 +21,7 @@ test("lexer basic functions", () => {
   expect(lexer.feed("123").hasRest()).toBe(true);
   expect(lexer.feed("123").reset().getRest()).toBe("");
   expect(lexer.feed("123").lex()?.content).toBe("123");
-  expect(Array.from(lexer.getTokenTypes()).sort()).toEqual(
+  expect(Array.from(lexer.getTokenKinds()).sort()).toEqual(
     ["", "number", "someErr", "mutedErr"].sort()
   );
 });
@@ -63,7 +63,7 @@ test("lexer takeUntil", () => {
 test("number", () => {
   ["1", "123", "0123", "01230"].forEach((str) => {
     expect(lexer.reset().lex(str)).toEqual({
-      type: "number",
+      kind: "number",
       content: str,
       start: 0,
       error: undefined,
@@ -80,7 +80,7 @@ test("ignore", () => {
 test("anonymous", () => {
   ["+", "-", "*", "/"].forEach((str) => {
     expect(lexer.reset().lex(str)).toEqual({
-      type: "",
+      kind: "",
       content: str,
       start: 0,
       error: undefined,
@@ -160,7 +160,7 @@ test("expectation", () => {
     lexer.reset().lex({
       input: "123",
       expect: {
-        type: "",
+        kind: "",
         text: "+",
       },
     })
@@ -181,7 +181,7 @@ test("expectation", () => {
     lexer.reset().lex({
       input: "  123",
       expect: {
-        type: "number",
+        kind: "number",
         text: "123",
       },
     })?.content

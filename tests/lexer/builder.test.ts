@@ -19,17 +19,17 @@ test("builder ignore", () => {
 });
 
 test("builder define", () => {
-  expect(lexer.reset().lex("1")?.type).toBe("number");
-  expect(lexer.reset().lex("123")?.type).toBe("number");
+  expect(lexer.reset().lex("1")?.kind).toBe("number");
+  expect(lexer.reset().lex("123")?.kind).toBe("number");
 });
 
 test("builder anonymous", () => {
-  expect(lexer.reset().lex("+")?.type).toBe("");
+  expect(lexer.reset().lex("+")?.kind).toBe("");
   expect(lexer.reset().lex("+")?.content).toBe("+");
 });
 
-test("builder getTokenTypes", () => {
-  expect(Array.from(builder.getTokenTypes()).sort()).toEqual(
+test("builder getTokenKinds", () => {
+  expect(Array.from(builder.getTokenKinds()).sort()).toEqual(
     ["", "number", "someErr"].sort()
   );
 });
@@ -44,7 +44,7 @@ test("builder define using array", () => {
     })
     .build();
 
-  expect(lexer.reset().lex(`'abc'`)?.type).toBe("string");
-  expect(lexer.reset().lex(`"abc"`)?.type).toBe("string");
-  expect(lexer.reset().lex("`abc`")?.type).toBe("string");
+  expect(lexer.reset().lex(`'abc'`)?.kind).toBe("string");
+  expect(lexer.reset().lex(`"abc"`)?.kind).toBe("string");
+  expect(lexer.reset().lex("`abc`")?.kind).toBe("string");
 });
