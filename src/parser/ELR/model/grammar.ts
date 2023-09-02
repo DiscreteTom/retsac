@@ -1,6 +1,4 @@
-import { ILexer } from "../../../lexer";
 import { ASTNode, Traverser } from "../../ast";
-import { LR_RuntimeError } from "../error";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -85,11 +83,10 @@ export class Grammar {
   }
 
   /**
-   * Equals to.
+   * Check if the grammar is equal to another.
+   * This is used in conflict detection, so we don't need to check the name.
    */
   eq<_>(g: Readonly<Grammar>) {
-    // we don't need to check the name
-    // because the name is only used in selector
     return (
       this == g || // same object
       (this.type == g.type &&
