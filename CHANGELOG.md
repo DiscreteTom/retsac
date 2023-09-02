@@ -18,9 +18,9 @@
   - Feat: add `ILexer.takeUntil`. [#16](https://github.com/DiscreteTom/retsac/issues/16)
   - Feat: add `Lexer.utils.regexLiteral`. [#15](https://github.com/DiscreteTom/retsac/issues/15)
 - Parser
-  - **_Breaking Change_**: add `name` for `ASTNode` and `ASTObj`.
-  - **_Breaking Change_**: `ASTNode.toTreeString` will also print `ASTNode.name`.
-  - **_Breaking Change_**: refactor `ASTNode.toString`. The output format is changed.
+  - Feat: add `name` for `ASTNode` and `ASTObj`.
+    - **_Breaking Change_**: `ASTNode.toTreeString` will also print `ASTNode.name`.
+    - **_Breaking Change_**: refactor `ASTNode.toString`. The output format is changed.
   - **_Breaking Change_**: rename `ASTNodeQuerySelector` to `ASTNodeChildrenSelector`.
   - **_Breaking Change_**: refactor typed errors.
   - Feat: add `ASTNodeSelector`.
