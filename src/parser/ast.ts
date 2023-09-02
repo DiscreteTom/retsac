@@ -202,7 +202,7 @@ export class ASTNode<T> {
   /**
    * Format: `kind(name): text`.
    */
-  static getString(data: { kind: string; name: string; text?: string }) {
+  static getString(data: Pick<ASTNode<any>, "kind" | "name" | "text">) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.name == data.kind ? "" : `(${data.name})`}` +
@@ -222,7 +222,7 @@ export class ASTNode<T> {
   /**
    * Format: `kind: text`.
    */
-  static getUniqueString(data: { kind: string; text?: string }) {
+  static getUniqueString(data: Pick<ASTNode<any>, "kind" | "text">) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.text == undefined ? "" : `: ${data.text}`}`
