@@ -51,7 +51,7 @@ export class Candidate<T> {
 
     // not in cache, calculate and cache
     const res =
-      this.canDigestMore() && this.current.eq(node)
+      this.canDigestMore() && this.current.match(node)
         ? new Candidate<T>({ gr: this.gr, digested: this.digested + 1 })
         : null;
     this.nextMap.set(key, res);

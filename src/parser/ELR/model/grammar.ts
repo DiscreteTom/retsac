@@ -7,15 +7,15 @@ import { ruleEndsWith, ruleStartsWith } from "./util";
 export enum GrammarType {
   /**
    * Literal string.
-   * The literal value must be able to be lexed to get the type name.
+   * The literal value must be able to be lexed to get the kind name.
    */
   LITERAL,
   /**
-   * Terminator, which means the grammar's type name should be defined in lexer.
+   * Terminator, which means the grammar's kind name should be defined in lexer.
    */
   T,
   /**
-   * Non-terminator, which means the grammar's type name should be defined in parser.
+   * Non-terminator, which means the grammar's kind name should be defined in parser.
    */
   NT,
 }
@@ -87,18 +87,30 @@ export class Grammar {
   /**
    * Equals to.
    */
-  eq<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
-    if (g instanceof Grammar)
-      return (
-        this == g || // same object
-        (this.type == g.type && this.kind == g.kind) // TODO: check name?
-      );
-    else
-      return this.type == GrammarType.LITERAL // TODO: check name?
-        ? // check literal content
-          this.kind == (g as Readonly<ASTNode<_>>).text
-        : // check kind name
-          this.kind == (g as Readonly<ASTNode<_>>).kind;
+  eq<_>(g: Readonly<Grammar>) {
+    // we don't need to check the name
+    // because the name is only used in selector
+    return (
+      this == g || // same object
+      (this.type == g.type &&
+        (this.type == GrammarType.LITERAL
+          ? this.text == g.text // if text is the same, the kind must be the same
+          : this.kind == g.kind))
+    );
+  }
+
+  /**
+   * Check if the grammar's kind match the ASTNode's kind.
+   * For literal, the text is also checked.
+   */
+  match(node: Readonly<ASTNode<any>>) {
+    // we don't need to check the name
+    // because the name is set by the grammar after the grammar is matched
+    return this.type == GrammarType.LITERAL
+      ? // check literal content
+        this.text == node.text && this.kind == node.kind
+      : // check kind name
+        this.kind == node.kind;
   }
 
   /**
