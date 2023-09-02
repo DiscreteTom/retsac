@@ -402,7 +402,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
             (c) =>
               `.resolve${
                 c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-              }(${reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
+              }(${reducerRule.toStringWithGrammarName()}, ${c.anotherRule.toStringWithGrammarName()}, { ${
                 c.next.length > 0
                   ? `next: \`${(c.next as Grammar[])
                       .map((g) => g.toString()) // TODO: change this to toGrammarString?
@@ -416,13 +416,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     } else {
       unresolved.forEach((v, k) => {
         const txt =
-          `=== ${k.toString()} ===\nLR` +
+          `=== ${k.toStringWithGrammarName()} ===\nLR` +
           v
             .map(
               (c) =>
                 `.resolve${
                   c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-                }(${c.anotherRule.toString()}, { ${
+                }(${c.anotherRule.toStringWithGrammarName()}, { ${
                   c.next.length > 0
                     ? `next: \`${(c.next as Grammar[])
                         .map((g) => g.toString()) // TODO: change this to toGrammarString?

@@ -174,7 +174,7 @@ export class Candidate<T> {
         }
         if (mismatch) {
           logger(
-            `[Follow Mismatch] ${this.gr.toString()} follow=${context.after.slice(
+            `[Follow Mismatch] ${this.gr.toStringWithGrammarName()} follow=${context.after.slice(
               0,
               10 // only show first 10 chars
             )}`
@@ -190,7 +190,7 @@ export class Candidate<T> {
 
     // check rejecter
     if (this.gr.rejecter(context)) {
-      logger(`[Reject] ${this.gr.toString()}`);
+      logger(`[Reject] ${this.gr.toStringWithGrammarName()}`);
       rollbackNames();
       return { res: { accept: false } };
     }
@@ -207,7 +207,7 @@ export class Candidate<T> {
       selector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
-    logger(`[Accept] ${this.gr.toString()}`);
+    logger(`[Accept] ${this.gr.toStringWithGrammarName()}`);
 
     return {
       res: {

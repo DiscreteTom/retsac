@@ -82,19 +82,19 @@ function getUserUnresolvedConflicts<T>(
       console.log(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: *`
+        }]: ${reducerRule.toStringWithGrammarName()} | ${anotherRule.toStringWithGrammarName()} next: *`
       );
     if (resolvedNext.length > 0)
       console.log(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${resolvedNext}`
+        }]: ${reducerRule.toStringWithGrammarName()} | ${anotherRule.toStringWithGrammarName()} next: ${resolvedNext}`
       );
     if (unresolvedNext.length > 0)
       console.log(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule.toString()} | ${anotherRule.toString()} next: ${unresolvedNext}`
+        }]: ${reducerRule.toStringWithGrammarName()} | ${anotherRule.toStringWithGrammarName()} next: ${unresolvedNext}`
       );
   }
 
@@ -114,11 +114,11 @@ function getUserUnresolvedConflicts<T>(
     if (debug) {
       if (unresolvedEnd)
         console.log(
-          `[unresolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+          `[unresolved RR]: ${reducerRule.toStringWithGrammarName()} | ${anotherRule.toStringWithGrammarName()} end of input`
         );
       if (unresolvedNext.length > 0)
         console.log(
-          `[user resolved RR]: ${reducerRule.toString()} | ${anotherRule.toString()} end of input`
+          `[user resolved RR]: ${reducerRule.toStringWithGrammarName()} | ${anotherRule.toStringWithGrammarName()} end of input`
         );
     }
   }
@@ -171,7 +171,7 @@ export function getConflicts<T>(
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
-                `[auto resolve RS (no follow overlap)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (no follow overlap)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
               );
             return;
           }
@@ -186,7 +186,7 @@ export function getConflicts<T>(
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               console.log(
-                `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
               );
             return;
           }
@@ -215,7 +215,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
                 );
               return;
             }
@@ -246,7 +246,7 @@ export function getConflicts<T>(
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
                 );
               return;
             }
