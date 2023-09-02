@@ -45,7 +45,7 @@ export class TempGrammar {
         ? // check literal content
           this.content == g.text
         : // check type name
-          this.content == g.type;
+          this.content == g.kind;
     else if (g instanceof Grammar)
       return (
         (this.type == TempGrammarType.LITERAL) ==

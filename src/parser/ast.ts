@@ -7,15 +7,15 @@ import { InvalidTraverseError } from "./error";
  */
 export type ASTObj = {
   /**
-   * By default, this is the same as the type name.
+   * By default, this is the same as the kind name.
    * You can rename nodes in your grammar rules.
    */
   name: string;
   /**
-   * T's or NT's name.
-   * If anonymous, the value is an empty string.
+   * T's or NT's kind name.
+   * If the T is anonymous, the value is an empty string.
    */
-  type: string;
+  kind: string;
   /**
    * Start position of the whole input string.
    * Same as the first token's start position.
@@ -73,10 +73,10 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
 // TODO: default T
 export class ASTNode<T> {
   /**
-   * T's or NT's name.
-   * If anonymous, the value is an empty string.
+   * T's or NT's kind name.
+   * If the T is anonymous, the value is an empty string.
    */
-  readonly type: string;
+  readonly kind: string;
   /**
    * Start position of the whole input string.
    * Same as the first token's start position.
@@ -121,14 +121,14 @@ export class ASTNode<T> {
   constructor(
     p: Pick<
       ASTNode<T>,
-      "type" | "start" | "text" | "children" | "parent" | "data" | "error"
+      "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
       traverser?: Traverser<T>;
       selector?: ASTNodeSelector<T>;
     } & Partial<Pick<ASTNode<T>, "name">>
   ) {
-    this._name = p.name ?? p.type;
-    this.type = p.type;
+    this._name = p.name ?? p.kind;
+    this.kind = p.kind;
     this.start = p.start;
     this.text = p.text;
     this.children = p.children;
@@ -142,11 +142,11 @@ export class ASTNode<T> {
   }
 
   static from<T>(t: Readonly<Token<any>>) {
-    return new ASTNode<T>({ type: t.kind, start: t.start, text: t.content });
+    return new ASTNode<T>({ kind: t.kind, start: t.start, text: t.content });
   }
 
   /**
-   * By default, this is the same as the type name.
+   * By default, this is the same as the kind name.
    * You can rename nodes in your grammar rules.
    */
   get name() {
@@ -172,11 +172,11 @@ export class ASTNode<T> {
     const anonymous = options?.anonymous ?? "<anonymous>";
 
     let res = `${initialIndent}${
-      this.type == ""
+      this.kind == ""
         ? anonymous
-        : this.type == this.name
-        ? this.type
-        : `${this.type}(${this.name})`
+        : this.kind == this.name
+        ? this.kind
+        : `${this.kind}(${this.name})`
     }: `;
     if (this.text) res += JSON.stringify(this.text); // quote the text
     res += "\n";
@@ -191,19 +191,19 @@ export class ASTNode<T> {
   }
 
   /**
-   * Format: `type(name): text`.
+   * Format: `kind(name): text`.
    * The result is cached.
-   * This value will be changed if you change the name/type/text of this node.
+   * This value will be changed if you change the name/kind/text of this node.
    */
   toString(options?: { anonymous?: string }) {
     const anonymous = options?.anonymous ?? "<anonymous>";
 
-    // keep in mind to make sure this.type/name/text readonly for the cache to work
+    // keep in mind to make sure this.kind/name/text readonly for the cache to work
     return (
       this.str ??
       (this.str =
-        `${this.type == "" ? anonymous : this.type}` +
-        `${this.name == this.type ? "" : `(${this.name})`}` +
+        `${this.kind == "" ? anonymous : this.kind}` +
+        `${this.name == this.kind ? "" : `(${this.name})`}` +
         `${this.text ? `: ${JSON.stringify(this.text)}` : ""}`)
     );
   }
@@ -214,7 +214,7 @@ export class ASTNode<T> {
   toObj(): ASTObj {
     return {
       name: this.name,
-      type: this.type,
+      kind: this.kind,
       start: this.start,
       text: this.text || "",
       children: this.children?.map((c) => c.toObj()) ?? [],

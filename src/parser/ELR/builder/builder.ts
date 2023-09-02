@@ -229,7 +229,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
                 .lex({
                   // peek with expectation
                   expect: {
-                    type: g.type,
+                    type: g.kind,
                     text: g.text,
                   },
                 }) != null

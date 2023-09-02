@@ -140,7 +140,7 @@ export class Candidate<T> {
 
     const matched = buffer.slice(-this.gr.rule.length);
     matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
-    const rollbackNames = () => matched.forEach((n) => (n.name = n.type)); // rollback the name
+    const rollbackNames = () => matched.forEach((n) => (n.name = n.kind)); // rollback the name
 
     const selector = ASTNodeSelectorFactory<T>(cascadeQueryPrefix);
     const context = new GrammarRuleContext<T>({
@@ -168,7 +168,7 @@ export class Candidate<T> {
               .clone() // clone with state to prevent side effect
               .lex({
                 expect: {
-                  type: g.toTempASTNode().type,
+                  type: g.toTempASTNode().kind,
                   text: g.toTempASTNode().text,
                 },
               }) != null
@@ -201,7 +201,7 @@ export class Candidate<T> {
     // accept
     this.gr.callback(context);
     const node = new ASTNode({
-      type: this.gr.NT,
+      kind: this.gr.NT,
       children: matched,
       data: context.data,
       error: context.error,
@@ -232,7 +232,7 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
     // try to lex to get the token
     const token = lexer.lex({
       expect: {
-        type: g.toTempASTNode().type,
+        type: g.toTempASTNode().kind,
         text: g.toTempASTNode().text,
       },
     });

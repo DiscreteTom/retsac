@@ -197,7 +197,7 @@ export class DFA<T> {
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].type) && index == 0)
+      if (this.entryNTs.has(buffer[0].kind) && index == 0)
         return { output: { accept: true, buffer, errors }, lexer };
       // if stop on error, return partial result
       if (stopOnError && errors.length > 0)

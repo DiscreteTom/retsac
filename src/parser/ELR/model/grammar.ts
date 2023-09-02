@@ -98,7 +98,7 @@ export class Grammar {
         ? // check literal content
           this.content == (g as Readonly<ASTNode<_>>).text
         : // check type name
-          this.content == (g as Readonly<ASTNode<_>>).type;
+          this.content == (g as Readonly<ASTNode<_>>).kind;
   }
 
   /**
@@ -111,11 +111,11 @@ export class Grammar {
       // const token = lexer.dryClone().lex(this.content);
       // if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
       return (this.node = new ASTNode({
-        type: this.content,
+        kind: this.content,
         text: this.text,
         start: 0,
       }));
-    } else return (this.node = new ASTNode({ type: this.content, start: 0 }));
+    } else return (this.node = new ASTNode({ kind: this.content, start: 0 }));
   }
 
   /**
@@ -220,7 +220,7 @@ export class GrammarSet {
     // `g instanceof Grammar` and `g instanceof Readonly<Grammar>` are not working
     // so we have to use `in` operator
     if (g instanceof Grammar) return this.gs.has(g.toString()); // Grammar
-    return this.gs.has((g as Readonly<ASTNode<_>>).type); // ASTNode, check type name
+    return this.gs.has((g as Readonly<ASTNode<_>>).kind); // ASTNode, check type name
   }
 
   /** Return `true` if successfully added. */
