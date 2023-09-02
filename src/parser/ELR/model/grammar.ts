@@ -93,6 +93,7 @@ export class Grammar {
 
   /**
    * Format: `kind(name): text`.
+   * Same as `ASTNode.getString`.
    * The result is suitable to be a key in a map if the name is needed.
    */
   toString() {
@@ -100,6 +101,7 @@ export class Grammar {
   }
   /**
    * Format: `kind(name): text`.
+   * Same as `ASTNode.getString`.
    * This should be set in constructor by the GrammarRepo.
    */
   readonly str: string;
@@ -112,6 +114,7 @@ export class Grammar {
 
   /**
    * Format: `kind: text`.
+   * Same as `ASTNode.getUniqueString`.
    * The result is suitable to be a key in a map if the name is NOT needed.
    * This is lazy and cached.
    */
@@ -127,8 +130,8 @@ export class Grammar {
   }
 
   /**
-   * Format: `kind@name` if not literal, else `"text"@name`.
-   * This is used to generate grammar rule string.
+   * Format: `kind` if not literal, else `"text"`.
+   * This is used to generate grammar rule string without name.
    * This is lazy and cached.
    */
   toGrammarString() {
@@ -138,9 +141,27 @@ export class Grammar {
   }
   private grammarStr?: string;
   /**
-   * Format: `kind@name` if not literal, else `"text"@name`.
+   * Format: `kind` if not literal, else `"text"`.
    */
-  static getGrammarString(
+  static getGrammarString(data: Pick<Grammar, "type" | "kind" | "text">) {
+    return data.type == GrammarType.LITERAL
+      ? JSON.stringify(data.text)
+      : data.kind;
+  }
+
+  /**
+   * Format: `kind@name` if not literal, else `"text"@name`.
+   * This is used to generate grammar rule string with name.
+   * This is lazy and cached.
+   */
+  toGrammarStringWithName() {
+    return (
+      this.grammarStrWithName ??
+      (this.grammarStrWithName = Grammar.getGrammarStringWithName(this))
+    );
+  }
+  private grammarStrWithName?: string;
+  static getGrammarStringWithName(
     data: Pick<Grammar, "type" | "kind" | "name" | "text">
   ) {
     return (
@@ -235,6 +256,7 @@ export class GrammarRule<T> {
 
   /**
    * Return the grammar string: ``{ NT: `grammar rules` }``.
+   * Grammar's name is NOT included.
    * This is lazy and cached.
    */
   toString() {
@@ -243,10 +265,33 @@ export class GrammarRule<T> {
   private str?: string;
   /**
    * Return ``{ NT: `grammar rules` }``.
+   * Grammar's name is NOT included.
    */
   static getString(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.toGrammarString())
+      .join(" ")}\` }`;
+  }
+
+  /**
+   * Return the grammar string: ``{ NT: `grammar rules` }``.
+   * Grammar's name is included.
+   * This is lazy and cached.
+   */
+  toStringWithGrammarName() {
+    return (
+      this.strWithGrammarName ??
+      (this.strWithGrammarName = GrammarRule.getStringWithGrammarName(this))
+    );
+  }
+  private strWithGrammarName?: string;
+  /**
+   * Return ``{ NT: `grammar rules` }``.
+   * Grammar's name is included.
+   */
+  static getStringWithGrammarName(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
+    return `{ ${gr.NT}: \`${gr.rule
+      .map((g) => g.toGrammarStringWithName())
       .join(" ")}\` }`;
   }
 }
