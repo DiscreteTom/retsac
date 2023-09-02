@@ -52,6 +52,8 @@ As you can see, the input string will be stored in the lexer, so you can feed on
 - To clone the lexer with its state, call `lexer.clone()`.
 - To clone the lexer without its state, call `lexer.dryClone()`.
 
+TODO: peek
+
 ## Expectation
 
 When you call `lexer.lex`, you can specify the token type and/or content you expected.
@@ -229,9 +231,9 @@ lexer.takeUntil(/\W/);
 
 Here are some ways to improve the performance:
 
-1. Reduce the use of `ActionAcceptedOutput.rest` if possible to prevent the lexer from calculating it. However, you can set the `ActionAcceptedOutput._rest` field if your `ActionExec` can yield it so the lexer can reuse it. But don't set it if your `ActionExec` can't yield it, it will be calculated lazily and cached.
-2. Reduce the use of `ActionInput.rest`. It is calculated lazily and cached, but abuse it will still cause too many long temporary strings to be created.
-3. Keep the `Action.maybeMuted` as `false` if possible. If an `Action` is never muted, the lexer can skip some checks when lexing.
-4. Merge multiple `Action` into one `Action` if possible by using `Action.reduce` or `Action.or`. This will reduce the lexer loop times to optimize the performance.
-5. Reduce the use of `Lexer.getRest`. If you have to use it, cache the result by yourself.
-6. Use util functions in `lexer/utils.ts` which are usually optimized.
+- Reduce the use of `ActionAcceptedOutput.rest` if possible to prevent the lexer from calculating it. However, you can set the `ActionAcceptedOutput._rest` field if your `ActionExec` can yield it so the lexer can reuse it. But don't set it if your `ActionExec` can't yield it, it will be calculated lazily and cached.
+- Reduce the use of `ActionInput.rest`. It is calculated lazily and cached, but abuse it will still cause too many long temporary strings to be created.
+- Keep the `Action.maybeMuted` as `false` if possible. If an `Action` is never muted, the lexer can skip some checks when lexing.
+- Merge multiple `Action` into one `Action` if possible by using `Action.reduce` or `Action.or`. This will reduce the lexer loop times to optimize the performance.
+- Reduce the use of `Lexer.getRest`. If you have to use it, cache the result by yourself.
+- Use util functions in `lexer/utils.ts` which are usually optimized.

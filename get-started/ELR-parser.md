@@ -374,3 +374,7 @@ You can use `ASTNode.toObj` to get a well-formed javascript object [`ASTObj`](ht
 TODO
 
 > **Warning**: When you enable `stopOnError` when parsing, the parser might got a _partial result_ from the DFA, which means the `ParserOutput.accept` is `true` but we haven't got an top-level node.
+
+## Performance Optimization
+
+- Reduce the use of `GrammarRuleContext.after/before`.
