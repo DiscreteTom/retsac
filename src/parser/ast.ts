@@ -196,12 +196,17 @@ export class ASTNode<T> {
    * This value will be changed if you change the name of this node.
    */
   toString() {
+    return this.str ?? (this.str = ASTNode.getString(this));
+  }
+
+  /**
+   * Format: `kind(name): text`.
+   */
+  static getString(data: { kind: string; name: string; text?: string }) {
     return (
-      this.str ??
-      (this.str =
-        `${this.kind == "" ? "<anonymous>" : this.kind}` +
-        `${this.name == this.kind ? "" : `(${this.name})`}` +
-        `${this.text ? `: ${JSON.stringify(this.text)}` : ""}`)
+      `${data.kind == "" ? "<anonymous>" : data.kind}` +
+      `${data.name == data.kind ? "" : `(${data.name})`}` +
+      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
 
@@ -211,14 +216,18 @@ export class ASTNode<T> {
    * This is lazy and cached.
    */
   toUniqueString() {
-    return (
-      this.uniqueStr ??
-      (this.uniqueStr =
-        `${this.kind == "" ? "<anonymous>" : this.kind}` +
-        `${this.text == undefined ? "" : `: ${this.text}`}`)
-    );
+    return this.uniqueStr ?? (this.uniqueStr = ASTNode.getUniqueString(this));
   }
   private uniqueStr?: string;
+  /**
+   * Format: `kind: text`.
+   */
+  static getUniqueString(data: { kind: string; text?: string }) {
+    return (
+      `${data.kind == "" ? "<anonymous>" : data.kind}` +
+      `${data.text == undefined ? "" : `: ${data.text}`}`
+    );
+  }
 
   /**
    * Return an ASTObj for serialization.
