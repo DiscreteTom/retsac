@@ -6,7 +6,7 @@ const lexer = new Lexer.Builder()
     number: /[0-9]+(?:\.[0-9]+)?/,
     identifier: /[a-zA-Z_][a-zA-Z0-9_]*/,
   })
-  .define(Lexer.wordType("function", "return"))
+  .define(Lexer.wordKind("function", "return"))
   .anonymous(Lexer.exact(..."=+;(){}"))
   .build();
 

@@ -2,7 +2,7 @@ import { ELR, Lexer } from "../../src";
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank chars
-  .define(Lexer.wordType("pub", "fn")) // keywords
+  .define(Lexer.wordKind("pub", "fn")) // keywords
   .define({
     identifier: /[a-zA-Z_]\w*/,
   })

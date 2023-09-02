@@ -6,7 +6,7 @@ const lexer = new Lexer.Builder()
     string: Lexer.stringLiteral(`"`), // double quote string literal
     number: /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
-  .define(Lexer.wordType("true", "false", "null")) // type's name is the literal value
+  .define(Lexer.wordKind("true", "false", "null")) // type's name is the literal value
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders
   .build();
 
