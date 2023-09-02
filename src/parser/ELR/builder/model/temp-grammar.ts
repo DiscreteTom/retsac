@@ -55,7 +55,7 @@ export class TempGrammar {
 
   toGrammar(isNT = true) {
     return this.type == TempGrammarType.LITERAL
-      ? Grammar.Literal(this.content)
+      ? Grammar.Literal(this.content, this.content) // TODO: change this
       : isNT
       ? Grammar.NT(this.content, this.name)
       : Grammar.T(this.content, this.name);

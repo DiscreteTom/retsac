@@ -249,7 +249,7 @@ export function getConflicts<T>(
               reducerRule,
               anotherRule,
               handleEnd: false,
-              next: [Grammar.Literal(E.content)],
+              next: [Grammar.Literal(E.content, E.content)], // TODO: change this
               length: c.length,
             };
             if (result.has(reducerRule))

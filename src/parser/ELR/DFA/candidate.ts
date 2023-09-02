@@ -168,8 +168,8 @@ export class Candidate<T> {
               .clone() // clone with state to prevent side effect
               .lex({
                 expect: {
-                  type: g.toTempASTNode(lexer).type,
-                  text: g.toTempASTNode(lexer).text,
+                  type: g.toTempASTNode().type,
+                  text: g.toTempASTNode().text,
                 },
               }) != null
           ) {
@@ -232,8 +232,8 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
     // try to lex to get the token
     const token = lexer.lex({
       expect: {
-        type: g.toTempASTNode(lexer).type,
-        text: g.toTempASTNode(lexer).text,
+        type: g.toTempASTNode().type,
+        text: g.toTempASTNode().text,
       },
     });
     if (token == null) {

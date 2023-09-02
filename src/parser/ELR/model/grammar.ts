@@ -5,73 +5,114 @@ import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
 export enum GrammarType {
-  /** Literal string. */
+  /**
+   * Literal string.
+   * The literal value must be able to be lexed to get the type name.
+   */
   LITERAL,
-  /** Terminator. */
+  /**
+   * Terminator, which means the grammar's type name should be defined in lexer.
+   */
   T,
-  /** Non-terminator. */
+  /**
+   * Non-terminator, which means the grammar's type name should be defined in parser.
+   */
   NT,
 }
 
 export class Grammar {
   readonly type: GrammarType;
-  /** Literal content, or T/NT's type name. */
-  readonly content: string;
+  /**
+   * The type name.
+   */
+  readonly content: string; // TODO: rename to kind
+  /**
+   * The literal value if this is a literal.
+   */
+  readonly text?: string;
   /**
    * The name of the grammar.
-   * By default the value is equal to `this.content`.
-   * The name is only used in ASTNode query selector.
+   * By default the value is equal to T/NT's type name.
+   * For literal, the name is calculated by lexer.
    */
   readonly name: string;
-  /** Cache the string representation. */
+  /**
+   * Cache the string representation.
+   */
   private str?: string;
-  /** Cache the temporary ast node. */
+  /**
+   * Cache the temporary ast node.
+   */
   private node?: Readonly<ASTNode<any>>;
 
-  private constructor(p: Pick<Grammar, "type" | "content" | "name">) {
-    Object.assign(this, p);
+  private constructor(p: Pick<Grammar, "type" | "content" | "name" | "text">) {
+    this.type = p.type;
+    this.content = p.content;
+    this.name = p.name;
+    this.text = p.text;
   }
 
-  static T(content: string, name?: string) {
-    return new Grammar({ type: GrammarType.T, content, name: name ?? content });
-  }
-  static NT(content: string, name?: string) {
+  /**
+   * Create a T grammar.
+   */
+  static T(kind: string, name?: string) {
     return new Grammar({
-      type: GrammarType.NT,
-      content,
-      name: name ?? content,
+      type: GrammarType.T,
+      content: kind,
+      name: name ?? kind,
     });
   }
-  static Literal(content: string) {
-    // literals don't have a name
-    return new Grammar({ type: GrammarType.LITERAL, content, name: "" });
+  /**
+   * Create a NT grammar.
+   */
+  static NT(kind: string, name?: string) {
+    return new Grammar({
+      type: GrammarType.NT,
+      content: kind,
+      name: name ?? kind,
+    });
+  }
+  /**
+   * Create a literal grammar.
+   */
+  static Literal(text: string, kind: string, name?: string) {
+    return new Grammar({
+      type: GrammarType.LITERAL,
+      content: kind,
+      name: name ?? kind,
+      text,
+    });
   }
 
-  /** Equals to. */
+  /**
+   * Equals to.
+   */
   eq<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
     if (g instanceof Grammar)
-      return this.type == g.type && this.content == g.content;
-    else if (g instanceof ASTNode)
-      return this.type == GrammarType.LITERAL
+      return (
+        this == g || // same object
+        (this.type == g.type && this.content == g.content) // TODO: check name?
+      );
+    else
+      return this.type == GrammarType.LITERAL // TODO: check name?
         ? // check literal content
-          this.content == g.text
+          this.content == (g as Readonly<ASTNode<_>>).text
         : // check type name
-          this.content == g.type;
+          this.content == (g as Readonly<ASTNode<_>>).type;
   }
 
   /**
    * This function is used to create temporary ASTNode for comparison.
-   * Lexer is used to parse literal value's type name.
    * The result will be cached to prevent duplicated calculation.
    */
-  toTempASTNode(lexer: ILexer<any>) {
+  toTempASTNode() {
     if (this.node) return this.node;
     if (this.type == GrammarType.LITERAL) {
-      const token = lexer.dryClone().lex(this.content);
-      if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
+      // const token = lexer.dryClone().lex(this.content);
+      // if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
       return (this.node = new ASTNode({
-        type: token.type,
-        text: this.content,
+        type: this.content,
+        text: this.text,
         start: 0,
       }));
     } else return (this.node = new ASTNode({ type: this.content, start: 0 }));
