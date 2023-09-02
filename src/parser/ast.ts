@@ -113,7 +113,6 @@ export class ASTNode<T> {
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
   private _name: string;
-  private selector: ASTNodeSelector<T>;
   /**
    * Cache the string representation.
    */
@@ -136,9 +135,9 @@ export class ASTNode<T> {
     this.parent = p.parent;
     this.data = p.data;
     this.error = p.error;
-    this.selector = p.selector ?? mockASTNodeSelector;
     this.traverser = p.traverser ?? defaultTraverser;
-    this.$ = (name: string) => this.selector(name, this.children ?? []);
+    const selector = p.selector ?? mockASTNodeSelector;
+    this.$ = (name: string) => selector(name, this.children ?? []);
     // this.str = undefined;
   }
 
