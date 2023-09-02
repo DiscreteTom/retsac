@@ -192,21 +192,34 @@ export class ASTNode<T> {
 
   /**
    * Format: `kind(name): text`.
-   * The result is cached.
+   * The result is lazy and cached.
    * This value will be changed if you change the name/kind/text of this node.
    */
-  toString(options?: { anonymous?: string }) {
-    const anonymous = options?.anonymous ?? "<anonymous>";
-
+  toString() {
     // keep in mind to make sure this.kind/name/text readonly for the cache to work
     return (
       this.str ??
       (this.str =
-        `${this.kind == "" ? anonymous : this.kind}` +
+        `${this.kind == "" ? "<anonymous>" : this.kind}` +
         `${this.name == this.kind ? "" : `(${this.name})`}` +
         `${this.text ? `: ${JSON.stringify(this.text)}` : ""}`)
     );
   }
+
+  /**
+   * Format: `kind: text`.
+   * This is not changed by the name, so it's suitable to be a key in a map.
+   * This is lazy and cached.
+   */
+  toUniqueString() {
+    return (
+      this.uniqueStr ??
+      (this.uniqueStr =
+        `${this.kind == "" ? "<anonymous>" : this.kind}` +
+        `${this.text == undefined ? "" : `: ${this.text}`}`)
+    );
+  }
+  private uniqueStr?: string;
 
   /**
    * Return an ASTObj for serialization.

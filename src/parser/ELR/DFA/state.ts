@@ -31,7 +31,7 @@ export class State<T> {
     allStates: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
-    const key = next.toString();
+    const key = next.toUniqueString();
 
     // try to get from local cache
     const cache = this.nextMap.get(key);

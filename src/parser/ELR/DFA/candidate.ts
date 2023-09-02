@@ -43,7 +43,7 @@ export class Candidate<T> {
    * Return `null` if the node can not be accepted.
    */
   getNext(node: Readonly<ASTNode<any>>): Candidate<T> | null {
-    const key = node.toString();
+    const key = node.toUniqueString();
 
     // try to get from cache
     const cache = this.nextMap.get(key);
