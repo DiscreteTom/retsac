@@ -2,9 +2,8 @@ import { ILexer } from "../../../lexer";
 import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
 
 /**
- * This is used in grammar rule's callback, rejector and accepter.
+ * This is used in grammar rule's callback, reducer and condition of rejecter/committer.
  */
-// TODO: what is the accepter?
 export class GrammarRuleContext<T> {
   readonly matched: readonly ASTNode<T>[];
   /**
