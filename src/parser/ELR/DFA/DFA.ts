@@ -1,27 +1,37 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
-import { ParserOutput } from "../../model";
+import { ParserOutput, rejectedParserOutput } from "../../model";
 import { GrammarRule, GrammarSet } from "../model";
 import { ReLexStack, RollbackStack } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
-/** DFA for ELR parsers. Stateless. */
+/**
+ * DFA for ELR parsers. Stateless.
+ */
 export class DFA<T> {
   constructor(
-    protected readonly allGrammarRules: readonly GrammarRule<T>[],
-    protected readonly entryNTs: ReadonlySet<string>,
+    private readonly allGrammarRules: readonly GrammarRule<T>[], // TODO: remove this?
+    private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<T>,
-    protected readonly NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
-    /** `NT => Grammars` */
-    private readonly firstSets: ReadonlyMap<string, GrammarSet>,
-    /** `Grammar => Grammars` */
-    protected readonly followSets: ReadonlyMap<string, GrammarSet>,
-    /** `string representation of candidate => candidate` */
-    protected readonly allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
-    /** `string representation of state => state` */
-    protected readonly allStates: Map<string, State<T>>,
+    private readonly NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
+    /**
+     *  `NT => Grammars`
+     */
+    public readonly firstSets: ReadonlyMap<string, GrammarSet>,
+    /**
+     * `Grammar => Grammars` // TODO: which string?
+     */
+    public readonly followSets: ReadonlyMap<string, GrammarSet>,
+    /**
+     *  `string representation of candidate => candidate` // TODO: which string? CandidateRepo?
+     */
+    private readonly allInitialCandidates: ReadonlyMap<string, Candidate<T>>,
+    /**
+     * `string representation of state => state` // TODO: which string? StateRepo?
+     */
+    private readonly allStates: Map<string, State<T>>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -30,23 +40,20 @@ export class DFA<T> {
   ) {}
 
   private log(msg: string) {
+    // TODO: use callback
     if (this.debug) this.logger(msg);
   }
 
-  getFirstSets() {
-    return this.firstSets;
-  }
-  getFollowSets() {
-    return this.followSets;
-  }
-
+  // TODO: remove this?
   getAllStates() {
     const result: State<T>[] = [];
     this.allStates.forEach((s) => result.push(s));
     return result;
   }
 
-  /** Try to yield an entry NT. */
+  /**
+   * Try to yield an entry NT.
+   */
   parse(
     buffer: readonly ASTNode<T>[],
     lexer: ILexer<any>,
@@ -56,7 +63,9 @@ export class DFA<T> {
     stopOnError = false
   ): { output: ParserOutput<T>; lexer: ILexer<any> } {
     // reset state stack with entry state
-    /** Current state is `states.at(-1)`. */
+    /**
+     * Current state is `states.at(-1)`.
+     */
     let stateStack = [this.entryState];
 
     let index = 0; // buffer index
@@ -67,9 +76,6 @@ export class DFA<T> {
      */
     const reLex = () => {
       const state = reLexStack.pop()!;
-      const restoredInput =
-        state.buffer.at(-1)!.text +
-        state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested);
 
       // rollback
       if (this.rollback) {
@@ -87,9 +93,11 @@ export class DFA<T> {
       errors = state.errors;
 
       this.log(
-        `[Re-Lex] Restored input: "${restoredInput}" Trying: ${buffer
-          .at(-1)!
-          .toStringWithName()}`
+        `[Re-Lex] Restored input: "${
+          // restored input
+          state.buffer.at(-1)!.text +
+          state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested)
+        }" Trying: ${buffer.at(-1)!.toStringWithName()}`
       );
     };
 
@@ -105,14 +113,12 @@ export class DFA<T> {
           } else {
             // no more ASTNode can be lexed, parsing failed
             this.log(
-              `[End] No matching token can be lexed. Rest of input: ${lexer
-                .getRest()
-                .slice(0, 10)}\nCandidates:\n${stateStack
-                .at(-1)!
-                .candidates.map((c) => c.toStringWithGrammarName())
-                .join("\n")}`
+              `[End] No matching token can be lexed. Rest of input: ${lexer.buffer.slice(
+                lexer.digested,
+                lexer.digested + 10
+              )}\nCandidates:\n${stateStack.at(-1)!.str}`
             );
-            return { output: { accept: false }, lexer };
+            return { output: rejectedParserOutput, lexer };
           }
         } else {
           // lex success, record all possible lexing results for later use
@@ -155,12 +161,9 @@ export class DFA<T> {
           this.log(
             `[End] No more candidate. Node=${buffer
               .at(-1)
-              ?.toStringWithName()} Candidates:\n${stateStack
-              .at(-1)!
-              .candidates.map((c) => c.toStringWithGrammarName())
-              .join("\n")}`
+              ?.toStringWithName()} Candidates:\n${stateStack.at(-1)!.str}`
           );
-          return { output: { accept: false }, lexer };
+          return { output: rejectedParserOutput, lexer };
         }
       }
 
