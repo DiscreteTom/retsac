@@ -55,7 +55,8 @@ export class Candidate<T> {
    * Return `null` if the node can't be accepted or this can't digest more.
    */
   getNext(node: Readonly<ASTNode<any>>): Candidate<T> | null {
-    const key = node.toString(); // we don't need node's name here
+    // node.name is not decided yet, so we don't need it here
+    const key = node.toString();
 
     // try to get from cache
     const cache = this.nextMap.get(key);

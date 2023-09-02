@@ -11,14 +11,19 @@ import {
 } from "../model";
 import { Candidate } from "./candidate";
 
-/** State for ELR parsers. */
+/**
+ * State for ELR parsers.
+ */
 export class State<T> {
   readonly candidates: readonly Candidate<T>[];
   /**
-   * `ast node str => state`.
+   * `ASTNode.toString => state`.
    * This will be calculated during `DFA.calculateAllStates`.
+   * `null` means the node can not be accepted.
    */
-  protected nextMap: Map<string, State<T> | null>;
+  // don't use `undefined` here
+  // because `Map.get` return `undefined` when key not found
+  private readonly nextMap: Map<string, State<T> | null>;
 
   constructor(candidates: Candidate<T>[]) {
     this.candidates = candidates;
@@ -31,7 +36,8 @@ export class State<T> {
     allStates: Map<string, State<T>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<T>>
   ): { state: State<T> | null; changed: boolean } {
-    const key = next.toString(); // we don't need node's name here
+    // node.name is not decided yet, so we don't need it here
+    const key = next.toString();
 
     // try to get from local cache
     const cache = this.nextMap.get(key);
