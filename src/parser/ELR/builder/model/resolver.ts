@@ -11,8 +11,8 @@ export type BaseResolverOptions<T> = {
 };
 
 export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
-  (
-    | {
+  // at least one of `next` and `handleEnd` must be provided
+  (| {
         next: (string & {}) | "*";
         handleEnd?: boolean;
       }
