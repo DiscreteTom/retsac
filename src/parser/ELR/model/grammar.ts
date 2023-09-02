@@ -325,6 +325,12 @@ export class GrammarSet {
     return this.gs.has(g.toString()); // Grammar & ASTNode has the same string format
   }
 
+  map<T>(callback: (g: Grammar) => T) {
+    const res = [] as T[];
+    this.gs.forEach((g) => res.push(callback(g)));
+    return res;
+  }
+
   /**
    * Return a list of grammars that in both `this` and `gs`.
    */
