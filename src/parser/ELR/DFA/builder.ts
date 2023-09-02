@@ -1,18 +1,24 @@
 import { ILexer } from "../../../lexer";
 import {
   TempGrammarRule,
-  ConflictType,
   ResolvedTempConflict,
   ParserBuilderData,
 } from "../builder";
 import { defToTempGRs } from "../builder/utils/definition";
-import { GrammarRule, GrammarSet, GrammarType } from "../model";
+import {
+  ConflictType,
+  GrammarRepo,
+  GrammarRule,
+  GrammarSet,
+  GrammarType,
+} from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 import { getGrammarRulesClosure, getAllNTClosure } from "./utils";
 
 export class DFABuilder {
   static build<T>(
+    repo: GrammarRepo,
     lexer: ILexer<any>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<T>,
@@ -30,7 +36,7 @@ export class DFABuilder {
           rollback: gr.rollback ?? (() => {}),
           commit: gr.commit ?? (() => false),
           traverser: gr.traverser,
-          rule: gr.rule.map((g) => g.toGrammar(NTs.has(g.content))),
+          rule: gr.rule.map((g) => g.toGrammar(repo, NTs.has(g.content))),
         })
     );
 
@@ -41,15 +47,17 @@ export class DFABuilder {
       allInitialCandidates.set(c.toString(), c); // TODO: use toStringWithName?
     });
 
+    const entryCandidates = getGrammarRulesClosure(
+      grs.filter((gr) => entryNTs.has(gr.NT)),
+      grs
+    ).map(
+      (gr) =>
+        // get initial candidate from global cache
+        allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
+    );
     const entryState = new State<T>(
-      getGrammarRulesClosure(
-        grs.filter((gr) => entryNTs.has(gr.NT)),
-        grs
-      ).map(
-        (gr) =>
-          // get initial candidate from global cache
-          allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
-      )
+      entryCandidates,
+      State.getString({ candidates: entryCandidates })
     );
     const NTClosures = getAllNTClosure(NTs, grs);
 
@@ -81,7 +89,7 @@ export class DFABuilder {
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
-            firstSets.get(rule[i + 1].kind)!.forEach((g) => gs.add(g));
+            firstSets.get(rule[i + 1].kind)!.grammars.forEach((g) => gs.add(g));
         }
       });
     });
@@ -92,12 +100,12 @@ export class DFABuilder {
       grs.forEach((gr) => {
         followSets
           .get(gr.NT)! // target NT's follow set
-          .forEach(
+          .grammars.forEach(
             (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g))
           );
         followSets
           .get(gr.rule.at(-1)!.kind)! // last grammar's follow set
-          .forEach((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
+          .grammars.forEach((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
       });
 
       if (!changed) break;
