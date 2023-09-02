@@ -229,7 +229,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
                 .lex({
                   // peek with expectation
                   expect: {
-                    type: g.kind,
+                    kind: g.kind,
                     text: g.text,
                   },
                 }) != null
@@ -264,7 +264,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
-      this.checkSymbols(NTs, lexer.getTokenTypes(), tempGrammarRules, lexer);
+      this.checkSymbols(NTs, lexer.getTokenKinds(), tempGrammarRules, lexer);
 
     // deal with conflicts
     if (
