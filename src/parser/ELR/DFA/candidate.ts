@@ -191,6 +191,8 @@ export class Candidate<T> {
       // else, follow set matched, continue
     }
 
+    // TODO: check conflicts
+
     // check rejecter
     if (this.gr.rejecter(context)) {
       logger(`[Reject] ${this.gr.toString()}`);

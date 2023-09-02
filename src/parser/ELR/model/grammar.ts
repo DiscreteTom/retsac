@@ -1,5 +1,5 @@
 import { ASTNode, Traverser } from "../../ast";
-import { Conflict } from "./conflict";
+import { Conflict, ResolvedConflict } from "./conflict";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -161,7 +161,18 @@ export class GrammarRule<T> {
    * The reduce target's kind name.
    */
   readonly NT: string;
+  /**
+   * A list of conflicts when the grammar rule wants to reduce.
+   * All conflicts must be resolved before the DFA can be built.
+   * This will NOT be evaluated during parsing, just to record conflicts.
+   */
   readonly conflicts: Conflict<T>[];
+  /**
+   * A list of resolved conflicts.
+   * All conflicts must be resolved by this before the DFA can be built.
+   * This will be evaluated by candidate during parsing.
+   */
+  readonly resolved: ResolvedConflict<T>[];
   callback: Callback<T>;
   rejecter: Condition<T>;
   rollback: Callback<T>;
@@ -188,6 +199,7 @@ export class GrammarRule<T> {
     this.commit = p.commit;
     this.traverser = p.traverser;
     this.conflicts = [];
+    this.resolved = [];
   }
 
   /**

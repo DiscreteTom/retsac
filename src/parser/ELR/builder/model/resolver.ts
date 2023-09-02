@@ -1,4 +1,4 @@
-import { Condition, Grammar, GrammarRule } from "../../model";
+import { Condition } from "../../model";
 import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
@@ -41,12 +41,3 @@ export type ResolvedTempConflict<T> = {
 export type ResolvedPartialTempConflict<T> = {
   anotherRule: Definition;
 } & ConflictTypeAndResolverOptions<T>;
-
-export type ResolvedConflict<T> = {
-  reducerRule: GrammarRule<T>;
-  anotherRule: GrammarRule<T>;
-  next: Grammar[] | "*";
-  handleEnd: boolean;
-  type: ConflictType;
-  reduce: boolean | Condition<T>;
-};
