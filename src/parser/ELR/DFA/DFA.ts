@@ -168,7 +168,7 @@ export class DFA<T> {
       stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
-      const { res, rollback, context, commit } = stateStack
+      const res = stateStack
         .at(-1)!
         .tryReduce(
           buffer,
@@ -184,12 +184,12 @@ export class DFA<T> {
       }
 
       // accepted
-      if (commit) {
+      if (res.commit) {
         commitParser();
       } else {
         // update rollback stack
         if (this.rollback)
-          rollbackStack.push({ rollback: rollback!, context: context! });
+          rollbackStack.push({ rollback: res.rollback, context: res.context });
       }
       const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1

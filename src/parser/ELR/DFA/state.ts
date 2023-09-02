@@ -11,6 +11,7 @@ import {
   GrammarSet,
   GrammarType,
   GrammarRuleContext,
+  Callback,
 } from "../model";
 import { Candidate } from "./candidate";
 
@@ -151,6 +152,7 @@ export class State<T> {
     | (AcceptedParserOutput<T> & {
         context: GrammarRuleContext<T>;
         commit: boolean;
+        rollback: Callback<T>;
       }) {
     for (const c of this.candidates) {
       const res = c.tryReduce(
@@ -162,7 +164,7 @@ export class State<T> {
         logger
       );
       // since we've already resolved all reduce-reduce conflicts, we can return the first accepted result
-      if (res.accept) return res;
+      if (res.accept) return { ...res, rollback: c.gr.rollback };
     }
 
     return rejectedParserOutput;
