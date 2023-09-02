@@ -28,8 +28,8 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
       .reset()
       .lexAll(defStr)
       .forEach((t) => {
-        if (t.type == "or") rules.push([]); // new grammar rule
-        else if (t.type == "rename") {
+        if (t.kind == "or") rules.push([]); // new grammar rule
+        else if (t.kind == "rename") {
           const token = rules.at(-1)?.at(-1);
           if (!token) throw LR_BuilderError.noRenameTarget(def, t.content);
           token.name = t.content.slice(1); // remove `@`
@@ -53,7 +53,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
 
       if (
         !tokens
-          .filter((t) => t.type == "literal")
+          .filter((t) => t.kind == "literal")
           .every((t) => t.content.length > 2)
       )
         throw LR_BuilderError.emptyLiteral(NT, ruleStr);
@@ -62,7 +62,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
         new TempGrammarRule<T>({
           NT,
           rule: tokens.map((t) => {
-            if (t.type == "grammar")
+            if (t.kind == "grammar")
               return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
                 content: t.content.split("@")[0],

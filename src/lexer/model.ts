@@ -3,8 +3,8 @@ import { Action } from "./action";
 
 /** The output of a lexer. */
 export type Token<E> = {
-  /** User-defined type name. */
-  type: string;
+  /** User-defined token kind name. */
+  kind: string;
   /** Text content. */
   content: string;
   /** Start position of input string. */
@@ -12,10 +12,10 @@ export type Token<E> = {
   error?: E;
 };
 
-/** Apply `action` and try to yield a token with `type`. */
+/** Apply `action` and try to yield a token with `kind`. */
 export type Definition<E> = {
-  /** Target token type. Empty string if anonymous. */
-  type: string;
+  /** Target token kind. Empty string if anonymous. */
+  kind: string;
   action: Action<E>;
 };
 
@@ -75,7 +75,7 @@ export interface ILexer<E> {
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
-   * You can provide `expect` to limit the token type/content to be accepted.
+   * You can provide `expect` to limit the token kind/content to be accepted.
    */
   lex(
     input?:
@@ -83,7 +83,7 @@ export interface ILexer<E> {
       | Readonly<{
           input?: string;
           expect?: Readonly<{
-            type?: string;
+            kind?: string;
             text?: string;
           }>;
         }>
@@ -109,9 +109,9 @@ export interface ILexer<E> {
    */
   hasRest(): boolean;
   /**
-   * Get all defined token types.
+   * Get all defined token kinds.
    */
-  getTokenTypes(): Set<string>;
+  getTokenKinds(): Set<string>;
   /**
    * Get line number (starts from 1) and column number (starts from 1)
    * from the index (starts from 0) of the input string.

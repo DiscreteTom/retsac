@@ -17,13 +17,13 @@ export class Builder<E = string> {
   }
 
   /**
-   * Define token types.
+   * Define token kinds.
    */
-  define(defs: { [type: string]: ActionSource<E> | ActionSource<E>[] }) {
-    for (const type in defs) {
-      const raw = defs[type];
+  define(defs: { [kind: string]: ActionSource<E> | ActionSource<E>[] }) {
+    for (const kind in defs) {
+      const raw = defs[kind];
       this.defs.push({
-        type,
+        kind,
         action:
           raw instanceof Array
             ? // use `reduce` to merge actions to optimize performance
@@ -35,7 +35,7 @@ export class Builder<E = string> {
   }
 
   /**
-   * Define tokens with empty type.
+   * Define tokens with empty kind.
    */
   anonymous(...actions: ActionSource<E>[]) {
     return this.define({ "": actions });
@@ -49,11 +49,11 @@ export class Builder<E = string> {
   }
 
   /**
-   * Get all defined token types.
+   * Get all defined token kinds.
    */
-  getTokenTypes() {
+  getTokenKinds() {
     // `this.build` is lightweight, so we don't cache the result
-    return this.build().getTokenTypes();
+    return this.build().getTokenKinds();
   }
 
   build(options?: LexerBuildOptions) {

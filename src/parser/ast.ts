@@ -142,7 +142,7 @@ export class ASTNode<T> {
   }
 
   static from<T>(t: Readonly<Token<any>>) {
-    return new ASTNode<T>({ type: t.type, start: t.start, text: t.content });
+    return new ASTNode<T>({ type: t.kind, start: t.start, text: t.content });
   }
 
   /**

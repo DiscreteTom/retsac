@@ -27,14 +27,14 @@ export function word<E = string>(...words: readonly string[]): Action<E> {
 }
 
 /**
- * Define types which name is the same as its literal value.
+ * Define kinds which name is the same as its literal value.
  */
-export function wordType<E = string>(
+export function wordKind<E = string>(
   ...words: readonly string[]
 ): {
-  [type: string]: Action<E>;
+  [kind: string]: Action<E>;
 } {
-  const result: { [type: string]: Action<E> } = {};
+  const result: { [kind: string]: Action<E> } = {};
   for (const w of words) {
     result[w] = word(w);
   }

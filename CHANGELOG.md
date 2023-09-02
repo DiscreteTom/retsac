@@ -2,6 +2,7 @@
 
 ## v0.12.0
 
+- **_Breaking Changes_**: rename `type` to `kind`.
 - Lexer
   - **_Breaking Change_**: `ActionExec` will take `ActionInput` as the input. [#6](https://github.com/DiscreteTom/retsac/issues/6)
     - Rename `ActionAcceptedOutput` to `AcceptedActionOutput`, and make it a class, rewrite its logics.

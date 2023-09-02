@@ -169,7 +169,7 @@ export class Lexer<E> implements ILexer<E> {
     def: Readonly<Definition<E>>
   ): Token<E> {
     return {
-      type: def.type,
+      kind: def.kind,
       content: res.content,
       start: res.start,
       error: res.error,
@@ -182,7 +182,7 @@ export class Lexer<E> implements ILexer<E> {
       | Readonly<{
           input?: string;
           expect?: Readonly<{
-            type?: string;
+            kind?: string;
             text?: string;
           }>;
         }> = ""
@@ -196,11 +196,11 @@ export class Lexer<E> implements ILexer<E> {
 
     // calculate expect
     const expect = {
-      type: typeof input === "string" ? undefined : input.expect?.type,
+      kind: typeof input === "string" ? undefined : input.expect?.kind,
       text: typeof input === "string" ? undefined : input.expect?.text,
     };
 
-    if (expect.type || expect.text)
+    if (expect.kind || expect.text)
       this.log(() => `[Lexer.lex] expect ${JSON.stringify(expect)}`);
 
     while (true) {
@@ -219,20 +219,20 @@ export class Lexer<E> implements ILexer<E> {
         rest: this.rest,
       });
       for (const def of this.defs) {
-        // if user provide expected type, ignore unmatched type, unless it's muted(still can be digested but not emit).
+        // if user provide expected kind, ignore unmatched kind, unless it's muted(still can be digested but not emit).
         // so if an action is never muted, we can skip it safely
         if (
           // never muted, so we can check the expectation
           !def.action.maybeMuted &&
           // expectation mismatch
-          ((expect.type !== undefined && def.type != expect.type) ||
+          ((expect.kind !== undefined && def.kind != expect.kind) ||
             (expect.text !== undefined &&
               !this._buffer.startsWith(expect.text, this._digested)))
         ) {
           this.log(
             () =>
               `[Lexer.lex] skip ${
-                def.type || "<anonymous>"
+                def.kind || "<anonymous>"
               } (unexpected and never muted)`
           );
           continue; // try next def
@@ -241,10 +241,10 @@ export class Lexer<E> implements ILexer<E> {
         const res = def.action.exec(input);
         if (
           res.accept &&
-          // if user provide expected type, reject unmatched type
-          (!expect.type ||
-            expect.type == def.type ||
-            // but if the unmatched type is muted (e.g. ignored), accept it
+          // if user provide expected kind, reject unmatched kind
+          (!expect.kind ||
+            expect.kind == def.kind ||
+            // but if the unmatched kind is muted (e.g. ignored), accept it
             res.muted) &&
           // if user provide expected text, reject unmatched text
           (!expect.text ||
@@ -254,7 +254,7 @@ export class Lexer<E> implements ILexer<E> {
         ) {
           this.log(
             () =>
-              `[Lexer.lex] accept ${def.type || "<anonymous>"}${
+              `[Lexer.lex] accept ${def.kind || "<anonymous>"}${
                 res.muted ? "(muted)" : ""
               }: ${JSON.stringify(res.content)}`
           );
@@ -281,14 +281,14 @@ export class Lexer<E> implements ILexer<E> {
           // if not accept, try next def
           if (!res.accept) {
             this.log(
-              () => `[Lexer.lex] rejected: ${def.type || "<anonymous>"}`
+              () => `[Lexer.lex] rejected: ${def.kind || "<anonymous>"}`
             );
           }
           // below won't happen, res.muted is always false here
           // else if (res.muted)
           //   this.log(
           //     `[Lexer.lex] muted: ${
-          //       def.type || "<anonymous>"
+          //       def.kind || "<anonymous>"
           //     } content: ${JSON.stringify(res.content)}`
           //   );
           else {
@@ -296,7 +296,7 @@ export class Lexer<E> implements ILexer<E> {
             this.log(
               () =>
                 `[Lexer.lex] unexpected: ${JSON.stringify({
-                  type: def.type,
+                  kind: def.kind,
                   content: res.content,
                 })}`
             );
@@ -356,7 +356,7 @@ export class Lexer<E> implements ILexer<E> {
           this.log(
             () =>
               `[Lexer.trimStart] skip ${
-                def.type || "<anonymous>"
+                def.kind || "<anonymous>"
               } (never muted)`
           );
           continue;
@@ -370,7 +370,7 @@ export class Lexer<E> implements ILexer<E> {
             this.log(
               () =>
                 `[Lexer.trimStart] not muted: ${
-                  def.type || "<anonymous>"
+                  def.kind || "<anonymous>"
                 }, stop trimming`
             );
             this.trimmed = true;
@@ -381,7 +381,7 @@ export class Lexer<E> implements ILexer<E> {
           this.log(
             () =>
               `[Lexer.trimStart] trim: ${
-                def.type || "<anonymous>"
+                def.kind || "<anonymous>"
               } content: ${JSON.stringify(res.content)}`
           );
 
@@ -400,7 +400,7 @@ export class Lexer<E> implements ILexer<E> {
         } else {
           // not accept, try next def
           this.log(
-            () => `[Lexer.trimStart] rejected: ${def.type || "<anonymous>"}`
+            () => `[Lexer.trimStart] rejected: ${def.kind || "<anonymous>"}`
           );
         }
       }
@@ -422,9 +422,9 @@ export class Lexer<E> implements ILexer<E> {
     return this.digested < this.buffer.length;
   }
 
-  getTokenTypes() {
+  getTokenKinds() {
     const res: Set<string> = new Set();
-    this.defs.forEach((d) => res.add(d.type));
+    this.defs.forEach((d) => res.add(d.kind));
     return res;
   }
 
