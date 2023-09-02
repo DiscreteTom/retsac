@@ -34,14 +34,6 @@ export class Grammar {
    * By default it's the same as the kind name.
    */
   readonly name: string;
-  /**
-   * Cache the string representation.
-   */
-  private str?: string;
-  /**
-   * Cache the temporary ast node.
-   */
-  private node?: Readonly<ASTNode<any>>;
 
   private constructor(p: Pick<Grammar, "type" | "kind" | "name" | "text">) {
     this.type = p.type;
@@ -125,22 +117,41 @@ export class Grammar {
       }))
     );
   }
+  private node?: Readonly<ASTNode<any>>;
 
   /**
-   * Return `kind name` or `"literal value"`.
+   * Format: `kind(name): text`.
    * The result will be cached for future use.
    */
   toString() {
+    return this.str ?? (this.str = ASTNode.getString(this));
+  }
+  private str?: string;
+
+  /**
+   * Format: `kind: text`.
+   * The result is suitable to be a key in a map.
+   * The result is lazy and cached.
+   */
+  toUniqueString() {
+    return this.uniqueStr ?? (this.uniqueStr = ASTNode.getUniqueString(this));
+  }
+  private uniqueStr?: string;
+
+  /**
+   * Format: `kind@name` if not literal, else `"text"@name`.
+   * This is used to generate grammar rule string.
+   */
+  toGrammarString() {
     return (
-      this.str ??
-      (this.str =
-        this.type == GrammarType.LITERAL
-          ? // literal content
-            JSON.stringify(this.kind)
-          : // kind name
-            this.kind)
+      this.grammarStr ??
+      (this.grammarStr =
+        (this.type == GrammarType.LITERAL
+          ? JSON.stringify(this.text)
+          : this.kind) + (this.name == this.kind ? "" : "@" + this.name))
     );
   }
+  private grammarStr?: string;
 }
 
 export class GrammarRule<T> {
@@ -211,7 +222,9 @@ export class GrammarRule<T> {
 
   /** Return ``{ NT: `grammar rules` }``. */
   static getString(gr: { NT: string; rule: readonly Grammar[] }) {
-    return `{ ${gr.NT}: \`${gr.rule.map((g) => g.toString()).join(" ")}\` }`;
+    return `{ ${gr.NT}: \`${gr.rule
+      .map((g) => g.toGrammarString())
+      .join(" ")}\` }`;
   }
 }
 
@@ -225,16 +238,14 @@ export class GrammarSet {
   }
 
   has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
-    // `g instanceof Grammar` and `g instanceof Readonly<Grammar>` are not working
-    // so we have to use `in` operator
-    if (g instanceof Grammar) return this.gs.has(g.toString()); // Grammar
+    if (g instanceof Grammar) return this.gs.has(g.toUniqueString()); // Grammar
     return this.gs.has((g as Readonly<ASTNode<_>>).kind); // ASTNode, check kind name
   }
 
   /** Return `true` if successfully added. */
   add(g: Grammar) {
     if (this.has(g)) return false;
-    this.gs.set(g.toString(), g);
+    this.gs.set(g.toUniqueString(), g);
     return true;
   }
 

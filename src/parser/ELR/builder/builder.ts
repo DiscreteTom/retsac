@@ -399,7 +399,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
               }(${c.reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
                 c.next.length > 0
                   ? `next: \`${(c.next as Grammar[])
-                      .map((g) => g.toString())
+                      .map((g) => g.toString()) // TODO: change this to toGrammarString?
                       .join(" ")}\`, `
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
@@ -419,7 +419,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
                 }(${c.anotherRule.toString()}, { ${
                   c.next.length > 0
                     ? `next: \`${(c.next as Grammar[])
-                        .map((g) => g.toString())
+                        .map((g) => g.toString()) // TODO: change this to toGrammarString?
                         .join(" ")}\`, `
                     : ""
                 }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`

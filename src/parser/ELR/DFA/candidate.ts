@@ -75,9 +75,9 @@ export class Candidate<T> {
     return [
       data.gr.NT,
       arrow,
-      ...data.gr.rule.slice(0, data.digested).map((r) => r.toString()),
+      ...data.gr.rule.slice(0, data.digested).map((r) => r.toGrammarString()),
       index,
-      ...data.gr.rule.slice(data.digested).map((r) => r.toString()),
+      ...data.gr.rule.slice(data.digested).map((r) => r.toGrammarString()),
     ].join(sep);
   }
 
