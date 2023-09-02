@@ -31,7 +31,7 @@ export class DFA<T> {
     /**
      * `string representation of state => state` // TODO: which string? StateRepo?
      */
-    private readonly allStates: Map<string, State<T>>,
+    private readonly allStates: Map<string, State<T>>, // TODO: readonly?
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
