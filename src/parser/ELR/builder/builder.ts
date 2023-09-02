@@ -5,6 +5,8 @@ import {
   BuilderDecorator,
   BuildOptions,
   IParserBuilder,
+  Conflict,
+  ConflictType,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -16,8 +18,6 @@ import {
   RS_ResolverOptions,
   TempGrammarRule,
   TempGrammarType,
-  Conflict,
-  ConflictType,
   Definition,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
@@ -332,8 +332,14 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
     // ensure all resolved are indeed conflicts
     // first, transform the conflicts to a single array
-    const allConflicts = [] as Conflict<T>[];
-    conflicts.forEach((cs) => allConflicts.push(...cs));
+    const allConflicts = [] as {
+      conflict: Conflict<T>;
+      reducerRule: GrammarRule<T>;
+    }[];
+    conflicts.forEach(
+      (cs, reducerRule) =>
+        allConflicts.push(...cs.map((c) => ({ conflict: c, reducerRule }))) // TODO: remove temp array
+    );
     // then, ensure all resolved are in the conflicts
     resolved.forEach((c) => {
       // check next
@@ -341,8 +347,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         c.next.forEach((n) => {
           if (
             !allConflicts.some(
-              (conflict) =>
-                c.reducerRule == conflict.reducerRule &&
+              ({ conflict, reducerRule }) =>
+                c.reducerRule == reducerRule &&
                 c.anotherRule == conflict.anotherRule &&
                 c.type == conflict.type &&
                 (conflict.next as Grammar[]).some((nn) => n.eq(nn))
@@ -364,8 +370,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         c.next != "*" &&
         c.handleEnd &&
         !allConflicts.some(
-          (conflict) =>
-            c.reducerRule == conflict.reducerRule &&
+          ({ conflict, reducerRule }) =>
+            c.reducerRule == reducerRule &&
             c.anotherRule == conflict.anotherRule &&
             c.type == conflict.type &&
             conflict.handleEnd
@@ -390,13 +396,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     style: "builder" | "context"
   ) {
     if (style == "builder") {
-      unresolved.forEach((v, k) => {
+      unresolved.forEach((v, reducerRule) => {
         const txt = v
           .map(
             (c) =>
               `.resolve${
                 c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-              }(${c.reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
+              }(${reducerRule.toString()}, ${c.anotherRule.toString()}, { ${
                 c.next.length > 0
                   ? `next: \`${(c.next as Grammar[])
                       .map((g) => g.toString()) // TODO: change this to toGrammarString?

@@ -1,5 +1,5 @@
 import { Condition, Grammar, GrammarRule } from "../../model";
-import { ConflictType } from "./conflict";
+import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 

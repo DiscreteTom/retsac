@@ -47,7 +47,7 @@ export class LR_BuilderError extends Error {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
-        ? `Unresolved R-S conflict (length: ${c.length}, next: \`${(
+        ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${(
             c.next as Grammar[]
           )
             .map((g) => g.toString())

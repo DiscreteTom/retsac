@@ -1,8 +1,7 @@
 import { Traverser } from "../../ast";
-import { Callback, Condition, Reducer } from "../model";
+import { Callback, Condition, ConflictType, Reducer } from "../model";
 import {
   DefinitionContext,
-  ConflictType,
   Definition,
   ResolvedPartialTempConflict,
 } from "./model";

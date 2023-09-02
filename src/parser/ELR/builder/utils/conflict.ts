@@ -1,7 +1,14 @@
 import { DFA } from "../../DFA";
-import { GrammarRule, GrammarSet, Grammar, GrammarType } from "../../model";
+import {
+  GrammarRule,
+  GrammarSet,
+  Grammar,
+  GrammarType,
+  Conflict,
+  ConflictType,
+} from "../../model";
 import { LR_BuilderError } from "../error";
-import { ConflictType, Conflict, ResolvedConflict } from "../model";
+import { ResolvedConflict } from "../model";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
@@ -184,11 +191,10 @@ export function getConflicts<T>(
           // auto resolve failed
           const conflict: Conflict<T> = {
             type: ConflictType.REDUCE_SHIFT,
-            reducerRule,
             anotherRule,
             handleEnd: false,
             next: overlap,
-            length: c.length,
+            overlapped: c.length,
           };
           if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
           else result.set(reducerRule, [conflict]);
@@ -214,11 +220,10 @@ export function getConflicts<T>(
             // auto resolve failed
             const conflict: Conflict<T> = {
               type: ConflictType.REDUCE_SHIFT,
-              reducerRule,
               anotherRule,
               handleEnd: false,
               next: [Grammar.T(E.kind)],
-              length: c.length,
+              overlapped: c.length,
             };
             if (result.has(reducerRule))
               result.get(reducerRule)!.push(conflict);
@@ -246,11 +251,10 @@ export function getConflicts<T>(
             // auto resolve failed
             const conflict: Conflict<T> = {
               type: ConflictType.REDUCE_SHIFT,
-              reducerRule,
               anotherRule,
               handleEnd: false,
               next: [Grammar.Literal(E.kind, E.kind)], // TODO: change this
-              length: c.length,
+              overlapped: c.length,
             };
             if (result.has(reducerRule))
               result.get(reducerRule)!.push(conflict);
@@ -302,7 +306,6 @@ export function getConflicts<T>(
         // auto resolve failed
         const c: Conflict<T> = {
           type: ConflictType.REDUCE_REDUCE,
-          reducerRule,
           anotherRule,
           next: overlap,
           // for a RR conflict, we need to handle end of input if both's NT in end sets
@@ -329,13 +332,13 @@ export function getUnresolvedConflicts<T>(
 ) {
   const result = new Map<GrammarRule<T>, Conflict<T>[]>();
 
-  conflicts.forEach((cs) => {
+  conflicts.forEach((cs, reducerRule) => {
     cs.forEach((c) => {
       if (c.type == ConflictType.REDUCE_SHIFT) {
         const res = getUserUnresolvedConflicts(
           resolved,
           ConflictType.REDUCE_SHIFT,
-          c.reducerRule,
+          reducerRule,
           c.anotherRule,
           c.next as Grammar[],
           false, // for a RS conflict, we don't need to handle end of input
@@ -345,22 +348,20 @@ export function getUnresolvedConflicts<T>(
         if (res.next.length > 0) {
           const conflict: Conflict<T> = {
             type: ConflictType.REDUCE_SHIFT,
-            reducerRule: c.reducerRule,
             anotherRule: c.anotherRule,
             handleEnd: false,
             next: res.next,
-            length: c.length,
+            overlapped: c.overlapped,
           };
-          if (result.has(c.reducerRule))
-            result.get(c.reducerRule)!.push(conflict);
-          else result.set(c.reducerRule, [conflict]);
+          if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
+          else result.set(reducerRule, [conflict]);
         }
       } else {
         // RR conflict
         const res = getUserUnresolvedConflicts(
           resolved,
           ConflictType.REDUCE_REDUCE,
-          c.reducerRule,
+          reducerRule,
           c.anotherRule,
           c.next as Grammar[],
           c.handleEnd,
@@ -369,14 +370,12 @@ export function getUnresolvedConflicts<T>(
         if (res.next.length > 0 || res.end) {
           const conflict: Conflict<T> = {
             type: ConflictType.REDUCE_REDUCE,
-            reducerRule: c.reducerRule,
             anotherRule: c.anotherRule,
             handleEnd: res.end,
             next: res.next,
           };
-          if (result.has(c.reducerRule))
-            result.get(c.reducerRule)!.push(conflict);
-          else result.set(c.reducerRule, [conflict]);
+          if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
+          else result.set(reducerRule, [conflict]);
         }
       }
     });

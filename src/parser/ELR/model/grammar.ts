@@ -1,4 +1,5 @@
 import { ASTNode, Traverser } from "../../ast";
+import { Conflict } from "./conflict";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
@@ -156,16 +157,16 @@ export class Grammar {
 
 export class GrammarRule<T> {
   readonly rule: readonly Grammar[];
-  /** The reduce target. */
+  /**
+   * The reduce target's kind name.
+   */
   readonly NT: string;
+  readonly conflicts: Conflict<T>[];
   callback: Callback<T>;
   rejecter: Condition<T>;
   rollback: Callback<T>;
   commit: Condition<T>;
   traverser?: Traverser<T>;
-  /** Cache the string representation. */
-  private str?: string;
-  // TODO: add a `conflicts` field, #7
 
   constructor(
     p: Pick<
@@ -179,7 +180,14 @@ export class GrammarRule<T> {
       | "traverser"
     >
   ) {
-    Object.assign(this, p);
+    this.rule = p.rule;
+    this.NT = p.NT;
+    this.callback = p.callback;
+    this.rejecter = p.rejecter;
+    this.rollback = p.rollback;
+    this.commit = p.commit;
+    this.traverser = p.traverser;
+    this.conflicts = [];
   }
 
   /**
@@ -219,6 +227,7 @@ export class GrammarRule<T> {
   toString() {
     return this.str ?? (this.str = GrammarRule.getString(this));
   }
+  private str?: string;
 
   /** Return ``{ NT: `grammar rules` }``. */
   static getString(gr: { NT: string; rule: readonly Grammar[] }) {
