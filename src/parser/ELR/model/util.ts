@@ -1,6 +1,8 @@
 import { Grammar } from "./grammar";
 
-/** Return whether `anotherRule` starts with the `reducerRule`. */
+/**
+ * Return whether `anotherRule` starts with the `reducerRule`.
+ */
 export function ruleStartsWith(
   anotherRule: readonly Grammar[],
   reducerRule: readonly Grammar[]
@@ -12,7 +14,9 @@ export function ruleStartsWith(
   return true;
 }
 
-/** Return whether `reducerRule` ends with `anotherRule`. */
+/**
+ * Return whether `reducerRule` ends with `anotherRule`.
+ */
 export function ruleEndsWith(
   reducerRule: readonly Grammar[],
   anotherRule: readonly Grammar[]
