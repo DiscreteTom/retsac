@@ -191,7 +191,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
           r.type == ConflictType.REDUCE_REDUCE
             ? r.options.handleEnd ?? false
             : false,
-        reduce: r.options.reduce ?? true,
+        reduce: r.options.accept ?? true,
       };
     });
 
@@ -495,12 +495,12 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
           // def2: [{ exp: `exp '+' exp` }]
           (def2 instanceof Array ? def2 : [def2]).forEach((d2) => {
             // d2: { exp: `exp '+' exp` }
-            this.resolveRS(d, d2, { next: `*`, reduce: true });
-            this.resolveRR(d, d2, { next: `*`, reduce: true, handleEnd: true });
-            this.resolveRS(d2, d, { next: `*`, reduce: false });
+            this.resolveRS(d, d2, { next: `*`, accept: true });
+            this.resolveRR(d, d2, { next: `*`, accept: true, handleEnd: true });
+            this.resolveRS(d2, d, { next: `*`, accept: false });
             this.resolveRR(d2, d, {
               next: `*`,
-              reduce: false,
+              accept: false,
               handleEnd: true,
             });
           });
@@ -515,10 +515,10 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         def.forEach((d, i) => {
           def.forEach((d2, j) => {
             if (i == j) return;
-            this.resolveRS(d, d2, { next: `*`, reduce: true });
-            this.resolveRR(d, d2, { next: `*`, reduce: true, handleEnd: true });
-            this.resolveRS(d2, d, { next: `*`, reduce: true });
-            this.resolveRR(d2, d, { next: `*`, reduce: true, handleEnd: true });
+            this.resolveRS(d, d2, { next: `*`, accept: true });
+            this.resolveRR(d, d2, { next: `*`, accept: true, handleEnd: true });
+            this.resolveRS(d2, d, { next: `*`, accept: true });
+            this.resolveRR(d2, d, { next: `*`, accept: true, handleEnd: true });
           });
         });
       }
@@ -529,14 +529,14 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
   leftSA(...defs: Definition[]) {
     defs.forEach((def) => {
-      this.resolveRS(def, def, { next: `*`, reduce: true });
+      this.resolveRS(def, def, { next: `*`, accept: true });
     });
     return this;
   }
 
   rightSA(...defs: Definition[]) {
     defs.forEach((def) => {
-      this.resolveRS(def, def, { next: `*`, reduce: false });
+      this.resolveRS(def, def, { next: `*`, accept: false });
     });
     return this;
   }

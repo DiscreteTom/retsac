@@ -3,24 +3,27 @@ import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 
-export type RR_ResolverOptions<T> = {
-  /** Default: true */
-  reduce?: boolean | Condition<T>;
-} & (
-  | {
-      next: (string & {}) | "*";
-      handleEnd?: boolean;
-    }
-  | {
-      next?: (string & {}) | "*";
-      handleEnd: boolean;
-    }
-);
+export type BaseResolverOptions<T> = {
+  /**
+   *  Default: true
+   */
+  accept?: boolean | Condition<T>;
+};
 
-export type RS_ResolverOptions<T> = {
+export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
+  (
+    | {
+        next: (string & {}) | "*";
+        handleEnd?: boolean;
+      }
+    | {
+        next?: (string & {}) | "*";
+        handleEnd: boolean;
+      }
+  );
+
+export type RS_ResolverOptions<T> = BaseResolverOptions<T> & {
   next: (string & {}) | "*";
-  /** Default: true */
-  reduce?: boolean | Condition<T>;
 };
 
 export type ConflictTypeAndResolverOptions<T> =

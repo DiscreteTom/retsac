@@ -27,6 +27,7 @@
   - **_Breaking Change_**: refactor typed errors.
   - **_Breaking Change_**: rename `ParserContext` to `GrammarRuleContext`, make `ParserContext` a class.
   - **_Breaking Change_**: remove `ReducerContext`, just use `GrammarRuleContext`.
+  - **_Breaking Change_**: rename `BaseResolverOptions.reduce` to `accept`.
   - Feat: add `ASTNodeSelector`.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)

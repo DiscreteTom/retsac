@@ -170,7 +170,7 @@ export class GrammarExpander {
             reducerRule: { [NT]: reducerRule },
             anotherRule: { [NT]: anotherRule },
             // in most cases we want the `+*?` to be greedy
-            options: { next: "*", reduce: false },
+            options: { next: "*", accept: false },
           });
           if (debug)
             console.log(
@@ -213,7 +213,7 @@ export class GrammarExpander {
         reducerRule: { [p]: `${gs}` },
         anotherRule: { [p]: `${gs} ${p}` },
         // in most cases we want the `+*?` to be greedy
-        options: { next: "*", reduce: false },
+        options: { next: "*", accept: false },
       });
 
       if (debug) {
