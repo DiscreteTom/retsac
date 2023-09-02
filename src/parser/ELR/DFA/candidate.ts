@@ -1,29 +1,36 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
-import { ParserOutput } from "../../model";
+import { ParserOutput, rejectedParserOutput } from "../../model";
 import { GrammarRule, GrammarSet, GrammarRuleContext } from "../model";
 import { ASTNodeSelectorFactory, lexGrammar } from "./utils";
 
 /** Candidate for ELR parsers. */
 export class Candidate<T> {
   readonly gr: Readonly<GrammarRule<T>>;
-  /** How many grammars are already matched in `this.gr`. */
+  /**
+   * How many grammars are already matched in `this.gr`.
+   */
   readonly digested: number;
   /**
-   * `ast node str => candidate`.
+   * `ASTNode.uniqueString => candidate`.
    * This will be calculated during `DFA.calculateAllStates`.
+   * `null` means the node can not be accepted.
    */
-  protected readonly nextMap: Map<string, Candidate<T> | null>;
-  /** Cache the string representation. */
-  private str?: string;
+  // don't use `undefined` here
+  // because `Map.get` return `undefined` when key not found
+  private readonly nextMap: Map<string, Candidate<T> | null>;
 
   constructor(data: Pick<Candidate<T>, "gr" | "digested">) {
-    Object.assign(this, data);
+    this.gr = data.gr;
+    this.digested = data.digested;
     this.nextMap = new Map();
   }
 
-  /** Current grammar. */
+  /**
+   * Current undigested grammar.
+   * Use this to match the next node.
+   */
   get current() {
     return this.gr.rule[this.digested];
   }
@@ -33,9 +40,9 @@ export class Candidate<T> {
   }
 
   /**
-   * Accept the node and generate next candidate with `digested + 1`.
+   * Try to accept the node and generate next candidate with `digested + 1`.
    *
-   * Return `null` if the node can not be accepted.
+   * Return `null` if the node can't be accepted or this can't digest more.
    */
   getNext(node: Readonly<ASTNode<any>>): Candidate<T> | null {
     const key = node.toString(); // we don't need node's name here
@@ -47,67 +54,99 @@ export class Candidate<T> {
     // not in cache, calculate and cache
     const res =
       this.canDigestMore() && this.current.match(node)
-        ? new Candidate<T>({ gr: this.gr, digested: this.digested + 1 })
+        ? new Candidate<T>({ gr: this.gr, digested: this.digested + 1 }) // TODO: CandidateRepo?
         : null;
     this.nextMap.set(key, res);
     return res;
   }
 
   /**
-   * Return `NT <= ...before @ ...after`.
+   * Return `NT := ...before # ...after`.
+   * Grammar's name will NOT be used.
    * The result will be cached for future use.
    */
   toString() {
     return this.str ?? (this.str = Candidate.getString(this));
   }
+  private str?: string;
+  /**
+   * Return `NT := ...before # ...after`.
+   * Grammar's name will NOT be used.
+   */
+  static getString<T>(data: Pick<Candidate<T>, "gr" | "digested">) {
+    return [
+      data.gr.NT,
+      ":=",
+      ...data.gr.rule.slice(0, data.digested).map((r) => r.toGrammarString()),
+      "#",
+      ...data.gr.rule.slice(data.digested).map((r) => r.toGrammarString()),
+    ].join(" ");
+  }
 
-  static getString<T>(
-    data: Pick<Candidate<T>, "gr" | "digested">,
-    sep = " ",
-    arrow = "<=",
-    index = "@"
+  /**
+   * Return `NT := ...before # ...after`.
+   * Grammar's name will be used.
+   * This is unique for each candidate.
+   * The result will be cached for future use.
+   */
+  toStringWithGrammarName() {
+    return (
+      this.strWithGrammarName ??
+      (this.strWithGrammarName = Candidate.getStringWithGrammarName(this))
+    );
+  }
+  private strWithGrammarName?: string;
+  /**
+   * Return `NT := ...before # ...after`.
+   */
+  static getStringWithGrammarName<T>(
+    data: Pick<Candidate<T>, "gr" | "digested">
   ) {
     return [
       data.gr.NT,
-      arrow,
-      ...data.gr.rule.slice(0, data.digested).map((r) => r.toGrammarString()),
-      index,
-      ...data.gr.rule.slice(data.digested).map((r) => r.toGrammarString()),
-    ].join(sep);
+      ":=",
+      ...data.gr.rule
+        .slice(0, data.digested)
+        .map((r) => r.toGrammarStringWithName()),
+      "#",
+      ...data.gr.rule
+        .slice(data.digested)
+        .map((r) => r.toGrammarStringWithName()),
+    ].join(" ");
   }
 
+  /**
+   * This is used in State to deduplicate candidates.
+   */
+  // TODO: remove this? since CandidateRepo should make sure no duplicate candidates
   eq(other: { gr: Readonly<GrammarRule<T>>; digested: number }) {
     return (
-      this.gr == other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
-      this.digested === other.digested
+      this == other || // same object
+      (this.gr == other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
+        this.digested === other.digested)
     );
   }
 
   /**
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
+   * If this already digested all the grammar rules, check follow set.
    * Return all the possible results.
    */
   tryLex(
-    lexer: ILexer<any>,
+    lexer: Readonly<ILexer<any>>,
     followSets: ReadonlyMap<string, GrammarSet>
   ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
     if (this.canDigestMore()) {
       const res = lexGrammar<T>(this.current, lexer);
-      if (res != null) return [{ node: res, lexer }];
+      if (res != null) return [res];
       else return [];
     }
 
     // else, digestion finished, check follow set
-    const followSet = followSets.get(this.gr.NT)!;
-    return followSet
-      .map((g) => {
-        const l = lexer.clone(); // clone lexer to avoid side effect
-        return {
-          node: lexGrammar<T>(g, l),
-          lexer: l,
-        };
-      })
-      .filter((r) => r.node != null) as {
+    return followSets
+      .get(this.gr.NT)!
+      .map((g) => lexGrammar<T>(g, lexer))
+      .filter((r) => r != null) as {
       node: ASTNode<T>;
       lexer: ILexer<any>;
     }[];

@@ -38,7 +38,7 @@ export class DFABuilder {
     const allInitialCandidates = new Map<string, Candidate<T>>();
     grs.forEach((gr) => {
       const c = new Candidate<T>({ gr, digested: 0 });
-      allInitialCandidates.set(c.toString(), c);
+      allInitialCandidates.set(c.toString(), c); // TODO: use toStringWithName?
     });
 
     const entryState = new State<T>(

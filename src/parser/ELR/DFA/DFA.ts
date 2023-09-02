@@ -109,7 +109,7 @@ export class DFA<T> {
                 .getRest()
                 .slice(0, 10)}\nCandidates:\n${stateStack
                 .at(-1)!
-                .candidates.map((c) => c.toString())
+                .candidates.map((c) => c.toStringWithGrammarName())
                 .join("\n")}`
             );
             return { output: { accept: false }, lexer };
@@ -157,7 +157,7 @@ export class DFA<T> {
               .at(-1)
               ?.toStringWithName()} Candidates:\n${stateStack
               .at(-1)!
-              .candidates.map((c) => c.toString())
+              .candidates.map((c) => c.toStringWithGrammarName())
               .join("\n")}`
           );
           return { output: { accept: false }, lexer };

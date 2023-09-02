@@ -80,25 +80,27 @@ export function ASTNodeSelectorFactory<T>(
   };
 }
 
-/** Try to use lexer to get the specified grammar. */
+/**
+ * Try to use lexer to yield the specified grammar.
+ * Return `null` if failed.
+ */
 export function lexGrammar<T>(
   g: Grammar,
-  lexer: ILexer<any>
-): ASTNode<T> | null {
+  lexer: Readonly<ILexer<any>>
+): { node: ASTNode<T>; lexer: ILexer<any> } | null {
   if (g.type == GrammarType.NT) {
+    // NT can't be lexed
     return null;
-  } else {
-    // try to lex to get the token
-    const token = lexer.lex({
-      expect: {
-        kind: g.kind,
-        text: g.text,
-      },
-    });
-    if (token == null) {
-      return null;
-    } else {
-      return ASTNode.from<T>(token);
-    }
   }
+
+  // try to lex to get the token
+  lexer = lexer.clone(); // prevent side effect // TODO: don't clone lexer, use peek?
+  const token = lexer.lex({
+    expect: {
+      kind: g.kind,
+      text: g.text, // maybe undefined
+    },
+  });
+  if (token == null) return null;
+  return { node: ASTNode.from<T>(token), lexer };
 }
