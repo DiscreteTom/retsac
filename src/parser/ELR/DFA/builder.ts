@@ -1,17 +1,6 @@
 import { ILexer } from "../../../lexer";
-import {
-  TempGrammarRule,
-  ResolvedTempConflict,
-  ParserBuilderData,
-} from "../builder";
-import { defToTempGRs } from "../builder/utils/definition";
-import {
-  ConflictType,
-  GrammarRepo,
-  GrammarRule,
-  GrammarSet,
-  GrammarType,
-} from "../model";
+import { ResolvedTempConflict, ParserBuilderData } from "../builder";
+import { GrammarRepo, GrammarRule, GrammarSet, GrammarType } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 import {
