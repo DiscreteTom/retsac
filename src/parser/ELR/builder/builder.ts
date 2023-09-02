@@ -202,8 +202,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       const { nextGrammars, needHandleEnd } = parseResolved(r, conflicts);
       // if no conflict, no need to update rejecter
       if (nextGrammars.length == 0 && !needHandleEnd) return;
-      // pre-calculate next nodes to avoid repeated calculation
-      const nextNodes = nextGrammars.map((g) => g.toTempASTNode());
 
       const generated: Condition<T> = (ctx) => {
         if (
@@ -222,7 +220,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         // else, not the end of input
         // check if any next grammar match the next token
         if (
-          nextNodes.some(
+          nextGrammars.some(
             (g) =>
               ctx.lexer
                 .clone() // clone the lexer with state to peek next and avoid changing the original lexer
