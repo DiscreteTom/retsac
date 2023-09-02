@@ -260,7 +260,8 @@ export class GrammarRule<T> {
   }
 
   /**
-   * Return ``{ NT: `grammar rules` }``.
+   * Return the grammar string: ``{ NT: `grammar rules` }``.
+   * This is lazy and cached.
    */
   toString() {
     return this.str ?? (this.str = GrammarRule.getString(this));
@@ -269,7 +270,7 @@ export class GrammarRule<T> {
   /**
    * Return ``{ NT: `grammar rules` }``.
    */
-  static getString(gr: { NT: string; rule: readonly Grammar[] }) {
+  static getString(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.toGrammarString())
       .join(" ")}\` }`;
