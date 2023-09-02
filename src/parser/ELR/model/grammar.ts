@@ -275,30 +275,46 @@ export class GrammarRule<T> {
   }
 }
 
-/** A set of different grammars. */
+/**
+ * A set of different grammars, ignore the name.
+ * This is used when the name of grammar is NOT needed.
+ * E.g. DFA's first/follow sets.
+ */
 export class GrammarSet {
-  /** Grammars. `string exp => grammar` */
+  /**
+   * Grammars. `grammar's unique string => grammar`
+   */
   private gs: Map<string, Grammar>;
 
   constructor() {
     this.gs = new Map();
   }
 
-  has<_>(g: Readonly<Grammar> | Readonly<ASTNode<_>>) {
-    if (g instanceof Grammar) return this.gs.has(g.toUniqueString()); // Grammar
-    return this.gs.has((g as Readonly<ASTNode<_>>).kind); // ASTNode, check kind name
+  get grammars() {
+    return this.gs as ReadonlyMap<string, Grammar>;
   }
 
-  /** Return `true` if successfully added. */
+  /**
+   * Return `true` if successfully added(g is not in this before), else `false`.
+   */
   add(g: Grammar) {
     if (this.has(g)) return false;
     this.gs.set(g.toUniqueString(), g);
     return true;
   }
 
-  map<R>(f: (g: Grammar) => R) {
-    const result = [] as R[];
-    for (const g of this.gs.values()) result.push(f(g));
+  has(g: Readonly<Grammar> | Readonly<ASTNode<any>>) {
+    return this.gs.has(g.toUniqueString()); // Grammar & ASTNode has the same unique string format
+  }
+
+  /**
+   * Return a list of grammars that in both `this` and `gs`.
+   */
+  overlap(gs: Readonly<GrammarSet>) {
+    const result = [] as Grammar[];
+    this.gs.forEach((g) => {
+      if (gs.has(g)) result.push(g);
+    });
     return result;
   }
 
