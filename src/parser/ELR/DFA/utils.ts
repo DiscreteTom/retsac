@@ -1,3 +1,4 @@
+import { ASTNodeSelector, ASTNode } from "../../ast";
 import { GrammarRule, GrammarType } from "../model";
 
 export function getAllNTClosure<T>(
@@ -54,4 +55,26 @@ export function getGrammarRulesClosure<T>(
   }
 
   return result;
+}
+
+// this function is especially for ELR parser
+// since the cascade query is only used in ELR parser
+// so don't move this into ast.ts file
+export function ASTNodeSelectorFactory<T>(
+  cascadeQueryPrefix: string | undefined
+): ASTNodeSelector<T> {
+  return (name: string, nodes: readonly ASTNode<T>[]) => {
+    const result: ASTNode<T>[] = [];
+    nodes.forEach((n) => {
+      if (n.name === name) result.push(n);
+
+      // cascade query
+      if (
+        cascadeQueryPrefix !== undefined &&
+        n.name.startsWith(cascadeQueryPrefix)
+      )
+        result.push(...n.$(name));
+    });
+    return result;
+  };
 }

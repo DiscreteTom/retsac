@@ -1,6 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
-import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
+import { ASTNode } from "../../ast";
 import { ParserOutput } from "../../model";
 import {
   Grammar,
@@ -9,6 +9,7 @@ import {
   GrammarType,
   GrammarRuleContext,
 } from "../model";
+import { ASTNodeSelectorFactory } from "./utils";
 
 /** Candidate for ELR parsers. */
 export class Candidate<T> {
@@ -244,27 +245,4 @@ function lexGrammar<T>(g: Grammar, lexer: ILexer<any>): ASTNode<T> | null {
       return ASTNode.from<T>(token);
     }
   }
-}
-
-// the function is especially for ELR parser
-// since the cascade query is only used in ELR parser
-// so don't move this into ast.ts file
-// TODO: move to utils to export
-function ASTNodeSelectorFactory<T>(
-  cascadeQueryPrefix: string | undefined
-): ASTNodeSelector<T> {
-  return (name: string, nodes: readonly ASTNode<T>[]) => {
-    const result: ASTNode<T>[] = [];
-    nodes.forEach((n) => {
-      if (n.name === name) result.push(n);
-
-      // cascade query
-      if (
-        cascadeQueryPrefix !== undefined &&
-        n.name.startsWith(cascadeQueryPrefix)
-      )
-        result.push(...n.$(name));
-    });
-    return result;
-  };
 }
