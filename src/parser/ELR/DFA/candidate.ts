@@ -7,7 +7,7 @@ import {
   GrammarRule,
   GrammarSet,
   GrammarType,
-  ParserContext,
+  GrammarRuleContext,
 } from "../model";
 
 /** Candidate for ELR parsers. */
@@ -131,20 +131,24 @@ export class Candidate<T> {
     lexer: ILexer<any>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
-  ): { res: ParserOutput<T>; context?: ParserContext<T>; commit?: boolean } {
+  ): {
+    res: ParserOutput<T>;
+    context?: GrammarRuleContext<T>;
+    commit?: boolean;
+  } {
     if (this.canDigestMore()) return { res: { accept: false } };
 
     const matched = buffer.slice(-this.gr.rule.length);
     matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
-    const rollback = () => matched.forEach((n, i) => (n.name = n.type)); // rollback the name
+    const rollbackNames = () => matched.forEach((n) => (n.name = n.type)); // rollback the name
 
-    const context: ParserContext<T> = {
+    const selector = ASTNodeSelectorFactory<T>(cascadeQueryPrefix);
+    const context = new GrammarRuleContext<T>({
       matched,
-      before: buffer.slice(0, -this.gr.rule.length),
-      after: lexer.getRest(),
       lexer,
-      $: ASTNodeChildrenSelectorFactory(matched, cascadeQueryPrefix),
-    };
+      beforeFactory: () => buffer.slice(0, -this.gr.rule.length),
+      selector,
+    });
 
     // check follow for LR(1) with the rest input string
     if (
@@ -180,7 +184,7 @@ export class Candidate<T> {
               10 // only show first 10 chars
             )}`
           );
-          rollback();
+          rollbackNames();
           return { res: { accept: false } };
         }
       }
@@ -190,7 +194,7 @@ export class Candidate<T> {
     // check rejecter
     if (this.gr.rejecter(context)) {
       logger(`[Reject] ${this.gr.toString()}`);
-      rollback();
+      rollbackNames();
       return { res: { accept: false } };
     }
 
@@ -203,7 +207,7 @@ export class Candidate<T> {
       error: context.error,
       start: matched[0].start,
       traverser: this.gr.traverser,
-      selector: ASTNodeSelectorFactory(cascadeQueryPrefix),
+      selector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
     logger(`[Accept] ${this.gr.toString()}`);

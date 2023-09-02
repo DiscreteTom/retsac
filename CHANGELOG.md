@@ -23,10 +23,13 @@
     - **_Breaking Change_**: refactor `ASTNode.toString`. The output format is changed.
   - **_Breaking Change_**: rename `ASTNodeQuerySelector` to `ASTNodeChildrenSelector`.
   - **_Breaking Change_**: refactor typed errors.
+  - **_Breaking Change_**: rename `ParserContext` to `GrammarRuleContext`, make `ParserContext` a class.
+  - **_Breaking Change_**: remove `ReducerContext`, just use `GrammarRuleContext`.
   - Feat: add `ASTNodeSelector`.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - Lexer will skip unexpected actions by checking expected text.
+  - Make unnecessary calculation lazy and cached.
 
 ## v0.11.0
 

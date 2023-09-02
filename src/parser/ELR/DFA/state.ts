@@ -7,7 +7,7 @@ import {
   GrammarRule,
   GrammarSet,
   GrammarType,
-  ParserContext,
+  GrammarRuleContext,
 } from "../model";
 import { Candidate } from "./candidate";
 
@@ -123,7 +123,7 @@ export class State<T> {
   ): {
     res: ParserOutput<T>;
     rollback?: Callback<T>;
-    context?: ParserContext<T>;
+    context?: GrammarRuleContext<T>;
     commit?: boolean;
   } {
     for (const c of this.candidates) {

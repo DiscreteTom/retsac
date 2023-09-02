@@ -1,10 +1,9 @@
 import { Traverser } from "../../ast";
-import { Callback, Condition } from "../model";
+import { Callback, Condition, Reducer } from "../model";
 import {
   DefinitionContext,
   ConflictType,
   Definition,
-  Reducer,
   ResolvedPartialTempConflict,
 } from "./model";
 import { RS_ResolverOptions, RR_ResolverOptions } from "./model";
@@ -53,13 +52,7 @@ export class DefinitionContextBuilder<T> {
 
   /** Modify this context with a reducer appended which can reduce data. */
   reducer(f: Reducer<T>) {
-    return this.callback(
-      (context) =>
-        (context.data = f({
-          ...context,
-          values: context.matched.map((node) => node.data),
-        }))
-    );
+    return this.callback((context) => (context.data = f(context)));
   }
 
   /** Modify this context with a rollback function appended. */
