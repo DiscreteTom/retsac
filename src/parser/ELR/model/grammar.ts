@@ -230,10 +230,11 @@ export class GrammarRule<T> {
    */
   checkRSConflict(another: Readonly<GrammarRule<T>>) {
     const result = [] as {
-      reducerRule: Readonly<GrammarRule<T>>;
-      shifterRule: Readonly<GrammarRule<T>>;
-      /** How many grammars are overlapped in rule. */
-      length: number;
+      shifterRule: Pick<Conflict<T>, "anotherRule">["anotherRule"];
+      overlapped: Extract<
+        Pick<Conflict<T>, "overlapped">["overlapped"],
+        number
+      >;
     }[];
     for (let i = 0; i < this.rule.length; ++i) {
       if (
@@ -243,27 +244,31 @@ export class GrammarRule<T> {
         this.rule.length - i != another.rule.length
       ) {
         result.push({
-          reducerRule: this,
           shifterRule: another,
-          length: this.rule.length - i,
+          overlapped: this.rule.length - i,
         });
       }
     }
     return result;
   }
 
-  /** Check if the tail of this's rule is the same as another's whole rule. */
+  /**
+   * Check if the tail of this's rule is the same as another's whole rule.
+   */
   checkRRConflict(another: Readonly<GrammarRule<T>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 
-  /** Return ``{ NT: `grammar rules` }``. */
+  /**
+   * Return ``{ NT: `grammar rules` }``.
+   */
   toString() {
     return this.str ?? (this.str = GrammarRule.getString(this));
   }
   private str?: string;
-
-  /** Return ``{ NT: `grammar rules` }``. */
+  /**
+   * Return ``{ NT: `grammar rules` }``.
+   */
   static getString(gr: { NT: string; rule: readonly Grammar[] }) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.toGrammarString())

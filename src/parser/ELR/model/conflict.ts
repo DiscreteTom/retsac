@@ -33,7 +33,7 @@ export type ResolvedConflict<T> = Pick<
   /**
    * Use `'*'` to represent any grammars.
    */
-  next: Readonly<Grammar>[] | "*"; // TODO: use GrammarSet
+  next: Pick<Conflict<T>, "next">["next"] | "*";
   /**
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */

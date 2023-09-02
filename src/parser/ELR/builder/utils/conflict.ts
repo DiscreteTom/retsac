@@ -6,9 +6,9 @@ import {
   GrammarType,
   Conflict,
   ConflictType,
+  ResolvedConflict,
 } from "../../model";
 import { LR_BuilderError } from "../error";
-import { ResolvedConflict } from "../model";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
@@ -157,8 +157,8 @@ export function getConflicts<T>(
         // try to auto resolve conflicts if possible
         // e.g. for a reduce-shift conflict: `A <= B C` and `D <= C E`
         // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
-        const A = c.reducerRule.NT;
-        const E = c.shifterRule.rule[c.length];
+        const A = reducerRule.NT;
+        const E = c.shifterRule.rule[c.overlapped];
         const EFirst = firstSets.get(E.kind)!;
         const AFollow = followSets.get(A)!;
         if (E.type == GrammarType.NT) {
@@ -168,7 +168,7 @@ export function getConflicts<T>(
             // no overlap, conflicts can be auto resolved
             if (debug)
               console.log(
-                `[auto resolve RS (no follow overlap)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (no follow overlap)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -177,13 +177,13 @@ export function getConflicts<T>(
             !states.some(
               (s) =>
                 s.contains(reducerRule, reducerRule.rule.length) &&
-                s.contains(anotherRule, c.length)
+                s.contains(anotherRule, c.overlapped)
             )
           ) {
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               console.log(
-                `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
               );
             return;
           }
@@ -194,7 +194,7 @@ export function getConflicts<T>(
             anotherRule,
             handleEnd: false,
             next: overlap,
-            overlapped: c.length,
+            overlapped: c.overlapped,
           };
           if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
           else result.set(reducerRule, [conflict]);
@@ -206,13 +206,13 @@ export function getConflicts<T>(
               !states.some(
                 (s) =>
                   s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.length)
+                  s.contains(anotherRule, c.overlapped)
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -223,7 +223,7 @@ export function getConflicts<T>(
               anotherRule,
               handleEnd: false,
               next: [Grammar.T(E.kind)],
-              overlapped: c.length,
+              overlapped: c.overlapped,
             };
             if (result.has(reducerRule))
               result.get(reducerRule)!.push(conflict);
@@ -237,13 +237,13 @@ export function getConflicts<T>(
               !states.some(
                 (s) =>
                   s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.length)
+                  s.contains(anotherRule, c.overlapped)
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 console.log(
-                  `[auto resolve RS (DFA state)]: ${c.reducerRule.toString()} | ${c.shifterRule.toString()}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule.toString()} | ${c.shifterRule.toString()}`
                 );
               return;
             }
@@ -254,7 +254,7 @@ export function getConflicts<T>(
               anotherRule,
               handleEnd: false,
               next: [Grammar.Literal(E.kind, E.kind)], // TODO: change this
-              overlapped: c.length,
+              overlapped: c.overlapped,
             };
             if (result.has(reducerRule))
               result.get(reducerRule)!.push(conflict);
