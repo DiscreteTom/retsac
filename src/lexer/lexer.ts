@@ -9,6 +9,7 @@ import { esc4regex } from "./utils";
 export class Lexer<E> implements ILexer<E> {
   debug: boolean;
   logger: Logger;
+  readonly errors: Token<E>[];
   readonly defs: readonly Readonly<Definition<E>>[];
   /** Only `feed`, `reset` can modify this var. */
   private _buffer: string;
@@ -22,8 +23,6 @@ export class Lexer<E> implements ILexer<E> {
    * Only `update`, `reset` can modify this var.
    */
   private _lineChars: number[];
-  /** Error token list. */
-  private _errors: Token<E>[];
   /**
    * Cache whether this lexer already trim start.
    * Only `update`, `feed`, `reset`, `trimStart` can modify this var.
@@ -42,6 +41,7 @@ export class Lexer<E> implements ILexer<E> {
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? console.log;
+    this.errors = [];
     this.reset();
   }
 
@@ -57,10 +57,6 @@ export class Lexer<E> implements ILexer<E> {
     return this._lineChars;
   }
 
-  get errors(): readonly Token<E>[] {
-    return this._errors;
-  }
-
   /**
    * Log message if debug.
    * Use factory to prevent unnecessary string concat.
@@ -74,7 +70,7 @@ export class Lexer<E> implements ILexer<E> {
     this._buffer = "";
     this._digested = 0;
     this._lineChars = [0];
-    this._errors = [];
+    this.errors.length = 0;
     this.trimmed = true; // no input yet, so no need to trim
     this.rest = undefined;
     return this;
@@ -92,7 +88,7 @@ export class Lexer<E> implements ILexer<E> {
     res._buffer = this._buffer;
     res._digested = this._digested;
     res._lineChars = [...this._lineChars];
-    res._errors = [...this._errors];
+    res.errors.push(...this.errors);
     res.trimmed = this.trimmed;
     res.rest = this.rest;
     return res;
@@ -265,7 +261,7 @@ export class Lexer<E> implements ILexer<E> {
           const token = this.res2token(res, def);
 
           // collect errors
-          if (token.error) this._errors.push(token);
+          if (token.error) this.errors.push(token);
 
           if (!res.muted) {
             // emit token
@@ -392,7 +388,7 @@ export class Lexer<E> implements ILexer<E> {
           const token = this.res2token(res, def);
 
           // collect errors
-          if (token.error) this._errors.push(token);
+          if (token.error) this.errors.push(token);
 
           // since muted, re-loop all definitions
           mute = true;
@@ -443,6 +439,6 @@ export class Lexer<E> implements ILexer<E> {
   }
 
   hasErrors() {
-    return this._errors.length != 0;
+    return this.errors.length != 0;
   }
 }

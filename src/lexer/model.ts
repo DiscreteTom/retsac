@@ -20,8 +20,21 @@ export type Definition<E> = {
 };
 
 export interface ILexer<E> {
+  /**
+   * When `debug` is `true`, the lexer will use `logger` to log debug info.
+   * Default: `false`.
+   */
   debug: boolean;
+  /**
+   * The logger used when `debug` is `true`.
+   * Default: `console.log`.
+   */
   logger: Logger;
+  /**
+   * Currently accumulated errors.
+   * You can clear the errors by setting it's length to 0.
+   */
+  readonly errors: Token<E>[];
   get defs(): readonly Readonly<Definition<E>>[];
   /**
    * The entire input string.
@@ -36,9 +49,8 @@ export interface ILexer<E> {
    */
   get lineChars(): readonly number[];
   /**
-   * Get error tokens.
+   * Reset the lexer's state, only keep the definitions.
    */
-  get errors(): readonly Token<E>[];
   reset(): this;
   /**
    * Clone a new lexer with the same state and definitions.
