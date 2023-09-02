@@ -378,3 +378,4 @@ TODO
 ## Performance Optimization
 
 - Reduce the use of `GrammarRuleContext.after/before`.
+- Use `GrammarRuleContext.commit` to prevent the parser from backtracking(re-lex).
