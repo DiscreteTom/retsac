@@ -29,7 +29,15 @@ export type ParseExec<T> = (
 
 // TODO: default T
 export interface IParser<T> {
+  /**
+   * When `debug` is `true`, the parser will use `logger` to log debug info.
+   * Default: `false`.
+   */
   debug: boolean;
+  /**
+   * The logger used when `debug` is `true`.
+   * Default: `console.log`.
+   */
   logger: Logger;
   /**
    * Reset state.
@@ -60,12 +68,12 @@ export interface IParser<T> {
   /**
    * Get error AST nodes.
    */
-  getErrors(): readonly ASTNode<T>[];
+  getErrors(): readonly ASTNode<T>[]; // TODO: use getter
   hasErrors(): boolean;
   /**
    * Current AST nodes.
    */
-  getNodes(): readonly ASTNode<T>[]; // TODO: rename to buffer
+  getNodes(): readonly ASTNode<T>[]; // TODO: rename to buffer, use getter
   /**
    * Take the first AST node.
    */
