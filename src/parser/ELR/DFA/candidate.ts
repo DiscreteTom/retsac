@@ -164,14 +164,14 @@ export class Candidate<T> {
         let mismatch = true;
         for (const g of followSets.get(this.gr.NT)!.toArray()) {
           if (
-            lexer
-              .clone() // clone with state to prevent side effect
-              .lex({
-                expect: {
-                  kind: g.kind,
-                  text: g.text,
-                },
-              }) != null
+            lexer.lex({
+              // peek with expectation
+              peek: true,
+              expect: {
+                kind: g.kind,
+                text: g.text,
+              },
+            }) != null
           ) {
             mismatch = false;
             break;

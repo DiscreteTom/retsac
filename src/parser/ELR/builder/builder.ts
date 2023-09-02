@@ -222,15 +222,14 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         if (
           nextGrammars.some(
             (g) =>
-              ctx.lexer
-                .clone() // clone the lexer with state to peek next and avoid changing the original lexer
-                .lex({
-                  // peek with expectation
-                  expect: {
-                    kind: g.kind,
-                    text: g.text,
-                  },
-                }) != null
+              ctx.lexer.lex({
+                // peek with expectation
+                peek: true,
+                expect: {
+                  kind: g.kind,
+                  text: g.text,
+                },
+              }) != null
           )
         )
           // next match, apply the `reduce`
