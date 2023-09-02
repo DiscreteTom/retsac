@@ -3,7 +3,6 @@ import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import {
   AcceptedParserOutput,
-  ParserOutput,
   RejectedParserOutput,
   rejectedParserOutput,
 } from "../../model";

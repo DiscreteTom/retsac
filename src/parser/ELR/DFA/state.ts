@@ -1,9 +1,12 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
-import { ParserOutput } from "../../model";
 import {
-  Callback,
+  AcceptedParserOutput,
+  RejectedParserOutput,
+  rejectedParserOutput,
+} from "../../model";
+import {
   GrammarRule,
   GrammarSet,
   GrammarType,
@@ -16,6 +19,7 @@ import { Candidate } from "./candidate";
  */
 export class State<T> {
   readonly candidates: readonly Candidate<T>[];
+  readonly str: string;
   /**
    * `ASTNode.toString => state`.
    * This will be calculated during `DFA.calculateAllStates`.
@@ -25,8 +29,9 @@ export class State<T> {
   // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<string, State<T> | null>;
 
-  constructor(candidates: Candidate<T>[]) {
+  constructor(candidates: Candidate<T>[], str: string) {
     this.candidates = candidates;
+    this.str = str;
     this.nextMap = new Map();
   }
 
@@ -58,7 +63,7 @@ export class State<T> {
         return p;
       }, [] as string[]) // de-duplicated NT list
       .reduce((p, c) => {
-        NTClosures.get(c)!.map((gr) => {
+        NTClosures.get(c)!.forEach((gr) => {
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
@@ -66,27 +71,33 @@ export class State<T> {
       .map(
         (gr) =>
           // get initial candidate from global cache
-          allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
+          // TODO: use CandidateRepo?
+          allInitialCandidates.get(
+            Candidate.getStringWithGrammarName({ gr, digested: 0 })
+          )!
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
-    const result =
-      nextCandidates.length == 0 ? null : new State<T>(nextCandidates);
+    // const result =
+    //   nextCandidates.length == 0 ? null : new State<T>(nextCandidates);
 
     // check & update global state cache
-    if (result != null) {
-      const cacheKey = result.toString();
-      const cache = allStates.get(cacheKey);
+    if (nextCandidates.length != 0) {
+      const cacheKey = State.getString({ candidates: nextCandidates });
+      const cache = allStates.get(cacheKey); // TODO: use StateRepo?
       if (cache !== undefined) {
         this.nextMap.set(key, cache);
         return { state: cache, changed: false };
       } else {
+        const result = new State<T>(nextCandidates, cacheKey);
         allStates.set(cacheKey, result);
+        this.nextMap.set(key, result);
+        return { state: result, changed: true };
       }
     }
-
-    this.nextMap.set(key, result);
-    return { state: result, changed: true };
+    // else, no next candidates
+    this.nextMap.set(key, null);
+    return { state: null, changed: false };
   }
 
   contains(gr: Readonly<GrammarRule<T>>, digested: number) {
@@ -96,10 +107,20 @@ export class State<T> {
   /**
    * Get the string representation of this state.
    * The result is sorted by candidate string, so that the same state will have the same string representation.
+   * This is cached.
    */
   toString() {
-    const sorted = this.candidates.map((c) => c.toString()).sort();
-    return sorted.join("\n");
+    return this.str;
+  }
+  /**
+   * Get the string representation of this state.
+   * The result is sorted by candidate string, so that the same state will have the same string representation.
+   */
+  static getString(data: Pick<State<any>, "candidates">) {
+    return data.candidates
+      .map((c) => c.toStringWithGrammarName())
+      .sort()
+      .join("\n");
   }
 
   /**
@@ -107,13 +128,12 @@ export class State<T> {
    * Return all the possible results.
    */
   tryLex(
-    lexer: ILexer<any>,
+    lexer: Readonly<ILexer<any>>,
     followSets: ReadonlyMap<string, GrammarSet>
   ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
     const res: { node: ASTNode<T>; lexer: ILexer<any> }[] = [];
     this.candidates.forEach((c) => {
-      const l = lexer.clone(); // each candidate should have its own lexer to avoid side effect
-      res.push(...c.tryLex(l, followSets));
+      res.push(...c.tryLex(lexer, followSets));
     });
     return res;
   }
@@ -123,17 +143,17 @@ export class State<T> {
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: ILexer<any>,
+    lexer: Readonly<ILexer<any>>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
-  ): {
-    res: ParserOutput<T>;
-    rollback?: Callback<T>;
-    context?: GrammarRuleContext<T>;
-    commit?: boolean;
-  } {
+  ):
+    | RejectedParserOutput
+    | (AcceptedParserOutput<T> & {
+        context: GrammarRuleContext<T>;
+        commit: boolean;
+      }) {
     for (const c of this.candidates) {
-      const { res, context, commit } = c.tryReduce(
+      const res = c.tryReduce(
         buffer,
         entryNTs,
         followSets,
@@ -141,10 +161,10 @@ export class State<T> {
         cascadeQueryPrefix,
         logger
       );
-      // since we've already resolved all reduce-reduce conflicts, we can return the first result
-      if (res.accept) return { res, rollback: c.gr.rollback, context, commit };
+      // since we've already resolved all reduce-reduce conflicts, we can return the first accepted result
+      if (res.accept) return res;
     }
 
-    return { res: { accept: false } };
+    return rejectedParserOutput;
   }
 }
