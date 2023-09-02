@@ -32,7 +32,7 @@ export class TempGrammar {
         g.type == GrammarType.LITERAL
           ? TempGrammarType.LITERAL
           : TempGrammarType.GRAMMAR,
-      content: g.content,
+      content: g.kind,
       name: g.name,
     });
   }
@@ -49,7 +49,7 @@ export class TempGrammar {
     else if (g instanceof Grammar)
       return (
         (this.type == TempGrammarType.LITERAL) ==
-          (g.type == GrammarType.LITERAL) && this.content == g.content
+          (g.type == GrammarType.LITERAL) && this.content == g.kind
       );
   }
 

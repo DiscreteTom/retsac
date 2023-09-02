@@ -41,7 +41,7 @@ export function getGrammarRulesClosure<T>(
     result.forEach((gr) => {
       if (gr.rule[0].type == GrammarType.NT) {
         allGrammarRules
-          .filter((gr2) => gr2.NT == gr.rule[0].content)
+          .filter((gr2) => gr2.NT == gr.rule[0].kind)
           .forEach((gr) => {
             if (result.includes(gr)) return;
             changed = true;

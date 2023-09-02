@@ -46,9 +46,9 @@ export class State<T> {
         if (
           c.canDigestMore() &&
           c.current.type == GrammarType.NT &&
-          !p.includes(c.current.content)
+          !p.includes(c.current.kind)
         )
-          p.push(c.current.content);
+          p.push(c.current.kind);
         return p;
       }, [] as string[]) // de-duplicated NT list
       .reduce((p, c) => {

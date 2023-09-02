@@ -23,17 +23,17 @@ export enum GrammarType {
 export class Grammar {
   readonly type: GrammarType;
   /**
-   * The type name.
+   * The kind name.
+   * For literal, the kind name is calculated by lexer.
    */
-  readonly content: string; // TODO: rename to kind
+  readonly kind: string;
   /**
    * The literal value if this is a literal.
    */
   readonly text?: string;
   /**
    * The name of the grammar.
-   * By default the value is equal to T/NT's type name.
-   * For literal, the name is calculated by lexer.
+   * By default it's the same as the kind name.
    */
   readonly name: string;
   /**
@@ -45,9 +45,9 @@ export class Grammar {
    */
   private node?: Readonly<ASTNode<any>>;
 
-  private constructor(p: Pick<Grammar, "type" | "content" | "name" | "text">) {
+  private constructor(p: Pick<Grammar, "type" | "kind" | "name" | "text">) {
     this.type = p.type;
-    this.content = p.content;
+    this.kind = p.kind;
     this.name = p.name;
     this.text = p.text;
   }
@@ -58,7 +58,7 @@ export class Grammar {
   static T(kind: string, name?: string) {
     return new Grammar({
       type: GrammarType.T,
-      content: kind,
+      kind,
       name: name ?? kind,
     });
   }
@@ -68,7 +68,7 @@ export class Grammar {
   static NT(kind: string, name?: string) {
     return new Grammar({
       type: GrammarType.NT,
-      content: kind,
+      kind,
       name: name ?? kind,
     });
   }
@@ -78,7 +78,7 @@ export class Grammar {
   static Literal(text: string, kind: string, name?: string) {
     return new Grammar({
       type: GrammarType.LITERAL,
-      content: kind,
+      kind,
       name: name ?? kind,
       text,
     });
@@ -91,14 +91,14 @@ export class Grammar {
     if (g instanceof Grammar)
       return (
         this == g || // same object
-        (this.type == g.type && this.content == g.content) // TODO: check name?
+        (this.type == g.type && this.kind == g.kind) // TODO: check name?
       );
     else
       return this.type == GrammarType.LITERAL // TODO: check name?
         ? // check literal content
-          this.content == (g as Readonly<ASTNode<_>>).text
-        : // check type name
-          this.content == (g as Readonly<ASTNode<_>>).kind;
+          this.kind == (g as Readonly<ASTNode<_>>).text
+        : // check kind name
+          this.kind == (g as Readonly<ASTNode<_>>).kind;
   }
 
   /**
@@ -111,15 +111,15 @@ export class Grammar {
       // const token = lexer.dryClone().lex(this.content);
       // if (token === null) throw LR_RuntimeError.invalidLiteral(this.content);
       return (this.node = new ASTNode({
-        kind: this.content,
+        kind: this.kind,
         text: this.text,
         start: 0,
       }));
-    } else return (this.node = new ASTNode({ kind: this.content, start: 0 }));
+    } else return (this.node = new ASTNode({ kind: this.kind, start: 0 }));
   }
 
   /**
-   * Return `type name` or `"literal value"`.
+   * Return `kind name` or `"literal value"`.
    * The result will be cached for future use.
    */
   toString() {
@@ -128,9 +128,9 @@ export class Grammar {
       (this.str =
         this.type == GrammarType.LITERAL
           ? // literal content
-            JSON.stringify(this.content)
-          : // type name
-            this.content)
+            JSON.stringify(this.kind)
+          : // kind name
+            this.kind)
     );
   }
 }
@@ -220,7 +220,7 @@ export class GrammarSet {
     // `g instanceof Grammar` and `g instanceof Readonly<Grammar>` are not working
     // so we have to use `in` operator
     if (g instanceof Grammar) return this.gs.has(g.toString()); // Grammar
-    return this.gs.has((g as Readonly<ASTNode<_>>).kind); // ASTNode, check type name
+    return this.gs.has((g as Readonly<ASTNode<_>>).kind); // ASTNode, check kind name
   }
 
   /** Return `true` if successfully added. */

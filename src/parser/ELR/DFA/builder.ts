@@ -71,17 +71,17 @@ export class DFABuilder {
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
     grs.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
-        if (!followSets.has(g.content)) {
+        if (!followSets.has(g.kind)) {
           // if g is a T/Literal, it might not have a follow set
-          followSets.set(g.content, new GrammarSet());
+          followSets.set(g.kind, new GrammarSet());
         }
         if (i < rule.length - 1) {
           // next grammar exists, merge the current grammar's follow set with next grammar
-          const gs = followSets.get(g.content)!;
+          const gs = followSets.get(g.kind)!;
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
-            firstSets.get(rule[i + 1].content)!.forEach((g) => gs.add(g));
+            firstSets.get(rule[i + 1].kind)!.forEach((g) => gs.add(g));
         }
       });
     });
@@ -93,10 +93,10 @@ export class DFABuilder {
         followSets
           .get(gr.NT)! // target NT's follow set
           .forEach(
-            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.content)!.add(g))
+            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g))
           );
         followSets
-          .get(gr.rule.at(-1)!.content)! // last grammar's follow set
+          .get(gr.rule.at(-1)!.kind)! // last grammar's follow set
           .forEach((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
       });
 

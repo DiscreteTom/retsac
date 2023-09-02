@@ -24,7 +24,7 @@ function getEndSet<T>(
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type == GrammarType.NT) {
           // last grammar is a NT, so we need to check it in result
-          const last = Grammar.NT(gr.rule.at(-1)!.content);
+          const last = Grammar.NT(gr.rule.at(-1)!.kind);
           if (!result.has(last)) {
             result.add(last);
             changed = true;
@@ -152,7 +152,7 @@ export function getConflicts<T>(
         // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
         const A = c.reducerRule.NT;
         const E = c.shifterRule.rule[c.length];
-        const EFirst = firstSets.get(E.content)!;
+        const EFirst = firstSets.get(E.kind)!;
         const AFollow = followSets.get(A)!;
         if (E.type == GrammarType.NT) {
           // E is a NT, check if A's follow has some grammar that is also in E's first
@@ -217,7 +217,7 @@ export function getConflicts<T>(
               reducerRule,
               anotherRule,
               handleEnd: false,
-              next: [Grammar.T(E.content)],
+              next: [Grammar.T(E.kind)],
               length: c.length,
             };
             if (result.has(reducerRule))
@@ -249,7 +249,7 @@ export function getConflicts<T>(
               reducerRule,
               anotherRule,
               handleEnd: false,
-              next: [Grammar.Literal(E.content, E.content)], // TODO: change this
+              next: [Grammar.Literal(E.kind, E.kind)], // TODO: change this
               length: c.length,
             };
             if (result.has(reducerRule))
