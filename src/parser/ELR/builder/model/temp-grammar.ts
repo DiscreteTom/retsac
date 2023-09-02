@@ -5,6 +5,7 @@ import {
   GrammarRule,
   GrammarType,
   Condition,
+  GrammarRepo,
 } from "../../model";
 
 /** Grammar type, but can't distinguish N or NT. */
@@ -53,12 +54,12 @@ export class TempGrammar {
       );
   }
 
-  toGrammar(isNT = true) {
+  toGrammar(repo: GrammarRepo, isNT = true) {
     return this.type == TempGrammarType.LITERAL
-      ? Grammar.Literal(this.content, this.content) // TODO: change this
+      ? repo.Literal(this.content, this.content) // TODO: change this
       : isNT
-      ? Grammar.NT(this.content, this.name)
-      : Grammar.T(this.content, this.name);
+      ? repo.NT(this.content, this.name)
+      : repo.T(this.content, this.name);
   }
 }
 

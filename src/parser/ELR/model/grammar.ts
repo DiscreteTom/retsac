@@ -36,49 +36,22 @@ export class Grammar {
    */
   readonly name: string;
 
-  private constructor(p: Pick<Grammar, "type" | "kind" | "name" | "text">) {
+  /**
+   * Only GrammarRepo should use this constructor.
+   */
+  constructor(p: Pick<Grammar, "type" | "kind" | "name" | "text" | "str">) {
     this.type = p.type;
     this.kind = p.kind;
     this.name = p.name;
     this.text = p.text;
-  }
-
-  /**
-   * Create a T grammar.
-   */
-  static T(kind: string, name?: string) {
-    return new Grammar({
-      type: GrammarType.T,
-      kind,
-      name: name ?? kind,
-    });
-  }
-  /**
-   * Create a NT grammar.
-   */
-  static NT(kind: string, name?: string) {
-    return new Grammar({
-      type: GrammarType.NT,
-      kind,
-      name: name ?? kind,
-    });
-  }
-  /**
-   * Create a literal grammar.
-   */
-  static Literal(text: string, kind: string, name?: string) {
-    return new Grammar({
-      type: GrammarType.LITERAL,
-      kind,
-      name: name ?? kind,
-      text,
-    });
+    this.str = p.str;
   }
 
   /**
    * Check if the grammar is equal to another.
    * This is used in conflict detection, so we don't need to check the name.
    */
+  // TODO: maybe this is not needed? since we have GrammarRepo to deduplicate
   eq(g: Readonly<Grammar>) {
     return (
       this == g || // same object
@@ -121,12 +94,15 @@ export class Grammar {
   /**
    * Format: `kind(name): text`.
    * The result is suitable to be a key in a map if the name is needed.
-   * This is lazy and cached.
    */
   toString() {
-    return this.str ?? (this.str = Grammar.getString(this));
+    return this.str;
   }
-  private str?: string;
+  /**
+   * Format: `kind(name): text`.
+   * This should be set in constructor by the GrammarRepo.
+   */
+  readonly str: string;
   /**
    * Format: `kind(name): text`.
    */
@@ -317,19 +293,81 @@ export class GrammarSet {
     });
     return result;
   }
+}
 
-  forEach(f: (g: Grammar) => void) {
-    for (const g of this.gs.values()) f(g);
+/**
+ * A set of different grammars, include the name.
+ * This is used to manage the creation of grammars, to prevent creating the same grammar twice.
+ */
+export class GrammarRepo {
+  /**
+   * Grammars. `grammar's string => grammar`
+   */
+  private gs: Map<string, Grammar>;
+
+  constructor() {
+    this.gs = new Map();
   }
 
-  toArray() {
-    return Array.from(this.gs.values());
+  get(str: string) {
+    return this.gs.get(str);
   }
 
-  /** Return a list of grammars that in both `this` and `gs`. */
-  overlap(gs: Readonly<GrammarSet>) {
-    const result = [] as Grammar[];
-    for (const g of this.gs.values()) if (gs.has(g)) result.push(g);
-    return result as readonly Grammar[];
+  /**
+   * Get or create a T grammar.
+   */
+  T(kind: string, name?: string) {
+    name = name ?? kind;
+    const str = Grammar.getString({ kind, name });
+    const res = this.get(str);
+    if (res !== undefined) return res;
+
+    const g = new Grammar({
+      type: GrammarType.T,
+      kind,
+      name,
+      str,
+    });
+    this.gs.set(str, g);
+    return g;
+  }
+
+  /**
+   * Get or create a NT grammar.
+   */
+  NT(kind: string, name?: string) {
+    name = name ?? kind;
+    const str = Grammar.getString({ kind, name });
+    const res = this.get(str);
+    if (res !== undefined) return res;
+
+    const g = new Grammar({
+      type: GrammarType.NT,
+      kind,
+      name,
+      str,
+    });
+    this.gs.set(str, g);
+    return g;
+  }
+
+  /**
+   * Get or create a literal grammar.
+   */
+  Literal(text: string, kind: string, name?: string) {
+    name = name ?? kind;
+    const str = Grammar.getString({ kind, name, text });
+    const res = this.get(str);
+    if (res !== undefined) return res;
+
+    const g = new Grammar({
+      type: GrammarType.LITERAL,
+      kind,
+      name,
+      text,
+      str,
+    });
+    this.gs.set(str, g);
+    return g;
   }
 }

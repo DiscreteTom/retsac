@@ -7,6 +7,7 @@ import {
   Conflict,
   ConflictType,
   ResolvedConflict,
+  GrammarRepo,
 } from "../../model";
 import { LR_BuilderError } from "../error";
 
@@ -16,22 +17,23 @@ import { LR_BuilderError } from "../error";
  * These grammars will be used to check end of input.
  */
 function getEndSet<T>(
+  repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[]
 ) {
   const result = new GrammarSet();
 
   // entry NTs might be the last input grammar of course
-  entryNTs.forEach((nt) => result.add(Grammar.NT(nt)));
+  entryNTs.forEach((nt) => result.add(repo.NT(nt)));
 
   while (true) {
     let changed = false;
     grs.forEach((gr) => {
-      if (result.has(Grammar.NT(gr.NT))) {
+      if (result.has(repo.NT(gr.NT))) {
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type == GrammarType.NT) {
           // last grammar is a NT, so we need to check it in result
-          const last = Grammar.NT(gr.rule.at(-1)!.kind);
+          const last = repo.NT(gr.rule.at(-1)!.kind);
           if (!result.has(last)) {
             result.add(last);
             changed = true;
@@ -132,6 +134,7 @@ function getUserUnresolvedConflicts<T>(
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  */
 export function getConflicts<T>(
+  repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
   grs: readonly GrammarRule<T>[],
   dfa: DFA<T>,
@@ -139,7 +142,7 @@ export function getConflicts<T>(
 ) {
   const firstSets = dfa.getFirstSets();
   const followSets = dfa.getFollowSets();
-  const endSet = getEndSet(entryNTs, grs);
+  const endSet = getEndSet(repo, entryNTs, grs);
   const states = dfa.getAllStates();
 
   const result = new Map<GrammarRule<T>, Conflict<T>[]>();
@@ -222,7 +225,7 @@ export function getConflicts<T>(
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [Grammar.T(E.kind)],
+              next: [repo.T(E.kind)],
               overlapped: c.overlapped,
             };
             if (result.has(reducerRule))
@@ -253,7 +256,7 @@ export function getConflicts<T>(
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [Grammar.Literal(E.kind, E.kind)], // TODO: change this
+              next: [repo.Literal(E.kind, E.kind)], // TODO: change this
               overlapped: c.overlapped,
             };
             if (result.has(reducerRule))
@@ -310,8 +313,8 @@ export function getConflicts<T>(
           next: overlap,
           // for a RR conflict, we need to handle end of input if both's NT in end sets
           handleEnd:
-            endSet.has(Grammar.NT(reducerRule.NT)) &&
-            endSet.has(Grammar.NT(anotherRule.NT)),
+            endSet.has(repo.NT(reducerRule.NT)) &&
+            endSet.has(repo.NT(anotherRule.NT)),
         };
         if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
         else result.set(reducerRule, [c]);
