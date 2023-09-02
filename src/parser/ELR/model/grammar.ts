@@ -105,7 +105,7 @@ export class Grammar {
 
   /**
    * This is used when calculate all DFA state.
-   * The result will be cached to prevent duplicated calculation.
+   * This is lazy and cached.
    */
   toMockASTNode() {
     return (
@@ -122,37 +122,59 @@ export class Grammar {
 
   /**
    * Format: `kind(name): text`.
-   * The result will be cached for future use.
+   * The result is suitable to be a key in a map if the name is needed.
+   * This is lazy and cached.
    */
   toString() {
-    return this.str ?? (this.str = ASTNode.getString(this));
+    return this.str ?? (this.str = Grammar.getString(this));
   }
   private str?: string;
+  /**
+   * Format: `kind(name): text`.
+   */
+  static getString(data: Pick<Grammar, "kind" | "name" | "text">) {
+    return ASTNode.getString(data);
+  }
 
   /**
    * Format: `kind: text`.
-   * The result is suitable to be a key in a map.
-   * The result is lazy and cached.
+   * The result is suitable to be a key in a map if the name is NOT needed.
+   * This is lazy and cached.
    */
   toUniqueString() {
-    return this.uniqueStr ?? (this.uniqueStr = ASTNode.getUniqueString(this));
+    return this.uniqueStr ?? (this.uniqueStr = Grammar.getUniqueString(this));
   }
   private uniqueStr?: string;
+  /**
+   * Format: `kind: text`.
+   */
+  static getUniqueString(data: Pick<Grammar, "kind" | "text">) {
+    return ASTNode.getUniqueString(data);
+  }
 
   /**
    * Format: `kind@name` if not literal, else `"text"@name`.
    * This is used to generate grammar rule string.
+   * This is lazy and cached.
    */
   toGrammarString() {
     return (
-      this.grammarStr ??
-      (this.grammarStr =
-        (this.type == GrammarType.LITERAL
-          ? JSON.stringify(this.text)
-          : this.kind) + (this.name == this.kind ? "" : "@" + this.name))
+      this.grammarStr ?? (this.grammarStr = Grammar.getGrammarString(this))
     );
   }
   private grammarStr?: string;
+  /**
+   * Format: `kind@name` if not literal, else `"text"@name`.
+   */
+  static getGrammarString(
+    data: Pick<Grammar, "type" | "kind" | "name" | "text">
+  ) {
+    return (
+      (data.type == GrammarType.LITERAL
+        ? JSON.stringify(data.text)
+        : data.kind) + (data.name == data.kind ? "" : "@" + data.name)
+    );
+  }
 }
 
 export class GrammarRule<T> {
