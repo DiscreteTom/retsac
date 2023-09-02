@@ -96,11 +96,9 @@ export class Grammar {
   match(node: Readonly<ASTNode<any>>) {
     // we don't need to check the name
     // because the name is set by the grammar after the grammar is matched
-    return this.type == GrammarType.LITERAL
-      ? // check literal content
-        this.text == node.text && this.kind == node.kind
-      : // check kind name
-        this.kind == node.kind;
+
+    // if literal, check the text. if not, the text is undefined, so it's ok to directly check `this.text` and `node.text`
+    return this.text == node.text && this.kind == node.kind;
   }
 
   /**
