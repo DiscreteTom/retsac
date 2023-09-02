@@ -39,12 +39,14 @@ export class Grammar {
   /**
    * Only GrammarRepo should use this constructor.
    */
-  constructor(p: Pick<Grammar, "type" | "kind" | "name" | "text" | "str">) {
+  constructor(
+    p: Pick<Grammar, "type" | "kind" | "name" | "text" | "strWithName">
+  ) {
     this.type = p.type;
     this.kind = p.kind;
     this.name = p.name;
     this.text = p.text;
-    this.str = p.str;
+    this.strWithName = p.strWithName;
   }
 
   /**
@@ -92,41 +94,36 @@ export class Grammar {
   private node?: Readonly<ASTNode<any>>;
 
   /**
-   * Format: `kind(name): text`.
-   * Same as `ASTNode.getString`.
-   * The result is suitable to be a key in a map if the name is needed.
+   * Format: `kind: text`.
+   * This is lazy and cached.
    */
   toString() {
-    return this.str;
+    return this.str ?? (this.str = Grammar.getString(this));
   }
+  private str?: string;
   /**
-   * Format: `kind(name): text`.
-   * Same as `ASTNode.getString`.
-   * This should be set in constructor by the GrammarRepo.
+   * Format: `kind: text`.
    */
-  readonly str: string;
-  /**
-   * Format: `kind(name): text`.
-   */
-  static getString(data: Pick<Grammar, "kind" | "name" | "text">) {
-    return ASTNode.getStringWithName(data);
+  static getString(data: Pick<Grammar, "kind" | "text">) {
+    return ASTNode.getString(data);
   }
 
   /**
-   * Format: `kind: text`.
-   * Same as `ASTNode.getUniqueString`.
-   * The result is suitable to be a key in a map if the name is NOT needed.
-   * This is lazy and cached.
+   * Format: `kind(name): text`.
    */
-  toUniqueString() {
-    return this.uniqueStr ?? (this.uniqueStr = Grammar.getUniqueString(this));
+  toStringWithName() {
+    return this.strWithName;
   }
-  private uniqueStr?: string;
   /**
-   * Format: `kind: text`.
+   * Format: `kind(name): text`.
+   * This should be set in constructor by the GrammarRepo.
    */
-  static getUniqueString(data: Pick<Grammar, "kind" | "text">) {
-    return ASTNode.getString(data);
+  readonly strWithName: string;
+  /**
+   * Format: `kind(name): text`.
+   */
+  static getStringWithName(data: Pick<Grammar, "kind" | "name" | "text">) {
+    return ASTNode.getStringWithName(data);
   }
 
   /**
@@ -320,12 +317,12 @@ export class GrammarSet {
    */
   add(g: Grammar) {
     if (this.has(g)) return false;
-    this.gs.set(g.toUniqueString(), g);
+    this.gs.set(g.toString(), g);
     return true;
   }
 
   has(g: Readonly<Grammar> | Readonly<ASTNode<any>>) {
-    return this.gs.has(g.toString()); // Grammar & ASTNode has the same unique string format
+    return this.gs.has(g.toString()); // Grammar & ASTNode has the same string format
   }
 
   /**
@@ -363,7 +360,7 @@ export class GrammarRepo {
    */
   T(kind: string, name?: string) {
     name = name ?? kind;
-    const str = Grammar.getString({ kind, name });
+    const str = Grammar.getStringWithName({ kind, name });
     const res = this.get(str);
     if (res !== undefined) return res;
 
@@ -371,7 +368,7 @@ export class GrammarRepo {
       type: GrammarType.T,
       kind,
       name,
-      str,
+      strWithName: str,
     });
     this.gs.set(str, g);
     return g;
@@ -382,7 +379,7 @@ export class GrammarRepo {
    */
   NT(kind: string, name?: string) {
     name = name ?? kind;
-    const str = Grammar.getString({ kind, name });
+    const str = Grammar.getStringWithName({ kind, name });
     const res = this.get(str);
     if (res !== undefined) return res;
 
@@ -390,7 +387,7 @@ export class GrammarRepo {
       type: GrammarType.NT,
       kind,
       name,
-      str,
+      strWithName: str,
     });
     this.gs.set(str, g);
     return g;
@@ -401,7 +398,7 @@ export class GrammarRepo {
    */
   Literal(text: string, kind: string, name?: string) {
     name = name ?? kind;
-    const str = Grammar.getString({ kind, name, text });
+    const str = Grammar.getStringWithName({ kind, name, text });
     const res = this.get(str);
     if (res !== undefined) return res;
 
@@ -410,7 +407,7 @@ export class GrammarRepo {
       kind,
       name,
       text,
-      str,
+      strWithName: str,
     });
     this.gs.set(str, g);
     return g;
