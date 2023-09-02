@@ -1,8 +1,18 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
-import { ParserOutput, rejectedParserOutput } from "../../model";
-import { GrammarRule, GrammarSet, GrammarRuleContext } from "../model";
+import {
+  AcceptedParserOutput,
+  ParserOutput,
+  RejectedParserOutput,
+  rejectedParserOutput,
+} from "../../model";
+import {
+  GrammarRule,
+  GrammarSet,
+  GrammarRuleContext,
+  ConflictType,
+} from "../model";
 import { ASTNodeSelectorFactory, lexGrammar } from "./utils";
 
 /** Candidate for ELR parsers. */
@@ -156,21 +166,23 @@ export class Candidate<T> {
    * Only failed if:
    * 1. Digestion not finished.
    * 2. Check follow set failed.
-   * 3. Rejecter rejected.
+   * 3. Reject by conflict resolver.
+   * 4. Rejecter rejected.
    */
   tryReduce(
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: ILexer<any>,
+    lexer: Readonly<ILexer<any>>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
-  ): {
-    res: ParserOutput<T>;
-    context?: GrammarRuleContext<T>;
-    commit?: boolean;
-  } {
-    if (this.canDigestMore()) return { res: { accept: false } };
+  ):
+    | RejectedParserOutput
+    | (AcceptedParserOutput<T> & {
+        context: GrammarRuleContext<T>;
+        commit: boolean;
+      }) {
+    if (this.canDigestMore()) return rejectedParserOutput;
 
     const matched = buffer.slice(-this.gr.rule.length);
     matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
@@ -186,17 +198,16 @@ export class Candidate<T> {
 
     // check follow for LR(1) with the rest input string
     if (
-      context.after.length > 0 &&
       // important! make sure lexer can still lex something not muted
       // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-      lexer.clone().trimStart().hasRest()
+      lexer.lex({ peek: true }) != null // TODO: ensure lexer is already trimmed
     ) {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
       } else {
-        let mismatch = true;
-        for (const g of followSets.get(this.gr.NT)!.toArray()) {
+        let mismatch = true; // if follow mismatch, reject
+        for (const [_, g] of followSets.get(this.gr.NT)!.grammars) {
           if (
             lexer.lex({
               // peek with expectation
@@ -207,31 +218,91 @@ export class Candidate<T> {
               },
             }) != null
           ) {
+            // found valid follow, continue
             mismatch = false;
             break;
           }
         }
         if (mismatch) {
           logger(
-            `[Follow Mismatch] ${this.gr.toStringWithGrammarName()} follow=${context.after.slice(
-              0,
-              10 // only show first 10 chars
+            // TODO: use callback
+            // don't use context.after here to optimize performance
+            `[Follow Mismatch] ${this.gr.toStringWithGrammarName()} follow=${context.lexer.buffer.slice(
+              context.lexer.digested,
+              context.lexer.digested + 10 // only show first 10 chars
             )}`
           );
           rollbackNames();
-          return { res: { accept: false } };
+          return rejectedParserOutput;
         }
       }
       // else, follow set matched, continue
     }
 
-    // TODO: check conflicts
+    // check conflicts
+    for (const r of this.gr.resolved) {
+      // check EOF for RR conflict
+      if (r.type == ConflictType.REDUCE_REDUCE) {
+        // if reach end of input
+        if (!context.lexer.hasRest()) {
+          // if handle the end of input
+          if (r.handleEnd) {
+            // if not accepted, reject
+            if (
+              !(r.accepter instanceof Function
+                ? r.accepter(context)
+                : r.accepter)
+            ) {
+              rollbackNames();
+              logger(
+                `[Reject by Resolved Conflict] ${this.gr.toStringWithGrammarName()}`
+              );
+              return rejectedParserOutput;
+            }
+            // else, accepted, continue
+          }
+          // else, not handle end, continue
+        }
+        // else, not reach to end of input, continue
+      }
+
+      // check if any next grammar match the next token
+      // no matter if it's RR or SR conflict
+      if (
+        r.next == "*" ||
+        r.next.some(
+          (g) =>
+            context.lexer.lex({
+              // peek with expectation
+              peek: true,
+              expect: {
+                kind: g.kind,
+                text: g.text,
+              },
+            }) != null
+        )
+      ) {
+        // next match, check accepter
+        if (
+          !(r.accepter instanceof Function ? r.accepter(context) : r.accepter)
+        ) {
+          // reject
+          rollbackNames();
+          logger(
+            `[Reject by Resolved Conflict] ${this.gr.toStringWithGrammarName()}`
+          );
+          return rejectedParserOutput;
+        }
+        // else, accepted, continue
+      }
+      // else, next not match, continue
+    }
 
     // check rejecter
     if (this.gr.rejecter(context)) {
       logger(`[Reject] ${this.gr.toStringWithGrammarName()}`);
       rollbackNames();
-      return { res: { accept: false } };
+      return rejectedParserOutput;
     }
 
     // accept
@@ -249,11 +320,9 @@ export class Candidate<T> {
     logger(`[Accept] ${this.gr.toStringWithGrammarName()}`);
 
     return {
-      res: {
-        accept: true,
-        buffer: context.before.concat(node),
-        errors: context.error ? [node] : [],
-      },
+      accept: true,
+      buffer: context.before.concat(node),
+      errors: context.error ? [node] : [],
       context,
       commit: this.gr.commit(context),
     };
