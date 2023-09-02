@@ -79,7 +79,7 @@ export class Grammar {
    * Check if the grammar is equal to another.
    * This is used in conflict detection, so we don't need to check the name.
    */
-  eq<_>(g: Readonly<Grammar>) {
+  eq(g: Readonly<Grammar>) {
     return (
       this == g || // same object
       (this.type == g.type &&
