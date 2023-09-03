@@ -28,7 +28,7 @@ export class Grammar {
    */
   readonly kind: string;
   /**
-   * The literal value if this is a literal.
+   * The literal value if this is a literal, without quote.
    */
   readonly text?: string;
   /**

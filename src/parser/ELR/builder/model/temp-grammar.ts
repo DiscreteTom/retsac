@@ -19,7 +19,7 @@ export enum TempGrammarType {
 export class TempGrammar {
   readonly type: TempGrammarType;
   /**
-   * Literal content, or T/NT's type name.
+   * Literal content(without quote), or T/NT's type name.
    */
   readonly content: string;
   /**
