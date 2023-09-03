@@ -189,7 +189,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       this.resolvedTemp
     );
     const dfa = new DFA<T>(
-      grs,
       entryNTs,
       entryState,
       NTClosures,

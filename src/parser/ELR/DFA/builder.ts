@@ -1,6 +1,12 @@
 import { ILexer } from "../../../lexer";
 import { ResolvedTempConflict, ParserBuilderData } from "../builder";
-import { GrammarRepo, GrammarRule, GrammarSet, GrammarType } from "../model";
+import {
+  GrammarRepo,
+  GrammarRule,
+  GrammarRuleRepo,
+  GrammarSet,
+  GrammarType,
+} from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
 import {
@@ -23,25 +29,27 @@ export class DFABuilder {
     const { tempGrammarRules, NTs } = processDefinitions<T>(data, resolvedTemp);
 
     // transform temp grammar rules to grammar rules
-    const grs = tempGrammarRules.map(
-      (gr) =>
-        new GrammarRule<T>({
-          NT: gr.NT,
-          callback: gr.callback ?? (() => {}),
-          rejecter: gr.rejecter ?? (() => false),
-          rollback: gr.rollback ?? (() => {}),
-          commit: gr.commit ?? (() => false),
-          traverser: gr.traverser,
-          rule: gr.rule.map((g) =>
-            g.toGrammar(repo, lexer, NTs.has(g.content))
-          ),
-        })
+    const grs = new GrammarRuleRepo(
+      tempGrammarRules.map(
+        (gr) =>
+          new GrammarRule<T>({
+            NT: gr.NT,
+            callback: gr.callback ?? (() => {}),
+            rejecter: gr.rejecter ?? (() => false),
+            rollback: gr.rollback ?? (() => {}),
+            commit: gr.commit ?? (() => false),
+            traverser: gr.traverser,
+            rule: gr.rule.map((g) =>
+              g.toGrammar(repo, lexer, NTs.has(g.content))
+            ),
+          })
+      )
     );
 
     // init all initial candidates, initial candidate is candidate with digested=0
     // TODO: use CandidateRepo
     const allInitialCandidates = new Map<string, Candidate<T>>();
-    grs.forEach((gr) => {
+    grs.grammarRules.forEach((gr) => {
       const c = new Candidate<T>({ gr, digested: 0 });
       allInitialCandidates.set(c.toStringWithGrammarName(), c);
     });
@@ -80,7 +88,7 @@ export class DFABuilder {
     // construct follow sets for all grammars
     const followSets = new Map<string, GrammarSet>();
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
-    grs.forEach((gr) => {
+    grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
         if (!followSets.has(g.kind)) {
           // if g is a T/Literal, it might not have a follow set // TODO: what's the meaning of this comment?
@@ -100,7 +108,7 @@ export class DFABuilder {
     while (true) {
       let changed = false;
 
-      grs.forEach((gr) => {
+      grs.grammarRules.forEach((gr) => {
         followSets
           .get(gr.NT)! // target NT's follow set
           .grammars.forEach(
@@ -114,7 +122,7 @@ export class DFABuilder {
       if (!changed) break;
     }
 
-    calculateAllStates(lexer, grs, allStates, NTClosures, allInitialCandidates);
+    calculateAllStates(grs, allStates, NTClosures, allInitialCandidates);
 
     return {
       grs,

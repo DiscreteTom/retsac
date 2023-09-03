@@ -10,6 +10,7 @@ import {
   ConflictType,
   Grammar,
   GrammarRule,
+  GrammarRuleRepo,
   GrammarSet,
   GrammarType,
 } from "../model";
@@ -18,7 +19,7 @@ import { State } from "./state";
 
 export function getAllNTClosure<T>(
   NTs: ReadonlySet<string>,
-  allGrammarRules: readonly GrammarRule<T>[]
+  allGrammarRules: GrammarRuleRepo<T>
 ): Map<string, GrammarRule<T>[]> {
   const result = new Map<string, GrammarRule<T>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
@@ -33,7 +34,7 @@ export function getAllNTClosure<T>(
  */
 export function getNTClosure<T>(
   NT: string,
-  allGrammarRules: readonly GrammarRule<T>[]
+  allGrammarRules: GrammarRuleRepo<T>
 ): GrammarRule<T>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
@@ -48,7 +49,7 @@ export function getNTClosure<T>(
  */
 export function getGrammarRulesClosure<T>(
   rules: readonly GrammarRule<T>[],
-  allGrammarRules: readonly GrammarRule<T>[]
+  allGrammarRules: GrammarRuleRepo<T>
 ): GrammarRule<T>[] {
   const result = [...rules];
 
@@ -123,15 +124,14 @@ export function lexGrammar<T>(
  * Calculate state machine's state transition map ahead of time and cache.
  */
 export function calculateAllStates<T>(
-  lexer: ILexer<any>,
-  allGrammarRules: readonly GrammarRule<T>[],
+  allGrammarRules: GrammarRuleRepo<T>,
   allStates: Map<string, State<T>>,
   NTClosures: Map<string, GrammarRule<T>[]>,
   allInitialCandidates: Map<string, Candidate<T>>
 ) {
   // collect all grammars in rules
   const gs = new GrammarSet();
-  allGrammarRules.forEach((gr) => {
+  allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
     });

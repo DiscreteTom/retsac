@@ -419,3 +419,38 @@ export class GrammarRepo {
     return g;
   }
 }
+
+/**
+ * A set of different grammar rules, grammar's name will be included.
+ * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
+ */
+export class GrammarRuleRepo<T> {
+  /**
+   * `GrammarRule.toStringWithGrammarName => grammar rule`
+   */
+  readonly grammarRules: ReadonlyMap<string, GrammarRule<T>>;
+
+  constructor(grs: readonly GrammarRule<T>[]) {
+    const map = new Map();
+    grs.forEach((gr) => map.set(gr.toStringWithGrammarName(), gr));
+    this.grammarRules = map;
+  }
+
+  get(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
+    return this.grammarRules.get(GrammarRule.getStringWithGrammarName(gr));
+  }
+
+  map<R>(callback: (g: GrammarRule<T>) => R) {
+    const res = [] as R[];
+    this.grammarRules.forEach((gr) => res.push(callback(gr)));
+    return res;
+  }
+
+  filter(callback: (g: GrammarRule<T>) => boolean) {
+    const res = [] as GrammarRule<T>[];
+    this.grammarRules.forEach((gr) => {
+      if (callback(gr)) res.push(gr);
+    });
+    return res;
+  }
+}

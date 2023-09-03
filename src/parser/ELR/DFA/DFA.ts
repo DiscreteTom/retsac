@@ -12,7 +12,6 @@ import { State } from "./state";
  */
 export class DFA<T> {
   constructor(
-    private readonly allGrammarRules: readonly GrammarRule<T>[], // TODO: remove this?
     private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<T>,
     private readonly NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
