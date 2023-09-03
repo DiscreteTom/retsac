@@ -8,6 +8,7 @@ import {
   Conflict,
   ConflictType,
   ResolvedConflict,
+  GrammarType,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -91,43 +92,53 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   private checkSymbols(
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
-    tempGrammarRules: readonly TempGrammarRule<T>[],
-    lexer: ILexer<any>
+    grs: readonly GrammarRule<T>[],
+    lexer: Readonly<ILexer<any>>,
+    printAll: boolean
   ) {
-    // TODO: use grammar rule instead of temp grammar rule
-    /** T/NT names. */
-    const grammarSet: Set<string> = new Set();
-
-    // collect T/NT names in temp grammar rules
-    tempGrammarRules.forEach((g) => {
-      g.rule.forEach((grammar) => {
-        if (grammar.type == TempGrammarType.GRAMMAR)
-          grammarSet.add(grammar.content);
+    // all grammar symbols should have its definition, either in NTs or Ts
+    grs.forEach((gr) => {
+      gr.rule.forEach((g) => {
+        if (g.type != GrammarType.LITERAL) {
+          // N/NT
+          if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
+            const e = LR_BuilderError.unknownGrammar(g.kind);
+            if (printAll) console.log(e.message);
+            else throw e;
+          }
+        }
       });
-    });
-
-    // all symbols should have its definition
-    grammarSet.forEach((g) => {
-      if (!Ts.has(g) && !NTs.has(g)) throw LR_BuilderError.unknownGrammar(g);
     });
 
     // check duplication
     NTs.forEach((name) => {
-      if (Ts.has(name)) throw LR_BuilderError.duplicatedDefinition(name);
+      if (Ts.has(name)) {
+        const e = LR_BuilderError.duplicatedDefinition(name);
+        if (printAll) console.log(e.message);
+        else throw e;
+      }
     });
 
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
-      if (!NTs.has(NT)) throw LR_BuilderError.unknownEntryNT(NT);
+      if (!NTs.has(NT)) {
+        const e = LR_BuilderError.unknownEntryNT(NT);
+        if (printAll) console.log(e.message);
+        else throw e;
+      }
     });
 
-    // all literals must can be tokenized by lexer
+    // all literals must be able to be tokenized by lexer
+    // TODO: is this already checked when GrammarRepo create the grammar?
     lexer = lexer.dryClone();
-    tempGrammarRules.forEach((gr) => {
+    grs.forEach((gr) => {
       gr.rule.forEach((grammar) => {
-        if (grammar.type == TempGrammarType.LITERAL) {
-          if (lexer.reset().lex(grammar.content) == null)
-            throw LR_BuilderError.invalidLiteral(grammar.content, gr);
+        if (grammar.type == GrammarType.LITERAL) {
+          if (lexer.reset().lex(grammar.text!) == null) {
+            const e = LR_BuilderError.invalidLiteral(grammar.text!, gr);
+            if (printAll) console.log(e.message);
+            else throw e;
+          }
         }
       });
     });
@@ -255,6 +266,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     });
 
     return {
+      grs,
       dfa,
       resolved,
       NTs,
@@ -264,7 +276,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   build(lexer: ILexer<any>, options?: BuildOptions) {
-    const { dfa, resolved, NTs, tempGrammarRules, conflicts } = this.buildDFA(
+    const { dfa, resolved, NTs, grs, conflicts } = this.buildDFA(
       lexer,
       options
     );
@@ -272,7 +284,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
-      this.checkSymbols(NTs, lexer.getTokenKinds(), tempGrammarRules, lexer);
+      this.checkSymbols(
+        NTs,
+        lexer.getTokenKinds(),
+        grs,
+        lexer,
+        options.printAll ?? false
+      );
 
     // deal with conflicts
     if (

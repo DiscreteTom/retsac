@@ -137,7 +137,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static invalidLiteral<T>(literal: string, gr: TempGrammarRule<T>) {
+  static invalidLiteral<T>(literal: string, gr: GrammarRule<T>) {
     return new LR_BuilderError(
       "INVALID_LITERAL",
       `Invalid literal: '${literal}' in rule ${gr.toString()}`
