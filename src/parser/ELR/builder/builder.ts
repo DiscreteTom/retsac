@@ -7,12 +7,12 @@ import {
   IParserBuilder,
   Conflict,
   ConflictType,
+  ResolvedConflict,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
   ParserBuilderData,
-  ResolvedConflict,
   ResolvedTempConflict,
   RR_ResolverOptions,
   RS_ResolverOptions,
@@ -35,19 +35,31 @@ import { Logger } from "../../../model";
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
 export class ParserBuilder<T> implements IParserBuilder<T> {
-  protected data: ParserBuilderData<T> = [];
-  private entryNTs: Set<string>;
-  private resolvedTemp: ResolvedTempConflict<T>[];
-  private cascadeQueryPrefix?: string;
+  // use protected for AdvancedParserBuilder
+  protected readonly data: ParserBuilderData<T> = [];
+  private readonly entryNTs: Set<string>;
+  private readonly resolvedTemp: ResolvedTempConflict<T>[];
+  /**
+   * For most cases, this is used by AdvancedParserBuilder for cascading query.
+   * You can also customize this.
+   */
+  private readonly cascadeQueryPrefix?: string;
 
-  constructor(options?: { cascadeQueryPrefix?: string }) {
+  constructor(options?: {
+    /**
+     * For most cases, this is used by AdvancedParserBuilder for cascading query.
+     * You can also customize this.
+     */
+    cascadeQueryPrefix?: string;
+  }) {
     this.entryNTs = new Set();
     this.resolvedTemp = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
   entry(...defs: string[]) {
-    this.entryNTs = new Set(defs);
+    this.entryNTs.clear();
+    defs.forEach((d) => this.entryNTs.add(d));
     return this;
   }
 
@@ -75,7 +87,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   /**
    * Ensure all T/NTs have their definitions, and no duplication, and all literals are valid.
    * If ok, return this.
-   *
    */
   private checkSymbols(
     NTs: ReadonlySet<string>,
@@ -547,7 +558,7 @@ function parseResolved<T>(
   conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>
 ) {
   const result = {
-    nextGrammars: [] as Grammar[],
+    nextGrammars: [] as Readonly<Grammar[]>,
     needHandleEnd: false,
   };
 
