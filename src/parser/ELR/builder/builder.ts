@@ -309,9 +309,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     const followSets = dfa.followSets;
 
     // ensure all conflicts are resolved
-    unresolved.forEach((cs) => {
+    unresolved.forEach((cs, gr) => {
       cs.forEach((c) => {
-        const err = LR_BuilderError.conflict(c);
+        const err = LR_BuilderError.conflict(gr, c);
         if (printAll) console.log(err.message);
         else throw err;
       });

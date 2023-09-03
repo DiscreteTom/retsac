@@ -1,5 +1,4 @@
-import { Grammar, GrammarRule } from "../model";
-import { Conflict, ConflictType } from "./model";
+import { Conflict, ConflictType, Grammar, GrammarRule } from "../model";
 import { TempGrammarRule } from "./model/temp-grammar";
 
 export type LR_BuilderErrorType =
@@ -43,7 +42,7 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static conflict<T>(c: Conflict<T>) {
+  static conflict<T>(reducerRule: GrammarRule<T>, c: Conflict<T>) {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
@@ -53,7 +52,7 @@ export class LR_BuilderError extends Error {
             .map((g) => g.toStringWithName())
             .join(
               " "
-            )}\`): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`
+            )}\`): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
         : `Unresolved R-R conflict (${
             (c.handleEnd ? "end of input" : "") +
             (c.next.length > 0
@@ -61,7 +60,7 @@ export class LR_BuilderError extends Error {
                   .map((g) => g.toStringWithName())
                   .join(" ")}\``
               : "")
-          }): ${c.reducerRule.toString()} | ${c.anotherRule.toString()}`
+          }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
     );
   }
 
