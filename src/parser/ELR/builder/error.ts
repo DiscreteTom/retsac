@@ -31,7 +31,7 @@ export class LR_BuilderError extends Error {
   static grammarRuleNotFound<T>(gr: TempGrammarRule<T>) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
-      `No such grammar rule: ${gr.toString()}`
+      `No such grammar rule: ${gr.toStringWithGrammarName()}`
     );
   }
 
