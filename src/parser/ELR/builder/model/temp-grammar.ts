@@ -23,7 +23,8 @@ export class TempGrammar {
    */
   readonly content: string;
   /**
-   * The name of the grammar. By default the value is equal to the type name(this.content).
+   * The name of the grammar. By default the value is equal to the type name.
+   * For literal, the type name is lexed from the literal content.
    */
   readonly name: string;
 
