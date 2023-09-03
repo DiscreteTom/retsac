@@ -1,3 +1,4 @@
+import { ILexer } from "../../../../lexer";
 import { ASTNode, Traverser } from "../../../ast";
 import {
   Grammar,
@@ -54,10 +55,24 @@ export class TempGrammar {
       );
   }
 
-  toGrammar(repo: GrammarRepo, isNT = true) {
-    return this.type == TempGrammarType.LITERAL
-      ? repo.Literal(this.content, this.content) // TODO: change this
-      : isNT
+  toGrammar(
+    repo: GrammarRepo,
+    /**
+     * Lexer is required to lex the literal grammar's name.
+     */
+    lexer: Readonly<ILexer<any>>,
+    isNT = true
+  ) {
+    if (this.type == TempGrammarType.LITERAL) {
+      const token = lexer.dryClone().lex(this.content);
+      if (token == null) {
+        // TODO: printAll
+        throw new Error(`Can't lex literal \`${this.content}\``);
+      }
+      return repo.Literal(this.content, token.kind, this.name);
+    }
+
+    return isNT
       ? repo.NT(this.content, this.name)
       : repo.T(this.content, this.name);
   }
