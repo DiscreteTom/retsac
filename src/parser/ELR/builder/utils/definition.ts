@@ -10,11 +10,13 @@ const grammarLexer = new Lexer.Builder()
     rename: /@\w+/,
     grammar: /\w+/,
     or: exact("|"),
-    literal: stringLiteral(`"`).or(stringLiteral(`'`)),
+    literal: [stringLiteral(`"`), stringLiteral(`'`)],
   })
   .build();
 
-/** Definition to TempGrammarRules. */
+/**
+ * Definition to TempGrammarRules.
+ */
 export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
   const result: TempGrammarRule<T>[] = [];
 
