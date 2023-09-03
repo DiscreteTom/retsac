@@ -1,13 +1,11 @@
 import {
   GrammarRule,
   Grammar,
-  Condition,
   BuilderDecorator,
   BuildOptions,
   IParserBuilder,
   Conflict,
   ConflictType,
-  ResolvedConflict,
   GrammarType,
   GrammarRepo,
   GrammarRuleRepo,
