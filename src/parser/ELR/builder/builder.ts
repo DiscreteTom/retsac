@@ -181,7 +181,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       allInitialCandidates,
       allStates,
       NTs,
-    } = DFABuilder.build<T>(
+    } = DFABuilder.prepare<T>(
       repo,
       lexer,
       this.entryNTs,

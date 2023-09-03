@@ -11,7 +11,7 @@ import {
 } from "./utils";
 
 export class DFABuilder {
-  static build<T>(
+  static prepare<T>(
     repo: GrammarRepo,
     lexer: ILexer<any>,
     entryNTs: ReadonlySet<string>,
