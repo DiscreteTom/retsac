@@ -1,3 +1,5 @@
+import { RequireAtLeastOne } from "../../utils";
+
 // This has to be a class, since we need to cache the `rest` of the input.
 export class AcceptedActionOutput<E> {
   /** This action can accept some input as a token. */
@@ -87,7 +89,4 @@ export type SimpleAcceptedActionOutput<E> = Partial<
     "muted" | "error" | "rest" | "digested" | "content"
   >
 > &
-  // at least one of `digested` and `content` must be defined
-  (| Pick<AcceptedActionOutput<E>, "digested">
-    | Pick<AcceptedActionOutput<E>, "content">
-  );
+  RequireAtLeastOne<AcceptedActionOutput<E>, "digested" | "content">;

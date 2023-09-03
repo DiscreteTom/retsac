@@ -1,3 +1,4 @@
+import { RequireAtLeastOne } from "../../../../utils";
 import { Condition } from "../../model";
 import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
@@ -11,16 +12,13 @@ export type BaseResolverOptions<T> = {
 };
 
 export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
-  // at least one of `next` and `handleEnd` must be provided
-  (| {
-        next: (string & {}) | "*";
-        handleEnd?: boolean;
-      }
-    | {
-        next?: (string & {}) | "*";
-        handleEnd: boolean;
-      }
-  );
+  RequireAtLeastOne<
+    {
+      next: (string & {}) | "*";
+      handleEnd: boolean;
+    },
+    "next" | "handleEnd"
+  >;
 
 export type RS_ResolverOptions<T> = BaseResolverOptions<T> & {
   next: (string & {}) | "*";
