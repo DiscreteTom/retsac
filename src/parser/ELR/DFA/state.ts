@@ -107,6 +107,7 @@ export class State<T> {
 
   /**
    * Get the string representation of this state.
+   * Grammar's name will be included.
    * The result is sorted by candidate string, so that the same state will have the same string representation.
    * This is cached.
    */
@@ -115,6 +116,7 @@ export class State<T> {
   }
   /**
    * Get the string representation of this state.
+   * Grammar's name will be included.
    * The result is sorted by candidate string, so that the same state will have the same string representation.
    */
   static getString(data: Pick<State<any>, "candidates">) {
