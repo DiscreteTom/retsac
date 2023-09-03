@@ -48,9 +48,10 @@ function getEndSet<T>(
   return result;
 }
 
-/** Return conflicts that user didn't resolve. */
+/**
+ * Return conflicts that user didn't resolve.
+ */
 function getUserUnresolvedConflicts<T>(
-  resolved: readonly ResolvedConflict<T>[],
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<T>>,
   anotherRule: Readonly<GrammarRule<T>>,
@@ -58,7 +59,7 @@ function getUserUnresolvedConflicts<T>(
   checkHandleEnd: boolean,
   debug: boolean
 ) {
-  const related = resolved.filter(
+  const related = reducerRule.resolved.filter(
     // we don't need to check reducerRule here
     // since the resolved conflicts are in the reducer rule's GrammarRule.resolved
     (r) => r.type == type && r.anotherRule == anotherRule
@@ -334,7 +335,6 @@ export function getUnresolvedConflicts<T>(
     reducerRule.conflicts.forEach((c) => {
       if (c.type == ConflictType.REDUCE_SHIFT) {
         const res = getUserUnresolvedConflicts(
-          reducerRule.resolved,
           ConflictType.REDUCE_SHIFT,
           reducerRule,
           c.anotherRule,
@@ -357,7 +357,6 @@ export function getUnresolvedConflicts<T>(
       } else {
         // RR conflict
         const res = getUserUnresolvedConflicts(
-          reducerRule.resolved,
           ConflictType.REDUCE_REDUCE,
           reducerRule,
           c.anotherRule,
