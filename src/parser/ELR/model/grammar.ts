@@ -1,4 +1,5 @@
 import { ASTNode, Traverser } from "../../ast";
+import { TempGrammarRule } from "../builder";
 import { Conflict, ResolvedConflict } from "./conflict";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
@@ -436,8 +437,8 @@ export class GrammarRuleRepo<T> {
     this.grammarRules = map;
   }
 
-  get(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
-    return this.grammarRules.get(GrammarRule.getStringWithGrammarName(gr));
+  get(gr: TempGrammarRule<any>) {
+    return this.grammarRules.get(gr.toStringWithGrammarName());
   }
 
   map<R>(callback: (g: GrammarRule<T>) => R) {

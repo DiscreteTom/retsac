@@ -8,6 +8,7 @@ import {
   ConflictType,
   ResolvedConflict,
   GrammarRepo,
+  GrammarRuleRepo,
 } from "../../model";
 import { LR_BuilderError } from "../error";
 
@@ -19,7 +20,7 @@ import { LR_BuilderError } from "../error";
 function getEndSet<T>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: readonly GrammarRule<T>[]
+  grs: GrammarRuleRepo<T>
 ) {
   const result = new GrammarSet();
 
@@ -28,7 +29,7 @@ function getEndSet<T>(
 
   while (true) {
     let changed = false;
-    grs.forEach((gr) => {
+    grs.grammarRules.forEach((gr) => {
       if (result.has(repo.NT(gr.NT))) {
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type == GrammarType.NT) {
@@ -132,29 +133,26 @@ function getUserUnresolvedConflicts<T>(
 
 /**
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
+ * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
 export function getConflicts<T>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: readonly GrammarRule<T>[],
+  grs: GrammarRuleRepo<T>,
   dfa: DFA<T>,
   debug = false
 ) {
-  const firstSets = dfa.getFirstSets();
-  const followSets = dfa.getFollowSets();
+  const firstSets = dfa.firstSets;
+  const followSets = dfa.followSets;
   const endSet = getEndSet(repo, entryNTs, grs);
   const states = dfa.getAllStates();
-
-  const result = new Map<GrammarRule<T>, Conflict<T>[]>();
 
   // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
   // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
   // the following code will check every grammar rule pair, another way is to check every DFA state
   // but different DFA states may contain same grammar rules which will cause duplicate check
-  for (let i = 0; i < grs.length; i++) {
-    for (let j = 0; j < grs.length; j++) {
-      const reducerRule = grs[i];
-      const anotherRule = grs[j];
+  grs.grammarRules.forEach((reducerRule) => {
+    grs.grammarRules.forEach((anotherRule) => {
       const conflicts = reducerRule.checkRSConflict(anotherRule);
       conflicts.forEach((c) => {
         // try to auto resolve conflicts if possible
@@ -170,6 +168,7 @@ export function getConflicts<T>(
           if (overlap.length == 0) {
             // no overlap, conflicts can be auto resolved
             if (debug)
+              // TODO: use logger & callback
               console.log(
                 `[auto resolve RS (no follow overlap)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
               );
@@ -185,6 +184,7 @@ export function getConflicts<T>(
           ) {
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
+              // TODO: use logger & callback
               console.log(
                 `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
               );
@@ -199,8 +199,7 @@ export function getConflicts<T>(
             next: overlap,
             overlapped: c.overlapped,
           };
-          if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
-          else result.set(reducerRule, [conflict]);
+          reducerRule.conflicts.push(conflict);
         } else if (E.type == GrammarType.T) {
           // E is a T, check if A's follow has E
           if (AFollow.has(E)) {
@@ -214,6 +213,7 @@ export function getConflicts<T>(
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
+                // TODO: use logger & callback
                 console.log(
                   `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
                 );
@@ -225,12 +225,10 @@ export function getConflicts<T>(
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [repo.T(E.kind)],
+              next: [E],
               overlapped: c.overlapped,
             };
-            if (result.has(reducerRule))
-              result.get(reducerRule)!.push(conflict);
-            else result.set(reducerRule, [conflict]);
+            reducerRule.conflicts.push(conflict);
           }
         } else {
           // E is a literal, check if A's follow has E
@@ -245,6 +243,7 @@ export function getConflicts<T>(
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
+                // TODO: use logger & callback
                 console.log(
                   `[auto resolve RS (DFA state)]: ${reducerRule.toStringWithGrammarName()} | ${c.shifterRule.toStringWithGrammarName()}`
                 );
@@ -256,25 +255,21 @@ export function getConflicts<T>(
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [repo.Literal(E.kind, E.kind)], // TODO: change this
+              next: [E],
               overlapped: c.overlapped,
             };
-            if (result.has(reducerRule))
-              result.get(reducerRule)!.push(conflict);
-            else result.set(reducerRule, [conflict]);
+            reducerRule.conflicts.push(conflict);
           }
         }
       });
-    }
-  }
+    });
+  });
 
   // if the tail of a grammar rule is the same as another grammar rule, it's a reduce-reduce conflict
   // e.g. `A B C | B C` is a reduce-reduce conflict
-  for (let i = 0; i < grs.length; i++) {
-    for (let j = 0; j < grs.length; j++) {
-      if (i == j) continue; // skip the same rule
-      const reducerRule = grs[i];
-      const anotherRule = grs[j];
+  grs.grammarRules.forEach((reducerRule) => {
+    grs.grammarRules.forEach((anotherRule) => {
+      if (anotherRule == reducerRule) return; // skip the same rule
       if (reducerRule.checkRRConflict(anotherRule)) {
         // try to auto resolve conflicts if possible
         // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
@@ -285,10 +280,11 @@ export function getConflicts<T>(
         if (overlap.length == 0) {
           // no overlap, all conflicts can be auto resolved
           if (debug)
+            // TODO: use logger & callback
             console.log(
               `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`
             );
-          continue;
+          return;
         }
         // check states
         if (
@@ -300,10 +296,11 @@ export function getConflicts<T>(
         ) {
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
           if (debug)
+            // TODO: use logger & callback
             console.log(
               `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`
             );
-          continue;
+          return;
         }
 
         // auto resolve failed
@@ -316,13 +313,10 @@ export function getConflicts<T>(
             endSet.has(repo.NT(reducerRule.NT)) &&
             endSet.has(repo.NT(anotherRule.NT)),
         };
-        if (result.has(reducerRule)) result.get(reducerRule)!.push(c);
-        else result.set(reducerRule, [c]);
+        reducerRule.conflicts.push(c);
       }
-    }
-  }
-
-  return result;
+    });
+  });
 }
 
 /**

@@ -10,6 +10,7 @@ import {
   ResolvedConflict,
   GrammarType,
   GrammarRepo,
+  GrammarRuleRepo,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -98,12 +99,12 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   private checkSymbols(
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
-    grs: readonly GrammarRule<T>[],
+    grs: GrammarRuleRepo<T>,
     lexer: Readonly<ILexer<any>>,
     printAll: boolean
   ) {
     // all grammar symbols should have its definition, either in NTs or Ts
-    grs.forEach((gr) => {
+    grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g) => {
         if (g.type != GrammarType.LITERAL) {
           // N/NT
@@ -137,7 +138,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     // all literals must be able to be tokenized by lexer
     // TODO: is this already checked when GrammarRepo create the grammar?
     lexer = lexer.dryClone();
-    grs.forEach((gr) => {
+    grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((grammar) => {
         if (grammar.type == GrammarType.LITERAL) {
           if (lexer.reset().lex(grammar.text!) == null) {
@@ -204,25 +205,35 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     );
 
     // transform resolved temp conflicts to resolved conflicts
-    const resolved: ResolvedConflict<T>[] = this.resolvedTemp.map((r) => {
+    // and append into grammar rules
+    this.resolvedTemp.forEach((r) => {
       // find the grammar rules
-      const reducerRule = grs.find((gr) => r.reducerRule.weakEq(gr));
-      if (!reducerRule)
-        throw LR_BuilderError.grammarRuleNotFound(r.reducerRule);
-      const anotherRule = grs.find((gr) => r.anotherRule.weakEq(gr));
-      if (!anotherRule)
-        throw LR_BuilderError.grammarRuleNotFound(r.anotherRule);
+      const reducerRule = grs.get(r.reducerRule);
+      if (!reducerRule) {
+        const e = LR_BuilderError.grammarRuleNotFound(r.reducerRule);
+        if (printAll) {
+          console.log(e);
+          return;
+        } else throw e;
+      }
+      const anotherRule = grs.get(r.anotherRule);
+      if (!anotherRule) {
+        const e = LR_BuilderError.grammarRuleNotFound(r.anotherRule);
+        if (printAll) {
+          console.log(e);
+          return;
+        } else throw e;
+      }
 
       const next =
         r.options.next == "*"
           ? "*"
           : // TODO: use a dedicated lexer to parse next
             defToTempGRs<T>({ "": r.options.next ?? "" })[0]?.rule.map((g) =>
-              g.toGrammar(NTs.has(g.content))
+              g.toGrammar(repo, lexer, NTs.has(g.content))
             ) ?? [];
 
-      return {
-        reducerRule,
+      reducerRule.resolved.push({
         anotherRule,
         type: r.type,
         next,
@@ -230,70 +241,22 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
           r.type == ConflictType.REDUCE_REDUCE
             ? r.options.handleEnd ?? false
             : false,
-        reduce: r.options.accept ?? true,
-      };
-    });
-
-    const conflicts = getConflicts<T>(this.entryNTs, grs, dfa, options?.debug);
-
-    // apply resolved conflicts to grammar rule rejecters
-    resolved.forEach((r) => {
-      const { nextGrammars, needHandleEnd } = parseResolved(r, conflicts);
-      // if no conflict, no need to update rejecter
-      if (nextGrammars.length == 0 && !needHandleEnd) return;
-
-      const generated: Condition<T> = (ctx) => {
-        if (
-          r.type == ConflictType.REDUCE_REDUCE &&
-          // we have to make sure the end is needed to be checked
-          needHandleEnd
-        ) {
-          // if reach end of input
-          if (ctx.after.length == 0) {
-            // if handle the end of input
-            if (r.handleEnd)
-              return !(r.reduce instanceof Function ? r.reduce(ctx) : r.reduce);
-            else return false;
-          }
-        }
-        // else, not the end of input
-        // check if any next grammar match the next token
-        if (
-          nextGrammars.some(
-            (g) =>
-              ctx.lexer.lex({
-                // peek with expectation
-                peek: true,
-                expect: {
-                  kind: g.kind,
-                  text: g.text,
-                },
-              }) != null
-          )
-        )
-          // next match, apply the `reduce`
-          return !(r.reduce instanceof Function ? r.reduce(ctx) : r.reduce);
-        return false;
-      };
-
-      const rejecter = r.reducerRule.rejecter; // get the original rejecter
-      r.reducerRule.rejecter = (ctx) => {
-        return rejecter(ctx) || generated(ctx);
-      };
+        accepter: r.options.accept ?? true,
+      });
     });
 
     return {
       grs,
       dfa,
-      resolved,
       NTs,
-      conflicts,
+      repo,
     };
   }
 
   build(lexer: ILexer<any>, options?: BuildOptions) {
-    const { dfa, resolved, NTs, grs, conflicts } = this.buildDFA(
+    const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
+      options?.printAll ?? false,
       options
     );
     dfa.debug = options?.debug ?? false;
@@ -314,6 +277,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       options?.checkConflicts ||
       options?.generateResolvers
     ) {
+      getConflicts<T>(repo, this.entryNTs, grs, dfa, options?.debug);
+
       const unresolved = getUnresolvedConflicts<T>(
         conflicts,
         resolved,
@@ -585,58 +550,4 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     });
     return this;
   }
-}
-
-function parseResolved<T>(
-  r: Readonly<ResolvedConflict<T>>,
-  conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>
-) {
-  const result = {
-    nextGrammars: [] as Readonly<Grammar[]>,
-    needHandleEnd: false,
-  };
-
-  if (r.type == ConflictType.REDUCE_REDUCE) {
-    if (r.next != "*") {
-      // just apply the next
-      result.nextGrammars = r.next;
-    } else {
-      // r.next == '*', so we need to calculate the next
-      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
-        .filter(
-          (c) =>
-            c.type == ConflictType.REDUCE_REDUCE &&
-            c.anotherRule == r.anotherRule
-        )
-        .map((c) => c.next as Grammar[])
-        .flat();
-    }
-
-    // check handleEnd
-    result.needHandleEnd = (conflicts.get(r.reducerRule) ?? []).some((c) => {
-      return (
-        c.type == ConflictType.REDUCE_REDUCE &&
-        c.anotherRule == r.anotherRule &&
-        c.handleEnd
-      );
-    });
-  } else {
-    // this is a reduce-shift conflict
-    if (r.next != "*") {
-      // just apply the next
-      result.nextGrammars = r.next;
-    } else {
-      // r.next == '*', so we need to calculate the next
-      result.nextGrammars = (conflicts.get(r.reducerRule) ?? [])
-        .filter(
-          (c) =>
-            c.type == ConflictType.REDUCE_SHIFT &&
-            c.anotherRule == r.anotherRule
-        )
-        .map((c) => c.next as Grammar[])
-        .flat();
-    }
-  }
-
-  return result;
 }
