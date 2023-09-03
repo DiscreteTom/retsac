@@ -479,42 +479,61 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return f(this) as this;
   }
 
-  priority(...defs: (Definition | Definition[])[]) {
+  priority(...groups: (Definition | Definition[])[]) {
     // grammar rules with higher priority will always be reduced first
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
-    defs.forEach((def, i) => {
-      // def: [{ exp: `exp '*' exp` }]
-      (def instanceof Array ? def : [def]).forEach((d) => {
-        // d: { exp: `exp '*' exp` }
-        defs.forEach((def2, j) => {
-          if (j <= i) return;
-          // def2: [{ exp: `exp '+' exp` }]
-          (def2 instanceof Array ? def2 : [def2]).forEach((d2) => {
-            // d2: { exp: `exp '+' exp` }
-            this.resolveRS(d, d2, { next: `*`, accept: true });
-            this.resolveRR(d, d2, { next: `*`, accept: true, handleEnd: true });
-            this.resolveRS(d2, d, { next: `*`, accept: false });
-            this.resolveRR(d2, d, {
-              next: `*`,
-              accept: false,
-              handleEnd: true,
-            });
-          });
-        });
+    groups.forEach((higherDefs, higherIndex) => {
+      groups.forEach((lowerDefs, lowerIndex) => {
+        // lowerIndex should be greater than higherIndex
+        // since higher priority defs should be defined before lower priority defs
+        if (lowerIndex <= higherIndex) return;
+
+        // higherDefs: [{ exp: `exp '*' exp` }]
+        (higherDefs instanceof Array ? higherDefs : [higherDefs]).forEach(
+          // higher: { exp: `exp '*' exp` }
+          (higher) => {
+            // lowerDefs: [{ exp: `exp '+' exp` }]
+            (lowerDefs instanceof Array ? lowerDefs : [lowerDefs]).forEach(
+              // lower: { exp: `exp '+' exp` }
+              (lower) => {
+                this.resolveRS(higher, lower, { next: `*`, accept: true });
+                this.resolveRR(higher, lower, {
+                  next: `*`,
+                  accept: true,
+                  handleEnd: true,
+                });
+                this.resolveRS(lower, higher, { next: `*`, accept: false });
+                this.resolveRR(lower, higher, {
+                  next: `*`,
+                  accept: false,
+                  handleEnd: true,
+                });
+              }
+            );
+          }
+        );
       });
     });
 
     // grammar rules with the same priority will be reduced from left to right
     // e.g. priority([{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }])
-    defs.forEach((def) => {
-      if (def instanceof Array) {
-        def.forEach((d, i) => {
-          def.forEach((d2, j) => {
-            if (i == j) return;
-            this.resolveRS(d, d2, { next: `*`, accept: true });
-            this.resolveRR(d, d2, { next: `*`, accept: true, handleEnd: true });
-            this.resolveRS(d2, d, { next: `*`, accept: true });
-            this.resolveRR(d2, d, { next: `*`, accept: true, handleEnd: true });
+    groups.forEach((defs) => {
+      if (defs instanceof Array) {
+        defs.forEach((d1, i) => {
+          defs.forEach((d2, j) => {
+            if (i == j) return; // skip itself
+            this.resolveRS(d1, d2, { next: `*`, accept: true });
+            this.resolveRR(d1, d2, {
+              next: `*`,
+              accept: true,
+              handleEnd: true,
+            });
+            this.resolveRS(d2, d1, { next: `*`, accept: true });
+            this.resolveRR(d2, d1, {
+              next: `*`,
+              accept: true,
+              handleEnd: true,
+            });
           });
         });
       }
