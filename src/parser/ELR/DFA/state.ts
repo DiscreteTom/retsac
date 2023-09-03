@@ -131,10 +131,10 @@ export class State<T> {
    * Return all the possible results.
    */
   tryLex(
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
-    const res: { node: ASTNode<T>; lexer: ILexer<any> }[] = [];
+  ): { node: ASTNode<T>; lexer: ILexer<any, any> }[] {
+    const res: { node: ASTNode<T>; lexer: ILexer<any, any> }[] = [];
     this.candidates.forEach((c) => {
       res.push(...c.tryLex(lexer, followSets));
     });
@@ -146,7 +146,7 @@ export class State<T> {
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
   ):

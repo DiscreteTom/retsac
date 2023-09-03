@@ -101,8 +101,8 @@ export function ASTNodeSelectorFactory<T>(
  */
 export function lexGrammar<T>(
   g: Grammar,
-  lexer: Readonly<ILexer<any>>
-): { node: ASTNode<T>; lexer: ILexer<any> } | null {
+  lexer: Readonly<ILexer<any, any>>
+): { node: ASTNode<T>; lexer: ILexer<any, any> } | null {
   if (g.type == GrammarType.NT) {
     // NT can't be lexed
     return null;

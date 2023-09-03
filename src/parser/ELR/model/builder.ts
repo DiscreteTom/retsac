@@ -63,7 +63,7 @@ export interface IParserBuilder<T> {
   /**
    * Generate the ELR parser.
    */
-  build(lexer: ILexer<any>, options?: BuildOptions): IParser<T>; // TODO: use generic type
+  build(lexer: ILexer<any, any>, options?: BuildOptions): IParser<T>; // TODO: use generic type
   /**
    * Resolve a reduce-shift conflict.
    */

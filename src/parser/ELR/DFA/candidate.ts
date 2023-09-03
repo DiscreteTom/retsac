@@ -143,9 +143,9 @@ export class Candidate<T> {
    * Return all the possible results.
    */
   tryLex(
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): { node: ASTNode<T>; lexer: ILexer<any> }[] {
+  ): { node: ASTNode<T>; lexer: ILexer<any, any> }[] {
     if (this.canDigestMore()) {
       const res = lexGrammar<T>(this.current, lexer);
       if (res != null) return [res];
@@ -158,7 +158,7 @@ export class Candidate<T> {
       .map((g) => lexGrammar<T>(g, lexer))
       .filter((r) => r != null) as {
       node: ASTNode<T>;
-      lexer: ILexer<any>;
+      lexer: ILexer<any, any>;
     }[];
   }
 
@@ -173,7 +173,7 @@ export class Candidate<T> {
     buffer: readonly ASTNode<T>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
     logger: Logger
   ):

@@ -23,7 +23,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    const rules: ({ name: string } & Token<any>)[][] = [[]];
+    const rules: ({ name: string } & Token<any, any>)[][] = [[]];
     const def = defs[NT];
     const defStr = def instanceof Array ? def.join("|") : def;
     grammarLexer

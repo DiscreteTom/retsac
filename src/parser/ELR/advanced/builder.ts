@@ -62,7 +62,7 @@ export class AdvancedBuilder<T>
     }
   }
 
-  build(lexer: ILexer<any>, options?: BuildOptions) {
+  build(lexer: ILexer<any, any>, options?: BuildOptions) {
     // re-generate this.data
     const raw = [...this.data]; // deep copy since we will clear this.data
     this.data.length = 0; // clear

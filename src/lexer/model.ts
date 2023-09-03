@@ -2,9 +2,9 @@ import { Logger } from "../model";
 import { Action } from "./action";
 
 /** The output of a lexer. */
-export type Token<E> = {
+export type Token<E, Kinds extends string> = {
   /** User-defined token kind name. */
-  kind: string;
+  kind: Kinds;
   /** Text content. */
   content: string;
   /** Start position of input string. */
@@ -19,7 +19,7 @@ export type Definition<E> = {
   action: Action<E>;
 };
 
-export interface ILexer<E> {
+export interface ILexer<E, Kinds extends string> {
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
@@ -34,7 +34,7 @@ export interface ILexer<E> {
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
    */
-  readonly errors: Token<E>[];
+  readonly errors: Token<E, Kinds>[];
   get defs(): readonly Readonly<Definition<E>>[];
   /**
    * The entire input string.
@@ -56,12 +56,12 @@ export interface ILexer<E> {
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  clone(options?: { debug?: boolean; logger?: Logger }): ILexer<E>;
+  clone(options?: { debug?: boolean; logger?: Logger }): ILexer<E, Kinds>;
   /**
    * Clone a new lexer with the same definitions, without states.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer<E>;
+  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer<E, Kinds>;
   /** Append buffer with input. */
   feed(input: string): this;
   /**
@@ -104,13 +104,13 @@ export interface ILexer<E> {
            */
           peek?: boolean;
         }>
-  ): Token<E> | null;
+  ): Token<E, Kinds> | null;
   /**
    * Try to retrieve a token list exhaustively.
    */
   lexAll(
     input?: string | { input?: string; stopOnError?: boolean }
-  ): Token<E>[];
+  ): Token<E, Kinds>[];
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */

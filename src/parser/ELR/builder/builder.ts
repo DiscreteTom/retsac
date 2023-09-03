@@ -98,7 +98,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
     grs: GrammarRuleRepo<T>,
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     printAll: boolean
   ) {
     // all grammar symbols should have its definition, either in NTs or Ts
@@ -152,7 +152,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   private buildDFA(
-    lexer: ILexer<any>,
+    lexer: ILexer<any, any>,
     printAll: boolean,
     options?: {
       debug?: boolean;
@@ -251,7 +251,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     };
   }
 
-  build(lexer: ILexer<any>, options?: BuildOptions) {
+  build(lexer: ILexer<any, any>, options?: BuildOptions) {
     const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
       options?.printAll ?? false,

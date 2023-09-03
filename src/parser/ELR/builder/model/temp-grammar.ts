@@ -39,7 +39,7 @@ export class TempGrammar {
     /**
      * Lexer is required to lex the literal grammar's name.
      */
-    lexer: Readonly<ILexer<any>>,
+    lexer: Readonly<ILexer<any, any>>,
     isNT = true
   ) {
     if (this.type == TempGrammarType.LITERAL) {

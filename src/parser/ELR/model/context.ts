@@ -28,7 +28,7 @@ export class GrammarRuleContext<T> {
    * Current lexer state. You'd better not modify it.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
    */
-  readonly lexer: ILexer<any>; // TODO: use the correct type
+  readonly lexer: ILexer<any, any>; // TODO: use the correct type
   /**
    * Data of the result AST node.
    * You can set this field, and if the grammar rule is accepted,

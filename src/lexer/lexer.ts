@@ -6,10 +6,10 @@ import { Definition, ILexer, Token } from "./model";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
-export class Lexer<E> implements ILexer<E> {
+export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
   debug: boolean;
   logger: Logger;
-  readonly errors: Token<E>[];
+  readonly errors: Token<E, Kinds>[];
   readonly defs: readonly Readonly<Definition<E>>[];
   /** Only `feed`, `reset` can modify this var. */
   private _buffer: string;
@@ -77,7 +77,7 @@ export class Lexer<E> implements ILexer<E> {
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer(this.defs);
+    const res = new Lexer<E, Kinds>(this.defs);
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -163,9 +163,9 @@ export class Lexer<E> implements ILexer<E> {
   private res2token(
     res: Readonly<AcceptedActionOutput<E>>,
     def: Readonly<Definition<E>>
-  ): Token<E> {
+  ): Token<E, Kinds> {
     return {
-      kind: def.kind,
+      kind: def.kind as Kinds,
       content: res.content,
       start: res.start,
       error: res.error,
@@ -183,7 +183,7 @@ export class Lexer<E> implements ILexer<E> {
           }>;
           peek?: boolean;
         }> = ""
-  ): Token<E> | null {
+  ): Token<E, Kinds> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -319,7 +319,7 @@ export class Lexer<E> implements ILexer<E> {
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = ""
-  ): Token<E>[] {
+  ): Token<E, Kinds>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -330,7 +330,7 @@ export class Lexer<E> implements ILexer<E> {
     const stopOnError =
       typeof input === "string" ? false : input.stopOnError ?? false;
 
-    const result: Token<E>[] = [];
+    const result: Token<E, Kinds>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {

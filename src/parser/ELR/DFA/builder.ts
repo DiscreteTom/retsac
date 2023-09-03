@@ -19,7 +19,7 @@ import {
 export class DFABuilder {
   static prepare<T>(
     repo: GrammarRepo,
-    lexer: ILexer<any>,
+    lexer: ILexer<any, any>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<T>,
     resolvedTemp: ResolvedTempConflict<T>[]

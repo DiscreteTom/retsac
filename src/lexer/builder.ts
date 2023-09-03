@@ -2,10 +2,15 @@ import { Action, ActionSource } from "./action";
 import { Lexer } from "./lexer";
 import { Definition, ILexer } from "./model";
 
-export type LexerBuildOptions = Partial<Pick<ILexer<any>, "logger" | "debug">>;
+export type LexerBuildOptions = Partial<
+  Pick<ILexer<any, any>, "logger" | "debug">
+>;
 
-/** Lexer builder. */
-export class Builder<E = string> {
+/**
+ * Lexer builder.
+ */
+// TODO: remove `''` from default `Kinds`?
+export class Builder<E = string, Kinds extends string = ""> {
   private defs: Readonly<Definition<E>>[];
 
   constructor() {
@@ -15,7 +20,9 @@ export class Builder<E = string> {
   /**
    * Define token kinds.
    */
-  define(defs: { [kind: string]: ActionSource<E> | ActionSource<E>[] }) {
+  define<K extends string>(defs: {
+    [kind in K]: ActionSource<E> | ActionSource<E>[];
+  }): Builder<E, Kinds | keyof typeof defs> {
     for (const kind in defs) {
       const raw = defs[kind];
       this.defs.push({
@@ -53,6 +60,6 @@ export class Builder<E = string> {
   }
 
   build(options?: LexerBuildOptions) {
-    return new Lexer(this.defs, options);
+    return new Lexer<E, Kinds>(this.defs, options);
   }
 }
