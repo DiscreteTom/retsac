@@ -29,6 +29,8 @@
   - **_Breaking Change_**: remove `ReducerContext`, just use `GrammarRuleContext`.
   - **_Breaking Change_**: rename `BaseResolverOptions.reduce` to `accept`.
   - Feat: add `ASTNodeSelector`.
+  - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
+  - Built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - Lexer will skip unexpected actions by checking expected text.
