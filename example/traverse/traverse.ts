@@ -49,7 +49,7 @@ export const parser = new ELR.ParserBuilder<number>()
   .resolveRS(
     { exp: `exp '+' exp` },
     { exp: `exp '+' exp` },
-    { next: `'+'`, reduce: true }
+    { next: `'+'`, accept: true }
   )
   .build(lexer, { checkAll: true });
 
