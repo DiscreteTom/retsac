@@ -61,9 +61,11 @@ export class TempGrammar {
    * The output format should be the same as `Grammar.toStringWithName`.
    */
   toGrammarStringWithName() {
-    return this.type == TempGrammarType.LITERAL
-      ? `"${this.content}"@${this.name}`
-      : `${this.content}@${this.name}`;
+    return (
+      (this.type == TempGrammarType.LITERAL
+        ? JSON.stringify(this.content)
+        : this.content) + (this.name == this.content ? "" : "@" + this.name)
+    );
   }
 }
 
