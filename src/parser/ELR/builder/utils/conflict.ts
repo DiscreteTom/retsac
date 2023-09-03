@@ -59,10 +59,9 @@ function getUserUnresolvedConflicts<T>(
   debug: boolean
 ) {
   const related = resolved.filter(
-    (r) =>
-      r.type == type &&
-      r.reducerRule == reducerRule &&
-      r.anotherRule == anotherRule
+    // we don't need to check reducerRule here
+    // since the resolved conflicts are in the reducer rule's GrammarRule.resolved
+    (r) => r.type == type && r.anotherRule == anotherRule
   );
 
   // collect resolved next & calculate unresolved next
@@ -102,7 +101,8 @@ function getUserUnresolvedConflicts<T>(
   // check end
   const endHandlers = related.filter((r) => r.handleEnd);
   if (endHandlers.length > 1) {
-    throw LR_BuilderError.tooManyEndHandler(endHandlers[0].reducerRule);
+    // TODO: allow multi end handler?
+    throw LR_BuilderError.tooManyEndHandler(reducerRule);
   }
   let unresolvedEnd = checkHandleEnd;
   if (checkHandleEnd) {
@@ -321,23 +321,24 @@ export function getConflicts<T>(
 
 /**
  * Return conflicts that user didn't resolve and can't be automatically resolved.
+ * Returned conflicts are newly constructed, not the same as `GrammarRule.conflicts`,
+ * since the user may resolve part of the conflicts.
  */
 export function getUnresolvedConflicts<T>(
-  conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
-  resolved: readonly ResolvedConflict<T>[],
-  debug = false
+  grs: GrammarRuleRepo<T>,
+  debug: boolean
 ) {
   const result = new Map<GrammarRule<T>, Conflict<T>[]>();
 
-  conflicts.forEach((cs, reducerRule) => {
-    cs.forEach((c) => {
+  grs.grammarRules.forEach((reducerRule) => {
+    reducerRule.conflicts.forEach((c) => {
       if (c.type == ConflictType.REDUCE_SHIFT) {
         const res = getUserUnresolvedConflicts(
-          resolved,
+          reducerRule.resolved,
           ConflictType.REDUCE_SHIFT,
           reducerRule,
           c.anotherRule,
-          c.next as Grammar[],
+          c.next,
           false, // for a RS conflict, we don't need to handle end of input
           debug
         );
@@ -356,11 +357,11 @@ export function getUnresolvedConflicts<T>(
       } else {
         // RR conflict
         const res = getUserUnresolvedConflicts(
-          resolved,
+          reducerRule.resolved,
           ConflictType.REDUCE_REDUCE,
           reducerRule,
           c.anotherRule,
-          c.next as Grammar[],
+          c.next,
           c.handleEnd,
           debug
         );

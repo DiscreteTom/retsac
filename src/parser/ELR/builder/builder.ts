@@ -277,25 +277,20 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       options?.checkConflicts ||
       options?.generateResolvers
     ) {
+      // conflicts are stored in grs
       getConflicts<T>(repo, this.entryNTs, grs, dfa, options?.debug);
 
+      // resolved conflicts are already stored in grs in this.buildDFA
       const unresolved = getUnresolvedConflicts<T>(
-        conflicts,
-        resolved,
-        options?.debug
+        grs,
+        options?.debug ?? false
       );
 
-      if (options?.generateResolvers)
-        this.generateResolvers(unresolved, options?.generateResolvers);
+      if (options?.generateResolvers !== undefined)
+        this.generateResolvers(unresolved, options.generateResolvers);
 
       if (options?.checkAll || options?.checkConflicts)
-        this.checkConflicts(
-          dfa,
-          unresolved,
-          conflicts,
-          resolved,
-          options?.printAll || false
-        );
+        this.checkConflicts(dfa, unresolved, grs, options?.printAll || false);
     }
 
     return new Parser(dfa, lexer);
@@ -310,11 +305,10 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   private checkConflicts(
     dfa: DFA<T>,
     unresolved: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
-    conflicts: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
-    resolved: ResolvedConflict<T>[],
+    grs: GrammarRuleRepo<T>,
     printAll: boolean
   ) {
-    const followSets = dfa.getFollowSets();
+    const followSets = dfa.followSets;
 
     // ensure all conflicts are resolved
     unresolved.forEach((cs) => {
@@ -329,74 +323,66 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     // this is done in `buildDFA`
 
     // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
-    resolved.forEach((g) => {
-      if (g.next == "*") return;
-      g.next.forEach((n) => {
-        if (!followSets.get(g.reducerRule.NT)!.has(n)) {
-          const err = LR_BuilderError.nextGrammarNotFound(n, g.reducerRule.NT);
-          if (printAll) console.log(err.message);
-          else throw err;
-        }
-      });
-    });
-
-    // ensure all resolved are indeed conflicts
-    // first, transform the conflicts to a single array
-    const allConflicts = [] as {
-      conflict: Conflict<T>;
-      reducerRule: GrammarRule<T>;
-    }[];
-    conflicts.forEach(
-      (cs, reducerRule) =>
-        allConflicts.push(...cs.map((c) => ({ conflict: c, reducerRule }))) // TODO: remove temp array
-    );
-    // then, ensure all resolved are in the conflicts
-    resolved.forEach((c) => {
-      // check next
-      if (c.next != "*")
-        c.next.forEach((n) => {
-          if (
-            !allConflicts.some(
-              ({ conflict, reducerRule }) =>
-                c.reducerRule == reducerRule &&
-                c.anotherRule == conflict.anotherRule &&
-                c.type == conflict.type &&
-                (conflict.next as Grammar[]).some((nn) => n.eq(nn))
-            )
-          ) {
-            const err = LR_BuilderError.noSuchConflict(
-              c.reducerRule,
-              c.anotherRule,
-              c.type,
-              [n],
-              false
-            );
+    grs.grammarRules.forEach((reducerRule) => {
+      reducerRule.resolved.forEach((g) => {
+        if (g.next == "*") return;
+        g.next.forEach((n) => {
+          if (!followSets.get(reducerRule.NT)!.has(n)) {
+            const err = LR_BuilderError.nextGrammarNotFound(n, reducerRule.NT);
             if (printAll) console.log(err.message);
             else throw err;
           }
         });
-      // check handleEnd
-      if (
-        c.next != "*" &&
-        c.handleEnd &&
-        !allConflicts.some(
-          ({ conflict, reducerRule }) =>
-            c.reducerRule == reducerRule &&
-            c.anotherRule == conflict.anotherRule &&
-            c.type == conflict.type &&
-            conflict.handleEnd
-        )
-      ) {
-        const err = LR_BuilderError.noSuchConflict(
-          c.reducerRule,
-          c.anotherRule,
-          c.type,
-          [],
-          true
-        );
-        if (printAll) console.log(err.message);
-        else throw err;
-      }
+      });
+    });
+
+    // ensure all resolved are indeed conflicts
+    grs.grammarRules.forEach((reducerRule) => {
+      reducerRule.resolved.forEach((c) => {
+        // check next
+        if (c.next != "*")
+          c.next.forEach((n) => {
+            if (
+              !reducerRule.conflicts.some(
+                (conflict) =>
+                  c.anotherRule == conflict.anotherRule &&
+                  c.type == conflict.type &&
+                  conflict.next.some((nn) => n.eq(nn)) // TODO: just use `==`?
+              )
+            ) {
+              const err = LR_BuilderError.noSuchConflict(
+                reducerRule,
+                c.anotherRule,
+                c.type,
+                [n],
+                false
+              );
+              if (printAll) console.log(err.message);
+              else throw err;
+            }
+          });
+        // check handleEnd
+        if (
+          c.next != "*" &&
+          c.handleEnd &&
+          reducerRule.conflicts.some(
+            (conflict) =>
+              c.anotherRule == conflict.anotherRule &&
+              c.type == conflict.type &&
+              conflict.handleEnd
+          )
+        ) {
+          const err = LR_BuilderError.noSuchConflict(
+            reducerRule,
+            c.anotherRule,
+            c.type,
+            [],
+            true
+          );
+          if (printAll) console.log(err.message);
+          else throw err;
+        }
+      });
     });
     return this;
   }
