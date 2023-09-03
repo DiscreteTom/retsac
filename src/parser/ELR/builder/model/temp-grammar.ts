@@ -76,6 +76,16 @@ export class TempGrammar {
       ? repo.NT(this.content, this.name)
       : repo.T(this.content, this.name);
   }
+
+  /**
+   * Format: `kind@name` if not literal, else `"text"@name`.
+   * The output format should be the same as `Grammar.toStringWithName`.
+   */
+  toGrammarStringWithName() {
+    return this.type == TempGrammarType.LITERAL
+      ? `"${this.content}"@${this.name}`
+      : `${this.content}@${this.name}`;
+  }
 }
 
 /** Grammar rule, but can't distinguish N or NT. */
@@ -115,5 +125,16 @@ export class TempGrammarRule<T> {
       NT: this.NT,
       rule: this.rule.map((g) => g.toGrammar()),
     });
+  }
+
+  /**
+   * Return ``{ NT: `grammar rules` }``.
+   * Grammar's name is included.
+   * This should yield the same output format as `GrammarRule.toStringWithGrammarName`.
+   */
+  toStringWithGrammarName() {
+    return `{ ${this.NT}: \`${this.rule
+      .map((g) => g.toGrammarStringWithName())
+      .join(" ")}\` }`;
   }
 }
