@@ -67,7 +67,7 @@ test("number", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<any>);
+    } as Token<any, any>);
   });
 });
 
@@ -84,7 +84,7 @@ test("anonymous", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<any>);
+    } as Token<any, any>);
   });
 });
 
