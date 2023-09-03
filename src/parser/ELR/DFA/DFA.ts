@@ -80,7 +80,7 @@ export class DFA<T> {
       if (this.rollback) {
         while (rollbackStack.length > state.rollbackStackLength) {
           const { context, rollback } = rollbackStack.pop()!;
-          rollback(context);
+          rollback?.(context);
         }
       }
 

@@ -188,10 +188,10 @@ export class GrammarRule<T> {
    * This will be evaluated by candidate during parsing.
    */
   readonly resolved: ResolvedConflict<T>[];
-  callback: Callback<T>;
-  rejecter: Condition<T>;
-  rollback: Callback<T>;
-  commit: Condition<T>;
+  callback?: Callback<T>;
+  rejecter?: Condition<T>;
+  rollback?: Callback<T>;
+  commit?: Condition<T>;
   traverser?: Traverser<T>;
 
   constructor(

@@ -154,7 +154,7 @@ export class State<T> {
     | (AcceptedParserOutput<T> & {
         context: GrammarRuleContext<T>;
         commit: boolean;
-        rollback: Callback<T>;
+        rollback?: Callback<T>;
       }) {
     for (const c of this.candidates) {
       const res = c.tryReduce(

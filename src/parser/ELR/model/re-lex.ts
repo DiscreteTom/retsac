@@ -12,6 +12,6 @@ export type ReLexStack<State, T> = {
 }[];
 
 export type RollbackStack<T> = {
-  readonly rollback: Callback<T>;
+  readonly rollback?: Callback<T>;
   readonly context: GrammarRuleContext<T>;
 }[];

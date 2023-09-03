@@ -299,14 +299,14 @@ export class Candidate<T> {
     }
 
     // check rejecter
-    if (this.gr.rejecter(context)) {
+    if (this.gr.rejecter?.(context) ?? false) {
       logger(`[Reject] ${this.gr.toStringWithGrammarName()}`);
       rollbackNames();
       return rejectedParserOutput;
     }
 
     // accept
-    this.gr.callback(context);
+    this.gr.callback?.(context);
     const node = new ASTNode({
       kind: this.gr.NT,
       children: matched,
@@ -324,7 +324,7 @@ export class Candidate<T> {
       buffer: context.before.concat(node),
       errors: context.error ? [node] : [],
       context,
-      commit: this.gr.commit(context),
+      commit: this.gr.commit?.(context) ?? false,
     };
   }
 }

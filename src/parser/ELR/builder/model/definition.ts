@@ -7,10 +7,10 @@ export interface Definition {
 }
 
 export interface DefinitionContext<T> {
-  callback: Callback<T>;
-  rejecter: Condition<T>;
   resolved: ResolvedPartialTempConflict<T>[];
-  rollback: Callback<T>;
-  commit: Condition<T>;
+  callback?: Callback<T>;
+  rejecter?: Condition<T>;
+  rollback?: Callback<T>;
+  commit?: Condition<T>;
   traverser?: Traverser<T>;
 }

@@ -34,10 +34,10 @@ export class DFABuilder {
         (gr) =>
           new GrammarRule<T>({
             NT: gr.NT,
-            callback: gr.callback ?? (() => {}),
-            rejecter: gr.rejecter ?? (() => false),
-            rollback: gr.rollback ?? (() => {}),
-            commit: gr.commit ?? (() => false),
+            callback: gr.callback,
+            rejecter: gr.rejecter,
+            rollback: gr.rollback,
+            commit: gr.commit,
             traverser: gr.traverser,
             rule: gr.rule.map((g) =>
               g.toGrammar(repo, lexer, NTs.has(g.content))
