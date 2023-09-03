@@ -154,8 +154,15 @@ export function calculateAllStates<T>(
   }
 }
 
+/**
+ * Transform the data user defined into temp grammar rules,
+ * and append resolved conflicts defined in definition context in data into resolvedTemp.
+ */
 export function processDefinitions<T>(
   data: ParserBuilderData<T>,
+  /**
+   * This will be modified to add the resolved conflicts defined in definition context in data.
+   */
   resolvedTemp: ResolvedTempConflict<T>[]
 ): {
   tempGrammarRules: readonly TempGrammarRule<T>[];
@@ -165,36 +172,35 @@ export function processDefinitions<T>(
   const NTs: Set<string> = new Set();
 
   data.forEach((d) => {
-    const ctxBuilder = d.ctxBuilder;
-    const defs = d.defs;
-    const ctx = ctxBuilder?.build();
-    const grs = defToTempGRs(defs, ctx);
+    const ctx = d.ctxBuilder?.build();
+    const grs = defToTempGRs(d.defs, ctx);
 
     tempGrammarRules.push(...grs);
     grs.forEach((gr) => {
       NTs.add(gr.NT);
     });
 
-    // handle resolved conflicts
+    // append resolved conflicts defined in ctx into resolvedTemp
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+        defToTempGRs<T>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemp.push({
               type: ConflictType.REDUCE_REDUCE,
               reducerRule: gr,
-              anotherRule: a,
+              anotherRule: another,
               options: r.options,
             });
           });
         });
       } else {
-        defToTempGRs<T>(r.anotherRule).forEach((a) => {
+        // ConflictType.REDUCE_SHIFT
+        defToTempGRs<T>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemp.push({
               type: ConflictType.REDUCE_SHIFT,
               reducerRule: gr,
-              anotherRule: a,
+              anotherRule: another,
               options: r.options,
             });
           });

@@ -18,6 +18,8 @@ export class DFABuilder {
     data: ParserBuilderData<T>,
     resolvedTemp: ResolvedTempConflict<T>[]
   ) {
+    // transform definitions to temp grammar rules
+    // and append resolved conflicts defined in definition context in data into resolvedTemp
     const { tempGrammarRules, NTs } = processDefinitions<T>(data, resolvedTemp);
 
     // transform temp grammar rules to grammar rules
@@ -30,24 +32,30 @@ export class DFABuilder {
           rollback: gr.rollback ?? (() => {}),
           commit: gr.commit ?? (() => false),
           traverser: gr.traverser,
-          rule: gr.rule.map((g) => g.toGrammar(repo, NTs.has(g.content))),
+          rule: gr.rule.map((g) =>
+            g.toGrammar(repo, lexer, NTs.has(g.content))
+          ),
         })
     );
 
     // init all initial candidates, initial candidate is candidate with digested=0
+    // TODO: use CandidateRepo
     const allInitialCandidates = new Map<string, Candidate<T>>();
     grs.forEach((gr) => {
       const c = new Candidate<T>({ gr, digested: 0 });
-      allInitialCandidates.set(c.toString(), c); // TODO: use toStringWithName?
+      allInitialCandidates.set(c.toStringWithGrammarName(), c);
     });
 
     const entryCandidates = getGrammarRulesClosure(
+      // find those grammar rules which can reduce to entry NTs
       grs.filter((gr) => entryNTs.has(gr.NT)),
       grs
     ).map(
       (gr) =>
-        // get initial candidate from global cache
-        allInitialCandidates.get(Candidate.getString({ gr, digested: 0 }))!
+        // find candidate corresponding to the grammar rule
+        allInitialCandidates.get(
+          Candidate.getStringWithGrammarName({ gr, digested: 0 })
+        )!
     );
     const entryState = new State<T>(
       entryCandidates,
@@ -56,6 +64,7 @@ export class DFABuilder {
     const NTClosures = getAllNTClosure(NTs, grs);
 
     // init all states
+    // TODO: use StateRepo
     const allStates = new Map<string, State<T>>();
     allStates.set(entryState.toString(), entryState);
 
@@ -74,7 +83,7 @@ export class DFABuilder {
     grs.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
         if (!followSets.has(g.kind)) {
-          // if g is a T/Literal, it might not have a follow set
+          // if g is a T/Literal, it might not have a follow set // TODO: what's the meaning of this comment?
           followSets.set(g.kind, new GrammarSet());
         }
         if (i < rule.length - 1) {
@@ -117,7 +126,6 @@ export class DFABuilder {
       allInitialCandidates,
       allStates,
       NTs,
-      tempGrammarRules,
     };
   }
 }

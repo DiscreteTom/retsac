@@ -9,6 +9,7 @@ import {
   ConflictType,
   ResolvedConflict,
   GrammarType,
+  GrammarRepo,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -17,8 +18,6 @@ import {
   ResolvedTempConflict,
   RR_ResolverOptions,
   RS_ResolverOptions,
-  TempGrammarRule,
-  TempGrammarType,
   Definition,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
@@ -39,6 +38,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   // use protected for AdvancedParserBuilder
   protected readonly data: ParserBuilderData<T> = [];
   private readonly entryNTs: Set<string>;
+  /**
+   * Resolved temporary conflicts.
+   * This will be filled in 2 places:
+   *
+   * 1. When `builder.resolveRS` or `builder.resolveRR` is called, the resolved conflicts will be pushed to this array.
+   * 2. When `builder.build` is called, the resolved conflicts in DefinitionContext will be transformed and pushed to this.
+   */
   private readonly resolvedTemp: ResolvedTempConflict<T>[];
   /**
    * For most cases, this is used by AdvancedParserBuilder for cascading query.
@@ -148,6 +154,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
 
   private buildDFA(
     lexer: ILexer<any>,
+    printAll: boolean,
     options?: {
       debug?: boolean;
       logger?: Logger;
@@ -155,7 +162,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       reLex?: boolean;
     }
   ) {
-    if (this.entryNTs.size == 0) throw LR_BuilderError.noEntryNT();
+    if (this.entryNTs.size == 0) {
+      const e = LR_BuilderError.noEntryNT();
+      if (printAll) console.log(e.message);
+      else throw e;
+    }
+
+    const repo = new GrammarRepo();
 
     // build the DFA
     const {
@@ -168,8 +181,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       allInitialCandidates,
       allStates,
       NTs,
-      tempGrammarRules,
-    } = DFABuilder.build<T>(lexer, this.entryNTs, this.data, this.resolvedTemp);
+    } = DFABuilder.build<T>(
+      repo,
+      lexer,
+      this.entryNTs,
+      this.data,
+      this.resolvedTemp
+    );
     const dfa = new DFA<T>(
       grs,
       entryNTs,
@@ -270,7 +288,6 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       dfa,
       resolved,
       NTs,
-      tempGrammarRules,
       conflicts,
     };
   }
