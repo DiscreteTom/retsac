@@ -55,8 +55,9 @@ export class GrammarExpander {
         whitespaces() // blank
       )
       .define({
+        // TODO: support rename literal
         grammar: [/\w+@\w+/, /\w+/],
-        literal: stringLiteral(`"`).or(stringLiteral(`'`)),
+        literal: [stringLiteral(`"`), stringLiteral(`'`)],
       })
       .anonymous(exact(...`|+*()?`))
       .build();
@@ -66,6 +67,7 @@ export class GrammarExpander {
     });
 
     // the data `string[]` represent all the expanded possibilities of the grammar rule
+    // TODO: serialize the parser builder to optimize the speed
     const parserBuilder = new ParserBuilder<string[]>()
       .entry("gr") // grammar rule
       .define(

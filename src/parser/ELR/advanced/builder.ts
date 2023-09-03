@@ -13,6 +13,9 @@ export class AdvancedBuilder<T>
   implements IParserBuilder<T>
 {
   private readonly expander: GrammarExpander;
+  // resolved conflicts will be stored here first
+  // before passing to the super class
+  // because we may need to expand the definitions
   private readonly resolvedRS: {
     reducerRule: Definition;
     anotherRule: Definition;
@@ -24,7 +27,13 @@ export class AdvancedBuilder<T>
     options: RR_ResolverOptions<T>;
   }[];
 
-  constructor(options?: { prefix?: string }) {
+  constructor(options?: {
+    /**
+     * Prefix of the generated placeholder grammar rules.
+     * This will also be used as the cascade query prefix.
+     */
+    prefix?: string;
+  }) {
     const prefix = options?.prefix ?? `__`;
     super({ cascadeQueryPrefix: prefix });
     this.expander = new GrammarExpander({ placeholderPrefix: prefix });
@@ -55,8 +64,8 @@ export class AdvancedBuilder<T>
 
   build(lexer: ILexer<any>, options?: BuildOptions) {
     // re-generate this.data
-    const raw = this.data;
-    this.data = [];
+    const raw = [...this.data]; // deep copy since we will clear this.data
+    this.data.length = 0; // clear
     raw.forEach(({ defs, ctxBuilder }) => {
       this.expand(defs, options?.debug, true, (res) => {
         res.defs.forEach((def) => this.data.push({ defs: def, ctxBuilder }));
