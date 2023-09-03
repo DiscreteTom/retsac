@@ -161,7 +161,16 @@ export class ASTNode<T> {
   toTreeString(options?: { indent?: string }) {
     const indent = options?.indent ?? "";
 
-    let res = `${indent}${this.toStringWithName()}`;
+    // don't use `this.toStringWithName` here
+    // since this output will always have ': '
+    let res = `${indent}${
+      this.kind == ""
+        ? "<anonymous>"
+        : this.kind == this.name
+        ? this.kind
+        : `${this.kind}(${this.name})`
+    }: `;
+    if (this.text) res += JSON.stringify(this.text); // quote the text
     res += "\n";
     this.children?.forEach((c) => {
       res += c.toTreeString({
@@ -185,7 +194,7 @@ export class ASTNode<T> {
   static getString(data: Pick<ASTNode<any>, "kind" | "text">) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.text == undefined ? "" : `: ${data.text}`}`
+      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
 
