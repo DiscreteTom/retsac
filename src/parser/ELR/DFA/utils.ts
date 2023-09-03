@@ -162,6 +162,8 @@ export function processDefinitions<T>(
   data: ParserBuilderData<T>,
   /**
    * This will be modified to add the resolved conflicts defined in definition context in data.
+   * Since the definition context has higher priority,
+   * those resolved conflicts will be append to the front of this array.
    */
   resolvedTemp: ResolvedTempConflict<T>[]
 ): {
@@ -180,12 +182,13 @@ export function processDefinitions<T>(
       NTs.add(gr.NT);
     });
 
-    // append resolved conflicts defined in ctx into resolvedTemp
+    // append resolved conflicts defined in ctx into the front of resolvedTemp
+    const toBeAppend = [] as ResolvedTempConflict<T>[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
         defToTempGRs<T>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
-            resolvedTemp.push({
+            toBeAppend.push({
               type: ConflictType.REDUCE_REDUCE,
               reducerRule: gr,
               anotherRule: another,
@@ -197,7 +200,7 @@ export function processDefinitions<T>(
         // ConflictType.REDUCE_SHIFT
         defToTempGRs<T>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
-            resolvedTemp.push({
+            toBeAppend.push({
               type: ConflictType.REDUCE_SHIFT,
               reducerRule: gr,
               anotherRule: another,
@@ -207,6 +210,7 @@ export function processDefinitions<T>(
         });
       }
     });
+    resolvedTemp.unshift(...toBeAppend);
   });
 
   return { tempGrammarRules, NTs };

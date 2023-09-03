@@ -278,6 +278,8 @@ builder.define(
 
 Besides the `DefinitionContext`, you can also use `builder.resolveRS` and `builder.resolveRR` to resolve conflicts, but you have to provide both the grammar rules.
 
+TODO: resolved conflicts in ctx has higher priority than the builder style resolving.
+
 ```ts
 builder
   .define({ exp: `exp '+' exp` })
