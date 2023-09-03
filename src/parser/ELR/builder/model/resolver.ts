@@ -1,4 +1,4 @@
-import { RequireAtLeastOne } from "../../../../utils";
+import { AtLeastOneOf } from "../../../../utils";
 import { Condition } from "../../model";
 import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
@@ -12,7 +12,7 @@ export type BaseResolverOptions<T> = {
 };
 
 export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
-  RequireAtLeastOne<
+  AtLeastOneOf<
     {
       next: (string & {}) | "*";
       handleEnd: boolean;

@@ -1,4 +1,4 @@
-import { RequireAtLeastOne } from "../../utils";
+import { AtLeastOneOf } from "../../utils";
 
 // This has to be a class, since we need to cache the `rest` of the input.
 export class AcceptedActionOutput<E> {
@@ -89,4 +89,4 @@ export type SimpleAcceptedActionOutput<E> = Partial<
     "muted" | "error" | "rest" | "digested" | "content"
   >
 > &
-  RequireAtLeastOne<AcceptedActionOutput<E>, "digested" | "content">;
+  AtLeastOneOf<AcceptedActionOutput<E>, "digested" | "content">;
