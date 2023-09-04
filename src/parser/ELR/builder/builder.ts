@@ -33,11 +33,11 @@ import { Logger } from "../../../model";
  *
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
-export class ParserBuilder<T, Kinds extends string = "">
-  implements IParserBuilder<T, Kinds>
+export class ParserBuilder<ASTData, Kinds extends string = "">
+  implements IParserBuilder<ASTData, Kinds>
 {
   // use protected for AdvancedParserBuilder
-  protected readonly data: ParserBuilderData<T, Kinds> = [];
+  protected readonly data: ParserBuilderData<ASTData, Kinds> = [];
   private readonly entryNTs: Set<string>;
   /**
    * Resolved temporary conflicts.
@@ -46,7 +46,7 @@ export class ParserBuilder<T, Kinds extends string = "">
    * 1. When `builder.resolveRS` or `builder.resolveRR` is called, the resolved conflicts will be pushed to this array.
    * 2. When `builder.build` is called, the resolved conflicts in DefinitionContext will be transformed and pushed to this.
    */
-  private readonly resolvedTemp: ResolvedTempConflict<T, Kinds>[];
+  private readonly resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[];
   /**
    * For most cases, this is used by AdvancedParserBuilder for cascading query.
    * You can also customize this.
@@ -67,7 +67,7 @@ export class ParserBuilder<T, Kinds extends string = "">
 
   entry<Append extends string>(
     ...defs: Append[]
-  ): IParserBuilder<T, Kinds | Append> {
+  ): IParserBuilder<ASTData, Kinds | Append> {
     this.entryNTs.clear();
     defs.forEach((d) => this.entryNTs.add(d));
     return this;
@@ -91,13 +91,13 @@ export class ParserBuilder<T, Kinds extends string = "">
    */
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ctxBuilder?: DefinitionContextBuilder<T, Kinds | Append>
-  ): IParserBuilder<T, Kinds | Append> {
-    (this.data as ParserBuilderData<T, Kinds | Append>).push({
+    ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append>
+  ): IParserBuilder<ASTData, Kinds | Append> {
+    (this.data as ParserBuilderData<ASTData, Kinds | Append>).push({
       defs,
       ctxBuilder,
     });
-    return this as IParserBuilder<T, Kinds | Append>;
+    return this as IParserBuilder<ASTData, Kinds | Append>;
   }
 
   /**
@@ -107,7 +107,7 @@ export class ParserBuilder<T, Kinds extends string = "">
   private checkSymbols(
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
-    grs: GrammarRuleRepo<T, Kinds>,
+    grs: GrammarRuleRepo<ASTData, Kinds>,
     lexer: Readonly<ILexer<any, any>>,
     printAll: boolean
   ) {
@@ -190,21 +190,24 @@ export class ParserBuilder<T, Kinds extends string = "">
       allInitialCandidates,
       allStates,
       NTs,
-    } = DFABuilder.prepare<T, Kinds>(
+    } = DFABuilder.prepare<ASTData, Kinds>(
       repo,
       lexer,
       this.entryNTs,
       this.data,
       this.resolvedTemp
     );
-    const dfa = new DFA<T, Kinds | LexerKinds>(
+    const dfa = new DFA<ASTData, Kinds | LexerKinds>(
       entryNTs,
-      entryState as State<T, Kinds | LexerKinds>,
-      NTClosures as Map<string, GrammarRule<T, Kinds | LexerKinds>[]>,
+      entryState as State<ASTData, Kinds | LexerKinds>,
+      NTClosures as Map<string, GrammarRule<ASTData, Kinds | LexerKinds>[]>,
       firstSets,
       followSets,
-      allInitialCandidates as Map<string, Candidate<T, Kinds | LexerKinds>>,
-      allStates as Map<string, State<T, Kinds | LexerKinds>>,
+      allInitialCandidates as Map<
+        string,
+        Candidate<ASTData, Kinds | LexerKinds>
+      >,
+      allStates as Map<string, State<ASTData, Kinds | LexerKinds>>,
       this.cascadeQueryPrefix,
       options?.rollback ?? false,
       options?.reLex ?? true,
@@ -237,7 +240,7 @@ export class ParserBuilder<T, Kinds extends string = "">
         r.options.next == "*"
           ? "*"
           : // TODO: use a dedicated lexer to parse next
-            defToTempGRs<T, Kinds>({
+            defToTempGRs<ASTData, Kinds>({
               "": r.options.next ?? "",
             } as Definition<Kinds>)[0]?.rule.map((g) =>
               g.toGrammar(repo, lexer, NTs.has(g.content))
@@ -291,7 +294,7 @@ export class ParserBuilder<T, Kinds extends string = "">
       options?.generateResolvers
     ) {
       // conflicts are stored in grs
-      getConflicts<T, Kinds>(
+      getConflicts<ASTData, Kinds>(
         repo,
         this.entryNTs,
         grs,
@@ -300,7 +303,7 @@ export class ParserBuilder<T, Kinds extends string = "">
       );
 
       // resolved conflicts are already stored in grs in this.buildDFA
-      const unresolved = getUnresolvedConflicts<T, Kinds>(
+      const unresolved = getUnresolvedConflicts<ASTData, Kinds>(
         grs,
         options?.debug ?? false
       );
@@ -317,7 +320,7 @@ export class ParserBuilder<T, Kinds extends string = "">
         );
     }
 
-    return new Parser<T, Kinds | LexerKinds>(dfa, lexer);
+    return new Parser<ASTData, Kinds | LexerKinds>(dfa, lexer);
   }
 
   /**
@@ -327,9 +330,12 @@ export class ParserBuilder<T, Kinds extends string = "">
    * If `printAll` is true, print all conflicts instead of throwing error.
    */
   private checkConflicts(
-    dfa: DFA<T, Kinds>,
-    unresolved: ReadonlyMap<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>,
-    grs: GrammarRuleRepo<T, Kinds>,
+    dfa: DFA<ASTData, Kinds>,
+    unresolved: ReadonlyMap<
+      GrammarRule<ASTData, Kinds>,
+      Conflict<ASTData, Kinds>[]
+    >,
+    grs: GrammarRuleRepo<ASTData, Kinds>,
     printAll: boolean
   ) {
     const followSets = dfa.followSets;
@@ -412,7 +418,7 @@ export class ParserBuilder<T, Kinds extends string = "">
   }
 
   private generateResolvers(
-    unresolved: Map<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>,
+    unresolved: Map<GrammarRule<ASTData, Kinds>, Conflict<ASTData, Kinds>[]>,
     style: "builder" | "context"
   ) {
     if (style == "builder") {
@@ -462,10 +468,10 @@ export class ParserBuilder<T, Kinds extends string = "">
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<T, Kinds>
+    options: RS_ResolverOptions<ASTData, Kinds>
   ) {
-    const reducerRules = defToTempGRs<T, Kinds>(reducerRule);
-    const anotherRules = defToTempGRs<T, Kinds>(anotherRule);
+    const reducerRules = defToTempGRs<ASTData, Kinds>(reducerRule);
+    const anotherRules = defToTempGRs<ASTData, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
         this.resolvedTemp.push({
@@ -482,10 +488,10 @@ export class ParserBuilder<T, Kinds extends string = "">
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<T, Kinds>
+    options: RR_ResolverOptions<ASTData, Kinds>
   ) {
-    const reducerRules = defToTempGRs<T, Kinds>(reducerRule);
-    const anotherRules = defToTempGRs<T, Kinds>(anotherRule);
+    const reducerRules = defToTempGRs<ASTData, Kinds>(reducerRule);
+    const anotherRules = defToTempGRs<ASTData, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
         this.resolvedTemp.push({
@@ -500,8 +506,8 @@ export class ParserBuilder<T, Kinds extends string = "">
   }
 
   use<Append extends string>(
-    f: BuilderDecorator<T, Kinds, Append>
-  ): IParserBuilder<T, Kinds | Append> {
+    f: BuilderDecorator<ASTData, Kinds, Append>
+  ): IParserBuilder<ASTData, Kinds | Append> {
     return f(this);
   }
 

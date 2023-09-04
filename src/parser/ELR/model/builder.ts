@@ -51,7 +51,7 @@ export type BuildOptions = Partial<
   reLex?: boolean;
 };
 
-export interface IParserBuilder<T, Kinds extends string> {
+export interface IParserBuilder<ASTData, Kinds extends string> {
   /**
    * Declare top-level NT's.
    * This is required for ELR parser.
@@ -59,28 +59,28 @@ export interface IParserBuilder<T, Kinds extends string> {
    */
   entry<Append extends string>(
     ...defs: Append[]
-  ): IParserBuilder<T, Kinds | Append>;
+  ): IParserBuilder<ASTData, Kinds | Append>;
   /**
    * Declare grammar rules.
    */
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ctxBuilder?: DefinitionContextBuilder<T, Kinds | Append>
-  ): IParserBuilder<T, Kinds | Append>;
+    ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append>
+  ): IParserBuilder<ASTData, Kinds | Append>;
   /**
    * Generate the ELR parser.
    */
   build<LexerKinds extends string>(
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
-  ): IParser<T, Kinds | LexerKinds>; // TODO: use generic type
+  ): IParser<ASTData, Kinds | LexerKinds>; // TODO: use generic type
   /**
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<T, Kinds>
+    options: RS_ResolverOptions<ASTData, Kinds>
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
@@ -88,14 +88,14 @@ export interface IParserBuilder<T, Kinds extends string> {
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<T, Kinds>
+    options: RR_ResolverOptions<ASTData, Kinds>
   ): this;
   /**
    * Apply a function to this builder.
    */
   use<Append extends string>(
-    f: BuilderDecorator<T, Kinds, Append>
-  ): IParserBuilder<T, Kinds | Append>;
+    f: BuilderDecorator<ASTData, Kinds, Append>
+  ): IParserBuilder<ASTData, Kinds | Append>;
   /**
    * Generate resolvers by grammar rules' priorities.
    *
@@ -127,6 +127,10 @@ export interface IParserBuilder<T, Kinds extends string> {
   rightSA(...defs: Definition<Kinds>[]): this;
 }
 
-export type BuilderDecorator<T, Kinds extends string, Append extends string> = (
-  pb: IParserBuilder<T, Kinds>
-) => IParserBuilder<T, Kinds | Append>; // return `this`
+export type BuilderDecorator<
+  ASTData,
+  Kinds extends string,
+  Append extends string
+> = (
+  pb: IParserBuilder<ASTData, Kinds>
+) => IParserBuilder<ASTData, Kinds | Append>; // return `this`

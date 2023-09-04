@@ -8,9 +8,9 @@ import {
 import { BuildOptions, IParserBuilder } from "../model/builder";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
-export class AdvancedBuilder<T, Kinds extends string = "">
-  extends ParserBuilder<T, Kinds>
-  implements IParserBuilder<T, Kinds>
+export class AdvancedBuilder<ASTData, Kinds extends string = "">
+  extends ParserBuilder<ASTData, Kinds>
+  implements IParserBuilder<ASTData, Kinds>
 {
   private readonly expander: GrammarExpander<Kinds>;
   // resolved conflicts will be stored here first
@@ -19,12 +19,12 @@ export class AdvancedBuilder<T, Kinds extends string = "">
   private readonly resolvedRS: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RS_ResolverOptions<T, Kinds>;
+    options: RS_ResolverOptions<ASTData, Kinds>;
   }[];
   private readonly resolvedRR: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RR_ResolverOptions<T, Kinds>;
+    options: RR_ResolverOptions<ASTData, Kinds>;
   }[];
 
   constructor(options?: {
@@ -50,14 +50,14 @@ export class AdvancedBuilder<T, Kinds extends string = "">
       rs: {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<T, Kinds>;
+        options: RS_ResolverOptions<ASTData, Kinds>;
       }[];
     }) => void
   ) {
     for (const NT in d) {
       const def = d[NT];
       const defStr = def instanceof Array ? def.join("|") : (def as string);
-      const res = this.expander.expand<T>(defStr, NT, debug, resolve);
+      const res = this.expander.expand<ASTData>(defStr, NT, debug, resolve);
       cb(res);
     }
   }
@@ -109,7 +109,7 @@ export class AdvancedBuilder<T, Kinds extends string = "">
     });
 
     // generate placeholder grammar rules
-    const res = this.expander.generatePlaceholderGrammarRules<T>(
+    const res = this.expander.generatePlaceholderGrammarRules<ASTData>(
       options?.debug
     );
     res.defs.forEach((def) => this.data.push({ defs: def }));
@@ -123,7 +123,7 @@ export class AdvancedBuilder<T, Kinds extends string = "">
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<T, Kinds>
+    options: RS_ResolverOptions<ASTData, Kinds>
   ) {
     this.resolvedRS.push({ reducerRule, anotherRule, options });
     return this;
@@ -131,7 +131,7 @@ export class AdvancedBuilder<T, Kinds extends string = "">
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<T, Kinds>
+    options: RR_ResolverOptions<ASTData, Kinds>
   ) {
     this.resolvedRR.push({ reducerRule, anotherRule, options });
     return this;

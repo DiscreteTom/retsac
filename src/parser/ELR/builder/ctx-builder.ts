@@ -7,13 +7,13 @@ import {
 } from "./model";
 import { RS_ResolverOptions, RR_ResolverOptions } from "./model";
 
-export class DefinitionContextBuilder<T, Kinds extends string> {
-  private resolved: ResolvedPartialTempConflict<T, Kinds>[];
-  private _callback?: Callback<T, Kinds>;
-  private _rejecter?: Condition<T, Kinds>;
-  private _rollback?: Callback<T, Kinds>;
-  private _commit?: Condition<T, Kinds>;
-  private _traverser?: Traverser<T, Kinds>;
+export class DefinitionContextBuilder<ASTData, Kinds extends string> {
+  private resolved: ResolvedPartialTempConflict<ASTData, Kinds>[];
+  private _callback?: Callback<ASTData, Kinds>;
+  private _rejecter?: Condition<ASTData, Kinds>;
+  private _rollback?: Callback<ASTData, Kinds>;
+  private _commit?: Condition<ASTData, Kinds>;
+  private _traverser?: Traverser<ASTData, Kinds>;
 
   constructor() {
     this.resolved = [];
@@ -22,7 +22,7 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Modify this context with the new callback appended.
    */
-  callback(f: Callback<T, Kinds>) {
+  callback(f: Callback<ASTData, Kinds>) {
     const _callback = this._callback;
     this._callback =
       _callback == undefined
@@ -38,7 +38,7 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Modify this context with the new rejecter appended.
    */
-  rejecter(f: Condition<T, Kinds>) {
+  rejecter(f: Condition<ASTData, Kinds>) {
     const _rejecter = this._rejecter;
     this._rejecter =
       _rejecter == undefined
@@ -53,14 +53,14 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Modify this context with a reducer appended which can reduce data.
    */
-  reducer(f: Reducer<T, Kinds>) {
+  reducer(f: Reducer<ASTData, Kinds>) {
     return this.callback((context) => (context.data = f(context)));
   }
 
   /**
    *  Modify this context with a rollback function appended.
    */
-  rollback(f: Callback<T, Kinds>) {
+  rollback(f: Callback<ASTData, Kinds>) {
     const _rollback = this._rollback;
     this._rollback =
       _rollback == undefined
@@ -76,7 +76,7 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Set the traverser for this grammar rule.
    */
-  traverser(f: Traverser<T, Kinds>) {
+  traverser(f: Traverser<ASTData, Kinds>) {
     this._traverser = f;
     return this;
   }
@@ -84,7 +84,7 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * If `true` or returns `true`, the parser will commit the current state when the grammar rule is accepted.
    */
-  commit(enable: boolean | Condition<T, Kinds> = true) {
+  commit(enable: boolean | Condition<ASTData, Kinds> = true) {
     this._commit = typeof enable === "boolean" ? () => enable : enable;
     return this;
   }
@@ -92,7 +92,10 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Resolve an Reduce-Shift conflict.
    */
-  resolveRS(another: Definition<Kinds>, options: RS_ResolverOptions<T, Kinds>) {
+  resolveRS(
+    another: Definition<Kinds>,
+    options: RS_ResolverOptions<ASTData, Kinds>
+  ) {
     this.resolved.push({
       type: ConflictType.REDUCE_SHIFT,
       anotherRule: another,
@@ -104,7 +107,10 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Resolve an Reduce-Reduce conflict.
    */
-  resolveRR(another: Definition<Kinds>, options: RR_ResolverOptions<T, Kinds>) {
+  resolveRR(
+    another: Definition<Kinds>,
+    options: RR_ResolverOptions<ASTData, Kinds>
+  ) {
     this.resolved.push({
       type: ConflictType.REDUCE_REDUCE,
       anotherRule: another,
@@ -113,7 +119,7 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
     return this;
   }
 
-  build(): DefinitionContext<T, Kinds> {
+  build(): DefinitionContext<ASTData, Kinds> {
     return {
       resolved: this.resolved,
       callback: this._callback,
@@ -127,45 +133,53 @@ export class DefinitionContextBuilder<T, Kinds extends string> {
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
    */
-  static resolveRS<T, Kinds extends string>(
+  static resolveRS<ASTData, Kinds extends string>(
     another: Definition<Kinds>,
-    options: RS_ResolverOptions<T, Kinds>
+    options: RS_ResolverOptions<ASTData, Kinds>
   ) {
-    return new DefinitionContextBuilder<T, Kinds>().resolveRS(another, options);
+    return new DefinitionContextBuilder<ASTData, Kinds>().resolveRS(
+      another,
+      options
+    );
   }
   /**
    * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-R conflict.
    */
-  static resolveRR<T, Kinds extends string>(
+  static resolveRR<ASTData, Kinds extends string>(
     another: Definition<Kinds>,
-    options: RR_ResolverOptions<T, Kinds>
+    options: RR_ResolverOptions<ASTData, Kinds>
   ) {
-    return new DefinitionContextBuilder<T, Kinds>().resolveRR(another, options);
+    return new DefinitionContextBuilder<ASTData, Kinds>().resolveRR(
+      another,
+      options
+    );
   }
   /** Create a new DefinitionContextBuilder with the new callback appended. */
-  static callback<T, Kinds extends string>(f: Callback<T, Kinds>) {
-    return new DefinitionContextBuilder<T, Kinds>().callback(f);
+  static callback<ASTData, Kinds extends string>(f: Callback<ASTData, Kinds>) {
+    return new DefinitionContextBuilder<ASTData, Kinds>().callback(f);
   }
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  static rejecter<T, Kinds extends string>(f: Condition<T, Kinds>) {
-    return new DefinitionContextBuilder<T, Kinds>().rejecter(f);
+  static rejecter<ASTData, Kinds extends string>(f: Condition<ASTData, Kinds>) {
+    return new DefinitionContextBuilder<ASTData, Kinds>().rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  static reducer<T, Kinds extends string>(f: Reducer<T, Kinds>) {
-    return new DefinitionContextBuilder<T, Kinds>().reducer(f);
+  static reducer<ASTData, Kinds extends string>(f: Reducer<ASTData, Kinds>) {
+    return new DefinitionContextBuilder<ASTData, Kinds>().reducer(f);
   }
   /** Create a new DefinitionContextBuilder with the new rollback function appended. */
-  static rollback<T, Kinds extends string>(f: Callback<T, Kinds>) {
-    return new DefinitionContextBuilder<T, Kinds>().rollback(f);
+  static rollback<ASTData, Kinds extends string>(f: Callback<ASTData, Kinds>) {
+    return new DefinitionContextBuilder<ASTData, Kinds>().rollback(f);
   }
   /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
-  static commit<T, Kinds extends string>(
-    enable: boolean | Condition<T, Kinds> = true
+  static commit<ASTData, Kinds extends string>(
+    enable: boolean | Condition<ASTData, Kinds> = true
   ) {
-    return new DefinitionContextBuilder<T, Kinds>().commit(enable);
+    return new DefinitionContextBuilder<ASTData, Kinds>().commit(enable);
   }
   /** Create a new DefinitionContextBuilder with the traverser set. */
-  static traverser<T, Kinds extends string>(f: Traverser<T, Kinds>) {
-    return new DefinitionContextBuilder<T, Kinds>().traverser(f);
+  static traverser<ASTData, Kinds extends string>(
+    f: Traverser<ASTData, Kinds>
+  ) {
+    return new DefinitionContextBuilder<ASTData, Kinds>().traverser(f);
   }
 }

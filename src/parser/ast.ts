@@ -36,14 +36,14 @@ export type ASTObj = {
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeChildrenSelector<T, Kinds extends string> = (
+export type ASTNodeChildrenSelector<ASTData, Kinds extends string> = (
   name: string
-) => ASTNode<T, Kinds>[];
+) => ASTNode<ASTData, Kinds>[];
 
-export type ASTNodeSelector<T, Kinds extends string> = (
+export type ASTNodeSelector<ASTData, Kinds extends string> = (
   name: string,
-  nodes: readonly ASTNode<T, Kinds>[]
-) => ASTNode<T, Kinds>[];
+  nodes: readonly ASTNode<ASTData, Kinds>[]
+) => ASTNode<ASTData, Kinds>[];
 
 /**
  * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
@@ -54,16 +54,16 @@ export const mockASTNodeSelector: ASTNodeSelector<any, any> = () => [];
  * Traverser is called when a top-down traverse is performed.
  * The result of the traverser is stored in the ASTNode's data field.
  */
-export type Traverser<T, Kinds extends string> = (
-  self: ASTNode<T, Kinds>
-) => T | undefined | void;
+export type Traverser<ASTData, Kinds extends string> = (
+  self: ASTNode<ASTData, Kinds>
+) => ASTData | undefined | void;
 
 /**
  * The default traverser.
  */
-export function defaultTraverser<T, Kinds extends string>(
-  self: ASTNode<T, Kinds>
-): T | undefined | void {
+export function defaultTraverser<ASTData, Kinds extends string>(
+  self: ASTNode<ASTData, Kinds>
+): ASTData | undefined | void {
   if (self.children !== undefined) {
     // if there is only one child, use its data or traverse to get its data
     if (self.children.length == 1)
@@ -77,7 +77,7 @@ export function defaultTraverser<T, Kinds extends string>(
 }
 
 // TODO: default T
-export class ASTNode<T, Kinds extends string> {
+export class ASTNode<ASTData, Kinds extends string> {
   /**
    * T's or NT's kind name.
    * If the T is anonymous, the value is an empty string.
@@ -95,26 +95,26 @@ export class ASTNode<T, Kinds extends string> {
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<T, Kinds>[]; // TODO: use new-type pattern to make sure this is not undefined?
+  children?: readonly ASTNode<ASTData, Kinds>[]; // TODO: use new-type pattern to make sure this is not undefined?
   /**
    * Parent must be an NT unless this node is a root node, in this case parent is undefined.
    */
-  parent?: ASTNode<T, Kinds>;
+  parent?: ASTNode<ASTData, Kinds>;
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
    */
-  data?: T;
+  data?: ASTData;
   error?: any; // TODO: generic type?
   /**
    * Select children nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<T, Kinds>;
+  readonly $: ASTNodeChildrenSelector<ASTData, Kinds>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    */
-  private traverser: Traverser<T, Kinds>;
+  private traverser: Traverser<ASTData, Kinds>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
@@ -122,12 +122,12 @@ export class ASTNode<T, Kinds extends string> {
 
   constructor(
     p: Pick<
-      ASTNode<T, Kinds>,
+      ASTNode<ASTData, Kinds>,
       "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
-      traverser?: Traverser<T, Kinds>;
-      selector?: ASTNodeSelector<T, Kinds>;
-    } & Partial<Pick<ASTNode<T, Kinds>, "name">>
+      traverser?: Traverser<ASTData, Kinds>;
+      selector?: ASTNodeSelector<ASTData, Kinds>;
+    } & Partial<Pick<ASTNode<ASTData, Kinds>, "name">>
   ) {
     this._name = p.name ?? p.kind;
     this.kind = p.kind;
@@ -143,8 +143,8 @@ export class ASTNode<T, Kinds extends string> {
     // this.str = undefined;
   }
 
-  static from<T, Kinds extends string>(t: Readonly<Token<any, Kinds>>) {
-    return new ASTNode<T, Kinds>({
+  static from<ASTData, Kinds extends string>(t: Readonly<Token<any, Kinds>>) {
+    return new ASTNode<ASTData, Kinds>({
       kind: t.kind,
       start: t.start,
       text: t.content,
@@ -248,12 +248,12 @@ export class ASTNode<T, Kinds extends string> {
   /**
    * Use the traverser to calculate data and return the data.
    */
-  traverse(): T | undefined {
+  traverse(): ASTData | undefined {
     const res = this.traverser(this);
     this.data =
       res ??
       (res === null
-        ? (null as T)
+        ? (null as ASTData)
         : // undefined or void
           undefined);
     return this.data;

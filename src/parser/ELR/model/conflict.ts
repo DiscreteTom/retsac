@@ -6,12 +6,12 @@ export enum ConflictType {
   REDUCE_REDUCE,
 }
 
-export interface Conflict<T, Kinds extends string> {
+export interface Conflict<ASTData, Kinds extends string> {
   type: ConflictType;
   /**
    * If this is a R-S conflict, this rule is a shifter rule. If this is a R-R conflict, this rule is a reducer rule.
    */
-  anotherRule: Readonly<GrammarRule<T, Kinds>>;
+  anotherRule: Readonly<GrammarRule<ASTData, Kinds>>;
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
@@ -26,16 +26,16 @@ export interface Conflict<T, Kinds extends string> {
   overlapped?: number;
 }
 
-export type ResolvedConflict<T, Kinds extends string> = Pick<
-  Conflict<T, Kinds>,
+export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
+  Conflict<ASTData, Kinds>,
   "type" | "anotherRule" | "handleEnd"
 > & {
   /**
    * Use `'*'` to represent any grammars.
    */
-  next: Pick<Conflict<T, Kinds>, "next">["next"] | "*";
+  next: Pick<Conflict<ASTData, Kinds>, "next">["next"] | "*";
   /**
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */
-  accepter: boolean | Condition<T, Kinds>;
+  accepter: boolean | Condition<ASTData, Kinds>;
 };

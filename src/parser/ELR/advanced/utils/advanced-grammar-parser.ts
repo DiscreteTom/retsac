@@ -135,7 +135,7 @@ export class GrammarExpander<Kinds extends string> {
     });
   }
 
-  expand<T>(
+  expand<ASTData>(
     s: string,
     NT: Kinds,
     debug: boolean | undefined,
@@ -146,7 +146,7 @@ export class GrammarExpander<Kinds extends string> {
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<T, Kinds>;
+        options: RS_ResolverOptions<ASTData, Kinds>;
       }[],
     };
     const res = this.parser.reset().parseAll(s);
@@ -196,13 +196,13 @@ export class GrammarExpander<Kinds extends string> {
     this.placeholderMap.reset();
   }
 
-  generatePlaceholderGrammarRules<T>(debug: boolean | undefined) {
+  generatePlaceholderGrammarRules<ASTData>(debug: boolean | undefined) {
     const result = {
       defs: [] as Definition<Kinds>[],
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<T, Kinds>;
+        options: RS_ResolverOptions<ASTData, Kinds>;
       }[],
     };
 

@@ -71,21 +71,21 @@ export class TempGrammar {
 /**
  * Grammar rule, but can't distinguish N or NT.
  */
-export class TempGrammarRule<T, Kinds extends string> {
+export class TempGrammarRule<ASTData, Kinds extends string> {
   readonly rule: readonly TempGrammar[];
   /**
    * The reduce target.
    */
   readonly NT: Kinds;
-  callback?: Callback<T, Kinds>;
-  rejecter?: Condition<T, Kinds>;
-  rollback?: Callback<T, Kinds>;
-  commit?: Condition<T, Kinds>;
-  traverser?: Traverser<T, Kinds>;
+  callback?: Callback<ASTData, Kinds>;
+  rejecter?: Condition<ASTData, Kinds>;
+  rollback?: Callback<ASTData, Kinds>;
+  commit?: Condition<ASTData, Kinds>;
+  traverser?: Traverser<ASTData, Kinds>;
 
   constructor(
     data: Pick<
-      TempGrammarRule<T, Kinds>,
+      TempGrammarRule<ASTData, Kinds>,
       | "rule"
       | "NT"
       | "commit"

@@ -4,17 +4,17 @@ import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 
-export type BaseResolverOptions<T, Kinds extends string> = {
+export type BaseResolverOptions<ASTData, Kinds extends string> = {
   /**
    *  Default: true
    */
-  accept?: boolean | Condition<T, Kinds>;
+  accept?: boolean | Condition<ASTData, Kinds>;
 };
 
-export type RR_ResolverOptions<T, Kinds extends string> = BaseResolverOptions<
-  T,
-  Kinds
-> &
+export type RR_ResolverOptions<
+  ASTData,
+  Kinds extends string
+> = BaseResolverOptions<ASTData, Kinds> &
   AtLeastOneOf<
     {
       next: (string & {}) | "*";
@@ -23,28 +23,28 @@ export type RR_ResolverOptions<T, Kinds extends string> = BaseResolverOptions<
     "next" | "handleEnd"
   >;
 
-export type RS_ResolverOptions<T, Kinds extends string> = BaseResolverOptions<
-  T,
-  Kinds
-> & {
+export type RS_ResolverOptions<
+  ASTData,
+  Kinds extends string
+> = BaseResolverOptions<ASTData, Kinds> & {
   next: (string & {}) | "*";
 };
 
-export type ConflictTypeAndResolverOptions<T, Kinds extends string> =
+export type ConflictTypeAndResolverOptions<ASTData, Kinds extends string> =
   | {
       type: ConflictType.REDUCE_REDUCE;
-      options: RR_ResolverOptions<T, Kinds>;
+      options: RR_ResolverOptions<ASTData, Kinds>;
     }
   | {
       type: ConflictType.REDUCE_SHIFT;
-      options: RS_ResolverOptions<T, Kinds>;
+      options: RS_ResolverOptions<ASTData, Kinds>;
     };
 
-export type ResolvedTempConflict<T, Kinds extends string> = {
-  reducerRule: TempGrammarRule<T, Kinds>;
-  anotherRule: TempGrammarRule<T, Kinds>;
-} & ConflictTypeAndResolverOptions<T, Kinds>;
+export type ResolvedTempConflict<ASTData, Kinds extends string> = {
+  reducerRule: TempGrammarRule<ASTData, Kinds>;
+  anotherRule: TempGrammarRule<ASTData, Kinds>;
+} & ConflictTypeAndResolverOptions<ASTData, Kinds>;
 
-export type ResolvedPartialTempConflict<T, Kinds extends string> = {
+export type ResolvedPartialTempConflict<ASTData, Kinds extends string> = {
   anotherRule: Definition<Kinds>;
-} & ConflictTypeAndResolverOptions<T, Kinds>;
+} & ConflictTypeAndResolverOptions<ASTData, Kinds>;

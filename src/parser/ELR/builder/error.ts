@@ -28,8 +28,8 @@ export class LR_BuilderError extends Error {
     Object.setPrototypeOf(this, LR_BuilderError.prototype);
   }
 
-  static grammarRuleNotFound<T, Kinds extends string>(
-    gr: TempGrammarRule<T, Kinds>
+  static grammarRuleNotFound<ASTData, Kinds extends string>(
+    gr: TempGrammarRule<ASTData, Kinds>
   ) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
@@ -44,9 +44,9 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static conflict<T, Kinds extends string>(
-    reducerRule: GrammarRule<T, Kinds>,
-    c: Conflict<T, Kinds>
+  static conflict<ASTData, Kinds extends string>(
+    reducerRule: GrammarRule<ASTData, Kinds>,
+    c: Conflict<ASTData, Kinds>
   ) {
     return new LR_BuilderError(
       "CONFLICT",
@@ -115,8 +115,8 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<T, Kinds extends string>(
-    rule: GrammarRule<T, Kinds>
+  static tooManyEndHandler<ASTData, Kinds extends string>(
+    rule: GrammarRule<ASTData, Kinds>
   ) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
@@ -124,9 +124,9 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static noSuchConflict<T, Kinds extends string>(
-    reducerRule: GrammarRule<T, Kinds>,
-    anotherRule: GrammarRule<T, Kinds>,
+  static noSuchConflict<ASTData, Kinds extends string>(
+    reducerRule: GrammarRule<ASTData, Kinds>,
+    anotherRule: GrammarRule<ASTData, Kinds>,
     type: ConflictType,
     next: Grammar[],
     handleEnd: boolean
@@ -143,9 +143,9 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static invalidLiteral<T, Kinds extends string>(
+  static invalidLiteral<ASTData, Kinds extends string>(
     literal: string,
-    gr: GrammarRule<T, Kinds>
+    gr: GrammarRule<ASTData, Kinds>
   ) {
     return new LR_BuilderError(
       "INVALID_LITERAL",

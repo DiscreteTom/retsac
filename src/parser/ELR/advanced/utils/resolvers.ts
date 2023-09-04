@@ -1,7 +1,7 @@
 import { IParserBuilder } from "../../model/builder";
 
-export function applyResolvers<T, Kinds extends string>(
-  builder: IParserBuilder<T, "gr" | Kinds> // TODO: use &?
+export function applyResolvers<ASTData, Kinds extends string>(
+  builder: IParserBuilder<ASTData, "gr" | Kinds> // TODO: use &?
 ) {
   return builder
     .priority(
@@ -9,5 +9,8 @@ export function applyResolvers<T, Kinds extends string>(
       { gr: `gr gr` },
       { gr: `gr '|' gr` }
     )
-    .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` }) as IParserBuilder<T, Kinds>;
+    .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` }) as IParserBuilder<
+    ASTData,
+    Kinds
+  >;
 }

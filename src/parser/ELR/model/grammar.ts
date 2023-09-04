@@ -173,7 +173,7 @@ export class Grammar {
   }
 }
 
-export class GrammarRule<T, Kinds extends string> {
+export class GrammarRule<ASTData, Kinds extends string> {
   readonly rule: readonly Grammar[];
   /**
    * The reduce target's kind name.
@@ -184,22 +184,22 @@ export class GrammarRule<T, Kinds extends string> {
    * All conflicts must be resolved before the DFA can be built.
    * This will NOT be evaluated during parsing, just to record conflicts.
    */
-  readonly conflicts: Conflict<T, Kinds>[];
+  readonly conflicts: Conflict<ASTData, Kinds>[];
   /**
    * A list of resolved conflicts.
    * All conflicts must be resolved by this before the DFA can be built.
    * This will be evaluated by candidate during parsing.
    */
-  readonly resolved: ResolvedConflict<T, Kinds>[];
-  callback?: Callback<T, Kinds>;
-  rejecter?: Condition<T, Kinds>;
-  rollback?: Callback<T, Kinds>;
-  commit?: Condition<T, Kinds>;
-  traverser?: Traverser<T, Kinds>;
+  readonly resolved: ResolvedConflict<ASTData, Kinds>[];
+  callback?: Callback<ASTData, Kinds>;
+  rejecter?: Condition<ASTData, Kinds>;
+  rollback?: Callback<ASTData, Kinds>;
+  commit?: Condition<ASTData, Kinds>;
+  traverser?: Traverser<ASTData, Kinds>;
 
   constructor(
     p: Pick<
-      GrammarRule<T, Kinds>,
+      GrammarRule<ASTData, Kinds>,
       | "rule"
       | "NT"
       | "callback"
@@ -224,11 +224,11 @@ export class GrammarRule<T, Kinds extends string> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: Readonly<GrammarRule<T, Kinds>>) {
+  checkRSConflict(another: Readonly<GrammarRule<ASTData, Kinds>>) {
     const result = [] as {
-      shifterRule: Pick<Conflict<T, Kinds>, "anotherRule">["anotherRule"];
+      shifterRule: Pick<Conflict<ASTData, Kinds>, "anotherRule">["anotherRule"];
       overlapped: Extract<
-        Pick<Conflict<T, Kinds>, "overlapped">["overlapped"],
+        Pick<Conflict<ASTData, Kinds>, "overlapped">["overlapped"],
         number
       >;
     }[];
@@ -251,7 +251,7 @@ export class GrammarRule<T, Kinds extends string> {
   /**
    * Check if the tail of this's rule is the same as another's whole rule.
    */
-  checkRRConflict(another: Readonly<GrammarRule<T, Kinds>>) {
+  checkRRConflict(another: Readonly<GrammarRule<ASTData, Kinds>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 
@@ -430,13 +430,13 @@ export class GrammarRepo {
  * A set of different grammar rules, grammar's name will be included.
  * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
  */
-export class GrammarRuleRepo<T, Kinds extends string> {
+export class GrammarRuleRepo<ASTData, Kinds extends string> {
   /**
    * `GrammarRule.toStringWithGrammarName => grammar rule`
    */
-  readonly grammarRules: ReadonlyMap<string, GrammarRule<T, Kinds>>;
+  readonly grammarRules: ReadonlyMap<string, GrammarRule<ASTData, Kinds>>;
 
-  constructor(grs: readonly GrammarRule<T, Kinds>[]) {
+  constructor(grs: readonly GrammarRule<ASTData, Kinds>[]) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.toStringWithGrammarName(), gr));
     this.grammarRules = map;
@@ -446,14 +446,14 @@ export class GrammarRuleRepo<T, Kinds extends string> {
     return this.grammarRules.get(gr.toStringWithGrammarName());
   }
 
-  map<R>(callback: (g: GrammarRule<T, Kinds>) => R) {
+  map<R>(callback: (g: GrammarRule<ASTData, Kinds>) => R) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
     return res;
   }
 
-  filter(callback: (g: GrammarRule<T, Kinds>) => boolean) {
-    const res = [] as GrammarRule<T, Kinds>[];
+  filter(callback: (g: GrammarRule<ASTData, Kinds>) => boolean) {
+    const res = [] as GrammarRule<ASTData, Kinds>[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
     });

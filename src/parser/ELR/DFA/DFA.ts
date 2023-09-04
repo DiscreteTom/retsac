@@ -10,11 +10,14 @@ import { State } from "./state";
 /**
  * DFA for ELR parsers. Stateless.
  */
-export class DFA<T, Kinds extends string> {
+export class DFA<ASTData, Kinds extends string> {
   constructor(
     private readonly entryNTs: ReadonlySet<string>,
-    private readonly entryState: State<T, Kinds>,
-    private readonly NTClosures: ReadonlyMap<string, GrammarRule<T, Kinds>[]>,
+    private readonly entryState: State<ASTData, Kinds>,
+    private readonly NTClosures: ReadonlyMap<
+      string,
+      GrammarRule<ASTData, Kinds>[]
+    >,
     /**
      *  `NT => Grammars`
      */
@@ -28,12 +31,12 @@ export class DFA<T, Kinds extends string> {
      */
     private readonly allInitialCandidates: ReadonlyMap<
       string,
-      Candidate<T, Kinds>
+      Candidate<ASTData, Kinds>
     >,
     /**
      * `string representation of state => state` // TODO: which string? StateRepo?
      */
-    private readonly allStates: Map<string, State<T, Kinds>>, // TODO: readonly?
+    private readonly allStates: Map<string, State<ASTData, Kinds>>, // TODO: readonly?
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -48,7 +51,7 @@ export class DFA<T, Kinds extends string> {
 
   // TODO: remove this?
   getAllStates() {
-    const result: State<T, Kinds>[] = [];
+    const result: State<ASTData, Kinds>[] = [];
     this.allStates.forEach((s) => result.push(s));
     return result;
   }
@@ -57,13 +60,13 @@ export class DFA<T, Kinds extends string> {
    * Try to yield an entry NT.
    */
   parse(
-    buffer: readonly ASTNode<T, Kinds>[],
+    buffer: readonly ASTNode<ASTData, Kinds>[],
     lexer: ILexer<any, any>,
-    reLexStack: ReLexStack<State<T, Kinds>, T, Kinds>,
-    rollbackStack: RollbackStack<T, Kinds>,
+    reLexStack: ReLexStack<State<ASTData, Kinds>, ASTData, Kinds>,
+    rollbackStack: RollbackStack<ASTData, Kinds>,
     commitParser: () => void,
     stopOnError = false
-  ): { output: ParserOutput<T, Kinds>; lexer: ILexer<any, any> } {
+  ): { output: ParserOutput<ASTData, Kinds>; lexer: ILexer<any, any> } {
     // reset state stack with entry state
     /**
      * Current state is `states.at(-1)`.
@@ -71,7 +74,7 @@ export class DFA<T, Kinds extends string> {
     let stateStack = [this.entryState];
 
     let index = 0; // buffer index
-    let errors: ASTNode<T, Kinds>[] = [];
+    let errors: ASTNode<ASTData, Kinds>[] = [];
 
     /**
      * Before reLex, make sure the reLexStack is not empty!

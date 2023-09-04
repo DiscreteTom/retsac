@@ -17,10 +17,10 @@ import { LR_BuilderError } from "../error";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-function getEndSet<T, Kinds extends string>(
+function getEndSet<ASTData, Kinds extends string>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<T, Kinds>
+  grs: GrammarRuleRepo<ASTData, Kinds>
 ) {
   const result = new GrammarSet();
 
@@ -51,10 +51,10 @@ function getEndSet<T, Kinds extends string>(
 /**
  * Return conflicts that user didn't resolve.
  */
-function getUserUnresolvedConflicts<T, Kinds extends string>(
+function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
   type: ConflictType,
-  reducerRule: Readonly<GrammarRule<T, Kinds>>,
-  anotherRule: Readonly<GrammarRule<T, Kinds>>,
+  reducerRule: Readonly<GrammarRule<ASTData, Kinds>>,
+  anotherRule: Readonly<GrammarRule<ASTData, Kinds>>,
   next: readonly Grammar[],
   checkHandleEnd: boolean,
   debug: boolean
@@ -136,11 +136,11 @@ function getUserUnresolvedConflicts<T, Kinds extends string>(
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
-export function getConflicts<T, Kinds extends string>(
+export function getConflicts<ASTData, Kinds extends string>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<T, Kinds>,
-  dfa: DFA<T, Kinds>,
+  grs: GrammarRuleRepo<ASTData, Kinds>,
+  dfa: DFA<ASTData, Kinds>,
   debug = false
 ) {
   const firstSets = dfa.firstSets;
@@ -193,7 +193,7 @@ export function getConflicts<T, Kinds extends string>(
           }
 
           // auto resolve failed
-          const conflict: Conflict<T, Kinds> = {
+          const conflict: Conflict<ASTData, Kinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule,
             handleEnd: false,
@@ -222,7 +222,7 @@ export function getConflicts<T, Kinds extends string>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<T, Kinds> = {
+            const conflict: Conflict<ASTData, Kinds> = {
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
@@ -252,7 +252,7 @@ export function getConflicts<T, Kinds extends string>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<T, Kinds> = {
+            const conflict: Conflict<ASTData, Kinds> = {
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
@@ -305,7 +305,7 @@ export function getConflicts<T, Kinds extends string>(
         }
 
         // auto resolve failed
-        const c: Conflict<T, Kinds> = {
+        const c: Conflict<ASTData, Kinds> = {
           type: ConflictType.REDUCE_REDUCE,
           anotherRule,
           next: overlap,
@@ -325,11 +325,14 @@ export function getConflicts<T, Kinds extends string>(
  * Returned conflicts are newly constructed, not the same as `GrammarRule.conflicts`,
  * since the user may resolve part of the conflicts.
  */
-export function getUnresolvedConflicts<T, Kinds extends string>(
-  grs: GrammarRuleRepo<T, Kinds>,
+export function getUnresolvedConflicts<ASTData, Kinds extends string>(
+  grs: GrammarRuleRepo<ASTData, Kinds>,
   debug: boolean
 ) {
-  const result = new Map<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>();
+  const result = new Map<
+    GrammarRule<ASTData, Kinds>,
+    Conflict<ASTData, Kinds>[]
+  >();
 
   grs.grammarRules.forEach((reducerRule) => {
     reducerRule.conflicts.forEach((c) => {
@@ -344,7 +347,7 @@ export function getUnresolvedConflicts<T, Kinds extends string>(
         );
 
         if (res.next.length > 0) {
-          const conflict: Conflict<T, Kinds> = {
+          const conflict: Conflict<ASTData, Kinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
             handleEnd: false,
@@ -365,7 +368,7 @@ export function getUnresolvedConflicts<T, Kinds extends string>(
           debug
         );
         if (res.next.length > 0 || res.end) {
-          const conflict: Conflict<T, Kinds> = {
+          const conflict: Conflict<ASTData, Kinds> = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,
             handleEnd: res.end,

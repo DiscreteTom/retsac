@@ -17,11 +17,11 @@ const ruleLexer = new Lexer.Builder()
 /**
  * Definition to TempGrammarRules.
  */
-export function defToTempGRs<T, Kinds extends string>(
+export function defToTempGRs<ASTData, Kinds extends string>(
   defs: Definition<Kinds>,
-  ctx?: DefinitionContext<T, Kinds>
+  ctx?: DefinitionContext<ASTData, Kinds>
 ) {
-  const result: TempGrammarRule<T, Kinds>[] = [];
+  const result: TempGrammarRule<ASTData, Kinds>[] = [];
 
   // parse rules
   for (const NT in defs) {
@@ -66,7 +66,7 @@ export function defToTempGRs<T, Kinds extends string>(
         throw LR_BuilderError.emptyLiteral(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<T, Kinds>({
+        new TempGrammarRule<ASTData, Kinds>({
           NT,
           rule: tokens.map((t) => {
             if (t.kind == "grammar")

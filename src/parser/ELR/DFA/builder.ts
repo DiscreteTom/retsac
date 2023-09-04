@@ -17,16 +17,16 @@ import {
 } from "./utils";
 
 export class DFABuilder {
-  static prepare<T, Kinds extends string>(
+  static prepare<ASTData, Kinds extends string>(
     repo: GrammarRepo,
     lexer: ILexer<any, any>,
     entryNTs: ReadonlySet<string>,
-    data: ParserBuilderData<T, Kinds>,
-    resolvedTemp: ResolvedTempConflict<T, Kinds>[]
+    data: ParserBuilderData<ASTData, Kinds>,
+    resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[]
   ) {
     // transform definitions to temp grammar rules
     // and append resolved conflicts defined in definition context in data into resolvedTemp
-    const { tempGrammarRules, NTs } = processDefinitions<T, Kinds>(
+    const { tempGrammarRules, NTs } = processDefinitions<ASTData, Kinds>(
       data,
       resolvedTemp
     );
@@ -35,7 +35,7 @@ export class DFABuilder {
     const grs = new GrammarRuleRepo(
       tempGrammarRules.map(
         (gr) =>
-          new GrammarRule<T, Kinds>({
+          new GrammarRule<ASTData, Kinds>({
             NT: gr.NT,
             callback: gr.callback,
             rejecter: gr.rejecter,
@@ -51,9 +51,9 @@ export class DFABuilder {
 
     // init all initial candidates, initial candidate is candidate with digested=0
     // TODO: use CandidateRepo
-    const allInitialCandidates = new Map<string, Candidate<T, Kinds>>();
+    const allInitialCandidates = new Map<string, Candidate<ASTData, Kinds>>();
     grs.grammarRules.forEach((gr) => {
-      const c = new Candidate<T, Kinds>({ gr, digested: 0 });
+      const c = new Candidate<ASTData, Kinds>({ gr, digested: 0 });
       allInitialCandidates.set(c.toStringWithGrammarName(), c);
     });
 
@@ -68,7 +68,7 @@ export class DFABuilder {
           Candidate.getStringWithGrammarName({ gr, digested: 0 })
         )!
     );
-    const entryState = new State<T, Kinds>(
+    const entryState = new State<ASTData, Kinds>(
       entryCandidates,
       State.getString({ candidates: entryCandidates })
     );
@@ -76,7 +76,7 @@ export class DFABuilder {
 
     // init all states
     // TODO: use StateRepo
-    const allStates = new Map<string, State<T, Kinds>>();
+    const allStates = new Map<string, State<ASTData, Kinds>>();
     allStates.set(entryState.toString(), entryState);
 
     // construct first sets for all NTs

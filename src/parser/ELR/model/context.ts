@@ -4,13 +4,13 @@ import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
 /**
  * This is used in grammar rule's callback, reducer and condition of rejecter/committer.
  */
-export class GrammarRuleContext<T, Kinds extends string> {
-  readonly matched: readonly ASTNode<T, Kinds>[];
+export class GrammarRuleContext<ASTData, Kinds extends string> {
+  readonly matched: readonly ASTNode<ASTData, Kinds>[];
   /**
    * The AST nodes before the current grammar rule.
    * This is lazy and cached.
    */
-  get before(): readonly ASTNode<T, Kinds>[] {
+  get before(): readonly ASTNode<ASTData, Kinds>[] {
     return this._before ?? (this._before = this.beforeFactory());
   }
   /**
@@ -23,7 +23,7 @@ export class GrammarRuleContext<T, Kinds extends string> {
   /**
    * Find AST nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<T, Kinds>;
+  readonly $: ASTNodeChildrenSelector<ASTData, Kinds>;
   /**
    * Current lexer state. You'd better not modify it.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
@@ -34,7 +34,7 @@ export class GrammarRuleContext<T, Kinds extends string> {
    * You can set this field, and if the grammar rule is accepted,
    * the result AST node will be created with this data.
    */
-  data?: T;
+  data?: ASTData;
   error?: any; // TODO: use generic type
   /**
    * The list of data of the matched AST nodes.
@@ -45,14 +45,14 @@ export class GrammarRuleContext<T, Kinds extends string> {
       this._values ?? (this._values = this.matched.map((node) => node.data))
     );
   }
-  private beforeFactory: () => ASTNode<T, Kinds>[];
-  private _before?: readonly ASTNode<T, Kinds>[];
-  private _values?: readonly (T | undefined)[];
+  private beforeFactory: () => ASTNode<ASTData, Kinds>[];
+  private _before?: readonly ASTNode<ASTData, Kinds>[];
+  private _values?: readonly (ASTData | undefined)[];
 
   constructor(
-    p: Pick<GrammarRuleContext<T, Kinds>, "matched" | "lexer"> & {
-      beforeFactory: () => ASTNode<T, Kinds>[];
-      selector: ASTNodeSelector<T, Kinds>;
+    p: Pick<GrammarRuleContext<ASTData, Kinds>, "matched" | "lexer"> & {
+      beforeFactory: () => ASTNode<ASTData, Kinds>[];
+      selector: ASTNodeSelector<ASTData, Kinds>;
     }
   ) {
     this.matched = p.matched;
@@ -66,17 +66,17 @@ export class GrammarRuleContext<T, Kinds extends string> {
 /**
  * This will be called if the current grammar rule is accepted.
  */
-export type Callback<T, Kinds extends string> = (
-  context: GrammarRuleContext<T, Kinds>
+export type Callback<ASTData, Kinds extends string> = (
+  context: GrammarRuleContext<ASTData, Kinds>
 ) => void;
 
-export type Condition<T, Kinds extends string> = (
-  context: GrammarRuleContext<T, Kinds>
+export type Condition<ASTData, Kinds extends string> = (
+  context: GrammarRuleContext<ASTData, Kinds>
 ) => boolean;
 
 /**
  * Reducer should use children's data to yield the parent's data.
  */
-export type Reducer<T, Kinds extends string> = (
-  context: GrammarRuleContext<T, Kinds>
-) => T | undefined;
+export type Reducer<ASTData, Kinds extends string> = (
+  context: GrammarRuleContext<ASTData, Kinds>
+) => ASTData | undefined;
