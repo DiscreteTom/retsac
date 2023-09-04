@@ -16,7 +16,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>(({ values }) => -values[1]!)
+    ELR.reducer(({ values }) => -values[1]!)
   )
   .define(
     { exp: `'(' exp ')'` },
@@ -24,19 +24,19 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '+' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! + values[2]!)
+    ELR.reducer(({ values }) => values[0]! + values[2]!)
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
+    ELR.reducer(({ values }) => values[0]! - values[2]!)
   )
   .define(
     { exp: `exp '*' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! * values[2]!)
+    ELR.reducer(({ values }) => values[0]! * values[2]!)
   )
   .define(
     { exp: `exp '/' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! / values[2]!)
+    ELR.reducer(({ values }) => values[0]! / values[2]!)
   )
   .priority(
     { exp: `'-' exp` }, // highest priority
