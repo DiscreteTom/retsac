@@ -25,25 +25,25 @@ test("lexer debug lex", () => {
   expect(logger).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
 
   expect(
-    lexer.lex({ input: "45", expect: { type: "number", text: "12345" } })
+    lexer.lex({ input: "45", expect: { kind: "number", text: "12345" } })
       ?.content
   ).toBe("12345");
   expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] expect {"type":"number","text":"12345"}'
+    '[Lexer.lex] expect {"kind":"number","text":"12345"}'
   );
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: <anonymous>");
   expect(logger).toHaveBeenCalledWith(
     "[Lexer.lex] skip hash (unexpected and never muted)"
   );
   expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: string");
-  expect(lexer.lex({ input: `'123'`, expect: { type: "number" } })).toBe(null); // unexpected
+  expect(lexer.lex({ input: `'123'`, expect: { kind: "number" } })).toBe(null); // unexpected
 
   expect(logger).toHaveBeenCalledWith('[Lexer.lex] accept number: "12345"');
   expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] unexpected: {"type":"string","content":"\'123\'"}'
+    '[Lexer.lex] unexpected: {"kind":"string","content":"\'123\'"}'
   );
 
-  lexer.reset().lex({ input: "123", expect: { type: "number" } });
+  lexer.reset().lex({ input: "123", expect: { kind: "number" } });
   expect(logger).toHaveBeenCalledWith(
     "[Lexer.lex] skip <anonymous> (unexpected and never muted)"
   );
@@ -54,6 +54,15 @@ test("lexer debug lex", () => {
   expect(logger).toHaveBeenCalledWith(
     '[Lexer.lex] accept <anonymous>(muted): " "'
   );
+
+  // peek with expect
+  lexer.reset().lex({ input: "123", expect: { kind: "number" }, peek: true });
+  expect(logger).toHaveBeenCalledWith(
+    `[Lexer.lex] expect(peek) {"kind":"number"}`
+  );
+  // peek without expect
+  lexer.reset().lex({ input: "123", peek: true });
+  expect(logger).toHaveBeenCalledWith("[Lexer.lex] peek");
 });
 
 test("lexer debug trimStart", () => {
