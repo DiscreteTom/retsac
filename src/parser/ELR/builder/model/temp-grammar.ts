@@ -64,7 +64,10 @@ export class TempGrammar {
     return this.type == TempGrammarType.LITERAL
       ? JSON.stringify(this.content) +
           (this.name == undefined ? "" : "@" + this.name)
-      : this.content + (this.name == this.content ? "" : "@" + this.name);
+      : this.content +
+          (this.name == undefined || this.name == this.content
+            ? ""
+            : "@" + this.name);
   }
 }
 
