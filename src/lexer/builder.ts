@@ -20,9 +20,9 @@ export class Builder<E = string, Kinds extends string = ""> {
   /**
    * Define token kinds.
    */
-  define<K extends string>(defs: {
-    [kind in K]: ActionSource<E> | ActionSource<E>[];
-  }): Builder<E, Kinds | keyof typeof defs> {
+  define<Append extends string>(defs: {
+    [kind in Append]: ActionSource<E> | ActionSource<E>[];
+  }): Builder<E, Kinds | Append> {
     for (const kind in defs) {
       const raw = defs[kind];
       this.defs.push({
