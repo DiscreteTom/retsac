@@ -7,19 +7,24 @@ import {
   rejectedActionOutput,
 } from "./model";
 
-export type ActionExec<E> = (input: Readonly<ActionInput>) => ActionOutput<E>;
+export type ActionExec<ErrorType> = (
+  input: Readonly<ActionInput>
+) => ActionOutput<ErrorType>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  */
-export type SimpleActionExec<E> = (
+export type SimpleActionExec<ErrorType> = (
   input: Readonly<ActionInput>
-) => number | string | SimpleAcceptedActionOutput<E>;
+) => number | string | SimpleAcceptedActionOutput<ErrorType>;
 
-export type ActionSource<E> = RegExp | Action<E> | SimpleActionExec<E>;
+export type ActionSource<ErrorType> =
+  | RegExp
+  | Action<ErrorType>
+  | SimpleActionExec<ErrorType>;
 
-export class Action<E = string> {
-  readonly exec: ActionExec<E>;
+export class Action<ErrorType = string> {
+  readonly exec: ActionExec<ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -34,19 +39,21 @@ export class Action<E = string> {
    * For most cases, you should use `Action.from/match/simple` instead of `new Action`.
    */
   constructor(
-    exec: ActionExec<E>,
-    options?: Partial<Pick<Action<E>, "maybeMuted">>
+    exec: ActionExec<ErrorType>,
+    options?: Partial<Pick<Action<ErrorType>, "maybeMuted">>
   ) {
     this.exec = exec;
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
-  static simple<E = string>(f: SimpleActionExec<E>): Action<E> {
+  static simple<ErrorType = string>(
+    f: SimpleActionExec<ErrorType>
+  ): Action<ErrorType> {
     return new Action((input) => {
       const res = f(input);
       if (typeof res == "number") {
         if (res <= 0) return rejectedActionOutput;
-        return new AcceptedActionOutput<E>({
+        return new AcceptedActionOutput<ErrorType>({
           buffer: input.buffer,
           start: input.start,
           muted: false,
@@ -56,7 +63,7 @@ export class Action<E = string> {
       }
       if (typeof res == "string") {
         if (res.length <= 0) return rejectedActionOutput;
-        return new AcceptedActionOutput<E>({
+        return new AcceptedActionOutput<ErrorType>({
           buffer: input.buffer,
           start: input.start,
           muted: false,
@@ -67,7 +74,7 @@ export class Action<E = string> {
       // else, res is SimpleAcceptedActionOutput
       res.digested ??= res.content!.length; // if digested is undefined, content must be defined
       if (res.digested <= 0) return rejectedActionOutput;
-      return new AcceptedActionOutput<E>({
+      return new AcceptedActionOutput<ErrorType>({
         buffer: input.buffer,
         start: input.start,
         muted: res.muted ?? false,
@@ -81,7 +88,7 @@ export class Action<E = string> {
     });
   }
 
-  static match<E = string>(
+  static match<ErrorType = string>(
     r: RegExp,
     options?: {
       /**
@@ -95,7 +102,7 @@ export class Action<E = string> {
        */
       rejectCaret?: boolean;
     }
-  ): Action<E> {
+  ): Action<ErrorType> {
     if (options?.autoSticky ?? true) {
       if (!r.sticky && !r.global)
         // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
@@ -113,7 +120,7 @@ export class Action<E = string> {
       r.lastIndex = input.start;
       const res = r.exec(input.buffer);
       if (res && res.index != -1)
-        return new AcceptedActionOutput<E>({
+        return new AcceptedActionOutput<ErrorType>({
           muted: false,
           digested: res[0].length,
           buffer: input.buffer,
@@ -124,12 +131,14 @@ export class Action<E = string> {
     });
   }
 
-  static from<E = string>(r: ActionSource<E>): Action<E> {
+  static from<ErrorType = string>(
+    r: ActionSource<ErrorType>
+  ): Action<ErrorType> {
     return r instanceof RegExp
-      ? Action.match<E>(r)
+      ? Action.match<ErrorType>(r)
       : r instanceof Action
       ? r
-      : Action.simple<E>(r);
+      : Action.simple<ErrorType>(r);
   }
 
   /**
@@ -138,7 +147,7 @@ export class Action<E = string> {
   mute(
     muted:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<E>>) => boolean) = true
+      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true
   ) {
     if (typeof muted === "boolean")
       return new Action(
@@ -170,13 +179,15 @@ export class Action<E = string> {
    * Check the output if `accept` is `true`.
    * `condition` should return error, `undefined` means no error.
    */
-  check<T>(
-    condition: (output: Readonly<AcceptedActionOutput<E>>) => T | undefined
+  check<NewErrorType>(
+    condition: (
+      output: Readonly<AcceptedActionOutput<ErrorType>>
+    ) => NewErrorType | undefined
   ) {
-    return new Action<T>((buffer) => {
+    return new Action<NewErrorType>((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
-        const converted = output as any as AcceptedActionOutput<T>;
+        const converted = output as any as AcceptedActionOutput<NewErrorType>;
         converted.error = condition(output);
         return converted;
       }
@@ -187,11 +198,11 @@ export class Action<E = string> {
   /**
    * Set error if `accept` is `true`.
    */
-  error<T>(error: T) {
+  error<NewErrorType>(error: NewErrorType) {
     return new Action((input) => {
       const output = this.exec(input);
       if (output.accept) {
-        const converted = output as any as AcceptedActionOutput<T>;
+        const converted = output as any as AcceptedActionOutput<NewErrorType>;
         converted.error = error;
         return converted;
       }
@@ -205,7 +216,7 @@ export class Action<E = string> {
   reject(
     rejecter:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<E>>) => boolean) = true
+      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true
   ) {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
@@ -224,7 +235,7 @@ export class Action<E = string> {
   /**
    * Call `f` if `accept` is `true`.
    */
-  then(f: (output: Readonly<AcceptedActionOutput<E>>) => void) {
+  then(f: (output: Readonly<AcceptedActionOutput<ErrorType>>) => void) {
     return new Action((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) f(output);
@@ -236,7 +247,7 @@ export class Action<E = string> {
    * Execute the new action if current action can't accept input.
    * Sadly there is no operator overloading in typescript.
    */
-  or(a: ActionSource<E>) {
+  or(a: ActionSource<ErrorType>) {
     const other = Action.from(a);
     return new Action(
       (buffer) => {
@@ -254,7 +265,9 @@ export class Action<E = string> {
    * Reduce actions to one action. Actions will be executed in order.
    * This will reduce the lexer loop times to optimize the performance.
    */
-  static reduce<E = string>(...actions: ActionSource<E>[]) {
-    return Action.from<E>(actions.reduce((a, b) => Action.from<E>(a).or(b)));
+  static reduce<ErrorType = string>(...actions: ActionSource<ErrorType>[]) {
+    return Action.from<ErrorType>(
+      actions.reduce((a, b) => Action.from<ErrorType>(a).or(b))
+    );
   }
 }

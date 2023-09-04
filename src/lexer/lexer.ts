@@ -6,11 +6,13 @@ import { Definition, ILexer, Token } from "./model";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
-export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
+export class Lexer<ErrorType, Kinds extends string>
+  implements ILexer<ErrorType, Kinds>
+{
   debug: boolean;
   logger: Logger;
-  readonly errors: Token<E, Kinds>[];
-  readonly defs: readonly Readonly<Definition<E>>[];
+  readonly errors: Token<ErrorType, Kinds>[];
+  readonly defs: readonly Readonly<Definition<ErrorType>>[];
   /** Only `feed`, `reset` can modify this var. */
   private _buffer: string;
   /**
@@ -35,7 +37,7 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
   private rest?: string;
 
   constructor(
-    defs: readonly Readonly<Definition<E>>[],
+    defs: readonly Readonly<Definition<ErrorType>>[],
     options?: LexerBuildOptions
   ) {
     this.defs = defs;
@@ -77,7 +79,7 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<E, Kinds>(this.defs);
+    const res = new Lexer<ErrorType, Kinds>(this.defs);
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -161,9 +163,9 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
   }
 
   private res2token(
-    res: Readonly<AcceptedActionOutput<E>>,
-    def: Readonly<Definition<E>>
-  ): Token<E, Kinds> {
+    res: Readonly<AcceptedActionOutput<ErrorType>>,
+    def: Readonly<Definition<ErrorType>>
+  ): Token<ErrorType, Kinds> {
     return {
       kind: def.kind as Kinds,
       content: res.content,
@@ -183,7 +185,7 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
           }>;
           peek?: boolean;
         }> = ""
-  ): Token<E, Kinds> | null {
+  ): Token<ErrorType, Kinds> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -319,7 +321,7 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = ""
-  ): Token<E, Kinds>[] {
+  ): Token<ErrorType, Kinds>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -330,7 +332,7 @@ export class Lexer<E, Kinds extends string> implements ILexer<E, Kinds> {
     const stopOnError =
       typeof input === "string" ? false : input.stopOnError ?? false;
 
-    const result: Token<E, Kinds>[] = [];
+    const result: Token<ErrorType, Kinds>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {

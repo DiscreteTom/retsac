@@ -2,24 +2,24 @@ import { Logger } from "../model";
 import { Action } from "./action";
 
 /** The output of a lexer. */
-export type Token<E, Kinds extends string> = {
+export type Token<ErrorType, Kinds extends string> = {
   /** User-defined token kind name. */
   kind: Kinds;
   /** Text content. */
   content: string;
   /** Start position of input string. */
   start: number;
-  error?: E;
+  error?: ErrorType;
 };
 
 /** Apply `action` and try to yield a token with `kind`. */
-export type Definition<E> = {
+export type Definition<ErrorType> = {
   /** Target token kind. Empty string if anonymous. */
   kind: string;
-  action: Action<E>;
+  action: Action<ErrorType>;
 };
 
-export interface ILexer<E, Kinds extends string> {
+export interface ILexer<ErrorType, Kinds extends string> {
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
@@ -34,8 +34,8 @@ export interface ILexer<E, Kinds extends string> {
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
    */
-  readonly errors: Token<E, Kinds>[];
-  get defs(): readonly Readonly<Definition<E>>[];
+  readonly errors: Token<ErrorType, Kinds>[];
+  get defs(): readonly Readonly<Definition<ErrorType>>[];
   /**
    * The entire input string.
    */
@@ -56,12 +56,18 @@ export interface ILexer<E, Kinds extends string> {
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  clone(options?: { debug?: boolean; logger?: Logger }): ILexer<E, Kinds>;
+  clone(options?: {
+    debug?: boolean;
+    logger?: Logger;
+  }): ILexer<ErrorType, Kinds>;
   /**
    * Clone a new lexer with the same definitions, without states.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(options?: { debug?: boolean; logger?: Logger }): ILexer<E, Kinds>;
+  dryClone(options?: {
+    debug?: boolean;
+    logger?: Logger;
+  }): ILexer<ErrorType, Kinds>;
   /** Append buffer with input. */
   feed(input: string): this;
   /**
@@ -104,13 +110,13 @@ export interface ILexer<E, Kinds extends string> {
            */
           peek?: boolean;
         }>
-  ): Token<E, Kinds> | null;
+  ): Token<ErrorType, Kinds> | null;
   /**
    * Try to retrieve a token list exhaustively.
    */
   lexAll(
     input?: string | { input?: string; stopOnError?: boolean }
-  ): Token<E, Kinds>[];
+  ): Token<ErrorType, Kinds>[];
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */

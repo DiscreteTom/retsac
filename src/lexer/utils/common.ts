@@ -11,14 +11,14 @@ export function esc4regex(str: string) {
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export function whitespaces<E = string>() {
-  return Action.from<E>(/\s+/);
+export function whitespaces<ErrorType = string>() {
+  return Action.from<ErrorType>(/\s+/);
 }
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
-export function fromTo<E = string>(
+export function fromTo<ErrorType = string>(
   from: string | RegExp,
   to: string | RegExp,
   options: {
@@ -34,7 +34,7 @@ export function fromTo<E = string>(
      */
     autoGlobal?: boolean;
   }
-): Action<E> {
+): Action<ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -112,7 +112,7 @@ export function fromTo<E = string>(
  * comment('/*', '*' + '/'); // multiline comment
  * ```
  */
-export function comment<E = string>(
+export function comment<ErrorType = string>(
   start: string | RegExp,
   /** Default: `\n` */
   end: string | RegExp = "\n",
@@ -121,13 +121,13 @@ export function comment<E = string>(
     acceptEof?: boolean;
   }
 ) {
-  return fromTo<E>(start, end, {
+  return fromTo<ErrorType>(start, end, {
     ...options,
     acceptEof: options?.acceptEof ?? true,
   });
 }
 
-export function regexLiteral<E = string>(options?: {
+export function regexLiteral<ErrorType = string>(options?: {
   /**
    * Default: `true`.
    */
@@ -141,20 +141,20 @@ export function regexLiteral<E = string>(options?: {
   /**
    * Default: `"invalid regex literal"`.
    */
-  invalidError?: E;
+  invalidError?: ErrorType;
   /**
    * Ensure there is a boundary after the regex.
    * This prevent to match something like `/a/g1`.
    * Default: `true`.
    */
   boundary?: boolean;
-}): Action<E> {
+}): Action<ErrorType> {
   const action =
     options?.boundary ?? true
-      ? Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
-      : Action.from<E>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
+      ? Action.from<ErrorType>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
+      : Action.from<ErrorType>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
 
-  const err = options?.invalidError ?? ("invalid regex literal" as E);
+  const err = options?.invalidError ?? ("invalid regex literal" as ErrorType);
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {

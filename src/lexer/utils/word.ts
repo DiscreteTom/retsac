@@ -3,7 +3,9 @@ import { Action } from "../action";
 /**
  * Match a list of strings exactly, ***NO LOOKAHEAD***.
  */
-export function exact<E = string>(...ss: readonly string[]): Action<E> {
+export function exact<ErrorType = string>(
+  ...ss: readonly string[]
+): Action<ErrorType> {
   return Action.from((input) => {
     for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
@@ -13,7 +15,9 @@ export function exact<E = string>(...ss: readonly string[]): Action<E> {
 /**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function word<E = string>(...words: readonly string[]): Action<E> {
+export function word<ErrorType = string>(
+  ...words: readonly string[]
+): Action<ErrorType> {
   return Action.from((input) => {
     for (const word of words)
       if (
@@ -29,16 +33,17 @@ export function word<E = string>(...words: readonly string[]): Action<E> {
 /**
  * Define kinds which name is the same as its literal value.
  */
-export function wordKind<K extends string, E = string>(
-  ...words: readonly K[]
+// TODO: should `Kinds` be the last generic param instead of the first one?
+export function wordKind<Kinds extends string, ErrorType = string>(
+  ...words: readonly Kinds[]
 ): {
-  [kind in K]: Action<E>;
+  [kind in Kinds]: Action<ErrorType>;
 } {
-  const result: { [kind: string]: Action<E> } = {};
+  const result: { [kind: string]: Action<ErrorType> } = {};
   for (const w of words) {
     result[w] = word(w);
   }
   return result as {
-    [kind in K]: Action<E>;
+    [kind in Kinds]: Action<ErrorType>;
   };
 }

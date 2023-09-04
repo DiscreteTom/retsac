@@ -1,7 +1,7 @@
 import { AtLeastOneOf } from "../../utils";
 
 // This has to be a class, since we need to cache the `rest` of the input.
-export class AcceptedActionOutput<E> {
+export class AcceptedActionOutput<ErrorType> {
   /** This action can accept some input as a token. */
   accept: true;
   /** The whole input string. */
@@ -13,7 +13,7 @@ export class AcceptedActionOutput<E> {
   /** How many chars are accepted by this action. */
   digested: number;
   /** Accept, but set an error to mark this token. */
-  error?: E;
+  error?: ErrorType;
   /**
    * The content of the token, equals to `input.slice(start, start + digested)`.
    * This is not lazy since we need this to calculate `lexer.lineChars`.
@@ -24,10 +24,10 @@ export class AcceptedActionOutput<E> {
 
   constructor(
     data: Pick<
-      AcceptedActionOutput<E>,
+      AcceptedActionOutput<ErrorType>,
       "buffer" | "start" | "muted" | "digested" | "error" | "content"
     > &
-      Partial<Pick<AcceptedActionOutput<E>, "rest">>
+      Partial<Pick<AcceptedActionOutput<ErrorType>, "rest">>
   ) {
     this.accept = true;
     this.buffer = data.buffer;
@@ -52,9 +52,9 @@ export class AcceptedActionOutput<E> {
 
 export const rejectedActionOutput = Object.freeze({ accept: false });
 
-export type ActionOutput<E> =
+export type ActionOutput<ErrorType> =
   | typeof rejectedActionOutput
-  | AcceptedActionOutput<E>;
+  | AcceptedActionOutput<ErrorType>;
 
 export class ActionInput {
   /** The whole input string. */
@@ -83,10 +83,10 @@ export class ActionInput {
   }
 }
 
-export type SimpleAcceptedActionOutput<E> = Partial<
+export type SimpleAcceptedActionOutput<ErrorType> = Partial<
   Pick<
-    AcceptedActionOutput<E>,
+    AcceptedActionOutput<ErrorType>,
     "muted" | "error" | "rest" | "digested" | "content"
   >
 > &
-  AtLeastOneOf<AcceptedActionOutput<E>, "digested" | "content">;
+  AtLeastOneOf<AcceptedActionOutput<ErrorType>, "digested" | "content">;

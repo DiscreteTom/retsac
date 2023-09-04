@@ -10,8 +10,8 @@ export type LexerBuildOptions = Partial<
  * Lexer builder.
  */
 // TODO: remove `''` from default `Kinds`?
-export class Builder<E = string, Kinds extends string = ""> {
-  private defs: Readonly<Definition<E>>[];
+export class Builder<ErrorType = string, Kinds extends string = ""> {
+  private defs: Readonly<Definition<ErrorType>>[];
 
   constructor() {
     this.defs = [];
@@ -21,8 +21,8 @@ export class Builder<E = string, Kinds extends string = ""> {
    * Define token kinds.
    */
   define<Append extends string>(defs: {
-    [kind in Append]: ActionSource<E> | ActionSource<E>[];
-  }): Builder<E, Kinds | Append> {
+    [kind in Append]: ActionSource<ErrorType> | ActionSource<ErrorType>[];
+  }): Builder<ErrorType, Kinds | Append> {
     for (const kind in defs) {
       const raw = defs[kind];
       this.defs.push({
@@ -40,14 +40,14 @@ export class Builder<E = string, Kinds extends string = ""> {
   /**
    * Define tokens with empty kind.
    */
-  anonymous(...actions: ActionSource<E>[]) {
+  anonymous(...actions: ActionSource<ErrorType>[]) {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(...actions: ActionSource<E>[]) {
+  ignore(...actions: ActionSource<ErrorType>[]) {
     return this.define({ "": actions.map((a) => Action.from(a).mute()) });
   }
 
@@ -60,6 +60,6 @@ export class Builder<E = string, Kinds extends string = ""> {
   }
 
   build(options?: LexerBuildOptions) {
-    return new Lexer<E, Kinds>(this.defs, options);
+    return new Lexer<ErrorType, Kinds>(this.defs, options);
   }
 }
