@@ -4,7 +4,7 @@ import { LR_BuilderError } from "../error";
 import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 
-const grammarLexer = new Lexer.Builder()
+const ruleLexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
   .define({
     rename: /@\w+/,
@@ -26,11 +26,12 @@ export function defToTempGRs<T, Kinds extends string>(
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    const rules: ({ name: string } & ReturnType<typeof grammarLexer.lex>)[][] =
-      [[]];
+    const rules = [[]] as ({
+      name?: string;
+    } & ReturnType<typeof ruleLexer.lex>)[][];
     const def = defs[NT];
     const defStr = def instanceof Array ? def.join("|") : (def as string);
-    grammarLexer
+    ruleLexer
       .reset()
       .lexAll(defStr)
       .forEach((t) => {
@@ -40,14 +41,14 @@ export function defToTempGRs<T, Kinds extends string>(
           if (!token) throw LR_BuilderError.noRenameTarget(def!, t.content);
           token.name = t.content.slice(1); // remove `@`
         }
-        // append token to the last grammar rule with name
-        else rules.at(-1)!.push({ ...t, name: t.content }); // TODO: don't use t.content as the name for literal, use lexer to lex the name
+        // append token to the last grammar rule without name
+        else rules.at(-1)!.push(t);
       });
 
-    if (grammarLexer.hasRest())
+    if (ruleLexer.hasRest())
       throw LR_BuilderError.tokenizeGrammarRuleFailed(
         defStr,
-        grammarLexer.getRest()
+        ruleLexer.getRest()
       );
     if (rules.length == 1 && rules[0].length == 0)
       throw LR_BuilderError.emptyRule(NT, defStr);

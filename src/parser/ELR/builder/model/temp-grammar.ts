@@ -1,6 +1,6 @@
 import { ILexer } from "../../../../lexer";
 import { Traverser } from "../../../ast";
-import { Callback, GrammarRule, Condition, GrammarRepo } from "../../model";
+import { Callback, Condition, GrammarRepo } from "../../model";
 
 /**
  * Grammar type, but can't distinguish N or NT.
@@ -23,10 +23,10 @@ export class TempGrammar {
    */
   readonly content: string;
   /**
-   * The name of the grammar. By default the value is equal to the type name.
-   * For literal, the type name is lexed from the literal content.
+   * The name of the grammar.
+   * If user give this grammar a name, this is not `undefined`, otherwise `undefined`.
    */
-  readonly name: string;
+  readonly name?: string;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     this.type == p.type;
@@ -37,7 +37,7 @@ export class TempGrammar {
   toGrammar(
     repo: GrammarRepo,
     /**
-     * Lexer is required to lex the literal grammar's name.
+     * Lexer is required to lex the literal grammar's kind name.
      */
     lexer: Readonly<ILexer<any, any>>,
     isNT = true
@@ -61,11 +61,10 @@ export class TempGrammar {
    * The output format should be the same as `Grammar.toStringWithName`.
    */
   toGrammarStringWithName() {
-    return (
-      (this.type == TempGrammarType.LITERAL
-        ? JSON.stringify(this.content)
-        : this.content) + (this.name == this.content ? "" : "@" + this.name)
-    );
+    return this.type == TempGrammarType.LITERAL
+      ? JSON.stringify(this.content) +
+          (this.name == undefined ? "" : "@" + this.name)
+      : this.content + (this.name == this.content ? "" : "@" + this.name);
   }
 }
 
