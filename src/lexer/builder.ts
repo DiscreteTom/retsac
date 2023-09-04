@@ -9,8 +9,7 @@ export type LexerBuildOptions = Partial<
 /**
  * Lexer builder.
  */
-// TODO: remove `''` from default `Kinds`?
-export class Builder<ErrorType = string, Kinds extends string = ""> {
+export class Builder<ErrorType = string, Kinds extends string = never> {
   private defs: Readonly<Definition<ErrorType>>[];
 
   constructor() {
