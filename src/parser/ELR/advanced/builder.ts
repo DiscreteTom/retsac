@@ -8,23 +8,23 @@ import {
 import { BuildOptions, IParserBuilder } from "../model/builder";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
-export class AdvancedBuilder<T>
-  extends ParserBuilder<T>
-  implements IParserBuilder<T>
+export class AdvancedBuilder<T, Kinds extends string = "">
+  extends ParserBuilder<T, Kinds>
+  implements IParserBuilder<T, Kinds>
 {
-  private readonly expander: GrammarExpander;
+  private readonly expander: GrammarExpander<Kinds>;
   // resolved conflicts will be stored here first
   // before passing to the super class
   // because we may need to expand the definitions
   private readonly resolvedRS: {
-    reducerRule: Definition;
-    anotherRule: Definition;
-    options: RS_ResolverOptions<T>;
+    reducerRule: Definition<Kinds>;
+    anotherRule: Definition<Kinds>;
+    options: RS_ResolverOptions<T, Kinds>;
   }[];
   private readonly resolvedRR: {
-    reducerRule: Definition;
-    anotherRule: Definition;
-    options: RR_ResolverOptions<T>;
+    reducerRule: Definition<Kinds>;
+    anotherRule: Definition<Kinds>;
+    options: RR_ResolverOptions<T, Kinds>;
   }[];
 
   constructor(options?: {
@@ -42,21 +42,21 @@ export class AdvancedBuilder<T>
   }
 
   private expand(
-    d: Definition,
+    d: Definition<Kinds>,
     debug: boolean | undefined,
     resolve: boolean,
     cb: (res: {
-      defs: Definition[];
+      defs: Definition<Kinds>[];
       rs: {
-        reducerRule: Definition;
-        anotherRule: Definition;
-        options: RS_ResolverOptions<T>;
+        reducerRule: Definition<Kinds>;
+        anotherRule: Definition<Kinds>;
+        options: RS_ResolverOptions<T, Kinds>;
       }[];
     }) => void
   ) {
     for (const NT in d) {
       const def = d[NT];
-      const defStr = def instanceof Array ? def.join("|") : def;
+      const defStr = def instanceof Array ? def.join("|") : (def as string);
       const res = this.expander.expand<T>(defStr, NT, debug, resolve);
       cb(res);
     }
@@ -78,8 +78,8 @@ export class AdvancedBuilder<T>
 
     // expand definitions in resolvers
     this.resolvedRS.forEach((rc) => {
-      const reducerRules: Definition[] = [];
-      const anotherRules: Definition[] = [];
+      const reducerRules: Definition<Kinds>[] = [];
+      const anotherRules: Definition<Kinds>[] = [];
       this.expand(rc.reducerRule, false, false, (res) => {
         reducerRules.push(...res.defs);
       });
@@ -93,8 +93,8 @@ export class AdvancedBuilder<T>
       });
     });
     this.resolvedRR.forEach((rc) => {
-      const reducerRules: Definition[] = [];
-      const anotherRules: Definition[] = [];
+      const reducerRules: Definition<Kinds>[] = [];
+      const anotherRules: Definition<Kinds>[] = [];
       this.expand(rc.reducerRule, false, false, (res) => {
         reducerRules.push(...res.defs);
       });
@@ -121,17 +121,17 @@ export class AdvancedBuilder<T>
   }
 
   resolveRS(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RS_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RS_ResolverOptions<T, Kinds>
   ) {
     this.resolvedRS.push({ reducerRule, anotherRule, options });
     return this;
   }
   resolveRR(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RR_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RR_ResolverOptions<T, Kinds>
   ) {
     this.resolvedRR.push({ reducerRule, anotherRule, options });
     return this;

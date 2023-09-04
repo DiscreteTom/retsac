@@ -36,28 +36,34 @@ export type ASTObj = {
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeChildrenSelector<T> = (name: string) => ASTNode<T>[];
+export type ASTNodeChildrenSelector<T, Kinds extends string> = (
+  name: string
+) => ASTNode<T, Kinds>[];
 
-export type ASTNodeSelector<T> = (
+export type ASTNodeSelector<T, Kinds extends string> = (
   name: string,
-  nodes: readonly ASTNode<T>[]
-) => ASTNode<T>[];
+  nodes: readonly ASTNode<T, Kinds>[]
+) => ASTNode<T, Kinds>[];
 
 /**
  * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
  */
-export const mockASTNodeSelector: ASTNodeSelector<any> = () => [];
+export const mockASTNodeSelector: ASTNodeSelector<any, any> = () => [];
 
 /**
  * Traverser is called when a top-down traverse is performed.
  * The result of the traverser is stored in the ASTNode's data field.
  */
-export type Traverser<T> = (self: ASTNode<T>) => T | undefined | void;
+export type Traverser<T, Kinds extends string> = (
+  self: ASTNode<T, Kinds>
+) => T | undefined | void;
 
 /**
  * The default traverser.
  */
-export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
+export function defaultTraverser<T, Kinds extends string>(
+  self: ASTNode<T, Kinds>
+): T | undefined | void {
   if (self.children !== undefined) {
     // if there is only one child, use its data or traverse to get its data
     if (self.children.length == 1)
@@ -71,12 +77,12 @@ export function defaultTraverser<T>(self: ASTNode<T>): T | undefined | void {
 }
 
 // TODO: default T
-export class ASTNode<T> {
+export class ASTNode<T, Kinds extends string> {
   /**
    * T's or NT's kind name.
    * If the T is anonymous, the value is an empty string.
    */
-  readonly kind: string;
+  readonly kind: Kinds;
   /**
    * Start position of the whole input string.
    * Same as the first token's start position.
@@ -89,11 +95,11 @@ export class ASTNode<T> {
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<T>[]; // TODO: use new-type pattern to make sure this is not undefined?
+  children?: readonly ASTNode<T, Kinds>[]; // TODO: use new-type pattern to make sure this is not undefined?
   /**
    * Parent must be an NT unless this node is a root node, in this case parent is undefined.
    */
-  parent?: ASTNode<T>;
+  parent?: ASTNode<T, Kinds>;
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -103,12 +109,12 @@ export class ASTNode<T> {
   /**
    * Select children nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<T>;
+  readonly $: ASTNodeChildrenSelector<T, Kinds>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    */
-  private traverser: Traverser<T>;
+  private traverser: Traverser<T, Kinds>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
@@ -116,12 +122,12 @@ export class ASTNode<T> {
 
   constructor(
     p: Pick<
-      ASTNode<T>,
+      ASTNode<T, Kinds>,
       "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
-      traverser?: Traverser<T>;
-      selector?: ASTNodeSelector<T>;
-    } & Partial<Pick<ASTNode<T>, "name">>
+      traverser?: Traverser<T, Kinds>;
+      selector?: ASTNodeSelector<T, Kinds>;
+    } & Partial<Pick<ASTNode<T, Kinds>, "name">>
   ) {
     this._name = p.name ?? p.kind;
     this.kind = p.kind;
@@ -137,8 +143,12 @@ export class ASTNode<T> {
     // this.str = undefined;
   }
 
-  static from<T>(t: Readonly<Token<any, any>>) {
-    return new ASTNode<T>({ kind: t.kind, start: t.start, text: t.content });
+  static from<T, Kinds extends string>(t: Readonly<Token<any, Kinds>>) {
+    return new ASTNode<T, Kinds>({
+      kind: t.kind,
+      start: t.start,
+      text: t.content,
+    });
   }
 
   /**
@@ -191,7 +201,7 @@ export class ASTNode<T> {
   /**
    * Format: `kind: text`.
    */
-  static getString(data: Pick<ASTNode<any>, "kind" | "text">) {
+  static getString(data: Pick<ASTNode<any, any>, "kind" | "text">) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
@@ -212,7 +222,9 @@ export class ASTNode<T> {
   /**
    * Format: `kind(name): text`.
    */
-  static getStringWithName(data: Pick<ASTNode<any>, "kind" | "name" | "text">) {
+  static getStringWithName(
+    data: Pick<ASTNode<any, any>, "kind" | "name" | "text">
+  ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.name == data.kind ? "" : `(${data.name})`}` +

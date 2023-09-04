@@ -69,7 +69,7 @@ export class Grammar {
    * Check if the grammar's kind match the ASTNode's kind.
    * For literal, the text is also checked.
    */
-  match(node: Readonly<ASTNode<any>>) {
+  match(node: Readonly<ASTNode<any, any>>) {
     // we don't need to check the name
     // because the name is set by the grammar after the grammar is matched
 
@@ -92,7 +92,7 @@ export class Grammar {
       }))
     );
   }
-  private node?: Readonly<ASTNode<any>>;
+  private node?: Readonly<ASTNode<any, any>>;
 
   /**
    * Format: `kind: text`.
@@ -170,33 +170,33 @@ export class Grammar {
   }
 }
 
-export class GrammarRule<T> {
+export class GrammarRule<T, Kinds extends string> {
   readonly rule: readonly Grammar[];
   /**
    * The reduce target's kind name.
    */
-  readonly NT: string;
+  readonly NT: Kinds;
   /**
    * A list of conflicts when the grammar rule wants to reduce.
    * All conflicts must be resolved before the DFA can be built.
    * This will NOT be evaluated during parsing, just to record conflicts.
    */
-  readonly conflicts: Conflict<T>[];
+  readonly conflicts: Conflict<T, Kinds>[];
   /**
    * A list of resolved conflicts.
    * All conflicts must be resolved by this before the DFA can be built.
    * This will be evaluated by candidate during parsing.
    */
-  readonly resolved: ResolvedConflict<T>[];
-  callback?: Callback<T>;
-  rejecter?: Condition<T>;
-  rollback?: Callback<T>;
-  commit?: Condition<T>;
-  traverser?: Traverser<T>;
+  readonly resolved: ResolvedConflict<T, Kinds>[];
+  callback?: Callback<T, Kinds>;
+  rejecter?: Condition<T, Kinds>;
+  rollback?: Callback<T, Kinds>;
+  commit?: Condition<T, Kinds>;
+  traverser?: Traverser<T, Kinds>;
 
   constructor(
     p: Pick<
-      GrammarRule<T>,
+      GrammarRule<T, Kinds>,
       | "rule"
       | "NT"
       | "callback"
@@ -221,11 +221,11 @@ export class GrammarRule<T> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: Readonly<GrammarRule<T>>) {
+  checkRSConflict(another: Readonly<GrammarRule<T, Kinds>>) {
     const result = [] as {
-      shifterRule: Pick<Conflict<T>, "anotherRule">["anotherRule"];
+      shifterRule: Pick<Conflict<T, Kinds>, "anotherRule">["anotherRule"];
       overlapped: Extract<
-        Pick<Conflict<T>, "overlapped">["overlapped"],
+        Pick<Conflict<T, Kinds>, "overlapped">["overlapped"],
         number
       >;
     }[];
@@ -248,7 +248,7 @@ export class GrammarRule<T> {
   /**
    * Check if the tail of this's rule is the same as another's whole rule.
    */
-  checkRRConflict(another: Readonly<GrammarRule<T>>) {
+  checkRRConflict(another: Readonly<GrammarRule<T, Kinds>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 
@@ -265,7 +265,7 @@ export class GrammarRule<T> {
    * Return ``{ NT: `grammar rules` }``.
    * Grammar's name is NOT included.
    */
-  static getString(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
+  static getString(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.toGrammarString())
       .join(" ")}\` }`;
@@ -287,7 +287,9 @@ export class GrammarRule<T> {
    * Return ``{ NT: `grammar rules` }``.
    * Grammar's name is included.
    */
-  static getStringWithGrammarName(gr: Pick<GrammarRule<any>, "NT" | "rule">) {
+  static getStringWithGrammarName(
+    gr: Pick<GrammarRule<any, any>, "NT" | "rule">
+  ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.toGrammarStringWithName())
       .join(" ")}\` }`;
@@ -322,7 +324,7 @@ export class GrammarSet {
     return true;
   }
 
-  has(g: Readonly<Grammar> | Readonly<ASTNode<any>>) {
+  has(g: Readonly<Grammar> | Readonly<ASTNode<any, any>>) {
     return this.gs.has(g.toString()); // Grammar & ASTNode has the same string format
   }
 
@@ -425,30 +427,30 @@ export class GrammarRepo {
  * A set of different grammar rules, grammar's name will be included.
  * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
  */
-export class GrammarRuleRepo<T> {
+export class GrammarRuleRepo<T, Kinds extends string> {
   /**
    * `GrammarRule.toStringWithGrammarName => grammar rule`
    */
-  readonly grammarRules: ReadonlyMap<string, GrammarRule<T>>;
+  readonly grammarRules: ReadonlyMap<string, GrammarRule<T, Kinds>>;
 
-  constructor(grs: readonly GrammarRule<T>[]) {
+  constructor(grs: readonly GrammarRule<T, Kinds>[]) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.toStringWithGrammarName(), gr));
     this.grammarRules = map;
   }
 
-  get(gr: TempGrammarRule<any>) {
+  get(gr: TempGrammarRule<any, any>) {
     return this.grammarRules.get(gr.toStringWithGrammarName());
   }
 
-  map<R>(callback: (g: GrammarRule<T>) => R) {
+  map<R>(callback: (g: GrammarRule<T, Kinds>) => R) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
     return res;
   }
 
-  filter(callback: (g: GrammarRule<T>) => boolean) {
-    const res = [] as GrammarRule<T>[];
+  filter(callback: (g: GrammarRule<T, Kinds>) => boolean) {
+    const res = [] as GrammarRule<T, Kinds>[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
     });

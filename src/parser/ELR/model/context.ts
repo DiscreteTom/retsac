@@ -4,13 +4,13 @@ import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
 /**
  * This is used in grammar rule's callback, reducer and condition of rejecter/committer.
  */
-export class GrammarRuleContext<T> {
-  readonly matched: readonly ASTNode<T>[];
+export class GrammarRuleContext<T, Kinds extends string> {
+  readonly matched: readonly ASTNode<T, Kinds>[];
   /**
    * The AST nodes before the current grammar rule.
    * This is lazy and cached.
    */
-  get before(): readonly ASTNode<T>[] {
+  get before(): readonly ASTNode<T, Kinds>[] {
     return this._before ?? (this._before = this.beforeFactory());
   }
   /**
@@ -23,7 +23,7 @@ export class GrammarRuleContext<T> {
   /**
    * Find AST nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<T>;
+  readonly $: ASTNodeChildrenSelector<T, Kinds>;
   /**
    * Current lexer state. You'd better not modify it.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
@@ -45,14 +45,14 @@ export class GrammarRuleContext<T> {
       this._values ?? (this._values = this.matched.map((node) => node.data))
     );
   }
-  private beforeFactory: () => ASTNode<T>[];
-  private _before?: readonly ASTNode<T>[];
+  private beforeFactory: () => ASTNode<T, Kinds>[];
+  private _before?: readonly ASTNode<T, Kinds>[];
   private _values?: readonly (T | undefined)[];
 
   constructor(
-    p: Pick<GrammarRuleContext<T>, "matched" | "lexer"> & {
-      beforeFactory: () => ASTNode<T>[];
-      selector: ASTNodeSelector<T>;
+    p: Pick<GrammarRuleContext<T, Kinds>, "matched" | "lexer"> & {
+      beforeFactory: () => ASTNode<T, Kinds>[];
+      selector: ASTNodeSelector<T, Kinds>;
     }
   ) {
     this.matched = p.matched;
@@ -66,11 +66,17 @@ export class GrammarRuleContext<T> {
 /**
  * This will be called if the current grammar rule is accepted.
  */
-export type Callback<T> = (context: GrammarRuleContext<T>) => void;
+export type Callback<T, Kinds extends string> = (
+  context: GrammarRuleContext<T, Kinds>
+) => void;
 
-export type Condition<T> = (context: GrammarRuleContext<T>) => boolean;
+export type Condition<T, Kinds extends string> = (
+  context: GrammarRuleContext<T, Kinds>
+) => boolean;
 
 /**
  * Reducer should use children's data to yield the parent's data.
  */
-export type Reducer<T> = (context: GrammarRuleContext<T>) => T | undefined;
+export type Reducer<T, Kinds extends string> = (
+  context: GrammarRuleContext<T, Kinds>
+) => T | undefined;

@@ -4,14 +4,17 @@ import { ConflictType } from "../../model/conflict";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 
-export type BaseResolverOptions<T> = {
+export type BaseResolverOptions<T, Kinds extends string> = {
   /**
    *  Default: true
    */
-  accept?: boolean | Condition<T>;
+  accept?: boolean | Condition<T, Kinds>;
 };
 
-export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
+export type RR_ResolverOptions<T, Kinds extends string> = BaseResolverOptions<
+  T,
+  Kinds
+> &
   AtLeastOneOf<
     {
       next: (string & {}) | "*";
@@ -20,25 +23,28 @@ export type RR_ResolverOptions<T> = BaseResolverOptions<T> &
     "next" | "handleEnd"
   >;
 
-export type RS_ResolverOptions<T> = BaseResolverOptions<T> & {
+export type RS_ResolverOptions<T, Kinds extends string> = BaseResolverOptions<
+  T,
+  Kinds
+> & {
   next: (string & {}) | "*";
 };
 
-export type ConflictTypeAndResolverOptions<T> =
+export type ConflictTypeAndResolverOptions<T, Kinds extends string> =
   | {
       type: ConflictType.REDUCE_REDUCE;
-      options: RR_ResolverOptions<T>;
+      options: RR_ResolverOptions<T, Kinds>;
     }
   | {
       type: ConflictType.REDUCE_SHIFT;
-      options: RS_ResolverOptions<T>;
+      options: RS_ResolverOptions<T, Kinds>;
     };
 
-export type ResolvedTempConflict<T> = {
-  reducerRule: TempGrammarRule<T>;
-  anotherRule: TempGrammarRule<T>;
-} & ConflictTypeAndResolverOptions<T>;
+export type ResolvedTempConflict<T, Kinds extends string> = {
+  reducerRule: TempGrammarRule<T, Kinds>;
+  anotherRule: TempGrammarRule<T, Kinds>;
+} & ConflictTypeAndResolverOptions<T, Kinds>;
 
-export type ResolvedPartialTempConflict<T> = {
-  anotherRule: Definition;
-} & ConflictTypeAndResolverOptions<T>;
+export type ResolvedPartialTempConflict<T, Kinds extends string> = {
+  anotherRule: Definition<Kinds>;
+} & ConflictTypeAndResolverOptions<T, Kinds>;

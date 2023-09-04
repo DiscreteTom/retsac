@@ -7,7 +7,9 @@ import {
   RS_ResolverOptions,
 } from "../builder";
 
-export type BuildOptions = Partial<Pick<IParser<any>, "logger" | "debug">> & {
+export type BuildOptions = Partial<
+  Pick<IParser<any, any>, "logger" | "debug">
+> & {
   /**
    * Which format to generate resolvers.
    * If `undefined`, resolvers will not be generated.
@@ -49,41 +51,51 @@ export type BuildOptions = Partial<Pick<IParser<any>, "logger" | "debug">> & {
   reLex?: boolean;
 };
 
-export interface IParserBuilder<T> {
+export interface IParserBuilder<T, Kinds extends string> {
   /**
    * Declare top-level NT's.
    * This is required for ELR parser.
    * You should call this only once. If you call this multiple times, the last one will be used.
    */
-  entry(...defs: string[]): this;
+  entry<Append extends string>(
+    ...defs: Append[]
+  ): IParserBuilder<T, Kinds | Append>;
   /**
    * Declare grammar rules.
    */
-  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>): this;
+  define<Append extends string>(
+    defs: Definition<Kinds | Append>,
+    ctxBuilder?: DefinitionContextBuilder<T, Kinds | Append>
+  ): IParserBuilder<T, Kinds | Append>;
   /**
    * Generate the ELR parser.
    */
-  build(lexer: ILexer<any, any>, options?: BuildOptions): IParser<T>; // TODO: use generic type
+  build<LexerKinds extends string>(
+    lexer: ILexer<any, LexerKinds>,
+    options?: BuildOptions
+  ): IParser<T, Kinds | LexerKinds>; // TODO: use generic type
   /**
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RS_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RS_ResolverOptions<T, Kinds>
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
    */
   resolveRR(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RR_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RR_ResolverOptions<T, Kinds>
   ): this;
   /**
    * Apply a function to this builder.
    */
-  use(f: BuilderDecorator<T>): this;
+  use<Append extends string>(
+    f: BuilderDecorator<T, Kinds, Append>
+  ): IParserBuilder<T, Kinds | Append>;
   /**
    * Generate resolvers by grammar rules' priorities.
    *
@@ -95,7 +107,7 @@ export interface IParserBuilder<T> {
    * Grammar rules with higher priority will always be accepted first,
    * and grammar rules with the same priority will be accepted according to the order of definition you provided here.
    */
-  priority(...defs: (Definition | Definition[])[]): this;
+  priority(...defs: (Definition<Kinds> | Definition<Kinds>[])[]): this;
   /**
    * Generate resolvers to make these definitions left-self-associative.
    *
@@ -104,7 +116,7 @@ export interface IParserBuilder<T> {
    * builder.leftSA({ exp: `exp '-' exp` })
    * ```
    */
-  leftSA(...defs: Definition[]): this;
+  leftSA(...defs: Definition<Kinds>[]): this;
   /**
    * Generate resolvers to make these definitions right-self-associative.
    * ```ts
@@ -112,7 +124,9 @@ export interface IParserBuilder<T> {
    * builder.rightSA({ exp: `var '=' exp` })
    * ```
    */
-  rightSA(...defs: Definition[]): this;
+  rightSA(...defs: Definition<Kinds>[]): this;
 }
 
-export type BuilderDecorator<T> = (pb: IParserBuilder<T>) => IParserBuilder<T>; // return `this`
+export type BuilderDecorator<T, Kinds extends string, Append extends string> = (
+  pb: IParserBuilder<T, Kinds>
+) => IParserBuilder<T, Kinds | Append>; // return `this`

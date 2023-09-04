@@ -17,10 +17,10 @@ import { LR_BuilderError } from "../error";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-function getEndSet<T>(
+function getEndSet<T, Kinds extends string>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<T>
+  grs: GrammarRuleRepo<T, Kinds>
 ) {
   const result = new GrammarSet();
 
@@ -51,10 +51,10 @@ function getEndSet<T>(
 /**
  * Return conflicts that user didn't resolve.
  */
-function getUserUnresolvedConflicts<T>(
+function getUserUnresolvedConflicts<T, Kinds extends string>(
   type: ConflictType,
-  reducerRule: Readonly<GrammarRule<T>>,
-  anotherRule: Readonly<GrammarRule<T>>,
+  reducerRule: Readonly<GrammarRule<T, Kinds>>,
+  anotherRule: Readonly<GrammarRule<T, Kinds>>,
   next: readonly Grammar[],
   checkHandleEnd: boolean,
   debug: boolean
@@ -136,11 +136,11 @@ function getUserUnresolvedConflicts<T>(
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
-export function getConflicts<T>(
+export function getConflicts<T, Kinds extends string>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<T>,
-  dfa: DFA<T>,
+  grs: GrammarRuleRepo<T, Kinds>,
+  dfa: DFA<T, Kinds>,
   debug = false
 ) {
   const firstSets = dfa.firstSets;
@@ -193,7 +193,7 @@ export function getConflicts<T>(
           }
 
           // auto resolve failed
-          const conflict: Conflict<T> = {
+          const conflict: Conflict<T, Kinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule,
             handleEnd: false,
@@ -222,7 +222,7 @@ export function getConflicts<T>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<T> = {
+            const conflict: Conflict<T, Kinds> = {
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
@@ -252,7 +252,7 @@ export function getConflicts<T>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<T> = {
+            const conflict: Conflict<T, Kinds> = {
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
@@ -305,7 +305,7 @@ export function getConflicts<T>(
         }
 
         // auto resolve failed
-        const c: Conflict<T> = {
+        const c: Conflict<T, Kinds> = {
           type: ConflictType.REDUCE_REDUCE,
           anotherRule,
           next: overlap,
@@ -325,11 +325,11 @@ export function getConflicts<T>(
  * Returned conflicts are newly constructed, not the same as `GrammarRule.conflicts`,
  * since the user may resolve part of the conflicts.
  */
-export function getUnresolvedConflicts<T>(
-  grs: GrammarRuleRepo<T>,
+export function getUnresolvedConflicts<T, Kinds extends string>(
+  grs: GrammarRuleRepo<T, Kinds>,
   debug: boolean
 ) {
-  const result = new Map<GrammarRule<T>, Conflict<T>[]>();
+  const result = new Map<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>();
 
   grs.grammarRules.forEach((reducerRule) => {
     reducerRule.conflicts.forEach((c) => {
@@ -344,7 +344,7 @@ export function getUnresolvedConflicts<T>(
         );
 
         if (res.next.length > 0) {
-          const conflict: Conflict<T> = {
+          const conflict: Conflict<T, Kinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
             handleEnd: false,
@@ -365,7 +365,7 @@ export function getUnresolvedConflicts<T>(
           debug
         );
         if (res.next.length > 0 || res.end) {
-          const conflict: Conflict<T> = {
+          const conflict: Conflict<T, Kinds> = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,
             handleEnd: res.end,

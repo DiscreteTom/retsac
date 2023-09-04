@@ -1,5 +1,5 @@
 import { Lexer } from "../../../..";
-import { exact, stringLiteral, Token } from "../../../../lexer";
+import { exact, stringLiteral } from "../../../../lexer";
 import { LR_BuilderError } from "../error";
 import { Definition, DefinitionContext } from "../model";
 import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
@@ -17,15 +17,19 @@ const grammarLexer = new Lexer.Builder()
 /**
  * Definition to TempGrammarRules.
  */
-export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
-  const result: TempGrammarRule<T>[] = [];
+export function defToTempGRs<T, Kinds extends string>(
+  defs: Definition<Kinds>,
+  ctx?: DefinitionContext<T, Kinds>
+) {
+  const result: TempGrammarRule<T, Kinds>[] = [];
 
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    const rules: ({ name: string } & Token<any, any>)[][] = [[]];
+    const rules: ({ name: string } & ReturnType<typeof grammarLexer.lex>)[][] =
+      [[]];
     const def = defs[NT];
-    const defStr = def instanceof Array ? def.join("|") : def;
+    const defStr = def instanceof Array ? def.join("|") : (def as string);
     grammarLexer
       .reset()
       .lexAll(defStr)
@@ -33,11 +37,11 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
         if (t.kind == "or") rules.push([]); // new grammar rule
         else if (t.kind == "rename") {
           const token = rules.at(-1)?.at(-1);
-          if (!token) throw LR_BuilderError.noRenameTarget(def, t.content);
+          if (!token) throw LR_BuilderError.noRenameTarget(def!, t.content);
           token.name = t.content.slice(1); // remove `@`
         }
         // append token to the last grammar rule with name
-        else rules.at(-1)!.push({ ...t, name: t.content });
+        else rules.at(-1)!.push({ ...t, name: t.content }); // TODO: don't use t.content as the name for literal, use lexer to lex the name
       });
 
     if (grammarLexer.hasRest())
@@ -61,7 +65,7 @@ export function defToTempGRs<T>(defs: Definition, ctx?: DefinitionContext<T>) {
         throw LR_BuilderError.emptyLiteral(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<T>({
+        new TempGrammarRule<T, Kinds>({
           NT,
           rule: tokens.map((t) => {
             if (t.kind == "grammar")

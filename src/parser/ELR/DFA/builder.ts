@@ -17,22 +17,25 @@ import {
 } from "./utils";
 
 export class DFABuilder {
-  static prepare<T>(
+  static prepare<T, Kinds extends string>(
     repo: GrammarRepo,
     lexer: ILexer<any, any>,
     entryNTs: ReadonlySet<string>,
-    data: ParserBuilderData<T>,
-    resolvedTemp: ResolvedTempConflict<T>[]
+    data: ParserBuilderData<T, Kinds>,
+    resolvedTemp: ResolvedTempConflict<T, Kinds>[]
   ) {
     // transform definitions to temp grammar rules
     // and append resolved conflicts defined in definition context in data into resolvedTemp
-    const { tempGrammarRules, NTs } = processDefinitions<T>(data, resolvedTemp);
+    const { tempGrammarRules, NTs } = processDefinitions<T, Kinds>(
+      data,
+      resolvedTemp
+    );
 
     // transform temp grammar rules to grammar rules
     const grs = new GrammarRuleRepo(
       tempGrammarRules.map(
         (gr) =>
-          new GrammarRule<T>({
+          new GrammarRule<T, Kinds>({
             NT: gr.NT,
             callback: gr.callback,
             rejecter: gr.rejecter,
@@ -48,9 +51,9 @@ export class DFABuilder {
 
     // init all initial candidates, initial candidate is candidate with digested=0
     // TODO: use CandidateRepo
-    const allInitialCandidates = new Map<string, Candidate<T>>();
+    const allInitialCandidates = new Map<string, Candidate<T, Kinds>>();
     grs.grammarRules.forEach((gr) => {
-      const c = new Candidate<T>({ gr, digested: 0 });
+      const c = new Candidate<T, Kinds>({ gr, digested: 0 });
       allInitialCandidates.set(c.toStringWithGrammarName(), c);
     });
 
@@ -65,7 +68,7 @@ export class DFABuilder {
           Candidate.getStringWithGrammarName({ gr, digested: 0 })
         )!
     );
-    const entryState = new State<T>(
+    const entryState = new State<T, Kinds>(
       entryCandidates,
       State.getString({ candidates: entryCandidates })
     );
@@ -73,7 +76,7 @@ export class DFABuilder {
 
     // init all states
     // TODO: use StateRepo
-    const allStates = new Map<string, State<T>>();
+    const allStates = new Map<string, State<T, Kinds>>();
     allStates.set(entryState.toString(), entryState);
 
     // construct first sets for all NTs

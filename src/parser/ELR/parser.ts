@@ -6,14 +6,14 @@ import { DFA, State } from "./DFA";
 import { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
-export class Parser<T> implements IParser<T> {
+export class Parser<T, Kinds extends string> implements IParser<T, Kinds> {
   lexer: ILexer<any, any>;
-  readonly dfa: DFA<T>;
-  protected buffer: ASTNode<T>[];
-  protected errors: ASTNode<T>[];
+  readonly dfa: DFA<T, Kinds>;
+  protected buffer: ASTNode<T, Kinds>[];
+  protected errors: ASTNode<T, Kinds>[];
 
-  private reLexStack: ReLexStack<State<T>, T>;
-  private rollbackStack: RollbackStack<T>;
+  private reLexStack: ReLexStack<State<T, Kinds>, T, Kinds>;
+  private rollbackStack: RollbackStack<T, Kinds>;
 
   get debug() {
     return this.dfa.debug;
@@ -28,7 +28,7 @@ export class Parser<T> implements IParser<T> {
     this.dfa.logger = v;
   }
 
-  constructor(dfa: DFA<T>, lexer: ILexer<any, any>) {
+  constructor(dfa: DFA<T, Kinds>, lexer: ILexer<any, any>) {
     this.dfa = dfa;
     this.lexer = lexer;
     this.buffer = [];
@@ -53,7 +53,7 @@ export class Parser<T> implements IParser<T> {
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<T>(this.dfa, this.lexer.clone());
+    const res = new Parser<T, Kinds>(this.dfa, this.lexer.clone());
     res.buffer = [...this.buffer];
     res.errors = [...this.errors];
     res.reLexStack = [...this.reLexStack];
@@ -64,7 +64,7 @@ export class Parser<T> implements IParser<T> {
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<T>(this.dfa, this.lexer.dryClone());
+    const res = new Parser<T, Kinds>(this.dfa, this.lexer.dryClone());
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -75,7 +75,7 @@ export class Parser<T> implements IParser<T> {
     return this;
   }
 
-  getErrors(): readonly ASTNode<T>[] {
+  getErrors(): readonly ASTNode<T, Kinds>[] {
     return this.errors;
   }
 
@@ -83,7 +83,7 @@ export class Parser<T> implements IParser<T> {
     return this.errors.length > 0;
   }
 
-  getNodes(): readonly ASTNode<T>[] {
+  getNodes(): readonly ASTNode<T, Kinds>[] {
     return this.buffer;
   }
 
@@ -93,7 +93,7 @@ export class Parser<T> implements IParser<T> {
 
   parse(
     input?: string | { input?: string; stopOnError?: boolean }
-  ): ParserOutput<T> {
+  ): ParserOutput<T, Kinds> {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -130,10 +130,10 @@ export class Parser<T> implements IParser<T> {
 
   parseAll(
     input: string | { input?: string; stopOnError?: boolean } = ""
-  ): ParserOutput<T> {
-    let buffer: readonly ASTNode<T>[] = [];
+  ): ParserOutput<T, Kinds> {
+    let buffer: readonly ASTNode<T, Kinds>[] = [];
     /** Aggregate results if the parser can accept more. */
-    const errors: ASTNode<T>[] = [];
+    const errors: ASTNode<T, Kinds>[] = [];
     /** If the parser has accepted at least once. */
     let accepted = false;
 

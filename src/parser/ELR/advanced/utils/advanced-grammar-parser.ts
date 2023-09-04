@@ -1,11 +1,11 @@
 import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
+import { IParser } from "../../../model";
 import {
   Definition,
   ParserBuilder,
   RS_ResolverOptions,
   traverser,
 } from "../../builder";
-import { Parser } from "../../parser";
 import { LR_AdvancedBuilderError } from "../error";
 import { applyResolvers } from "./resolvers";
 
@@ -41,10 +41,10 @@ class PlaceholderMap {
   }
 }
 
-export class GrammarExpander {
+export class GrammarExpander<Kinds extends string> {
   private readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
-  private readonly parser: Parser<string[]>;
+  private readonly parser: IParser<string[], "gr" | "" | "grammar" | "literal">;
   readonly placeholderPrefix: string;
 
   constructor(options: { placeholderPrefix: string }) {
@@ -137,16 +137,16 @@ export class GrammarExpander {
 
   expand<T>(
     s: string,
-    NT: string,
+    NT: Kinds,
     debug: boolean | undefined,
     resolve: boolean
   ) {
     const result = {
-      defs: [] as Definition[],
+      defs: [] as Definition<Kinds>[],
       rs: [] as {
-        reducerRule: Definition;
-        anotherRule: Definition;
-        options: RS_ResolverOptions<T>;
+        reducerRule: Definition<Kinds>;
+        anotherRule: Definition<Kinds>;
+        options: RS_ResolverOptions<T, Kinds>;
       }[],
     };
     const res = this.parser.reset().parseAll(s);
@@ -156,7 +156,7 @@ export class GrammarExpander {
 
     const expanded = res.buffer[0].traverse()!;
 
-    const resultDef: Definition = {};
+    const resultDef: Definition<Kinds> = {};
     resultDef[NT] = expanded;
     if (debug) console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
     result.defs.push(resultDef);
@@ -169,8 +169,8 @@ export class GrammarExpander {
           if (!anotherRule.startsWith(reducerRule)) return;
 
           result.rs.push({
-            reducerRule: { [NT]: reducerRule },
-            anotherRule: { [NT]: anotherRule },
+            reducerRule: { [NT]: reducerRule } as Definition<Kinds>,
+            anotherRule: { [NT]: anotherRule } as Definition<Kinds>,
             // in most cases we want the `+*?` to be greedy
             options: { next: "*", accept: false },
           });
@@ -198,22 +198,22 @@ export class GrammarExpander {
 
   generatePlaceholderGrammarRules<T>(debug: boolean | undefined) {
     const result = {
-      defs: [] as Definition[],
+      defs: [] as Definition<Kinds>[],
       rs: [] as {
-        reducerRule: Definition;
-        anotherRule: Definition;
-        options: RS_ResolverOptions<T>;
+        reducerRule: Definition<Kinds>;
+        anotherRule: Definition<Kinds>;
+        options: RS_ResolverOptions<T, Kinds>;
       }[],
     };
 
     this.placeholderMap.p2g.forEach((gs, p) => {
       const gr = `${gs} | ${gs} ${p}`;
 
-      result.defs.push({ [p]: gr });
+      result.defs.push({ [p]: gr } as Definition<Kinds>);
       // the gr will introduce an RS conflict, so we need to resolve it
       result.rs.push({
-        reducerRule: { [p]: `${gs}` },
-        anotherRule: { [p]: `${gs} ${p}` },
+        reducerRule: { [p]: `${gs}` } as Definition<Kinds>,
+        anotherRule: { [p]: `${gs} ${p}` } as Definition<Kinds>,
         // in most cases we want the `+*?` to be greedy
         options: { next: "*", accept: false },
       });

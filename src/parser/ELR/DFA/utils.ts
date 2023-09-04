@@ -17,11 +17,11 @@ import {
 import { Candidate } from "./candidate";
 import { State } from "./state";
 
-export function getAllNTClosure<T>(
+export function getAllNTClosure<T, Kinds extends string>(
   NTs: ReadonlySet<string>,
-  allGrammarRules: GrammarRuleRepo<T>
-): Map<string, GrammarRule<T>[]> {
-  const result = new Map<string, GrammarRule<T>[]>();
+  allGrammarRules: GrammarRuleRepo<T, Kinds>
+): Map<string, GrammarRule<T, Kinds>[]> {
+  const result = new Map<string, GrammarRule<T, Kinds>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
 }
@@ -32,10 +32,10 @@ export function getAllNTClosure<T>(
  * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
  * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
  */
-export function getNTClosure<T>(
+export function getNTClosure<T, Kinds extends string>(
   NT: string,
-  allGrammarRules: GrammarRuleRepo<T>
-): GrammarRule<T>[] {
+  allGrammarRules: GrammarRuleRepo<T, Kinds>
+): GrammarRule<T, Kinds>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules
@@ -47,10 +47,10 @@ export function getNTClosure<T>(
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
  * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
-export function getGrammarRulesClosure<T>(
-  rules: readonly GrammarRule<T>[],
-  allGrammarRules: GrammarRuleRepo<T>
-): GrammarRule<T>[] {
+export function getGrammarRulesClosure<T, Kinds extends string>(
+  rules: readonly GrammarRule<T, Kinds>[],
+  allGrammarRules: GrammarRuleRepo<T, Kinds>
+): GrammarRule<T, Kinds>[] {
   const result = [...rules];
 
   while (true) {
@@ -76,11 +76,11 @@ export function getGrammarRulesClosure<T>(
 // this function is especially for ELR parser
 // since the cascade query is only used in ELR parser
 // so don't move this into ast.ts file
-export function ASTNodeSelectorFactory<T>(
+export function ASTNodeSelectorFactory<T, Kinds extends string>(
   cascadeQueryPrefix: string | undefined
-): ASTNodeSelector<T> {
-  return (name: string, nodes: readonly ASTNode<T>[]) => {
-    const result: ASTNode<T>[] = [];
+): ASTNodeSelector<T, Kinds> {
+  return (name: string, nodes: readonly ASTNode<T, Kinds>[]) => {
+    const result: ASTNode<T, Kinds>[] = [];
     nodes.forEach((n) => {
       if (n.name === name) result.push(n);
 
@@ -99,10 +99,10 @@ export function ASTNodeSelectorFactory<T>(
  * Try to use lexer to yield the specified grammar.
  * Return `null` if failed.
  */
-export function lexGrammar<T>(
+export function lexGrammar<T, Kinds extends string>(
   g: Grammar,
   lexer: Readonly<ILexer<any, any>>
-): { node: ASTNode<T>; lexer: ILexer<any, any> } | null {
+): { node: ASTNode<T, Kinds>; lexer: ILexer<any, any> } | null {
   if (g.type == GrammarType.NT) {
     // NT can't be lexed
     return null;
@@ -117,17 +117,17 @@ export function lexGrammar<T>(
     },
   });
   if (token == null) return null;
-  return { node: ASTNode.from<T>(token), lexer };
+  return { node: ASTNode.from<T, Kinds>(token), lexer };
 }
 
 /**
  * Calculate state machine's state transition map ahead of time and cache.
  */
-export function calculateAllStates<T>(
-  allGrammarRules: GrammarRuleRepo<T>,
-  allStates: Map<string, State<T>>,
-  NTClosures: Map<string, GrammarRule<T>[]>,
-  allInitialCandidates: Map<string, Candidate<T>>
+export function calculateAllStates<T, Kinds extends string>(
+  allGrammarRules: GrammarRuleRepo<T, Kinds>,
+  allStates: Map<string, State<T, Kinds>>,
+  NTClosures: Map<string, GrammarRule<T, Kinds>[]>,
+  allInitialCandidates: Map<string, Candidate<T, Kinds>>
 ) {
   // collect all grammars in rules
   const gs = new GrammarSet();
@@ -158,19 +158,19 @@ export function calculateAllStates<T>(
  * Transform the data user defined into temp grammar rules,
  * and append resolved conflicts defined in definition context in data into resolvedTemp.
  */
-export function processDefinitions<T>(
-  data: ParserBuilderData<T>,
+export function processDefinitions<T, Kinds extends string>(
+  data: ParserBuilderData<T, Kinds>,
   /**
    * This will be modified to add the resolved conflicts defined in definition context in data.
    * Since the definition context has higher priority,
    * those resolved conflicts will be append to the front of this array.
    */
-  resolvedTemp: ResolvedTempConflict<T>[]
+  resolvedTemp: ResolvedTempConflict<T, Kinds>[]
 ): {
-  tempGrammarRules: readonly TempGrammarRule<T>[];
+  tempGrammarRules: readonly TempGrammarRule<T, Kinds>[];
   NTs: ReadonlySet<string>;
 } {
-  const tempGrammarRules: TempGrammarRule<T>[] = [];
+  const tempGrammarRules: TempGrammarRule<T, Kinds>[] = [];
   const NTs: Set<string> = new Set();
 
   data.forEach((d) => {
@@ -183,10 +183,10 @@ export function processDefinitions<T>(
     });
 
     // append resolved conflicts defined in ctx into the front of resolvedTemp
-    const toBeAppend = [] as ResolvedTempConflict<T>[];
+    const toBeAppend = [] as ResolvedTempConflict<T, Kinds>[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<T>(r.anotherRule).forEach((another) => {
+        defToTempGRs<T, Kinds>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             toBeAppend.push({
               type: ConflictType.REDUCE_REDUCE,
@@ -198,7 +198,7 @@ export function processDefinitions<T>(
         });
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<T>(r.anotherRule).forEach((another) => {
+        defToTempGRs<T, Kinds>(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             toBeAppend.push({
               type: ConflictType.REDUCE_SHIFT,

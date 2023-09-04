@@ -18,8 +18,8 @@ import { Candidate } from "./candidate";
 /**
  * State for ELR parsers.
  */
-export class State<T> {
-  readonly candidates: readonly Candidate<T>[];
+export class State<T, Kinds extends string> {
+  readonly candidates: readonly Candidate<T, Kinds>[];
   readonly str: string;
   /**
    * `ASTNode.toString => state`.
@@ -28,20 +28,20 @@ export class State<T> {
    */
   // don't use `undefined` here
   // because `Map.get` return `undefined` when key not found
-  private readonly nextMap: Map<string, State<T> | null>;
+  private readonly nextMap: Map<string, State<T, Kinds> | null>;
 
-  constructor(candidates: Candidate<T>[], str: string) {
+  constructor(candidates: Candidate<T, Kinds>[], str: string) {
     this.candidates = candidates;
     this.str = str;
     this.nextMap = new Map();
   }
 
   getNext(
-    next: Readonly<ASTNode<any>>,
-    NTClosures: ReadonlyMap<string, GrammarRule<T>[]>,
-    allStates: Map<string, State<T>>,
-    allInitialCandidates: ReadonlyMap<string, Candidate<T>>
-  ): { state: State<T> | null; changed: boolean } {
+    next: Readonly<ASTNode<any, any>>,
+    NTClosures: ReadonlyMap<string, GrammarRule<T, Kinds>[]>,
+    allStates: Map<string, State<T, Kinds>>,
+    allInitialCandidates: ReadonlyMap<string, Candidate<T, Kinds>>
+  ): { state: State<T, Kinds> | null; changed: boolean } {
     // node.name is not decided yet, so we don't need it here
     const key = next.toString();
 
@@ -52,7 +52,7 @@ export class State<T> {
     // not in cache, calculate and cache
     const directCandidates = this.candidates
       .map((c) => c.getNext(next))
-      .filter((c) => c != null) as Candidate<T>[];
+      .filter((c) => c != null) as Candidate<T, Kinds>[];
     const indirectCandidates = directCandidates
       .reduce((p, c) => {
         if (
@@ -68,7 +68,7 @@ export class State<T> {
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
-      }, [] as GrammarRule<T>[]) // de-duplicated GrammarRule list
+      }, [] as GrammarRule<T, Kinds>[]) // de-duplicated GrammarRule list
       .map(
         (gr) =>
           // get initial candidate from global cache
@@ -80,7 +80,7 @@ export class State<T> {
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
     // const result =
-    //   nextCandidates.length == 0 ? null : new State<T>(nextCandidates);
+    //   nextCandidates.length == 0 ? null : new State<T,Kinds>(nextCandidates);
 
     // check & update global state cache
     if (nextCandidates.length != 0) {
@@ -90,7 +90,7 @@ export class State<T> {
         this.nextMap.set(key, cache);
         return { state: cache, changed: false };
       } else {
-        const result = new State<T>(nextCandidates, cacheKey);
+        const result = new State<T, Kinds>(nextCandidates, cacheKey);
         allStates.set(cacheKey, result);
         this.nextMap.set(key, result);
         return { state: result, changed: true };
@@ -101,7 +101,7 @@ export class State<T> {
     return { state: null, changed: false };
   }
 
-  contains(gr: Readonly<GrammarRule<T>>, digested: number) {
+  contains(gr: Readonly<GrammarRule<T, Kinds>>, digested: number) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
   }
 
@@ -119,7 +119,7 @@ export class State<T> {
    * Grammar's name will be included.
    * The result is sorted by candidate string, so that the same state will have the same string representation.
    */
-  static getString(data: Pick<State<any>, "candidates">) {
+  static getString(data: Pick<State<any, any>, "candidates">) {
     return data.candidates
       .map((c) => c.toStringWithGrammarName())
       .sort()
@@ -133,8 +133,8 @@ export class State<T> {
   tryLex(
     lexer: Readonly<ILexer<any, any>>,
     followSets: ReadonlyMap<string, GrammarSet>
-  ): { node: ASTNode<T>; lexer: ILexer<any, any> }[] {
-    const res: { node: ASTNode<T>; lexer: ILexer<any, any> }[] = [];
+  ): { node: ASTNode<T, Kinds>; lexer: ILexer<any, any> }[] {
+    const res: { node: ASTNode<T, Kinds>; lexer: ILexer<any, any> }[] = [];
     this.candidates.forEach((c) => {
       res.push(...c.tryLex(lexer, followSets));
     });
@@ -143,7 +143,7 @@ export class State<T> {
 
   /** Traverse all candidates to try to reduce. */
   tryReduce(
-    buffer: readonly ASTNode<T>[],
+    buffer: readonly ASTNode<T, Kinds>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: Readonly<ILexer<any, any>>,
@@ -151,10 +151,10 @@ export class State<T> {
     logger: Logger
   ):
     | RejectedParserOutput
-    | (AcceptedParserOutput<T> & {
-        context: GrammarRuleContext<T>;
+    | (AcceptedParserOutput<T, Kinds> & {
+        context: GrammarRuleContext<T, Kinds>;
         commit: boolean;
-        rollback?: Callback<T>;
+        rollback?: Callback<T, Kinds>;
       }) {
     for (const c of this.candidates) {
       const res = c.tryReduce(

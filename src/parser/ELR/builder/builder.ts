@@ -20,7 +20,7 @@ import {
   Definition,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
-import { DFA, DFABuilder } from "../DFA";
+import { Candidate, DFA, DFABuilder, State } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
@@ -33,9 +33,11 @@ import { Logger } from "../../../model";
  *
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
-export class ParserBuilder<T> implements IParserBuilder<T> {
+export class ParserBuilder<T, Kinds extends string = "">
+  implements IParserBuilder<T, Kinds>
+{
   // use protected for AdvancedParserBuilder
-  protected readonly data: ParserBuilderData<T> = [];
+  protected readonly data: ParserBuilderData<T, Kinds> = [];
   private readonly entryNTs: Set<string>;
   /**
    * Resolved temporary conflicts.
@@ -44,7 +46,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
    * 1. When `builder.resolveRS` or `builder.resolveRR` is called, the resolved conflicts will be pushed to this array.
    * 2. When `builder.build` is called, the resolved conflicts in DefinitionContext will be transformed and pushed to this.
    */
-  private readonly resolvedTemp: ResolvedTempConflict<T>[];
+  private readonly resolvedTemp: ResolvedTempConflict<T, Kinds>[];
   /**
    * For most cases, this is used by AdvancedParserBuilder for cascading query.
    * You can also customize this.
@@ -63,7 +65,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
-  entry(...defs: string[]) {
+  entry<Append extends string>(
+    ...defs: Append[]
+  ): IParserBuilder<T, Kinds | Append> {
     this.entryNTs.clear();
     defs.forEach((d) => this.entryNTs.add(d));
     return this;
@@ -85,9 +89,15 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
    * define({ exp: [`A B`, `'xxx' B`] })
    * ```
    */
-  define(defs: Definition, ctxBuilder?: DefinitionContextBuilder<T>) {
-    this.data.push({ defs, ctxBuilder });
-    return this;
+  define<Append extends string>(
+    defs: Definition<Kinds | Append>,
+    ctxBuilder?: DefinitionContextBuilder<T, Kinds | Append>
+  ): IParserBuilder<T, Kinds | Append> {
+    (this.data as ParserBuilderData<T, Kinds | Append>).push({
+      defs,
+      ctxBuilder,
+    });
+    return this as IParserBuilder<T, Kinds | Append>;
   }
 
   /**
@@ -97,7 +107,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   private checkSymbols(
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
-    grs: GrammarRuleRepo<T>,
+    grs: GrammarRuleRepo<T, Kinds>,
     lexer: Readonly<ILexer<any, any>>,
     printAll: boolean
   ) {
@@ -151,8 +161,8 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  private buildDFA(
-    lexer: ILexer<any, any>,
+  private buildDFA<LexerKinds extends string>(
+    lexer: ILexer<any, LexerKinds>,
     printAll: boolean,
     options?: {
       debug?: boolean;
@@ -180,21 +190,21 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       allInitialCandidates,
       allStates,
       NTs,
-    } = DFABuilder.prepare<T>(
+    } = DFABuilder.prepare<T, Kinds>(
       repo,
       lexer,
       this.entryNTs,
       this.data,
       this.resolvedTemp
     );
-    const dfa = new DFA<T>(
+    const dfa = new DFA<T, Kinds | LexerKinds>(
       entryNTs,
-      entryState,
-      NTClosures,
+      entryState as State<T, Kinds | LexerKinds>,
+      NTClosures as Map<string, GrammarRule<T, Kinds | LexerKinds>[]>,
       firstSets,
       followSets,
-      allInitialCandidates,
-      allStates,
+      allInitialCandidates as Map<string, Candidate<T, Kinds | LexerKinds>>,
+      allStates as Map<string, State<T, Kinds | LexerKinds>>,
       this.cascadeQueryPrefix,
       options?.rollback ?? false,
       options?.reLex ?? true,
@@ -227,7 +237,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         r.options.next == "*"
           ? "*"
           : // TODO: use a dedicated lexer to parse next
-            defToTempGRs<T>({ "": r.options.next ?? "" })[0]?.rule.map((g) =>
+            defToTempGRs<T, Kinds>({
+              "": r.options.next ?? "",
+            } as Definition<Kinds>)[0]?.rule.map((g) =>
               g.toGrammar(repo, lexer, NTs.has(g.content))
             ) ?? [];
 
@@ -251,7 +263,10 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     };
   }
 
-  build(lexer: ILexer<any, any>, options?: BuildOptions) {
+  build<LexerKinds extends string>(
+    lexer: ILexer<any, LexerKinds>,
+    options?: BuildOptions
+  ) {
     const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
       options?.printAll ?? false,
@@ -276,10 +291,16 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
       options?.generateResolvers
     ) {
       // conflicts are stored in grs
-      getConflicts<T>(repo, this.entryNTs, grs, dfa, options?.debug);
+      getConflicts<T, Kinds>(
+        repo,
+        this.entryNTs,
+        grs,
+        dfa as any, // TODO
+        options?.debug
+      );
 
       // resolved conflicts are already stored in grs in this.buildDFA
-      const unresolved = getUnresolvedConflicts<T>(
+      const unresolved = getUnresolvedConflicts<T, Kinds>(
         grs,
         options?.debug ?? false
       );
@@ -288,10 +309,15 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
         this.generateResolvers(unresolved, options.generateResolvers);
 
       if (options?.checkAll || options?.checkConflicts)
-        this.checkConflicts(dfa, unresolved, grs, options?.printAll || false);
+        this.checkConflicts(
+          dfa as any, // TODO
+          unresolved,
+          grs,
+          options?.printAll || false
+        );
     }
 
-    return new Parser(dfa, lexer);
+    return new Parser<T, Kinds | LexerKinds>(dfa, lexer);
   }
 
   /**
@@ -301,9 +327,9 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
    * If `printAll` is true, print all conflicts instead of throwing error.
    */
   private checkConflicts(
-    dfa: DFA<T>,
-    unresolved: ReadonlyMap<GrammarRule<T>, Conflict<T>[]>,
-    grs: GrammarRuleRepo<T>,
+    dfa: DFA<T, Kinds>,
+    unresolved: ReadonlyMap<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>,
+    grs: GrammarRuleRepo<T, Kinds>,
     printAll: boolean
   ) {
     const followSets = dfa.followSets;
@@ -386,7 +412,7 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   private generateResolvers(
-    unresolved: Map<GrammarRule<T>, Conflict<T>[]>,
+    unresolved: Map<GrammarRule<T, Kinds>, Conflict<T, Kinds>[]>,
     style: "builder" | "context"
   ) {
     if (style == "builder") {
@@ -434,12 +460,12 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   resolveRS(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RS_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RS_ResolverOptions<T, Kinds>
   ) {
-    const reducerRules = defToTempGRs<T>(reducerRule);
-    const anotherRules = defToTempGRs<T>(anotherRule);
+    const reducerRules = defToTempGRs<T, Kinds>(reducerRule);
+    const anotherRules = defToTempGRs<T, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
         this.resolvedTemp.push({
@@ -454,12 +480,12 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
   }
 
   resolveRR(
-    reducerRule: Definition,
-    anotherRule: Definition,
-    options: RR_ResolverOptions<T>
+    reducerRule: Definition<Kinds>,
+    anotherRule: Definition<Kinds>,
+    options: RR_ResolverOptions<T, Kinds>
   ) {
-    const reducerRules = defToTempGRs<T>(reducerRule);
-    const anotherRules = defToTempGRs<T>(anotherRule);
+    const reducerRules = defToTempGRs<T, Kinds>(reducerRule);
+    const anotherRules = defToTempGRs<T, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
         this.resolvedTemp.push({
@@ -473,11 +499,13 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  use(f: BuilderDecorator<T>): this {
-    return f(this) as this;
+  use<Append extends string>(
+    f: BuilderDecorator<T, Kinds, Append>
+  ): IParserBuilder<T, Kinds | Append> {
+    return f(this);
   }
 
-  priority(...groups: (Definition | Definition[])[]) {
+  priority(...groups: (Definition<Kinds> | Definition<Kinds>[])[]) {
     // grammar rules with higher priority will always be reduced first
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
     groups.forEach((higherDefs, higherIndex) => {
@@ -540,14 +568,14 @@ export class ParserBuilder<T> implements IParserBuilder<T> {
     return this;
   }
 
-  leftSA(...defs: Definition[]) {
+  leftSA(...defs: Definition<Kinds>[]) {
     defs.forEach((def) => {
       this.resolveRS(def, def, { next: `*`, accept: true });
     });
     return this;
   }
 
-  rightSA(...defs: Definition[]) {
+  rightSA(...defs: Definition<Kinds>[]) {
     defs.forEach((def) => {
       this.resolveRS(def, def, { next: `*`, accept: false });
     });

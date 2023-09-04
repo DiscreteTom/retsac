@@ -28,7 +28,9 @@ export class LR_BuilderError extends Error {
     Object.setPrototypeOf(this, LR_BuilderError.prototype);
   }
 
-  static grammarRuleNotFound<T>(gr: TempGrammarRule<T>) {
+  static grammarRuleNotFound<T, Kinds extends string>(
+    gr: TempGrammarRule<T, Kinds>
+  ) {
     return new LR_BuilderError(
       "GRAMMAR_RULE_NOT_FOUND",
       `No such grammar rule: ${gr.toStringWithGrammarName()}`
@@ -42,7 +44,10 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static conflict<T>(reducerRule: GrammarRule<T>, c: Conflict<T>) {
+  static conflict<T, Kinds extends string>(
+    reducerRule: GrammarRule<T, Kinds>,
+    c: Conflict<T, Kinds>
+  ) {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
@@ -110,16 +115,18 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static tooManyEndHandler<T>(rule: GrammarRule<T>) {
+  static tooManyEndHandler<T, Kinds extends string>(
+    rule: GrammarRule<T, Kinds>
+  ) {
     return new LR_BuilderError(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
     );
   }
 
-  static noSuchConflict<T>(
-    reducerRule: GrammarRule<T>,
-    anotherRule: GrammarRule<T>,
+  static noSuchConflict<T, Kinds extends string>(
+    reducerRule: GrammarRule<T, Kinds>,
+    anotherRule: GrammarRule<T, Kinds>,
     type: ConflictType,
     next: Grammar[],
     handleEnd: boolean
@@ -136,7 +143,10 @@ export class LR_BuilderError extends Error {
     );
   }
 
-  static invalidLiteral<T>(literal: string, gr: GrammarRule<T>) {
+  static invalidLiteral<T, Kinds extends string>(
+    literal: string,
+    gr: GrammarRule<T, Kinds>
+  ) {
     return new LR_BuilderError(
       "INVALID_LITERAL",
       `Invalid literal: '${literal}' in rule ${gr.toString()}`
