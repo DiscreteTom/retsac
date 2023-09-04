@@ -12,6 +12,7 @@ import {
   GrammarType,
   GrammarRuleContext,
   Callback,
+  GrammarRepo,
 } from "../model";
 import { Candidate } from "./candidate";
 
@@ -37,13 +38,21 @@ export class State<ASTData, Kinds extends string> {
   }
 
   getNext(
+    repo: GrammarRepo,
     next: Readonly<ASTNode<any, any>>,
     NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds>[]>,
     allStates: Map<string, State<ASTData, Kinds>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<ASTData, Kinds>>
   ): { state: State<ASTData, Kinds> | null; changed: boolean } {
-    // node.name is not decided yet, so we don't need it here
-    const key = next.toString();
+    const key =
+      // for T/NT, we only need the kind & name to find the corresponding grammar
+      (repo.get({ kind: next.kind, name: next.name }) ??
+        // if not found, might be a literal, plus the text to find the corresponding grammar
+        repo.get({
+          kind: next.kind,
+          name: next.name,
+          text: next.text,
+        }))!.calculateCacheKey(next);
 
     // try to get from local cache
     const cache = this.nextMap.get(key);
@@ -57,10 +66,10 @@ export class State<ASTData, Kinds extends string> {
       .reduce((p, c) => {
         if (
           c.canDigestMore() &&
-          c.current.type == GrammarType.NT &&
-          !p.includes(c.current.kind)
+          c.current!.type == GrammarType.NT &&
+          !p.includes(c.current!.kind)
         )
-          p.push(c.current.kind);
+          p.push(c.current!.kind);
         return p;
       }, [] as string[]) // de-duplicated NT list
       .reduce((p, c) => {

@@ -2,7 +2,7 @@ import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput, rejectedParserOutput } from "../../model";
-import { GrammarRule, GrammarSet } from "../model";
+import { GrammarRepo, GrammarRule, GrammarSet } from "../model";
 import { ReLexStack, RollbackStack } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
@@ -37,6 +37,7 @@ export class DFA<ASTData, Kinds extends string> {
      * `State.toString => state` // TODO: StateRepo?
      */
     private readonly allStates: Map<string, State<ASTData, Kinds>>, // TODO: readonly?
+    private readonly repo: GrammarRepo,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -151,6 +152,7 @@ export class DFA<ASTData, Kinds extends string> {
       const nextStateResult = stateStack
         .at(-1)!
         .getNext(
+          this.repo,
           buffer[index],
           this.NTClosures,
           this.allStates,

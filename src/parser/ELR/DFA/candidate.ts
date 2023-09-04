@@ -11,6 +11,7 @@ import {
   GrammarSet,
   GrammarRuleContext,
   ConflictType,
+  Grammar,
 } from "../model";
 import { ASTNodeSelectorFactory, lexGrammar } from "./utils";
 
@@ -40,7 +41,7 @@ export class Candidate<ASTData, Kinds extends string> {
    * Current undigested grammar.
    * Use this to match the next node.
    */
-  get current() {
+  get current(): Grammar | undefined {
     return this.gr.rule[this.digested];
   }
 
@@ -54,8 +55,9 @@ export class Candidate<ASTData, Kinds extends string> {
    * Return `null` if the node can't be accepted or this can't digest more.
    */
   getNext(node: Readonly<ASTNode<any, any>>): Candidate<ASTData, Kinds> | null {
-    // node.name is not decided yet, so we don't need it here
-    const key = node.toString(); // TODO: when calculateAllState, this is `kind`. but in real parse, this may be `kind: text`
+    if (this.current == undefined) return null;
+
+    const key = this.current.calculateCacheKey(node);
 
     // try to get from cache
     const cache = this.nextMap.get(key);
@@ -152,7 +154,7 @@ export class Candidate<ASTData, Kinds extends string> {
     followSets: ReadonlyMap<string, GrammarSet>
   ): { node: ASTNode<ASTData, Kinds>; lexer: ILexer<any, any> }[] {
     if (this.canDigestMore()) {
-      const res = lexGrammar<ASTData, Kinds>(this.current, lexer);
+      const res = lexGrammar<ASTData, Kinds>(this.current!, lexer);
       if (res != null) return [res];
       else return [];
     }

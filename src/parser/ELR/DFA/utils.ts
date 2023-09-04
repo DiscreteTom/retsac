@@ -9,6 +9,7 @@ import { defToTempGRs } from "../builder/utils/definition";
 import {
   ConflictType,
   Grammar,
+  GrammarRepo,
   GrammarRule,
   GrammarRuleRepo,
   GrammarSet,
@@ -124,6 +125,7 @@ export function lexGrammar<ASTData, Kinds extends string>(
  * Calculate state machine's state transition map ahead of time and cache.
  */
 export function calculateAllStates<ASTData, Kinds extends string>(
+  repo: GrammarRepo,
   allGrammarRules: GrammarRuleRepo<ASTData, Kinds>,
   allStates: Map<string, State<ASTData, Kinds>>,
   NTClosures: Map<string, GrammarRule<ASTData, Kinds>[]>,
@@ -144,7 +146,7 @@ export function calculateAllStates<ASTData, Kinds extends string>(
     allStates.forEach((state) => {
       mockNodes.forEach((node) => {
         if (
-          state.getNext(node, NTClosures, allStates, allInitialCandidates)
+          state.getNext(repo, node, NTClosures, allStates, allInitialCandidates)
             .changed
         )
           changed = true;

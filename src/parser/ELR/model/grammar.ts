@@ -78,6 +78,25 @@ export class Grammar {
       return this.text == node.text && this.kind == node.kind;
     // if not, this.text is undefined but node.text maybe not. only check kind
     return this.kind == node.kind;
+    // IMPORTANT!
+    // if the logic of this function is changed
+    // remember to change the logic of calculateCacheKey
+  }
+
+  /**
+   * Generate a unique key for cache.
+   * This is used in `Candidate/State.getNext`.
+   */
+  calculateCacheKey(node: Pick<ASTNode<any, any>, "kind" | "text">): string {
+    // the logic of this function related to Grammar.match
+
+    // when current is literal, in Grammar.match we will check the kind and text
+    // so we need to use both kind and text to calculate cache key
+    if (this.type == GrammarType.LITERAL) {
+      return `${node.kind}:${node.text}`;
+    }
+    // when current is not literal, in Grammar.match we only check the kind
+    return node.kind;
   }
 
   /**

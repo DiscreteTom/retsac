@@ -208,6 +208,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         Candidate<ASTData, Kinds | LexerKinds>
       >,
       allStates as Map<string, State<ASTData, Kinds | LexerKinds>>,
+      repo,
       this.cascadeQueryPrefix,
       options?.rollback ?? false,
       options?.reLex ?? true,

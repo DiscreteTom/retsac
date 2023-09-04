@@ -125,7 +125,7 @@ export class DFABuilder {
       if (!changed) break;
     }
 
-    calculateAllStates(grs, allStates, NTClosures, allInitialCandidates);
+    calculateAllStates(repo, grs, allStates, NTClosures, allInitialCandidates);
 
     return {
       grs,
