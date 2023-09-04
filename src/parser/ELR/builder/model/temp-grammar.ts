@@ -29,7 +29,7 @@ export class TempGrammar {
   readonly name?: string;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
-    this.type == p.type;
+    this.type = p.type;
     this.content = p.content;
     this.name = p.name;
   }
