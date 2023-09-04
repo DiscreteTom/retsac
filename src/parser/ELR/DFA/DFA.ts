@@ -23,18 +23,18 @@ export class DFA<ASTData, Kinds extends string> {
      */
     public readonly firstSets: ReadonlyMap<string, GrammarSet>,
     /**
-     * `Grammar => Grammars` // TODO: which string?
+     * `NT => Grammars`
      */
     public readonly followSets: ReadonlyMap<string, GrammarSet>,
     /**
-     *  `string representation of candidate => candidate` // TODO: which string? CandidateRepo?
+     *  `Candidate.toStringWithGrammarName => candidate` // TODO: CandidateRepo?
      */
     private readonly allInitialCandidates: ReadonlyMap<
       string,
       Candidate<ASTData, Kinds>
     >,
     /**
-     * `string representation of state => state` // TODO: which string? StateRepo?
+     * `State.toString => state` // TODO: StateRepo?
      */
     private readonly allStates: Map<string, State<ASTData, Kinds>>, // TODO: readonly?
     private readonly cascadeQueryPrefix: string | undefined,
