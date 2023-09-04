@@ -55,7 +55,7 @@ export class Candidate<T, Kinds extends string> {
    */
   getNext(node: Readonly<ASTNode<any, any>>): Candidate<T, Kinds> | null {
     // node.name is not decided yet, so we don't need it here
-    const key = node.toString();
+    const key = node.toString(); // TODO: when calculateAllState, this is `kind`. but in real parse, this may be `kind: text`
 
     // try to get from cache
     const cache = this.nextMap.get(key);
