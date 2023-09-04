@@ -33,8 +33,7 @@ export function word<ErrorType = string>(
 /**
  * Define kinds which name is the same as its literal value.
  */
-// TODO: should `Kinds` be the last generic param instead of the first one?
-export function wordKind<Kinds extends string, ErrorType = string>(
+export function wordKind<ErrorType = string, Kinds extends string = never>(
   ...words: readonly Kinds[]
 ): {
   [kind in Kinds]: Action<ErrorType>;
