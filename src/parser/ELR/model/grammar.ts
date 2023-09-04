@@ -73,8 +73,11 @@ export class Grammar {
     // we don't need to check the name
     // because the name is set by the grammar after the grammar is matched
 
-    // if literal, check the text. if not, the text is undefined, so it's ok to directly check `this.text` and `node.text`
-    return this.text == node.text && this.kind == node.kind;
+    // if literal, check the text
+    if (this.type == GrammarType.LITERAL)
+      return this.text == node.text && this.kind == node.kind;
+    // if not, this.text is undefined but node.text maybe not. only check kind
+    return this.kind == node.kind;
   }
 
   /**
