@@ -26,6 +26,15 @@ test("lexer basic functions", () => {
   );
 });
 
+test("lex with peek", () => {
+  // peek does not consume input
+  lexer.reset().feed("123").lex({ peek: true });
+  expect(lexer.getRest()).toBe("123");
+  // by default peek is false
+  expect(lexer.reset().lex({ input: "123" })?.content).toBe("123");
+  expect(lexer.reset().lex("123")?.content).toBe("123");
+});
+
 test("trimStart", () => {
   // trim start
   expect(lexer.reset().trimStart("   123").getRest()).toBe("123");
