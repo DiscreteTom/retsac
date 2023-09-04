@@ -355,7 +355,7 @@ export class GrammarSet {
  */
 export class GrammarRepo {
   /**
-   * Grammars. `grammar's string => grammar`
+   * Grammars. `Grammar.toStringWithName => grammar`
    */
   private gs: Map<string, Grammar>;
 
@@ -363,8 +363,12 @@ export class GrammarRepo {
     this.gs = new Map();
   }
 
-  get(str: string) {
+  private getByString(str: string) {
     return this.gs.get(str);
+  }
+
+  get(data: Pick<Grammar, "kind" | "name" | "text">) {
+    return this.getByString(Grammar.getStringWithName(data));
   }
 
   /**
@@ -373,7 +377,7 @@ export class GrammarRepo {
   T(kind: string, name?: string) {
     name = name ?? kind;
     const str = Grammar.getStringWithName({ kind, name });
-    const res = this.get(str);
+    const res = this.getByString(str);
     if (res !== undefined) return res;
 
     const g = new Grammar({
@@ -392,7 +396,7 @@ export class GrammarRepo {
   NT(kind: string, name?: string) {
     name = name ?? kind;
     const str = Grammar.getStringWithName({ kind, name });
-    const res = this.get(str);
+    const res = this.getByString(str);
     if (res !== undefined) return res;
 
     const g = new Grammar({
@@ -411,7 +415,7 @@ export class GrammarRepo {
   Literal(text: string, kind: string, name?: string) {
     name = name ?? kind;
     const str = Grammar.getStringWithName({ kind, name, text });
-    const res = this.get(str);
+    const res = this.getByString(str);
     if (res !== undefined) return res;
 
     const g = new Grammar({
