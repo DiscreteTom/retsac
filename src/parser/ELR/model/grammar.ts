@@ -4,6 +4,7 @@ import { Conflict, ResolvedConflict } from "./conflict";
 import { Callback, Condition } from "./context";
 import { ruleEndsWith, ruleStartsWith } from "./util";
 
+// TODO: remove Literal? since literal must be a T
 export enum GrammarType {
   /**
    * Literal string.

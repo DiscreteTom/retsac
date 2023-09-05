@@ -54,6 +54,7 @@ export class Candidate<ASTData, Kinds extends string> {
    *
    * Return `null` if the node can't be accepted or this can't digest more.
    */
+  // TODO: split this into 2 functions? one for calculateAllStates, one for parse
   getNext(node: Readonly<ASTNode<any, any>>): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
@@ -275,6 +276,7 @@ export class Candidate<ASTData, Kinds extends string> {
 
       // check if any next grammar match the next token
       // no matter if it's RR or SR conflict
+      // TODO: what if reach EOF? make sure lex can still lex something
       if (
         r.next == "*" ||
         r.next.some(

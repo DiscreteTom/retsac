@@ -37,6 +37,7 @@ export class State<ASTData, Kinds extends string> {
     this.nextMap = new Map();
   }
 
+  // TODO: split this into 2 functions? one for calculateAllStates, one for parse
   getNext(
     repo: GrammarRepo,
     next: Readonly<ASTNode<any, any>>,
