@@ -76,7 +76,7 @@ export function defaultTraverser<ASTData, Kinds extends string>(
   }
 }
 
-// TODO: default T
+// TODO: default ASTData type?
 export class ASTNode<ASTData, Kinds extends string> {
   /**
    * T's or NT's kind name.
@@ -91,13 +91,14 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * T's text content.
    */
-  readonly text?: string; // TODO: use new-type pattern to make sure this is not undefined?
+  readonly text?: string;
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<ASTData, Kinds>[]; // TODO: use new-type pattern to make sure this is not undefined?
+  children?: readonly ASTNode<ASTData, Kinds>[];
   /**
-   * Parent must be an NT unless this node is a root node, in this case parent is undefined.
+   * Parent must be an NT node, or `undefined` if this node is a top level node.
+   * This is not readonly because it will be set by parent node.
    */
   parent?: ASTNode<ASTData, Kinds>;
   /**
@@ -113,11 +114,14 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
+   * Make this private to prevent users from using it by mistake.
    */
+  // TODO: remove this, just keep traverse, and init it in constructor
   private traverser: Traverser<ASTData, Kinds>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
+  // TODO: remove this, just keep name, and not readonly
   private _name: string;
 
   constructor(
@@ -194,6 +198,7 @@ export class ASTNode<ASTData, Kinds extends string> {
    * Format: `kind: text`.
    * This is lazy and cached.
    */
+  // TODO: rename this to `toStringWithoutName`, and add an intuitive toString
   toString() {
     return this.str ?? (this.str = ASTNode.getString(this));
   }
@@ -235,6 +240,7 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * Return an ASTObj for serialization.
    */
+  // TODO: rename to toSerializable
   toObj(): ASTObj {
     return {
       name: this.name,
