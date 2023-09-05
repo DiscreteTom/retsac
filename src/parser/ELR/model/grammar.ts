@@ -205,6 +205,19 @@ export class GrammarRule<ASTData, Kinds extends string> {
   commit?: Condition<ASTData, Kinds>;
   traverser?: Traverser<ASTData, Kinds>;
 
+  /**
+   * For debug output.
+   */
+  readonly str: StringCache;
+  /**
+   * Return ``{ NT: `grammar rules with name` }``.
+   */
+  readonly strWithGrammarName: StringCache;
+  /**
+   * Return ``{ NT: `grammar rules without name` }``.
+   */
+  readonly strWithoutGrammarName: StringCache;
+
   constructor(
     p: Pick<
       GrammarRule<ASTData, Kinds>,
@@ -226,6 +239,14 @@ export class GrammarRule<ASTData, Kinds extends string> {
     this.traverser = p.traverser;
     this.conflicts = [];
     this.resolved = [];
+
+    this.str = new StringCache(() => GrammarRule.getStrWithGrammarName(this));
+    this.strWithGrammarName = new StringCache(() =>
+      GrammarRule.getStrWithGrammarName(this)
+    );
+    this.strWithoutGrammarName = new StringCache(() =>
+      GrammarRule.getStrWithoutGrammarName(this)
+    );
   }
 
   /**
@@ -264,45 +285,29 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   /**
-   * Return the grammar string: ``{ NT: `grammar rules` }``.
-   * Grammar's name is NOT included.
-   * This is lazy and cached.
+   * @see GrammarRule.str
    */
   toString() {
-    return this.str ?? (this.str = GrammarRule.getString(this));
+    return this.str.value;
   }
-  private str?: string;
+
   /**
-   * Return ``{ NT: `grammar rules` }``.
-   * Grammar's name is NOT included.
+   * @see GrammarRule.strWithGrammarName
    */
-  static getString(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
+  static getStrWithGrammarName(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
-      .map((g) => g.toGrammarString())
+      .map((g) => g.grammarStrWithName.value)
       .join(" ")}\` }`;
   }
 
   /**
-   * Return the grammar string: ``{ NT: `grammar rules` }``.
-   * Grammar's name is included.
-   * This is lazy and cached.
+   * @see GrammarRule.strWithoutGrammarName
    */
-  toStringWithGrammarName() {
-    return (
-      this.strWithGrammarName ??
-      (this.strWithGrammarName = GrammarRule.getStringWithGrammarName(this))
-    );
-  }
-  private strWithGrammarName?: string;
-  /**
-   * Return ``{ NT: `grammar rules` }``.
-   * Grammar's name is included.
-   */
-  static getStringWithGrammarName(
+  static getStrWithoutGrammarName(
     gr: Pick<GrammarRule<any, any>, "NT" | "rule">
   ) {
     return `{ ${gr.NT}: \`${gr.rule
-      .map((g) => g.toGrammarStringWithName())
+      .map((g) => g.grammarStrWithoutName.value)
       .join(" ")}\` }`;
   }
 }
