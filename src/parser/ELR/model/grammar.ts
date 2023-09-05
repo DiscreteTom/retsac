@@ -237,7 +237,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
     this.conflicts = [];
     this.resolved = [];
 
-    this.str = new StringCache(() => GrammarRule.getStrWithGrammarName(this));
+    this.str = new StringCache(() => this.strWithGrammarName.value);
     this.strWithGrammarName = new StringCache(() =>
       GrammarRule.getStrWithGrammarName(this)
     );
