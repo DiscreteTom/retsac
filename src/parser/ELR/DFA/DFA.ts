@@ -2,7 +2,12 @@ import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
 import { ParserOutput, rejectedParserOutput } from "../../model";
-import { GrammarRepo, GrammarRule, GrammarSet } from "../model";
+import {
+  GrammarRepo,
+  GrammarRule,
+  GrammarRuleRepo,
+  GrammarSet,
+} from "../model";
 import { ReLexStack, RollbackStack } from "../model";
 import { Candidate } from "./candidate";
 import { State } from "./state";
@@ -12,6 +17,7 @@ import { State } from "./state";
  */
 export class DFA<ASTData, Kinds extends string> {
   constructor(
+    private readonly grs: GrammarRuleRepo<ASTData, Kinds>,
     private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<ASTData, Kinds>,
     private readonly NTClosures: ReadonlyMap<
@@ -216,5 +222,23 @@ export class DFA<ASTData, Kinds extends string> {
 
       // continue loop, try to digest more with the newly reduced buffer
     }
+  }
+
+  toSerializable() {
+    return {
+      grs: this.grs.toSerializable(),
+      entryNTs: [...this.entryNTs],
+      // entryState: this.entryState.toSerializable(),
+      // NTClosures: [...this.NTClosures].map(([k, v]) => [
+      firstSets: [...this.firstSets].map(([k, v]) => [k, v.toSerializable()]),
+      followSets: [...this.followSets].map(([k, v]) => [k, v.toSerializable()]),
+      // allInitialCandidates: [...this.allInitialCandidates].map(([k, v]) => [
+      // allStates:
+      repo: this.repo.toSerializable(),
+      cascadeQueryPrefix: this.cascadeQueryPrefix,
+      rollback: this.rollback,
+      reLex: this.reLex,
+      debug: this.debug,
+    };
   }
 }

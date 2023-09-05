@@ -176,6 +176,21 @@ export class Grammar {
       ? JSON.stringify(data.text) // quote text, escape literal
       : data.kind;
   }
+
+  toSerializable() {
+    return {
+      type: this.type,
+      kind: this.kind,
+      name: this.name,
+      text: this.text,
+      str: this.str.value,
+      cacheKeyWithoutName: this.cacheKeyWithoutName.value,
+      strWithName: this.strWithName.value,
+      strWithoutName: this.strWithoutName.value,
+      grammarStrWithName: this.grammarStrWithName,
+      grammarStrWithoutName: this.grammarStrWithoutName.value,
+    };
+  }
 }
 
 export class GrammarRule<ASTData, Kinds extends string> {
@@ -307,6 +322,29 @@ export class GrammarRule<ASTData, Kinds extends string> {
       .map((g) => g.grammarStrWithoutName.value)
       .join(" ")}\` }`;
   }
+
+  toSerializable() {
+    // TODO: type this
+    return {
+      key: this.strWithGrammarName.value,
+      NT: this.NT,
+      rule: this.rule.map((g) => g.toSerializable()),
+      conflicts: this.conflicts.map((c) => ({
+        type: c.type,
+        anotherRule: c.anotherRule.strWithGrammarName.value,
+        next: c.next.map((g) => g.toSerializable()),
+        handleEnd: c.handleEnd,
+        overlapped: c.overlapped,
+      })),
+      resolved: this.resolved.map((r) => ({
+        type: r.type,
+        anotherRule: r.anotherRule.strWithGrammarName.value,
+        handleEnd: r.handleEnd,
+        next: r.next == "*" ? "*" : r.next.map((g) => g.toSerializable()),
+        // accepter
+      })),
+    };
+  }
 }
 
 /**
@@ -356,6 +394,10 @@ export class GrammarSet {
       if (gs.has(g)) result.push(g);
     });
     return result;
+  }
+
+  toSerializable() {
+    return this.map((g) => g.toSerializable());
   }
 }
 
@@ -438,6 +480,11 @@ export class GrammarRepo {
     this.gs.set(str, g);
     return g;
   }
+
+  toSerializable() {
+    const result = [] as any[];
+    return this.gs.forEach((g) => result.push(g.toSerializable()));
+  }
 }
 
 /**
@@ -472,5 +519,9 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
       if (callback(gr)) res.push(gr);
     });
     return res;
+  }
+
+  toSerializable() {
+    return this.map((gr) => gr.toSerializable());
   }
 }

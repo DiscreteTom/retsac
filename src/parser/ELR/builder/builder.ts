@@ -198,6 +198,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       this.resolvedTemp
     );
     const dfa = new DFA<ASTData, Kinds | LexerKinds>(
+      grs as any, // TODO: better typing
       entryNTs,
       entryState as State<ASTData, Kinds | LexerKinds>,
       NTClosures as Map<string, GrammarRule<ASTData, Kinds | LexerKinds>[]>,
