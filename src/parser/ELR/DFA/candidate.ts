@@ -58,7 +58,7 @@ export class Candidate<ASTData, Kinds extends string> {
   getNext(node: Readonly<ASTNode<any, any>>): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
-    const key = this.current.calculateCacheKey(node);
+    const key = this.current.toCacheKeyWithoutName(node);
 
     // try to get from cache
     const cache = this.nextMap.get(key);

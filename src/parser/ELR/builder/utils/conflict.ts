@@ -76,7 +76,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
   });
   const unresolvedNext = resolveAll
     ? []
-    : next.filter((n) => !resolvedNext.some((rn) => n.eq(rn)));
+    : next.filter((n) => !resolvedNext.some((rn) => n.equalWithoutName(rn)));
 
   if (debug) {
     if (resolveAll)

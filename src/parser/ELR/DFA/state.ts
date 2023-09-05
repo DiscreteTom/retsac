@@ -45,15 +45,21 @@ export class State<ASTData, Kinds extends string> {
     allStates: Map<string, State<ASTData, Kinds>>,
     allInitialCandidates: ReadonlyMap<string, Candidate<ASTData, Kinds>>
   ): { state: State<ASTData, Kinds> | null; changed: boolean } {
-    const key =
-      // for T/NT, we only need the kind & name to find the corresponding grammar
-      (repo.get({ kind: next.kind, name: next.name }) ??
-        // if not found, might be a literal, plus the text to find the corresponding grammar
-        repo.get({
-          kind: next.kind,
-          name: next.name,
-          text: next.text,
-        }))!.calculateCacheKey(next);
+    const grammar =
+      repo.get({
+        // first, try to do an accurate match with text if text is provided.
+        // if the text is not provided, this will still always return a result.
+        kind: next.kind,
+        name: next.name,
+        text: next.text,
+      }) ??
+      repo.get({
+        // if the last match failed, means the text is provided but not matched.
+        // try to match without text.
+        kind: next.kind,
+        name: next.name,
+      })!; // this will always return a result
+    const key = grammar.toCacheKeyWithoutName();
 
     // try to get from local cache
     const cache = this.nextMap.get(key);

@@ -9,7 +9,7 @@ export function ruleStartsWith(
 ) {
   if (reducerRule.length > anotherRule.length) return false;
   for (let i = 0; i < reducerRule.length; i++) {
-    if (!reducerRule[i].eq(anotherRule[i])) return false;
+    if (!reducerRule[i].equalWithoutName(anotherRule[i])) return false;
   }
   return true;
 }
@@ -23,7 +23,8 @@ export function ruleEndsWith(
 ) {
   if (reducerRule.length < anotherRule.length) return false;
   for (let i = 0; i < anotherRule.length; i++) {
-    if (!reducerRule.at(-i - 1)!.eq(anotherRule.at(-i - 1)!)) return false;
+    if (!reducerRule.at(-i - 1)!.equalWithoutName(anotherRule.at(-i - 1)!))
+      return false;
   }
   return true;
 }
