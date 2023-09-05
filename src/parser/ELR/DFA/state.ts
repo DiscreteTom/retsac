@@ -59,7 +59,7 @@ export class State<ASTData, Kinds extends string> {
         kind: next.kind,
         name: next.name,
       })!; // this will always return a result
-    const key = grammar.toCacheKeyWithoutName();
+    const key = grammar.cacheKeyWithoutName.value;
 
     // try to get from local cache
     const cache = this.nextMap.get(key);
@@ -90,7 +90,7 @@ export class State<ASTData, Kinds extends string> {
           // get initial candidate from global cache
           // TODO: use CandidateRepo?
           allInitialCandidates.get(
-            Candidate.getStringWithGrammarName({ gr, digested: 0 })
+            Candidate.getStrWithGrammarName({ gr, digested: 0 })
           )!
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
@@ -134,7 +134,7 @@ export class State<ASTData, Kinds extends string> {
    */
   static getString(data: Pick<State<any, any>, "candidates">) {
     return data.candidates
-      .map((c) => c.toStringWithGrammarName())
+      .map((c) => c.strWithGrammarName.value)
       .sort()
       .join("\n");
   }

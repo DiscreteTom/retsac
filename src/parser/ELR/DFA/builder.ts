@@ -65,7 +65,7 @@ export class DFABuilder {
       (gr) =>
         // find candidate corresponding to the grammar rule
         allInitialCandidates.get(
-          Candidate.getStringWithGrammarName({ gr, digested: 0 })
+          Candidate.getStrWithGrammarName({ gr, digested: 0 })
         )!
     );
     const entryState = new State<ASTData, Kinds>(

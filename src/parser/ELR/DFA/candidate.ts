@@ -1,6 +1,7 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
+import { StringCache } from "../../cache";
 import {
   AcceptedParserOutput,
   RejectedParserOutput,
@@ -31,10 +32,25 @@ export class Candidate<ASTData, Kinds extends string> {
   // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<string, Candidate<ASTData, Kinds> | null>;
 
+  /**
+   * For debug output.
+   */
+  readonly str: StringCache;
+  /**
+   * Return `NT := ...before # ...after`.
+   * This is unique for each candidate.
+   */
+  readonly strWithGrammarName: StringCache;
+
   constructor(data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
     this.gr = data.gr;
     this.digested = data.digested;
     this.nextMap = new Map();
+
+    this.str = new StringCache(() => this.strWithGrammarName.value);
+    this.strWithGrammarName = new StringCache(() =>
+      Candidate.getStrWithGrammarName(this)
+    );
   }
 
   /**
@@ -55,10 +71,11 @@ export class Candidate<ASTData, Kinds extends string> {
    * Return `null` if the node can't be accepted or this can't digest more.
    */
   // TODO: split this into 2 functions? one for calculateAllStates, one for parse
+  // TODO: state can get grammar from ASTNode, check current == grammar to optimize performance
   getNext(node: Readonly<ASTNode<any, any>>): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
-    const key = this.current.toCacheKeyWithoutName(node);
+    const key = this.current.cacheKeyWithoutName.value;
 
     // try to get from cache
     const cache = this.nextMap.get(key);
@@ -77,59 +94,24 @@ export class Candidate<ASTData, Kinds extends string> {
   }
 
   /**
-   * Return `NT := ...before # ...after`.
-   * Grammar's name will NOT be used.
-   * The result will be cached for future use.
+   * @see Candidate.str
    */
   toString() {
-    return this.str ?? (this.str = Candidate.getString(this));
-  }
-  private str?: string;
-  /**
-   * Return `NT := ...before # ...after`.
-   * Grammar's name will NOT be used.
-   */
-  static getString<ASTData, Kinds extends string>(
-    data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">
-  ) {
-    return [
-      data.gr.NT,
-      ":=",
-      ...data.gr.rule.slice(0, data.digested).map((r) => r.toGrammarString()),
-      "#",
-      ...data.gr.rule.slice(data.digested).map((r) => r.toGrammarString()),
-    ].join(" ");
+    return this.str.value;
   }
 
   /**
-   * Return `NT := ...before # ...after`.
-   * Grammar's name will be used.
-   * This is unique for each candidate.
-   * The result will be cached for future use.
+   * @see Candidate.strWithGrammarName
    */
-  toStringWithGrammarName() {
-    return (
-      this.strWithGrammarName ??
-      (this.strWithGrammarName = Candidate.getStringWithGrammarName(this))
-    );
-  }
-  private strWithGrammarName?: string;
-  /**
-   * Return `NT := ...before # ...after`.
-   */
-  static getStringWithGrammarName<ASTData, Kinds extends string>(
+  static getStrWithGrammarName<ASTData, Kinds extends string>(
     data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">
   ) {
     return [
       data.gr.NT,
       ":=",
-      ...data.gr.rule
-        .slice(0, data.digested)
-        .map((r) => r.toGrammarStringWithName()),
+      ...data.gr.rule.slice(0, data.digested).map((r) => r.grammarStrWithName),
       "#",
-      ...data.gr.rule
-        .slice(data.digested)
-        .map((r) => r.toGrammarStringWithName()),
+      ...data.gr.rule.slice(data.digested).map((r) => r.grammarStrWithName),
     ].join(" ");
   }
 
@@ -235,7 +217,7 @@ export class Candidate<ASTData, Kinds extends string> {
           logger(
             // TODO: use callback
             // don't use context.after here to optimize performance
-            `[Follow Mismatch] ${this.gr.toStringWithGrammarName()} follow=${context.lexer.buffer.slice(
+            `[Follow Mismatch] ${this.gr} follow=${context.lexer.buffer.slice(
               context.lexer.digested,
               context.lexer.digested + 10 // only show first 10 chars
             )}`
@@ -262,9 +244,7 @@ export class Candidate<ASTData, Kinds extends string> {
                 : r.accepter)
             ) {
               rollbackNames();
-              logger(
-                `[Reject by Resolved Conflict] ${this.gr.toStringWithGrammarName()}`
-              );
+              logger(`[Reject by Resolved Conflict] ${this.gr}`);
               return rejectedParserOutput;
             }
             // else, accepted, continue
@@ -297,9 +277,7 @@ export class Candidate<ASTData, Kinds extends string> {
         ) {
           // reject
           rollbackNames();
-          logger(
-            `[Reject by Resolved Conflict] ${this.gr.toStringWithGrammarName()}`
-          );
+          logger(`[Reject by Resolved Conflict] ${this.gr}`);
           return rejectedParserOutput;
         }
         // else, accepted, continue
@@ -309,7 +287,7 @@ export class Candidate<ASTData, Kinds extends string> {
 
     // check rejecter
     if (this.gr.rejecter?.(context) ?? false) {
-      logger(`[Reject] ${this.gr.toStringWithGrammarName()}`);
+      logger(`[Reject] ${this.gr}`);
       rollbackNames();
       return rejectedParserOutput;
     }
@@ -326,7 +304,7 @@ export class Candidate<ASTData, Kinds extends string> {
       selector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
-    logger(`[Accept] ${this.gr.toStringWithGrammarName()}`);
+    logger(`[Accept] ${this.gr}`);
 
     return {
       accept: true,
