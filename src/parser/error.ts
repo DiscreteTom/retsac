@@ -18,7 +18,7 @@ export class InvalidTraverseError<
   constructor(public node: ASTNode<ASTData, Kinds>) {
     super(
       "INVALID_TRAVERSE",
-      `Traversing a T is invalid. Consider defining a traverser for it's parent. Current: \`${node.toStringWithName()}\`, parent: \`${node.parent!.toStringWithName()}\`.`
+      `Traversing a T is invalid. Consider defining a traverser for it's parent. Current: \`${node}\`, parent: \`${node.parent}\`.`
     );
     Object.setPrototypeOf(this, InvalidTraverseError.prototype);
   }

@@ -27,8 +27,9 @@ export class DFA<ASTData, Kinds extends string> {
      */
     public readonly followSets: ReadonlyMap<string, GrammarSet>,
     /**
-     *  `Candidate.toStringWithGrammarName => candidate` // TODO: CandidateRepo?
+     *  {@link Candidate.strWithGrammarName} => candidate
      */
+    // TODO: CandidateRepo?
     private readonly allInitialCandidates: ReadonlyMap<
       string,
       Candidate<ASTData, Kinds>
@@ -103,7 +104,7 @@ export class DFA<ASTData, Kinds extends string> {
           // restored input
           state.buffer.at(-1)!.text +
           state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested)
-        }" Trying: ${buffer.at(-1)!.toStringWithName()}`
+        }" Trying: ${buffer.at(-1)}`
       );
     };
 
@@ -166,9 +167,9 @@ export class DFA<ASTData, Kinds extends string> {
         } else {
           // no more candidate can be constructed, parsing failed
           this.log(
-            `[End] No more candidate. Node=${buffer
-              .at(-1)
-              ?.toStringWithName()} Candidates:\n${stateStack.at(-1)!.str}`
+            `[End] No more candidate. Node=${buffer.at(-1)} Candidates:\n${
+              stateStack.at(-1)!.str
+            }`
           );
           return { output: rejectedParserOutput, lexer };
         }

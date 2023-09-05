@@ -139,7 +139,7 @@ export function calculateAllStates<ASTData, Kinds extends string>(
     });
   });
   // convert to mock AST node
-  const mockNodes = gs.map((g) => g.toMockASTNode());
+  const mockNodes = gs.map((g) => g.mockNode.value);
 
   while (true) {
     let changed = false;

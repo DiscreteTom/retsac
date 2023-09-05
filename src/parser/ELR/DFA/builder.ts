@@ -54,7 +54,7 @@ export class DFABuilder {
     const allInitialCandidates = new Map<string, Candidate<ASTData, Kinds>>();
     grs.grammarRules.forEach((gr) => {
       const c = new Candidate<ASTData, Kinds>({ gr, digested: 0 });
-      allInitialCandidates.set(c.toStringWithGrammarName(), c);
+      allInitialCandidates.set(c.strWithGrammarName.value, c);
     });
 
     const entryCandidates = getGrammarRulesClosure(

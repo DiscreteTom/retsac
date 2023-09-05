@@ -114,7 +114,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     // all grammar symbols should have its definition, either in NTs or Ts
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g) => {
-        if (g.type != GrammarType.LITERAL) {
+        if (g.text == undefined) {
           // N/NT
           if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
             const e = LR_BuilderError.unknownGrammar(g.kind);
@@ -148,7 +148,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     lexer = lexer.dryClone();
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((grammar) => {
-        if (grammar.type == GrammarType.LITERAL) {
+        if (grammar.text != undefined) {
           if (lexer.reset().lex(grammar.text!) == null) {
             const e = LR_BuilderError.invalidLiteral(grammar.text!, gr);
             if (printAll) console.log(e.message);
@@ -427,12 +427,12 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         const txt = v
           .map(
             (c) =>
-              `.resolve${
-                c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-              }(${reducerRule.toStringWithGrammarName()}, ${c.anotherRule.toStringWithGrammarName()}, { ${
+              `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
+                reducerRule.strWithGrammarName.value
+              }, ${c.anotherRule.strWithGrammarName.value}, { ${
                 c.next.length > 0
                   ? `next: \`${(c.next as Grammar[])
-                      .map((g) => g.toStringWithName()) // TODO: change this to toGrammarString?
+                      .map((g) => g.grammarStrWithName)
                       .join(" ")}\`, `
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
@@ -443,16 +443,16 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     } else {
       unresolved.forEach((v, k) => {
         const txt =
-          `=== ${k.toStringWithGrammarName()} ===\nLR` +
+          `=== ${k} ===\nLR` +
           v
             .map(
               (c) =>
-                `.resolve${
-                  c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-                }(${c.anotherRule.toStringWithGrammarName()}, { ${
+                `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
+                  c.anotherRule.strWithGrammarName.value
+                }, { ${
                   c.next.length > 0
                     ? `next: \`${(c.next as Grammar[])
-                        .map((g) => g.toStringWithName()) // TODO: change this to toGrammarString?
+                        .map((g) => g.grammarStrWithName)
                         .join(" ")}\`, `
                     : ""
                 }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`

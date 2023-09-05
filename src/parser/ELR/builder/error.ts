@@ -40,7 +40,7 @@ export class LR_BuilderError extends Error {
   static nextGrammarNotFound(next: Grammar, NT: string) {
     return new LR_BuilderError(
       "NEXT_GRAMMAR_NOT_FOUND",
-      `Next grammar ${next.toStringWithName()} not in follow set of ${NT}`
+      `Next grammar ${next} not in follow set of ${NT}`
     );
   }
 
@@ -54,7 +54,7 @@ export class LR_BuilderError extends Error {
         ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${(
             c.next as Grammar[]
           )
-            .map((g) => g.toStringWithName())
+            .map((g) => g.toString())
             .join(
               " "
             )}\`): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
@@ -62,7 +62,7 @@ export class LR_BuilderError extends Error {
             (c.handleEnd ? "end of input" : "") +
             (c.next.length > 0
               ? `${c.handleEnd ? ", " : ""}next: \`${(c.next as Grammar[])
-                  .map((g) => g.toStringWithName())
+                  .map((g) => g.toString())
                   .join(" ")}\``
               : "")
           }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
@@ -137,7 +137,7 @@ export class LR_BuilderError extends Error {
         type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
       } conflict: ${reducerRule.toString()} | ${anotherRule.toString()}` +
         (next.length > 0
-          ? ` next: ${next.map((n) => n.toStringWithName()).join(",")}`
+          ? ` next: ${next.map((n) => n.toString()).join(",")}`
           : "") +
         (handleEnd ? " end of input" : "")
     );
