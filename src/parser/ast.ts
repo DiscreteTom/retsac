@@ -1,4 +1,5 @@
 import { Token } from "../lexer";
+import { StringCache } from "./cache";
 import { InvalidTraverseError } from "./error";
 
 /**
@@ -121,8 +122,21 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
-  // TODO: remove this, just keep name, and not readonly
   private _name: string;
+
+  /**
+   * For debug output.
+   */
+  readonly str: StringCache;
+  /**
+   * Format: `kind(name): text`.
+   * This value will be changed if you change the name of this node.
+   */
+  readonly strWithName: StringCache;
+  /**
+   * Format: `kind: text`.
+   */
+  readonly strWithoutName: StringCache;
 
   constructor(
     p: Pick<
@@ -144,7 +158,19 @@ export class ASTNode<ASTData, Kinds extends string> {
     this.traverser = p.traverser ?? defaultTraverser;
     const selector = p.selector ?? mockASTNodeSelector;
     this.$ = (name: string) => selector(name, this.children ?? []);
-    // this.str = undefined;
+
+    this.str = new StringCache(
+      () =>
+        `ASTNode({ kind: "${this.kind}", start: ${
+          this.start
+        }, text: ${JSON.stringify(this.text)}, data: ${JSON.stringify(
+          this.data
+        )}, error: ${JSON.stringify(this.error)} })`
+    );
+    this.strWithName = new StringCache(() => ASTNode.getStrWithName(this));
+    this.strWithoutName = new StringCache(() =>
+      ASTNode.getStrWithoutName(this)
+    );
   }
 
   static from<ASTData, Kinds extends string>(t: Readonly<Token<any, Kinds>>) {
@@ -165,7 +191,7 @@ export class ASTNode<ASTData, Kinds extends string> {
 
   set name(name: string) {
     this._name = name;
-    this.strWithName = undefined; // clear the cache
+    this.strWithName.reset(); // clear the cache
   }
 
   /**
@@ -195,44 +221,31 @@ export class ASTNode<ASTData, Kinds extends string> {
   }
 
   /**
-   * Format: `kind: text`.
-   * This is lazy and cached.
+   * @see ASTNode.str
    */
-  // TODO: rename this to `toStringWithoutName`, and add an intuitive toString
   toString() {
-    return this.str ?? (this.str = ASTNode.getString(this));
-  }
-  private str?: string;
-  /**
-   * Format: `kind: text`.
-   */
-  static getString(data: Pick<ASTNode<any, any>, "kind" | "text">) {
-    return (
-      `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
-    );
+    return this.str.value;
   }
 
   /**
-   * Format: `kind(name): text`.
-   * The result is lazy and cached.
-   * This value will be changed if you change the name of this node.
+   * @see ASTNode.strWithName
    */
-  toStringWithName() {
-    return (
-      this.strWithName ?? (this.strWithName = ASTNode.getStringWithName(this))
-    );
-  }
-  private strWithName?: string;
-  /**
-   * Format: `kind(name): text`.
-   */
-  static getStringWithName(
+  static getStrWithName(
     data: Pick<ASTNode<any, any>, "kind" | "name" | "text">
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.name == data.kind ? "" : `(${data.name})`}` +
+      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
+    );
+  }
+
+  /**
+   * @see ASTNode.strWithoutName
+   */
+  static getStrWithoutName(data: Pick<ASTNode<any, any>, "kind" | "text">) {
+    return (
+      `${data.kind == "" ? "<anonymous>" : data.kind}` +
       `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
