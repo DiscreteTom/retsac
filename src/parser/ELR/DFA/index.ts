@@ -1,4 +1,4 @@
-export { DFA } from "./DFA";
-export { State } from "./state";
-export { Candidate } from "./candidate";
-export { DFABuilder } from "./builder";
+export * from "./DFA";
+export * from "./state";
+export * from "./candidate";
+export * from "./builder";
