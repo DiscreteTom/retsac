@@ -324,9 +324,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   toSerializable() {
-    // TODO: type this
     return {
-      key: this.strWithGrammarName.value,
       NT: this.NT,
       rule: this.rule.map((g) => g.toSerializable()),
       conflicts: this.conflicts.map((c) => ({
@@ -343,6 +341,9 @@ export class GrammarRule<ASTData, Kinds extends string> {
         next: r.next == "*" ? "*" : r.next.map((g) => g.toSerializable()),
         // accepter
       })),
+      str: this.str.value,
+      strWithGrammarName: this.strWithGrammarName.value,
+      strWithoutGrammarName: this.strWithoutGrammarName.value,
     };
   }
 }
