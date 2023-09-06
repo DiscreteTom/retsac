@@ -1,4 +1,6 @@
+import { readFileSync } from "fs";
 import { Lexer, ELR } from "../../src";
+import { SerializableParserData } from "../../src/parser/ELR";
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
@@ -8,7 +10,17 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()"))
   .build();
 
-export const parser = new ELR.ParserBuilder<number>()
+const cache = (() => {
+  try {
+    return JSON.parse(
+      readFileSync("./example/calculator/dfa.json", "utf8")
+    ) as SerializableParserData;
+  } catch {
+    return undefined;
+  }
+})();
+
+const builder = new ELR.ParserBuilder<number>()
   .entry("exp")
   .define(
     { exp: "number" },
@@ -49,5 +61,12 @@ export const parser = new ELR.ParserBuilder<number>()
     { exp: `exp '/' exp` },
     { exp: `exp '+' exp` },
     { exp: `exp '-' exp` }
-  )
-  .build(lexer, { checkAll: true });
+  );
+
+export const parser = builder.build(lexer, {
+  checkAll: true,
+  hydrate: cache,
+  serialize: true,
+});
+
+export const serializable = builder.serializable;
