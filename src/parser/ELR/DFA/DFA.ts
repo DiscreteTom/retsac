@@ -226,19 +226,25 @@ export class DFA<ASTData, Kinds extends string> {
 
   toSerializable() {
     return {
-      grs: this.grs.toSerializable(),
+      grs: this.grs.toSerializable(this.repo),
       entryNTs: [...this.entryNTs],
       // entryState: this.entryState.toSerializable(),
       // NTClosures: [...this.NTClosures].map(([k, v]) => [
-      firstSets: [...this.firstSets].map(([k, v]) => [k, v.toSerializable()]),
-      followSets: [...this.followSets].map(([k, v]) => [k, v.toSerializable()]),
+      firstSets: this.sets2obj(this.firstSets),
+      followSets: this.sets2obj(this.followSets),
       // allInitialCandidates: [...this.allInitialCandidates].map(([k, v]) => [
       // allStates:
       repo: this.repo.toSerializable(),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
-      rollback: this.rollback,
-      reLex: this.reLex,
-      debug: this.debug,
     };
+  }
+
+  /**
+   * Transform first sets or follow sets to a serializable object.
+   */
+  private sets2obj(map: ReadonlyMap<string, GrammarSet>) {
+    const obj = {} as { [key: string]: string[] };
+    map.forEach((v, k) => (obj[k] = v.toSerializable(this.repo)));
+    return obj;
   }
 }

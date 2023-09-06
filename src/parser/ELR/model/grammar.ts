@@ -323,22 +323,23 @@ export class GrammarRule<ASTData, Kinds extends string> {
       .join(" ")}\` }`;
   }
 
-  toSerializable() {
+  // TODO: type this
+  toSerializable(repo: GrammarRepo, grs: GrammarRuleRepo<any, any>): any {
     return {
       NT: this.NT,
-      rule: this.rule.map((g) => g.toSerializable()),
+      rule: this.rule.map((g) => repo.getKey(g)),
       conflicts: this.conflicts.map((c) => ({
         type: c.type,
-        anotherRule: c.anotherRule.strWithGrammarName.value,
-        next: c.next.map((g) => g.toSerializable()),
+        anotherRule: grs.getKey(c.anotherRule),
+        next: c.next.map((g) => repo.getKey(g)),
         handleEnd: c.handleEnd,
         overlapped: c.overlapped,
       })),
       resolved: this.resolved.map((r) => ({
         type: r.type,
-        anotherRule: r.anotherRule.strWithGrammarName.value,
+        anotherRule: grs.getKey(r.anotherRule),
         handleEnd: r.handleEnd,
-        next: r.next == "*" ? "*" : r.next.map((g) => g.toSerializable()),
+        next: r.next == "*" ? "*" : r.next.map((g) => repo.getKey(g)),
         // accepter
       })),
       str: this.str.value,
@@ -397,8 +398,8 @@ export class GrammarSet {
     return result;
   }
 
-  toSerializable() {
-    return this.map((g) => g.toSerializable());
+  toSerializable(repo: GrammarRepo) {
+    return this.map((g) => repo.getKey(g));
   }
 }
 
@@ -420,8 +421,13 @@ export class GrammarRepo {
     return this.gs.get(str);
   }
 
+  getKey(data: Pick<Grammar, "kind" | "name" | "text">) {
+    if (data instanceof Grammar) return data.grammarStrWithName;
+    return Grammar.getGrammarStrWithName(data);
+  }
+
   get(data: Pick<Grammar, "kind" | "name" | "text">) {
-    return this.getByString(Grammar.getGrammarStrWithName(data));
+    return this.getByString(this.getKey(data));
   }
 
   /**
@@ -504,6 +510,10 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     this.grammarRules = map;
   }
 
+  getKey(gr: GrammarRule<any, any>): string {
+    return gr.strWithGrammarName.value;
+  }
+
   get(gr: TempGrammarRule<any, any>) {
     return this.grammarRules.get(gr.toStringWithGrammarName());
   }
@@ -522,7 +532,7 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     return res;
   }
 
-  toSerializable() {
-    return this.map((gr) => gr.toSerializable());
+  toSerializable(repo: GrammarRepo) {
+    return this.map((gr) => gr.toSerializable(repo, this));
   }
 }
