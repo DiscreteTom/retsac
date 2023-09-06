@@ -145,6 +145,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
 
     // all literals must be able to be tokenized by lexer
     // TODO: is this already checked when GrammarRepo create the grammar?
+    // TODO: allow un-lexable literal, use anonymous type?
     lexer = lexer.dryClone();
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((grammar) => {

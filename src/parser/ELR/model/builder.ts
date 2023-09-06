@@ -6,6 +6,7 @@ import {
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
+import { Parser } from "../parser";
 
 export type BuildOptions = Partial<
   Pick<IParser<any, any>, "logger" | "debug">
@@ -14,39 +15,40 @@ export type BuildOptions = Partial<
    * Which format to generate resolvers.
    * If `undefined`, resolvers will not be generated.
    *
-   * Default: `undefined`.
+   * @default undefined
    */
   generateResolvers?: "builder" | "context";
   /**
-   * If `printAll` is true, print all errors instead of throwing errors.
-   *
-   * Default: `false`.
+   * If `true`, print all errors instead of throwing errors.
+   * @default false
    */
   printAll?: boolean;
   /**
-   * Default: `false`.
+   * @default false
    */
   checkSymbols?: boolean;
   /**
-   * Default: `false`.
+   * @default false
    */
   checkConflicts?: boolean;
   /**
-   * Short for `checkSymbols` and `checkConflicts`.
-   *
-   * Default: `false`.
+   * Short for {@link BuildOptions.checkSymbols} `&&` {@link BuildOptions.checkConflicts} `&&` {@link BuildOptions.checkRollback}.
+   * @default false
    */
   checkAll?: boolean;
   /**
-   * If `true`, the `rollback` in `DefinitionContextBuilder` will be used.
-   *
-   * Default: `false` to optimize performance.
+   * If `true`, {@link DefinitionContextBuilder.rollback} will be effective.
+   * @default false to optimize performance.
    */
   rollback?: boolean;
   /**
+   * If `true`, check if you defined rollback actions but {@link BuildOptions.rollback} is `false`.
+   * @default false
+   */
+  checkRollback?: boolean;
+  /**
    * If `true`, the parser will try to re-lex the input.
-   *
-   * Default: `true`.
+   * @default true
    */
   reLex?: boolean;
 };
@@ -68,7 +70,7 @@ export interface IParserBuilder<ASTData, Kinds extends string> {
     ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append>
   ): IParserBuilder<ASTData, Kinds | Append>;
   /**
-   * Generate the ELR parser.
+   * Generate the {@link Parser ELR Parser}.
    */
   build<LexerKinds extends string>(
     lexer: ILexer<any, LexerKinds>,

@@ -221,14 +221,14 @@ export class ASTNode<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see ASTNode.str
+   * @see {@link ASTNode.str}
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see ASTNode.strWithName
+   * @see {@link ASTNode.strWithName}
    */
   static getStrWithName(
     data: Pick<ASTNode<any, any>, "kind" | "name" | "text">
@@ -241,7 +241,7 @@ export class ASTNode<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see ASTNode.strWithoutName
+   * @see {@link ASTNode.strWithoutName}
    */
   static getStrWithoutName(data: Pick<ASTNode<any, any>, "kind" | "text">) {
     return (

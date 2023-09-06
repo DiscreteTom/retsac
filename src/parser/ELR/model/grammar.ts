@@ -46,11 +46,11 @@ export class Grammar {
   // TODO: rename this to some `nodeMatcher`?
   readonly cacheKeyWithoutName: StringCache;
   /**
-   * @see ASTNode.strWithName
+   * @see {@link ASTNode.strWithName}
    */
   readonly strWithName: StringCache;
   /**
-   * @see ASTNode.strWithoutName
+   * @see {@link ASTNode.strWithoutName}
    */
   readonly strWithoutName: StringCache;
   /**
@@ -136,14 +136,14 @@ export class Grammar {
   }
 
   /**
-   * @see Grammar.str
+   * @see {@link Grammar.str}
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see Grammar.cacheKeyWithoutName
+   * @see {@link Grammar.cacheKeyWithoutName}
    */
   static getCacheKeyWithoutName(data: Pick<Grammar, "kind" | "text">): string {
     // when current is literal, in Grammar.match we will check the kind and text
@@ -158,7 +158,7 @@ export class Grammar {
   }
 
   /**
-   * @see Grammar.grammarStrWithName
+   * @see {@link Grammar.grammarStrWithName}
    */
   static getGrammarStrWithName(data: Pick<Grammar, "kind" | "name" | "text">) {
     return (
@@ -169,7 +169,7 @@ export class Grammar {
   }
 
   /**
-   * @see Grammar.grammarStrWithoutName
+   * @see {@link Grammar.grammarStrWithoutName}
    */
   static getGrammarStrWithoutName(data: Pick<Grammar, "kind" | "text">) {
     return data.text != undefined
@@ -297,14 +297,14 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see GrammarRule.str
+   * @see {@link GrammarRule.str}
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see GrammarRule.strWithGrammarName
+   * @see {@link GrammarRule.strWithGrammarName}
    */
   static getStrWithGrammarName(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
@@ -313,7 +313,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see GrammarRule.strWithoutGrammarName
+   * @see {@link GrammarRule.strWithoutGrammarName}
    */
   static getStrWithoutGrammarName(
     gr: Pick<GrammarRule<any, any>, "NT" | "rule">

@@ -94,14 +94,14 @@ export class Candidate<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see Candidate.str
+   * @see {@link Candidate.str}
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see Candidate.strWithGrammarName
+   * @see {@link Candidate.strWithGrammarName}
    */
   static getStrWithGrammarName<ASTData, Kinds extends string>(
     data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">

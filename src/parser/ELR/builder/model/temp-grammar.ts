@@ -46,6 +46,7 @@ export class TempGrammar {
       const token = lexer.dryClone().lex(this.content);
       if (token == null) {
         // TODO: printAll
+        // TODO: for un-lexable literal, use anonymous type?
         throw new Error(`Can't lex literal \`${this.content}\``);
       }
       return repo.Literal(this.content, token.kind, this.name);
