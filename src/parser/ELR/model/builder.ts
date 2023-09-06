@@ -51,6 +51,16 @@ export type BuildOptions = Partial<
    * @default true
    */
   reLex?: boolean;
+  /**
+   * If `true` and the build is successful, {@link IParserBuilder.serializable} will be set.
+   * @default false
+   */
+  serialize?: boolean;
+  /**
+   * If provided and valid, the parser will be hydrated from this data.
+   * The value is always checked to make sure it's valid.
+   */
+  hydrate?: SerializableParserData;
 };
 
 export interface IParserBuilder<ASTData, Kinds extends string> {
@@ -127,6 +137,21 @@ export interface IParserBuilder<ASTData, Kinds extends string> {
    * ```
    */
   rightSA(...defs: Definition<Kinds>[]): this;
+  /**
+   * If you build the parser with {@link BuildOptions.serialize},
+   * this property will be set to the serializable object.
+   */
+  get serializable(): Readonly<SerializableParserData> | undefined;
+  // /**
+  //  * Restore the parser from a serializable object.
+  //  */
+  // hydrate(
+  //   data: SerializableParserData,
+  //   options?: Pick<
+  //     BuildOptions,
+  //     "debug" | "logger" | "printAll" | "reLex" | "rollback"
+  //   >
+  // ): ReturnType<this["build"]>;
 }
 
 export type BuilderDecorator<
@@ -136,3 +161,15 @@ export type BuilderDecorator<
 > = (
   pb: IParserBuilder<ASTData, Kinds>
 ) => IParserBuilder<ASTData, Kinds | Append>; // return `this`
+
+/**
+ * Used to store the parser to a serializable object.
+ */
+export type SerializableParserData = {
+  /**
+   * The meta data for hydrating the parser.
+   * If meta data mismatch, the parser builder will reject to hydrate.
+   */
+  // meta: string; // do we need to check meta?
+  data: { [key: string]: any }; // TODO: type this
+};

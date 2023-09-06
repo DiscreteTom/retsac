@@ -113,6 +113,7 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
    * Grammar's name is included.
    * This should yield the same output format as `GrammarRule.toStringWithGrammarName`.
    */
+  // TODO: cache?
   toStringWithGrammarName() {
     return `{ ${this.NT}: \`${this.rule
       .map((g) => g.toGrammarStringWithName())

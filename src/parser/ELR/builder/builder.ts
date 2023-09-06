@@ -6,9 +6,9 @@ import {
   IParserBuilder,
   Conflict,
   ConflictType,
-  GrammarType,
   GrammarRepo,
   GrammarRuleRepo,
+  SerializableParserData,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -52,6 +52,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
    * You can also customize this.
    */
   private readonly cascadeQueryPrefix?: string;
+  private _serializable?: SerializableParserData;
 
   constructor(options?: {
     /**
@@ -273,6 +274,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
   ) {
+    // TODO: hydrate
+
     const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
       options?.printAll ?? false,
@@ -324,6 +327,11 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     }
 
     // TODO: check rollback
+
+    // TODO: serialize
+    if (options?.serialize ?? false) {
+      this._serializable = this.buildSerializable(dfa);
+    }
 
     return new Parser<ASTData, Kinds | LexerKinds>(dfa, lexer);
   }
@@ -591,5 +599,28 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       this.resolveRS(def, def, { next: `*`, accept: false });
     });
     return this;
+  }
+
+  // TODO: type this
+  private buildSerializable(dfa: DFA<ASTData, any>): SerializableParserData {
+    return {
+      // meta: JSON.stringify({
+      //   data: this.data.map((d) => ({
+      //     defs: d.defs,
+      //   })),
+      //   entryNTs: [...this.entryNTs],
+      //   resolvedTemp: this.resolvedTemp.map((r) => ({
+      //     reducerRule: r.reducerRule.toStringWithGrammarName(),
+      //     anotherRule: r.anotherRule.toStringWithGrammarName(),
+      //     type: r.type,
+      //   })),
+      //   cascadeQueryPrefix: this.cascadeQueryPrefix,
+      // }),
+      data: { dfa: dfa.toSerializable() },
+    };
+  }
+
+  get serializable(): Readonly<SerializableParserData> | undefined {
+    return this._serializable;
   }
 }
