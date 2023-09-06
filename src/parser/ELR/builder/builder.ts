@@ -323,6 +323,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         );
     }
 
+    // TODO: check rollback
+
     return new Parser<ASTData, Kinds | LexerKinds>(dfa, lexer);
   }
 
