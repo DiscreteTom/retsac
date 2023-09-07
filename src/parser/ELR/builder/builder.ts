@@ -189,7 +189,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       NTClosures,
       firstSets,
       followSets,
-      allInitialCandidates,
+      cs,
       allStates,
       NTs,
     } = DFABuilder.prepare<ASTData, Kinds>(
@@ -206,11 +206,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       NTClosures as Map<string, GrammarRule<ASTData, Kinds | LexerKinds>[]>,
       firstSets,
       followSets,
-      allInitialCandidates as Map<
-        string,
-        Candidate<ASTData, Kinds | LexerKinds>
-      >,
-      allStates as Map<string, State<ASTData, Kinds | LexerKinds>>,
+      cs as any, // TODO: type this
+      allStates as any, // TODO type this
       repo,
       this.cascadeQueryPrefix,
       options?.rollback ?? false,

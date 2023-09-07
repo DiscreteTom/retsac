@@ -9,8 +9,9 @@ import {
   GrammarSet,
 } from "../model";
 import { ReLexStack, RollbackStack } from "../model";
-import { Candidate } from "./candidate";
-import { State } from "./state";
+import { CandidateRepo } from "./candidate";
+import { State, StateRepo } from "./state";
+import { map2serializable } from "./utils";
 
 /**
  * DFA for ELR parsers. Stateless.
@@ -32,18 +33,8 @@ export class DFA<ASTData, Kinds extends string> {
      * `NT => Grammars`
      */
     public readonly followSets: ReadonlyMap<string, GrammarSet>,
-    /**
-     *  {@link Candidate.strWithGrammarName} => candidate
-     */
-    // TODO: CandidateRepo?
-    private readonly allInitialCandidates: ReadonlyMap<
-      string,
-      Candidate<ASTData, Kinds>
-    >,
-    /**
-     * `State.toString => state` // TODO: StateRepo?
-     */
-    private readonly allStates: Map<string, State<ASTData, Kinds>>, // TODO: readonly?
+    private readonly cs: CandidateRepo<ASTData, Kinds>,
+    private readonly allStates: StateRepo<ASTData, Kinds>, // TODO: readonly?
     private readonly repo: GrammarRepo,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
@@ -60,7 +51,7 @@ export class DFA<ASTData, Kinds extends string> {
   // TODO: remove this?
   getAllStates() {
     const result: State<ASTData, Kinds>[] = [];
-    this.allStates.forEach((s) => result.push(s));
+    this.allStates.states.forEach((s) => result.push(s));
     return result;
   }
 
@@ -163,7 +154,7 @@ export class DFA<ASTData, Kinds extends string> {
           buffer[index],
           this.NTClosures,
           this.allStates,
-          this.allInitialCandidates
+          this.cs
         );
       if (nextStateResult.state == null) {
         // try to restore from re-lex stack
@@ -228,23 +219,20 @@ export class DFA<ASTData, Kinds extends string> {
     return {
       grs: this.grs.toSerializable(this.repo),
       entryNTs: [...this.entryNTs],
-      // entryState: this.entryState.toSerializable(),
-      // NTClosures: [...this.NTClosures].map(([k, v]) => [
-      firstSets: this.sets2obj(this.firstSets),
-      followSets: this.sets2obj(this.followSets),
-      // allInitialCandidates: [...this.allInitialCandidates].map(([k, v]) => [
-      // allStates:
+      entryState: this.allStates.getKey(this.entryState),
+      NTClosures: map2serializable(this.NTClosures, (grs) =>
+        grs.map((gr) => this.grs.getKey(gr))
+      ),
+      firstSets: map2serializable(this.firstSets, (v) =>
+        v.toSerializable(this.repo)
+      ),
+      followSets: map2serializable(this.followSets, (v) =>
+        v.toSerializable(this.repo)
+      ),
+      cs: this.cs.toSerializable(this.grs),
+      allStates: this.allStates.toSerializable(this.cs),
       repo: this.repo.toSerializable(),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };
-  }
-
-  /**
-   * Transform first sets or follow sets to a serializable object.
-   */
-  private sets2obj(map: ReadonlyMap<string, GrammarSet>) {
-    const obj = {} as { [key: string]: string[] };
-    map.forEach((v, k) => (obj[k] = v.toSerializable(this.repo)));
-    return obj;
   }
 }

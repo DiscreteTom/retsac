@@ -13,8 +13,9 @@ import {
   GrammarRuleContext,
   ConflictType,
   Grammar,
+  GrammarRuleRepo,
 } from "../model";
-import { ASTNodeSelectorFactory, lexGrammar } from "./utils";
+import { ASTNodeSelectorFactory, lexGrammar, map2serializable } from "./utils";
 
 /** Candidate for ELR parsers. */
 export class Candidate<ASTData, Kinds extends string> {
@@ -42,6 +43,9 @@ export class Candidate<ASTData, Kinds extends string> {
    */
   readonly strWithGrammarName: StringCache;
 
+  /**
+   * Only {@link CandidateRepo} should use this constructor.
+   */
   constructor(data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
     this.gr = data.gr;
     this.digested = data.digested;
@@ -72,7 +76,10 @@ export class Candidate<ASTData, Kinds extends string> {
    */
   // TODO: split this into 2 functions? one for calculateAllStates, one for parse
   // TODO: state can get grammar from ASTNode, check current == grammar to optimize performance
-  getNext(node: Readonly<ASTNode<any, any>>): Candidate<ASTData, Kinds> | null {
+  getNext(
+    node: Readonly<ASTNode<any, any>>,
+    cs: CandidateRepo<ASTData, Kinds>
+  ): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
     const key = this.current.cacheKeyWithoutName.value;
@@ -83,12 +90,9 @@ export class Candidate<ASTData, Kinds extends string> {
 
     // not in cache, calculate and cache
     const res =
-      this.canDigestMore() && this.current.match(node)
-        ? new Candidate<ASTData, Kinds>({
-            gr: this.gr,
-            digested: this.digested + 1,
-          }) // TODO: CandidateRepo?
-        : null;
+      this.canDigestMore() && this.current.match(node) // TODO: remove match? since we already checked grammar outside
+        ? cs.addNext(this)
+        : null; // TODO: return undefined?
     this.nextMap.set(key, res);
     return res;
   }
@@ -313,5 +317,76 @@ export class Candidate<ASTData, Kinds extends string> {
       context,
       commit: this.gr.commit?.(context) ?? false,
     };
+  }
+
+  toSerializable(
+    grs: GrammarRuleRepo<ASTData, Kinds>,
+    cs: CandidateRepo<ASTData, Kinds>
+  ) {
+    return {
+      gr: grs.getKey(this.gr),
+      digested: this.digested,
+      nextMap: map2serializable(this.nextMap, (c) =>
+        c == null ? null : cs.getKey(c)
+      ),
+      str: this.str.value,
+      strWithGrammarName: this.strWithGrammarName.value,
+    };
+  }
+}
+
+export class CandidateRepo<ASTData, Kinds extends string> {
+  /**
+   * Candidates. {@link Candidate.strWithGrammarName} => {@link Candidate}
+   */
+  private cs: Map<string, Candidate<ASTData, Kinds>>;
+
+  constructor() {
+    this.cs = new Map();
+  }
+
+  getKey(c: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
+    return c instanceof Candidate
+      ? c.strWithGrammarName.value
+      : Candidate.getStrWithGrammarName(c);
+  }
+
+  get(c: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
+    return this.cs.get(this.getKey(c));
+  }
+
+  getInitial(gr: GrammarRule<ASTData, Kinds>) {
+    return this.get({ gr, digested: 0 });
+  }
+
+  /**
+   * If already exists, return `undefined`.
+   */
+  addInitial(gr: GrammarRule<ASTData, Kinds>) {
+    const raw = { gr, digested: 0 };
+    const key = this.getKey(raw);
+    if (this.cs.has(key)) return undefined;
+
+    const c = new Candidate<ASTData, Kinds>(raw); // TODO: add key
+    this.cs.set(key, c);
+    return c;
+  }
+
+  /**
+   * If already exists, return the cache, else create a new one and return.
+   */
+  addNext(c: Candidate<ASTData, Kinds>) {
+    const raw = { gr: c.gr, digested: c.digested + 1 };
+    const key = this.getKey(raw);
+    const cache = this.cs.get(key);
+    if (cache != undefined) return cache;
+
+    const next = new Candidate<ASTData, Kinds>(raw); // TODO: add key
+    this.cs.set(key, next);
+    return next;
+  }
+
+  toSerializable(grs: GrammarRuleRepo<ASTData, Kinds>) {
+    return map2serializable(this.cs, (c) => c.toSerializable(grs, this));
   }
 }

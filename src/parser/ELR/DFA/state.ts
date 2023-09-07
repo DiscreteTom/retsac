@@ -13,8 +13,10 @@ import {
   GrammarRuleContext,
   Callback,
   GrammarRepo,
+  Grammar,
 } from "../model";
-import { Candidate } from "./candidate";
+import { Candidate, CandidateRepo } from "./candidate";
+import { map2serializable } from "./utils";
 
 /**
  * State for ELR parsers.
@@ -42,8 +44,8 @@ export class State<ASTData, Kinds extends string> {
     repo: GrammarRepo,
     next: Readonly<ASTNode<any, any>>,
     NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds>[]>,
-    allStates: Map<string, State<ASTData, Kinds>>,
-    allInitialCandidates: ReadonlyMap<string, Candidate<ASTData, Kinds>>
+    allStates: StateRepo<ASTData, Kinds>,
+    cs: CandidateRepo<ASTData, Kinds>
   ): { state: State<ASTData, Kinds> | null; changed: boolean } {
     const grammar =
       repo.get({
@@ -66,52 +68,9 @@ export class State<ASTData, Kinds extends string> {
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, calculate and cache
-    const directCandidates = this.candidates
-      .map((c) => c.getNext(next))
-      .filter((c) => c != null) as Candidate<ASTData, Kinds>[];
-    const indirectCandidates = directCandidates
-      .reduce((p, c) => {
-        if (
-          c.canDigestMore() &&
-          c.current!.type == GrammarType.NT &&
-          !p.includes(c.current!.kind)
-        )
-          p.push(c.current!.kind);
-        return p;
-      }, [] as string[]) // de-duplicated NT list
-      .reduce((p, c) => {
-        NTClosures.get(c)!.forEach((gr) => {
-          if (!p.includes(gr)) p.push(gr);
-        });
-        return p;
-      }, [] as GrammarRule<ASTData, Kinds>[]) // de-duplicated GrammarRule list
-      .map(
-        (gr) =>
-          // get initial candidate from global cache
-          // TODO: use CandidateRepo?
-          allInitialCandidates.get(
-            Candidate.getStrWithGrammarName({ gr, digested: 0 })
-          )!
-      );
-    const nextCandidates = directCandidates.concat(indirectCandidates);
-
-    // check & update global state cache
-    if (nextCandidates.length != 0) {
-      const cacheKey = State.getString({ candidates: nextCandidates });
-      const cache = allStates.get(cacheKey); // TODO: use StateRepo?
-      if (cache !== undefined) {
-        this.nextMap.set(key, cache);
-        return { state: cache, changed: false };
-      } else {
-        const result = new State<ASTData, Kinds>(nextCandidates, cacheKey);
-        allStates.set(cacheKey, result);
-        this.nextMap.set(key, result);
-        return { state: result, changed: true };
-      }
-    }
-    // else, no next candidates
-    this.nextMap.set(key, null);
-    return { state: null, changed: false };
+    const res = allStates.addNext(this, next, grammar, NTClosures, cs);
+    this.nextMap.set(key, res.state);
+    return res;
   }
 
   contains(gr: Readonly<GrammarRule<ASTData, Kinds>>, digested: number) {
@@ -184,5 +143,109 @@ export class State<ASTData, Kinds extends string> {
     }
 
     return rejectedParserOutput;
+  }
+
+  toSerializable(
+    cs: CandidateRepo<ASTData, Kinds>,
+    ss: StateRepo<ASTData, Kinds>
+  ) {
+    return {
+      candidates: this.candidates.map((c) => cs.getKey(c)),
+      nextMap: map2serializable(this.nextMap, (s) =>
+        s == null ? null : ss.getKey(s)
+      ),
+      str: this.str,
+    };
+  }
+}
+
+export class StateRepo<ASTData, Kinds extends string> {
+  private ss: Map<string, State<ASTData, Kinds>>;
+
+  constructor() {
+    this.ss = new Map();
+  }
+
+  get states() {
+    return this.ss as ReadonlyMap<string, State<ASTData, Kinds>>;
+  }
+
+  getKey(s: Pick<State<any, any>, "candidates">) {
+    return s instanceof State ? s.str : State.getString(s);
+  }
+
+  get(s: Pick<State<any, any>, "candidates">) {
+    return this.ss.get(this.getKey(s));
+  }
+
+  /**
+   * Return `undefined` if the state already exists.
+   */
+  addEntry(candidates: Candidate<ASTData, Kinds>[]) {
+    const raw = { candidates };
+    const key = this.getKey(raw);
+    if (this.ss.has(key)) return undefined;
+
+    const s = new State(candidates, key);
+    this.ss.set(key, s);
+    return s;
+  }
+
+  /**
+   * If next state doesn't exist(no candidates), return `undefined`.
+   * If next state exist and cached, return the cached state.
+   * If next state exist and not cached, then create and cached and return the new state.
+   */
+  addNext(
+    current: State<ASTData, Kinds>,
+    next: Readonly<ASTNode<any, any>>,
+    grammar: Grammar,
+    NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds>[]>,
+    cs: CandidateRepo<ASTData, Kinds>
+  ) {
+    const directCandidates = current.candidates
+      .filter((c) => c.current == grammar) // match
+      .map((c) => c.getNext(next, cs))
+      .filter((c) => c != null) as Candidate<ASTData, Kinds>[];
+    const indirectCandidates = directCandidates
+      .reduce((p, c) => {
+        if (
+          c.canDigestMore() &&
+          c.current!.type == GrammarType.NT &&
+          !p.includes(c.current!.kind)
+        )
+          p.push(c.current!.kind);
+        return p;
+      }, [] as string[]) // de-duplicated NT list
+      .reduce((p, c) => {
+        NTClosures.get(c)!.forEach((gr) => {
+          if (!p.includes(gr)) p.push(gr);
+        });
+        return p;
+      }, [] as GrammarRule<ASTData, Kinds>[]) // de-duplicated GrammarRule list
+      .map(
+        (gr) =>
+          // get initial candidate from global cache
+          cs.getInitial(gr)!
+      );
+    const nextCandidates = directCandidates.concat(indirectCandidates);
+
+    // no next states
+    if (nextCandidates.length == 0) return { state: null, changed: false };
+
+    // check cache
+    const raw = { candidates: nextCandidates };
+    const key = this.getKey(raw);
+    const cache = this.ss.get(key);
+    if (cache !== undefined) return { state: cache, changed: false };
+
+    // create new
+    const s = new State(nextCandidates, key);
+    this.ss.set(key, s);
+    return { state: s, changed: true };
+  }
+
+  toSerializable(cs: CandidateRepo<ASTData, Kinds>) {
+    return map2serializable(this.ss, (s) => s.toSerializable(cs, this));
   }
 }

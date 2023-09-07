@@ -7,8 +7,8 @@ import {
   GrammarSet,
   GrammarType,
 } from "../model";
-import { Candidate } from "./candidate";
-import { State } from "./state";
+import { CandidateRepo } from "./candidate";
+import { StateRepo } from "./state";
 import {
   getGrammarRulesClosure,
   getAllNTClosure,
@@ -50,11 +50,9 @@ export class DFABuilder {
     );
 
     // init all initial candidates, initial candidate is candidate with digested=0
-    // TODO: use CandidateRepo
-    const allInitialCandidates = new Map<string, Candidate<ASTData, Kinds>>();
+    const cs = new CandidateRepo<ASTData, Kinds>();
     grs.grammarRules.forEach((gr) => {
-      const c = new Candidate<ASTData, Kinds>({ gr, digested: 0 });
-      allInitialCandidates.set(c.strWithGrammarName.value, c);
+      cs.addInitial(gr);
     });
 
     const entryCandidates = getGrammarRulesClosure(
@@ -64,20 +62,14 @@ export class DFABuilder {
     ).map(
       (gr) =>
         // find candidate corresponding to the grammar rule
-        allInitialCandidates.get(
-          Candidate.getStrWithGrammarName({ gr, digested: 0 })
-        )!
+        cs.getInitial(gr)!
     );
-    const entryState = new State<ASTData, Kinds>(
-      entryCandidates,
-      State.getString({ candidates: entryCandidates })
-    );
-    const NTClosures = getAllNTClosure(NTs, grs);
 
     // init all states
-    // TODO: use StateRepo
-    const allStates = new Map<string, State<ASTData, Kinds>>();
-    allStates.set(entryState.toString(), entryState);
+    const allStates = new StateRepo<ASTData, Kinds>();
+    const entryState = allStates.addEntry(entryCandidates);
+
+    const NTClosures = getAllNTClosure(NTs, grs);
 
     // construct first sets for all NTs
     const firstSets = new Map<string, GrammarSet>();
@@ -125,7 +117,7 @@ export class DFABuilder {
       if (!changed) break;
     }
 
-    calculateAllStates(repo, grs, allStates, NTClosures, allInitialCandidates);
+    calculateAllStates(repo, grs, allStates, NTClosures, cs);
 
     return {
       grs,
@@ -134,9 +126,9 @@ export class DFABuilder {
       NTClosures,
       firstSets,
       followSets,
-      allInitialCandidates,
       allStates,
       NTs,
+      cs,
     };
   }
 }

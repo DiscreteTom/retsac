@@ -15,8 +15,8 @@ import {
   GrammarSet,
   GrammarType,
 } from "../model";
-import { Candidate } from "./candidate";
-import { State } from "./state";
+import { CandidateRepo } from "./candidate";
+import { StateRepo } from "./state";
 
 export function getAllNTClosure<ASTData, Kinds extends string>(
   NTs: ReadonlySet<string>,
@@ -127,9 +127,9 @@ export function lexGrammar<ASTData, Kinds extends string>(
 export function calculateAllStates<ASTData, Kinds extends string>(
   repo: GrammarRepo,
   allGrammarRules: GrammarRuleRepo<ASTData, Kinds>,
-  allStates: Map<string, State<ASTData, Kinds>>,
+  allStates: StateRepo<ASTData, Kinds>,
   NTClosures: Map<string, GrammarRule<ASTData, Kinds>[]>,
-  allInitialCandidates: Map<string, Candidate<ASTData, Kinds>>
+  cs: CandidateRepo<ASTData, Kinds>
 ) {
   // collect all grammars in rules
   const gs = new GrammarSet();
@@ -143,12 +143,9 @@ export function calculateAllStates<ASTData, Kinds extends string>(
 
   while (true) {
     let changed = false;
-    allStates.forEach((state) => {
+    allStates.states.forEach((state) => {
       mockNodes.forEach((node) => {
-        if (
-          state.getNext(repo, node, NTClosures, allStates, allInitialCandidates)
-            .changed
-        )
+        if (state.getNext(repo, node, NTClosures, allStates, cs).changed)
           changed = true;
       });
     });
@@ -216,4 +213,16 @@ export function processDefinitions<ASTData, Kinds extends string>(
   });
 
   return { tempGrammarRules, NTs };
+}
+
+/**
+ * Transform a Map to a serializable object.
+ */
+export function map2serializable<V, R>(
+  map: ReadonlyMap<string, V>,
+  transformer: (v: V) => R
+) {
+  const obj = {} as { [key: string]: R };
+  map.forEach((v, k) => (obj[k] = transformer(v)));
+  return obj;
 }
