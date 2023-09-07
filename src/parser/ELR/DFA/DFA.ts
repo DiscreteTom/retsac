@@ -34,7 +34,7 @@ export class DFA<ASTData, Kinds extends string> {
      */
     public readonly followSets: ReadonlyMap<string, GrammarSet>,
     private readonly cs: CandidateRepo<ASTData, Kinds>,
-    private readonly allStates: StateRepo<ASTData, Kinds>, // TODO: readonly?
+    private readonly allStates: StateRepo<ASTData, Kinds>,
     private readonly repo: GrammarRepo,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
