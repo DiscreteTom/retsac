@@ -34,12 +34,11 @@ export class Candidate<ASTData, Kinds extends string> {
   private readonly nextMap: Map<string, Candidate<ASTData, Kinds> | null>;
 
   /**
-   * For debug output.
+   * @see {@link Candidate.toString}
    */
   readonly str: StringCache;
   /**
-   * Return `NT := ...before # ...after`.
-   * This is unique for each candidate.
+   * @see {@link Candidate.getStrWithGrammarName}
    */
   readonly strWithGrammarName: StringCache;
 
@@ -98,14 +97,15 @@ export class Candidate<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see {@link Candidate.str}
+   * For debug output.
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see {@link Candidate.strWithGrammarName}
+   * Return `NT := ...before # ...after`.
+   * This is unique for each candidate.
    */
   static getStrWithGrammarName<ASTData, Kinds extends string>(
     data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">

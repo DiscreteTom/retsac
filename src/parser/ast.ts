@@ -125,16 +125,15 @@ export class ASTNode<ASTData, Kinds extends string> {
   private _name: string;
 
   /**
-   * For debug output.
+   * @see {@link ASTNode.toString}
    */
   readonly str: StringCache;
   /**
-   * Format: `kind(name): text`.
-   * This value will be changed if you change the name of this node.
+   * @see {@link ASTNode.getStrWithName}
    */
   readonly strWithName: StringCache;
   /**
-   * Format: `kind: text`.
+   * @see {@link ASTNode.getStrWithoutName}
    */
   readonly strWithoutName: StringCache;
 
@@ -221,14 +220,15 @@ export class ASTNode<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see {@link ASTNode.str}
+   * For debug output.
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see {@link ASTNode.strWithName}
+   * Format: `kind(name): text`.
+   * This value will be changed if you change the name of this node.
    */
   static getStrWithName(
     data: Pick<ASTNode<any, any>, "kind" | "name" | "text">
@@ -241,7 +241,7 @@ export class ASTNode<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see {@link ASTNode.strWithoutName}
+   * Format: `kind: text`.
    */
   static getStrWithoutName(data: Pick<ASTNode<any, any>, "kind" | "text">) {
     return (

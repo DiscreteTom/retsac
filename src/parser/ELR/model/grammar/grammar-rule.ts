@@ -32,15 +32,15 @@ export class GrammarRule<ASTData, Kinds extends string> {
   traverser?: Traverser<ASTData, Kinds>;
 
   /**
-   * For debug output.
+   * @see {@link GrammarRule.toString}
    */
   readonly str: StringCache;
   /**
-   * Return ``{ NT: `grammar rules with name` }``.
+   * @see {@link GrammarRule.getStrWithGrammarName}
    */
   readonly strWithGrammarName: StringCache;
   /**
-   * Return ``{ NT: `grammar rules without name` }``.
+   * @see {@link GrammarRule.getStrWithoutGrammarName}
    */
   readonly strWithoutGrammarName: StringCache;
 
@@ -111,14 +111,14 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see {@link GrammarRule.str}
+   * For debug output.
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see {@link GrammarRule.strWithGrammarName}
+   * Return ``{ NT: `grammar rules with name` }``.
    */
   static getStrWithGrammarName(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
     return `{ ${gr.NT}: \`${gr.rule
@@ -127,7 +127,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   /**
-   * @see {@link GrammarRule.strWithoutGrammarName}
+   * Return ``{ NT: `grammar rules without name` }``.
    */
   static getStrWithoutGrammarName(
     gr: Pick<GrammarRule<any, any>, "NT" | "rule">

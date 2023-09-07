@@ -30,12 +30,11 @@ export class Grammar {
   readonly name: string;
 
   /**
-   * For debug output.
+   * @see {@link Grammar.toString}
    */
   readonly str: StringCache;
   /**
-   * A unique key for cache.
-   * This is used in {@link Candidate.getNext} and {@link State.getNext}.
+   * @see {@link Grammar.getCacheKeyWithoutName}
    */
   // TODO: rename this to some `nodeMatcher`?
   readonly cacheKeyWithoutName: StringCache;
@@ -48,12 +47,11 @@ export class Grammar {
    */
   readonly strWithoutName: StringCache;
   /**
-   * Format: `kind@name` if not literal, else `"text"@name`.
-   * This is used to generate grammar rule string with name.
+   * @see {@link Grammar.getGrammarStrWithName}
    */
   readonly grammarStrWithName: string;
   /**
-   * Format: `kind` if not literal, else `"text"`.
+   * @see {@link Grammar.getGrammarStrWithoutName}
    */
   readonly grammarStrWithoutName: StringCache;
   /**
@@ -130,14 +128,15 @@ export class Grammar {
   }
 
   /**
-   * @see {@link Grammar.str}
+   * For debug output.
    */
   toString() {
     return this.str.value;
   }
 
   /**
-   * @see {@link Grammar.cacheKeyWithoutName}
+   * A unique key for cache.
+   * This is used in {@link Candidate.getNext} and {@link State.getNext}.
    */
   static getCacheKeyWithoutName(data: Pick<Grammar, "kind" | "text">): string {
     // when current is literal, in Grammar.match we will check the kind and text
@@ -150,9 +149,9 @@ export class Grammar {
     // if this is a T without
     return data.kind;
   }
-
   /**
-   * @see {@link Grammar.grammarStrWithName}
+   * Format: `kind@name` if not literal, else `"text"@name`.
+   * This is used to generate grammar rule string with name.
    */
   static getGrammarStrWithName(data: Pick<Grammar, "kind" | "name" | "text">) {
     return (
@@ -163,7 +162,7 @@ export class Grammar {
   }
 
   /**
-   * @see {@link Grammar.grammarStrWithoutName}
+   * Format: `kind` if not literal, else `"text"`.
    */
   static getGrammarStrWithoutName(data: Pick<Grammar, "kind" | "text">) {
     return data.text != undefined
