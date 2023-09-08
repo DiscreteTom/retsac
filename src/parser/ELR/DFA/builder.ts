@@ -67,7 +67,7 @@ export class DFABuilder {
 
     // init all states
     const allStates = new StateRepo<ASTData, Kinds>();
-    const entryState = allStates.addEntry(entryCandidates);
+    const entryState = allStates.addEntry(entryCandidates)!;
 
     const NTClosures = getAllNTClosure(NTs, grs);
 

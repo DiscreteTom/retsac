@@ -9,6 +9,7 @@ import {
   GrammarRepo,
   GrammarRuleRepo,
   SerializableParserData,
+  Condition,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -105,10 +106,10 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
    * Ensure all T/NTs have their definitions, and no duplication, and all literals are valid.
    * If ok, return this.
    */
-  private checkSymbols(
+  private checkSymbols<LexerKinds extends string>(
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
-    grs: GrammarRuleRepo<ASTData, Kinds>,
+    grs: GrammarRuleRepo<ASTData, Kinds | LexerKinds>,
     lexer: Readonly<ILexer<any, any>>,
     printAll: boolean,
     logger: Logger
@@ -191,22 +192,22 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       cs,
       allStates,
       NTs,
-    } = DFABuilder.prepare<ASTData, Kinds>(
+    } = DFABuilder.prepare<ASTData, Kinds | LexerKinds>(
       repo,
       lexer,
       this.entryNTs,
-      this.data,
-      this.resolvedTemp
+      this.data as ParserBuilderData<ASTData, Kinds | LexerKinds>,
+      this.resolvedTemp as ResolvedTempConflict<ASTData, Kinds | LexerKinds>[]
     );
-    const dfa = new DFA<ASTData, Kinds | LexerKinds>(
-      grs as any, // TODO: better typing
+    const dfa = new DFA(
+      grs,
       entryNTs,
-      entryState as State<ASTData, Kinds | LexerKinds>,
-      NTClosures as Map<string, GrammarRule<ASTData, Kinds | LexerKinds>[]>,
+      entryState,
+      NTClosures,
       firstSets,
       followSets,
-      cs as any, // TODO: type this
-      allStates as any, // TODO type this
+      cs,
+      allStates,
       repo,
       this.cascadeQueryPrefix,
       rollback,
@@ -240,7 +241,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         r.options.next == "*"
           ? "*"
           : // TODO: use a dedicated lexer to parse next
-            defToTempGRs<ASTData, Kinds>({
+            defToTempGRs({
               "": r.options.next ?? "",
             } as Definition<Kinds>)[0]?.rule.map((g) =>
               g.toGrammar(repo, lexer, NTs.has(g.content))
@@ -254,7 +255,11 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
           r.type == ConflictType.REDUCE_REDUCE
             ? r.options.handleEnd ?? false
             : false,
-        accepter: r.options.accept ?? true,
+        accepter:
+          (r.options.accept as
+            | boolean
+            | Condition<ASTData, Kinds | LexerKinds>
+            | undefined) ?? true,
       });
     });
 
@@ -304,28 +309,17 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       options?.generateResolvers
     ) {
       // conflicts are stored in grs
-      getConflicts<ASTData, Kinds>(
-        repo,
-        this.entryNTs,
-        grs,
-        dfa as any, // TODO
-        debug,
-        logger
-      );
+      getConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
 
       // resolved conflicts are already stored in grs in this.buildDFA
-      const unresolved = getUnresolvedConflicts<ASTData, Kinds>(
-        grs,
-        debug,
-        logger
-      );
+      const unresolved = getUnresolvedConflicts(grs, debug, logger);
 
       if (options?.generateResolvers !== undefined)
         this.generateResolvers(unresolved, options.generateResolvers, logger);
 
       if (options?.checkAll || options?.checkConflicts)
         this.checkConflicts(
-          dfa as any, // TODO
+          dfa,
           unresolved,
           grs,
           options?.printAll || false,
@@ -340,7 +334,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       this._serializable = this.buildSerializable(dfa);
     }
 
-    return new Parser<ASTData, Kinds | LexerKinds>(dfa, lexer);
+    return new Parser(dfa, lexer);
   }
 
   /**
@@ -349,13 +343,13 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
    *
    * If `printAll` is true, print all conflicts instead of throwing error.
    */
-  private checkConflicts(
-    dfa: DFA<ASTData, Kinds>,
+  private checkConflicts<LexerKinds extends string>(
+    dfa: DFA<ASTData, Kinds | LexerKinds>,
     unresolved: ReadonlyMap<
-      GrammarRule<ASTData, Kinds>,
-      Conflict<ASTData, Kinds>[]
+      GrammarRule<ASTData, Kinds | LexerKinds>,
+      Conflict<ASTData, Kinds | LexerKinds>[]
     >,
-    grs: GrammarRuleRepo<ASTData, Kinds>,
+    grs: GrammarRuleRepo<ASTData, Kinds | LexerKinds>,
     printAll: boolean,
     logger: Logger
   ) {
@@ -438,8 +432,11 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     return this;
   }
 
-  private generateResolvers(
-    unresolved: Map<GrammarRule<ASTData, Kinds>, Conflict<ASTData, Kinds>[]>,
+  private generateResolvers<LexerKinds extends string>(
+    unresolved: Map<
+      GrammarRule<ASTData, Kinds | LexerKinds>,
+      Conflict<ASTData, Kinds | LexerKinds>[]
+    >,
     style: "builder" | "context",
     logger: Logger
   ) {
