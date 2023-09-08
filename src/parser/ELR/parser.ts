@@ -11,8 +11,8 @@ export class Parser<ASTData, Kinds extends string>
 {
   lexer: ILexer<any, any>;
   readonly dfa: DFA<ASTData, Kinds>;
-  protected buffer: ASTNode<ASTData, Kinds>[];
-  protected errors: ASTNode<ASTData, Kinds>[];
+  private _buffer: ASTNode<ASTData, Kinds>[];
+  readonly errors: ASTNode<ASTData, Kinds>[];
 
   private reLexStack: ReLexStack<State<ASTData, Kinds>, ASTData, Kinds>;
   private rollbackStack: RollbackStack<ASTData, Kinds>;
@@ -29,11 +29,14 @@ export class Parser<ASTData, Kinds extends string>
   set logger(v: Logger) {
     this.dfa.logger = v;
   }
+  get buffer() {
+    return this._buffer as readonly ASTNode<ASTData, Kinds>[];
+  }
 
   constructor(dfa: DFA<ASTData, Kinds>, lexer: ILexer<any, any>) {
     this.dfa = dfa;
     this.lexer = lexer;
-    this.buffer = [];
+    this._buffer = [];
     this.errors = [];
     this.reLexStack = [];
     this.rollbackStack = [];
@@ -49,15 +52,15 @@ export class Parser<ASTData, Kinds extends string>
   reset() {
     // this.dfa.reset(); // DFA is stateless so no need to reset
     this.lexer.reset();
-    this.buffer = [];
-    this.errors = [];
+    this._buffer = [];
+    this.errors.length = 0;
     return this.commit();
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = new Parser<ASTData, Kinds>(this.dfa, this.lexer.clone());
-    res.buffer = [...this.buffer];
-    res.errors = [...this.errors];
+    res._buffer = [...this._buffer];
+    res.errors.push(...this.errors);
     res.reLexStack = [...this.reLexStack];
     res.rollbackStack = [...this.rollbackStack];
     res.debug = options?.debug ?? this.debug;
@@ -86,7 +89,7 @@ export class Parser<ASTData, Kinds extends string>
   }
 
   getNodes(): readonly ASTNode<ASTData, Kinds>[] {
-    return this.buffer;
+    return this._buffer;
   }
 
   take() {
@@ -112,7 +115,7 @@ export class Parser<ASTData, Kinds extends string>
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
     const res = this.dfa.parse(
-      this.buffer,
+      this._buffer,
       this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
       this.reLexStack,
       this.rollbackStack,
@@ -123,7 +126,7 @@ export class Parser<ASTData, Kinds extends string>
       // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
       // so we need to update it using `res.lexer`
       this.lexer = res.lexer;
-      this.buffer = res.output.buffer.slice(); // make a copy of buffer
+      this._buffer = res.output.buffer.slice(); // make a copy of buffer
       this.errors.push(...res.output.errors);
     }
 

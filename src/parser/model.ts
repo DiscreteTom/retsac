@@ -86,14 +86,14 @@ export interface IParser<ASTData, Kinds extends string> {
    */
   readonly parseAll: ParseExec<ASTData, Kinds>;
   /**
-   * Get error AST nodes.
+   * Accumulated error AST nodes.
    */
-  getErrors(): readonly ASTNode<ASTData, Kinds>[]; // TODO: use getter
+  readonly errors: ASTNode<ASTData, Kinds>[];
   hasErrors(): boolean;
   /**
    * Current AST nodes.
    */
-  getNodes(): readonly ASTNode<ASTData, Kinds>[]; // TODO: rename to buffer, use getter
+  get buffer(): readonly ASTNode<ASTData, Kinds>[];
   /**
    * Take the first AST node.
    */
