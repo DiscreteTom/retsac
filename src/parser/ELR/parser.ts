@@ -93,7 +93,8 @@ export class Parser<ASTData, Kinds extends string>
   }
 
   take() {
-    return this.buffer.shift();
+    this.commit();
+    return this._buffer.shift();
   }
 
   parse(

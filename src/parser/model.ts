@@ -96,6 +96,7 @@ export interface IParser<ASTData, Kinds extends string> {
   get buffer(): readonly ASTNode<ASTData, Kinds>[];
   /**
    * Take the first AST node.
+   * This action will commit the parser.
    */
   take(): ASTNode<ASTData, Kinds> | undefined; // TODO: take N
 }
