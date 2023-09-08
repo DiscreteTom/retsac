@@ -117,7 +117,7 @@ export class Candidate<ASTData, Kinds extends string> {
   /**
    * This is used in State to deduplicate candidates.
    */
-  // TODO: remove this? since CandidateRepo should make sure no duplicate candidates
+  // Since there will be temporary candidates, this function can't be removed.
   eq(other: { gr: Readonly<GrammarRule<ASTData, Kinds>>; digested: number }) {
     return (
       this == other || // same object
