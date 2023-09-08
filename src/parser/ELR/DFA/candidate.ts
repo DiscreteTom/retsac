@@ -70,16 +70,12 @@ export class Candidate<ASTData, Kinds extends string> {
   }
 
   /**
-   * Try to accept the node and generate next candidate with `digested + 1`.
-   *
-   * Return `null` if the node can't be accepted or this can't digest more.
+   * Generate next candidate with `digested + 1`.
+   * The caller should make sure the current grammar match the next node.
+   * @return `null` if the this can't digest more.
    */
   // TODO: split this into 2 functions? one for calculateAllStates, one for parse
-  // TODO: state can get grammar from ASTNode, check current == grammar to optimize performance
-  getNext(
-    node: Readonly<ASTNode<any, any>>,
-    cs: CandidateRepo<ASTData, Kinds>
-  ): Candidate<ASTData, Kinds> | null {
+  getNext(cs: CandidateRepo<ASTData, Kinds>): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
     const key = this.current.cacheKeyWithoutName.value;
@@ -89,10 +85,7 @@ export class Candidate<ASTData, Kinds extends string> {
     if (cache !== undefined) return cache;
 
     // not in cache, calculate and cache
-    const res =
-      this.canDigestMore() && this.current.match(node) // TODO: remove match? since we already checked grammar outside
-        ? cs.addNext(this)
-        : null; // TODO: return undefined?
+    const res = this.canDigestMore() ? cs.addNext(this) : null; // TODO: return undefined?
     this.nextMap.set(key, res);
     return res;
   }
@@ -392,3 +385,8 @@ export class CandidateRepo<ASTData, Kinds extends string> {
     return map2serializable(this.cs, (c) => c.toJSON(grs, this));
   }
 }
+
+export type ReadonlyCandidateRepo<ASTData, Kinds extends string> = Omit<
+  CandidateRepo<ASTData, Kinds>,
+  "addNext" | "addInitial"
+>;

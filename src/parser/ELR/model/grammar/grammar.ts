@@ -115,19 +115,6 @@ export class Grammar {
   }
 
   /**
-   * Check if the grammar's kind match the {@link ASTNode.kind}.
-   * Also check the text if `this.text` is not `undefined`.
-   */
-  match(node: Readonly<ASTNode<any, any>>) {
-    // we don't need to check the name
-    // because the name is set by the grammar after the grammar is matched
-    return (
-      this.kind == node.kind &&
-      (this.text == undefined || this.text == node.text)
-    );
-  }
-
-  /**
    * For debug output.
    */
   toString() {

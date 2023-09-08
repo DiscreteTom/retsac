@@ -69,7 +69,7 @@ export class State<ASTData, Kinds extends string> {
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, calculate and cache
-    const res = allStates.addNext(this, next, grammar, NTClosures, cs);
+    const res = allStates.addNext(this, grammar, NTClosures, cs);
     this.nextMap.set(key, res.state);
     return res;
   }
@@ -198,14 +198,13 @@ export class StateRepo<ASTData, Kinds extends string> {
    */
   addNext(
     current: State<ASTData, Kinds>,
-    next: Readonly<ASTNode<any, any>>,
     grammar: Grammar,
     NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds>[]>,
     cs: CandidateRepo<ASTData, Kinds>
   ) {
     const directCandidates = current.candidates
-      .filter((c) => c.current == grammar) // match
-      .map((c) => c.getNext(next, cs))
+      .filter((c) => c.current == grammar) // current grammar match the next node
+      .map((c) => c.getNext(cs))
       .filter((c) => c != null) as Candidate<ASTData, Kinds>[];
     const indirectCandidates = directCandidates
       .reduce((p, c) => {
