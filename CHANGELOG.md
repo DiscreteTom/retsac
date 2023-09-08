@@ -34,6 +34,7 @@
     - Add `ASTNode/GrammarRuleContext.$` to search for the first match.
   - **_Breaking Change_**: remove `IParser.getErrors/getNodes`, use `IParser.errors/buffer` instead.
   - **_Breaking Change_**: `IParser.take` will auto commit the parser.
+  - **_Breaking Change_**: `IParser.take` will take the first N nodes instead of the first one node.
   - Feat: add `ASTNodeSelector`.
   - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.
