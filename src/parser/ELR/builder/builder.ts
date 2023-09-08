@@ -72,7 +72,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
   ): IParserBuilder<ASTData, Kinds | Append> {
     this.entryNTs.clear();
     defs.forEach((d) => this.entryNTs.add(d));
-    return this;
+    return this as IParserBuilder<ASTData, Kinds | Append>;
   }
 
   /**
