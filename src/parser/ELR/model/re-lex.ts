@@ -7,7 +7,10 @@ export type ReLexStack<State, ASTData, Kinds extends string> = {
   readonly buffer: ASTNode<ASTData, Kinds>[];
   readonly lexer: ILexer<any, any>; // TODO: use generic type
   readonly index: number;
-  readonly errors: ASTNode<ASTData, Kinds>[]; // TODO: is this needed?
+  /**
+   * Newly collected errors in that parsing process.
+   */
+  readonly errors: ASTNode<ASTData, Kinds>[];
   readonly rollbackStackLength: number;
 }[];
 

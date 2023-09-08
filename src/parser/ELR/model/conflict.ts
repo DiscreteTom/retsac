@@ -15,7 +15,7 @@ export interface Conflict<ASTData, Kinds extends string> {
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: readonly Readonly<Grammar>[]; // TODO: use GrammarSet
+  next: readonly Readonly<Grammar>[];
   /**
    * Is this a conflict if there is no next input?
    */
