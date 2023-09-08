@@ -83,9 +83,9 @@ export interface IParserBuilder<ASTData, Kinds extends string> {
    * Generate the {@link Parser ELR Parser}.
    */
   build<LexerKinds extends string>(
-    lexer: ILexer<any, LexerKinds>,
+    lexer: ILexer<any, LexerKinds>, // TODO: use generic type
     options?: BuildOptions
-  ): IParser<ASTData, Kinds | LexerKinds>; // TODO: use generic type
+  ): IParser<ASTData, Kinds | LexerKinds>;
   /**
    * Resolve a reduce-shift conflict.
    */
