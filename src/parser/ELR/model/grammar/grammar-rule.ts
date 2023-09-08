@@ -1,6 +1,6 @@
 import { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
-import { Conflict, ResolvedConflict } from "../conflict";
+import { Conflict, ConflictType, ResolvedConflict } from "../conflict";
 import { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "../util";
 import { Grammar } from "./grammar";
@@ -137,8 +137,31 @@ export class GrammarRule<ASTData, Kinds extends string> {
       .join(" ")}\` }`;
   }
 
-  // TODO: type this
-  toJSON(repo: GrammarRepo, grs: GrammarRuleRepo<any, any>): any {
+  toJSON(
+    repo: GrammarRepo,
+    grs: GrammarRuleRepo<ASTData, Kinds>
+  ): {
+    // TODO: why the return type has to be typed explicitly?
+    // if without this type, got: src/parser/ELR/model/grammar/grammar-rule.ts:140:3 - error TS7023: 'toJSON' implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
+    NT: string;
+    rule: string[];
+    conflicts: {
+      type: ConflictType;
+      anotherRule: string;
+      next: string[];
+      handleEnd: boolean;
+      overlapped: number | undefined;
+    }[];
+    resolved: {
+      type: ConflictType;
+      anotherRule: string;
+      handleEnd: boolean;
+      next: string[] | "*";
+    }[];
+    str: string;
+    strWithGrammarName: string;
+    strWithoutGrammarName: string;
+  } {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => repo.getKey(g)),

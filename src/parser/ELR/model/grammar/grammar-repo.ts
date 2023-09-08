@@ -86,7 +86,8 @@ export class GrammarRepo {
   }
 
   toJSON() {
-    const result = [] as any[];
-    return this.gs.forEach((g) => result.push(g.toJSON()));
+    const result = [] as ReturnType<Grammar["toJSON"]>[];
+    this.gs.forEach((g) => result.push(g.toJSON()));
+    return result;
   }
 }
