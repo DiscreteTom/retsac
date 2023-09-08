@@ -19,17 +19,19 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number>(({ values }) => values[0]! - 1) // e.g. `2--` is `2 - 1`
+    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
+      ({ values }) => values[0]! - 1
+    ) // e.g. `2--` is `2 - 1`
       .callback(() => (someState = 1)) // callback will be called if the grammar rule is accepted
       .rollback(() => (someState = 0)) // rollback will be called when re-lex
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>(({ values }) => -values[1]!)
+    ELR.reducer(({ values }) => -values[1]!)
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
+    ELR.reducer(({ values }) => values[0]! - values[2]!)
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })

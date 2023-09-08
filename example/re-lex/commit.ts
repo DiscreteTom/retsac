@@ -17,16 +17,18 @@ export const parser_1 = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number>(({ values }) => values[0]! - 1) // e.g. `2--` is `2 - 1`
+    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
+      ({ values }) => values[0]! - 1
+    ) // e.g. `2--` is `2 - 1`
       .commit()
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>(({ values }) => -values[1]!)
+    ELR.reducer(({ values }) => -values[1]!)
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
+    ELR.reducer(({ values }) => values[0]! - values[2]!)
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
@@ -40,16 +42,18 @@ export const parser_2 = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number>(({ values }) => values[0]! - 1) // e.g. `2--` is `2 - 1`
+    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
+      ({ values }) => values[0]! - 1
+    ) // e.g. `2--` is `2 - 1`
       .commit(() => true) // use a function to decide whether to commit
   )
   .define(
     { exp: `'-' exp` },
-    ELR.reducer<number>(({ values }) => -values[1]!)
+    ELR.reducer(({ values }) => -values[1]!)
   )
   .define(
     { exp: `exp '-' exp` },
-    ELR.reducer<number>(({ values }) => values[0]! - values[2]!)
+    ELR.reducer(({ values }) => values[0]! - values[2]!)
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
