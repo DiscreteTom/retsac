@@ -50,7 +50,9 @@ test("to obj", () => {
 test("to string", () => {
   expect(
     ASTNode.from({ start: 0, kind: "num", content: "123" }).toString()
-  ).toBe(`num: "123"`);
+  ).toBe(
+    'ASTNode({ kind: "num", start: 0, text: "123", data: undefined, error: undefined })'
+  );
 
   expect(ASTNode.from({ start: 0, kind: "", content: "+" }).toString()).toBe(
     `<anonymous>: "+"`
