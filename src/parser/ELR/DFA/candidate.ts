@@ -187,11 +187,10 @@ export class Candidate<ASTData, Kinds extends string> {
     });
 
     // check follow for LR(1) with the rest input string
-    if (
-      // important! make sure lexer can still lex something not muted
-      // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-      lexer.lex({ peek: true }) != null // TODO: ensure lexer is already trimmed
-    ) {
+    // important! make sure lexer can still lex something not muted
+    // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
+    const nextTokenExists = lexer.lex({ peek: true }) != null; // TODO: ensure lexer is already trimmed to optimize perf?
+    if (nextTokenExists) {
       if (entryNTs.has(this.gr.NT)) {
         // entry NT, no need to check follow set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
@@ -256,7 +255,7 @@ export class Candidate<ASTData, Kinds extends string> {
 
       // check if any next grammar match the next token
       // no matter if it's RR or SR conflict
-      // TODO: what if reach EOF? make sure lex can still lex something
+      if (!nextTokenExists) continue; // skip if no next token
       if (
         r.next == "*" ||
         r.next.some(
