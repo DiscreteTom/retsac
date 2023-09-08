@@ -194,8 +194,7 @@ export class GrammarExpander<Kinds extends string> {
 
   private allParsed() {
     return (
-      !this.parser.lexer.trimStart().hasRest() &&
-      this.parser.getNodes().length == 1
+      !this.parser.lexer.trimStart().hasRest() && this.parser.buffer.length == 1
     );
   }
 
