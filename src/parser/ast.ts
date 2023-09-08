@@ -133,7 +133,6 @@ export class ASTNode<ASTData, Kinds extends string> {
    * because we want users to use `traverse` instead of `traverser` directly.
    * Make this private to prevent users from using it by mistake.
    */
-  // TODO: remove this, just keep traverse, and init it in constructor
   private traverser: Traverser<ASTData, Kinds>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
