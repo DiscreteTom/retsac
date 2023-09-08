@@ -45,19 +45,20 @@ class PlaceholderMap {
 export class GrammarExpander<Kinds extends string> {
   private readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
-  private readonly parser: IParser<string[], "gr" | "" | "grammar" | "literal">;
+  private readonly parser: IParser<
+    string[],
+    "gr" | "" | "grammar" | "literal" | "rename"
+  >;
   readonly placeholderPrefix: string;
 
   constructor(options: { placeholderPrefix: string }) {
     this.placeholderPrefix = options.placeholderPrefix;
 
     const lexer = new Builder()
-      .ignore(
-        whitespaces() // blank
-      )
+      .ignore(whitespaces())
       .define({
-        // TODO: support rename literal
-        grammar: [/\w+@\w+/, /\w+/],
+        rename: /@\w+/,
+        grammar: /\w+/,
         literal: [stringLiteral(`"`), stringLiteral(`'`)],
       })
       .anonymous(exact(...`|+*()?`))
@@ -75,6 +76,11 @@ export class GrammarExpander<Kinds extends string> {
         { gr: `grammar | literal` },
         // return the matched token text as a list
         traverser(({ children }) => [children![0].text!])
+      )
+      .define(
+        { gr: `grammar rename | literal rename` },
+        // just keep the format, but return as a list
+        traverser(({ children }) => [children![0].text! + children![1].text!])
       )
       .define(
         { gr: `'(' gr ')'` },
@@ -131,7 +137,7 @@ export class GrammarExpander<Kinds extends string> {
     this.parser = parserBuilder.build(lexer, {
       // for debug
       // debug: true,
-      // checkAll: true,
+      checkAll: true,
       // generateResolvers: "builder",
     });
   }

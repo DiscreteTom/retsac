@@ -9,6 +9,10 @@ export function applyResolvers<ASTData, Kinds extends string>(
       { gr: `gr gr` },
       { gr: `gr '|' gr` }
     )
+    .priority(
+      { gr: `grammar rename | literal rename` },
+      { gr: `grammar | literal` }
+    )
     .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` }) as IParserBuilder<
     ASTData,
     Kinds
