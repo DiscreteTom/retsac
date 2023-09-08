@@ -8,7 +8,6 @@ import {
 } from "../../model";
 import {
   GrammarRule,
-  GrammarSet,
   GrammarType,
   GrammarRuleContext,
   Callback,
@@ -40,8 +39,7 @@ export class State<ASTData, Kinds extends string> {
     this.nextMap = new Map();
   }
 
-  // TODO: split this into 2 functions? one for calculateAllStates, one for parse
-  getNext(
+  generateNext(
     repo: GrammarRepo,
     next: Readonly<ASTNode<any, any>>,
     NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds>[]>,
@@ -72,6 +70,34 @@ export class State<ASTData, Kinds extends string> {
     const res = allStates.addNext(this, grammar, NTClosures, cs);
     this.nextMap.set(key, res.state);
     return res;
+  }
+
+  getNext(
+    repo: GrammarRepo,
+    next: Readonly<ASTNode<any, any>>
+  ): { state: State<ASTData, Kinds> | null; changed: boolean } {
+    const grammar =
+      repo.get({
+        // first, try to do an accurate match with text if text is provided.
+        // if the text is not provided, this will still always return a result.
+        kind: next.kind,
+        name: next.name,
+        text: next.text,
+      }) ??
+      repo.get({
+        // if the last match failed, means the text is provided but not matched.
+        // try to match without text.
+        kind: next.kind,
+        name: next.name,
+      })!; // this will always return a result
+    const key = grammar.cacheKeyWithoutName.value;
+
+    // try to get from local cache
+    const cache = this.nextMap.get(key);
+    if (cache !== undefined) return { state: cache, changed: false };
+
+    // not in cache, throw
+    throw "TODO"; // TODO
   }
 
   contains(gr: Readonly<GrammarRule<ASTData, Kinds>>, digested: number) {
@@ -204,7 +230,7 @@ export class StateRepo<ASTData, Kinds extends string> {
   ) {
     const directCandidates = current.candidates
       .filter((c) => c.current == grammar) // current grammar match the next node
-      .map((c) => c.getNext(cs))
+      .map((c) => c.generateNext(cs))
       .filter((c) => c != null) as Candidate<ASTData, Kinds>[];
     const indirectCandidates = directCandidates
       .reduce((p, c) => {

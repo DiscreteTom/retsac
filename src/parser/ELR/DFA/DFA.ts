@@ -140,13 +140,7 @@ export class DFA<ASTData, Kinds extends string> {
       // try to construct next state
       const nextStateResult = stateStack
         .at(-1)!
-        .getNext(
-          this.grammars,
-          buffer[index],
-          this.NTClosures,
-          this.states,
-          this.candidates
-        );
+        .getNext(this.grammars, buffer[index]);
       if (nextStateResult.state == null) {
         // try to restore from re-lex stack
         if (this.reLex && reLexStack.length > 0) {

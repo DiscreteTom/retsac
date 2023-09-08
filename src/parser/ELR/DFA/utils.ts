@@ -145,7 +145,7 @@ export function calculateAllStates<ASTData, Kinds extends string>(
     let changed = false;
     allStates.states.forEach((state) => {
       mockNodes.forEach((node) => {
-        if (state.getNext(repo, node, NTClosures, allStates, cs).changed)
+        if (state.generateNext(repo, node, NTClosures, allStates, cs).changed)
           changed = true;
       });
     });

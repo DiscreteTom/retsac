@@ -74,8 +74,9 @@ export class Candidate<ASTData, Kinds extends string> {
    * The caller should make sure the current grammar match the next node.
    * @return `null` if the this can't digest more.
    */
-  // TODO: split this into 2 functions? one for calculateAllStates, one for parse
-  getNext(cs: CandidateRepo<ASTData, Kinds>): Candidate<ASTData, Kinds> | null {
+  generateNext(
+    cs: CandidateRepo<ASTData, Kinds>
+  ): Candidate<ASTData, Kinds> | null {
     if (this.current == undefined) return null;
 
     const key = this.current.cacheKeyWithoutName.value;
@@ -85,7 +86,7 @@ export class Candidate<ASTData, Kinds extends string> {
     if (cache !== undefined) return cache;
 
     // not in cache, calculate and cache
-    const res = this.canDigestMore() ? cs.addNext(this) : null; // TODO: return undefined?
+    const res = this.canDigestMore() ? cs.addNext(this) : null;
     this.nextMap.set(key, res);
     return res;
   }
