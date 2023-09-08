@@ -8,6 +8,12 @@ import {
   GrammarType,
 } from "../model";
 import { CandidateRepo } from "./candidate";
+import {
+  FirstSets,
+  FollowSets,
+  ReadonlyFirstSets,
+  ReadonlyFollowSets,
+} from "./model";
 import { StateRepo } from "./state";
 import {
   getGrammarRulesClosure,
@@ -72,7 +78,7 @@ export class DFABuilder {
     const NTClosures = getAllNTClosure(NTs, grs);
 
     // construct first sets for all NTs
-    const firstSets = new Map<string, GrammarSet>();
+    const firstSets = new Map<string, GrammarSet>() as FirstSets;
     NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
     NTClosures.forEach((grs, NT) => {
       const gs = firstSets.get(NT);
@@ -81,7 +87,7 @@ export class DFABuilder {
     });
 
     // construct follow sets for all grammars
-    const followSets = new Map<string, GrammarSet>();
+    const followSets = new Map<string, GrammarSet>() as FollowSets;
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
@@ -126,8 +132,8 @@ export class DFABuilder {
       entryNTs,
       entryState,
       NTClosures,
-      firstSets,
-      followSets,
+      firstSets: firstSets as ReadonlyFirstSets,
+      followSets: followSets as ReadonlyFollowSets,
       allStates,
       NTs,
       cs,

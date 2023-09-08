@@ -10,6 +10,7 @@ import {
 } from "../model";
 import { ReLexStack, RollbackStack } from "../model";
 import { CandidateRepo } from "./candidate";
+import { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
 import { State, StateRepo } from "./state";
 import { map2serializable } from "./utils";
 
@@ -25,14 +26,8 @@ export class DFA<ASTData, Kinds extends string> {
       string,
       GrammarRule<ASTData, Kinds>[]
     >,
-    /**
-     *  `NT => Grammars`
-     */
-    public readonly firstSets: ReadonlyMap<string, GrammarSet>,
-    /**
-     * `NT => Grammars`
-     */
-    public readonly followSets: ReadonlyMap<string, GrammarSet>,
+    public readonly firstSets: ReadonlyFirstSets,
+    public readonly followSets: ReadonlyFollowSets,
     private readonly candidates: CandidateRepo<ASTData, Kinds>,
     private readonly states: StateRepo<ASTData, Kinds>,
     private readonly grammars: GrammarRepo,

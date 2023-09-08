@@ -15,6 +15,7 @@ import {
   Grammar,
   GrammarRuleRepo,
 } from "../model";
+import { ReadonlyFollowSets } from "./model";
 import { ASTNodeSelectorFactory, lexGrammar, map2serializable } from "./utils";
 
 /** Candidate for ELR parsers. */
@@ -138,7 +139,7 @@ export class Candidate<ASTData, Kinds extends string> {
    */
   tryLex(
     lexer: Readonly<ILexer<any, any>>,
-    followSets: ReadonlyMap<string, GrammarSet>
+    followSets: ReadonlyFollowSets
   ): { node: ASTNode<ASTData, Kinds>; lexer: ILexer<any, any> }[] {
     if (this.canDigestMore()) {
       const res = lexGrammar<ASTData, Kinds>(this.current!, lexer);
@@ -166,7 +167,7 @@ export class Candidate<ASTData, Kinds extends string> {
   tryReduce(
     buffer: readonly ASTNode<ASTData, Kinds>[],
     entryNTs: ReadonlySet<string>,
-    followSets: ReadonlyMap<string, GrammarSet>,
+    followSets: ReadonlyFollowSets,
     lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,

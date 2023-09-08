@@ -16,6 +16,7 @@ import {
   Grammar,
 } from "../model";
 import { Candidate, CandidateRepo } from "./candidate";
+import { ReadonlyFollowSets } from "./model";
 import { map2serializable } from "./utils";
 
 /**
@@ -104,7 +105,7 @@ export class State<ASTData, Kinds extends string> {
    */
   tryLex(
     lexer: Readonly<ILexer<any, any>>,
-    followSets: ReadonlyMap<string, GrammarSet>
+    followSets: ReadonlyFollowSets
   ): { node: ASTNode<ASTData, Kinds>; lexer: ILexer<any, any> }[] {
     const res: { node: ASTNode<ASTData, Kinds>; lexer: ILexer<any, any> }[] =
       [];
@@ -118,7 +119,7 @@ export class State<ASTData, Kinds extends string> {
   tryReduce(
     buffer: readonly ASTNode<ASTData, Kinds>[],
     entryNTs: ReadonlySet<string>,
-    followSets: ReadonlyMap<string, GrammarSet>,
+    followSets: ReadonlyFollowSets,
     lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
