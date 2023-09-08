@@ -33,9 +33,9 @@ export class DFA<ASTData, Kinds extends string> {
      * `NT => Grammars`
      */
     public readonly followSets: ReadonlyMap<string, GrammarSet>,
-    private readonly cs: CandidateRepo<ASTData, Kinds>,
-    private readonly allStates: StateRepo<ASTData, Kinds>,
-    private readonly repo: GrammarRepo,
+    private readonly candidates: CandidateRepo<ASTData, Kinds>,
+    private readonly states: StateRepo<ASTData, Kinds>,
+    private readonly grammars: GrammarRepo,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -44,7 +44,7 @@ export class DFA<ASTData, Kinds extends string> {
   ) {}
 
   getAllStates() {
-    return this.allStates as Readonly<StateRepo<ASTData, Kinds>>;
+    return this.states as Readonly<StateRepo<ASTData, Kinds>>;
   }
 
   /**
@@ -146,11 +146,11 @@ export class DFA<ASTData, Kinds extends string> {
       const nextStateResult = stateStack
         .at(-1)!
         .getNext(
-          this.repo,
+          this.grammars,
           buffer[index],
           this.NTClosures,
-          this.allStates,
-          this.cs
+          this.states,
+          this.candidates
         );
       if (nextStateResult.state == null) {
         // try to restore from re-lex stack
@@ -215,21 +215,21 @@ export class DFA<ASTData, Kinds extends string> {
 
   toSerializable() {
     return {
-      grs: this.grs.toSerializable(this.repo),
       entryNTs: [...this.entryNTs],
-      entryState: this.allStates.getKey(this.entryState),
+      grammars: this.grammars.toSerializable(),
+      grs: this.grs.toSerializable(this.grammars),
+      candidates: this.candidates.toSerializable(this.grs),
+      states: this.states.toSerializable(this.candidates),
+      entryState: this.states.getKey(this.entryState),
       NTClosures: map2serializable(this.NTClosures, (grs) =>
         grs.map((gr) => this.grs.getKey(gr))
       ),
       firstSets: map2serializable(this.firstSets, (v) =>
-        v.toSerializable(this.repo)
+        v.toSerializable(this.grammars)
       ),
       followSets: map2serializable(this.followSets, (v) =>
-        v.toSerializable(this.repo)
+        v.toSerializable(this.grammars)
       ),
-      cs: this.cs.toSerializable(this.grs),
-      allStates: this.allStates.toSerializable(this.cs),
-      repo: this.repo.toSerializable(),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };
   }
