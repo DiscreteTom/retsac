@@ -19,7 +19,7 @@ export type BuildOptions = Partial<
    */
   generateResolvers?: "builder" | "context";
   /**
-   * If `true`, print all errors instead of throwing errors.
+   * If `true`, print all errors instead of throwing errors during the build process.
    * @default false
    */
   printAll?: boolean;
