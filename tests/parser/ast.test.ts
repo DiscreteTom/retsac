@@ -13,7 +13,7 @@ test("from token", () => {
 
 test("to obj", () => {
   const node1 = ASTNode.from({ content: "123", kind: "num", start: 0 });
-  const obj1 = node1.toObj();
+  const obj1 = node1.toJSON();
 
   expect(obj1).toEqual({
     name: "num",
@@ -28,7 +28,7 @@ test("to obj", () => {
     start: 0,
     children: [node1],
   });
-  const obj2 = node2.toObj();
+  const obj2 = node2.toJSON();
 
   expect(obj2).toEqual({
     name: "exp",
