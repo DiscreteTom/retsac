@@ -30,6 +30,8 @@
   - **_Breaking Change_**: remove `ReducerContext`, just use `GrammarRuleContext`.
   - **_Breaking Change_**: rename `BaseResolverOptions.reduce` to `accept`.
   - **_Breaking Change_**: rename `ASTNode.toObj` to `toJSON`.
+  - **_Breaking Change_**: `ASTNode/GrammarRuleContext.$` is renamed to `ASTNode/GrammarRuleContext.$$` to search for an array.
+    - Add `ASTNode/GrammarRuleContext.$` to search for the first match.
   - Feat: add `ASTNodeSelector`.
   - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.

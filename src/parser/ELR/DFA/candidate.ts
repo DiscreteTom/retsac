@@ -16,7 +16,12 @@ import {
   GrammarRuleRepo,
 } from "../model";
 import { ReadonlyFollowSets } from "./model";
-import { ASTNodeSelectorFactory, lexGrammar, map2serializable } from "./utils";
+import {
+  ASTNodeFirstMatchSelectorFactory,
+  ASTNodeSelectorFactory,
+  lexGrammar,
+  map2serializable,
+} from "./utils";
 
 /** Candidate for ELR parsers. */
 export class Candidate<ASTData, Kinds extends string> {
@@ -182,11 +187,15 @@ export class Candidate<ASTData, Kinds extends string> {
     const rollbackNames = () => matched.forEach((n) => (n.name = n.kind)); // rollback the name
 
     const selector = ASTNodeSelectorFactory<ASTData, Kinds>(cascadeQueryPrefix);
+    const firstMatchSelector = ASTNodeFirstMatchSelectorFactory<ASTData, Kinds>(
+      cascadeQueryPrefix
+    );
     const context = new GrammarRuleContext<ASTData, Kinds>({
       matched,
       lexer,
       beforeFactory: () => buffer.slice(0, -this.gr.rule.length),
       selector,
+      firstMatchSelector,
     });
 
     // check follow for LR(1) with the rest input string
@@ -304,6 +313,7 @@ export class Candidate<ASTData, Kinds extends string> {
       start: matched[0].start,
       traverser: this.gr.traverser,
       selector,
+      firstMatchSelector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
     if (debug) logger(`[Accept] ${this.gr}`);

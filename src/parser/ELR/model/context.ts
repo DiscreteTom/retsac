@@ -1,5 +1,11 @@
 import { ILexer } from "../../../lexer";
-import { ASTNode, ASTNodeChildrenSelector, ASTNodeSelector } from "../../ast";
+import {
+  ASTNode,
+  ASTNodeChildrenSelector,
+  ASTNodeFirstMatchChildSelector,
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../../ast";
 
 /**
  * This is used in grammar rule's callback, reducer and condition of rejecter/committer.
@@ -20,10 +26,11 @@ export class GrammarRuleContext<ASTData, Kinds extends string> {
   get after() {
     return this.lexer.getRest();
   }
+  readonly $: ASTNodeFirstMatchChildSelector<ASTData, Kinds>;
   /**
    * Find AST nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<ASTData, Kinds>;
+  readonly $$: ASTNodeChildrenSelector<ASTData, Kinds>;
   /**
    * Current lexer state. You'd better not modify it.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
@@ -53,13 +60,16 @@ export class GrammarRuleContext<ASTData, Kinds extends string> {
     p: Pick<GrammarRuleContext<ASTData, Kinds>, "matched" | "lexer"> & {
       beforeFactory: () => ASTNode<ASTData, Kinds>[];
       selector: ASTNodeSelector<ASTData, Kinds>;
+      firstMatchSelector: ASTNodeFirstMatchSelector<ASTData, Kinds>;
     }
   ) {
     this.matched = p.matched;
     this.lexer = p.lexer;
     this.beforeFactory = p.beforeFactory;
     const selector = p.selector;
-    this.$ = (name: string) => selector(name, this.matched);
+    const firstMatchSelector = p.firstMatchSelector;
+    this.$ = (name: string) => firstMatchSelector(name, this.matched);
+    this.$$ = (name: string) => selector(name, this.matched);
   }
 }
 

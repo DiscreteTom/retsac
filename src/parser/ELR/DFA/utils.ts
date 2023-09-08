@@ -1,5 +1,5 @@
 import { ILexer } from "../../../lexer";
-import { ASTNodeSelector, ASTNode } from "../../ast";
+import { ASTNodeSelector, ASTNode, ASTNodeFirstMatchSelector } from "../../ast";
 import {
   ParserBuilderData,
   ResolvedTempConflict,
@@ -90,9 +90,28 @@ export function ASTNodeSelectorFactory<ASTData, Kinds extends string>(
         cascadeQueryPrefix !== undefined &&
         n.name.startsWith(cascadeQueryPrefix)
       )
-        result.push(...n.$(name));
+        result.push(...n.$$(name));
     });
     return result;
+  };
+}
+export function ASTNodeFirstMatchSelectorFactory<ASTData, Kinds extends string>(
+  cascadeQueryPrefix: string | undefined
+): ASTNodeFirstMatchSelector<ASTData, Kinds> {
+  return (name: string, nodes: readonly ASTNode<ASTData, Kinds>[]) => {
+    for (const n of nodes) {
+      if (n.name === name) return n;
+
+      // cascade query
+      if (
+        cascadeQueryPrefix !== undefined &&
+        n.name.startsWith(cascadeQueryPrefix)
+      ) {
+        const result = n.$(name);
+        if (result !== undefined) return result;
+      }
+    }
+    return undefined;
   };
 }
 

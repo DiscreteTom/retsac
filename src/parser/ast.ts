@@ -40,16 +40,29 @@ export type ASTObj = {
 export type ASTNodeChildrenSelector<ASTData, Kinds extends string> = (
   name: string
 ) => ASTNode<ASTData, Kinds>[];
-
+/**
+ * Select the first matched child node by the name.
+ */
+export type ASTNodeFirstMatchChildSelector<ASTData, Kinds extends string> = (
+  name: string
+) => ASTNode<ASTData, Kinds> | undefined;
 export type ASTNodeSelector<ASTData, Kinds extends string> = (
   name: string,
   nodes: readonly ASTNode<ASTData, Kinds>[]
 ) => ASTNode<ASTData, Kinds>[];
+export type ASTNodeFirstMatchSelector<ASTData, Kinds extends string> = (
+  name: string,
+  nodes: readonly ASTNode<ASTData, Kinds>[]
+) => ASTNode<ASTData, Kinds> | undefined;
 
 /**
  * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
  */
 export const mockASTNodeSelector: ASTNodeSelector<any, any> = () => [];
+export const mockASTNodeFirstMatchSelector: ASTNodeFirstMatchSelector<
+  any,
+  any
+> = () => undefined;
 
 /**
  * Traverser is called when a top-down traverse is performed.
@@ -108,10 +121,13 @@ export class ASTNode<ASTData, Kinds extends string> {
   data?: ASTData;
   error?: any; // TODO: generic type?
   /**
+   * Select the first matched child node by the name.
+   */
+  readonly $: ASTNodeFirstMatchChildSelector<ASTData, Kinds>;
+  /**
    * Select children nodes by the name.
    */
-  readonly $: ASTNodeChildrenSelector<ASTData, Kinds>;
-  // TODO: add $$ to search for an array, use $ to search for the first match
+  readonly $$: ASTNodeChildrenSelector<ASTData, Kinds>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
@@ -144,6 +160,7 @@ export class ASTNode<ASTData, Kinds extends string> {
     > & {
       traverser?: Traverser<ASTData, Kinds>;
       selector?: ASTNodeSelector<ASTData, Kinds>;
+      firstMatchSelector?: ASTNodeFirstMatchSelector<ASTData, Kinds>;
     } & Partial<Pick<ASTNode<ASTData, Kinds>, "name">>
   ) {
     this._name = p.name ?? p.kind;
@@ -156,7 +173,10 @@ export class ASTNode<ASTData, Kinds extends string> {
     this.error = p.error;
     this.traverser = p.traverser ?? defaultTraverser;
     const selector = p.selector ?? mockASTNodeSelector;
-    this.$ = (name: string) => selector(name, this.children ?? []);
+    const firstMatchSelector =
+      p.firstMatchSelector ?? mockASTNodeFirstMatchSelector;
+    this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
+    this.$$ = (name: string) => selector(name, this.children ?? []);
 
     this.str = new StringCache(
       () =>
