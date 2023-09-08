@@ -607,8 +607,9 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     return this;
   }
 
-  // TODO: type this
-  private buildSerializable(dfa: DFA<ASTData, any>): SerializableParserData {
+  private buildSerializable<LexerKinds extends string>(
+    dfa: DFA<ASTData, Kinds | LexerKinds>
+  ): SerializableParserData {
     return {
       // meta: JSON.stringify({
       //   data: this.data.map((d) => ({
