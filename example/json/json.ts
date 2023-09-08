@@ -23,14 +23,14 @@ export const parser = new ELR.AdvancedBuilder<any>()
   )
   .define(
     { array: `'[' (value (',' value)*)? ']'` },
-    ELR.traverser(({ $ }) => $(`value`).map((v) => v.traverse()))
+    ELR.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse()))
   )
   .define(
     { object: `'{' (object_item (',' object_item)*)? '}'` },
-    ELR.traverser(({ $ }) => {
+    ELR.traverser(({ $$ }) => {
       // every object_item's traverse result is an object, we need to merge them
       const result: { [key: string]: any } = {};
-      $(`object_item`).forEach((item) => {
+      $$(`object_item`).forEach((item) => {
         Object.assign(result, item.traverse());
       });
       return result;
@@ -41,7 +41,7 @@ export const parser = new ELR.AdvancedBuilder<any>()
     // return an object
     ELR.traverser(({ $ }) => {
       const result: { [key: string]: any } = {};
-      result[$(`string`)[0].text!.slice(1, -1)] = $(`value`)[0].traverse();
+      result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
       return result;
     })
   )

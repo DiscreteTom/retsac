@@ -21,9 +21,9 @@ export const parser = new ELR.ParserBuilder()
         '}'
       `,
     },
-    ELR.callback(({ $ }) => {
-      fName = $("identifier")[0].text!;
-      returnType = $("identifier")[1].text!;
+    ELR.callback(({ $$ }) => {
+      fName = $$("identifier")[0].text!;
+      returnType = $$("identifier")[1].text!;
     })
   )
   .build(lexer);
