@@ -85,8 +85,8 @@ export class GrammarRepo {
     return g;
   }
 
-  toSerializable() {
+  toJSON() {
     const result = [] as any[];
-    return this.gs.forEach((g) => result.push(g.toSerializable()));
+    return this.gs.forEach((g) => result.push(g.toJSON()));
   }
 }

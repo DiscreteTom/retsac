@@ -253,14 +253,13 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * Return an ASTObj for serialization.
    */
-  // TODO: rename to toJSON
-  toObj(): ASTObj {
+  toJSON(): ASTObj {
     return {
       name: this.name,
       kind: this.kind,
       start: this.start,
       text: this.text || "",
-      children: this.children?.map((c) => c.toObj()) ?? [],
+      children: this.children?.map((c) => c.toJSON()) ?? [],
     };
   }
 

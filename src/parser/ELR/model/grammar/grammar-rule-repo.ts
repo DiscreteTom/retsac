@@ -40,7 +40,7 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     return res;
   }
 
-  toSerializable(repo: GrammarRepo) {
-    return this.map((gr) => gr.toSerializable(repo, this));
+  toJSON(repo: GrammarRepo) {
+    return this.map((gr) => gr.toJSON(repo, this));
   }
 }

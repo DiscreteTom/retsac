@@ -51,7 +51,7 @@ export class GrammarSet {
     return result;
   }
 
-  toSerializable(repo: GrammarRepo) {
+  toJSON(repo: GrammarRepo) {
     return this.map((g) => repo.getKey(g));
   }
 }

@@ -147,10 +147,7 @@ export class State<ASTData, Kinds extends string> {
     return rejectedParserOutput;
   }
 
-  toSerializable(
-    cs: CandidateRepo<ASTData, Kinds>,
-    ss: StateRepo<ASTData, Kinds>
-  ) {
+  toJSON(cs: CandidateRepo<ASTData, Kinds>, ss: StateRepo<ASTData, Kinds>) {
     return {
       candidates: this.candidates.map((c) => cs.getKey(c)),
       nextMap: map2serializable(this.nextMap, (s) =>
@@ -254,7 +251,7 @@ export class StateRepo<ASTData, Kinds extends string> {
     return false;
   }
 
-  toSerializable(cs: CandidateRepo<ASTData, Kinds>) {
-    return map2serializable(this.ss, (s) => s.toSerializable(cs, this));
+  toJSON(cs: CandidateRepo<ASTData, Kinds>) {
+    return map2serializable(this.ss, (s) => s.toJSON(cs, this));
   }
 }

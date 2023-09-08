@@ -213,22 +213,22 @@ export class DFA<ASTData, Kinds extends string> {
     }
   }
 
-  toSerializable() {
+  toJSON() {
     return {
       entryNTs: [...this.entryNTs],
-      grammars: this.grammars.toSerializable(),
-      grs: this.grs.toSerializable(this.grammars),
-      candidates: this.candidates.toSerializable(this.grs),
-      states: this.states.toSerializable(this.candidates),
+      grammars: this.grammars.toJSON(),
+      grs: this.grs.toJSON(this.grammars),
+      candidates: this.candidates.toJSON(this.grs),
+      states: this.states.toJSON(this.candidates),
       entryState: this.states.getKey(this.entryState),
       NTClosures: map2serializable(this.NTClosures, (grs) =>
         grs.map((gr) => this.grs.getKey(gr))
       ),
       firstSets: map2serializable(this.firstSets, (v) =>
-        v.toSerializable(this.grammars)
+        v.toJSON(this.grammars)
       ),
       followSets: map2serializable(this.followSets, (v) =>
-        v.toSerializable(this.grammars)
+        v.toJSON(this.grammars)
       ),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };

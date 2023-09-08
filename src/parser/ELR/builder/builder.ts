@@ -622,7 +622,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       //   })),
       //   cascadeQueryPrefix: this.cascadeQueryPrefix,
       // }),
-      data: { dfa: dfa.toSerializable() },
+      data: { dfa: dfa.toJSON() },
     };
   }
 

@@ -320,7 +320,7 @@ export class Candidate<ASTData, Kinds extends string> {
     };
   }
 
-  toSerializable(
+  toJSON(
     grs: GrammarRuleRepo<ASTData, Kinds>,
     cs: CandidateRepo<ASTData, Kinds>
   ) {
@@ -387,7 +387,7 @@ export class CandidateRepo<ASTData, Kinds extends string> {
     return next;
   }
 
-  toSerializable(grs: GrammarRuleRepo<ASTData, Kinds>) {
-    return map2serializable(this.cs, (c) => c.toSerializable(grs, this));
+  toJSON(grs: GrammarRuleRepo<ASTData, Kinds>) {
+    return map2serializable(this.cs, (c) => c.toJSON(grs, this));
   }
 }

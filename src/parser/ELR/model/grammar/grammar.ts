@@ -170,7 +170,7 @@ export class Grammar {
       : data.kind;
   }
 
-  toSerializable() {
+  toJSON() {
     return {
       type: this.type,
       kind: this.kind,

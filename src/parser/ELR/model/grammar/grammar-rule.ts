@@ -138,7 +138,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
   }
 
   // TODO: type this
-  toSerializable(repo: GrammarRepo, grs: GrammarRuleRepo<any, any>): any {
+  toJSON(repo: GrammarRepo, grs: GrammarRuleRepo<any, any>): any {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => repo.getKey(g)),
