@@ -247,6 +247,13 @@ export class StateRepo<ASTData, Kinds extends string> {
     return { state: s, changed: true };
   }
 
+  some(f: (s: State<ASTData, Kinds>) => boolean) {
+    for (const s of this.ss.values()) {
+      if (f(s)) return true;
+    }
+    return false;
+  }
+
   toSerializable(cs: CandidateRepo<ASTData, Kinds>) {
     return map2serializable(this.ss, (s) => s.toSerializable(cs, this));
   }

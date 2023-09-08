@@ -43,11 +43,8 @@ export class DFA<ASTData, Kinds extends string> {
     public logger: Logger
   ) {}
 
-  // TODO: remove this?
   getAllStates() {
-    const result: State<ASTData, Kinds>[] = [];
-    this.allStates.states.forEach((s) => result.push(s));
-    return result;
+    return this.allStates as Readonly<StateRepo<ASTData, Kinds>>;
   }
 
   /**
