@@ -32,19 +32,19 @@ export const parser = new ELR.ParserBuilder<number>()
     { exp: `exp '+' exp` },
     ELR.traverser(
       // remember to use `child.traverse()` instead of `child.data` to get the data
-      ({ children }) => children![0].traverse()! + children![2].traverse()!
+      ({ children }) => children[0].traverse()! + children[2].traverse()!
     )
   )
   .define(
     { exp: `number` },
-    ELR.traverser(({ children }) => Number(children![0].text!))
+    ELR.traverser(({ children }) => Number(children[0].text!))
     // reducer can still be used to set the data before traversing
     // ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children![0].text!)!)
+    ELR.traverser(({ children }) => varMap.get(children[0].text!)!)
   )
   .resolveRS(
     { exp: `exp '+' exp` },
@@ -75,11 +75,11 @@ export const parser2 = new ELR.ParserBuilder<number>()
   .define(
     { stmt: `return exp` },
     // return expression value
-    ELR.traverser(({ children }) => children![1].traverse())
+    ELR.traverser(({ children }) => children[1].traverse())
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children![0].text!)!)
+    ELR.traverser(({ children }) => varMap.get(children[0].text!)!)
   )
   .build(lexer, { checkAll: true });

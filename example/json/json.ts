@@ -15,11 +15,11 @@ export const parser = new ELR.AdvancedBuilder<any>()
   .define(
     { value: `string | number | true | false | null` },
     // especially, for string use `eval` to make `\\x` become `\x`
-    ELR.traverser(({ children }) => eval(children![0].text!))
+    ELR.traverser(({ children }) => eval(children[0].text!))
   )
   .define(
     { value: `object | array` },
-    ELR.traverser(({ children }) => children![0].traverse())
+    ELR.traverser(({ children }) => children[0].traverse())
   )
   .define(
     { array: `'[' (value (',' value)*)? ']'` },
