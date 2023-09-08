@@ -54,27 +54,26 @@ export const mockASTNodeSelector: ASTNodeSelector<any, any> = () => [];
 /**
  * Traverser is called when a top-down traverse is performed.
  * The result of the traverser is stored in the ASTNode's data field.
+ * Traverser should never be called in a leaf node (no children).
  */
 export type Traverser<ASTData, Kinds extends string> = (
-  self: ASTNode<ASTData, Kinds>
+  self: ASTNode<ASTData, Kinds> & {
+    // children is not undefined
+    children: NonNullable<ASTNode<ASTData, Kinds>["children"]>;
+  }
 ) => ASTData | undefined | void;
 
 /**
  * The default traverser.
  */
 export function defaultTraverser<ASTData, Kinds extends string>(
-  self: ASTNode<ASTData, Kinds>
+  self: Parameters<Traverser<ASTData, Kinds>>[0]
 ): ASTData | undefined | void {
-  if (self.children !== undefined) {
-    // if there is only one child, use its data or traverse to get its data
-    if (self.children.length == 1)
-      return self.children![0].data ?? self.children![0].traverse();
-    // if there are multiple children, traverse all, don't return anything
-    self.children.forEach((c) => c.traverse());
-  } else {
-    // if there is no children, then this node is a T and the traverse should not be called
-    throw new InvalidTraverseError(self);
-  }
+  // if there is only one child, use its data or traverse to get its data
+  if (self.children.length == 1)
+    return self.children[0].data ?? self.children[0].traverse();
+  // if there are multiple children, traverse all, don't return anything
+  self.children.forEach((c) => c.traverse());
 }
 
 // TODO: default ASTData type?
@@ -112,6 +111,7 @@ export class ASTNode<ASTData, Kinds extends string> {
    * Select children nodes by the name.
    */
   readonly $: ASTNodeChildrenSelector<ASTData, Kinds>;
+  // TODO: add $$ to search for an array, use $ to search for the first match
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
@@ -265,9 +265,14 @@ export class ASTNode<ASTData, Kinds extends string> {
 
   /**
    * Use the traverser to calculate data and return the data.
+   *
+   * @throws {InvalidTraverseError} if the node is a leaf node (no children).
    */
   traverse(): ASTData | undefined {
-    const res = this.traverser(this);
+    if (this.children === undefined) throw new InvalidTraverseError(this);
+    const res = this.traverser(
+      this as Parameters<Traverser<ASTData, Kinds>>[0] // children is not undefined
+    );
     this.data =
       res ??
       (res === null
