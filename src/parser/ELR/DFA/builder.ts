@@ -86,7 +86,9 @@ export class DFABuilder {
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
         if (!followSets.has(g.kind)) {
-          // if g is a T/Literal, it might not have a follow set // TODO: what's the meaning of this comment?
+          // if g is a T (including literal), it might not have a follow set
+          // because we just init all follow sets only for NTs
+          // so now we init a new empty set for it
           followSets.set(g.kind, new GrammarSet());
         }
         if (i < rule.length - 1) {
