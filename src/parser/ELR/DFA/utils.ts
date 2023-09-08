@@ -110,7 +110,7 @@ export function lexGrammar<ASTData, Kinds extends string>(
   }
 
   // try to lex to get the token
-  lexer = lexer.clone(); // prevent side effect // TODO: don't clone lexer, use peek?
+  lexer = lexer.clone(); // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex, so we will need many lexers with different states
   const token = lexer.lex({
     expect: {
       kind: g.kind,
