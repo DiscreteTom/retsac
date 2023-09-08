@@ -120,7 +120,7 @@ export class State<ASTData, Kinds extends string> {
    */
   static getString(data: Pick<State<any, any>, "candidates">) {
     return data.candidates
-      .map((c) => c.strWithGrammarName.value)
+      .map((c) => c.strWithGrammarName)
       .sort()
       .join("\n");
   }

@@ -37,24 +37,27 @@ export class Candidate<ASTData, Kinds extends string> {
   /**
    * @see {@link Candidate.toString}
    */
-  readonly str: StringCache;
+  readonly str: string;
   /**
    * @see {@link Candidate.getStrWithGrammarName}
    */
-  readonly strWithGrammarName: StringCache;
+  readonly strWithGrammarName: string;
 
   /**
    * Only {@link CandidateRepo} should use this constructor.
    */
-  constructor(data: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
+  constructor(
+    data: Pick<
+      Candidate<ASTData, Kinds>,
+      "gr" | "digested" | "strWithGrammarName"
+    >
+  ) {
     this.gr = data.gr;
     this.digested = data.digested;
     this.nextMap = new Map();
 
-    this.str = new StringCache(() => this.strWithGrammarName.value);
-    this.strWithGrammarName = new StringCache(() =>
-      Candidate.getStrWithGrammarName(this)
-    );
+    this.strWithGrammarName = data.strWithGrammarName;
+    this.str = this.strWithGrammarName;
   }
 
   /**
@@ -95,7 +98,7 @@ export class Candidate<ASTData, Kinds extends string> {
    * For debug output.
    */
   toString() {
-    return this.str.value;
+    return this.str;
   }
 
   /**
@@ -324,8 +327,8 @@ export class Candidate<ASTData, Kinds extends string> {
       nextMap: map2serializable(this.nextMap, (c) =>
         c == null ? null : cs.getKey(c)
       ),
-      str: this.str.value,
-      strWithGrammarName: this.strWithGrammarName.value,
+      str: this.str,
+      strWithGrammarName: this.strWithGrammarName,
     };
   }
 }
@@ -342,7 +345,7 @@ export class CandidateRepo<ASTData, Kinds extends string> {
 
   getKey(c: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
     return c instanceof Candidate
-      ? c.strWithGrammarName.value
+      ? c.strWithGrammarName
       : Candidate.getStrWithGrammarName(c);
   }
 
@@ -362,7 +365,10 @@ export class CandidateRepo<ASTData, Kinds extends string> {
     const key = this.getKey(raw);
     if (this.cs.has(key)) return undefined;
 
-    const c = new Candidate<ASTData, Kinds>(raw); // TODO: add key
+    const c = new Candidate<ASTData, Kinds>({
+      ...raw,
+      strWithGrammarName: key,
+    });
     this.cs.set(key, c);
     return c;
   }
@@ -376,7 +382,10 @@ export class CandidateRepo<ASTData, Kinds extends string> {
     const cache = this.cs.get(key);
     if (cache != undefined) return cache;
 
-    const next = new Candidate<ASTData, Kinds>(raw); // TODO: add key
+    const next = new Candidate<ASTData, Kinds>({
+      ...raw,
+      strWithGrammarName: key,
+    });
     this.cs.set(key, next);
     return next;
   }
