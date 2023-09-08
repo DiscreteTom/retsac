@@ -1,7 +1,7 @@
 import { IParserBuilder } from "../../model/builder";
 
 export function applyResolvers<ASTData, Kinds extends string>(
-  builder: IParserBuilder<ASTData, "gr" | Kinds> // TODO: use &?
+  builder: IParserBuilder<ASTData, "gr" | Kinds>
 ) {
   return builder
     .priority(
@@ -13,8 +13,5 @@ export function applyResolvers<ASTData, Kinds extends string>(
       { gr: `grammar rename | literal rename` },
       { gr: `grammar | literal` }
     )
-    .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` }) as IParserBuilder<
-    ASTData,
-    Kinds
-  >;
+    .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` });
 }
