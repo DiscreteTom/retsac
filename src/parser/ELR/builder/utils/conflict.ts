@@ -55,7 +55,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<ASTData, Kinds>>,
   anotherRule: Readonly<GrammarRule<ASTData, Kinds>>,
-  next: readonly Grammar[],
+  next: GrammarSet,
   checkHandleEnd: boolean,
   debug: boolean,
   logger: Logger
@@ -73,10 +73,11 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
     if (r.next == "*") {
       resolveAll = true;
       resolvedNext.length = 0; // clear
-    } else if (!resolveAll) r.next.forEach((n) => resolvedNext.push(n));
+    } else if (!resolveAll)
+      r.next.grammars.forEach((n) => resolvedNext.push(n));
   });
   const unresolvedNext = resolveAll
-    ? []
+    ? new GrammarSet() // TODO: use undefined here
     : next.filter((n) => !resolvedNext.some((rn) => n.equalWithoutName(rn)));
 
   if (debug) {
@@ -92,7 +93,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
         }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext}`
       );
-    if (unresolvedNext.length > 0)
+    if (unresolvedNext.grammars.size > 0)
       logger(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
@@ -117,7 +118,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
     if (debug) {
       if (unresolvedEnd)
         logger(`[unresolved RR]: ${reducerRule} | ${anotherRule} end of input`);
-      if (unresolvedNext.length > 0)
+      if (unresolvedNext.grammars.size > 0)
         logger(
           `[user resolved RR]: ${reducerRule} | ${anotherRule} end of input`
         );
@@ -166,7 +167,7 @@ export function getConflicts<ASTData, Kinds extends string>(
         if (E.type == GrammarType.NT) {
           // E is a NT, check if A's follow has some grammar that is also in E's first
           const overlap = AFollow.overlap(EFirst);
-          if (overlap.length == 0) {
+          if (overlap.grammars.size == 0) {
             // no overlap, conflicts can be auto resolved
             if (debug)
               logger(
@@ -191,14 +192,14 @@ export function getConflicts<ASTData, Kinds extends string>(
           }
 
           // auto resolve failed
-          const conflict: Conflict<ASTData, Kinds> = {
+          reducerRule.conflicts.push({
             type: ConflictType.REDUCE_SHIFT,
             anotherRule,
             handleEnd: false,
             next: overlap,
             overlapped: c.overlapped,
-          };
-          reducerRule.conflicts.push(conflict);
+            resolvers: [],
+          });
         } else if (E.type == GrammarType.T) {
           // E is a T, check if A's follow has E
           if (AFollow.has(E)) {
@@ -219,14 +220,14 @@ export function getConflicts<ASTData, Kinds extends string>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<ASTData, Kinds> = {
+            reducerRule.conflicts.push({
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [E],
+              next: new GrammarSet([E]),
               overlapped: c.overlapped,
-            };
-            reducerRule.conflicts.push(conflict);
+              resolvers: [],
+            });
           }
         } else {
           // E is a literal, check if A's follow has E
@@ -248,14 +249,14 @@ export function getConflicts<ASTData, Kinds extends string>(
             }
 
             // auto resolve failed
-            const conflict: Conflict<ASTData, Kinds> = {
+            reducerRule.conflicts.push({
               type: ConflictType.REDUCE_SHIFT,
               anotherRule,
               handleEnd: false,
-              next: [E],
+              next: new GrammarSet([E]),
               overlapped: c.overlapped,
-            };
-            reducerRule.conflicts.push(conflict);
+              resolvers: [],
+            });
           }
         }
       });
@@ -274,7 +275,7 @@ export function getConflicts<ASTData, Kinds extends string>(
         const A = reducerRule.NT;
         const C = anotherRule.NT;
         const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
-        if (overlap.length == 0) {
+        if (overlap.grammars.size == 0) {
           // no overlap, all conflicts can be auto resolved
           if (debug)
             logger(
@@ -299,7 +300,7 @@ export function getConflicts<ASTData, Kinds extends string>(
         }
 
         // auto resolve failed
-        const c: Conflict<ASTData, Kinds> = {
+        reducerRule.conflicts.push({
           type: ConflictType.REDUCE_REDUCE,
           anotherRule,
           next: overlap,
@@ -307,8 +308,8 @@ export function getConflicts<ASTData, Kinds extends string>(
           handleEnd:
             endSet.has(repo.NT(reducerRule.NT)) &&
             endSet.has(repo.NT(anotherRule.NT)),
-        };
-        reducerRule.conflicts.push(c);
+          resolvers: [],
+        });
       }
     });
   });
@@ -342,7 +343,7 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
           logger
         );
 
-        if (res.next.length > 0) {
+        if (res.next.grammars.size > 0) {
           const conflict: Conflict<ASTData, Kinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
@@ -364,7 +365,7 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
           debug,
           logger
         );
-        if (res.next.length > 0 || res.end) {
+        if (res.next.grammars.size > 0 || res.end) {
           const conflict: Conflict<ASTData, Kinds> = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,

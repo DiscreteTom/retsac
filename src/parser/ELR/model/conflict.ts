@@ -1,5 +1,5 @@
 import { Condition } from "./context";
-import { GrammarRule, Grammar } from "./grammar";
+import { GrammarRule, Grammar, GrammarSet } from "./grammar";
 
 export enum ConflictType {
   REDUCE_SHIFT,
@@ -15,7 +15,7 @@ export interface Conflict<ASTData, Kinds extends string> {
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: readonly Readonly<Grammar>[];
+  next: GrammarSet;
   /**
    * Is this a conflict if there is no next input?
    */

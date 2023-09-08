@@ -16,9 +16,15 @@ export class GrammarRule<ASTData, Kinds extends string> {
   /**
    * A list of conflicts when the grammar rule wants to reduce.
    * All conflicts must be resolved before the DFA can be built.
-   * This will NOT be evaluated during parsing, just to record conflicts.
+   * This will also be evaluated during parsing, just to record conflicts.
    */
-  readonly conflicts: Conflict<ASTData, Kinds>[];
+  // TODO: update comments
+  readonly conflicts: (Conflict<ASTData, Kinds> & {
+    /**
+     * Related resolvers.
+     */
+    resolvers: ResolvedConflict<ASTData, Kinds>[];
+  })[];
   /**
    * A list of resolved conflicts.
    * All conflicts must be resolved by this before the DFA can be built.

@@ -51,17 +51,15 @@ export class LR_BuilderError extends Error {
     return new LR_BuilderError(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
-        ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${(
-            c.next as Grammar[]
-          )
+        ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${c.next
             .map((g) => g.toString())
             .join(
               " "
             )}\`): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
         : `Unresolved R-R conflict (${
             (c.handleEnd ? "end of input" : "") +
-            (c.next.length > 0
-              ? `${c.handleEnd ? ", " : ""}next: \`${(c.next as Grammar[])
+            (c.next.grammars.size > 0
+              ? `${c.handleEnd ? ", " : ""}next: \`${c.next
                   .map((g) => g.toString())
                   .join(" ")}\``
               : "")

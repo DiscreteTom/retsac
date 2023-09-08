@@ -13,8 +13,9 @@ export class GrammarSet {
    */
   private gs: Map<string, Grammar>;
 
-  constructor() {
+  constructor(gs: Grammar[] = []) {
     this.gs = new Map();
+    gs.forEach((g) => this.gs.set(g.strWithoutName.value, g));
   }
 
   get grammars() {
@@ -40,6 +41,21 @@ export class GrammarSet {
     return res;
   }
 
+  some(callback: (g: Grammar) => boolean) {
+    for (const g of this.gs.values()) {
+      if (callback(g)) return true;
+    }
+    return false;
+  }
+
+  filter(callback: (g: Grammar) => boolean) {
+    const res = [] as Grammar[];
+    this.gs.forEach((g) => {
+      if (callback(g)) res.push(g);
+    });
+    return new GrammarSet(res);
+  }
+
   /**
    * Return a list of grammars that in both `this` and `gs`.
    */
@@ -48,7 +64,7 @@ export class GrammarSet {
     this.gs.forEach((g) => {
       if (gs.has(g)) result.push(g);
     });
-    return result;
+    return new GrammarSet(result);
   }
 
   toJSON(repo: GrammarRepo) {

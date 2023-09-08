@@ -241,13 +241,21 @@ export class Candidate<ASTData, Kinds extends string> {
     }
 
     // check conflicts
-    for (const r of this.gr.resolved) {
+    for (const c of this.gr.conflicts) {
       // check EOF for RR conflict
-      if (r.type == ConflictType.REDUCE_REDUCE) {
+      if (c.type == ConflictType.REDUCE_REDUCE) {
         // if reach end of input
-        if (!context.lexer.hasRest()) {
-          // if handle the end of input
-          if (r.handleEnd) {
+        if (!nextTokenExists) {
+          // if the end needs to be handled
+          if (c.handleEnd) {
+            // find the resolver
+            const r = this.gr.resolved.find(
+              // TODO: use filter instead of find to get an array?
+              (r) =>
+                r.type == ConflictType.REDUCE_REDUCE &&
+                r.anotherRule == c.anotherRule &&
+                r.handleEnd
+            )!;
             // if not accepted, reject
             if (
               !(r.accepter instanceof Function
@@ -255,12 +263,12 @@ export class Candidate<ASTData, Kinds extends string> {
                 : r.accepter)
             ) {
               rollbackNames();
-              if (debug) logger(`[Reject by Resolved Conflict] ${this.gr}`);
+              if (debug) logger(`[Reject by Conflict] ${this.gr}`);
               return rejectedParserOutput;
             }
             // else, accepted, continue
           }
-          // else, not handle end, continue
+          // else, no need to handle end, continue
         }
         // else, not reach to end of input, continue
       }
@@ -268,30 +276,37 @@ export class Candidate<ASTData, Kinds extends string> {
       // check if any next grammar match the next token
       // no matter if it's RR or SR conflict
       if (!nextTokenExists) continue; // skip if no next token
-      if (
-        r.next == "*" ||
-        r.next.some(
-          (g) =>
-            context.lexer.lex({
-              // peek with expectation
-              peek: true,
-              expect: {
-                kind: g.kind,
-                text: g.text,
-              },
-            }) != null
-        )
-      ) {
-        // next match, check accepter
-        if (
-          !(r.accepter instanceof Function ? r.accepter(context) : r.accepter)
-        ) {
-          // reject
-          rollbackNames();
-          if (debug) logger(`[Reject by Resolved Conflict] ${this.gr}`);
-          return rejectedParserOutput;
+      let reject = false;
+      for (const g of c.next.grammars.values()) {
+        const token = context.lexer.lex({
+          // peek with expectation
+          peek: true,
+          expect: {
+            kind: g.kind,
+            text: g.text,
+          },
+        });
+        if (token == null) break; // next not match, continue
+        for (const r of c.resolvers) {
+          // find related resolver by the next
+          if (r.next == "*" || r.next.has(g)) {
+            // resolver's next match, check accepter
+            if (
+              !(r.accepter instanceof Function
+                ? r.accepter(context)
+                : r.accepter)
+            ) {
+              reject = true;
+              break;
+            }
+          }
         }
-        // else, accepted, continue
+        if (reject) break;
+      }
+      if (reject) {
+        rollbackNames();
+        if (debug) logger(`[Reject by Conflict] ${this.gr}`);
+        return rejectedParserOutput;
       }
       // else, next not match, continue
     }

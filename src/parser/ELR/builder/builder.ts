@@ -10,6 +10,7 @@ import {
   GrammarRuleRepo,
   SerializableParserData,
   Condition,
+  GrammarSet,
 } from "../model";
 import { LR_BuilderError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
@@ -239,15 +240,17 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
 
       const next =
         r.options.next == "*"
-          ? "*"
-          : // TODO: use a dedicated lexer to parse next
-            defToTempGRs({
-              "": r.options.next ?? "",
-            } as Definition<Kinds>)[0]?.rule.map((g) =>
-              g.toGrammar(repo, lexer, NTs.has(g.content))
-            ) ?? [];
+          ? ("*" as const)
+          : new GrammarSet(
+              // TODO: use a dedicated lexer to parse next
+              defToTempGRs({
+                "": r.options.next ?? "",
+              } as Definition<Kinds>)[0]?.rule.map((g) =>
+                g.toGrammar(repo, lexer, NTs.has(g.content))
+              ) ?? []
+            );
 
-      reducerRule.resolved.push({
+      const resolved = {
         anotherRule,
         type: r.type,
         next,
@@ -260,6 +263,22 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
             | boolean
             | Condition<ASTData, Kinds | LexerKinds>
             | undefined) ?? true,
+      };
+
+      reducerRule.resolved.push(resolved);
+
+      // update conflicts with related resolvers
+      reducerRule.conflicts.forEach((c) => {
+        if (
+          c.type == resolved.type &&
+          c.anotherRule == resolved.anotherRule &&
+          // next match or both handle end
+          (resolved.next == "*" ||
+            c.next.overlap(resolved.next).grammars.size > 0 ||
+            (c.handleEnd && resolved.handleEnd))
+        ) {
+          c.resolvers.push(resolved);
+        }
       });
     });
 
@@ -371,7 +390,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     grs.grammarRules.forEach((reducerRule) => {
       reducerRule.resolved.forEach((g) => {
         if (g.next == "*") return;
-        g.next.forEach((n) => {
+        g.next.grammars.forEach((n) => {
           if (!followSets.get(reducerRule.NT)!.has(n)) {
             const err = LR_BuilderError.nextGrammarNotFound(n, reducerRule.NT);
             if (printAll) logger(err.message);
@@ -386,7 +405,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       reducerRule.resolved.forEach((c) => {
         // check next
         if (c.next != "*")
-          c.next.forEach((n) => {
+          c.next.grammars.forEach((n) => {
             if (
               !reducerRule.conflicts.some(
                 (conflict) =>
@@ -448,8 +467,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
               `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
                 reducerRule.strWithGrammarName.value
               }, ${c.anotherRule.strWithGrammarName.value}, { ${
-                c.next.length > 0
-                  ? `next: \`${(c.next as Grammar[])
+                c.next.grammars.size > 0
+                  ? `next: \`${c.next
                       .map((g) => g.grammarStrWithName)
                       .join(" ")}\`, `
                   : ""
@@ -468,8 +487,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
                 `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
                   c.anotherRule.strWithGrammarName.value
                 }, { ${
-                  c.next.length > 0
-                    ? `next: \`${(c.next as Grammar[])
+                  c.next.grammars.size > 0
+                    ? `next: \`${c.next
                         .map((g) => g.grammarStrWithName)
                         .join(" ")}\`, `
                     : ""
