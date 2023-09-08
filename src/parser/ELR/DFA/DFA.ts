@@ -43,11 +43,6 @@ export class DFA<ASTData, Kinds extends string> {
     public logger: Logger
   ) {}
 
-  private log(msg: string) {
-    // TODO: use callback
-    if (this.debug) this.logger(msg);
-  }
-
   // TODO: remove this?
   getAllStates() {
     const result: State<ASTData, Kinds>[] = [];
@@ -96,13 +91,16 @@ export class DFA<ASTData, Kinds extends string> {
       index = state.index;
       errors = state.errors;
 
-      this.log(
-        `[Re-Lex] Restored input: "${
-          // restored input
-          state.buffer.at(-1)!.text +
-          state.lexer.getRest().slice(0, lexer.digested - state.lexer.digested)
-        }" Trying: ${buffer.at(-1)}`
-      );
+      if (this.debug)
+        this.logger(
+          `[Re-Lex] Restored input: "${
+            // restored input
+            state.buffer.at(-1)!.text +
+            state.lexer
+              .getRest()
+              .slice(0, lexer.digested - state.lexer.digested)
+          }" Trying: ${buffer.at(-1)}`
+        );
     };
 
     while (true) {
@@ -116,12 +114,13 @@ export class DFA<ASTData, Kinds extends string> {
             reLex();
           } else {
             // no more ASTNode can be lexed, parsing failed
-            this.log(
-              `[End] No matching token can be lexed. Rest of input: ${lexer.buffer.slice(
-                lexer.digested,
-                lexer.digested + 10
-              )}\nCandidates:\n${stateStack.at(-1)!.str}`
-            );
+            if (this.debug)
+              this.logger(
+                `[End] No matching token can be lexed. Rest of input: ${lexer.buffer.slice(
+                  lexer.digested,
+                  lexer.digested + 10
+                )}\nCandidates:\n${stateStack.at(-1)!.str}`
+              );
             return { output: rejectedParserOutput, lexer };
           }
         } else {
@@ -163,11 +162,12 @@ export class DFA<ASTData, Kinds extends string> {
           continue;
         } else {
           // no more candidate can be constructed, parsing failed
-          this.log(
-            `[End] No more candidate. Node=${buffer.at(-1)} Candidates:\n${
-              stateStack.at(-1)!.str
-            }`
-          );
+          if (this.debug)
+            this.logger(
+              `[End] No more candidate. Node=${buffer.at(-1)} Candidates:\n${
+                stateStack.at(-1)!.str
+              }`
+            );
           return { output: rejectedParserOutput, lexer };
         }
       }
@@ -184,7 +184,8 @@ export class DFA<ASTData, Kinds extends string> {
           this.followSets,
           lexer,
           this.cascadeQueryPrefix,
-          this.log.bind(this)
+          this.debug,
+          this.logger
         );
       if (!res.accept) {
         index++;

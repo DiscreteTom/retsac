@@ -169,6 +169,7 @@ export class Candidate<ASTData, Kinds extends string> {
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
+    debug: boolean,
     logger: Logger
   ):
     | RejectedParserOutput
@@ -218,14 +219,14 @@ export class Candidate<ASTData, Kinds extends string> {
           }
         }
         if (mismatch) {
-          logger(
-            // TODO: use callback
-            // don't use context.after here to optimize performance
-            `[Follow Mismatch] ${this.gr} follow=${context.lexer.buffer.slice(
-              context.lexer.digested,
-              context.lexer.digested + 10 // only show first 10 chars
-            )}`
-          );
+          if (debug)
+            logger(
+              // don't use context.after here to optimize performance
+              `[Follow Mismatch] ${this.gr} follow=${context.lexer.buffer.slice(
+                context.lexer.digested,
+                context.lexer.digested + 10 // only show first 10 chars
+              )}`
+            );
           rollbackNames();
           return rejectedParserOutput;
         }
@@ -248,7 +249,7 @@ export class Candidate<ASTData, Kinds extends string> {
                 : r.accepter)
             ) {
               rollbackNames();
-              logger(`[Reject by Resolved Conflict] ${this.gr}`);
+              if (debug) logger(`[Reject by Resolved Conflict] ${this.gr}`);
               return rejectedParserOutput;
             }
             // else, accepted, continue
@@ -281,7 +282,7 @@ export class Candidate<ASTData, Kinds extends string> {
         ) {
           // reject
           rollbackNames();
-          logger(`[Reject by Resolved Conflict] ${this.gr}`);
+          if (debug) logger(`[Reject by Resolved Conflict] ${this.gr}`);
           return rejectedParserOutput;
         }
         // else, accepted, continue
@@ -291,7 +292,7 @@ export class Candidate<ASTData, Kinds extends string> {
 
     // check rejecter
     if (this.gr.rejecter?.(context) ?? false) {
-      logger(`[Reject] ${this.gr}`);
+      if (debug) logger(`[Reject] ${this.gr}`);
       rollbackNames();
       return rejectedParserOutput;
     }
@@ -308,7 +309,7 @@ export class Candidate<ASTData, Kinds extends string> {
       selector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
-    logger(`[Accept] ${this.gr}`);
+    if (debug) logger(`[Accept] ${this.gr}`);
 
     return {
       accept: true,

@@ -110,7 +110,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     Ts: ReadonlySet<string>,
     grs: GrammarRuleRepo<ASTData, Kinds>,
     lexer: Readonly<ILexer<any, any>>,
-    printAll: boolean
+    printAll: boolean,
+    logger: Logger
   ) {
     // all grammar symbols should have its definition, either in NTs or Ts
     grs.grammarRules.forEach((gr) => {
@@ -119,7 +120,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
           // N/NT
           if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
             const e = LR_BuilderError.unknownGrammar(g.kind);
-            if (printAll) console.log(e.message);
+            if (printAll) logger(e.message);
             else throw e;
           }
         }
@@ -130,7 +131,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     NTs.forEach((name) => {
       if (Ts.has(name)) {
         const e = LR_BuilderError.duplicatedDefinition(name);
-        if (printAll) console.log(e.message);
+        if (printAll) logger(e.message);
         else throw e;
       }
     });
@@ -139,7 +140,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     this.entryNTs.forEach((NT) => {
       if (!NTs.has(NT)) {
         const e = LR_BuilderError.unknownEntryNT(NT);
-        if (printAll) console.log(e.message);
+        if (printAll) logger(e.message);
         else throw e;
       }
     });
@@ -153,7 +154,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         if (grammar.text != undefined) {
           if (lexer.reset().lex(grammar.text!) == null) {
             const e = LR_BuilderError.invalidLiteral(grammar.text!, gr);
-            if (printAll) console.log(e.message);
+            if (printAll) logger(e.message);
             else throw e;
           }
         }
@@ -166,16 +167,14 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
   private buildDFA<LexerKinds extends string>(
     lexer: ILexer<any, LexerKinds>,
     printAll: boolean,
-    options?: {
-      debug?: boolean;
-      logger?: Logger;
-      rollback?: boolean;
-      reLex?: boolean;
-    }
+    debug: boolean,
+    logger: Logger,
+    rollback: boolean,
+    reLex: boolean
   ) {
     if (this.entryNTs.size == 0) {
       const e = LR_BuilderError.noEntryNT();
-      if (printAll) console.log(e.message);
+      if (printAll) logger(e.message);
       else throw e;
     }
 
@@ -210,10 +209,10 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       allStates as any, // TODO type this
       repo,
       this.cascadeQueryPrefix,
-      options?.rollback ?? false,
-      options?.reLex ?? true,
-      options?.debug ?? false,
-      options?.logger ?? console.log
+      rollback,
+      reLex,
+      debug,
+      logger
     );
 
     // transform resolved temp conflicts to resolved conflicts
@@ -224,7 +223,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       if (!reducerRule) {
         const e = LR_BuilderError.grammarRuleNotFound(r.reducerRule);
         if (printAll) {
-          console.log(e);
+          logger(e.message);
           return;
         } else throw e;
       }
@@ -232,7 +231,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       if (!anotherRule) {
         const e = LR_BuilderError.grammarRuleNotFound(r.anotherRule);
         if (printAll) {
-          console.log(e);
+          logger(e.message);
           return;
         } else throw e;
       }
@@ -271,14 +270,21 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
   ) {
+    const debug = options?.debug ?? false;
+    const logger = options?.logger ?? console.log;
+
     // TODO: hydrate
 
     const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
       options?.printAll ?? false,
-      options
+      debug,
+      logger,
+      options?.rollback ?? false,
+      options?.reLex ?? true
     );
-    dfa.debug = options?.debug ?? false;
+    dfa.debug = debug;
+    dfa.logger = logger;
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
@@ -287,7 +293,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         lexer.getTokenKinds(),
         grs,
         lexer,
-        options.printAll ?? false
+        options.printAll ?? false,
+        logger
       );
 
     // deal with conflicts
@@ -302,24 +309,27 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         this.entryNTs,
         grs,
         dfa as any, // TODO
-        options?.debug
+        debug,
+        logger
       );
 
       // resolved conflicts are already stored in grs in this.buildDFA
       const unresolved = getUnresolvedConflicts<ASTData, Kinds>(
         grs,
-        options?.debug ?? false
+        debug,
+        logger
       );
 
       if (options?.generateResolvers !== undefined)
-        this.generateResolvers(unresolved, options.generateResolvers);
+        this.generateResolvers(unresolved, options.generateResolvers, logger);
 
       if (options?.checkAll || options?.checkConflicts)
         this.checkConflicts(
           dfa as any, // TODO
           unresolved,
           grs,
-          options?.printAll || false
+          options?.printAll || false,
+          logger
         );
     }
 
@@ -346,7 +356,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       Conflict<ASTData, Kinds>[]
     >,
     grs: GrammarRuleRepo<ASTData, Kinds>,
-    printAll: boolean
+    printAll: boolean,
+    logger: Logger
   ) {
     const followSets = dfa.followSets;
 
@@ -354,7 +365,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     unresolved.forEach((cs, gr) => {
       cs.forEach((c) => {
         const err = LR_BuilderError.conflict(gr, c);
-        if (printAll) console.log(err.message);
+        if (printAll) logger(err.message);
         else throw err;
       });
     });
@@ -369,7 +380,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         g.next.forEach((n) => {
           if (!followSets.get(reducerRule.NT)!.has(n)) {
             const err = LR_BuilderError.nextGrammarNotFound(n, reducerRule.NT);
-            if (printAll) console.log(err.message);
+            if (printAll) logger(err.message);
             else throw err;
           }
         });
@@ -397,7 +408,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
                 [n],
                 false
               );
-              if (printAll) console.log(err.message);
+              if (printAll) logger(err.message);
               else throw err;
             }
           });
@@ -419,7 +430,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
             [],
             true
           );
-          if (printAll) console.log(err.message);
+          if (printAll) logger(err.message);
           else throw err;
         }
       });
@@ -429,7 +440,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
 
   private generateResolvers(
     unresolved: Map<GrammarRule<ASTData, Kinds>, Conflict<ASTData, Kinds>[]>,
-    style: "builder" | "context"
+    style: "builder" | "context",
+    logger: Logger
   ) {
     if (style == "builder") {
       unresolved.forEach((v, reducerRule) => {
@@ -447,7 +459,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
               }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
           )
           .join("\n");
-        console.log(txt);
+        logger(txt);
       });
     } else {
       unresolved.forEach((v, k) => {
@@ -467,8 +479,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
                 }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
             )
             .join("\n  ");
-        console.log(txt);
-        console.log(""); // add a blank line
+        logger(txt);
+        logger(""); // add a blank line
       });
     }
 

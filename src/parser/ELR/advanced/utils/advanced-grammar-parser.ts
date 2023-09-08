@@ -1,4 +1,5 @@
 import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
+import { Logger } from "../../../../model";
 import { IParser } from "../../../model";
 import {
   Definition,
@@ -138,7 +139,8 @@ export class GrammarExpander<Kinds extends string> {
   expand<ASTData>(
     s: string,
     NT: Kinds,
-    debug: boolean | undefined,
+    debug: boolean,
+    logger: Logger,
     resolve: boolean
   ) {
     const result = {
@@ -158,7 +160,7 @@ export class GrammarExpander<Kinds extends string> {
 
     const resultDef: Definition<Kinds> = {};
     resultDef[NT] = expanded;
-    if (debug) console.log(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
+    if (debug) logger(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
     result.defs.push(resultDef);
 
     // auto resolve R-S conflict
@@ -175,7 +177,7 @@ export class GrammarExpander<Kinds extends string> {
             options: { next: "*", accept: false },
           });
           if (debug)
-            console.log(
+            logger(
               `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", reduce: false }`
             );
         });
@@ -196,7 +198,7 @@ export class GrammarExpander<Kinds extends string> {
     this.placeholderMap.reset();
   }
 
-  generatePlaceholderGrammarRules<ASTData>(debug: boolean | undefined) {
+  generatePlaceholderGrammarRules<ASTData>(debug: boolean, logger: Logger) {
     const result = {
       defs: [] as Definition<Kinds>[],
       rs: [] as {
@@ -219,8 +221,8 @@ export class GrammarExpander<Kinds extends string> {
       });
 
       if (debug) {
-        console.log(`Generated: ${p}: \`${gr}\``);
-        console.log(
+        logger(`Generated: ${p}: \`${gr}\``);
+        logger(
           `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", reduce: false }`
         );
       }

@@ -1,3 +1,4 @@
+import { Logger } from "../../../../model";
 import { DFA } from "../../DFA";
 import {
   GrammarRule,
@@ -6,7 +7,6 @@ import {
   GrammarType,
   Conflict,
   ConflictType,
-  ResolvedConflict,
   GrammarRepo,
   GrammarRuleRepo,
 } from "../../model";
@@ -57,7 +57,8 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
   anotherRule: Readonly<GrammarRule<ASTData, Kinds>>,
   next: readonly Grammar[],
   checkHandleEnd: boolean,
-  debug: boolean
+  debug: boolean,
+  logger: Logger
 ) {
   const related = reducerRule.resolved.filter(
     // we don't need to check reducerRule here
@@ -80,19 +81,19 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
 
   if (debug) {
     if (resolveAll)
-      console.log(
+      logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
         }]: ${reducerRule} | ${anotherRule} next: *`
       );
     if (resolvedNext.length > 0)
-      console.log(
+      logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
         }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext}`
       );
     if (unresolvedNext.length > 0)
-      console.log(
+      logger(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
         }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext}`
@@ -115,11 +116,9 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
     }
     if (debug) {
       if (unresolvedEnd)
-        console.log(
-          `[unresolved RR]: ${reducerRule} | ${anotherRule} end of input`
-        );
+        logger(`[unresolved RR]: ${reducerRule} | ${anotherRule} end of input`);
       if (unresolvedNext.length > 0)
-        console.log(
+        logger(
           `[user resolved RR]: ${reducerRule} | ${anotherRule} end of input`
         );
     }
@@ -141,7 +140,8 @@ export function getConflicts<ASTData, Kinds extends string>(
   entryNTs: ReadonlySet<string>,
   grs: GrammarRuleRepo<ASTData, Kinds>,
   dfa: DFA<ASTData, Kinds>,
-  debug = false
+  debug: boolean,
+  logger: Logger
 ) {
   const firstSets = dfa.firstSets;
   const followSets = dfa.followSets;
@@ -169,8 +169,7 @@ export function getConflicts<ASTData, Kinds extends string>(
           if (overlap.length == 0) {
             // no overlap, conflicts can be auto resolved
             if (debug)
-              // TODO: use logger & callback
-              console.log(
+              logger(
                 `[auto resolve RS (no follow overlap)]: ${reducerRule} | ${c.shifterRule}`
               );
             return;
@@ -185,8 +184,7 @@ export function getConflicts<ASTData, Kinds extends string>(
           ) {
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
-              // TODO: use logger & callback
-              console.log(
+              logger(
                 `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
               );
             return;
@@ -214,8 +212,7 @@ export function getConflicts<ASTData, Kinds extends string>(
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
-                // TODO: use logger & callback
-                console.log(
+                logger(
                   `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
                 );
               return;
@@ -244,8 +241,7 @@ export function getConflicts<ASTData, Kinds extends string>(
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
-                // TODO: use logger & callback
-                console.log(
+                logger(
                   `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
                 );
               return;
@@ -281,8 +277,7 @@ export function getConflicts<ASTData, Kinds extends string>(
         if (overlap.length == 0) {
           // no overlap, all conflicts can be auto resolved
           if (debug)
-            // TODO: use logger & callback
-            console.log(
+            logger(
               `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`
             );
           return;
@@ -297,8 +292,7 @@ export function getConflicts<ASTData, Kinds extends string>(
         ) {
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
           if (debug)
-            // TODO: use logger & callback
-            console.log(
+            logger(
               `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`
             );
           return;
@@ -327,7 +321,8 @@ export function getConflicts<ASTData, Kinds extends string>(
  */
 export function getUnresolvedConflicts<ASTData, Kinds extends string>(
   grs: GrammarRuleRepo<ASTData, Kinds>,
-  debug: boolean
+  debug: boolean,
+  logger: Logger
 ) {
   const result = new Map<
     GrammarRule<ASTData, Kinds>,
@@ -343,7 +338,8 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
           c.anotherRule,
           c.next,
           false, // for a RS conflict, we don't need to handle end of input
-          debug
+          debug,
+          logger
         );
 
         if (res.next.length > 0) {
@@ -365,7 +361,8 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
           c.anotherRule,
           c.next,
           c.handleEnd,
-          debug
+          debug,
+          logger
         );
         if (res.next.length > 0 || res.end) {
           const conflict: Conflict<ASTData, Kinds> = {

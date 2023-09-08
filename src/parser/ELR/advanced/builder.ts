@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import {
   Definition,
   ParserBuilder,
@@ -43,7 +44,8 @@ export class AdvancedBuilder<ASTData, Kinds extends string = "">
 
   private expand(
     d: Definition<Kinds>,
-    debug: boolean | undefined,
+    debug: boolean,
+    logger: Logger,
     resolve: boolean,
     cb: (res: {
       defs: Definition<Kinds>[];
@@ -57,17 +59,26 @@ export class AdvancedBuilder<ASTData, Kinds extends string = "">
     for (const NT in d) {
       const def = d[NT];
       const defStr = def instanceof Array ? def.join("|") : (def as string);
-      const res = this.expander.expand<ASTData>(defStr, NT, debug, resolve);
+      const res = this.expander.expand<ASTData>(
+        defStr,
+        NT,
+        debug,
+        logger,
+        resolve
+      );
       cb(res);
     }
   }
 
   build(lexer: ILexer<any, any>, options?: BuildOptions) {
+    const debug = options?.debug ?? false;
+    const logger = options?.logger ?? console.log;
+
     // re-generate this.data
     const raw = [...this.data]; // deep copy since we will clear this.data
     this.data.length = 0; // clear
     raw.forEach(({ defs, ctxBuilder }) => {
-      this.expand(defs, options?.debug, true, (res) => {
+      this.expand(defs, debug, logger, true, (res) => {
         res.defs.forEach((def) => this.data.push({ defs: def, ctxBuilder }));
         res.rs.forEach((r) =>
           // the reducerRule/anotherRule is already expanded, so we use super.resolveRS()
@@ -80,10 +91,10 @@ export class AdvancedBuilder<ASTData, Kinds extends string = "">
     this.resolvedRS.forEach((rc) => {
       const reducerRules: Definition<Kinds>[] = [];
       const anotherRules: Definition<Kinds>[] = [];
-      this.expand(rc.reducerRule, false, false, (res) => {
+      this.expand(rc.reducerRule, false, logger, false, (res) => {
         reducerRules.push(...res.defs);
       });
-      this.expand(rc.anotherRule, false, false, (res) => {
+      this.expand(rc.anotherRule, false, logger, false, (res) => {
         anotherRules.push(...res.defs);
       });
       reducerRules.forEach((r) => {
@@ -95,10 +106,10 @@ export class AdvancedBuilder<ASTData, Kinds extends string = "">
     this.resolvedRR.forEach((rc) => {
       const reducerRules: Definition<Kinds>[] = [];
       const anotherRules: Definition<Kinds>[] = [];
-      this.expand(rc.reducerRule, false, false, (res) => {
+      this.expand(rc.reducerRule, false, logger, false, (res) => {
         reducerRules.push(...res.defs);
       });
-      this.expand(rc.anotherRule, false, false, (res) => {
+      this.expand(rc.anotherRule, false, logger, false, (res) => {
         anotherRules.push(...res.defs);
       });
       reducerRules.forEach((r) => {
@@ -110,7 +121,8 @@ export class AdvancedBuilder<ASTData, Kinds extends string = "">
 
     // generate placeholder grammar rules
     const res = this.expander.generatePlaceholderGrammarRules<ASTData>(
-      options?.debug
+      debug,
+      logger
     );
     res.defs.forEach((def) => this.data.push({ defs: def }));
     res.rs.forEach((r) =>

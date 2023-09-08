@@ -121,6 +121,7 @@ export class State<ASTData, Kinds extends string> {
     followSets: ReadonlyMap<string, GrammarSet>,
     lexer: Readonly<ILexer<any, any>>,
     cascadeQueryPrefix: string | undefined,
+    debug: boolean,
     logger: Logger
   ):
     | RejectedParserOutput
@@ -136,6 +137,7 @@ export class State<ASTData, Kinds extends string> {
         followSets,
         lexer,
         cascadeQueryPrefix,
+        debug,
         logger
       );
       // since we've already resolved all reduce-reduce conflicts, we can return the first accepted result
