@@ -286,7 +286,7 @@ export class Candidate<ASTData, Kinds extends string> {
             text: g.text,
           },
         });
-        if (token == null) break; // next not match, continue
+        if (token == null) continue; // next not match, check next next
         for (const r of c.resolvers) {
           // find related resolver by the next
           if (r.next == "*" || r.next.has(g)) {
@@ -297,7 +297,7 @@ export class Candidate<ASTData, Kinds extends string> {
                 : r.accepter)
             ) {
               reject = true;
-              break;
+              break; // stop check resolvers
             }
           }
         }
