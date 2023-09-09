@@ -55,7 +55,7 @@ test("to string", () => {
   );
 
   expect(ASTNode.from({ start: 0, kind: "", content: "+" }).toString()).toBe(
-    `<anonymous>: "+"`
+    'ASTNode({ kind: "", start: 0, text: "+", data: undefined, error: undefined })'
   );
 });
 
