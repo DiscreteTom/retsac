@@ -346,8 +346,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         this.checkConflicts(dfa, unresolved, grs, printAll, logger);
     }
 
-    // ensure no rollback if rollback is not allowed
-    if ((options?.checkAll || options?.checkRollback) && rollback) {
+    // ensure no rollback if rollback is not enabled
+    if ((options?.checkAll || options?.checkRollback) && !rollback) {
       grs.grammarRules.forEach((gr) => {
         if (gr.rollback !== undefined) {
           const e = "TODO";
