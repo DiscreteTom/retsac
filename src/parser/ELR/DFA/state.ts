@@ -51,14 +51,14 @@ export class State<ASTData, Kinds extends string> {
         // first, try to do an accurate match with text if text is provided.
         // if the text is not provided, this will still always return a result.
         kind: next.kind,
-        name: next.name,
+        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
         text: next.text,
       }) ??
       repo.get({
         // if the last match failed, means the text is provided but not matched.
         // try to match without text.
         kind: next.kind,
-        name: next.name,
+        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
       })!; // this will always return a result
     const key = grammar.cacheKeyWithoutName.value;
 
@@ -81,14 +81,14 @@ export class State<ASTData, Kinds extends string> {
         // first, try to do an accurate match with text if text is provided.
         // if the text is not provided, this will still always return a result.
         kind: next.kind,
-        name: next.name,
+        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
         text: next.text,
       }) ??
       repo.get({
         // if the last match failed, means the text is provided but not matched.
         // try to match without text.
         kind: next.kind,
-        name: next.name,
+        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
       })!; // this will always return a result
     const key = grammar.cacheKeyWithoutName.value;
 
@@ -229,7 +229,7 @@ export class StateRepo<ASTData, Kinds extends string> {
     cs: CandidateRepo<ASTData, Kinds>
   ) {
     const directCandidates = current.candidates
-      .filter((c) => c.current == grammar) // current grammar match the next node
+      .filter((c) => c.current?.equalWithoutName(grammar)) // current grammar match the next node, name should be ignored since the next node's name is defined by its parent
       .map((c) => c.generateNext(cs))
       .filter((c) => c != null) as Candidate<ASTData, Kinds>[];
     const indirectCandidates = directCandidates
