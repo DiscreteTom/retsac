@@ -427,7 +427,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
                 (conflict) =>
                   c.anotherRule == conflict.anotherRule &&
                   c.type == conflict.type &&
-                  conflict.next.some((nn) => n.equalWithoutName(nn)) // TODO: just use `==`?
+                  conflict.next.some((nn) => n.equalWithoutName(nn)) // don't use `==` here since we don't want to compare grammar name
               )
             ) {
               const err = LR_BuilderError.noSuchConflict(
