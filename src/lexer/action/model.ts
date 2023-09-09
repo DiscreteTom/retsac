@@ -19,8 +19,11 @@ export class AcceptedActionOutput<ErrorType> {
    * This is not lazy since we need this to calculate `lexer.lineChars`.
    */
   content: string;
-
-  private _rest?: string;
+  /**
+   * The raw rest. If your action can yield the rest of the input, you should set this field.
+   * @default undefined
+   */
+  _rest?: string;
 
   constructor(
     data: Pick<

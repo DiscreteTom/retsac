@@ -140,10 +140,10 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   /** Update inner states. */
-  private update(digested: number, content: string) {
+  private update(digested: number, content: string, rest?: string) {
     this._digested += digested;
     this.trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
-    this.rest = undefined; // clear cache
+    this.rest = rest;
     // calculate line chars
     // `split` is faster than iterate all chars
     content.split("\n").forEach((part, i, list) => {
@@ -262,7 +262,7 @@ export class Lexer<ErrorType, Kinds extends string>
               }: ${JSON.stringify(res.content)}`
             );
           // update this state
-          if (!peek) this.update(res.digested, res.content);
+          if (!peek) this.update(res.digested, res.content, res._rest);
 
           // construct token
           const token = this.res2token(res, def);
@@ -388,7 +388,7 @@ export class Lexer<ErrorType, Kinds extends string>
             );
 
           // next token is muted, update this state
-          this.update(res.digested, res.content);
+          this.update(res.digested, res.content, res._rest);
 
           // construct token
           const token = this.res2token(res, def);
