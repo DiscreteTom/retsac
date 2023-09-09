@@ -125,4 +125,9 @@ test("lexer debug takeUntil", () => {
 
   lexer.reset().feed("123").takeUntil("3");
   expect(logger).toHaveBeenCalledWith('[Lexer.takeUntil] 3 chars: "123"');
+
+  lexer.reset().feed("123").takeUntil("4");
+  expect(logger).toHaveBeenCalledWith(
+    "[Lexer.takeUntil] no match with regex /4/g"
+  );
 });
