@@ -6,7 +6,7 @@ import {
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
-import { BuildOptions, IParserBuilder } from "../model/builder";
+import { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<ASTData, Kinds extends string = never>

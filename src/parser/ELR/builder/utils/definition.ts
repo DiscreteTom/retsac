@@ -1,16 +1,20 @@
-import { Lexer } from "../../../..";
-import { exact, stringLiteral } from "../../../../lexer";
+import * as Lexer from "../../../../lexer";
 import { LR_BuilderError } from "../error";
-import { Definition, DefinitionContext } from "../model";
-import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
+import {
+  Definition,
+  DefinitionContext,
+  TempGrammar,
+  TempGrammarRule,
+  TempGrammarType,
+} from "../model";
 
 const ruleLexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
   .define({
     rename: /@\w+/,
     grammar: /\w+/,
-    or: exact("|"),
-    literal: [stringLiteral(`"`), stringLiteral(`'`)],
+    or: Lexer.exact("|"),
+    literal: [Lexer.stringLiteral(`"`), Lexer.stringLiteral(`'`)],
   })
   .build();
 

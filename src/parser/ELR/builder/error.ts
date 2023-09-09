@@ -1,5 +1,5 @@
 import { Conflict, ConflictType, Grammar, GrammarRule } from "../model";
-import { TempGrammarRule } from "./model/temp-grammar";
+import { TempGrammarRule } from "./model";
 
 export type LR_BuilderErrorType =
   | "GRAMMAR_RULE_NOT_FOUND"

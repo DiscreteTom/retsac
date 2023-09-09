@@ -1,6 +1,5 @@
 import { AtLeastOneOf } from "../../../../utils";
-import { Condition } from "../../model";
-import { ConflictType } from "../../model/conflict";
+import { Condition, ConflictType } from "../../model";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 

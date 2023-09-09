@@ -7,8 +7,9 @@ import {
   GrammarRule,
   GrammarRuleRepo,
   GrammarSet,
+  ReLexStack,
+  RollbackStack,
 } from "../model";
-import { ReLexStack, RollbackStack } from "../model";
 import { CandidateRepo } from "./candidate";
 import { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
 import { State, StateRepo } from "./state";

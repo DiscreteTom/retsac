@@ -1,4 +1,4 @@
-import { IParserBuilder } from "../../model/builder";
+import { IParserBuilder } from "../../model";
 
 export function applyResolvers<ASTData, Kinds extends string>(
   builder: IParserBuilder<ASTData, "gr" | Kinds>

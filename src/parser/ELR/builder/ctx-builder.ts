@@ -4,8 +4,9 @@ import {
   DefinitionContext,
   Definition,
   ResolvedPartialTempConflict,
+  RS_ResolverOptions,
+  RR_ResolverOptions,
 } from "./model";
-import { RS_ResolverOptions, RR_ResolverOptions } from "./model";
 
 export class DefinitionContextBuilder<ASTData, Kinds extends string> {
   private resolved: ResolvedPartialTempConflict<ASTData, Kinds>[];
