@@ -1,6 +1,11 @@
 import { ASTNode } from "../../../ast";
 import { StringCache, Cache } from "../../../cache";
 
+// type only import for js doc
+import type { GrammarRepo } from "./grammar-repo";
+import type { Candidate } from "../../DFA/candidate";
+import type { State } from "../../DFA/state";
+
 export enum GrammarType {
   /**
    * Terminator, which means the grammar's kind name should be defined in lexer.

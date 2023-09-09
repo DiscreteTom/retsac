@@ -1,7 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { Logger } from "../../../model";
 import { ASTNode } from "../../ast";
-import { StringCache } from "../../cache";
 import {
   AcceptedParserOutput,
   RejectedParserOutput,
@@ -9,7 +8,6 @@ import {
 } from "../../model";
 import {
   GrammarRule,
-  GrammarSet,
   GrammarRuleContext,
   ConflictType,
   Grammar,

@@ -6,7 +6,9 @@ import {
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
-import { Parser } from "../parser";
+
+// type only import for js doc
+import type { Parser } from "../parser";
 
 export type BuildOptions = Partial<
   Pick<IParser<any, any>, "logger" | "debug">
