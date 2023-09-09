@@ -88,6 +88,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
     this.strWithoutGrammarName = new StringCache(() =>
       GrammarRule.getStrWithoutGrammarName(this)
     );
+    this.hydrationId = p.hydrationId;
   }
 
   /**
