@@ -1,7 +1,7 @@
 import { Conflict, ConflictType, Grammar, GrammarRule } from "../model";
 import { TempGrammarRule } from "./model";
 
-export type LR_BuilderErrorType =
+export type ELR_BuilderErrorType =
   | "GRAMMAR_RULE_NOT_FOUND"
   | "NEXT_GRAMMAR_NOT_FOUND"
   | "CONFLICT"
@@ -17,38 +17,42 @@ export type LR_BuilderErrorType =
   | "NO_SUCH_CONFLICT"
   | "NO_RENAME_TARGET";
 
-export class LR_BuilderError extends Error {
-  type: LR_BuilderErrorType;
+export class ELR_BuilderError extends Error {
+  type: ELR_BuilderErrorType;
 
-  constructor(type: LR_BuilderErrorType, msg: string) {
+  constructor(type: ELR_BuilderErrorType, msg: string) {
     super(msg);
-
     this.type = type;
-
-    Object.setPrototypeOf(this, LR_BuilderError.prototype);
+    Object.setPrototypeOf(this, ELR_BuilderError.prototype);
   }
+}
 
-  static grammarRuleNotFound<ASTData, Kinds extends string>(
-    gr: TempGrammarRule<ASTData, Kinds>
-  ) {
-    return new LR_BuilderError(
+export class GrammarRuleNotFoundError extends ELR_BuilderError {
+  constructor(public gr: TempGrammarRule<any, any>) {
+    super(
       "GRAMMAR_RULE_NOT_FOUND",
       `No such grammar rule: ${gr.toStringWithGrammarName()}`
     );
+    Object.setPrototypeOf(this, GrammarRuleNotFoundError.prototype);
   }
+}
 
-  static nextGrammarNotFound(next: Grammar, NT: string) {
-    return new LR_BuilderError(
+export class NextGrammarNotFoundError extends ELR_BuilderError {
+  constructor(public next: Grammar, public NT: string) {
+    super(
       "NEXT_GRAMMAR_NOT_FOUND",
       `Next grammar ${next} not in follow set of ${NT}`
     );
+    Object.setPrototypeOf(this, NextGrammarNotFoundError.prototype);
   }
+}
 
-  static conflict<ASTData, Kinds extends string>(
-    reducerRule: GrammarRule<ASTData, Kinds>,
-    c: Conflict<ASTData, Kinds>
+export class ConflictError extends ELR_BuilderError {
+  constructor(
+    public reducerRule: GrammarRule<any, any>,
+    public c: Conflict<any, any>
   ) {
-    return new LR_BuilderError(
+    super(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
         ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${c.next
@@ -65,96 +69,110 @@ export class LR_BuilderError extends Error {
               : "")
           }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
     );
+    Object.setPrototypeOf(this, ConflictError.prototype);
   }
+}
 
-  static unknownEntryNT(NT: string) {
-    return new LR_BuilderError(
-      "UNKNOWN_ENTRY_NT",
-      `Undefined entry NT: "${NT}"`
-    );
+export class UnknownEntryNTError extends ELR_BuilderError {
+  constructor(public NT: string) {
+    super("UNKNOWN_ENTRY_NT", `Undefined entry NT: "${NT}"`);
+    Object.setPrototypeOf(this, UnknownEntryNTError.prototype);
   }
+}
 
-  static duplicatedDefinition(name: string) {
-    return new LR_BuilderError(
+export class DuplicatedDefinitionError extends ELR_BuilderError {
+  constructor(public name: string) {
+    super(
       "DUPLICATED_DEFINITION",
       `Duplicated definition for grammar symbol: ${name}`
     );
+    Object.setPrototypeOf(this, DuplicatedDefinitionError.prototype);
   }
+}
 
-  static unknownGrammar(name: string) {
-    return new LR_BuilderError(
-      "UNKNOWN_GRAMMAR",
-      `Undefined grammar symbol: ${name}`
-    );
+export class UnknownGrammarError extends ELR_BuilderError {
+  constructor(public name: string) {
+    super("UNKNOWN_GRAMMAR", `Undefined grammar symbol: ${name}`);
+    Object.setPrototypeOf(this, UnknownGrammarError.prototype);
   }
+}
 
-  static noEntryNT() {
-    return new LR_BuilderError(
-      "NO_ENTRY_NT",
-      `Entry NT is required for LR Parsers`
-    );
+export class NoEntryNTError extends ELR_BuilderError {
+  constructor() {
+    super("NO_ENTRY_NT", `Entry NT is required for LR Parsers`);
+    Object.setPrototypeOf(this, NoEntryNTError.prototype);
   }
+}
 
-  static tokenizeGrammarRuleFailed(rule: string, rest: string) {
-    return new LR_BuilderError(
+export class TokenizeGrammarRuleFailedError extends ELR_BuilderError {
+  constructor(public rule: string, public rest: string) {
+    super(
       "TOKENIZE_GRAMMAR_RULE_FAILED",
       `Unable to tokenize: "${rest}" in grammar rule: "${rule}"`
     );
+    Object.setPrototypeOf(this, TokenizeGrammarRuleFailedError.prototype);
   }
+}
 
-  static emptyRule(NT: string, rule: string) {
-    return new LR_BuilderError("EMPTY_RULE", `Empty rule: "${NT} <= ${rule}"`);
+export class EmptyRuleError extends ELR_BuilderError {
+  constructor(public NT: string, public rule: string) {
+    super("EMPTY_RULE", `Empty rule: "${NT} <= ${rule}"`);
+    Object.setPrototypeOf(this, EmptyRuleError.prototype);
   }
+}
 
-  static emptyLiteral(NT: string, rule: string) {
-    return new LR_BuilderError(
-      "EMPTY_LITERAL",
-      `Empty literal: "${NT} <= ${rule}"`
-    );
+export class EmptyLiteralError extends ELR_BuilderError {
+  constructor(public NT: string, public rule: string) {
+    super("EMPTY_LITERAL", `Empty literal: "${NT} <= ${rule}"`);
+    Object.setPrototypeOf(this, EmptyLiteralError.prototype);
   }
+}
 
-  static tooManyEndHandler<ASTData, Kinds extends string>(
-    rule: GrammarRule<ASTData, Kinds>
-  ) {
-    return new LR_BuilderError(
+export class TooManyEndHandlerError extends ELR_BuilderError {
+  constructor(public rule: GrammarRule<any, any>) {
+    super(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
     );
+    Object.setPrototypeOf(this, TooManyEndHandlerError.prototype);
   }
+}
 
-  static noSuchConflict<ASTData, Kinds extends string>(
-    reducerRule: GrammarRule<ASTData, Kinds>,
-    anotherRule: GrammarRule<ASTData, Kinds>,
-    type: ConflictType,
-    next: Grammar[],
-    handleEnd: boolean
+export class NoSuchConflictError extends ELR_BuilderError {
+  constructor(
+    public reducerRule: GrammarRule<any, any>,
+    public anotherRule: GrammarRule<any, any>,
+    public conflictType: ConflictType,
+    public next: Grammar[],
+    public handleEnd: boolean
   ) {
-    return new LR_BuilderError(
+    super(
       "NO_SUCH_CONFLICT",
       `No such ${
-        type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+        conflictType == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
       } conflict: ${reducerRule.toString()} | ${anotherRule.toString()}` +
         (next.length > 0
           ? ` next: ${next.map((n) => n.toString()).join(",")}`
           : "") +
         (handleEnd ? " end of input" : "")
     );
+    Object.setPrototypeOf(this, NoSuchConflictError.prototype);
   }
+}
 
-  static invalidLiteral<ASTData, Kinds extends string>(
-    literal: string,
-    gr: GrammarRule<ASTData, Kinds>
-  ) {
-    return new LR_BuilderError(
-      "INVALID_LITERAL",
-      `Invalid literal: '${literal}' in rule ${gr.toString()}`
-    );
+export class InvalidLiteralError extends ELR_BuilderError {
+  constructor(public literal: string) {
+    super("INVALID_LITERAL", `Invalid literal: '${literal}'`);
+    Object.setPrototypeOf(this, InvalidLiteralError.prototype);
   }
+}
 
-  static noRenameTarget(def: string | string[], rename: string) {
-    return new LR_BuilderError(
+export class NoRenameTargetError extends ELR_BuilderError {
+  constructor(public def: string | string[], public rename: string) {
+    super(
       "NO_RENAME_TARGET",
       `No rename target in rule ${def} for rename ${rename}`
     );
+    Object.setPrototypeOf(this, NoRenameTargetError.prototype);
   }
 }

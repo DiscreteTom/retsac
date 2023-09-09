@@ -10,7 +10,7 @@ import {
   GrammarRepo,
   GrammarRuleRepo,
 } from "../../model";
-import { LR_BuilderError } from "../error";
+import { ELR_BuilderError, TooManyEndHandlerError } from "../error";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
@@ -105,7 +105,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
   const endHandlers = related.filter((r) => r.handleEnd);
   if (endHandlers.length > 1) {
     // TODO: allow multi end handler?
-    throw LR_BuilderError.tooManyEndHandler(reducerRule);
+    throw new TooManyEndHandlerError(reducerRule);
   }
   let unresolvedEnd = checkHandleEnd;
   if (checkHandleEnd) {

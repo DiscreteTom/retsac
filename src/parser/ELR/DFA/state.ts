@@ -6,6 +6,7 @@ import {
   RejectedParserOutput,
   rejectedParserOutput,
 } from "../../model";
+import { StateCacheMissError } from "../error";
 import {
   GrammarRule,
   GrammarType,
@@ -97,7 +98,7 @@ export class State<ASTData, Kinds extends string> {
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, throw
-    throw "TODO"; // TODO
+    throw new StateCacheMissError(this, next);
   }
 
   contains(gr: Readonly<GrammarRule<ASTData, Kinds>>, digested: number) {

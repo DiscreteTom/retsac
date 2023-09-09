@@ -1,20 +1,26 @@
-export type LR_RuntimeErrorType = "INVALID_LITERAL";
+import { ASTNode } from "../ast";
+import { State } from "./DFA";
 
-export class LR_RuntimeError extends Error {
-  type: LR_RuntimeErrorType;
+export type ELR_RuntimeErrorType = "STATE_CACHE_MISS";
 
-  constructor(type: LR_RuntimeErrorType, msg: string) {
+export class ELR_RuntimeError extends Error {
+  type: ELR_RuntimeErrorType;
+  constructor(type: ELR_RuntimeErrorType, msg: string) {
     super(msg);
-
     this.type = type;
-
-    Object.setPrototypeOf(this, LR_RuntimeError.prototype);
+    Object.setPrototypeOf(this, ELR_RuntimeError.prototype);
   }
+}
 
-  static invalidLiteral(content: string) {
-    return new LR_RuntimeError(
-      "INVALID_LITERAL",
-      `Lexer can't transform '${content}' to a grammar type.`
+export class StateCacheMissError extends ELR_RuntimeError {
+  constructor(
+    public state: Readonly<State<any, any>>,
+    public node: Readonly<ASTNode<any, any>>
+  ) {
+    super(
+      "STATE_CACHE_MISS",
+      `State cache miss for node ${node}, state: ${state} `
     );
+    Object.setPrototypeOf(this, StateCacheMissError.prototype);
   }
 }

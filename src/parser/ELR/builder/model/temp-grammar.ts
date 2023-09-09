@@ -1,6 +1,7 @@
 import { ILexer } from "../../../../lexer";
 import { Traverser } from "../../../ast";
 import { Callback, Condition, GrammarRepo } from "../../model";
+import { InvalidLiteralError } from "../error";
 
 /**
  * Grammar type, but can't distinguish N or NT.
@@ -47,7 +48,7 @@ export class TempGrammar {
       if (token == null) {
         // TODO: printAll
         // TODO: for un-lexable literal, use anonymous type?
-        throw new Error(`Can't lex literal \`${this.content}\``);
+        throw new InvalidLiteralError(this.content);
       }
       return repo.Literal(this.content, token.kind, this.name);
     }

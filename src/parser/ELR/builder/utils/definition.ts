@@ -1,5 +1,11 @@
 import * as Lexer from "../../../../lexer";
-import { LR_BuilderError } from "../error";
+import {
+  ELR_BuilderError,
+  EmptyLiteralError,
+  EmptyRuleError,
+  NoRenameTargetError,
+  TokenizeGrammarRuleFailedError,
+} from "../error";
 import {
   Definition,
   DefinitionContext,
@@ -43,7 +49,7 @@ export function defToTempGRs<ASTData, Kinds extends string>(
         if (t.kind == "or") rules.push([]); // new grammar rule
         else if (t.kind == "rename") {
           const token = rules.at(-1)?.at(-1);
-          if (!token) throw LR_BuilderError.noRenameTarget(def!, t.content);
+          if (!token) throw new NoRenameTargetError(def!, t.content);
           token.name = t.content.slice(1); // remove `@`
         }
         // append token to the last grammar rule without name
@@ -51,24 +57,21 @@ export function defToTempGRs<ASTData, Kinds extends string>(
       });
 
     if (ruleLexer.hasRest())
-      throw LR_BuilderError.tokenizeGrammarRuleFailed(
-        defStr,
-        ruleLexer.getRest()
-      );
+      throw new TokenizeGrammarRuleFailedError(defStr, ruleLexer.getRest());
     if (rules.length == 1 && rules[0].length == 0)
-      throw LR_BuilderError.emptyRule(NT, defStr);
+      throw new EmptyRuleError(NT, defStr);
 
     rules.forEach((tokens) => {
       const ruleStr = tokens.map((t) => t.content).join(" ");
 
-      if (tokens.length == 0) throw LR_BuilderError.emptyRule(NT, defStr);
+      if (tokens.length == 0) throw new EmptyRuleError(NT, defStr);
 
       if (
         !tokens
           .filter((t) => t.kind == "literal")
           .every((t) => t.content.length > 2)
       )
-        throw LR_BuilderError.emptyLiteral(NT, ruleStr);
+        throw new EmptyLiteralError(NT, ruleStr);
 
       result.push(
         new TempGrammarRule<ASTData, Kinds>({

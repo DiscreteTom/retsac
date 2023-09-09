@@ -11,7 +11,18 @@ import {
   Condition,
   GrammarSet,
 } from "../model";
-import { LR_BuilderError } from "./error";
+import {
+  ConflictError,
+  DuplicatedDefinitionError,
+  ELR_BuilderError,
+  GrammarRuleNotFoundError,
+  InvalidLiteralError,
+  NextGrammarNotFoundError,
+  NoEntryNTError,
+  NoSuchConflictError,
+  UnknownEntryNTError,
+  UnknownGrammarError,
+} from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
   ParserBuilderData,
@@ -126,7 +137,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
         if (g.text == undefined) {
           // N/NT
           if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
-            const e = LR_BuilderError.unknownGrammar(g.kind);
+            const e = new UnknownGrammarError(g.kind);
             if (printAll) logger(e.message);
             else throw e;
           }
@@ -137,7 +148,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     // check duplication
     NTs.forEach((name) => {
       if (Ts.has(name)) {
-        const e = LR_BuilderError.duplicatedDefinition(name);
+        const e = new DuplicatedDefinitionError(name);
         if (printAll) logger(e.message);
         else throw e;
       }
@@ -146,7 +157,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     // entry NTs must in NTs
     this.entryNTs.forEach((NT) => {
       if (!NTs.has(NT)) {
-        const e = LR_BuilderError.unknownEntryNT(NT);
+        const e = new UnknownEntryNTError(NT);
         if (printAll) logger(e.message);
         else throw e;
       }
@@ -160,7 +171,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
       gr.rule.forEach((grammar) => {
         if (grammar.text != undefined) {
           if (lexer.reset().lex(grammar.text!) == null) {
-            const e = LR_BuilderError.invalidLiteral(grammar.text!, gr);
+            const e = new InvalidLiteralError(grammar.text!);
             if (printAll) logger(e.message);
             else throw e;
           }
@@ -180,7 +191,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     reLex: boolean
   ) {
     if (this.entryNTs.size == 0) {
-      const e = LR_BuilderError.noEntryNT();
+      const e = new NoEntryNTError();
       if (printAll) logger(e.message);
       else throw e;
     }
@@ -229,7 +240,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
       // find the grammar rules
       const reducerRule = grs.get(r.reducerRule);
       if (!reducerRule) {
-        const e = LR_BuilderError.grammarRuleNotFound(r.reducerRule);
+        const e = new GrammarRuleNotFoundError(r.reducerRule);
         if (printAll) {
           logger(e.message);
           return;
@@ -237,7 +248,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
       }
       const anotherRule = grs.get(r.anotherRule);
       if (!anotherRule) {
-        const e = LR_BuilderError.grammarRuleNotFound(r.anotherRule);
+        const e = new GrammarRuleNotFoundError(r.anotherRule);
         if (printAll) {
           logger(e.message);
           return;
@@ -393,7 +404,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     // ensure all conflicts are resolved
     unresolved.forEach((cs, gr) => {
       cs.forEach((c) => {
-        const err = LR_BuilderError.conflict(gr, c);
+        const err = new ConflictError(gr, c);
         if (printAll) logger(err.message);
         else throw err;
       });
@@ -408,7 +419,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
         if (g.next == "*") return;
         g.next.grammars.forEach((n) => {
           if (!followSets.get(reducerRule.NT)!.has(n)) {
-            const err = LR_BuilderError.nextGrammarNotFound(n, reducerRule.NT);
+            const err = new NextGrammarNotFoundError(n, reducerRule.NT);
             if (printAll) logger(err.message);
             else throw err;
           }
@@ -430,7 +441,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
                   conflict.next.some((nn) => n.equalWithoutName(nn)) // don't use `==` here since we don't want to compare grammar name
               )
             ) {
-              const err = LR_BuilderError.noSuchConflict(
+              const err = new NoSuchConflictError(
                 reducerRule,
                 c.anotherRule,
                 c.type,
@@ -452,7 +463,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
               conflict.handleEnd
           )
         ) {
-          const err = LR_BuilderError.noSuchConflict(
+          const err = new NoSuchConflictError(
             reducerRule,
             c.anotherRule,
             c.type,
