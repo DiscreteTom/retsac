@@ -282,12 +282,13 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
   ) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
+    const printAll = options?.printAll ?? false;
 
     // TODO: hydrate
 
     const { dfa, NTs, grs, repo } = this.buildDFA(
       lexer,
-      options?.printAll ?? false,
+      printAll,
       debug,
       logger,
       options?.rollback ?? false,
@@ -323,7 +324,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         lexer.getTokenKinds(),
         grs,
         lexer,
-        options.printAll ?? false,
+        printAll,
         logger
       );
 
@@ -340,16 +341,19 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         this.generateResolvers(unresolved, options.generateResolvers, logger);
 
       if (options?.checkAll || options?.checkConflicts)
-        this.checkConflicts(
-          dfa,
-          unresolved,
-          grs,
-          options?.printAll || false,
-          logger
-        );
+        this.checkConflicts(dfa, unresolved, grs, printAll, logger);
     }
 
-    // TODO: check rollback
+    // ensure no rollback if rollback is not allowed
+    if ((options?.checkAll || options?.checkRollback) && !options.rollback) {
+      grs.grammarRules.forEach((gr) => {
+        if (gr.rollback !== undefined) {
+          const e = "TODO";
+          if (printAll) logger(e);
+          else throw e;
+        }
+      });
+    }
 
     // TODO: serialize
     if (options?.serialize ?? false) {

@@ -35,6 +35,8 @@
   - **_Breaking Change_**: remove `IParser.getErrors/getNodes`, use `IParser.errors/buffer` instead.
   - **_Breaking Change_**: `IParser.take` will auto commit the parser.
   - **_Breaking Change_**: `IParser.take` will take the first N nodes instead of the first one node.
+  - **_Breaking Change_**: `IParserBuilder.build` with `checkAll` will also check if there is any rollback functions if rollback is disabled.
+    - Add `checkRollback` for `IParserBuilder.build`.
   - Feat: add `ASTNodeSelector`.
   - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.
