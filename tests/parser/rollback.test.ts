@@ -9,6 +9,8 @@ test("Ensure no rollback if rollback is disabled", () => {
         rollback(() => "")
       )
       .entry("test")
-      .build(new Lexer.Builder().build(), { checkRollback: true });
+      .build(new Lexer.Builder().build(), {
+        checkRollback: true,
+      });
   }).toThrow(); // TODO: type this
 });
