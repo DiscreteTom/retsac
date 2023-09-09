@@ -241,7 +241,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
         ...data.conflicts.map((c) => ({
           type: c.type,
           anotherRule: grs.getByString(c.anotherRule)!,
-          next: c.next as any,
+          next: new GrammarSet(c.next.map((g) => repo.getByString(g)!)),
           handleEnd: c.handleEnd,
           overlapped: c.overlapped,
           resolvers: c.resolvers.map((i) => gr.resolved[i]),
