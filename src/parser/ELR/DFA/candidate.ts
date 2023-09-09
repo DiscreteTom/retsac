@@ -444,11 +444,13 @@ export class CandidateRepo<ASTData, Kinds extends string> {
   }
 
   toJSON(grs: GrammarRuleRepo<ASTData, Kinds>) {
-    return map2serializable(this.cs, (c) => c.toJSON(grs, this));
+    const res = [] as ReturnType<Candidate<ASTData, Kinds>["toJSON"]>[];
+    this.cs.forEach((c) => res.push(c.toJSON(grs, this)));
+    return res;
   }
 
   static fromJSON<ASTData, Kinds extends string>(
-    data: ReturnType<Candidate<ASTData, Kinds>["toJSON"]>[],
+    data: ReturnType<CandidateRepo<ASTData, Kinds>["toJSON"]>,
     grs: GrammarRuleRepo<ASTData, Kinds>
   ) {
     const callbacks = [] as ((cs: CandidateRepo<ASTData, Kinds>) => void)[];
