@@ -1,6 +1,5 @@
 import {
   GrammarRule,
-  Grammar,
   BuilderDecorator,
   BuildOptions,
   IParserBuilder,
@@ -23,7 +22,7 @@ import {
   DefinitionContext,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
-import { Candidate, DFA, DFABuilder, State } from "../DFA";
+import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
@@ -517,6 +516,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     anotherRule: Definition<Kinds>,
     options: RS_ResolverOptions<ASTData, Kinds>
   ) {
+    // we don't need grammar rule's hydration ID here
+    // since we only want to record conflicts, instead of creating new grammar rules
     const reducerRules = defToTempGRs<ASTData, Kinds>(reducerRule);
     const anotherRules = defToTempGRs<ASTData, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
@@ -538,6 +539,8 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     anotherRule: Definition<Kinds>,
     options: RR_ResolverOptions<ASTData, Kinds>
   ) {
+    // we don't need grammar rule's hydration ID here
+    // since we only want to record conflicts, instead of creating new grammar rules
     const reducerRules = defToTempGRs<ASTData, Kinds>(reducerRule);
     const anotherRules = defToTempGRs<ASTData, Kinds>(anotherRule);
     reducerRules.forEach((r) => {
