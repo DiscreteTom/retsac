@@ -28,6 +28,9 @@ import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import { Logger } from "../../../model";
 
+// type only import for js doc
+import type { AdvancedBuilder } from "../advanced/builder";
+
 /**
  * Builder for ELR parsers.
  *
@@ -38,7 +41,9 @@ import { Logger } from "../../../model";
 export class ParserBuilder<ASTData, Kinds extends string = never>
   implements IParserBuilder<ASTData, Kinds>
 {
-  // use protected for AdvancedParserBuilder
+  /**
+   * Use protected for {@link AdvancedBuilder}
+   */
   protected readonly data: ParserBuilderData<ASTData, Kinds> = [];
   private readonly entryNTs: Set<string>;
   /**
@@ -50,7 +55,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
    */
   private readonly resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[];
   /**
-   * For most cases, this is used by AdvancedParserBuilder for cascading query.
+   * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
    * You can also customize this.
    */
   private readonly cascadeQueryPrefix?: string;
@@ -58,7 +63,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
 
   constructor(options?: {
     /**
-     * For most cases, this is used by AdvancedParserBuilder for cascading query.
+     * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
      * You can also customize this.
      */
     cascadeQueryPrefix?: string;
