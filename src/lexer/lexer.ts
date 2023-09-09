@@ -206,10 +206,12 @@ export class Lexer<ErrorType, Kinds extends string>
       }
     }
 
+    let digestedByPeek = 0;
+    let peekRest = undefined as undefined | string;
     while (true) {
       // first, check rest
       // since maybe some token is muted which cause the rest is empty in the last iteration
-      if (!this.hasRest()) {
+      if (this._digested + digestedByPeek >= this.buffer.length) {
         if (this.debug) this.logger(`[Lexer.lex] no rest`);
         return null;
       }
@@ -218,8 +220,8 @@ export class Lexer<ErrorType, Kinds extends string>
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
         buffer: this._buffer,
-        start: this._digested,
-        rest: this.rest,
+        start: this._digested + digestedByPeek,
+        rest: digestedByPeek == 0 ? this.rest : peekRest,
       });
       for (const def of this.defs) {
         // if user provide expected kind, ignore unmatched kind, unless it's muted(still can be digested but not emit).
@@ -263,6 +265,10 @@ export class Lexer<ErrorType, Kinds extends string>
             );
           // update this state
           if (!peek) this.update(res.digested, res.content, res._rest);
+          else {
+            digestedByPeek = res.digested;
+            peekRest = res._rest;
+          }
 
           // construct token
           const token = this.res2token(res, def);
