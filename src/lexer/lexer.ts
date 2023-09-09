@@ -232,7 +232,10 @@ export class Lexer<ErrorType, Kinds extends string>
           // expectation mismatch
           ((expect.kind !== undefined && def.kind != expect.kind) ||
             (expect.text !== undefined &&
-              !this._buffer.startsWith(expect.text, this._digested)))
+              !this._buffer.startsWith(
+                expect.text,
+                this._digested + digestedByPeek
+              )))
         ) {
           if (this.debug)
             this.logger(
