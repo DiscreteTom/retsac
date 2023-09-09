@@ -312,6 +312,9 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     const rollback = options?.rollback ?? false;
     const reLex = options?.reLex ?? true;
 
+    // TODO: optimize pipeline: build/restore -> hydrate -> checks -> serialize
+    // maybe we don't need to hydrate when buildDFA?
+
     // hydrate or build dfa
     const { dfa, NTs, grs } =
       options?.hydrate == undefined
