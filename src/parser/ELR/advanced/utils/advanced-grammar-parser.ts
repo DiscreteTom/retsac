@@ -42,6 +42,88 @@ class PlaceholderMap {
   }
 }
 
+function grammarParserFactory(placeholderPrefix: string) {
+  const lexer = new Builder()
+    .ignore(whitespaces())
+    .define({
+      rename: /@\w+/,
+      grammar: /\w+/,
+      literal: [stringLiteral(`"`), stringLiteral(`'`)],
+    })
+    .anonymous(exact(...`|+*()?`))
+    .build();
+
+  const placeholderMap = new PlaceholderMap({
+    placeholderPrefix,
+  });
+
+  // the data `string[]` represent all the expanded possibilities of the grammar rule
+  // TODO: serialize the parser builder to optimize the speed
+  const parserBuilder = new ParserBuilder<string[]>()
+    .entry("gr") // grammar rule
+    .define(
+      { gr: `grammar | literal` },
+      // return the matched token text as a list
+      traverser(({ children }) => [children[0].text!])
+    )
+    .define(
+      { gr: `grammar rename | literal rename` },
+      // just keep the format, but return as a list
+      traverser(({ children }) => [children[0].text! + children[1].text!])
+    )
+    .define(
+      { gr: `'(' gr ')'` },
+      traverser(({ children }) => [...children[1].traverse()!])
+    )
+    .define(
+      { gr: `gr '?'` },
+      // append the possibility with empty string
+      traverser(({ children }) => [...children[0].traverse()!, ""])
+    )
+    .define(
+      { gr: `gr '*'` },
+      // expand to '' and `gr+`, and use a placeholder to represent `gr+`
+      traverser(({ children }) => [
+        "",
+        ...children[0].traverse()!.map((s) => placeholderMap.add(s.trim())),
+      ])
+    )
+    .define(
+      { gr: `gr '+'` },
+      // keep the `gr+`, we use a placeholder to represent it
+      traverser(({ children }) =>
+        children[0].traverse()!.map((s) => placeholderMap.add(s.trim()))
+      )
+    )
+    .define(
+      { gr: `gr '|' gr` },
+      // merge the two possibility lists
+      traverser(({ children }) => [
+        ...children[0].traverse()!,
+        ...children[2].traverse()!,
+      ])
+    )
+    .define(
+      { gr: `gr gr` },
+      // get cartesian product of the two possibility lists
+      traverser(({ children }) => {
+        const result: string[] = [];
+        const grs1 = children[0].traverse()!;
+        const grs2 = children[1].traverse()!;
+        grs1.forEach((gr1) => {
+          grs2.forEach((gr2) => {
+            // separate the two grammar rules with a space
+            result.push(`${gr1} ${gr2}`);
+          });
+        });
+        return result;
+      })
+    )
+    .use(applyResolvers);
+
+  return { parserBuilder, lexer, placeholderMap };
+}
+
 export class GrammarExpander<Kinds extends string> {
   private readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
@@ -54,90 +136,15 @@ export class GrammarExpander<Kinds extends string> {
   constructor(options: { placeholderPrefix: string }) {
     this.placeholderPrefix = options.placeholderPrefix;
 
-    const lexer = new Builder()
-      .ignore(whitespaces())
-      .define({
-        rename: /@\w+/,
-        grammar: /\w+/,
-        literal: [stringLiteral(`"`), stringLiteral(`'`)],
-      })
-      .anonymous(exact(...`|+*()?`))
-      .build();
+    const { parserBuilder, lexer, placeholderMap } = grammarParserFactory(
+      this.placeholderPrefix
+    );
 
-    this.placeholderMap = new PlaceholderMap({
-      placeholderPrefix: this.placeholderPrefix,
-    });
-
-    // the data `string[]` represent all the expanded possibilities of the grammar rule
-    // TODO: serialize the parser builder to optimize the speed
-    const parserBuilder = new ParserBuilder<string[]>()
-      .entry("gr") // grammar rule
-      .define(
-        { gr: `grammar | literal` },
-        // return the matched token text as a list
-        traverser(({ children }) => [children[0].text!])
-      )
-      .define(
-        { gr: `grammar rename | literal rename` },
-        // just keep the format, but return as a list
-        traverser(({ children }) => [children[0].text! + children[1].text!])
-      )
-      .define(
-        { gr: `'(' gr ')'` },
-        traverser(({ children }) => [...children[1].traverse()!])
-      )
-      .define(
-        { gr: `gr '?'` },
-        // append the possibility with empty string
-        traverser(({ children }) => [...children[0].traverse()!, ""])
-      )
-      .define(
-        { gr: `gr '*'` },
-        // expand to '' and `gr+`, and use a placeholder to represent `gr+`
-        traverser(({ children }) => [
-          "",
-          ...children[0]
-            .traverse()!
-            .map((s) => this.placeholderMap.add(s.trim())),
-        ])
-      )
-      .define(
-        { gr: `gr '+'` },
-        // keep the `gr+`, we use a placeholder to represent it
-        traverser(({ children }) =>
-          children[0].traverse()!.map((s) => this.placeholderMap.add(s.trim()))
-        )
-      )
-      .define(
-        { gr: `gr '|' gr` },
-        // merge the two possibility lists
-        traverser(({ children }) => [
-          ...children[0].traverse()!,
-          ...children[2].traverse()!,
-        ])
-      )
-      .define(
-        { gr: `gr gr` },
-        // get cartesian product of the two possibility lists
-        traverser(({ children }) => {
-          const result: string[] = [];
-          const grs1 = children[0].traverse()!;
-          const grs2 = children[1].traverse()!;
-          grs1.forEach((gr1) => {
-            grs2.forEach((gr2) => {
-              // separate the two grammar rules with a space
-              result.push(`${gr1} ${gr2}`);
-            });
-          });
-          return result;
-        })
-      )
-      .use(applyResolvers);
-
+    this.placeholderMap = placeholderMap;
     this.parser = parserBuilder.build(lexer, {
       // for debug
       // debug: true,
-      checkAll: true,
+      // checkAll: true,
       // generateResolvers: "builder",
     });
   }
