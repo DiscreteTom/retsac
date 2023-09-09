@@ -9,6 +9,7 @@ import {
 } from "../../builder";
 import { LR_AdvancedBuilderError } from "../error";
 import { applyResolvers } from "./resolvers";
+import { data } from "./serialized-grammar-parser-data";
 
 type Placeholder = string;
 type GrammarSnippet = string;
@@ -42,7 +43,7 @@ class PlaceholderMap {
   }
 }
 
-function grammarParserFactory(placeholderPrefix: string) {
+export function grammarParserFactory(placeholderPrefix: string) {
   const lexer = new Builder()
     .ignore(whitespaces())
     .define({
@@ -58,7 +59,6 @@ function grammarParserFactory(placeholderPrefix: string) {
   });
 
   // the data `string[]` represent all the expanded possibilities of the grammar rule
-  // TODO: serialize the parser builder to optimize the speed
   const parserBuilder = new ParserBuilder<string[]>()
     .entry("gr") // grammar rule
     .define(
@@ -142,6 +142,7 @@ export class GrammarExpander<Kinds extends string> {
 
     this.placeholderMap = placeholderMap;
     this.parser = parserBuilder.build(lexer, {
+      hydrate: data,
       // for debug
       // debug: true,
       // checkAll: true,
