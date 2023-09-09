@@ -670,7 +670,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     ) as DefinitionContext<ASTData, Kinds | LexerKinds>[];
 
     // hydrate grammar rules with user defined functions & resolvers
-    dfa.grs.grammarRules.forEach((gr) => {
+    dfa.grammarRules.grammarRules.forEach((gr) => {
       gr.rollback = ctxs[gr.hydrationId]?.rollback;
       gr.rejecter = ctxs[gr.hydrationId]?.rejecter;
       gr.callback = ctxs[gr.hydrationId]?.callback;
@@ -691,7 +691,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       });
     });
 
-    return { dfa, NTs: dfa.NTs, grs: dfa.grs };
+    return { dfa, NTs: dfa.NTs, grs: dfa.grammarRules };
   }
 
   get serializable(): Readonly<SerializableParserData> | undefined {

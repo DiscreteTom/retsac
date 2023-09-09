@@ -19,7 +19,7 @@ import { map2serializable, serializable2map } from "./utils";
  */
 export class DFA<ASTData, Kinds extends string> {
   constructor(
-    readonly grs: GrammarRuleRepo<ASTData, Kinds>,
+    readonly grammarRules: GrammarRuleRepo<ASTData, Kinds>,
     private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<ASTData, Kinds>,
     private readonly NTClosures: ReadonlyMap<
@@ -208,12 +208,12 @@ export class DFA<ASTData, Kinds extends string> {
       NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],
       grammars: this.grammars.toJSON(),
-      grs: this.grs.toJSON(this.grammars),
-      candidates: this.candidates.toJSON(this.grs),
+      grammarRules: this.grammarRules.toJSON(this.grammars),
+      candidates: this.candidates.toJSON(this.grammarRules),
       states: this.states.toJSON(this.candidates),
       entryState: this.states.getKey(this.entryState),
       NTClosures: map2serializable(this.NTClosures, (grs) =>
-        grs.map((gr) => this.grs.getKey(gr))
+        grs.map((gr) => this.grammarRules.getKey(gr))
       ),
       firstSets: map2serializable(this.firstSets, (v) =>
         v.toJSON(this.grammars)
@@ -235,18 +235,21 @@ export class DFA<ASTData, Kinds extends string> {
     }
   ) {
     const NTs = new Set(data.NTs);
-    const repo = GrammarRepo.fromJSON(data.grammars);
-    const grs = GrammarRuleRepo.fromJSON<ASTData, Kinds>(data.grs, repo);
+    const grammars = GrammarRepo.fromJSON(data.grammars);
+    const grs = GrammarRuleRepo.fromJSON<ASTData, Kinds>(
+      data.grammarRules,
+      grammars
+    );
     const candidates = CandidateRepo.fromJSON<ASTData, Kinds>(
       data.candidates as any,
       grs
     );
     const states = StateRepo.fromJSON(data.states, candidates);
     const firstSets = serializable2map(data.followSets, (v) =>
-      GrammarSet.fromJSON(v, repo)
+      GrammarSet.fromJSON(v, grammars)
     ) as ReadonlyFirstSets;
     const followSets = serializable2map(data.followSets, (v) =>
-      GrammarSet.fromJSON(v, repo)
+      GrammarSet.fromJSON(v, grammars)
     ) as ReadonlyFollowSets;
     const NTClosures = serializable2map(data.NTClosures, (v) =>
       v.map((s) => grs.getByString(s)!)
@@ -261,7 +264,7 @@ export class DFA<ASTData, Kinds extends string> {
       followSets,
       candidates,
       states,
-      repo,
+      grammars,
       NTs,
       data.cascadeQueryPrefix,
       options.rollback,
