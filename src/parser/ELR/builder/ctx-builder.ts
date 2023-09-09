@@ -100,6 +100,10 @@ export class DefinitionContextBuilder<ASTData, Kinds extends string> {
       type: ConflictType.REDUCE_SHIFT,
       anotherRule: another,
       options,
+      hydrationId: {
+        type: "context",
+        index: this.resolved.length,
+      },
     });
     return this;
   }
@@ -115,6 +119,10 @@ export class DefinitionContextBuilder<ASTData, Kinds extends string> {
       type: ConflictType.REDUCE_REDUCE,
       anotherRule: another,
       options,
+      hydrationId: {
+        type: "context",
+        index: this.resolved.length,
+      },
     });
     return this;
   }

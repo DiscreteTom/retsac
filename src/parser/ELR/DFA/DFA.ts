@@ -12,14 +12,14 @@ import { ReLexStack, RollbackStack } from "../model";
 import { CandidateRepo } from "./candidate";
 import { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
 import { State, StateRepo } from "./state";
-import { map2serializable } from "./utils";
+import { map2serializable, serializable2map } from "./utils";
 
 /**
  * DFA for ELR parsers. Stateless.
  */
 export class DFA<ASTData, Kinds extends string> {
   constructor(
-    private readonly grs: GrammarRuleRepo<ASTData, Kinds>,
+    readonly grs: GrammarRuleRepo<ASTData, Kinds>,
     private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<ASTData, Kinds>,
     private readonly NTClosures: ReadonlyMap<
@@ -30,7 +30,8 @@ export class DFA<ASTData, Kinds extends string> {
     public readonly followSets: ReadonlyFollowSets,
     private readonly candidates: CandidateRepo<ASTData, Kinds>,
     private readonly states: StateRepo<ASTData, Kinds>,
-    private readonly grammars: GrammarRepo,
+    readonly grammars: GrammarRepo,
+    readonly NTs: ReadonlySet<string>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -204,6 +205,7 @@ export class DFA<ASTData, Kinds extends string> {
 
   toJSON() {
     return {
+      NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],
       grammars: this.grammars.toJSON(),
       grs: this.grs.toJSON(this.grammars),
@@ -221,5 +223,51 @@ export class DFA<ASTData, Kinds extends string> {
       ),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };
+  }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<DFA<ASTData, Kinds>["toJSON"]>,
+    options: {
+      logger: Logger;
+      debug: boolean;
+      rollback: boolean;
+      reLex: boolean;
+    }
+  ) {
+    const NTs = new Set(data.NTs);
+    const repo = GrammarRepo.fromJSON(data.grammars);
+    const grs = GrammarRuleRepo.fromJSON<ASTData, Kinds>(data.grs, repo);
+    const candidates = CandidateRepo.fromJSON<ASTData, Kinds>(
+      data.candidates as any,
+      grs
+    );
+    const states = StateRepo.fromJSON(data.states, candidates);
+    const firstSets = serializable2map(data.followSets, (v) =>
+      GrammarSet.fromJSON(v, repo)
+    ) as ReadonlyFirstSets;
+    const followSets = serializable2map(data.followSets, (v) =>
+      GrammarSet.fromJSON(v, repo)
+    ) as ReadonlyFollowSets;
+    const NTClosures = serializable2map(data.NTClosures, (v) =>
+      v.map((s) => grs.getByString(s)!)
+    );
+    const entryState = states.getByString(data.entryState)!;
+    return new DFA(
+      grs,
+      new Set(data.entryNTs),
+      entryState,
+      NTClosures,
+      firstSets,
+      followSets,
+      candidates,
+      states,
+      repo,
+      NTs,
+      data.cascadeQueryPrefix,
+      options.rollback,
+      options.reLex,
+      options.debug,
+      options.logger
+    );
   }
 }

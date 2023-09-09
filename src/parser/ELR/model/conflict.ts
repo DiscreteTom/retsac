@@ -38,4 +38,12 @@ export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */
   accepter: boolean | Condition<ASTData, Kinds>;
+  hydrationId: {
+    /**
+     * If the conflict is resolved in builder level (e.g. `builder.resolveRS`) then 'builder'.
+     * If the conflict is resolved in definition context using `builder.define` then 'gr'.
+     */
+    type: "builder" | "context";
+    index: number;
+  };
 };

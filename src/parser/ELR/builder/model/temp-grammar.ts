@@ -86,6 +86,7 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
   rollback?: Callback<ASTData, Kinds>;
   commit?: Condition<ASTData, Kinds>;
   traverser?: Traverser<ASTData, Kinds>;
+  readonly hydrationId: number;
 
   constructor(
     data: Pick<
@@ -97,6 +98,7 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
       | "rejecter"
       | "rollback"
       | "traverser"
+      | "hydrationId"
     >
   ) {
     this.rule = data.rule;
@@ -106,6 +108,7 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
     this.rejecter = data.rejecter;
     this.rollback = data.rollback;
     this.traverser = data.traverser;
+    this.hydrationId = data.hydrationId;
   }
 
   /**

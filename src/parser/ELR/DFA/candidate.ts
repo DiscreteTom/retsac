@@ -55,7 +55,8 @@ export class Candidate<ASTData, Kinds extends string> {
     data: Pick<
       Candidate<ASTData, Kinds>,
       "gr" | "digested" | "strWithGrammarName"
-    >
+    > &
+      Partial<Pick<Candidate<ASTData, Kinds>, "str">>
   ) {
     this.gr = data.gr;
     this.digested = data.digested;
@@ -356,6 +357,29 @@ export class Candidate<ASTData, Kinds extends string> {
       strWithGrammarName: this.strWithGrammarName,
     };
   }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<Candidate<ASTData, Kinds>["toJSON"]>,
+    grs: GrammarRuleRepo<ASTData, Kinds>
+  ) {
+    const c = new Candidate<ASTData, Kinds>({
+      gr: grs.getByString(data.gr)!,
+      digested: data.digested,
+      strWithGrammarName: data.strWithGrammarName,
+      str: data.str,
+    });
+
+    // restore next map after the whole candidate repo is filled
+    const restoreNextMap = (cs: CandidateRepo<ASTData, Kinds>) => {
+      for (const key in data.nextMap) {
+        const next = data.nextMap[key];
+        if (next == null) c.nextMap.set(key, null);
+        else c.nextMap.set(key, cs.getByString(next)!);
+      }
+    };
+
+    return { c, restoreNextMap };
+  }
 }
 
 export class CandidateRepo<ASTData, Kinds extends string> {
@@ -376,6 +400,10 @@ export class CandidateRepo<ASTData, Kinds extends string> {
 
   get(c: Pick<Candidate<ASTData, Kinds>, "gr" | "digested">) {
     return this.cs.get(this.getKey(c));
+  }
+
+  getByString(str: string) {
+    return this.cs.get(str);
   }
 
   getInitial(gr: GrammarRule<ASTData, Kinds>) {
@@ -417,6 +445,22 @@ export class CandidateRepo<ASTData, Kinds extends string> {
 
   toJSON(grs: GrammarRuleRepo<ASTData, Kinds>) {
     return map2serializable(this.cs, (c) => c.toJSON(grs, this));
+  }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<Candidate<ASTData, Kinds>["toJSON"]>[],
+    grs: GrammarRuleRepo<ASTData, Kinds>
+  ) {
+    const callbacks = [] as ((cs: CandidateRepo<ASTData, Kinds>) => void)[];
+    const res = new CandidateRepo<ASTData, Kinds>();
+    data.forEach((d) => {
+      const { c, restoreNextMap } = Candidate.fromJSON<ASTData, Kinds>(d, grs);
+      callbacks.push(restoreNextMap);
+      res.cs.set(c.strWithGrammarName, c);
+    });
+    // restore next map after the whole candidate repo is filled
+    callbacks.forEach((c) => c(res));
+    return res;
   }
 }
 

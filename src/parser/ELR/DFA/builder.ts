@@ -51,6 +51,7 @@ export class DFABuilder {
             rule: gr.rule.map((g) =>
               g.toGrammar(repo, lexer, NTs.has(g.content))
             ),
+            hydrationId: gr.hydrationId,
           })
       )
     );

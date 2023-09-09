@@ -183,6 +183,26 @@ export class State<ASTData, Kinds extends string> {
       str: this.str,
     };
   }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<State<ASTData, Kinds>["toJSON"]>,
+    cs: CandidateRepo<ASTData, Kinds>
+  ) {
+    const s = new State(
+      data.candidates.map((c) => cs.getByString(c)!),
+      data.str
+    );
+
+    // restore nextMap after the whole state repo is filled.
+    const restoreNextMap = (ss: StateRepo<ASTData, Kinds>) => {
+      for (const key in data.nextMap) {
+        const next = data.nextMap[key];
+        if (next == null) s.nextMap.set(key, null);
+        else s.nextMap.set(key, ss.getByString(next)!);
+      }
+    };
+    return { s, restoreNextMap };
+  }
 }
 
 export class StateRepo<ASTData, Kinds extends string> {
@@ -202,6 +222,10 @@ export class StateRepo<ASTData, Kinds extends string> {
 
   get(s: Pick<State<any, any>, "candidates">) {
     return this.ss.get(this.getKey(s));
+  }
+
+  getByString(str: string) {
+    return this.ss.get(str);
   }
 
   /**
@@ -279,5 +303,21 @@ export class StateRepo<ASTData, Kinds extends string> {
 
   toJSON(cs: CandidateRepo<ASTData, Kinds>) {
     return map2serializable(this.ss, (s) => s.toJSON(cs, this));
+  }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<StateRepo<ASTData, Kinds>["toJSON"]>,
+    cs: CandidateRepo<ASTData, Kinds>
+  ) {
+    const ss = new StateRepo<ASTData, Kinds>();
+    const callbacks = [] as ((ss: StateRepo<ASTData, Kinds>) => void)[];
+    for (const key in data) {
+      const { s, restoreNextMap } = State.fromJSON(data[key], cs);
+      ss.ss.set(key, s);
+      callbacks.push(restoreNextMap);
+    }
+    // restore nextMap after the whole state repo is filled.
+    callbacks.forEach((c) => c(ss));
+    return ss;
   }
 }

@@ -171,4 +171,20 @@ export class Grammar {
       grammarStrWithoutName: this.grammarStrWithoutName.value,
     };
   }
+
+  static fromJSON(data: ReturnType<Grammar["toJSON"]>) {
+    const g = new Grammar({
+      type: data.type,
+      kind: data.kind,
+      name: data.name,
+      text: data.text,
+      grammarStrWithName: data.grammarStrWithName,
+    });
+    g.str.value = data.str;
+    g.cacheKeyWithoutName.value = data.cacheKeyWithoutName;
+    g.strWithName.value = data.strWithName;
+    g.strWithoutName.value = data.strWithoutName;
+    g.grammarStrWithoutName.value = data.grammarStrWithoutName;
+    return g;
+  }
 }

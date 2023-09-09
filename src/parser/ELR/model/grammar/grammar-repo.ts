@@ -14,7 +14,7 @@ export class GrammarRepo {
     this.gs = new Map();
   }
 
-  private getByString(str: string) {
+  getByString(str: string) {
     return this.gs.get(str);
   }
 
@@ -98,5 +98,11 @@ export class GrammarRepo {
     const result = [] as ReturnType<Grammar["toJSON"]>[];
     this.gs.forEach((g) => result.push(g.toJSON()));
     return result;
+  }
+
+  static fromJSON(data: ReturnType<GrammarRepo["toJSON"]>) {
+    const repo = new GrammarRepo();
+    data.forEach((d) => repo.gs.set(d.grammarStrWithName, Grammar.fromJSON(d)));
+    return repo;
   }
 }

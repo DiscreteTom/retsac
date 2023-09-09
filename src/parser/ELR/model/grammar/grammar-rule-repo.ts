@@ -26,6 +26,10 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     return this.grammarRules.get(gr.toStringWithGrammarName());
   }
 
+  getByString(str: string) {
+    return this.grammarRules.get(str);
+  }
+
   map<R>(callback: (g: GrammarRule<ASTData, Kinds>) => R) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
@@ -42,5 +46,25 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
 
   toJSON(repo: GrammarRepo) {
     return this.map((gr) => gr.toJSON(repo, this));
+  }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<GrammarRule<ASTData, Kinds>["toJSON"]>[],
+    repo: GrammarRepo
+  ) {
+    const callbacks = [] as ((grs: GrammarRuleRepo<ASTData, Kinds>) => void)[];
+    const res = new GrammarRuleRepo<ASTData, Kinds>(
+      data.map((d) => {
+        const { gr, restoreConflicts } = GrammarRule.fromJSON<ASTData, Kinds>(
+          d,
+          repo
+        );
+        callbacks.push(restoreConflicts);
+        return gr;
+      })
+    );
+    // restore conflicts & resolvers after the whole grammar rule repo is filled.
+    callbacks.forEach((c) => c(res));
+    return res;
   }
 }

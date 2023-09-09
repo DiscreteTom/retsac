@@ -20,6 +20,7 @@ import {
   RR_ResolverOptions,
   RS_ResolverOptions,
   Definition,
+  DefinitionContext,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { Candidate, DFA, DFABuilder, State } from "../DFA";
@@ -210,6 +211,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       cs,
       allStates,
       repo,
+      NTs,
       this.cascadeQueryPrefix,
       rollback,
       reLex,
@@ -263,39 +265,11 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
             | boolean
             | Condition<ASTData, Kinds | LexerKinds>
             | undefined) ?? true,
+        hydrationId: r.hydrationId,
       };
 
       reducerRule.resolved.push(resolved);
     });
-
-    return {
-      grs,
-      dfa,
-      NTs,
-      repo,
-    };
-  }
-
-  build<LexerKinds extends string>(
-    lexer: ILexer<any, LexerKinds>,
-    options?: BuildOptions
-  ) {
-    const debug = options?.debug ?? false;
-    const logger = options?.logger ?? console.log;
-    const printAll = options?.printAll ?? false;
-
-    // TODO: hydrate
-
-    const { dfa, NTs, grs, repo } = this.buildDFA(
-      lexer,
-      printAll,
-      debug,
-      logger,
-      options?.rollback ?? false,
-      options?.reLex ?? true
-    );
-    dfa.debug = debug;
-    dfa.logger = logger;
 
     // conflicts are stored in grs, they will be used during parsing
     getConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
@@ -316,6 +290,35 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
         });
       });
     });
+
+    return {
+      grs,
+      dfa,
+      NTs,
+      repo,
+    };
+  }
+
+  build<LexerKinds extends string>(
+    lexer: ILexer<any, LexerKinds>,
+    options?: BuildOptions
+  ) {
+    const debug = options?.debug ?? false;
+    const logger = options?.logger ?? console.log;
+    const printAll = options?.printAll ?? false;
+    const rollback = options?.rollback ?? false;
+    const reLex = options?.reLex ?? true;
+
+    // hydrate or build dfa
+    const { dfa, NTs, grs, repo } =
+      options?.hydrate == undefined
+        ? this.buildDFA(lexer, printAll, debug, logger, rollback, reLex)
+        : this.restoreAndHydrate<LexerKinds>(options.hydrate, {
+            debug,
+            logger,
+            rollback,
+            reLex,
+          });
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
@@ -345,7 +348,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     }
 
     // ensure no rollback if rollback is not allowed
-    if ((options?.checkAll || options?.checkRollback) && !options.rollback) {
+    if ((options?.checkAll || options?.checkRollback) && rollback) {
       grs.grammarRules.forEach((gr) => {
         if (gr.rollback !== undefined) {
           const e = "TODO";
@@ -355,7 +358,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       });
     }
 
-    // TODO: serialize
+    // serialize
     if (options?.serialize ?? false) {
       this._serializable = this.buildSerializable(dfa);
     }
@@ -524,6 +527,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
           reducerRule: r,
           anotherRule: a,
           options,
+          hydrationId: { type: "builder", index: this.resolvedTemp.length },
         });
       });
     });
@@ -544,6 +548,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
           reducerRule: r,
           anotherRule: a,
           options,
+          hydrationId: { type: "builder", index: this.resolvedTemp.length },
         });
       });
     });
@@ -651,6 +656,43 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       // }),
       data: { dfa: dfa.toJSON() },
     };
+  }
+
+  private restoreAndHydrate<LexerKinds extends string>(
+    data: SerializableParserData,
+    options: Parameters<typeof DFA.fromJSON>[1]
+  ) {
+    const dfa = DFA.fromJSON<ASTData, Kinds | LexerKinds>(
+      data.data.dfa,
+      options
+    );
+    const ctxs = this.data.map((d) =>
+      d.ctxBuilder?.build()
+    ) as DefinitionContext<ASTData, Kinds | LexerKinds>[];
+
+    // hydrate grammar rules with user defined functions & resolvers
+    dfa.grs.grammarRules.forEach((gr) => {
+      gr.rollback = ctxs[gr.hydrationId]?.rollback;
+      gr.rejecter = ctxs[gr.hydrationId]?.rejecter;
+      gr.callback = ctxs[gr.hydrationId]?.callback;
+      gr.commit = ctxs[gr.hydrationId]?.commit;
+      gr.traverser = ctxs[gr.hydrationId]?.traverser;
+
+      gr.resolved.forEach((r) => {
+        r.accepter =
+          r.hydrationId.type == "builder"
+            ? (
+                this.resolvedTemp as ResolvedTempConflict<
+                  ASTData,
+                  Kinds | LexerKinds
+                >[]
+              )[r.hydrationId.index].options.accept ?? true
+            : ctxs[gr.hydrationId]?.resolved?.[r.hydrationId.index]?.accept ??
+              true;
+      });
+    });
+
+    return { dfa, NTs: dfa.NTs, grs: dfa.grs, repo: dfa.grammars };
   }
 
   get serializable(): Readonly<SerializableParserData> | undefined {

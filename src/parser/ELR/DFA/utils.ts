@@ -191,9 +191,9 @@ export function processDefinitions<ASTData, Kinds extends string>(
   const tempGrammarRules: TempGrammarRule<ASTData, Kinds>[] = [];
   const NTs: Set<string> = new Set();
 
-  data.forEach((d) => {
+  data.forEach((d, hydrationId) => {
     const ctx = d.ctxBuilder?.build();
-    const grs = defToTempGRs(d.defs, ctx);
+    const grs = defToTempGRs(d.defs, hydrationId, ctx);
 
     tempGrammarRules.push(...grs);
     grs.forEach((gr) => {
@@ -204,28 +204,34 @@ export function processDefinitions<ASTData, Kinds extends string>(
     const toBeAppend = [] as ResolvedTempConflict<ASTData, Kinds>[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<ASTData, Kinds>(r.anotherRule).forEach((another) => {
-          grs.forEach((gr) => {
-            toBeAppend.push({
-              type: ConflictType.REDUCE_REDUCE,
-              reducerRule: gr,
-              anotherRule: another,
-              options: r.options,
+        defToTempGRs<ASTData, Kinds>(r.anotherRule, hydrationId).forEach(
+          (another) => {
+            grs.forEach((gr) => {
+              toBeAppend.push({
+                type: ConflictType.REDUCE_REDUCE,
+                reducerRule: gr,
+                anotherRule: another,
+                options: r.options,
+                hydrationId: r.hydrationId,
+              });
             });
-          });
-        });
+          }
+        );
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<ASTData, Kinds>(r.anotherRule).forEach((another) => {
-          grs.forEach((gr) => {
-            toBeAppend.push({
-              type: ConflictType.REDUCE_SHIFT,
-              reducerRule: gr,
-              anotherRule: another,
-              options: r.options,
+        defToTempGRs<ASTData, Kinds>(r.anotherRule, hydrationId).forEach(
+          (another) => {
+            grs.forEach((gr) => {
+              toBeAppend.push({
+                type: ConflictType.REDUCE_SHIFT,
+                reducerRule: gr,
+                anotherRule: another,
+                options: r.options,
+                hydrationId: r.hydrationId,
+              });
             });
-          });
-        });
+          }
+        );
       }
     });
     resolvedTemp.unshift(...toBeAppend);
@@ -244,4 +250,13 @@ export function map2serializable<V, R>(
   const obj = {} as { [key: string]: R };
   map.forEach((v, k) => (obj[k] = transformer(v)));
   return obj;
+}
+
+export function serializable2map<V, R>(
+  obj: { [key: string]: R },
+  transformer: (v: R) => V
+) {
+  const map = new Map<string, V>();
+  Object.entries(obj).forEach(([k, v]) => map.set(k, transformer(v)));
+  return map;
 }

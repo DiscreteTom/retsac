@@ -70,4 +70,8 @@ export class GrammarSet {
   toJSON(repo: GrammarRepo) {
     return this.map((g) => repo.getKey(g));
   }
+
+  static fromJSON(data: ReturnType<GrammarSet["toJSON"]>, repo: GrammarRepo) {
+    return new GrammarSet(data.map((s) => repo.getByString(s)!));
+  }
 }

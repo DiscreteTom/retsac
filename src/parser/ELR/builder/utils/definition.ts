@@ -19,6 +19,7 @@ const ruleLexer = new Lexer.Builder()
  */
 export function defToTempGRs<ASTData, Kinds extends string>(
   defs: Definition<Kinds>,
+  hydrationId: number = 0,
   ctx?: DefinitionContext<ASTData, Kinds>
 ) {
   const result: TempGrammarRule<ASTData, Kinds>[] = [];
@@ -87,6 +88,7 @@ export function defToTempGRs<ASTData, Kinds extends string>(
           rollback: ctx?.rollback,
           commit: ctx?.commit,
           traverser: ctx?.traverser,
+          hydrationId,
         })
       );
     });

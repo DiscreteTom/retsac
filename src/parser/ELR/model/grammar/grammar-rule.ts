@@ -6,6 +6,10 @@ import { ruleStartsWith, ruleEndsWith } from "../util";
 import { Grammar } from "./grammar";
 import { GrammarRepo } from "./grammar-repo";
 import { GrammarRuleRepo } from "./grammar-rule-repo";
+import { GrammarSet } from "./grammar-set";
+
+// only for js doc
+import type { ParserBuilder } from "../../builder";
 
 export class GrammarRule<ASTData, Kinds extends string> {
   readonly rule: readonly Grammar[];
@@ -49,6 +53,10 @@ export class GrammarRule<ASTData, Kinds extends string> {
    * @see {@link GrammarRule.getStrWithoutGrammarName}
    */
   readonly strWithoutGrammarName: StringCache;
+  /**
+   * The index of {@link ParserBuilder.data}
+   */
+  readonly hydrationId: number;
 
   constructor(
     p: Pick<
@@ -60,6 +68,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
       | "rollback"
       | "commit"
       | "traverser"
+      | "hydrationId"
     >
   ) {
     this.rule = p.rule;
@@ -157,16 +166,22 @@ export class GrammarRule<ASTData, Kinds extends string> {
       next: string[];
       handleEnd: boolean;
       overlapped: number | undefined;
+      resolvers: number[];
     }[];
     resolved: {
       type: ConflictType;
       anotherRule: string;
       handleEnd: boolean;
       next: string[] | "*";
+      hydrationId: {
+        type: "builder" | "context";
+        index: number;
+      };
     }[];
     str: string;
     strWithGrammarName: string;
     strWithoutGrammarName: string;
+    hydrationId: number;
   } {
     return {
       NT: this.NT,
@@ -177,6 +192,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
         next: c.next.map((g) => repo.getKey(g)),
         handleEnd: c.handleEnd,
         overlapped: c.overlapped,
+        resolvers: c.resolvers.map((r) => this.resolved.indexOf(r)),
       })),
       resolved: this.resolved.map((r) => ({
         type: r.type,
@@ -184,10 +200,55 @@ export class GrammarRule<ASTData, Kinds extends string> {
         handleEnd: r.handleEnd,
         next: r.next == "*" ? "*" : r.next.map((g) => repo.getKey(g)),
         // accepter
+        hydrationId: r.hydrationId,
       })),
       str: this.str.value,
       strWithGrammarName: this.strWithGrammarName.value,
       strWithoutGrammarName: this.strWithoutGrammarName.value,
+      hydrationId: this.hydrationId,
     };
+  }
+
+  static fromJSON<ASTData, Kinds extends string>(
+    data: ReturnType<GrammarRule<ASTData, Kinds>["toJSON"]>,
+    repo: GrammarRepo
+  ) {
+    const gr = new GrammarRule<ASTData, Kinds>({
+      rule: data.rule.map((r) => repo.getByString(r)!),
+      NT: data.NT as Kinds,
+      hydrationId: data.hydrationId,
+    });
+    gr.str.value = data.str;
+    gr.strWithGrammarName.value = data.strWithGrammarName;
+    gr.strWithoutGrammarName.value = data.strWithoutGrammarName;
+
+    // restore conflicts & resolvers after the whole grammar rule repo is filled.
+    const restoreConflicts = (grs: GrammarRuleRepo<ASTData, Kinds>) => {
+      gr.resolved.push(
+        ...data.resolved.map((r) => ({
+          type: r.type,
+          anotherRule: grs.getByString(r.anotherRule)!,
+          handleEnd: r.handleEnd,
+          next:
+            r.next == "*"
+              ? ("*" as const)
+              : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
+          accepter: false, // accepter will be restored when hydrate
+          hydrationId: r.hydrationId,
+        }))
+      );
+      gr.conflicts.push(
+        ...data.conflicts.map((c) => ({
+          type: c.type,
+          anotherRule: grs.getByString(c.anotherRule)!,
+          next: c.next as any,
+          handleEnd: c.handleEnd,
+          overlapped: c.overlapped,
+          resolvers: c.resolvers.map((i) => gr.resolved[i]),
+        }))
+      );
+    };
+
+    return { gr, restoreConflicts };
   }
 }
