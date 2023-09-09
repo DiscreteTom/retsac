@@ -20,6 +20,7 @@ import {
   NextGrammarNotFoundError,
   NoEntryNTError,
   NoSuchConflictError,
+  RollbackDefinedWhileNotEnabledError,
   UnknownEntryNTError,
   UnknownGrammarError,
 } from "./error";
@@ -368,7 +369,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     if ((options?.checkAll || options?.checkRollback) && !rollback) {
       grs.grammarRules.forEach((gr) => {
         if (gr.rollback !== undefined) {
-          const e = "TODO";
+          const e = new RollbackDefinedWhileNotEnabledError(gr);
           if (printAll) logger(e);
           else throw e;
         }

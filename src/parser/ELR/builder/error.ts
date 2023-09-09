@@ -15,7 +15,8 @@ export type ELR_BuilderErrorType =
   | "INVALID_LITERAL"
   | "TOO_MANY_END_HANDLER"
   | "NO_SUCH_CONFLICT"
-  | "NO_RENAME_TARGET";
+  | "NO_RENAME_TARGET"
+  | "ROLLBACK_DEFINED_WHILE_NOT_ENABLED";
 
 export class ELR_BuilderError extends Error {
   type: ELR_BuilderErrorType;
@@ -174,5 +175,16 @@ export class NoRenameTargetError extends ELR_BuilderError {
       `No rename target in rule ${def} for rename ${rename}`
     );
     Object.setPrototypeOf(this, NoRenameTargetError.prototype);
+  }
+}
+
+export class RollbackDefinedWhileNotEnabledError extends ELR_BuilderError {
+  constructor(public rule: GrammarRule<any, any>) {
+    super(
+      "ROLLBACK_DEFINED_WHILE_NOT_ENABLED",
+      `Rollback defined in the grammar rule while parser's rollback is not enabled: ${rule.toString()}. ` +
+        `To enable rollback, set the rollback option to true when build the parser.`
+    );
+    Object.setPrototypeOf(this, RollbackDefinedWhileNotEnabledError.prototype);
   }
 }

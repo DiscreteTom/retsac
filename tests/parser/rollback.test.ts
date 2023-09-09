@@ -1,5 +1,6 @@
 import { ELR, Lexer } from "../../src";
 import { rollback } from "../../src/parser/ELR";
+import { RollbackDefinedWhileNotEnabledError } from "../../src/parser/ELR/builder/error";
 
 test("Ensure no rollback if rollback is disabled", () => {
   expect(() => {
@@ -12,5 +13,5 @@ test("Ensure no rollback if rollback is disabled", () => {
       .build(new Lexer.Builder().build(), {
         checkRollback: true,
       });
-  }).toThrow(); // TODO: type this
+  }).toThrow(RollbackDefinedWhileNotEnabledError);
 });
