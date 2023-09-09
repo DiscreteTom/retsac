@@ -9,7 +9,7 @@ import {
 import { BuildOptions, IParserBuilder } from "../model/builder";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
-export class AdvancedBuilder<ASTData, Kinds extends string = "">
+export class AdvancedBuilder<ASTData, Kinds extends string = never>
   extends ParserBuilder<ASTData, Kinds>
   implements IParserBuilder<ASTData, Kinds>
 {

@@ -35,7 +35,7 @@ import { Logger } from "../../../model";
  *
  * When build, it's recommended to set `checkAll` to `true` when developing.
  */
-export class ParserBuilder<ASTData, Kinds extends string = "">
+export class ParserBuilder<ASTData, Kinds extends string = never>
   implements IParserBuilder<ASTData, Kinds>
 {
   // use protected for AdvancedParserBuilder
