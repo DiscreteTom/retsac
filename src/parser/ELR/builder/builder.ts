@@ -295,7 +295,6 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       grs,
       dfa,
       NTs,
-      repo,
     };
   }
 
@@ -310,7 +309,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     const reLex = options?.reLex ?? true;
 
     // hydrate or build dfa
-    const { dfa, NTs, grs, repo } =
+    const { dfa, NTs, grs } =
       options?.hydrate == undefined
         ? this.buildDFA(lexer, printAll, debug, logger, rollback, reLex)
         : this.restoreAndHydrate<LexerKinds>(options.hydrate, {
@@ -692,7 +691,7 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       });
     });
 
-    return { dfa, NTs: dfa.NTs, grs: dfa.grs, repo: dfa.grammars };
+    return { dfa, NTs: dfa.NTs, grs: dfa.grs };
   }
 
   get serializable(): Readonly<SerializableParserData> | undefined {
