@@ -266,20 +266,6 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       };
 
       reducerRule.resolved.push(resolved);
-
-      // update conflicts with related resolvers
-      reducerRule.conflicts.forEach((c) => {
-        if (
-          c.type == resolved.type &&
-          c.anotherRule == resolved.anotherRule &&
-          // next match or both handle end
-          (resolved.next == "*" ||
-            c.next.overlap(resolved.next).grammars.size > 0 ||
-            (c.handleEnd && resolved.handleEnd))
-        ) {
-          c.resolvers.push(resolved);
-        }
-      });
     });
 
     return {
@@ -310,6 +296,26 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
     dfa.debug = debug;
     dfa.logger = logger;
 
+    // conflicts are stored in grs, they will be used during parsing
+    getConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
+    // update conflicts with related resolvers
+    grs.grammarRules.forEach((reducerRule) => {
+      reducerRule.conflicts.forEach((c) => {
+        reducerRule.resolved.forEach((resolved) => {
+          if (
+            c.type == resolved.type &&
+            c.anotherRule == resolved.anotherRule &&
+            // next match or both handle end
+            (resolved.next == "*" ||
+              c.next.overlap(resolved.next).grammars.size > 0 ||
+              (c.handleEnd && resolved.handleEnd))
+          ) {
+            c.resolvers.push(resolved);
+          }
+        });
+      });
+    });
+
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
       this.checkSymbols(
@@ -327,9 +333,6 @@ export class ParserBuilder<ASTData, Kinds extends string = "">
       options?.checkConflicts ||
       options?.generateResolvers
     ) {
-      // conflicts are stored in grs
-      getConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
-
       // resolved conflicts are already stored in grs in this.buildDFA
       const unresolved = getUnresolvedConflicts(grs, debug, logger);
 
