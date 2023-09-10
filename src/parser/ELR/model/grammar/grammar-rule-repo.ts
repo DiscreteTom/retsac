@@ -6,23 +6,30 @@ import { GrammarRule } from "./grammar-rule";
  * A set of different grammar rules, grammar's name will be included.
  * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
  */
-export class GrammarRuleRepo<ASTData, Kinds extends string> {
+export class GrammarRuleRepo<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+> {
   /**
    * {@link GrammarRule.strWithGrammarName} => grammar rule
    */
-  readonly grammarRules: ReadonlyMap<string, GrammarRule<ASTData, Kinds>>;
+  readonly grammarRules: ReadonlyMap<
+    string,
+    GrammarRule<ASTData, Kinds, LexerKinds>
+  >;
 
-  constructor(grs: readonly GrammarRule<ASTData, Kinds>[]) {
+  constructor(grs: readonly GrammarRule<ASTData, Kinds, LexerKinds>[]) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.strWithGrammarName.value, gr));
     this.grammarRules = map;
   }
 
-  getKey(gr: GrammarRule<any, any>): string {
+  getKey(gr: GrammarRule<any, any, any>): string {
     return gr.strWithGrammarName.value;
   }
 
-  get(gr: TempGrammarRule<any, any>) {
+  get(gr: TempGrammarRule<any, any, any>) {
     return this.grammarRules.get(gr.strWithGrammarName.value);
   }
 
@@ -30,14 +37,14 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     return this.grammarRules.get(str);
   }
 
-  map<R>(callback: (g: GrammarRule<ASTData, Kinds>) => R) {
+  map<R>(callback: (g: GrammarRule<ASTData, Kinds, LexerKinds>) => R) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
     return res;
   }
 
-  filter(callback: (g: GrammarRule<ASTData, Kinds>) => boolean) {
-    const res = [] as GrammarRule<ASTData, Kinds>[];
+  filter(callback: (g: GrammarRule<ASTData, Kinds, LexerKinds>) => boolean) {
+    const res = [] as GrammarRule<ASTData, Kinds, LexerKinds>[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
     });
@@ -48,17 +55,20 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
     return this.map((gr) => gr.toJSON(repo, this));
   }
 
-  static fromJSON<ASTData, Kinds extends string>(
-    data: ReturnType<GrammarRule<ASTData, Kinds>["toJSON"]>[],
+  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
+    data: ReturnType<GrammarRule<ASTData, Kinds, LexerKinds>["toJSON"]>[],
     repo: GrammarRepo
   ) {
-    const callbacks = [] as ((grs: GrammarRuleRepo<ASTData, Kinds>) => void)[];
-    const res = new GrammarRuleRepo<ASTData, Kinds>(
+    const callbacks = [] as ((
+      grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+    ) => void)[];
+    const res = new GrammarRuleRepo<ASTData, Kinds, LexerKinds>(
       data.map((d) => {
-        const { gr, restoreConflicts } = GrammarRule.fromJSON<ASTData, Kinds>(
-          d,
-          repo
-        );
+        const { gr, restoreConflicts } = GrammarRule.fromJSON<
+          ASTData,
+          Kinds,
+          LexerKinds
+        >(d, repo);
         callbacks.push(restoreConflicts);
         return gr;
       })

@@ -16,7 +16,11 @@ import { GrammarSet } from "./grammar-set";
 // only for js doc
 import type { ParserBuilder } from "../../builder";
 
-export class GrammarRule<ASTData, Kinds extends string> {
+export class GrammarRule<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+> {
   readonly rule: readonly Grammar[];
   /**
    * The reduce target's kind name.
@@ -27,23 +31,23 @@ export class GrammarRule<ASTData, Kinds extends string> {
    * All conflicts must be resolved before the DFA can be built.
    * This will be evaluated during the parsing process.
    */
-  readonly conflicts: (Conflict<ASTData, Kinds> & {
+  readonly conflicts: (Conflict<ASTData, Kinds, LexerKinds> & {
     /**
      * Related resolvers.
      */
-    resolvers: ResolvedConflict<ASTData, Kinds>[];
+    resolvers: ResolvedConflict<ASTData, Kinds, LexerKinds>[];
   })[];
   /**
    * A list of resolved conflicts.
    * All conflicts must be resolved by this before the DFA can be built.
    * This will be evaluated by candidate during parsing.
    */
-  readonly resolved: ResolvedConflict<ASTData, Kinds>[];
-  callback?: Callback<ASTData, Kinds>;
-  rejecter?: Condition<ASTData, Kinds>;
-  rollback?: Callback<ASTData, Kinds>;
-  commit?: Condition<ASTData, Kinds>;
-  traverser?: Traverser<ASTData, Kinds>;
+  readonly resolved: ResolvedConflict<ASTData, Kinds, LexerKinds>[];
+  callback?: Callback<ASTData, Kinds, LexerKinds>;
+  rejecter?: Condition<ASTData, Kinds, LexerKinds>;
+  rollback?: Callback<ASTData, Kinds, LexerKinds>;
+  commit?: Condition<ASTData, Kinds, LexerKinds>;
+  traverser?: Traverser<ASTData, Kinds | LexerKinds>;
 
   /**
    * @see {@link GrammarRule.toString}
@@ -64,7 +68,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
 
   constructor(
     p: Pick<
-      GrammarRule<ASTData, Kinds>,
+      GrammarRule<ASTData, Kinds, LexerKinds>,
       | "rule"
       | "NT"
       | "callback"
@@ -99,11 +103,14 @@ export class GrammarRule<ASTData, Kinds extends string> {
    * Check if the tail of this's rule is the same as the head of another.
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
-  checkRSConflict(another: Readonly<GrammarRule<ASTData, Kinds>>) {
+  checkRSConflict(another: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>) {
     const result = [] as {
-      shifterRule: Pick<Conflict<ASTData, Kinds>, "anotherRule">["anotherRule"];
+      shifterRule: Pick<
+        Conflict<ASTData, Kinds, LexerKinds>,
+        "anotherRule"
+      >["anotherRule"];
       overlapped: Extract<
-        Pick<Conflict<ASTData, Kinds>, "overlapped">["overlapped"],
+        Pick<Conflict<ASTData, Kinds, LexerKinds>, "overlapped">["overlapped"],
         number
       >;
     }[];
@@ -126,7 +133,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
   /**
    * Check if the tail of this's rule is the same as another's whole rule.
    */
-  checkRRConflict(another: Readonly<GrammarRule<ASTData, Kinds>>) {
+  checkRRConflict(another: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>) {
     return ruleEndsWith(this.rule, another.rule);
   }
 
@@ -140,7 +147,9 @@ export class GrammarRule<ASTData, Kinds extends string> {
   /**
    * Return ``{ NT: `grammar rules with name` }``.
    */
-  static getStrWithGrammarName(gr: Pick<GrammarRule<any, any>, "NT" | "rule">) {
+  static getStrWithGrammarName(
+    gr: Pick<GrammarRule<any, any, any>, "NT" | "rule">
+  ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithName)
       .join(" ")}\` }`;
@@ -150,7 +159,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
    * Return ``{ NT: `grammar rules without name` }``.
    */
   static getStrWithoutGrammarName(
-    gr: Pick<GrammarRule<any, any>, "NT" | "rule">
+    gr: Pick<GrammarRule<any, any, any>, "NT" | "rule">
   ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithoutName.value)
@@ -159,7 +168,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
 
   toJSON(
     repo: GrammarRepo,
-    grs: GrammarRuleRepo<ASTData, Kinds>
+    grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
   ): {
     // TODO: why the return type has to be typed explicitly?
     // if without this type, got: src/parser/ELR/model/grammar/grammar-rule.ts:140:3 - error TS7023: 'toJSON' implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
@@ -212,11 +221,11 @@ export class GrammarRule<ASTData, Kinds extends string> {
     };
   }
 
-  static fromJSON<ASTData, Kinds extends string>(
-    data: ReturnType<GrammarRule<ASTData, Kinds>["toJSON"]>,
+  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
+    data: ReturnType<GrammarRule<ASTData, Kinds, LexerKinds>["toJSON"]>,
     repo: GrammarRepo
   ) {
-    const gr = new GrammarRule<ASTData, Kinds>({
+    const gr = new GrammarRule<ASTData, Kinds, LexerKinds>({
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
       hydrationId: data.hydrationId,
@@ -226,7 +235,9 @@ export class GrammarRule<ASTData, Kinds extends string> {
     gr.strWithoutGrammarName.value = data.strWithoutGrammarName;
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
-    const restoreConflicts = (grs: GrammarRuleRepo<ASTData, Kinds>) => {
+    const restoreConflicts = (
+      grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+    ) => {
       gr.resolved.push(
         ...data.resolved.map((r) => ({
           type: r.type,

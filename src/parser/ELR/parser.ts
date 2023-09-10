@@ -6,16 +6,21 @@ import { DFA, State } from "./DFA";
 import { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
-export class Parser<ASTData, Kinds extends string>
-  implements IParser<ASTData, Kinds>
+export class Parser<ASTData, Kinds extends string, LexerKinds extends string>
+  implements IParser<ASTData, Kinds | LexerKinds>
 {
   lexer: ILexer<any, any>;
-  readonly dfa: DFA<ASTData, Kinds>;
-  private _buffer: ASTNode<ASTData, Kinds>[];
-  readonly errors: ASTNode<ASTData, Kinds>[];
+  readonly dfa: DFA<ASTData, Kinds, LexerKinds>;
+  private _buffer: ASTNode<ASTData, Kinds | LexerKinds>[];
+  readonly errors: ASTNode<ASTData, Kinds | LexerKinds>[];
 
-  private reLexStack: ReLexStack<State<ASTData, Kinds>, ASTData, Kinds>;
-  private rollbackStack: RollbackStack<ASTData, Kinds>;
+  private reLexStack: ReLexStack<
+    State<ASTData, Kinds, LexerKinds>,
+    ASTData,
+    Kinds,
+    LexerKinds
+  >;
+  private rollbackStack: RollbackStack<ASTData, Kinds, LexerKinds>;
 
   get debug() {
     return this.dfa.debug;
@@ -30,10 +35,10 @@ export class Parser<ASTData, Kinds extends string>
     this.dfa.logger = v;
   }
   get buffer() {
-    return this._buffer as readonly ASTNode<ASTData, Kinds>[];
+    return this._buffer as readonly ASTNode<ASTData, Kinds | LexerKinds>[];
   }
 
-  constructor(dfa: DFA<ASTData, Kinds>, lexer: ILexer<any, any>) {
+  constructor(dfa: DFA<ASTData, Kinds, LexerKinds>, lexer: ILexer<any, any>) {
     this.dfa = dfa;
     this.lexer = lexer;
     this._buffer = [];
@@ -58,7 +63,10 @@ export class Parser<ASTData, Kinds extends string>
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, Kinds>(this.dfa, this.lexer.clone());
+    const res = new Parser<ASTData, Kinds, LexerKinds>(
+      this.dfa,
+      this.lexer.clone()
+    );
     res._buffer = [...this._buffer];
     res.errors.push(...this.errors);
     res.reLexStack = [...this.reLexStack];
@@ -69,7 +77,10 @@ export class Parser<ASTData, Kinds extends string>
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, Kinds>(this.dfa, this.lexer.dryClone());
+    const res = new Parser<ASTData, Kinds, LexerKinds>(
+      this.dfa,
+      this.lexer.dryClone()
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -80,7 +91,7 @@ export class Parser<ASTData, Kinds extends string>
     return this;
   }
 
-  getErrors(): readonly ASTNode<ASTData, Kinds>[] {
+  getErrors(): readonly ASTNode<ASTData, Kinds | LexerKinds>[] {
     return this.errors;
   }
 
@@ -88,7 +99,7 @@ export class Parser<ASTData, Kinds extends string>
     return this.errors.length > 0;
   }
 
-  getNodes(): readonly ASTNode<ASTData, Kinds>[] {
+  getNodes(): readonly ASTNode<ASTData, Kinds | LexerKinds>[] {
     return this._buffer;
   }
 
@@ -99,7 +110,7 @@ export class Parser<ASTData, Kinds extends string>
 
   parse(
     input?: string | { input?: string; stopOnError?: boolean }
-  ): ParserOutput<ASTData, Kinds> {
+  ): ParserOutput<ASTData, Kinds | LexerKinds> {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -136,10 +147,10 @@ export class Parser<ASTData, Kinds extends string>
 
   parseAll(
     input: string | { input?: string; stopOnError?: boolean } = ""
-  ): ParserOutput<ASTData, Kinds> {
-    let buffer: readonly ASTNode<ASTData, Kinds>[] = [];
+  ): ParserOutput<ASTData, Kinds | LexerKinds> {
+    let buffer: readonly ASTNode<ASTData, Kinds | LexerKinds>[] = [];
     /** Aggregate results if the parser can accept more. */
-    const errors: ASTNode<ASTData, Kinds>[] = [];
+    const errors: ASTNode<ASTData, Kinds | LexerKinds>[] = [];
     /** If the parser has accepted at least once. */
     let accepted = false;
 

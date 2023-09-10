@@ -9,23 +9,27 @@ import {
 import { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
-export class AdvancedBuilder<ASTData, Kinds extends string = never>
-  extends ParserBuilder<ASTData, Kinds>
-  implements IParserBuilder<ASTData, Kinds>
+export class AdvancedBuilder<
+    ASTData,
+    Kinds extends string = never,
+    LexerKinds extends string = never
+  >
+  extends ParserBuilder<ASTData, Kinds, LexerKinds>
+  implements IParserBuilder<ASTData, Kinds, LexerKinds>
 {
-  private readonly expander: GrammarExpander<Kinds>;
+  private readonly expander: GrammarExpander<Kinds, LexerKinds>;
   // resolved conflicts will be stored here first
   // before passing to the super class
   // because we may need to expand the definitions
   private readonly resolvedRS: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RS_ResolverOptions<ASTData, Kinds>;
+    options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
   }[];
   private readonly resolvedRR: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RR_ResolverOptions<ASTData, Kinds>;
+    options: RR_ResolverOptions<ASTData, Kinds, LexerKinds>;
   }[];
 
   constructor(options?: {
@@ -52,7 +56,7 @@ export class AdvancedBuilder<ASTData, Kinds extends string = never>
       rs: {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, Kinds>;
+        options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
       }[];
     }) => void
   ) {
@@ -135,7 +139,7 @@ export class AdvancedBuilder<ASTData, Kinds extends string = never>
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, Kinds>
+    options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>
   ) {
     this.resolvedRS.push({ reducerRule, anotherRule, options });
     return this;
@@ -143,7 +147,7 @@ export class AdvancedBuilder<ASTData, Kinds extends string = never>
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, Kinds>
+    options: RR_ResolverOptions<ASTData, Kinds, LexerKinds>
   ) {
     this.resolvedRR.push({ reducerRule, anotherRule, options });
     return this;

@@ -18,11 +18,15 @@ import {
 import { CandidateRepo } from "./candidate";
 import { StateRepo } from "./state";
 
-export function getAllNTClosure<ASTData, Kinds extends string>(
+export function getAllNTClosure<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   NTs: ReadonlySet<string>,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds>
-): Map<string, GrammarRule<ASTData, Kinds>[]> {
-  const result = new Map<string, GrammarRule<ASTData, Kinds>[]>();
+  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+): Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]> {
+  const result = new Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
 }
@@ -33,10 +37,14 @@ export function getAllNTClosure<ASTData, Kinds extends string>(
  * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
  * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
  */
-export function getNTClosure<ASTData, Kinds extends string>(
+export function getNTClosure<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   NT: string,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds>
-): GrammarRule<ASTData, Kinds>[] {
+  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+): GrammarRule<ASTData, Kinds, LexerKinds>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules
@@ -48,10 +56,14 @@ export function getNTClosure<ASTData, Kinds extends string>(
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
  * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
  */
-export function getGrammarRulesClosure<ASTData, Kinds extends string>(
-  rules: readonly GrammarRule<ASTData, Kinds>[],
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds>
-): GrammarRule<ASTData, Kinds>[] {
+export function getGrammarRulesClosure<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
+  rules: readonly GrammarRule<ASTData, Kinds, LexerKinds>[],
+  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+): GrammarRule<ASTData, Kinds, LexerKinds>[] {
   const result = [...rules];
 
   while (true) {
@@ -143,12 +155,16 @@ export function lexGrammar<ASTData, Kinds extends string>(
 /**
  * Calculate state machine's state transition map ahead of time and cache.
  */
-export function calculateAllStates<ASTData, Kinds extends string>(
+export function calculateAllStates<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   repo: GrammarRepo,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds>,
-  allStates: StateRepo<ASTData, Kinds>,
-  NTClosures: Map<string, GrammarRule<ASTData, Kinds>[]>,
-  cs: CandidateRepo<ASTData, Kinds>
+  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
+  allStates: StateRepo<ASTData, Kinds, LexerKinds>,
+  NTClosures: Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>,
+  cs: CandidateRepo<ASTData, Kinds, LexerKinds>
 ) {
   // collect all grammars in rules
   const gs = new GrammarSet();
@@ -176,19 +192,23 @@ export function calculateAllStates<ASTData, Kinds extends string>(
  * Transform the data user defined into temp grammar rules,
  * and append resolved conflicts defined in definition context in data into resolvedTemp.
  */
-export function processDefinitions<ASTData, Kinds extends string>(
-  data: ParserBuilderData<ASTData, Kinds>,
+export function processDefinitions<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
+  data: ParserBuilderData<ASTData, Kinds, LexerKinds>,
   /**
    * This will be modified to add the resolved conflicts defined in definition context in data.
    * Since the definition context has higher priority,
    * those resolved conflicts will be append to the front of this array.
    */
-  resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[]
+  resolvedTemp: ResolvedTempConflict<ASTData, Kinds, LexerKinds>[]
 ): {
-  tempGrammarRules: readonly TempGrammarRule<ASTData, Kinds>[];
+  tempGrammarRules: readonly TempGrammarRule<ASTData, Kinds, LexerKinds>[];
   NTs: ReadonlySet<string>;
 } {
-  const tempGrammarRules: TempGrammarRule<ASTData, Kinds>[] = [];
+  const tempGrammarRules: TempGrammarRule<ASTData, Kinds, LexerKinds>[] = [];
   const NTs: Set<string> = new Set();
 
   data.forEach((d, hydrationId) => {
@@ -201,37 +221,39 @@ export function processDefinitions<ASTData, Kinds extends string>(
     });
 
     // append resolved conflicts defined in ctx into the front of resolvedTemp
-    const toBeAppend = [] as ResolvedTempConflict<ASTData, Kinds>[];
+    const toBeAppend = [] as ResolvedTempConflict<ASTData, Kinds, LexerKinds>[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<ASTData, Kinds>(r.anotherRule, hydrationId).forEach(
-          (another) => {
-            grs.forEach((gr) => {
-              toBeAppend.push({
-                type: ConflictType.REDUCE_REDUCE,
-                reducerRule: gr,
-                anotherRule: another,
-                options: r.options,
-                hydrationId: r.hydrationId,
-              });
+        defToTempGRs<ASTData, Kinds, LexerKinds>(
+          r.anotherRule,
+          hydrationId
+        ).forEach((another) => {
+          grs.forEach((gr) => {
+            toBeAppend.push({
+              type: ConflictType.REDUCE_REDUCE,
+              reducerRule: gr,
+              anotherRule: another,
+              options: r.options,
+              hydrationId: r.hydrationId,
             });
-          }
-        );
+          });
+        });
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<ASTData, Kinds>(r.anotherRule, hydrationId).forEach(
-          (another) => {
-            grs.forEach((gr) => {
-              toBeAppend.push({
-                type: ConflictType.REDUCE_SHIFT,
-                reducerRule: gr,
-                anotherRule: another,
-                options: r.options,
-                hydrationId: r.hydrationId,
-              });
+        defToTempGRs<ASTData, Kinds, LexerKinds>(
+          r.anotherRule,
+          hydrationId
+        ).forEach((another) => {
+          grs.forEach((gr) => {
+            toBeAppend.push({
+              type: ConflictType.REDUCE_SHIFT,
+              reducerRule: gr,
+              anotherRule: another,
+              options: r.options,
+              hydrationId: r.hydrationId,
             });
-          }
-        );
+          });
+        });
       }
     });
     resolvedTemp.unshift(...toBeAppend);

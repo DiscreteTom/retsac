@@ -18,19 +18,19 @@ import { map2serializable, serializable2map } from "./utils";
 /**
  * DFA for ELR parsers. Stateless.
  */
-export class DFA<ASTData, Kinds extends string> {
+export class DFA<ASTData, Kinds extends string, LexerKinds extends string> {
   constructor(
-    readonly grammarRules: GrammarRuleRepo<ASTData, Kinds>,
+    readonly grammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
     private readonly entryNTs: ReadonlySet<string>,
-    private readonly entryState: State<ASTData, Kinds>,
+    private readonly entryState: State<ASTData, Kinds, LexerKinds>,
     private readonly NTClosures: ReadonlyMap<
       string,
-      GrammarRule<ASTData, Kinds>[]
+      GrammarRule<ASTData, Kinds, LexerKinds>[]
     >,
     public readonly firstSets: ReadonlyFirstSets,
     public readonly followSets: ReadonlyFollowSets,
-    private readonly candidates: CandidateRepo<ASTData, Kinds>,
-    private readonly states: StateRepo<ASTData, Kinds>,
+    private readonly candidates: CandidateRepo<ASTData, Kinds, LexerKinds>,
+    private readonly states: StateRepo<ASTData, Kinds, LexerKinds>,
     readonly grammars: GrammarRepo,
     readonly NTs: ReadonlySet<string>,
     private readonly cascadeQueryPrefix: string | undefined,
@@ -41,20 +41,28 @@ export class DFA<ASTData, Kinds extends string> {
   ) {}
 
   getAllStates() {
-    return this.states as Readonly<StateRepo<ASTData, Kinds>>;
+    return this.states as Readonly<StateRepo<ASTData, Kinds, LexerKinds>>;
   }
 
   /**
    * Try to yield an entry NT.
    */
   parse(
-    buffer: readonly ASTNode<ASTData, Kinds>[],
+    buffer: readonly ASTNode<ASTData, Kinds | LexerKinds>[],
     lexer: ILexer<any, any>,
-    reLexStack: ReLexStack<State<ASTData, Kinds>, ASTData, Kinds>,
-    rollbackStack: RollbackStack<ASTData, Kinds>,
+    reLexStack: ReLexStack<
+      State<ASTData, Kinds, LexerKinds>,
+      ASTData,
+      Kinds,
+      LexerKinds
+    >,
+    rollbackStack: RollbackStack<ASTData, Kinds, LexerKinds>,
     commitParser: () => void,
     stopOnError = false
-  ): { output: ParserOutput<ASTData, Kinds>; lexer: ILexer<any, any> } {
+  ): {
+    output: ParserOutput<ASTData, Kinds | LexerKinds>;
+    lexer: ILexer<any, any>;
+  } {
     // reset state stack with entry state
     /**
      * Current state is `states.at(-1)`.
@@ -62,7 +70,7 @@ export class DFA<ASTData, Kinds extends string> {
     let stateStack = [this.entryState];
 
     let index = 0; // buffer index
-    let errors: ASTNode<ASTData, Kinds>[] = [];
+    let errors: ASTNode<ASTData, Kinds | LexerKinds>[] = [];
 
     /**
      * Before reLex, make sure the reLexStack is not empty!
@@ -226,8 +234,8 @@ export class DFA<ASTData, Kinds extends string> {
     };
   }
 
-  static fromJSON<ASTData, Kinds extends string>(
-    data: ReturnType<DFA<ASTData, Kinds>["toJSON"]>,
+  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
+    data: ReturnType<DFA<ASTData, Kinds, LexerKinds>["toJSON"]>,
     options: {
       logger: Logger;
       debug: boolean;
@@ -237,11 +245,11 @@ export class DFA<ASTData, Kinds extends string> {
   ) {
     const NTs = new Set(data.NTs);
     const grammars = GrammarRepo.fromJSON(data.grammars);
-    const grs = GrammarRuleRepo.fromJSON<ASTData, Kinds>(
+    const grs = GrammarRuleRepo.fromJSON<ASTData, Kinds, LexerKinds>(
       data.grammarRules,
       grammars
     );
-    const candidates = CandidateRepo.fromJSON<ASTData, Kinds>(
+    const candidates = CandidateRepo.fromJSON<ASTData, Kinds, LexerKinds>(
       data.candidates as any,
       grs
     );

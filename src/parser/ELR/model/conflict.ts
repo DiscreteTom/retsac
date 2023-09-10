@@ -8,12 +8,16 @@ export enum ConflictType {
   REDUCE_REDUCE,
 }
 
-export interface Conflict<ASTData, Kinds extends string> {
+export interface Conflict<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+> {
   type: ConflictType;
   /**
    * If this is a R-S conflict, this rule is a shifter rule. If this is a R-R conflict, this rule is a reducer rule.
    */
-  anotherRule: Readonly<GrammarRule<ASTData, Kinds>>;
+  anotherRule: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>;
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
@@ -48,17 +52,21 @@ export type ResolverHydrationId = {
   index: number;
 };
 
-export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
-  Conflict<ASTData, Kinds>,
+export type ResolvedConflict<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+> = Pick<
+  Conflict<ASTData, Kinds, LexerKinds>,
   "type" | "anotherRule" | "handleEnd"
 > & {
   /**
    * Use `'*'` to represent any grammars.
    */
-  next: Pick<Conflict<ASTData, Kinds>, "next">["next"] | "*";
+  next: Pick<Conflict<ASTData, Kinds, LexerKinds>, "next">["next"] | "*";
   /**
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */
-  accepter: boolean | Condition<ASTData, Kinds>;
+  accepter: boolean | Condition<ASTData, Kinds, LexerKinds>;
   hydrationId: Readonly<ResolverHydrationId>;
 };

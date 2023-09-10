@@ -22,11 +22,15 @@ export type Definition<Kinds extends string> = {
   [NT in Kinds]?: string | string[];
 };
 
-export interface DefinitionContext<ASTData, Kinds extends string> {
-  resolved: ResolvedPartialTempConflict<ASTData, Kinds>[];
-  callback?: Callback<ASTData, Kinds>;
-  rejecter?: Condition<ASTData, Kinds>;
-  rollback?: Callback<ASTData, Kinds>;
-  commit?: Condition<ASTData, Kinds>;
-  traverser?: Traverser<ASTData, Kinds>;
+export interface DefinitionContext<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+> {
+  resolved: ResolvedPartialTempConflict<ASTData, Kinds, LexerKinds>[];
+  callback?: Callback<ASTData, Kinds, LexerKinds>;
+  rejecter?: Condition<ASTData, Kinds, LexerKinds>;
+  rollback?: Callback<ASTData, Kinds, LexerKinds>;
+  commit?: Condition<ASTData, Kinds, LexerKinds>;
+  traverser?: Traverser<ASTData, Kinds | LexerKinds>;
 }

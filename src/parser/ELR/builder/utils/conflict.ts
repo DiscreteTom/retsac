@@ -17,10 +17,10 @@ import { ELR_BuilderError, TooManyEndHandlerError } from "../error";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-function getEndSet<ASTData, Kinds extends string>(
+function getEndSet<ASTData, Kinds extends string, LexerKinds extends string>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, Kinds>
+  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
 ) {
   const result = new GrammarSet();
 
@@ -51,10 +51,14 @@ function getEndSet<ASTData, Kinds extends string>(
 /**
  * Return conflicts that user didn't resolve.
  */
-function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
+function getUserUnresolvedConflicts<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   type: ConflictType,
-  reducerRule: Readonly<GrammarRule<ASTData, Kinds>>,
-  anotherRule: Readonly<GrammarRule<ASTData, Kinds>>,
+  reducerRule: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>,
+  anotherRule: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>,
   next: GrammarSet,
   checkHandleEnd: boolean,
   debug: boolean,
@@ -136,11 +140,15 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
-export function getConflicts<ASTData, Kinds extends string>(
+export function getConflicts<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, Kinds>,
-  dfa: DFA<ASTData, Kinds>,
+  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
+  dfa: DFA<ASTData, Kinds, LexerKinds>,
   debug: boolean,
   logger: Logger
 ) {
@@ -320,14 +328,18 @@ export function getConflicts<ASTData, Kinds extends string>(
  * Returned conflicts are newly constructed, not the same as `GrammarRule.conflicts`,
  * since the user may resolve part of the conflicts.
  */
-export function getUnresolvedConflicts<ASTData, Kinds extends string>(
-  grs: GrammarRuleRepo<ASTData, Kinds>,
+export function getUnresolvedConflicts<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
+  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
   debug: boolean,
   logger: Logger
 ) {
   const result = new Map<
-    GrammarRule<ASTData, Kinds>,
-    Conflict<ASTData, Kinds>[]
+    GrammarRule<ASTData, Kinds, LexerKinds>,
+    Conflict<ASTData, Kinds, LexerKinds>[]
   >();
 
   grs.grammarRules.forEach((reducerRule) => {
@@ -344,7 +356,7 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
         );
 
         if (res.next.grammars.size > 0) {
-          const conflict: Conflict<ASTData, Kinds> = {
+          const conflict: Conflict<ASTData, Kinds, LexerKinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
             handleEnd: false,
@@ -366,7 +378,7 @@ export function getUnresolvedConflicts<ASTData, Kinds extends string>(
           logger
         );
         if (res.next.grammars.size > 0 || res.end) {
-          const conflict: Conflict<ASTData, Kinds> = {
+          const conflict: Conflict<ASTData, Kinds, LexerKinds> = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,
             handleEnd: res.end,

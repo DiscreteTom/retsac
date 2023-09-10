@@ -27,12 +27,16 @@ const ruleLexer = new Lexer.Builder()
 /**
  * Definition to TempGrammarRules.
  */
-export function defToTempGRs<ASTData, Kinds extends string>(
+export function defToTempGRs<
+  ASTData,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   defs: Definition<Kinds>,
   hydrationId: number = 0,
-  ctx?: DefinitionContext<ASTData, Kinds>
+  ctx?: DefinitionContext<ASTData, Kinds, LexerKinds>
 ) {
-  const result: TempGrammarRule<ASTData, Kinds>[] = [];
+  const result: TempGrammarRule<ASTData, Kinds, LexerKinds>[] = [];
 
   // parse rules
   for (const NT in defs) {
@@ -74,7 +78,7 @@ export function defToTempGRs<ASTData, Kinds extends string>(
         throw new EmptyLiteralError(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<ASTData, Kinds>({
+        new TempGrammarRule<ASTData, Kinds, LexerKinds>({
           NT,
           rule: tokens.map((t) => {
             if (t.kind == "grammar")
