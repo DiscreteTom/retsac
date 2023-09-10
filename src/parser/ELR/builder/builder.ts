@@ -138,7 +138,6 @@ export class ParserBuilder<
     NTs: ReadonlySet<string>,
     Ts: ReadonlySet<string>,
     grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
-    lexer: Readonly<ILexer<any, any>>, // TODO: remove this
     printAll: boolean,
     logger: Logger
   ) {
@@ -348,14 +347,7 @@ export class ParserBuilder<
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
-      this.checkSymbols(
-        NTs,
-        lexer.getTokenKinds(),
-        grs,
-        lexer,
-        printAll,
-        logger
-      );
+      this.checkSymbols(NTs, lexer.getTokenKinds(), grs, printAll, logger);
 
     // deal with conflicts
     if (

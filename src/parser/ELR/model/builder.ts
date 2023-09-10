@@ -81,7 +81,6 @@ export interface IParserBuilder<
   /**
    * Declare grammar rules.
    */
-  // TODO: make ctxBuilder a list? use ...
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
     ...ctxBuilders: DefinitionContextBuilder<
