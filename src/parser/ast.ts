@@ -37,23 +37,23 @@ export type ASTObj = {
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeChildrenSelector<ASTData, Kinds extends string> = (
+export type ASTNodeChildrenSelector<ASTData, AllKinds extends string> = (
   name: string
-) => ASTNode<ASTData, Kinds>[];
+) => ASTNode<ASTData, AllKinds>[];
 /**
  * Select the first matched child node by the name.
  */
-export type ASTNodeFirstMatchChildSelector<ASTData, Kinds extends string> = (
+export type ASTNodeFirstMatchChildSelector<ASTData, AllKinds extends string> = (
   name: string
-) => ASTNode<ASTData, Kinds> | undefined;
-export type ASTNodeSelector<ASTData, Kinds extends string> = (
+) => ASTNode<ASTData, AllKinds> | undefined;
+export type ASTNodeSelector<ASTData, AllKinds extends string> = (
   name: string,
-  nodes: readonly ASTNode<ASTData, Kinds>[]
-) => ASTNode<ASTData, Kinds>[];
-export type ASTNodeFirstMatchSelector<ASTData, Kinds extends string> = (
+  nodes: readonly ASTNode<ASTData, AllKinds>[]
+) => ASTNode<ASTData, AllKinds>[];
+export type ASTNodeFirstMatchSelector<ASTData, AllKinds extends string> = (
   name: string,
-  nodes: readonly ASTNode<ASTData, Kinds>[]
-) => ASTNode<ASTData, Kinds> | undefined;
+  nodes: readonly ASTNode<ASTData, AllKinds>[]
+) => ASTNode<ASTData, AllKinds> | undefined;
 
 /**
  * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
@@ -69,18 +69,18 @@ export const mockASTNodeFirstMatchSelector: ASTNodeFirstMatchSelector<
  * The result of the traverser is stored in the ASTNode's data field.
  * Traverser should never be called in a leaf node (no children).
  */
-export type Traverser<ASTData, Kinds extends string> = (
-  self: ASTNode<ASTData, Kinds> & {
+export type Traverser<ASTData, AllKinds extends string> = (
+  self: ASTNode<ASTData, AllKinds> & {
     // children is not undefined
-    children: NonNullable<ASTNode<ASTData, Kinds>["children"]>;
+    children: NonNullable<ASTNode<ASTData, AllKinds>["children"]>;
   }
 ) => ASTData | undefined | void;
 
 /**
  * The default traverser.
  */
-export function defaultTraverser<ASTData, Kinds extends string>(
-  self: Parameters<Traverser<ASTData, Kinds>>[0]
+export function defaultTraverser<ASTData, AllKinds extends string>(
+  self: Parameters<Traverser<ASTData, AllKinds>>[0]
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length == 1)
@@ -91,12 +91,12 @@ export function defaultTraverser<ASTData, Kinds extends string>(
 
 // TODO: default ASTData type?
 // ASTNode's Kinds should be Parser's kinds union with Lexer's kinds
-export class ASTNode<ASTData, Kinds extends string> {
+export class ASTNode<ASTData, AllKinds extends string> {
   /**
    * T's or NT's kind name.
    * If the T is anonymous, the value is an empty string.
    */
-  readonly kind: Kinds;
+  readonly kind: AllKinds;
   /**
    * Start position of the whole input string.
    * Same as the first token's start position.
@@ -109,12 +109,12 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<ASTData, Kinds>[];
+  children?: readonly ASTNode<ASTData, AllKinds>[];
   /**
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<ASTData, Kinds>;
+  parent?: ASTNode<ASTData, AllKinds>;
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -124,17 +124,17 @@ export class ASTNode<ASTData, Kinds extends string> {
   /**
    * Select the first matched child node by the name.
    */
-  readonly $: ASTNodeFirstMatchChildSelector<ASTData, Kinds>;
+  readonly $: ASTNodeFirstMatchChildSelector<ASTData, AllKinds>;
   /**
    * Select children nodes by the name.
    */
-  readonly $$: ASTNodeChildrenSelector<ASTData, Kinds>;
+  readonly $$: ASTNodeChildrenSelector<ASTData, AllKinds>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    * Make this private to prevent users from using it by mistake.
    */
-  private traverser: Traverser<ASTData, Kinds>;
+  private traverser: Traverser<ASTData, AllKinds>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
@@ -155,13 +155,13 @@ export class ASTNode<ASTData, Kinds extends string> {
 
   constructor(
     p: Pick<
-      ASTNode<ASTData, Kinds>,
+      ASTNode<ASTData, AllKinds>,
       "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
-      traverser?: Traverser<ASTData, Kinds>;
-      selector?: ASTNodeSelector<ASTData, Kinds>;
-      firstMatchSelector?: ASTNodeFirstMatchSelector<ASTData, Kinds>;
-    } & Partial<Pick<ASTNode<ASTData, Kinds>, "name">>
+      traverser?: Traverser<ASTData, AllKinds>;
+      selector?: ASTNodeSelector<ASTData, AllKinds>;
+      firstMatchSelector?: ASTNodeFirstMatchSelector<ASTData, AllKinds>;
+    } & Partial<Pick<ASTNode<ASTData, AllKinds>, "name">>
   ) {
     this._name = p.name ?? p.kind;
     this.kind = p.kind;
@@ -291,7 +291,7 @@ export class ASTNode<ASTData, Kinds extends string> {
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(
-      this as Parameters<Traverser<ASTData, Kinds>>[0] // children is not undefined
+      this as Parameters<Traverser<ASTData, AllKinds>>[0] // children is not undefined
     );
     this.data =
       res ??

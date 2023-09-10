@@ -593,6 +593,16 @@ export class ParserBuilder<
     return f(this);
   }
 
+  useLexer<AppendLexerKinds extends string>(
+    lexer?: ILexer<any, AppendLexerKinds>
+  ): IParserBuilder<ASTData, Kinds, LexerKinds | AppendLexerKinds> {
+    return this as IParserBuilder<
+      ASTData,
+      Kinds,
+      LexerKinds | AppendLexerKinds
+    >;
+  }
+
   priority(...groups: (Definition<Kinds> | Definition<Kinds>[])[]) {
     // grammar rules with higher priority will always be reduced first
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])

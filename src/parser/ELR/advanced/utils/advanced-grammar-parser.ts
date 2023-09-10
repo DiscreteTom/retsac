@@ -60,6 +60,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
 
   // the data `string[]` represent all the expanded possibilities of the grammar rule
   const parserBuilder = new ParserBuilder<string[]>()
+    .useLexer(lexer)
     .entry("gr") // grammar rule
     .define(
       { gr: `grammar | literal` },
@@ -129,7 +130,8 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
     string[],
-    "gr" | "" | "grammar" | "literal" | "rename"
+    "gr",
+    "" | "grammar" | "literal" | "rename"
   >;
   readonly placeholderPrefix: string;
 

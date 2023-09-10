@@ -7,7 +7,7 @@ import { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
 export class Parser<ASTData, Kinds extends string, LexerKinds extends string>
-  implements IParser<ASTData, Kinds | LexerKinds>
+  implements IParser<ASTData, Kinds, LexerKinds>
 {
   lexer: ILexer<any, any>;
   readonly dfa: DFA<ASTData, Kinds, LexerKinds>;

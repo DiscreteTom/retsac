@@ -11,7 +11,7 @@ import {
 import type { Parser } from "../parser";
 
 export type BuildOptions = Partial<
-  Pick<IParser<any, any>, "logger" | "debug">
+  Pick<IParser<any, any, any>, "logger" | "debug">
 > & {
   /**
    * Which format to generate resolvers.
@@ -81,6 +81,7 @@ export interface IParserBuilder<
   /**
    * Declare grammar rules.
    */
+  // TODO: make ctxBuilder a list? use ...
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
     ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append, LexerKinds>
@@ -93,7 +94,7 @@ export interface IParserBuilder<
     // if user wants to get lexer's errors, they can use `lexer.errors`.
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
-  ): IParser<ASTData, Kinds | LexerKinds>;
+  ): IParser<ASTData, Kinds, LexerKinds>;
   /**
    * Resolve a reduce-shift conflict.
    */
@@ -113,9 +114,12 @@ export interface IParserBuilder<
   /**
    * Apply a function to this builder.
    */
-  use<Append extends string>(
-    f: BuilderDecorator<ASTData, Kinds, LexerKinds, Append>
-  ): IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
+  use<AppendKinds extends string>(
+    f: BuilderDecorator<ASTData, Kinds, LexerKinds, AppendKinds>
+  ): IParserBuilder<ASTData, Kinds | AppendKinds, LexerKinds>;
+  useLexer<AppendLexerKinds extends string>(
+    lexer?: ILexer<any, AppendLexerKinds>
+  ): IParserBuilder<ASTData, Kinds, LexerKinds | AppendLexerKinds>;
   /**
    * Generate resolvers by grammar rules' priorities.
    *
