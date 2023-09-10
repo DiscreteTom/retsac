@@ -148,28 +148,28 @@ export const data = {
               anotherRule: '{ gr: `grammar rename` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 60 }
+              hydrationId: { type: 0, index: 60 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `literal rename` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 61 }
+              hydrationId: { type: 0, index: 61 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `grammar rename` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 64 }
+              hydrationId: { type: 0, index: 64 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `literal rename` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 65 }
+              hydrationId: { type: 0, index: 65 }
             }
           ],
           str: '{ gr: `grammar` }',
@@ -196,28 +196,28 @@ export const data = {
               anotherRule: '{ gr: `grammar rename` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 62 }
+              hydrationId: { type: 0, index: 62 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `literal rename` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 63 }
+              hydrationId: { type: 0, index: 63 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `grammar rename` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 66 }
+              hydrationId: { type: 0, index: 66 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `literal rename` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 67 }
+              hydrationId: { type: 0, index: 67 }
             }
           ],
           str: '{ gr: `literal` }',
@@ -235,28 +235,28 @@ export const data = {
               anotherRule: '{ gr: `grammar` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 52 }
+              hydrationId: { type: 0, index: 52 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `literal` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 53 }
+              hydrationId: { type: 0, index: 53 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `grammar` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 56 }
+              hydrationId: { type: 0, index: 56 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `literal` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 57 }
+              hydrationId: { type: 0, index: 57 }
             }
           ],
           str: '{ gr: `grammar rename` }',
@@ -274,28 +274,28 @@ export const data = {
               anotherRule: '{ gr: `grammar` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 54 }
+              hydrationId: { type: 0, index: 54 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `literal` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 55 }
+              hydrationId: { type: 0, index: 55 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `grammar` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 58 }
+              hydrationId: { type: 0, index: 58 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `literal` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 59 }
+              hydrationId: { type: 0, index: 59 }
             }
           ],
           str: '{ gr: `literal rename` }',
@@ -323,84 +323,84 @@ export const data = {
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 0 }
+              hydrationId: { type: 0, index: 0 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 1 }
+              hydrationId: { type: 0, index: 1 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 12 }
+              hydrationId: { type: 0, index: 12 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 13 }
+              hydrationId: { type: 0, index: 13 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 28 }
+              hydrationId: { type: 0, index: 28 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 29 }
+              hydrationId: { type: 0, index: 29 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 32 }
+              hydrationId: { type: 0, index: 32 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 33 }
+              hydrationId: { type: 0, index: 33 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 38 }
+              hydrationId: { type: 0, index: 38 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 39 }
+              hydrationId: { type: 0, index: 39 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 46 }
+              hydrationId: { type: 0, index: 46 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 47 }
+              hydrationId: { type: 0, index: 47 }
             }
           ],
           str: '{ gr: `gr "?"` }',
@@ -418,84 +418,84 @@ export const data = {
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 4 }
+              hydrationId: { type: 0, index: 4 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 5 }
+              hydrationId: { type: 0, index: 5 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 16 }
+              hydrationId: { type: 0, index: 16 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 17 }
+              hydrationId: { type: 0, index: 17 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 30 }
+              hydrationId: { type: 0, index: 30 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 31 }
+              hydrationId: { type: 0, index: 31 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 36 }
+              hydrationId: { type: 0, index: 36 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 37 }
+              hydrationId: { type: 0, index: 37 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 40 }
+              hydrationId: { type: 0, index: 40 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 41 }
+              hydrationId: { type: 0, index: 41 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 50 }
+              hydrationId: { type: 0, index: 50 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 51 }
+              hydrationId: { type: 0, index: 51 }
             }
           ],
           str: '{ gr: `gr "*"` }',
@@ -513,84 +513,84 @@ export const data = {
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 8 }
+              hydrationId: { type: 0, index: 8 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 9 }
+              hydrationId: { type: 0, index: 9 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 20 }
+              hydrationId: { type: 0, index: 20 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 21 }
+              hydrationId: { type: 0, index: 21 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 34 }
+              hydrationId: { type: 0, index: 34 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 35 }
+              hydrationId: { type: 0, index: 35 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 42 }
+              hydrationId: { type: 0, index: 42 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 43 }
+              hydrationId: { type: 0, index: 43 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 44 }
+              hydrationId: { type: 0, index: 44 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 45 }
+              hydrationId: { type: 0, index: 45 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 48 }
+              hydrationId: { type: 0, index: 48 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 49 }
+              hydrationId: { type: 0, index: 49 }
             }
           ],
           str: '{ gr: `gr "+"` }',
@@ -649,63 +649,63 @@ export const data = {
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 14 }
+              hydrationId: { type: 0, index: 14 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 15 }
+              hydrationId: { type: 0, index: 15 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 18 }
+              hydrationId: { type: 0, index: 18 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 19 }
+              hydrationId: { type: 0, index: 19 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 22 }
+              hydrationId: { type: 0, index: 22 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 23 }
+              hydrationId: { type: 0, index: 23 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 26 }
+              hydrationId: { type: 0, index: 26 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 27 }
+              hydrationId: { type: 0, index: 27 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 68 }
+              hydrationId: { type: 0, index: 68 }
             }
           ],
           str: '{ gr: `gr "|" gr` }',
@@ -764,63 +764,63 @@ export const data = {
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 2 }
+              hydrationId: { type: 0, index: 2 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "?"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 3 }
+              hydrationId: { type: 0, index: 3 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 6 }
+              hydrationId: { type: 0, index: 6 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "*"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 7 }
+              hydrationId: { type: 0, index: 7 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 10 }
+              hydrationId: { type: 0, index: 10 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "+"` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 11 }
+              hydrationId: { type: 0, index: 11 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 24 }
+              hydrationId: { type: 0, index: 24 }
             },
             {
               type: 1,
               anotherRule: '{ gr: `gr "|" gr` }',
               handleEnd: true,
               next: '*',
-              hydrationId: { type: 'builder', index: 25 }
+              hydrationId: { type: 0, index: 25 }
             },
             {
               type: 0,
               anotherRule: '{ gr: `gr gr` }',
               handleEnd: false,
               next: '*',
-              hydrationId: { type: 'builder', index: 69 }
+              hydrationId: { type: 0, index: 69 }
             }
           ],
           str: '{ gr: `gr gr` }',
