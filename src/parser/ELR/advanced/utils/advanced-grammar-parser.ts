@@ -60,7 +60,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
 
   // the data `string[]` represent all the expanded possibilities of the grammar rule
   const parserBuilder = new ParserBuilder<string[]>()
-    .useLexer(lexer)
+    .useLexerKinds(lexer)
     .entry("gr") // grammar rule
     .define(
       { gr: `grammar | literal` },

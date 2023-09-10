@@ -40,7 +40,7 @@
   - Feat: add `ASTNodeSelector`.
   - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.
-    - Add `IParserBuilder.useLexer` to set lexer kinds.
+    - Add `IParserBuilder.useLexerKinds` to set lexer kinds.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
   - Feat: in `AdvancedBuilder` you can rename literals.
   - Feat: `children` in traverser is never `undefined`.

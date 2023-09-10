@@ -593,8 +593,8 @@ export class ParserBuilder<
     return f(this);
   }
 
-  useLexer<AppendLexerKinds extends string>(
-    lexer?: ILexer<any, AppendLexerKinds>
+  useLexerKinds<AppendLexerKinds extends string>(
+    ...lexer: (AppendLexerKinds | ILexer<any, AppendLexerKinds>)[]
   ): IParserBuilder<ASTData, Kinds, LexerKinds | AppendLexerKinds> {
     return this as IParserBuilder<
       ASTData,

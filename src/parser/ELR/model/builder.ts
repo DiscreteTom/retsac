@@ -117,8 +117,20 @@ export interface IParserBuilder<
   use<AppendKinds extends string>(
     f: BuilderDecorator<ASTData, Kinds, LexerKinds, AppendKinds>
   ): IParserBuilder<ASTData, Kinds | AppendKinds, LexerKinds>;
-  useLexer<AppendLexerKinds extends string>(
-    lexer?: ILexer<any, AppendLexerKinds>
+  /**
+   * Append those kinds to the lexer kinds.
+   * You can also pass lexers as the parameter.
+   *
+   * This function will do nothing but set the lexer kinds of the parser builder in TypeScript.
+   * So this function is only useful in TypeScript.
+   *
+   * @example
+   * useLexerKinds(someLexer) // use lexer
+   * useLexerKinds('some_kind') // use string literal
+   * useLexerKinds('some_kind', someLexer) // mix
+   */
+  useLexerKinds<AppendLexerKinds extends string>(
+    ...lexer: (ILexer<any, AppendLexerKinds> | AppendLexerKinds)[]
   ): IParserBuilder<ASTData, Kinds, LexerKinds | AppendLexerKinds>;
   /**
    * Generate resolvers by grammar rules' priorities.
