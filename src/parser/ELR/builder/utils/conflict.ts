@@ -10,7 +10,7 @@ import {
   GrammarRepo,
   GrammarRuleRepo,
 } from "../../model";
-import { ELR_BuilderError, TooManyEndHandlerError } from "../error";
+import { TooManyEndHandlerError } from "../error";
 
 /**
  * Return a grammar set contains NTs which might be the last input grammar.
