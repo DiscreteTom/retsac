@@ -221,4 +221,22 @@ export class DefinitionContextBuilder<
       f
     );
   }
+
+  /**
+   * Reduce multi DefinitionContextBuilder into one.
+   */
+  static reduce<ASTData, Kinds extends string, LexerKinds extends string>(
+    builders: DefinitionContextBuilder<ASTData, Kinds, LexerKinds>[]
+  ) {
+    const res = new DefinitionContextBuilder<ASTData, Kinds, LexerKinds>();
+    for (const b of builders) {
+      res.resolved.push(...b.resolved);
+      if (b._callback !== undefined) res.callback(b._callback);
+      if (b._rejecter !== undefined) res.rejecter(b._rejecter);
+      if (b._rollback !== undefined) res.rollback(b._rollback);
+      if (b._commit !== undefined) res.commit(b._commit);
+      if (b._traverser !== undefined) res.traverser(b._traverser);
+    }
+    return res;
+  }
 }

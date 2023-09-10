@@ -12,6 +12,7 @@ const lexer = new Lexer.Builder()
 export let someState = 0;
 
 export const parser = new ELR.ParserBuilder<number>()
+  .useLexerKinds(lexer)
   .entry("exp")
   .define(
     { exp: "number" },
@@ -19,11 +20,9 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
-      ({ values }) => values[0]! - 1
-    ) // e.g. `2--` is `2 - 1`
-      .callback(() => (someState = 1)) // callback will be called if the grammar rule is accepted
-      .rollback(() => (someState = 0)) // rollback will be called when re-lex
+    ELR.reducer(({ values }) => values[0]! - 1), // e.g. `2--` is `2 - 1`
+    ELR.callback(() => (someState = 1)), // callback will be called if the grammar rule is accepted
+    ELR.rollback(() => (someState = 0)) // rollback will be called when re-lex
   )
   .define(
     { exp: `'-' exp` },

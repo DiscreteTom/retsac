@@ -84,7 +84,11 @@ export interface IParserBuilder<
   // TODO: make ctxBuilder a list? use ...
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append, LexerKinds>
+    ...ctxBuilders: DefinitionContextBuilder<
+      ASTData,
+      Kinds | Append,
+      LexerKinds
+    >[]
   ): IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
   /**
    * Generate the {@link Parser ELR Parser}.

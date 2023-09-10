@@ -117,11 +117,15 @@ export class ParserBuilder<
    */
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds | Append, LexerKinds>
+    ...ctxBuilders: DefinitionContextBuilder<
+      ASTData,
+      Kinds | Append,
+      LexerKinds
+    >[]
   ): IParserBuilder<ASTData, Kinds | Append, LexerKinds> {
     (this.data as ParserBuilderData<ASTData, Kinds | Append, LexerKinds>).push({
       defs,
-      ctxBuilder,
+      ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),
     });
     return this as IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
   }

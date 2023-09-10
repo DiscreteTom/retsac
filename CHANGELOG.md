@@ -45,6 +45,7 @@
   - Feat: in `AdvancedBuilder` you can rename literals.
   - Feat: `children` in traverser is never `undefined`.
   - Feat: serialize parser. [#2](https://github.com/DiscreteTom/retsac/issues/2)
+  - Feat: `IParserBuilder.define` can accept multi `DefinitionContextBuilder` to optimize type inference.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - [#2](https://github.com/DiscreteTom/retsac/issues/2)
