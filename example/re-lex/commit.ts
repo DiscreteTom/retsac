@@ -10,6 +10,7 @@ const lexer = new Lexer.Builder()
   .build();
 
 export const parser_1 = new ELR.ParserBuilder<number>()
+  .useLexerKinds(lexer)
   .entry("exp")
   .define(
     { exp: "number" },
@@ -17,10 +18,8 @@ export const parser_1 = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
-      ({ values }) => values[0]! - 1
-    ) // e.g. `2--` is `2 - 1`
-      .commit()
+    ELR.reducer(({ values }) => values[0]! - 1), // e.g. `2--` is `2 - 1`
+    ELR.commit()
   )
   .define(
     { exp: `'-' exp` },
@@ -35,6 +34,7 @@ export const parser_1 = new ELR.ParserBuilder<number>()
   .build(lexer.clone(), { checkAll: true });
 
 export const parser_2 = new ELR.ParserBuilder<number>()
+  .useLexerKinds(lexer)
   .entry("exp")
   .define(
     { exp: "number" },
@@ -42,10 +42,8 @@ export const parser_2 = new ELR.ParserBuilder<number>()
   )
   .define(
     { exp: `exp '--'` },
-    ELR.reducer<number, "" | "exp" /* TODO: omit the type? */>(
-      ({ values }) => values[0]! - 1
-    ) // e.g. `2--` is `2 - 1`
-      .commit(() => true) // use a function to decide whether to commit
+    ELR.reducer(({ values }) => values[0]! - 1), // e.g. `2--` is `2 - 1`
+    ELR.commit(() => true) // use a function to decide whether to commit
   )
   .define(
     { exp: `'-' exp` },
