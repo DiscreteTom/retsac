@@ -1,5 +1,5 @@
 import { AtLeastOneOf } from "../../../../utils";
-import { Condition, ConflictType } from "../../model";
+import { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";
 
@@ -44,16 +44,10 @@ export type ConflictTypeAndResolverOptions<ASTData, Kinds extends string> = (
 export type ResolvedTempConflict<ASTData, Kinds extends string> = {
   reducerRule: TempGrammarRule<ASTData, Kinds>;
   anotherRule: TempGrammarRule<ASTData, Kinds>;
-  hydrationId: {
-    type: "builder" | "context"; // TODO: use enum
-    index: number;
-  };
+  hydrationId: ResolverHydrationId;
 } & ConflictTypeAndResolverOptions<ASTData, Kinds>;
 
 export type ResolvedPartialTempConflict<ASTData, Kinds extends string> = {
   anotherRule: Definition<Kinds>;
-  hydrationId: {
-    type: "builder" | "context"; // TODO: extract type
-    index: number;
-  };
+  hydrationId: ResolverHydrationId;
 } & ConflictTypeAndResolverOptions<ASTData, Kinds>;

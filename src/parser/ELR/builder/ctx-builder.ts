@@ -1,5 +1,11 @@
 import { Traverser } from "../../ast";
-import { Callback, Condition, ConflictType, Reducer } from "../model";
+import {
+  Callback,
+  Condition,
+  ConflictType,
+  Reducer,
+  ResolverHydrationType,
+} from "../model";
 import {
   DefinitionContext,
   Definition,
@@ -102,7 +108,7 @@ export class DefinitionContextBuilder<ASTData, Kinds extends string> {
       anotherRule: another,
       options,
       hydrationId: {
-        type: "context",
+        type: ResolverHydrationType.CONTEXT,
         index: this.resolved.length,
       },
     });
@@ -121,7 +127,7 @@ export class DefinitionContextBuilder<ASTData, Kinds extends string> {
       anotherRule: another,
       options,
       hydrationId: {
-        type: "context",
+        type: ResolverHydrationType.CONTEXT,
         index: this.resolved.length,
       },
     });

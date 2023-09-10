@@ -1,6 +1,11 @@
 import { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
-import { Conflict, ConflictType, ResolvedConflict } from "../conflict";
+import {
+  Conflict,
+  ConflictType,
+  ResolvedConflict,
+  ResolverHydrationId,
+} from "../conflict";
 import { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "../util";
 import { Grammar } from "./grammar";
@@ -174,10 +179,7 @@ export class GrammarRule<ASTData, Kinds extends string> {
       anotherRule: string;
       handleEnd: boolean;
       next: string[] | "*";
-      hydrationId: {
-        type: "builder" | "context";
-        index: number;
-      };
+      hydrationId: ResolverHydrationId;
     }[];
     str: string;
     strWithGrammarName: string;

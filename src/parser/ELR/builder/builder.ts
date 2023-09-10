@@ -10,6 +10,7 @@ import {
   SerializableParserData,
   Condition,
   GrammarSet,
+  ResolverHydrationType,
 } from "../model";
 import {
   ConflictError,
@@ -547,7 +548,10 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
           reducerRule: r,
           anotherRule: a,
           options,
-          hydrationId: { type: "builder", index: this.resolvedTemp.length },
+          hydrationId: {
+            type: ResolverHydrationType.BUILDER,
+            index: this.resolvedTemp.length,
+          },
         });
       });
     });
@@ -570,7 +574,10 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
           reducerRule: r,
           anotherRule: a,
           options,
-          hydrationId: { type: "builder", index: this.resolvedTemp.length },
+          hydrationId: {
+            type: ResolverHydrationType.BUILDER,
+            index: this.resolvedTemp.length,
+          },
         });
       });
     });
@@ -702,7 +709,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
 
       gr.resolved.forEach((r) => {
         r.accepter =
-          r.hydrationId.type == "builder"
+          r.hydrationId.type == ResolverHydrationType.BUILDER
             ? (
                 this.resolvedTemp as ResolvedTempConflict<
                   ASTData,

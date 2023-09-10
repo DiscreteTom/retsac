@@ -1,5 +1,7 @@
 import { Condition } from "./context";
-import { GrammarRule, Grammar, GrammarSet } from "./grammar";
+import { GrammarRule, GrammarSet } from "./grammar";
+import type { ParserBuilder } from "../builder";
+import type { DefinitionContextBuilder } from "../builder";
 
 export enum ConflictType {
   REDUCE_SHIFT,
@@ -26,6 +28,26 @@ export interface Conflict<ASTData, Kinds extends string> {
   overlapped?: number;
 }
 
+export enum ResolverHydrationType {
+  /**
+   * The resolver is defined in builder level.
+   */
+  BUILDER,
+  /**
+   * The resolver is defined in definition context.
+   */
+  CONTEXT,
+}
+
+export type ResolverHydrationId = {
+  type: ResolverHydrationType;
+  /**
+   * If {@link ResolverHydrationId.type} is {@link ResolverHydrationType.BUILDER}, this is the index of the {@link ParserBuilder.data data} in the builder.
+   * If {@link ResolverHydrationId.type} is {@link ResolverHydrationType.CONTEXT}, this is the index of the {@link DefinitionContextBuilder.resolved resolvers} in the definition context.
+   */
+  index: number;
+};
+
 export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
   Conflict<ASTData, Kinds>,
   "type" | "anotherRule" | "handleEnd"
@@ -38,12 +60,5 @@ export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */
   accepter: boolean | Condition<ASTData, Kinds>;
-  hydrationId: {
-    /**
-     * If the conflict is resolved in builder level (e.g. `builder.resolveRS`) then 'builder'.
-     * If the conflict is resolved in definition context using `builder.define` then 'gr'.
-     */
-    type: "builder" | "context";
-    index: number;
-  };
+  hydrationId: ResolverHydrationId;
 };
