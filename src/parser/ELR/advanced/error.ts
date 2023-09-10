@@ -2,12 +2,9 @@ export type LR_AdvancedBuilderErrorType = "INVALID_GRAMMAR_RULE";
 
 export class LR_AdvancedBuilderError extends Error {
   type: LR_AdvancedBuilderErrorType;
-
   constructor(type: LR_AdvancedBuilderErrorType, msg: string) {
     super(msg);
-
     this.type = type;
-
     Object.setPrototypeOf(this, LR_AdvancedBuilderError.prototype);
   }
 
@@ -16,5 +13,11 @@ export class LR_AdvancedBuilderError extends Error {
       "INVALID_GRAMMAR_RULE",
       `Invalid grammar rule for advanced parser: \`${gr}\``
     );
+  }
+}
+
+export class InvalidGrammarRuleError extends LR_AdvancedBuilderError {
+  constructor(public gr: string) {
+    super("INVALID_GRAMMAR_RULE", `Invalid grammar rule: \`${gr}\``);
   }
 }

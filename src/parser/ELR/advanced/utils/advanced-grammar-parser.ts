@@ -7,7 +7,7 @@ import {
   RS_ResolverOptions,
   traverser,
 } from "../../builder";
-import { LR_AdvancedBuilderError } from "../error";
+import { InvalidGrammarRuleError } from "../error";
 import { applyResolvers } from "./resolvers";
 import { data } from "./serialized-grammar-parser-data";
 
@@ -170,8 +170,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     };
     const res = this.parser.reset().parseAll(s);
 
-    if (!res.accept || !this.allParsed())
-      throw LR_AdvancedBuilderError.invalidGrammarRule(s);
+    if (!res.accept || !this.allParsed()) throw new InvalidGrammarRuleError(s);
 
     const expanded = res.buffer[0].traverse()!;
 
