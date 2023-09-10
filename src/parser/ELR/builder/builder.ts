@@ -525,7 +525,7 @@ export class ParserBuilder<
                       .map((g) => g.grammarStrWithName)
                       .join(" ")}\`, `
                   : ""
-              }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
+              }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`
           )
           .join("\n");
         logger(txt);
@@ -545,7 +545,7 @@ export class ParserBuilder<
                         .map((g) => g.grammarStrWithName)
                         .join(" ")}\`, `
                     : ""
-                }${c.handleEnd ? `handleEnd: true, ` : ""}reduce: true })`
+                }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`
             )
             .join("\n  ");
         logger(txt);
