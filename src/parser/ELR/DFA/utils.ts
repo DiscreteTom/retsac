@@ -98,15 +98,15 @@ export function getGrammarRulesClosure<
 export function ASTNodeSelectorFactory<
   ASTData,
   ErrorType,
-  Kinds extends string
+  AllKinds extends string
 >(
   cascadeQueryPrefix: string | undefined
-): ASTNodeSelector<ASTData, ErrorType, Kinds> {
+): ASTNodeSelector<ASTData, ErrorType, AllKinds> {
   return (
-    name: string,
-    nodes: readonly ASTNode<ASTData, ErrorType, Kinds>[]
+    name: (string & {}) | AllKinds,
+    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
   ) => {
-    const result: ASTNode<ASTData, ErrorType, Kinds>[] = [];
+    const result: ASTNode<ASTData, ErrorType, AllKinds>[] = [];
     nodes.forEach((n) => {
       if (n.name === name) result.push(n);
 
@@ -123,13 +123,13 @@ export function ASTNodeSelectorFactory<
 export function ASTNodeFirstMatchSelectorFactory<
   ASTData,
   ErrorType,
-  Kinds extends string
+  AllKinds extends string
 >(
   cascadeQueryPrefix: string | undefined
-): ASTNodeFirstMatchSelector<ASTData, ErrorType, Kinds> {
+): ASTNodeFirstMatchSelector<ASTData, ErrorType, AllKinds> {
   return (
-    name: string,
-    nodes: readonly ASTNode<ASTData, ErrorType, Kinds>[]
+    name: (string & {}) | AllKinds,
+    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
   ) => {
     for (const n of nodes) {
       if (n.name === name) return n;

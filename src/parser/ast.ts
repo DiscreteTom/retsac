@@ -41,7 +41,7 @@ export type ASTNodeChildrenSelector<
   ASTData,
   ErrorType,
   AllKinds extends string
-> = (name: string) => ASTNode<ASTData, ErrorType, AllKinds>[];
+> = (name: (string & {}) | AllKinds) => ASTNode<ASTData, ErrorType, AllKinds>[];
 /**
  * Select the first matched child node by the name.
  */
@@ -49,9 +49,11 @@ export type ASTNodeFirstMatchChildSelector<
   ASTData,
   ErrorType,
   AllKinds extends string
-> = (name: string) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
+> = (
+  name: (string & {}) | AllKinds
+) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
 export type ASTNodeSelector<ASTData, ErrorType, AllKinds extends string> = (
-  name: string,
+  name: (string & {}) | AllKinds,
   nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
 ) => ASTNode<ASTData, ErrorType, AllKinds>[];
 export type ASTNodeFirstMatchSelector<
@@ -59,7 +61,7 @@ export type ASTNodeFirstMatchSelector<
   ErrorType,
   AllKinds extends string
 > = (
-  name: string,
+  name: (string & {}) | AllKinds,
   nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
 ) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
 
