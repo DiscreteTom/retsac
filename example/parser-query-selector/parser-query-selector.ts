@@ -13,6 +13,7 @@ export let fName = "";
 export let returnType = "";
 
 export const parser = new ELR.ParserBuilder()
+  .useLexerKinds(lexer)
   .entry("fn_def")
   .define(
     {

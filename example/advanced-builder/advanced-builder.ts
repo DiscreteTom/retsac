@@ -11,6 +11,7 @@ const lexer = new Lexer.Builder()
   .build();
 
 export const parser = new ELR.AdvancedBuilder()
+  .useLexerKinds(lexer)
   .define({
     // use `@` to rename a node, this is effective only when using `$` to query nodes
     fn_def: `

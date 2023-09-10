@@ -21,7 +21,7 @@ const lexer = new Lexer.Builder()
     Lexer.comment("/*", "*/") // multiline comment
   )
   .define(
-    Lexer.wordType(
+    Lexer.wordKind(
       "import",
       "from",
       "const",
@@ -51,6 +51,7 @@ const lexer = new Lexer.Builder()
   .build();
 
 const parser = new ELR.ParserBuilder()
+  .useLexerKinds(lexer)
   .define({ import_stmt: `import '*' as identifier from string ';'` })
   .define({ import_stmt: `import '{' multi_identifier '}' from string ';'` })
   .define({
@@ -99,280 +100,280 @@ const parser = new ELR.ParserBuilder()
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: true }
+    { next: `'!='`, accept: true }
   )
   .resolveRS(
     { exp: `'!' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: true }
+    { next: `'&&'`, accept: true }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: true }
+    { next: `'!='`, accept: true }
   )
   .resolveRS(
     { exp: `'...' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: true }
+    { next: `'&&'`, accept: true }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: true }
+    { next: `'!='`, accept: true }
   )
   .resolveRS(
     { exp: `exp '!=' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: true }
+    { next: `'&&'`, accept: true }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: false }
+    { next: `'!='`, accept: false }
   )
   .resolveRS(
     { exp: `exp '&&' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: true }
+    { next: `'&&'`, accept: true }
   )
   .resolveRS(
     { stmt: `exp_stmts` },
     { exp_stmts: `exp_stmts exp_stmt` },
     {
       next: `'{' exp identifier string regex true false object array break new '!' '...' '['`,
-      reduce: true,
+      accept: true,
     }
   )
   .resolveRR(
     { exp: `identifier` },
     { object_item: `identifier` },
-    { next: `'}' ','`, reduce: true }
+    { next: `'}' ','`, accept: true }
   )
   .resolveRR(
     { object_item: `identifier` },
     { exp: `identifier` },
-    { next: `'}' ','`, reduce: true }
+    { next: `'}' ','`, accept: true }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: false }
+    { next: `'!='`, accept: false }
   )
   .resolveRS(
     { object_item: `identifier ':' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: false }
+    { next: `'&&'`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: false }
+    { next: `'!='`, accept: false }
   )
   .resolveRS(
     { exps: `exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: false }
+    { next: `'&&'`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '.' identifier` },
-    { next: `'.'`, reduce: false }
+    { next: `'.'`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '?' '.' identifier` },
-    { next: `'?'`, reduce: false }
+    { next: `'?'`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '(' ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '(' exps ')'` },
-    { next: `'('`, reduce: false }
+    { next: `'('`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '[' exp ']'` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '!=' exp` },
-    { next: `'!='`, reduce: false }
+    { next: `'!='`, accept: false }
   )
   .resolveRS(
     { exps: `exps ',' exp` },
     { exp: `exp '&&' exp` },
-    { next: `'&&'`, reduce: false }
+    { next: `'&&'`, accept: false }
   )
   .resolveRS(
     { exps: `exps ','` },
     { exps: `exps ',' exp` },
-    { next: `'['`, reduce: false }
+    { next: `'['`, accept: false }
   )
   .resolveRR(
     { exp: `identifier` },
     { object_item: `identifier` },
-    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, reduce: true }
+    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, accept: true }
   )
   .resolveRR(
     { object_item: `identifier` },
     { exp: `identifier` },
-    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, reduce: false }
+    { next: `';' '.' '?' '(' '[' ']' '!=' '&&' ')'`, accept: false }
   )
   .build(lexer, { debug: true, checkAll: true }); // enable debug mode
 
@@ -381,13 +382,13 @@ parser.feed(code);
 while (true) {
   // parse one statement
   if (!parser.parse().accept) break;
-  const stmt = parser.take();
+  const stmt = parser.take()[0];
   console.log(stmt?.toTreeString());
 }
 
-if (parser.getNodes().length) {
+if (parser.buffer.length) {
   console.log("===========  Unreduced  ===========");
-  console.log(parser.getNodes());
+  console.log(parser.buffer);
 }
 
 if (parser.lexer.hasRest()) {

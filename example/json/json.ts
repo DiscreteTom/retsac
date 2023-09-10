@@ -10,7 +10,8 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders
   .build();
 
-export const parser = new ELR.AdvancedBuilder<any>()
+export const parser = new ELR.AdvancedBuilder()
+  .useLexerKinds(lexer)
   .entry("value")
   .define(
     { value: `string | number | true | false | null` },
