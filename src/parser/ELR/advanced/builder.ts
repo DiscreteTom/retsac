@@ -11,7 +11,7 @@ import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<
     ASTData,
-    ErrorType,
+    ErrorType = any,
     Kinds extends string = never,
     LexerKinds extends string = never
   >
