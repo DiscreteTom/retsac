@@ -200,7 +200,8 @@ export class GrammarRule<ASTData, Kinds extends string> {
         type: r.type,
         anotherRule: grs.getKey(r.anotherRule),
         handleEnd: r.handleEnd,
-        next: r.next == "*" ? "*" : r.next.map((g) => repo.getKey(g)),
+        next:
+          r.next == "*" ? ("*" as const) : r.next.map((g) => repo.getKey(g)),
         // accepter
         hydrationId: r.hydrationId,
       })),
