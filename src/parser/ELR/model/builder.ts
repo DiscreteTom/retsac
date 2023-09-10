@@ -76,9 +76,9 @@ export interface IParserBuilder<
    * This is required for ELR parser.
    * You should call this only once. If you call this multiple times, the last one will be used.
    */
-  entry<Append extends string>(
-    ...defs: Append[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
+  entry(
+    ...defs: Kinds[]
+  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
   /**
    * Declare grammar rules.
    */

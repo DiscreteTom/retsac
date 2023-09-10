@@ -98,17 +98,12 @@ export class ParserBuilder<
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
-  entry<Append extends string>(
-    ...defs: Append[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds> {
+  entry(
+    ...defs: Kinds[]
+  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds> {
     this.entryNTs.clear();
     defs.forEach((d) => this.entryNTs.add(d));
-    return this as IParserBuilder<
-      ASTData,
-      ErrorType,
-      Kinds | Append,
-      LexerKinds
-    >;
+    return this as IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
   }
 
   /**
