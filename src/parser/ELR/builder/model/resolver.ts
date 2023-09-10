@@ -44,10 +44,10 @@ export type ConflictTypeAndResolverOptions<ASTData, Kinds extends string> = (
 export type ResolvedTempConflict<ASTData, Kinds extends string> = {
   reducerRule: TempGrammarRule<ASTData, Kinds>;
   anotherRule: TempGrammarRule<ASTData, Kinds>;
-  hydrationId: ResolverHydrationId;
+  hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<ASTData, Kinds>;
 
 export type ResolvedPartialTempConflict<ASTData, Kinds extends string> = {
   anotherRule: Definition<Kinds>;
-  hydrationId: ResolverHydrationId;
+  hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<ASTData, Kinds>;

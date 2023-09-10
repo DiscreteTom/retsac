@@ -60,5 +60,5 @@ export type ResolvedConflict<ASTData, Kinds extends string> = Pick<
    * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
    */
   accepter: boolean | Condition<ASTData, Kinds>;
-  hydrationId: ResolverHydrationId;
+  hydrationId: Readonly<ResolverHydrationId>;
 };
