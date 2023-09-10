@@ -216,7 +216,9 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
       lexer,
       this.entryNTs,
       this.data as ParserBuilderData<ASTData, Kinds | LexerKinds>,
-      this.resolvedTemp as ResolvedTempConflict<ASTData, Kinds | LexerKinds>[]
+      this.resolvedTemp as ResolvedTempConflict<ASTData, Kinds | LexerKinds>[],
+      printAll,
+      logger
     );
     const dfa = new DFA(
       grs,
@@ -265,7 +267,7 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
               defToTempGRs({
                 "": r.options.next ?? "",
               } as Definition<Kinds>)[0]?.rule.map((g) =>
-                g.toGrammar(repo, lexer, NTs.has(g.content))
+                g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content))
               ) ?? []
             );
 

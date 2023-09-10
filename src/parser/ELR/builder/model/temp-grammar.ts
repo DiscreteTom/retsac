@@ -1,4 +1,5 @@
 import { ILexer } from "../../../../lexer";
+import { Logger } from "../../../../model";
 import { Traverser } from "../../../ast";
 import { Callback, Condition, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
@@ -41,16 +42,23 @@ export class TempGrammar {
      * Lexer is required to lex the literal grammar's kind name.
      */
     lexer: Readonly<ILexer<any, any>>,
+    printAll: boolean,
+    logger: Logger,
     isNT = true
   ) {
     if (this.type == TempGrammarType.LITERAL) {
       const token = lexer.dryClone().lex(this.content);
       if (token == null) {
-        // TODO: printAll
         // TODO: for un-lexable literal, use anonymous type?
-        throw new InvalidLiteralError(this.content);
+        const e = new InvalidLiteralError(this.content);
+        if (printAll) logger(e.message);
+        else throw e;
       }
-      return repo.Literal(this.content, token.kind, this.name);
+      return repo.Literal(
+        this.content,
+        token?.kind ?? "", // this null check is for printAll
+        this.name
+      );
     }
 
     return isNT

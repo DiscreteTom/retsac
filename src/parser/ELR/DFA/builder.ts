@@ -1,4 +1,5 @@
 import { ILexer } from "../../../lexer";
+import { Logger } from "../../../model";
 import { ResolvedTempConflict, ParserBuilderData } from "../builder";
 import {
   GrammarRepo,
@@ -28,7 +29,9 @@ export class DFABuilder {
     lexer: ILexer<any, any>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<ASTData, Kinds>,
-    resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[]
+    resolvedTemp: ResolvedTempConflict<ASTData, Kinds>[],
+    printAll: boolean,
+    logger: Logger
   ) {
     // transform definitions to temp grammar rules
     // and append resolved conflicts defined in definition context in data into resolvedTemp
@@ -49,7 +52,7 @@ export class DFABuilder {
             commit: gr.commit,
             traverser: gr.traverser,
             rule: gr.rule.map((g) =>
-              g.toGrammar(repo, lexer, NTs.has(g.content))
+              g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content))
             ),
             hydrationId: gr.hydrationId,
           })
