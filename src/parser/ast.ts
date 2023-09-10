@@ -241,7 +241,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
         ? "<anonymous>"
         : this.kind == this.name
         ? this.kind
-        : `${this.kind}(${this.name})`
+        : `${this.kind}@${this.name}`
     }: `;
     if (this.text) res += JSON.stringify(this.text); // quote the text
     res += "\n";
@@ -261,7 +261,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   }
 
   /**
-   * Format: `kind(name): text`.
+   * Format: `kind@name: text`.
    * This value will be changed if you change the name of this node.
    */
   static getStrWithName(
@@ -269,7 +269,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.name == data.kind ? "" : `(${data.name})`}` +
+      `${data.name == data.kind ? "" : `@${data.name}`}` +
       `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
