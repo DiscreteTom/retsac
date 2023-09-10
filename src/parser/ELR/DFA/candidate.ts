@@ -249,7 +249,7 @@ export class Candidate<ASTData, Kinds extends string> {
           if (c.handleEnd) {
             // find the resolver
             const r = this.gr.resolved.find(
-              // TODO: use filter instead of find to get an array?
+              // use find instead of filter here since there can only be one end handler
               (r) =>
                 r.type == ConflictType.REDUCE_REDUCE &&
                 r.anotherRule == c.anotherRule &&
