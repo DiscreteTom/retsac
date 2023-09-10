@@ -21,6 +21,7 @@ const cache = (() => {
 })();
 
 const builder = new ELR.ParserBuilder<number>()
+  .useLexerKinds(lexer)
   .entry("exp")
   .define(
     { exp: "number" },
