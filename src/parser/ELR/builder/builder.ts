@@ -15,9 +15,7 @@ import {
 import {
   ConflictError,
   DuplicatedDefinitionError,
-  ELR_BuilderError,
   GrammarRuleNotFoundError,
-  InvalidLiteralError,
   NextGrammarNotFoundError,
   NoEntryNTError,
   NoSuchConflictError,
@@ -166,20 +164,19 @@ export class ParserBuilder<ASTData, Kinds extends string = never>
     });
 
     // all literals must be able to be tokenized by lexer
-    // TODO: is this already checked when GrammarRepo create the grammar?
-    // TODO: allow un-lexable literal, use anonymous type?
-    lexer = lexer.dryClone();
-    grs.grammarRules.forEach((gr) => {
-      gr.rule.forEach((grammar) => {
-        if (grammar.text != undefined) {
-          if (lexer.reset().lex(grammar.text!) == null) {
-            const e = new InvalidLiteralError(grammar.text!);
-            if (printAll) logger(e.message);
-            else throw e;
-          }
-        }
-      });
-    });
+    // this is this already checked when GrammarRepo create the grammar
+    // lexer = lexer.dryClone();
+    // grs.grammarRules.forEach((gr) => {
+    //   gr.rule.forEach((grammar) => {
+    //     if (grammar.text != undefined) {
+    //       if (lexer.reset().lex(grammar.text!) == null) {
+    //         const e = new InvalidLiteralError(grammar.text!);
+    //         if (printAll) logger(e.message);
+    //         else throw e;
+    //       }
+    //     }
+    //   });
+    // });
 
     return this;
   }

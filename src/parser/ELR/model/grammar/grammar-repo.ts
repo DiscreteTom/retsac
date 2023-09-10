@@ -44,7 +44,7 @@ export class GrammarRepo {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.T(kind); // ensure the unnamed grammar is created // TODO: is this necessary?
+    if (name != undefined) this.T(kind); // ensure the unnamed grammar is created
 
     return g;
   }
@@ -66,7 +66,7 @@ export class GrammarRepo {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.NT(kind); // ensure the unnamed grammar is created // TODO: is this necessary?
+    if (name != undefined) this.NT(kind); // ensure the unnamed grammar is created
 
     return g;
   }
@@ -89,7 +89,7 @@ export class GrammarRepo {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.Literal(text, kind); // ensure the unnamed grammar is created // TODO: is this necessary?
+    if (name != undefined) this.Literal(text, kind); // ensure the unnamed grammar is created
 
     return g;
   }

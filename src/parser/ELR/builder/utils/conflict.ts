@@ -77,7 +77,7 @@ function getUserUnresolvedConflicts<ASTData, Kinds extends string>(
       r.next.grammars.forEach((n) => resolvedNext.push(n));
   });
   const unresolvedNext = resolveAll
-    ? new GrammarSet() // TODO: use undefined here
+    ? new GrammarSet()
     : next.filter((n) => !resolvedNext.some((rn) => n.equalWithoutName(rn)));
 
   if (debug) {
