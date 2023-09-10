@@ -23,7 +23,7 @@ export class GrammarRuleRepo<ASTData, Kinds extends string> {
   }
 
   get(gr: TempGrammarRule<any, any>) {
-    return this.grammarRules.get(gr.toStringWithGrammarName());
+    return this.grammarRules.get(gr.strWithGrammarName.value);
   }
 
   getByString(str: string) {

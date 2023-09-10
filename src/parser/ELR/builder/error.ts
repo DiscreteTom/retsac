@@ -32,7 +32,7 @@ export class GrammarRuleNotFoundError extends ELR_BuilderError {
   constructor(public gr: TempGrammarRule<any, any>) {
     super(
       "GRAMMAR_RULE_NOT_FOUND",
-      `No such grammar rule: ${gr.toStringWithGrammarName()}`
+      `No such grammar rule: ${gr.strWithGrammarName.value}`
     );
     Object.setPrototypeOf(this, GrammarRuleNotFoundError.prototype);
   }

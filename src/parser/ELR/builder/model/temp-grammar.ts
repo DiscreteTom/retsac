@@ -1,6 +1,7 @@
 import { ILexer } from "../../../../lexer";
 import { Logger } from "../../../../model";
 import { Traverser } from "../../../ast";
+import { StringCache } from "../../../cache";
 import { Callback, Condition, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 
@@ -30,10 +31,16 @@ export class TempGrammar {
    */
   readonly name?: string;
 
+  readonly strWithGrammarName: StringCache;
+
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     this.type = p.type;
     this.content = p.content;
     this.name = p.name;
+
+    this.strWithGrammarName = new StringCache(() =>
+      this.toGrammarStringWithName()
+    );
   }
 
   toGrammar(
@@ -70,7 +77,7 @@ export class TempGrammar {
    * Format: `kind@name` if not literal, else `"text"@name`.
    * The output format should be the same as `Grammar.toStringWithName`.
    */
-  toGrammarStringWithName() {
+  private toGrammarStringWithName() {
     return this.type == TempGrammarType.LITERAL
       ? JSON.stringify(this.content) +
           (this.name == undefined ? "" : "@" + this.name)
@@ -96,6 +103,7 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
   commit?: Condition<ASTData, Kinds>;
   traverser?: Traverser<ASTData, Kinds>;
   readonly hydrationId: number;
+  readonly strWithGrammarName: StringCache;
 
   constructor(
     data: Pick<
@@ -118,6 +126,10 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
     this.rollback = data.rollback;
     this.traverser = data.traverser;
     this.hydrationId = data.hydrationId;
+
+    this.strWithGrammarName = new StringCache(() =>
+      this.toStringWithGrammarName()
+    );
   }
 
   /**
@@ -125,10 +137,9 @@ export class TempGrammarRule<ASTData, Kinds extends string> {
    * Grammar's name is included.
    * This should yield the same output format as `GrammarRule.toStringWithGrammarName`.
    */
-  // TODO: cache?
-  toStringWithGrammarName() {
+  private toStringWithGrammarName() {
     return `{ ${this.NT}: \`${this.rule
-      .map((g) => g.toGrammarStringWithName())
+      .map((g) => g.strWithGrammarName.value)
       .join(" ")}\` }`;
   }
 }
