@@ -85,7 +85,9 @@ export interface IParserBuilder<ASTData, Kinds extends string> {
    * Generate the {@link Parser ELR Parser}.
    */
   build<LexerKinds extends string>(
-    lexer: ILexer<any, LexerKinds>, // TODO: use generic type
+    // lexer's error type is not important yet, since we don't need token's error in parser's output.
+    // if user wants to get lexer's errors, they can use `lexer.errors`.
+    lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
   ): IParser<ASTData, Kinds | LexerKinds>;
   /**
