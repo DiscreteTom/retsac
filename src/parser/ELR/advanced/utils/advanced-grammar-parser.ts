@@ -194,7 +194,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
           });
           if (debug)
             logger(
-              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", reduce: false }`
+              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`
             );
         });
       });
@@ -241,7 +241,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       if (debug) {
         logger(`Generated: ${p}: \`${gr}\``);
         logger(
-          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", reduce: false }`
+          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`
         );
       }
     });
