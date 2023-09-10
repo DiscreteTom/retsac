@@ -114,7 +114,7 @@ function getUserUnresolvedConflicts<
   // check end
   const endHandlers = related.filter((r) => r.handleEnd);
   if (endHandlers.length > 1) {
-    // TODO: allow multi end handler?
+    // only one end handler is allowed
     throw new TooManyEndHandlerError(reducerRule);
   }
   let unresolvedEnd = checkHandleEnd;

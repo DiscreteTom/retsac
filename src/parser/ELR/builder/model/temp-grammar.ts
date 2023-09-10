@@ -56,7 +56,8 @@ export class TempGrammar {
     if (this.type == TempGrammarType.LITERAL) {
       const token = lexer.dryClone().lex(this.content);
       if (token == null) {
-        // TODO: for un-lexable literal, use anonymous type?
+        // for un-lexable literal, throw error instead of using anonymous type
+        // this is to prevent mis-writing literal grammar
         const e = new InvalidLiteralError(this.content);
         if (printAll) logger(e.message);
         else throw e;
