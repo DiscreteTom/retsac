@@ -20,13 +20,17 @@ import { StateRepo } from "./state";
 
 export function getAllNTClosure<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
   NTs: ReadonlySet<string>,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
-): Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]> {
-  const result = new Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>();
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+): Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
+  const result = new Map<
+    string,
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+  >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
 }
@@ -39,12 +43,13 @@ export function getAllNTClosure<
  */
 export function getNTClosure<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
   NT: string,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
-): GrammarRule<ASTData, Kinds, LexerKinds>[] {
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules
@@ -58,12 +63,13 @@ export function getNTClosure<
  */
 export function getGrammarRulesClosure<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
-  rules: readonly GrammarRule<ASTData, Kinds, LexerKinds>[],
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
-): GrammarRule<ASTData, Kinds, LexerKinds>[] {
+  rules: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   const result = [...rules];
 
   while (true) {
@@ -89,11 +95,18 @@ export function getGrammarRulesClosure<
 // this function is especially for ELR parser
 // since the cascade query is only used in ELR parser
 // so don't move this into ast.ts file
-export function ASTNodeSelectorFactory<ASTData, Kinds extends string>(
+export function ASTNodeSelectorFactory<
+  ASTData,
+  ErrorType,
+  Kinds extends string
+>(
   cascadeQueryPrefix: string | undefined
-): ASTNodeSelector<ASTData, Kinds> {
-  return (name: string, nodes: readonly ASTNode<ASTData, Kinds>[]) => {
-    const result: ASTNode<ASTData, Kinds>[] = [];
+): ASTNodeSelector<ASTData, ErrorType, Kinds> {
+  return (
+    name: string,
+    nodes: readonly ASTNode<ASTData, ErrorType, Kinds>[]
+  ) => {
+    const result: ASTNode<ASTData, ErrorType, Kinds>[] = [];
     nodes.forEach((n) => {
       if (n.name === name) result.push(n);
 
@@ -107,10 +120,17 @@ export function ASTNodeSelectorFactory<ASTData, Kinds extends string>(
     return result;
   };
 }
-export function ASTNodeFirstMatchSelectorFactory<ASTData, Kinds extends string>(
+export function ASTNodeFirstMatchSelectorFactory<
+  ASTData,
+  ErrorType,
+  Kinds extends string
+>(
   cascadeQueryPrefix: string | undefined
-): ASTNodeFirstMatchSelector<ASTData, Kinds> {
-  return (name: string, nodes: readonly ASTNode<ASTData, Kinds>[]) => {
+): ASTNodeFirstMatchSelector<ASTData, ErrorType, Kinds> {
+  return (
+    name: string,
+    nodes: readonly ASTNode<ASTData, ErrorType, Kinds>[]
+  ) => {
     for (const n of nodes) {
       if (n.name === name) return n;
 
@@ -131,10 +151,13 @@ export function ASTNodeFirstMatchSelectorFactory<ASTData, Kinds extends string>(
  * Try to use lexer to yield the specified grammar.
  * Return `null` if failed.
  */
-export function lexGrammar<ASTData, Kinds extends string>(
+export function lexGrammar<ASTData, ErrorType, Kinds extends string>(
   g: Grammar,
   lexer: Readonly<ILexer<any, any>>
-): { node: ASTNode<ASTData, Kinds>; lexer: ILexer<any, any> } | null {
+): {
+  node: ASTNode<ASTData, ErrorType, Kinds>;
+  lexer: ILexer<any, any>;
+} | null {
   if (g.type == GrammarType.NT) {
     // NT can't be lexed
     return null;
@@ -149,7 +172,7 @@ export function lexGrammar<ASTData, Kinds extends string>(
     },
   });
   if (token == null) return null;
-  return { node: ASTNode.from<ASTData, Kinds>(token), lexer };
+  return { node: ASTNode.from<ASTData, ErrorType, Kinds>(token), lexer };
 }
 
 /**
@@ -157,14 +180,15 @@ export function lexGrammar<ASTData, Kinds extends string>(
  */
 export function calculateAllStates<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
   repo: GrammarRepo,
-  allGrammarRules: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
-  allStates: StateRepo<ASTData, Kinds, LexerKinds>,
-  NTClosures: Map<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>,
-  cs: CandidateRepo<ASTData, Kinds, LexerKinds>
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  NTClosures: Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
+  cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
 ) {
   // collect all grammars in rules
   const gs = new GrammarSet();
@@ -194,21 +218,32 @@ export function calculateAllStates<
  */
 export function processDefinitions<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
-  data: ParserBuilderData<ASTData, Kinds, LexerKinds>,
+  data: ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>,
   /**
    * This will be modified to add the resolved conflicts defined in definition context in data.
    * Since the definition context has higher priority,
    * those resolved conflicts will be append to the front of this array.
    */
-  resolvedTemp: ResolvedTempConflict<ASTData, Kinds, LexerKinds>[]
+  resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[]
 ): {
-  tempGrammarRules: readonly TempGrammarRule<ASTData, Kinds, LexerKinds>[];
+  tempGrammarRules: readonly TempGrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >[];
   NTs: ReadonlySet<string>;
 } {
-  const tempGrammarRules: TempGrammarRule<ASTData, Kinds, LexerKinds>[] = [];
+  const tempGrammarRules: TempGrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >[] = [];
   const NTs: Set<string> = new Set();
 
   data.forEach((d, hydrationId) => {
@@ -221,10 +256,15 @@ export function processDefinitions<
     });
 
     // append resolved conflicts defined in ctx into the front of resolvedTemp
-    const toBeAppend = [] as ResolvedTempConflict<ASTData, Kinds, LexerKinds>[];
+    const toBeAppend = [] as ResolvedTempConflict<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds
+    >[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<ASTData, Kinds, LexerKinds>(
+        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
           hydrationId
         ).forEach((another) => {
@@ -240,7 +280,7 @@ export function processDefinitions<
         });
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<ASTData, Kinds, LexerKinds>(
+        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
           hydrationId
         ).forEach((another) => {

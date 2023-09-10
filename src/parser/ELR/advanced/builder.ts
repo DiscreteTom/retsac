@@ -11,11 +11,12 @@ import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<
     ASTData,
+    ErrorType,
     Kinds extends string = never,
     LexerKinds extends string = never
   >
-  extends ParserBuilder<ASTData, Kinds, LexerKinds>
-  implements IParserBuilder<ASTData, Kinds, LexerKinds>
+  extends ParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
+  implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
 {
   private readonly expander: GrammarExpander<Kinds, LexerKinds>;
   // resolved conflicts will be stored here first
@@ -24,12 +25,12 @@ export class AdvancedBuilder<
   private readonly resolvedRS: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
   }[];
   private readonly resolvedRR: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
-    options: RR_ResolverOptions<ASTData, Kinds, LexerKinds>;
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
   }[];
 
   constructor(options?: {
@@ -41,7 +42,9 @@ export class AdvancedBuilder<
   }) {
     const prefix = options?.prefix ?? `__`;
     super({ cascadeQueryPrefix: prefix });
-    this.expander = new GrammarExpander({ placeholderPrefix: prefix });
+    this.expander = new GrammarExpander<Kinds, LexerKinds>({
+      placeholderPrefix: prefix,
+    });
     this.resolvedRS = [];
     this.resolvedRR = [];
   }
@@ -56,14 +59,14 @@ export class AdvancedBuilder<
       rs: {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
       }[];
     }) => void
   ) {
     for (const NT in d) {
       const def = d[NT];
       const defStr = def instanceof Array ? def.join("|") : (def as string);
-      const res = this.expander.expand<ASTData>(
+      const res = this.expander.expand<ASTData, ErrorType>(
         defStr,
         NT,
         debug,
@@ -74,7 +77,7 @@ export class AdvancedBuilder<
     }
   }
 
-  build(lexer: ILexer<any, any>, options?: BuildOptions) {
+  build(lexer: ILexer<any, LexerKinds>, options?: BuildOptions) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
 
@@ -124,10 +127,10 @@ export class AdvancedBuilder<
     });
 
     // generate placeholder grammar rules
-    const res = this.expander.generatePlaceholderGrammarRules<ASTData>(
-      debug,
-      logger
-    );
+    const res = this.expander.generatePlaceholderGrammarRules<
+      ASTData,
+      ErrorType
+    >(debug, logger);
     res.defs.forEach((def) => this.data.push({ defs: def }));
     res.rs.forEach((r) =>
       super.resolveRS(r.reducerRule, r.anotherRule, r.options)
@@ -139,7 +142,7 @@ export class AdvancedBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
     this.resolvedRS.push({ reducerRule, anotherRule, options });
     return this;
@@ -147,7 +150,7 @@ export class AdvancedBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, Kinds, LexerKinds>
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
     this.resolvedRR.push({ reducerRule, anotherRule, options });
     return this;

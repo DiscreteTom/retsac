@@ -13,9 +13,10 @@ export class ParserError extends Error {
 
 export class InvalidTraverseError<
   ASTData,
+  ErrorType,
   Kinds extends string
 > extends ParserError {
-  constructor(public node: ASTNode<ASTData, Kinds>) {
+  constructor(public node: ASTNode<ASTData, ErrorType, Kinds>) {
     super(
       "INVALID_TRAVERSE",
       `Traversing a T is invalid. Consider defining a traverser for it's parent. Current: \`${node}\`, parent: \`${node.parent}\`.`

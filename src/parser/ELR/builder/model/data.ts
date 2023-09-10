@@ -6,9 +6,10 @@ import { Definition } from "./definition";
  */
 export type ParserBuilderData<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 > = {
   defs: Definition<Kinds>;
-  ctxBuilder?: DefinitionContextBuilder<ASTData, Kinds, LexerKinds>;
+  ctxBuilder?: DefinitionContextBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
 }[];

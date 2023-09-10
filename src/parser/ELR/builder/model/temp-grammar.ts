@@ -93,6 +93,7 @@ export class TempGrammar {
  */
 export class TempGrammarRule<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 > {
@@ -101,17 +102,17 @@ export class TempGrammarRule<
    * The reduce target.
    */
   readonly NT: Kinds;
-  callback?: Callback<ASTData, Kinds, LexerKinds>;
-  rejecter?: Condition<ASTData, Kinds, LexerKinds>;
-  rollback?: Callback<ASTData, Kinds, LexerKinds>;
-  commit?: Condition<ASTData, Kinds, LexerKinds>;
-  traverser?: Traverser<ASTData, Kinds | LexerKinds>;
+  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
+  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
+  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
   readonly hydrationId: number;
   readonly strWithGrammarName: StringCache;
 
   constructor(
     data: Pick<
-      TempGrammarRule<ASTData, Kinds, LexerKinds>,
+      TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
       | "rule"
       | "NT"
       | "commit"

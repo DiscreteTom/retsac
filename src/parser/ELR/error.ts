@@ -14,8 +14,8 @@ export class ELR_RuntimeError extends Error {
 
 export class StateCacheMissError extends ELR_RuntimeError {
   constructor(
-    public state: Readonly<State<any, any, any>>,
-    public node: Readonly<ASTNode<any, any>>
+    public state: Readonly<State<any, any, any, any>>,
+    public node: Readonly<ASTNode<any, any, any>>
   ) {
     super(
       "STATE_CACHE_MISS",

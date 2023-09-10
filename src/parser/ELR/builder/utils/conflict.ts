@@ -17,10 +17,15 @@ import { ELR_BuilderError, TooManyEndHandlerError } from "../error";
  * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
  * These grammars will be used to check end of input.
  */
-function getEndSet<ASTData, Kinds extends string, LexerKinds extends string>(
+function getEndSet<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
 ) {
   const result = new GrammarSet();
 
@@ -53,12 +58,13 @@ function getEndSet<ASTData, Kinds extends string, LexerKinds extends string>(
  */
 function getUserUnresolvedConflicts<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
   type: ConflictType,
-  reducerRule: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>,
-  anotherRule: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>,
+  reducerRule: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
+  anotherRule: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
   next: GrammarSet,
   checkHandleEnd: boolean,
   debug: boolean,
@@ -142,13 +148,14 @@ function getUserUnresolvedConflicts<
  */
 export function getConflicts<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
   repo: GrammarRepo,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
-  dfa: DFA<ASTData, Kinds, LexerKinds>,
+  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>,
   debug: boolean,
   logger: Logger
 ) {
@@ -330,16 +337,17 @@ export function getConflicts<
  */
 export function getUnresolvedConflicts<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 >(
-  grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>,
+  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   debug: boolean,
   logger: Logger
 ) {
   const result = new Map<
-    GrammarRule<ASTData, Kinds, LexerKinds>,
-    Conflict<ASTData, Kinds, LexerKinds>[]
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+    Conflict<ASTData, ErrorType, Kinds, LexerKinds>[]
   >();
 
   grs.grammarRules.forEach((reducerRule) => {
@@ -356,7 +364,7 @@ export function getUnresolvedConflicts<
         );
 
         if (res.next.grammars.size > 0) {
-          const conflict: Conflict<ASTData, Kinds, LexerKinds> = {
+          const conflict: Conflict<ASTData, ErrorType, Kinds, LexerKinds> = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
             handleEnd: false,
@@ -378,7 +386,7 @@ export function getUnresolvedConflicts<
           logger
         );
         if (res.next.grammars.size > 0 || res.end) {
-          const conflict: Conflict<ASTData, Kinds, LexerKinds> = {
+          const conflict: Conflict<ASTData, ErrorType, Kinds, LexerKinds> = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,
             handleEnd: res.end,

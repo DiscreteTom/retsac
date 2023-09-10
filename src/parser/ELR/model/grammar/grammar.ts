@@ -62,7 +62,7 @@ export class Grammar {
   /**
    * This is used when calculate all DFA state.
    */
-  readonly mockNode: Cache<Readonly<ASTNode<any, any>>>;
+  readonly mockNode: Cache<Readonly<ASTNode<any, any, any>>>;
 
   /**
    * Only {@link GrammarRepo} should use this constructor.

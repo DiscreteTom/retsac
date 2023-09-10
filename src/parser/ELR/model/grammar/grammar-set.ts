@@ -31,7 +31,7 @@ export class GrammarSet {
     return true;
   }
 
-  has(g: Readonly<Grammar> | Readonly<ASTNode<any, any>>) {
+  has(g: Readonly<Grammar> | Readonly<ASTNode<any, any, any>>) {
     return this.gs.has(g.strWithoutName.value); // Grammar & ASTNode has the same string format
   }
 

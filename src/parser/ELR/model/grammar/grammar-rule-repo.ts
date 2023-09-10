@@ -8,6 +8,7 @@ import { GrammarRule } from "./grammar-rule";
  */
 export class GrammarRuleRepo<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 > {
@@ -16,20 +17,22 @@ export class GrammarRuleRepo<
    */
   readonly grammarRules: ReadonlyMap<
     string,
-    GrammarRule<ASTData, Kinds, LexerKinds>
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>
   >;
 
-  constructor(grs: readonly GrammarRule<ASTData, Kinds, LexerKinds>[]) {
+  constructor(
+    grs: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+  ) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.strWithGrammarName.value, gr));
     this.grammarRules = map;
   }
 
-  getKey(gr: GrammarRule<any, any, any>): string {
+  getKey(gr: GrammarRule<any, any, any, any>): string {
     return gr.strWithGrammarName.value;
   }
 
-  get(gr: TempGrammarRule<any, any, any>) {
+  get(gr: TempGrammarRule<any, any, any, any>) {
     return this.grammarRules.get(gr.strWithGrammarName.value);
   }
 
@@ -37,14 +40,18 @@ export class GrammarRuleRepo<
     return this.grammarRules.get(str);
   }
 
-  map<R>(callback: (g: GrammarRule<ASTData, Kinds, LexerKinds>) => R) {
+  map<R>(
+    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => R
+  ) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
     return res;
   }
 
-  filter(callback: (g: GrammarRule<ASTData, Kinds, LexerKinds>) => boolean) {
-    const res = [] as GrammarRule<ASTData, Kinds, LexerKinds>[];
+  filter(
+    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => boolean
+  ) {
+    const res = [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
     });
@@ -55,17 +62,25 @@ export class GrammarRuleRepo<
     return this.map((gr) => gr.toJSON(repo, this));
   }
 
-  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarRule<ASTData, Kinds, LexerKinds>["toJSON"]>[],
+  static fromJSON<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string
+  >(
+    data: ReturnType<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+    >[],
     repo: GrammarRepo
   ) {
     const callbacks = [] as ((
-      grs: GrammarRuleRepo<ASTData, Kinds, LexerKinds>
+      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
     ) => void)[];
-    const res = new GrammarRuleRepo<ASTData, Kinds, LexerKinds>(
+    const res = new GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>(
       data.map((d) => {
         const { gr, restoreConflicts } = GrammarRule.fromJSON<
           ASTData,
+          ErrorType,
           Kinds,
           LexerKinds
         >(d, repo);

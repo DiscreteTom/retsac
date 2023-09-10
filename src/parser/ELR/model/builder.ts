@@ -11,7 +11,7 @@ import {
 import type { Parser } from "../parser";
 
 export type BuildOptions = Partial<
-  Pick<IParser<any, any, any>, "logger" | "debug">
+  Pick<IParser<any, any, any, any>, "logger" | "debug">
 > & {
   /**
    * Which format to generate resolvers.
@@ -67,6 +67,7 @@ export type BuildOptions = Partial<
 
 export interface IParserBuilder<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 > {
@@ -77,7 +78,7 @@ export interface IParserBuilder<
    */
   entry<Append extends string>(
     ...defs: Append[]
-  ): IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
+  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
   /**
    * Declare grammar rules.
    */
@@ -85,10 +86,11 @@ export interface IParserBuilder<
     defs: Definition<Kinds | Append>,
     ...ctxBuilders: DefinitionContextBuilder<
       ASTData,
+      ErrorType,
       Kinds | Append,
       LexerKinds
     >[]
-  ): IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
+  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
   /**
    * Generate the {@link Parser ELR Parser}.
    */
@@ -97,14 +99,14 @@ export interface IParserBuilder<
     // if user wants to get lexer's errors, they can use `lexer.errors`.
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions
-  ): IParser<ASTData, Kinds, LexerKinds>;
+  ): IParser<ASTData, ErrorType, Kinds, LexerKinds>;
   /**
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
@@ -112,14 +114,14 @@ export interface IParserBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, Kinds, LexerKinds>
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
   ): this;
   /**
    * Apply a function to this builder.
    */
   use<AppendKinds extends string>(
-    f: BuilderDecorator<ASTData, Kinds, LexerKinds, AppendKinds>
-  ): IParserBuilder<ASTData, Kinds | AppendKinds, LexerKinds>;
+    f: BuilderDecorator<ASTData, ErrorType, Kinds, LexerKinds, AppendKinds>
+  ): IParserBuilder<ASTData, ErrorType, Kinds | AppendKinds, LexerKinds>;
   /**
    * Append those kinds to the lexer kinds.
    * You can also pass lexers as the parameter.
@@ -134,7 +136,7 @@ export interface IParserBuilder<
    */
   useLexerKinds<AppendLexerKinds extends string>(
     ...lexer: (ILexer<any, AppendLexerKinds> | AppendLexerKinds)[]
-  ): IParserBuilder<ASTData, Kinds, LexerKinds | AppendLexerKinds>;
+  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>;
   /**
    * Generate resolvers by grammar rules' priorities.
    *
@@ -183,12 +185,13 @@ export interface IParserBuilder<
 
 export type BuilderDecorator<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string,
   Append extends string
 > = (
-  pb: IParserBuilder<ASTData, Kinds, LexerKinds>
-) => IParserBuilder<ASTData, Kinds | Append, LexerKinds>;
+  pb: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
+) => IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
 
 /**
  * Used to store the parser to a serializable object.

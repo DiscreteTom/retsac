@@ -22,8 +22,18 @@ import { map2serializable } from "./utils";
 /**
  * State for ELR parsers.
  */
-export class State<ASTData, Kinds extends string, LexerKinds extends string> {
-  readonly candidates: readonly Candidate<ASTData, Kinds, LexerKinds>[];
+export class State<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string
+> {
+  readonly candidates: readonly Candidate<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >[];
   readonly str: string;
   /**
    * `ASTNode.toString => state`.
@@ -34,11 +44,11 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
   // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<
     string,
-    State<ASTData, Kinds, LexerKinds> | null
+    State<ASTData, ErrorType, Kinds, LexerKinds> | null
   >;
 
   constructor(
-    candidates: Candidate<ASTData, Kinds, LexerKinds>[],
+    candidates: Candidate<ASTData, ErrorType, Kinds, LexerKinds>[],
     str: string
   ) {
     this.candidates = candidates;
@@ -48,11 +58,17 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
 
   generateNext(
     repo: GrammarRepo,
-    next: Readonly<ASTNode<any, any>>,
-    NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>,
-    allStates: StateRepo<ASTData, Kinds, LexerKinds>,
-    cs: CandidateRepo<ASTData, Kinds, LexerKinds>
-  ): { state: State<ASTData, Kinds, LexerKinds> | null; changed: boolean } {
+    next: Readonly<ASTNode<any, any, any>>,
+    NTClosures: ReadonlyMap<
+      string,
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+    >,
+    allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  ): {
+    state: State<ASTData, ErrorType, Kinds, LexerKinds> | null;
+    changed: boolean;
+  } {
     const grammar =
       repo.get({
         // first, try to do an accurate match with text if text is provided.
@@ -81,8 +97,11 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
 
   getNext(
     repo: GrammarRepo,
-    next: Readonly<ASTNode<any, any>>
-  ): { state: State<ASTData, Kinds, LexerKinds> | null; changed: boolean } {
+    next: Readonly<ASTNode<any, any, any>>
+  ): {
+    state: State<ASTData, ErrorType, Kinds, LexerKinds> | null;
+    changed: boolean;
+  } {
     const grammar =
       repo.get({
         // first, try to do an accurate match with text if text is provided.
@@ -108,7 +127,7 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
   }
 
   contains(
-    gr: Readonly<GrammarRule<ASTData, Kinds, LexerKinds>>,
+    gr: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
     digested: number
   ) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
@@ -128,7 +147,7 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
    * Grammar's name will be included.
    * The result is sorted by candidate string, so that the same state will have the same string representation.
    */
-  static getString(data: Pick<State<any, any, any>, "candidates">) {
+  static getString(data: Pick<State<any, any, any, any>, "candidates">) {
     return data.candidates
       .map((c) => c.strWithGrammarName)
       .sort()
@@ -142,9 +161,12 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
   tryLex(
     lexer: Readonly<ILexer<any, any>>,
     followSets: ReadonlyFollowSets
-  ): { node: ASTNode<ASTData, Kinds | LexerKinds>; lexer: ILexer<any, any> }[] {
+  ): {
+    node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
+    lexer: ILexer<any, any>;
+  }[] {
     const res: {
-      node: ASTNode<ASTData, Kinds | LexerKinds>;
+      node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
       lexer: ILexer<any, any>;
     }[] = [];
     this.candidates.forEach((c) => {
@@ -155,7 +177,7 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
 
   /** Traverse all candidates to try to reduce. */
   tryReduce(
-    buffer: readonly ASTNode<ASTData, Kinds | LexerKinds>[],
+    buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyFollowSets,
     lexer: Readonly<ILexer<any, any>>,
@@ -164,10 +186,10 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
     logger: Logger
   ):
     | RejectedParserOutput
-    | (AcceptedParserOutput<ASTData, Kinds | LexerKinds> & {
-        context: GrammarRuleContext<ASTData, Kinds, LexerKinds>;
+    | (AcceptedParserOutput<ASTData, ErrorType, Kinds | LexerKinds> & {
+        context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>;
         commit: boolean;
-        rollback?: Callback<ASTData, Kinds, LexerKinds>;
+        rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
       }) {
     for (const c of this.candidates) {
       const res = c.tryReduce(
@@ -187,8 +209,8 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
   }
 
   toJSON(
-    cs: CandidateRepo<ASTData, Kinds, LexerKinds>,
-    ss: StateRepo<ASTData, Kinds, LexerKinds>
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
     return {
       candidates: this.candidates.map((c) => cs.getKey(c)),
@@ -199,9 +221,14 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
     };
   }
 
-  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<State<ASTData, Kinds, LexerKinds>["toJSON"]>,
-    cs: CandidateRepo<ASTData, Kinds, LexerKinds>
+  static fromJSON<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string
+  >(
+    data: ReturnType<State<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]>,
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
     const s = new State(
       data.candidates.map((c) => cs.getByString(c)!),
@@ -209,7 +236,9 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
     );
 
     // restore nextMap after the whole state repo is filled.
-    const restoreNextMap = (ss: StateRepo<ASTData, Kinds, LexerKinds>) => {
+    const restoreNextMap = (
+      ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+    ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
         if (next == null) s.nextMap.set(key, null);
@@ -222,24 +251,28 @@ export class State<ASTData, Kinds extends string, LexerKinds extends string> {
 
 export class StateRepo<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
 > {
-  private ss: Map<string, State<ASTData, Kinds, LexerKinds>>;
+  private ss: Map<string, State<ASTData, ErrorType, Kinds, LexerKinds>>;
 
   constructor() {
     this.ss = new Map();
   }
 
   get states() {
-    return this.ss as ReadonlyMap<string, State<ASTData, Kinds, LexerKinds>>;
+    return this.ss as ReadonlyMap<
+      string,
+      State<ASTData, ErrorType, Kinds, LexerKinds>
+    >;
   }
 
-  getKey(s: Pick<State<any, any, any>, "candidates">) {
+  getKey(s: Pick<State<any, any, any, any>, "candidates">) {
     return s instanceof State ? s.str : State.getString(s);
   }
 
-  get(s: Pick<State<any, any, any>, "candidates">) {
+  get(s: Pick<State<any, any, any, any>, "candidates">) {
     return this.ss.get(this.getKey(s));
   }
 
@@ -250,7 +283,7 @@ export class StateRepo<
   /**
    * Return `undefined` if the state already exists.
    */
-  addEntry(candidates: Candidate<ASTData, Kinds, LexerKinds>[]) {
+  addEntry(candidates: Candidate<ASTData, ErrorType, Kinds, LexerKinds>[]) {
     const raw = { candidates };
     const key = this.getKey(raw);
     if (this.ss.has(key)) return undefined;
@@ -266,15 +299,23 @@ export class StateRepo<
    * If next state exist and not cached, then create and cached and return the new state.
    */
   addNext(
-    current: State<ASTData, Kinds, LexerKinds>,
+    current: State<ASTData, ErrorType, Kinds, LexerKinds>,
     grammar: Grammar,
-    NTClosures: ReadonlyMap<string, GrammarRule<ASTData, Kinds, LexerKinds>[]>,
-    cs: CandidateRepo<ASTData, Kinds, LexerKinds>
+    NTClosures: ReadonlyMap<
+      string,
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+    >,
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
     const directCandidates = current.candidates
       .filter((c) => c.current?.equalWithoutName(grammar)) // current grammar match the next node, name should be ignored since the next node's name is defined by its parent
       .map((c) => c.generateNext(cs))
-      .filter((c) => c != null) as Candidate<ASTData, Kinds, LexerKinds>[];
+      .filter((c) => c != null) as Candidate<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds
+    >[];
     const indirectCandidates = directCandidates
       .reduce((p, c) => {
         if (
@@ -290,7 +331,7 @@ export class StateRepo<
           if (!p.includes(gr)) p.push(gr);
         });
         return p;
-      }, [] as GrammarRule<ASTData, Kinds, LexerKinds>[]) // de-duplicated GrammarRule list
+      }, [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]) // de-duplicated GrammarRule list
       .map(
         (gr) =>
           // get initial candidate from global cache
@@ -313,24 +354,31 @@ export class StateRepo<
     return { state: s, changed: true };
   }
 
-  some(f: (s: State<ASTData, Kinds, LexerKinds>) => boolean) {
+  some(f: (s: State<ASTData, ErrorType, Kinds, LexerKinds>) => boolean) {
     for (const s of this.ss.values()) {
       if (f(s)) return true;
     }
     return false;
   }
 
-  toJSON(cs: CandidateRepo<ASTData, Kinds, LexerKinds>) {
+  toJSON(cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>) {
     return map2serializable(this.ss, (s) => s.toJSON(cs, this));
   }
 
-  static fromJSON<ASTData, Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<StateRepo<ASTData, Kinds, LexerKinds>["toJSON"]>,
-    cs: CandidateRepo<ASTData, Kinds, LexerKinds>
+  static fromJSON<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string
+  >(
+    data: ReturnType<
+      StateRepo<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+    >,
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
-    const ss = new StateRepo<ASTData, Kinds, LexerKinds>();
+    const ss = new StateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
     const callbacks = [] as ((
-      ss: StateRepo<ASTData, Kinds, LexerKinds>
+      ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>
     ) => void)[];
     for (const key in data) {
       const { s, restoreNextMap } = State.fromJSON(data[key], cs);

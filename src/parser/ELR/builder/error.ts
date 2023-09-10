@@ -29,7 +29,7 @@ export class ELR_BuilderError extends Error {
 }
 
 export class GrammarRuleNotFoundError extends ELR_BuilderError {
-  constructor(public gr: TempGrammarRule<any, any, any>) {
+  constructor(public gr: TempGrammarRule<any, any, any, any>) {
     super(
       "GRAMMAR_RULE_NOT_FOUND",
       `No such grammar rule: ${gr.strWithGrammarName.value}`
@@ -50,8 +50,8 @@ export class NextGrammarNotFoundError extends ELR_BuilderError {
 
 export class ConflictError extends ELR_BuilderError {
   constructor(
-    public reducerRule: GrammarRule<any, any, any>,
-    public c: Conflict<any, any, any>
+    public reducerRule: GrammarRule<any, any, any, any>,
+    public c: Conflict<any, any, any, any>
   ) {
     super(
       "CONFLICT",
@@ -130,7 +130,7 @@ export class EmptyLiteralError extends ELR_BuilderError {
 }
 
 export class TooManyEndHandlerError extends ELR_BuilderError {
-  constructor(public rule: GrammarRule<any, any, any>) {
+  constructor(public rule: GrammarRule<any, any, any, any>) {
     super(
       "TOO_MANY_END_HANDLER",
       `Too many end handlers for rule ${rule.toString()}`
@@ -141,8 +141,8 @@ export class TooManyEndHandlerError extends ELR_BuilderError {
 
 export class NoSuchConflictError extends ELR_BuilderError {
   constructor(
-    public reducerRule: GrammarRule<any, any, any>,
-    public anotherRule: GrammarRule<any, any, any>,
+    public reducerRule: GrammarRule<any, any, any, any>,
+    public anotherRule: GrammarRule<any, any, any, any>,
     public conflictType: ConflictType,
     public next: Grammar[],
     public handleEnd: boolean
@@ -179,7 +179,7 @@ export class NoRenameTargetError extends ELR_BuilderError {
 }
 
 export class RollbackDefinedWhileNotEnabledError extends ELR_BuilderError {
-  constructor(public rule: GrammarRule<any, any, any>) {
+  constructor(public rule: GrammarRule<any, any, any, any>) {
     super(
       "ROLLBACK_DEFINED_WHILE_NOT_ENABLED",
       `Rollback defined in the grammar rule while parser's rollback is not enabled: ${rule.toString()}. ` +

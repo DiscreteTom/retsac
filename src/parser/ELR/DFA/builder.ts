@@ -24,12 +24,17 @@ import {
 } from "./utils";
 
 export class DFABuilder {
-  static prepare<ASTData, Kinds extends string, LexerKinds extends string>(
+  static prepare<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string
+  >(
     repo: GrammarRepo,
     lexer: ILexer<any, any>,
     entryNTs: ReadonlySet<string>,
-    data: ParserBuilderData<ASTData, Kinds, LexerKinds>,
-    resolvedTemp: ResolvedTempConflict<ASTData, Kinds, LexerKinds>[],
+    data: ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>,
+    resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[],
     printAll: boolean,
     logger: Logger
   ) {
@@ -37,6 +42,7 @@ export class DFABuilder {
     // and append resolved conflicts defined in definition context in data into resolvedTemp
     const { tempGrammarRules, NTs } = processDefinitions<
       ASTData,
+      ErrorType,
       Kinds,
       LexerKinds
     >(data, resolvedTemp);
@@ -45,7 +51,7 @@ export class DFABuilder {
     const grs = new GrammarRuleRepo(
       tempGrammarRules.map(
         (gr) =>
-          new GrammarRule<ASTData, Kinds, LexerKinds>({
+          new GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>({
             NT: gr.NT,
             callback: gr.callback,
             rejecter: gr.rejecter,
@@ -61,7 +67,7 @@ export class DFABuilder {
     );
 
     // init all initial candidates, initial candidate is candidate with digested=0
-    const cs = new CandidateRepo<ASTData, Kinds, LexerKinds>();
+    const cs = new CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
     });
@@ -77,7 +83,7 @@ export class DFABuilder {
     );
 
     // init all states
-    const allStates = new StateRepo<ASTData, Kinds, LexerKinds>();
+    const allStates = new StateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
     const entryState = allStates.addEntry(entryCandidates)!;
 
     const NTClosures = getAllNTClosure(NTs, grs);

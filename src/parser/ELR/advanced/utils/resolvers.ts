@@ -2,9 +2,10 @@ import { IParserBuilder } from "../../model";
 
 export function applyResolvers<
   ASTData,
+  ErrorType,
   Kinds extends string,
   LexerKinds extends string
->(builder: IParserBuilder<ASTData, "gr" | Kinds, LexerKinds>) {
+>(builder: IParserBuilder<ASTData, ErrorType, "gr" | Kinds, LexerKinds>) {
   return builder
     .priority(
       [{ gr: `gr '?'` }, { gr: `gr '*'` }, { gr: `gr '+'` }],

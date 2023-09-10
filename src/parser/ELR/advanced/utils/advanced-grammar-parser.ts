@@ -130,6 +130,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
     string[],
+    any,
     "gr",
     "" | "grammar" | "literal" | "rename"
   >;
@@ -152,7 +153,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     });
   }
 
-  expand<ASTData>(
+  expand<ASTData, ErrorType>(
     s: string,
     NT: Kinds,
     debug: boolean,
@@ -164,7 +165,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
       }[],
     };
     const res = this.parser.reset().parseAll(s);
@@ -213,13 +214,16 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     this.placeholderMap.reset();
   }
 
-  generatePlaceholderGrammarRules<ASTData>(debug: boolean, logger: Logger) {
+  generatePlaceholderGrammarRules<ASTData, ErrorType>(
+    debug: boolean,
+    logger: Logger
+  ) {
     const result = {
       defs: [] as Definition<Kinds>[],
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
       }[],
     };
 
