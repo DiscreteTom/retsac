@@ -158,14 +158,14 @@ export class Candidate<
    * Return all the possible results.
    */
   tryLex(
-    lexer: Readonly<ILexer<any, any>>,
+    lexer: Readonly<ILexer<any, LexerKinds>>,
     followSets: ReadonlyFollowSets
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<any, any>;
+    lexer: ILexer<any, LexerKinds>;
   }[] {
     if (this.canDigestMore()) {
-      const res = lexGrammar<ASTData, ErrorType, Kinds | LexerKinds>(
+      const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds>(
         this.current!,
         lexer
       );
@@ -176,10 +176,10 @@ export class Candidate<
     // else, digestion finished, check follow set
     return followSets
       .get(this.gr.NT)!
-      .map((g) => lexGrammar<ASTData, ErrorType, Kinds | LexerKinds>(g, lexer))
+      .map((g) => lexGrammar<ASTData, ErrorType, Kinds, LexerKinds>(g, lexer))
       .filter((r) => r != null) as {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<any, any>;
+      lexer: ILexer<any, LexerKinds>;
     }[];
   }
 
@@ -194,7 +194,7 @@ export class Candidate<
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyFollowSets,
-    lexer: Readonly<ILexer<any, any>>,
+    lexer: Readonly<ILexer<any, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger

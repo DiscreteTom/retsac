@@ -151,12 +151,17 @@ export function ASTNodeFirstMatchSelectorFactory<
  * Try to use lexer to yield the specified grammar.
  * Return `null` if failed.
  */
-export function lexGrammar<ASTData, ErrorType, Kinds extends string>(
+export function lexGrammar<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string
+>(
   g: Grammar,
-  lexer: Readonly<ILexer<any, any>>
+  lexer: Readonly<ILexer<any, LexerKinds>>
 ): {
-  node: ASTNode<ASTData, ErrorType, Kinds>;
-  lexer: ILexer<any, any>;
+  node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
+  lexer: ILexer<any, LexerKinds>;
 } | null {
   if (g.type == GrammarType.NT) {
     // NT can't be lexed
@@ -172,7 +177,10 @@ export function lexGrammar<ASTData, ErrorType, Kinds extends string>(
     },
   });
   if (token == null) return null;
-  return { node: ASTNode.from<ASTData, ErrorType, Kinds>(token), lexer };
+  return {
+    node: ASTNode.from<ASTData, ErrorType, Kinds | LexerKinds>(token),
+    lexer,
+  };
 }
 
 /**

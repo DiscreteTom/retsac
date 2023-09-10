@@ -13,7 +13,7 @@ export class Parser<
   LexerKinds extends string
 > implements IParser<ASTData, ErrorType, Kinds, LexerKinds>
 {
-  lexer: ILexer<any, any>;
+  lexer: ILexer<any, LexerKinds>;
   readonly dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>;
   private _buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
@@ -49,7 +49,7 @@ export class Parser<
 
   constructor(
     dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>,
-    lexer: ILexer<any, any>
+    lexer: ILexer<any, LexerKinds>
   ) {
     this.dfa = dfa;
     this.lexer = lexer;

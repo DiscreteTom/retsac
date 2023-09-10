@@ -31,7 +31,7 @@ export class DFABuilder {
     LexerKinds extends string
   >(
     repo: GrammarRepo,
-    lexer: ILexer<any, any>,
+    lexer: ILexer<any, LexerKinds>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>,
     resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[],

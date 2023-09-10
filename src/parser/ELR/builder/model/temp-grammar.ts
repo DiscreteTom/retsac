@@ -43,12 +43,12 @@ export class TempGrammar {
     );
   }
 
-  toGrammar(
+  toGrammar<LexerKinds extends string>(
     repo: GrammarRepo,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: Readonly<ILexer<any, any>>,
+    lexer: Readonly<ILexer<any, LexerKinds>>,
     printAll: boolean,
     logger: Logger,
     isNT = true

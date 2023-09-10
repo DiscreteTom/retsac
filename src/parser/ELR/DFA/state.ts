@@ -58,7 +58,7 @@ export class State<
 
   generateNext(
     repo: GrammarRepo,
-    next: Readonly<ASTNode<any, any, any>>,
+    next: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>,
     NTClosures: ReadonlyMap<
       string,
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
@@ -97,7 +97,7 @@ export class State<
 
   getNext(
     repo: GrammarRepo,
-    next: Readonly<ASTNode<any, any, any>>
+    next: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>
   ): {
     state: State<ASTData, ErrorType, Kinds, LexerKinds> | null;
     changed: boolean;
@@ -159,15 +159,15 @@ export class State<
    * Return all the possible results.
    */
   tryLex(
-    lexer: Readonly<ILexer<any, any>>,
+    lexer: Readonly<ILexer<any, LexerKinds>>,
     followSets: ReadonlyFollowSets
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<any, any>;
+    lexer: ILexer<any, LexerKinds>;
   }[] {
     const res: {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<any, any>;
+      lexer: ILexer<any, LexerKinds>;
     }[] = [];
     this.candidates.forEach((c) => {
       res.push(...c.tryLex(lexer, followSets));
@@ -180,7 +180,7 @@ export class State<
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
     followSets: ReadonlyFollowSets,
-    lexer: Readonly<ILexer<any, any>>,
+    lexer: Readonly<ILexer<any, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger
@@ -268,11 +268,11 @@ export class StateRepo<
     >;
   }
 
-  getKey(s: Pick<State<any, any, any, any>, "candidates">) {
+  getKey(s: Pick<State<ASTData, ErrorType, Kinds, LexerKinds>, "candidates">) {
     return s instanceof State ? s.str : State.getString(s);
   }
 
-  get(s: Pick<State<any, any, any, any>, "candidates">) {
+  get(s: Pick<State<ASTData, ErrorType, Kinds, LexerKinds>, "candidates">) {
     return this.ss.get(this.getKey(s));
   }
 

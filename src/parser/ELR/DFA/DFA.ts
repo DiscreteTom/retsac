@@ -66,7 +66,7 @@ export class DFA<
    */
   parse(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
-    lexer: ILexer<any, any>,
+    lexer: ILexer<any, LexerKinds>,
     reLexStack: ReLexStack<
       State<ASTData, ErrorType, Kinds, LexerKinds>,
       ASTData,
@@ -79,7 +79,7 @@ export class DFA<
     stopOnError = false
   ): {
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<any, any>;
+    lexer: ILexer<any, LexerKinds>;
   } {
     // reset state stack with entry state
     /**
@@ -277,7 +277,7 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds
-    >(data.candidates as any, grs);
+    >(data.candidates, grs);
     const states = StateRepo.fromJSON(data.states, candidates);
     const firstSets = serializable2map(data.followSets, (v) =>
       GrammarSet.fromJSON(v, grammars)

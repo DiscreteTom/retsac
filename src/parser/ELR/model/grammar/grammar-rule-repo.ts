@@ -28,11 +28,11 @@ export class GrammarRuleRepo<
     this.grammarRules = map;
   }
 
-  getKey(gr: GrammarRule<any, any, any, any>): string {
+  getKey(gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>): string {
     return gr.strWithGrammarName.value;
   }
 
-  get(gr: TempGrammarRule<any, any, any, any>) {
+  get(gr: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
     return this.grammarRules.get(gr.strWithGrammarName.value);
   }
 
