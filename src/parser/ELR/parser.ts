@@ -103,16 +103,8 @@ export class Parser<
     return this;
   }
 
-  getErrors(): readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] {
-    return this.errors;
-  }
-
   hasErrors(): boolean {
     return this.errors.length > 0;
-  }
-
-  getNodes(): readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] {
-    return this._buffer;
   }
 
   take(n: number = 1) {
