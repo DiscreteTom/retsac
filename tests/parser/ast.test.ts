@@ -26,7 +26,7 @@ test("to obj", () => {
   const node2 = new ASTNode({
     kind: "exp",
     start: 0,
-    children: [node1 as ASTNode<any, "exp" | "num">],
+    children: [node1 as ASTNode<any, any, "exp" | "num">],
   });
   const obj2 = node2.toJSON();
 
@@ -64,13 +64,17 @@ test("to tree string", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<any, "exp" | "num" | "">({
+      new ASTNode<any, any, "exp" | "num" | "">({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<any, "exp" | "num" | "">({ kind: "", start: 4, text: "+" }),
-      new ASTNode<any, "exp" | "num" | "">({
+      new ASTNode<any, any, "exp" | "num" | "">({
+        kind: "",
+        start: 4,
+        text: "+",
+      }),
+      new ASTNode<any, any, "exp" | "num" | "">({
         kind: "num",
         start: 5,
         text: "123",
