@@ -98,8 +98,7 @@ export function defaultTraverser<ASTData, ErrorType, AllKinds extends string>(
   self.children.forEach((c) => c.traverse());
 }
 
-// TODO: default ASTData type?
-// ASTNode's Kinds should be Parser's kinds union with Lexer's kinds
+// ASTNode's AllKinds should be Parser's kinds union with Lexer's kinds
 export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   /**
    * T's or NT's kind name.

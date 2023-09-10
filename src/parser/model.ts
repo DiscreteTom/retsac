@@ -44,7 +44,6 @@ export type ParseExec<ASTData, ErrorType, AllKinds extends string> = (
       }
 ) => ParserOutput<ASTData, ErrorType, AllKinds>;
 
-// TODO: default ASTData type
 export interface IParser<
   ASTData,
   ErrorType,
