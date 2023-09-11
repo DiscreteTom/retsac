@@ -344,6 +344,8 @@ export class ParserBuilder<
     };
   }
 
+  // TODO: this function should not change data in this builder
+  // currently the resolvedTemp will be changed.
   build(lexer: ILexer<any, LexerKinds>, options?: BuildOptions) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;

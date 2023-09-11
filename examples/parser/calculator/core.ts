@@ -70,7 +70,7 @@ export const parser = builder.build(lexer, {
   hydrate: cache,
   // serialize the data for future use in `hydrate`
   // this is should be done before production
-  serialize: true,
+  serialize: true, // TODO: test serialize
   // this should be set to `true` in development
   checkAll: true,
 });
