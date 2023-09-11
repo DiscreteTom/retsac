@@ -279,7 +279,7 @@ export class DFA<
       LexerKinds
     >(data.candidates, grs);
     const states = StateRepo.fromJSON(data.states, candidates);
-    const firstSets = serializable2map(data.followSets, (v) =>
+    const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars)
     ) as ReadonlyFirstSets;
     const followSets = serializable2map(data.followSets, (v) =>
