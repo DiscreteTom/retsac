@@ -1,4 +1,16 @@
+import { readFileSync } from "fs";
 import { ELR, Lexer } from "../../src";
+import { SerializableParserData } from "../../src/parser/ELR";
+
+const cache = (() => {
+  try {
+    return JSON.parse(
+      readFileSync("./example/advanced-builder/dfa.json", "utf8")
+    ) as SerializableParserData;
+  } catch {
+    return undefined;
+  }
+})();
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank chars
@@ -10,10 +22,10 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/():{};=,")) // single char operator
   .build();
 
-export const parser = new ELR.AdvancedBuilder()
+const builder = new ELR.AdvancedBuilder()
   .useLexerKinds(lexer)
   .define({
-    // use `@` to rename a node, this is effective only when using `$` to query nodes
+    // use `@` to rename a node
     fn_def: `
       pub fn identifier@funcName '(' (param (',' param)*)? ')' ':' identifier@retType '{'
         stmt*
@@ -26,6 +38,20 @@ export const parser = new ELR.AdvancedBuilder()
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
   .define({ exp: `exp '+' exp` })
-  .entry("fn_def")
   .leftSA({ exp: `exp '+' exp` })
-  .build(lexer, { generateResolvers: "builder", checkAll: true });
+  .entry("fn_def");
+
+export const parser = builder.build(lexer, {
+  // use the cached data to speed up
+  // this is recommended in production
+  hydrate: cache,
+  // serialize the data for future use in `hydrate`
+  // this is should be done before production
+  serialize: true,
+  // this should be set to `true` in development
+  checkAll: true,
+});
+
+// since the `serialize` option is set to `true`,
+// we can get the serializable data from the builder
+export const serializable = builder.serializable;

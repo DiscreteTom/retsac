@@ -1,4 +1,16 @@
+import { readFileSync } from "fs";
 import { Lexer, ELR } from "../../src";
+import { SerializableParserData } from "../../src/parser/ELR";
+
+const cache = (() => {
+  try {
+    return JSON.parse(
+      readFileSync("./example/json/dfa.json", "utf8")
+    ) as SerializableParserData;
+  } catch {
+    return undefined;
+  }
+})();
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
@@ -10,12 +22,11 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders
   .build();
 
-export const parser = new ELR.AdvancedBuilder()
+const builder = new ELR.AdvancedBuilder()
   .useLexerKinds(lexer)
-  .entry("value")
   .define(
     { value: `string | number | true | false | null` },
-    // especially, for string use `eval` to make `\\x` become `\x`
+    // for string use `eval` to process escaped characters like `\n`
     ELR.traverser(({ children }) => eval(children[0].text!))
   )
   .define(
@@ -24,6 +35,7 @@ export const parser = new ELR.AdvancedBuilder()
   )
   .define(
     { array: `'[' (value (',' value)*)? ']'` },
+    // use `$$` to select all children with the given kind
     ELR.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse()))
   )
   .define(
@@ -40,10 +52,27 @@ export const parser = new ELR.AdvancedBuilder()
   .define(
     { object_item: `string ':' value` },
     // return an object
+    // use `$` to select the first child with the given kind
     ELR.traverser(({ $ }) => {
       const result: { [key: string]: any } = {};
+      // remove the double quotes
       result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
       return result;
     })
   )
-  .build(lexer, { checkAll: true });
+  .entry("value");
+
+export const parser = builder.build(lexer, {
+  // use the cached data to speed up
+  // this is recommended in production
+  hydrate: cache,
+  // serialize the data for future use in `hydrate`
+  // this is should be done before production
+  serialize: true,
+  // this should be set to `true` in development
+  checkAll: true,
+});
+
+// since the `serialize` option is set to `true`,
+// we can get the serializable data from the builder
+export const serializable = builder.serializable;

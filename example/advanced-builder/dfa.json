@@ -1,0 +1,3507 @@
+{
+  "data": {
+    "dfa": {
+      "NTs": [
+        "fn_def",
+        "param",
+        "stmt",
+        "assign_stmt",
+        "ret_stmt",
+        "exp",
+        "__0",
+        "__1"
+      ],
+      "entryNTs": [
+        "fn_def"
+      ],
+      "grammars": [
+        {
+          "type": 0,
+          "kind": "pub",
+          "name": "pub",
+          "str": "Grammar({ type: \"T\", kind: \"pub\", name: \"pub\", text: undefined })",
+          "cacheKeyWithoutName": "pub",
+          "strWithName": "pub",
+          "strWithoutName": "pub",
+          "grammarStrWithName": "pub",
+          "grammarStrWithoutName": "pub"
+        },
+        {
+          "type": 0,
+          "kind": "fn",
+          "name": "fn",
+          "str": "Grammar({ type: \"T\", kind: \"fn\", name: \"fn\", text: undefined })",
+          "cacheKeyWithoutName": "fn",
+          "strWithName": "fn",
+          "strWithoutName": "fn",
+          "grammarStrWithName": "fn",
+          "grammarStrWithoutName": "fn"
+        },
+        {
+          "type": 0,
+          "kind": "identifier",
+          "name": "funcName",
+          "str": "Grammar({ type: \"T\", kind: \"identifier\", name: \"funcName\", text: undefined })",
+          "cacheKeyWithoutName": "identifier",
+          "strWithName": "identifier@funcName",
+          "strWithoutName": "identifier",
+          "grammarStrWithName": "identifier@funcName",
+          "grammarStrWithoutName": "identifier"
+        },
+        {
+          "type": 0,
+          "kind": "identifier",
+          "name": "identifier",
+          "str": "Grammar({ type: \"T\", kind: \"identifier\", name: \"identifier\", text: undefined })",
+          "cacheKeyWithoutName": "identifier",
+          "strWithName": "identifier",
+          "strWithoutName": "identifier",
+          "grammarStrWithName": "identifier",
+          "grammarStrWithoutName": "identifier"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": "(",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"(\" })",
+          "cacheKeyWithoutName": ":(",
+          "strWithName": "<anonymous>: \"(\"",
+          "strWithoutName": "<anonymous>: \"(\"",
+          "grammarStrWithName": "\"(\"",
+          "grammarStrWithoutName": "\"(\""
+        },
+        {
+          "type": 1,
+          "kind": "param",
+          "name": "param",
+          "str": "Grammar({ type: \"NT\", kind: \"param\", name: \"param\", text: undefined })",
+          "cacheKeyWithoutName": "param",
+          "strWithName": "param",
+          "strWithoutName": "param",
+          "grammarStrWithName": "param",
+          "grammarStrWithoutName": "param"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": ")",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \")\" })",
+          "cacheKeyWithoutName": ":)",
+          "strWithName": "<anonymous>: \")\"",
+          "strWithoutName": "<anonymous>: \")\"",
+          "grammarStrWithName": "\")\"",
+          "grammarStrWithoutName": "\")\""
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": ":",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \":\" })",
+          "cacheKeyWithoutName": "::",
+          "strWithName": "<anonymous>: \":\"",
+          "strWithoutName": "<anonymous>: \":\"",
+          "grammarStrWithName": "\":\"",
+          "grammarStrWithoutName": "\":\""
+        },
+        {
+          "type": 0,
+          "kind": "identifier",
+          "name": "retType",
+          "str": "Grammar({ type: \"T\", kind: \"identifier\", name: \"retType\", text: undefined })",
+          "cacheKeyWithoutName": "identifier",
+          "strWithName": "identifier@retType",
+          "strWithoutName": "identifier",
+          "grammarStrWithName": "identifier@retType",
+          "grammarStrWithoutName": "identifier"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": "{",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"{\" })",
+          "cacheKeyWithoutName": ":{",
+          "strWithName": "<anonymous>: \"{\"",
+          "strWithoutName": "<anonymous>: \"{\"",
+          "grammarStrWithName": "\"{\"",
+          "grammarStrWithoutName": "\"{\""
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": "}",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"}\" })",
+          "cacheKeyWithoutName": ":}",
+          "strWithName": "<anonymous>: \"}\"",
+          "strWithoutName": "<anonymous>: \"}\"",
+          "grammarStrWithName": "\"}\"",
+          "grammarStrWithoutName": "\"}\""
+        },
+        {
+          "type": 1,
+          "kind": "__1",
+          "name": "__1",
+          "str": "Grammar({ type: \"NT\", kind: \"__1\", name: \"__1\", text: undefined })",
+          "cacheKeyWithoutName": "__1",
+          "strWithName": "__1",
+          "strWithoutName": "__1",
+          "grammarStrWithName": "__1",
+          "grammarStrWithoutName": "__1"
+        },
+        {
+          "type": 1,
+          "kind": "__0",
+          "name": "__0",
+          "str": "Grammar({ type: \"NT\", kind: \"__0\", name: \"__0\", text: undefined })",
+          "cacheKeyWithoutName": "__0",
+          "strWithName": "__0",
+          "strWithoutName": "__0",
+          "grammarStrWithName": "__0",
+          "grammarStrWithoutName": "__0"
+        },
+        {
+          "type": 1,
+          "kind": "assign_stmt",
+          "name": "assign_stmt",
+          "str": "Grammar({ type: \"NT\", kind: \"assign_stmt\", name: \"assign_stmt\", text: undefined })",
+          "cacheKeyWithoutName": "assign_stmt",
+          "strWithName": "assign_stmt",
+          "strWithoutName": "assign_stmt",
+          "grammarStrWithName": "assign_stmt",
+          "grammarStrWithoutName": "assign_stmt"
+        },
+        {
+          "type": 1,
+          "kind": "ret_stmt",
+          "name": "ret_stmt",
+          "str": "Grammar({ type: \"NT\", kind: \"ret_stmt\", name: \"ret_stmt\", text: undefined })",
+          "cacheKeyWithoutName": "ret_stmt",
+          "strWithName": "ret_stmt",
+          "strWithoutName": "ret_stmt",
+          "grammarStrWithName": "ret_stmt",
+          "grammarStrWithoutName": "ret_stmt"
+        },
+        {
+          "type": 0,
+          "kind": "let",
+          "name": "let",
+          "str": "Grammar({ type: \"T\", kind: \"let\", name: \"let\", text: undefined })",
+          "cacheKeyWithoutName": "let",
+          "strWithName": "let",
+          "strWithoutName": "let",
+          "grammarStrWithName": "let",
+          "grammarStrWithoutName": "let"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": "=",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"=\" })",
+          "cacheKeyWithoutName": ":=",
+          "strWithName": "<anonymous>: \"=\"",
+          "strWithoutName": "<anonymous>: \"=\"",
+          "grammarStrWithName": "\"=\"",
+          "grammarStrWithoutName": "\"=\""
+        },
+        {
+          "type": 1,
+          "kind": "exp",
+          "name": "exp",
+          "str": "Grammar({ type: \"NT\", kind: \"exp\", name: \"exp\", text: undefined })",
+          "cacheKeyWithoutName": "exp",
+          "strWithName": "exp",
+          "strWithoutName": "exp",
+          "grammarStrWithName": "exp",
+          "grammarStrWithoutName": "exp"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": ";",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \";\" })",
+          "cacheKeyWithoutName": ":;",
+          "strWithName": "<anonymous>: \";\"",
+          "strWithoutName": "<anonymous>: \";\"",
+          "grammarStrWithName": "\";\"",
+          "grammarStrWithoutName": "\";\""
+        },
+        {
+          "type": 0,
+          "kind": "return",
+          "name": "return",
+          "str": "Grammar({ type: \"T\", kind: \"return\", name: \"return\", text: undefined })",
+          "cacheKeyWithoutName": "return",
+          "strWithName": "return",
+          "strWithoutName": "return",
+          "grammarStrWithName": "return",
+          "grammarStrWithoutName": "return"
+        },
+        {
+          "type": 0,
+          "kind": "integer",
+          "name": "integer",
+          "str": "Grammar({ type: \"T\", kind: \"integer\", name: \"integer\", text: undefined })",
+          "cacheKeyWithoutName": "integer",
+          "strWithName": "integer",
+          "strWithoutName": "integer",
+          "grammarStrWithName": "integer",
+          "grammarStrWithoutName": "integer"
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": "+",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"+\" })",
+          "cacheKeyWithoutName": ":+",
+          "strWithName": "<anonymous>: \"+\"",
+          "strWithoutName": "<anonymous>: \"+\"",
+          "grammarStrWithName": "\"+\"",
+          "grammarStrWithoutName": "\"+\""
+        },
+        {
+          "type": 0,
+          "kind": "",
+          "name": "",
+          "text": ",",
+          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \",\" })",
+          "cacheKeyWithoutName": ":,",
+          "strWithName": "<anonymous>: \",\"",
+          "strWithoutName": "<anonymous>: \",\"",
+          "grammarStrWithName": "\",\"",
+          "grammarStrWithoutName": "\",\""
+        },
+        {
+          "type": 1,
+          "kind": "stmt",
+          "name": "stmt",
+          "str": "Grammar({ type: \"NT\", kind: \"stmt\", name: \"stmt\", text: undefined })",
+          "cacheKeyWithoutName": "stmt",
+          "strWithName": "stmt",
+          "strWithoutName": "stmt",
+          "grammarStrWithName": "stmt",
+          "grammarStrWithoutName": "stmt"
+        },
+        {
+          "type": 1,
+          "kind": "fn_def",
+          "name": "fn_def",
+          "str": "Grammar({ type: \"NT\", kind: \"fn_def\", name: \"fn_def\", text: undefined })",
+          "cacheKeyWithoutName": "fn_def",
+          "strWithName": "fn_def",
+          "strWithoutName": "fn_def",
+          "grammarStrWithName": "fn_def",
+          "grammarStrWithoutName": "fn_def"
+        }
+      ],
+      "grammarRules": [
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "param",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param \")\" \":\" identifier \"{\" \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "param",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "__1",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param \")\" \":\" identifier \"{\" __1 \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "param",
+            "__0",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param __0 \")\" \":\" identifier \"{\" \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "param",
+            "__0",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "__1",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param __0 \")\" \":\" identifier \"{\" __1 \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" \")\" \":\" identifier \"{\" \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "fn_def",
+          "rule": [
+            "pub",
+            "fn",
+            "identifier@funcName",
+            "\"(\"",
+            "\")\"",
+            "\":\"",
+            "identifier@retType",
+            "\"{\"",
+            "__1",
+            "\"}\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" \")\" \":\" identifier \"{\" __1 \"}\"` }",
+          "hydrationId": 0
+        },
+        {
+          "NT": "param",
+          "rule": [
+            "identifier",
+            "\":\"",
+            "identifier"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ param: `identifier \":\" identifier` }",
+          "strWithGrammarName": "{ param: `identifier \":\" identifier` }",
+          "strWithoutGrammarName": "{ param: `identifier \":\" identifier` }",
+          "hydrationId": 1
+        },
+        {
+          "NT": "stmt",
+          "rule": [
+            "assign_stmt"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ stmt: `assign_stmt` }",
+          "strWithGrammarName": "{ stmt: `assign_stmt` }",
+          "strWithoutGrammarName": "{ stmt: `assign_stmt` }",
+          "hydrationId": 2
+        },
+        {
+          "NT": "stmt",
+          "rule": [
+            "ret_stmt"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ stmt: `ret_stmt` }",
+          "strWithGrammarName": "{ stmt: `ret_stmt` }",
+          "strWithoutGrammarName": "{ stmt: `ret_stmt` }",
+          "hydrationId": 2
+        },
+        {
+          "NT": "assign_stmt",
+          "rule": [
+            "let",
+            "identifier",
+            "\":\"",
+            "identifier",
+            "\"=\"",
+            "exp",
+            "\";\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "strWithGrammarName": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "strWithoutGrammarName": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "hydrationId": 3
+        },
+        {
+          "NT": "ret_stmt",
+          "rule": [
+            "return",
+            "exp",
+            "\";\""
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ ret_stmt: `return exp \";\"` }",
+          "strWithGrammarName": "{ ret_stmt: `return exp \";\"` }",
+          "strWithoutGrammarName": "{ ret_stmt: `return exp \";\"` }",
+          "hydrationId": 4
+        },
+        {
+          "NT": "exp",
+          "rule": [
+            "integer"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ exp: `integer` }",
+          "strWithGrammarName": "{ exp: `integer` }",
+          "strWithoutGrammarName": "{ exp: `integer` }",
+          "hydrationId": 5
+        },
+        {
+          "NT": "exp",
+          "rule": [
+            "identifier"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ exp: `identifier` }",
+          "strWithGrammarName": "{ exp: `identifier` }",
+          "strWithoutGrammarName": "{ exp: `identifier` }",
+          "hydrationId": 5
+        },
+        {
+          "NT": "exp",
+          "rule": [
+            "exp",
+            "\"+\"",
+            "exp"
+          ],
+          "conflicts": [
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "next": [
+                "\"+\""
+              ],
+              "handleEnd": false,
+              "overlapped": 1,
+              "resolvers": [
+                0
+              ]
+            }
+          ],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "hydrationId": {
+                "type": 0,
+                "index": 0
+              }
+            }
+          ],
+          "str": "{ exp: `exp \"+\" exp` }",
+          "strWithGrammarName": "{ exp: `exp \"+\" exp` }",
+          "strWithoutGrammarName": "{ exp: `exp \"+\" exp` }",
+          "hydrationId": 6
+        },
+        {
+          "NT": "__0",
+          "rule": [
+            "\",\"",
+            "param"
+          ],
+          "conflicts": [
+            {
+              "type": 0,
+              "anotherRule": "{ __0: `\",\" param __0` }",
+              "next": [
+                "\",\""
+              ],
+              "handleEnd": false,
+              "overlapped": 2,
+              "resolvers": [
+                0
+              ]
+            }
+          ],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ __0: `\",\" param __0` }",
+              "handleEnd": false,
+              "next": "*",
+              "hydrationId": {
+                "type": 0,
+                "index": 1
+              }
+            }
+          ],
+          "str": "{ __0: `\",\" param` }",
+          "strWithGrammarName": "{ __0: `\",\" param` }",
+          "strWithoutGrammarName": "{ __0: `\",\" param` }",
+          "hydrationId": 7
+        },
+        {
+          "NT": "__0",
+          "rule": [
+            "\",\"",
+            "param",
+            "__0"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ __0: `\",\" param __0` }",
+          "strWithGrammarName": "{ __0: `\",\" param __0` }",
+          "strWithoutGrammarName": "{ __0: `\",\" param __0` }",
+          "hydrationId": 7
+        },
+        {
+          "NT": "__1",
+          "rule": [
+            "stmt"
+          ],
+          "conflicts": [
+            {
+              "type": 0,
+              "anotherRule": "{ __1: `stmt __1` }",
+              "next": [
+                "stmt",
+                "assign_stmt",
+                "ret_stmt",
+                "let",
+                "return"
+              ],
+              "handleEnd": false,
+              "overlapped": 1,
+              "resolvers": [
+                0
+              ]
+            }
+          ],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ __1: `stmt __1` }",
+              "handleEnd": false,
+              "next": "*",
+              "hydrationId": {
+                "type": 0,
+                "index": 2
+              }
+            }
+          ],
+          "str": "{ __1: `stmt` }",
+          "strWithGrammarName": "{ __1: `stmt` }",
+          "strWithoutGrammarName": "{ __1: `stmt` }",
+          "hydrationId": 8
+        },
+        {
+          "NT": "__1",
+          "rule": [
+            "stmt",
+            "__1"
+          ],
+          "conflicts": [],
+          "resolved": [],
+          "str": "{ __1: `stmt __1` }",
+          "strWithGrammarName": "{ __1: `stmt __1` }",
+          "strWithoutGrammarName": "{ __1: `stmt __1` }",
+          "hydrationId": 8
+        }
+      ],
+      "candidates": [
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 0,
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ param: `identifier \":\" identifier` }",
+          "digested": 0,
+          "nextMap": {
+            "identifier": "param := identifier # \":\" identifier"
+          },
+          "str": "param := # identifier \":\" identifier",
+          "strWithGrammarName": "param := # identifier \":\" identifier"
+        },
+        {
+          "gr": "{ stmt: `assign_stmt` }",
+          "digested": 0,
+          "nextMap": {
+            "assign_stmt": "stmt := assign_stmt #"
+          },
+          "str": "stmt := # assign_stmt",
+          "strWithGrammarName": "stmt := # assign_stmt"
+        },
+        {
+          "gr": "{ stmt: `ret_stmt` }",
+          "digested": 0,
+          "nextMap": {
+            "ret_stmt": "stmt := ret_stmt #"
+          },
+          "str": "stmt := # ret_stmt",
+          "strWithGrammarName": "stmt := # ret_stmt"
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 0,
+          "nextMap": {
+            "let": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\""
+          },
+          "str": "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\"",
+          "strWithGrammarName": "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\""
+        },
+        {
+          "gr": "{ ret_stmt: `return exp \";\"` }",
+          "digested": 0,
+          "nextMap": {
+            "return": "ret_stmt := return # exp \";\""
+          },
+          "str": "ret_stmt := # return exp \";\"",
+          "strWithGrammarName": "ret_stmt := # return exp \";\""
+        },
+        {
+          "gr": "{ exp: `integer` }",
+          "digested": 0,
+          "nextMap": {
+            "integer": "exp := integer #"
+          },
+          "str": "exp := # integer",
+          "strWithGrammarName": "exp := # integer"
+        },
+        {
+          "gr": "{ exp: `identifier` }",
+          "digested": 0,
+          "nextMap": {
+            "identifier": "exp := identifier #"
+          },
+          "str": "exp := # identifier",
+          "strWithGrammarName": "exp := # identifier"
+        },
+        {
+          "gr": "{ exp: `exp \"+\" exp` }",
+          "digested": 0,
+          "nextMap": {
+            "exp": "exp := exp # \"+\" exp"
+          },
+          "str": "exp := # exp \"+\" exp",
+          "strWithGrammarName": "exp := # exp \"+\" exp"
+        },
+        {
+          "gr": "{ __0: `\",\" param` }",
+          "digested": 0,
+          "nextMap": {
+            ":,": "__0 := \",\" # param"
+          },
+          "str": "__0 := # \",\" param",
+          "strWithGrammarName": "__0 := # \",\" param"
+        },
+        {
+          "gr": "{ __0: `\",\" param __0` }",
+          "digested": 0,
+          "nextMap": {
+            ":,": "__0 := \",\" # param __0"
+          },
+          "str": "__0 := # \",\" param __0",
+          "strWithGrammarName": "__0 := # \",\" param __0"
+        },
+        {
+          "gr": "{ __1: `stmt` }",
+          "digested": 0,
+          "nextMap": {
+            "stmt": "__1 := stmt #"
+          },
+          "str": "__1 := # stmt",
+          "strWithGrammarName": "__1 := # stmt"
+        },
+        {
+          "gr": "{ __1: `stmt __1` }",
+          "digested": 0,
+          "nextMap": {
+            "stmt": "__1 := stmt # __1"
+          },
+          "str": "__1 := # stmt __1",
+          "strWithGrammarName": "__1 := # stmt __1"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 1,
+          "nextMap": {
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 3,
+          "nextMap": {
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            "param": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            "param": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            "param": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            "param": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 4,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ param: `identifier \":\" identifier` }",
+          "digested": 1,
+          "nextMap": {
+            "::": "param := identifier \":\" # identifier"
+          },
+          "str": "param := identifier # \":\" identifier",
+          "strWithGrammarName": "param := identifier # \":\" identifier"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            "__0": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            "__0": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 5,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ param: `identifier \":\" identifier` }",
+          "digested": 2,
+          "nextMap": {
+            "identifier": "param := identifier \":\" identifier #"
+          },
+          "str": "param := identifier \":\" # identifier",
+          "strWithGrammarName": "param := identifier \":\" # identifier"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ __0: `\",\" param` }",
+          "digested": 1,
+          "nextMap": {
+            "param": "__0 := \",\" param #"
+          },
+          "str": "__0 := \",\" # param",
+          "strWithGrammarName": "__0 := \",\" # param"
+        },
+        {
+          "gr": "{ __0: `\",\" param __0` }",
+          "digested": 1,
+          "nextMap": {
+            "param": "__0 := \",\" param # __0"
+          },
+          "str": "__0 := \",\" # param __0",
+          "strWithGrammarName": "__0 := \",\" # param __0"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 6,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ param: `identifier \":\" identifier` }",
+          "digested": 3,
+          "nextMap": {},
+          "str": "param := identifier \":\" identifier #",
+          "strWithGrammarName": "param := identifier \":\" identifier #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            "::": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ __0: `\",\" param` }",
+          "digested": 2,
+          "nextMap": {},
+          "str": "__0 := \",\" param #",
+          "strWithGrammarName": "__0 := \",\" param #"
+        },
+        {
+          "gr": "{ __0: `\",\" param __0` }",
+          "digested": 2,
+          "nextMap": {
+            "__0": "__0 := \",\" param __0 #"
+          },
+          "str": "__0 := \",\" param # __0",
+          "strWithGrammarName": "__0 := \",\" param # __0"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 7,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ __0: `\",\" param __0` }",
+          "digested": 3,
+          "nextMap": {},
+          "str": "__0 := \",\" param __0 #",
+          "strWithGrammarName": "__0 := \",\" param __0 #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 8,
+          "nextMap": {
+            "__1": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 9,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 9,
+          "nextMap": {
+            "__1": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 9,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 9,
+          "nextMap": {
+            ":{": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 9,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 9,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        {
+          "gr": "{ stmt: `assign_stmt` }",
+          "digested": 1,
+          "nextMap": {},
+          "str": "stmt := assign_stmt #",
+          "strWithGrammarName": "stmt := assign_stmt #"
+        },
+        {
+          "gr": "{ stmt: `ret_stmt` }",
+          "digested": 1,
+          "nextMap": {},
+          "str": "stmt := ret_stmt #",
+          "strWithGrammarName": "stmt := ret_stmt #"
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 1,
+          "nextMap": {
+            "identifier": "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\""
+          },
+          "str": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"",
+          "strWithGrammarName": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\""
+        },
+        {
+          "gr": "{ ret_stmt: `return exp \";\"` }",
+          "digested": 1,
+          "nextMap": {
+            "exp": "ret_stmt := return exp # \";\""
+          },
+          "str": "ret_stmt := return # exp \";\"",
+          "strWithGrammarName": "ret_stmt := return # exp \";\""
+        },
+        {
+          "gr": "{ __1: `stmt` }",
+          "digested": 1,
+          "nextMap": {},
+          "str": "__1 := stmt #",
+          "strWithGrammarName": "__1 := stmt #"
+        },
+        {
+          "gr": "{ __1: `stmt __1` }",
+          "digested": 1,
+          "nextMap": {
+            "__1": "__1 := stmt __1 #"
+          },
+          "str": "__1 := stmt # __1",
+          "strWithGrammarName": "__1 := stmt # __1"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 10,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 10,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 10,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 10,
+          "nextMap": {
+            "__1": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\""
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 10,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 2,
+          "nextMap": {
+            "::": "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\""
+          },
+          "str": "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\"",
+          "strWithGrammarName": "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\""
+        },
+        {
+          "gr": "{ exp: `identifier` }",
+          "digested": 1,
+          "nextMap": {},
+          "str": "exp := identifier #",
+          "strWithGrammarName": "exp := identifier #"
+        },
+        {
+          "gr": "{ ret_stmt: `return exp \";\"` }",
+          "digested": 2,
+          "nextMap": {
+            ":;": "ret_stmt := return exp \";\" #"
+          },
+          "str": "ret_stmt := return exp # \";\"",
+          "strWithGrammarName": "ret_stmt := return exp # \";\""
+        },
+        {
+          "gr": "{ exp: `exp \"+\" exp` }",
+          "digested": 1,
+          "nextMap": {
+            ":+": "exp := exp \"+\" # exp"
+          },
+          "str": "exp := exp # \"+\" exp",
+          "strWithGrammarName": "exp := exp # \"+\" exp"
+        },
+        {
+          "gr": "{ exp: `integer` }",
+          "digested": 1,
+          "nextMap": {},
+          "str": "exp := integer #",
+          "strWithGrammarName": "exp := integer #"
+        },
+        {
+          "gr": "{ __1: `stmt __1` }",
+          "digested": 2,
+          "nextMap": {},
+          "str": "__1 := stmt __1 #",
+          "strWithGrammarName": "__1 := stmt __1 #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 11,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "digested": 11,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 11,
+          "nextMap": {
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 3,
+          "nextMap": {
+            "identifier": "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\""
+          },
+          "str": "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\"",
+          "strWithGrammarName": "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\""
+        },
+        {
+          "gr": "{ ret_stmt: `return exp \";\"` }",
+          "digested": 3,
+          "nextMap": {},
+          "str": "ret_stmt := return exp \";\" #",
+          "strWithGrammarName": "ret_stmt := return exp \";\" #"
+        },
+        {
+          "gr": "{ exp: `exp \"+\" exp` }",
+          "digested": 2,
+          "nextMap": {
+            "exp": "exp := exp \"+\" exp #"
+          },
+          "str": "exp := exp \"+\" # exp",
+          "strWithGrammarName": "exp := exp \"+\" # exp"
+        },
+        {
+          "gr": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "digested": 12,
+          "nextMap": {},
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+          "strWithGrammarName": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 4,
+          "nextMap": {
+            ":=": "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\""
+          },
+          "str": "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\"",
+          "strWithGrammarName": "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\""
+        },
+        {
+          "gr": "{ exp: `exp \"+\" exp` }",
+          "digested": 3,
+          "nextMap": {},
+          "str": "exp := exp \"+\" exp #",
+          "strWithGrammarName": "exp := exp \"+\" exp #"
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 5,
+          "nextMap": {
+            "exp": "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\""
+          },
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\"",
+          "strWithGrammarName": "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\""
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 6,
+          "nextMap": {
+            ":;": "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #"
+          },
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\"",
+          "strWithGrammarName": "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\""
+        },
+        {
+          "gr": "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "digested": 7,
+          "nextMap": {},
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #",
+          "strWithGrammarName": "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #"
+        }
+      ],
+      "states": {
+        "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub # fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn # identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"\nparam := # identifier \":\" identifier",
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName # \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"\nparam := # identifier \":\" identifier": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "param := # identifier \":\" identifier"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "param := identifier # \":\" identifier",
+            ":(": null,
+            "param": "__0 := # \",\" param\n__0 := # \",\" param __0\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            ":)": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" # param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"\nparam := # identifier \":\" identifier"
+        },
+        "param := identifier # \":\" identifier": {
+          "candidates": [
+            "param := identifier # \":\" identifier"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": "param := identifier \":\" # identifier",
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "param := identifier # \":\" identifier"
+        },
+        "__0 := # \",\" param\n__0 := # \",\" param __0\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "__0 := # \",\" param",
+            "__0 := # \",\" param __0"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": "__0 := \",\" # param\n__0 := \",\" # param __0\nparam := # identifier \":\" identifier",
+            "stmt": null
+          },
+          "str": "__0 := # \",\" param\n__0 := # \",\" param __0\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param # __0 \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "param := identifier \":\" # identifier": {
+          "candidates": [
+            "param := identifier \":\" # identifier"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "param := identifier \":\" identifier #",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "param := identifier \":\" # identifier"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\"",
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 # \")\" \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "__0 := \",\" # param\n__0 := \",\" # param __0\nparam := # identifier \":\" identifier": {
+          "candidates": [
+            "__0 := \",\" # param",
+            "__0 := \",\" # param __0",
+            "param := # identifier \":\" identifier"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "param := identifier # \":\" identifier",
+            ":(": null,
+            "param": "__0 := \",\" param #\n__0 := \",\" param # __0\n__0 := # \",\" param\n__0 := # \",\" param __0",
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "__0 := \",\" # param\n__0 := \",\" # param __0\nparam := # identifier \":\" identifier"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        "param := identifier \":\" identifier #": {
+          "candidates": [
+            "param := identifier \":\" identifier #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "param := identifier \":\" identifier #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\"",
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" # \":\" identifier@retType \"{\" __1 \"}\""
+        },
+        "__0 := \",\" param #\n__0 := \",\" param # __0\n__0 := # \",\" param\n__0 := # \",\" param __0": {
+          "candidates": [
+            "__0 := \",\" param #",
+            "__0 := \",\" param # __0",
+            "__0 := # \",\" param",
+            "__0 := # \",\" param __0"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": "__0 := \",\" param __0 #",
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": "__0 := \",\" # param\n__0 := \",\" # param __0\nparam := # identifier \":\" identifier",
+            "stmt": null
+          },
+          "str": "__0 := \",\" param #\n__0 := \",\" param # __0\n__0 := # \",\" param\n__0 := # \",\" param __0"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt",
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt",
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" # identifier@retType \"{\" __1 \"}\""
+        },
+        "__0 := \",\" param __0 #": {
+          "candidates": [
+            "__0 := \",\" param __0 #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "__0 := \",\" param __0 #"
+        },
+        "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+            "__1 := # stmt",
+            "__1 := # stmt __1",
+            "stmt := # assign_stmt",
+            "stmt := # ret_stmt",
+            "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\"",
+            "ret_stmt := # return exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #",
+            "__1": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+            "__0": null,
+            "assign_stmt": "stmt := assign_stmt #",
+            "ret_stmt": "stmt := ret_stmt #",
+            "let": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"",
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\"",
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+          },
+          "str": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+        },
+        "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+            "__1 := # stmt",
+            "__1 := # stmt __1",
+            "stmt := # assign_stmt",
+            "stmt := # ret_stmt",
+            "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\"",
+            "ret_stmt := # return exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #",
+            "__1": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+            "__0": null,
+            "assign_stmt": "stmt := assign_stmt #",
+            "ret_stmt": "stmt := ret_stmt #",
+            "let": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"",
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\"",
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+          },
+          "str": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt",
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType # \"{\" __1 \"}\""
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        "stmt := assign_stmt #": {
+          "candidates": [
+            "stmt := assign_stmt #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "stmt := assign_stmt #"
+        },
+        "stmt := ret_stmt #": {
+          "candidates": [
+            "stmt := ret_stmt #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "stmt := ret_stmt #"
+        },
+        "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"": {
+          "candidates": [
+            "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\""
+        },
+        "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\"": {
+          "candidates": [
+            "ret_stmt := return # exp \";\"",
+            "exp := # integer",
+            "exp := # identifier",
+            "exp := # exp \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "exp := identifier #",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": "exp := exp # \"+\" exp\nret_stmt := return exp # \";\"",
+            ":;": null,
+            "return": null,
+            "integer": "exp := integer #",
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\""
+        },
+        "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt": {
+          "candidates": [
+            "__1 := stmt #",
+            "__1 := stmt # __1",
+            "__1 := # stmt",
+            "__1 := # stmt __1",
+            "stmt := # assign_stmt",
+            "stmt := # ret_stmt",
+            "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\"",
+            "ret_stmt := # return exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": "__1 := stmt __1 #",
+            "__0": null,
+            "assign_stmt": "stmt := assign_stmt #",
+            "ret_stmt": "stmt := ret_stmt #",
+            "let": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"",
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\"",
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+          },
+          "str": "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\"",
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\"",
+            "__1 := # stmt",
+            "__1 := # stmt __1",
+            "stmt := # assign_stmt",
+            "stmt := # ret_stmt",
+            "assign_stmt := # let identifier \":\" identifier \"=\" exp \";\"",
+            "ret_stmt := # return exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #",
+            "__1": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\"",
+            "__0": null,
+            "assign_stmt": "stmt := assign_stmt #",
+            "ret_stmt": "stmt := ret_stmt #",
+            "let": "assign_stmt := let # identifier \":\" identifier \"=\" exp \";\"",
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nret_stmt := return # exp \";\"",
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": "__1 := # stmt\n__1 := # stmt __1\n__1 := stmt #\n__1 := stmt # __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+          },
+          "str": "__1 := # stmt\n__1 := # stmt __1\nassign_stmt := # let identifier \":\" identifier \"=\" exp \";\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # \"}\"\nfn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" # __1 \"}\"\nret_stmt := # return exp \";\"\nstmt := # assign_stmt\nstmt := # ret_stmt"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\"": {
+          "candidates": [
+            "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\"",
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier # \":\" identifier \"=\" exp \";\""
+        },
+        "exp := identifier #": {
+          "candidates": [
+            "exp := identifier #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := identifier #"
+        },
+        "exp := exp # \"+\" exp\nret_stmt := return exp # \";\"": {
+          "candidates": [
+            "ret_stmt := return exp # \";\"",
+            "exp := exp # \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": "ret_stmt := return exp \";\" #",
+            "return": null,
+            "integer": null,
+            ":+": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nexp := exp \"+\" # exp",
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := exp # \"+\" exp\nret_stmt := return exp # \";\""
+        },
+        "exp := integer #": {
+          "candidates": [
+            "exp := integer #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := integer #"
+        },
+        "__1 := stmt __1 #": {
+          "candidates": [
+            "__1 := stmt __1 #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "__1 := stmt __1 #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\" #"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\"": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #",
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 # \"}\""
+        },
+        "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\"": {
+          "candidates": [
+            "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\"",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier \":\" # identifier \"=\" exp \";\""
+        },
+        "ret_stmt := return exp \";\" #": {
+          "candidates": [
+            "ret_stmt := return exp \";\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "ret_stmt := return exp \";\" #"
+        },
+        "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nexp := exp \"+\" # exp": {
+          "candidates": [
+            "exp := exp \"+\" # exp",
+            "exp := # integer",
+            "exp := # identifier",
+            "exp := # exp \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "exp := identifier #",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": "exp := exp \"+\" exp #\nexp := exp # \"+\" exp",
+            ":;": null,
+            "return": null,
+            "integer": "exp := integer #",
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nexp := exp \"+\" # exp"
+        },
+        "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #": {
+          "candidates": [
+            "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "fn_def := pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\" #"
+        },
+        "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\"": {
+          "candidates": [
+            "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\""
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\"\nexp := # exp \"+\" exp\nexp := # identifier\nexp := # integer",
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier \":\" identifier # \"=\" exp \";\""
+        },
+        "exp := exp \"+\" exp #\nexp := exp # \"+\" exp": {
+          "candidates": [
+            "exp := exp \"+\" exp #",
+            "exp := exp # \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nexp := exp \"+\" # exp",
+            ":,": null,
+            "stmt": null
+          },
+          "str": "exp := exp \"+\" exp #\nexp := exp # \"+\" exp"
+        },
+        "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\"\nexp := # exp \"+\" exp\nexp := # identifier\nexp := # integer": {
+          "candidates": [
+            "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\"",
+            "exp := # integer",
+            "exp := # identifier",
+            "exp := # exp \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": "exp := identifier #",
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\"\nexp := exp # \"+\" exp",
+            ":;": null,
+            "return": null,
+            "integer": "exp := integer #",
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" # exp \";\"\nexp := # exp \"+\" exp\nexp := # identifier\nexp := # integer"
+        },
+        "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\"\nexp := exp # \"+\" exp": {
+          "candidates": [
+            "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\"",
+            "exp := exp # \"+\" exp"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #",
+            "return": null,
+            "integer": null,
+            ":+": "exp := # exp \"+\" exp\nexp := # identifier\nexp := # integer\nexp := exp \"+\" # exp",
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" exp # \";\"\nexp := exp # \"+\" exp"
+        },
+        "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #": {
+          "candidates": [
+            "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #"
+          ],
+          "nextMap": {
+            "pub": null,
+            "fn": null,
+            "identifier": null,
+            ":(": null,
+            "param": null,
+            ":)": null,
+            "::": null,
+            ":{": null,
+            ":}": null,
+            "__1": null,
+            "__0": null,
+            "assign_stmt": null,
+            "ret_stmt": null,
+            "let": null,
+            ":=": null,
+            "exp": null,
+            ":;": null,
+            "return": null,
+            "integer": null,
+            ":+": null,
+            ":,": null,
+            "stmt": null
+          },
+          "str": "assign_stmt := let identifier \":\" identifier \"=\" exp \";\" #"
+        }
+      },
+      "entryState": "fn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"\nfn_def := # pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"",
+      "NTClosures": {
+        "fn_def": [
+          "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+          "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+          "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }"
+        ],
+        "param": [
+          "{ param: `identifier \":\" identifier` }"
+        ],
+        "stmt": [
+          "{ stmt: `assign_stmt` }",
+          "{ stmt: `ret_stmt` }",
+          "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "{ ret_stmt: `return exp \";\"` }"
+        ],
+        "assign_stmt": [
+          "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }"
+        ],
+        "ret_stmt": [
+          "{ ret_stmt: `return exp \";\"` }"
+        ],
+        "exp": [
+          "{ exp: `integer` }",
+          "{ exp: `identifier` }",
+          "{ exp: `exp \"+\" exp` }"
+        ],
+        "__0": [
+          "{ __0: `\",\" param` }",
+          "{ __0: `\",\" param __0` }"
+        ],
+        "__1": [
+          "{ __1: `stmt` }",
+          "{ __1: `stmt __1` }",
+          "{ stmt: `assign_stmt` }",
+          "{ stmt: `ret_stmt` }",
+          "{ assign_stmt: `let identifier \":\" identifier \"=\" exp \";\"` }",
+          "{ ret_stmt: `return exp \";\"` }"
+        ]
+      },
+      "firstSets": {
+        "fn_def": [
+          "pub"
+        ],
+        "param": [
+          "identifier"
+        ],
+        "stmt": [
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return"
+        ],
+        "assign_stmt": [
+          "let"
+        ],
+        "ret_stmt": [
+          "return"
+        ],
+        "exp": [
+          "integer",
+          "identifier",
+          "exp"
+        ],
+        "__0": [
+          "\",\""
+        ],
+        "__1": [
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return"
+        ]
+      },
+      "followSets": {
+        "fn_def": [
+          "param",
+          "identifier",
+          "\":\"",
+          "\"}\"",
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "param": [
+          "\")\"",
+          "__0",
+          "\",\"",
+          "\"(\"",
+          "\"{\"",
+          "\":\"",
+          "\"=\"",
+          "\";\"",
+          "\"+\""
+        ],
+        "stmt": [
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "param",
+          "identifier",
+          "\":\"",
+          "\"}\"",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "assign_stmt": [
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "param",
+          "identifier",
+          "\":\"",
+          "\"}\"",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "ret_stmt": [
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "param",
+          "identifier",
+          "\":\"",
+          "\"}\"",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "exp": [
+          "\";\"",
+          "\"+\"",
+          "\"(\"",
+          "\"{\"",
+          "\":\"",
+          "\"=\"",
+          "\")\"",
+          "__0",
+          "\",\""
+        ],
+        "__0": [
+          "\")\"",
+          "__0",
+          "\",\"",
+          "\"(\"",
+          "\"{\"",
+          "\":\"",
+          "\"=\"",
+          "\";\"",
+          "\"+\""
+        ],
+        "__1": [
+          "\"}\"",
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "param",
+          "identifier",
+          "\":\"",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "pub": [
+          "fn"
+        ],
+        "fn": [
+          "identifier@funcName"
+        ],
+        "identifier": [
+          "\"(\"",
+          "\"{\"",
+          "\":\"",
+          "\"=\"",
+          "\")\"",
+          "__0",
+          "\",\"",
+          "\";\"",
+          "\"+\""
+        ],
+        "": [
+          "param",
+          "identifier",
+          "\":\"",
+          "\"}\"",
+          "__1",
+          "stmt",
+          "assign_stmt",
+          "ret_stmt",
+          "let",
+          "return",
+          "\")\"",
+          "exp",
+          "integer"
+        ],
+        "let": [
+          "identifier"
+        ],
+        "return": [
+          "exp",
+          "integer",
+          "identifier"
+        ],
+        "integer": [
+          "\";\"",
+          "\"+\"",
+          "\"(\"",
+          "\"{\"",
+          "\":\"",
+          "\"=\"",
+          "\")\"",
+          "__0",
+          "\",\""
+        ]
+      },
+      "cascadeQueryPrefix": "__"
+    }
+  }
+}
