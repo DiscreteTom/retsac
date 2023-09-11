@@ -664,6 +664,7 @@ export class ParserBuilder<
       });
     });
 
+    // TODO: move this to a new function?
     // grammar rules with the same priority will be reduced from left to right
     // e.g. priority([{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }])
     groups.forEach((defs) => {

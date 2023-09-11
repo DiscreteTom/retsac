@@ -148,6 +148,7 @@ export interface IParserBuilder<
    * Grammar rules with higher priority will always be accepted first,
    * and grammar rules with the same priority will be accepted according to the order of definition you provided here.
    */
+  // TODO: update comments
   priority(...defs: (Definition<Kinds> | Definition<Kinds>[])[]): this;
   /**
    * Generate resolvers to make these definitions left-self-associative.
