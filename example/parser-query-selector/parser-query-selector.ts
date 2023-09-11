@@ -14,7 +14,6 @@ export let returnType = "";
 
 export const parser = new ELR.ParserBuilder()
   .useLexerKinds(lexer)
-  .entry("fn_def")
   .define(
     {
       fn_def: `
@@ -22,9 +21,13 @@ export const parser = new ELR.ParserBuilder()
         '}'
       `,
     },
-    ELR.callback(({ $$ }) => {
-      fName = $$("identifier")[0].text!;
+    // callback will be called if the rule is accepted
+    ELR.callback(({ $, $$ }) => {
+      // use `$` to get the first matched token
+      fName = $("identifier")!.text!;
+      // use `$$` to get all matched tokens
       returnType = $$("identifier")[1].text!;
     })
   )
+  .entry("fn_def")
   .build(lexer);

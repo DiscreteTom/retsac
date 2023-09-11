@@ -22,3 +22,5 @@ export const lexer = new Lexer.Builder()
   // to accept one character at a time
   .ignore(/./)
   .build();
+
+// TODO: take & takeUntil

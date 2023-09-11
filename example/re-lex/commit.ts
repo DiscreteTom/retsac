@@ -11,14 +11,17 @@ const lexer = new Lexer.Builder()
 
 export const parser_1 = new ELR.ParserBuilder<number>()
   .useLexerKinds(lexer)
-  .entry("exp")
   .define(
     { exp: "number" },
+    // reducer is called if the grammar rule is accepted
+    // and the result will be set to the `data` field of the AST node
     ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `exp '--'` },
     ELR.reducer(({ values }) => values[0]! - 1), // e.g. `2--` is `2 - 1`
+    // commit will make the parser discard all other possibilities
+    // if the grammar rule is accepted
     ELR.commit()
   )
   .define(
@@ -31,11 +34,11 @@ export const parser_1 = new ELR.ParserBuilder<number>()
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
+  .entry("exp")
   .build(lexer.clone(), { checkAll: true });
 
 export const parser_2 = new ELR.ParserBuilder<number>()
   .useLexerKinds(lexer)
-  .entry("exp")
   .define(
     { exp: "number" },
     ELR.reducer(({ matched }) => Number(matched[0].text))
@@ -55,4 +58,5 @@ export const parser_2 = new ELR.ParserBuilder<number>()
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
+  .entry("exp")
   .build(lexer, { checkAll: true });

@@ -13,9 +13,10 @@ export let someState = 0;
 
 export const parser = new ELR.ParserBuilder<number>()
   .useLexerKinds(lexer)
-  .entry("exp")
   .define(
     { exp: "number" },
+    // reducer is called if the grammar rule is accepted
+    // and the result will be set to the `data` field of the AST node
     ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
@@ -34,4 +35,7 @@ export const parser = new ELR.ParserBuilder<number>()
   )
   .priority({ exp: `'-' exp` }, { exp: `exp '-' exp` }, { exp: `exp '--'` })
   .leftSA({ exp: `exp '-' exp` })
+  .entry("exp")
+  // IMPORTANT: set `rollback` to `true` to enable rollback functions
+  // otherwise, rollback functions will not be called to improve performance
   .build(lexer, { checkAll: true, rollback: true });

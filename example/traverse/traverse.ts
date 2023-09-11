@@ -15,7 +15,6 @@ export const varMap = new Map<string, number>();
 
 export const parser = new ELR.ParserBuilder<number>()
   .useLexerKinds(lexer)
-  .entry("stmts")
   // if a node has only one child, the default traverser will return the child's data.
   // if the child's data is undefined, the child's traverser will be called to get the data.
   .define({ stmts: `stmt` })
@@ -52,11 +51,11 @@ export const parser = new ELR.ParserBuilder<number>()
     { exp: `exp '+' exp` },
     { next: `'+'`, accept: true }
   )
+  .entry("stmts")
   .build(lexer, { checkAll: true });
 
 export const parser2 = new ELR.ParserBuilder<number>()
   .useLexerKinds(lexer)
-  .entry("fn_def_stmt")
   .define(
     {
       fn_def_stmt: `
@@ -84,4 +83,5 @@ export const parser2 = new ELR.ParserBuilder<number>()
     // get the value of the variable from the map
     ELR.traverser(({ children }) => varMap.get(children[0].text!)!)
   )
+  .entry("fn_def_stmt")
   .build(lexer, { checkAll: true });

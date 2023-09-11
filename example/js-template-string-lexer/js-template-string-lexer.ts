@@ -1,7 +1,5 @@
 import { Lexer } from "../../src";
 
-let tempStrDepth = 0;
-
 function findUnescaped(s: string, target: string) {
   for (let i = 0; i < s.length - target.length + 1; ++i) {
     if (s[i] == "\\") {
@@ -13,6 +11,9 @@ function findUnescaped(s: string, target: string) {
   return false;
 }
 
+// template string depth for nested template string
+let tempStrDepth = 0;
+
 export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
   .define({
@@ -22,7 +23,7 @@ export const lexer = new Lexer.Builder()
     tempStrLeft: Lexer.stringLiteral("`", {
       close: "${",
       multiline: true,
-    }).then(() => tempStrDepth++), // use closure to store state
+    }).then(() => tempStrDepth++),
     tempStrRight: Lexer.stringLiteral("}", { close: "`", multiline: true })
       .reject(
         ({ content }) =>
@@ -33,7 +34,7 @@ export const lexer = new Lexer.Builder()
     tempStrMiddle: Lexer.stringLiteral("}", {
       close: "${",
       multiline: true,
-    }).reject(() => tempStrDepth == 0), // check state
+    }).reject(() => tempStrDepth == 0), // reject if not in template string
     exp: /\w+/,
     simpleString: Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
   })
