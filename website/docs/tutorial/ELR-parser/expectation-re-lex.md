@@ -1,4 +1,7 @@
-<!-- # Expectation & Re-Lex -->
+---
+title: "Expectation & Re-Lex"
+sidebar_position: 1
+---
 
 ## Expectation
 

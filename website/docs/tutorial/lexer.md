@@ -1,4 +1,7 @@
-<!-- # Lexer -->
+---
+title: "Lexer"
+sidebar_position: 1
+---
 
 The lexer digests the input string and yields a token or a token list.
 

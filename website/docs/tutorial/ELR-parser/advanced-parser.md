@@ -1,4 +1,7 @@
-<!-- # Advanced Parser -->
+---
+title: "Advanced Parser"
+sidebar_position: 2
+---
 
 ## Advanced Grammar Rule
 

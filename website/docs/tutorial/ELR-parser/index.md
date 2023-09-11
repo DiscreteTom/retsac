@@ -1,4 +1,6 @@
-<!-- # ELR Parser -->
+---
+title: "ELR parser"
+---
 
 > ELR: Expectational LR
 
