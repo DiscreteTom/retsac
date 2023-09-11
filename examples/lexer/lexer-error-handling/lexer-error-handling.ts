@@ -1,5 +1,5 @@
-import { Lexer } from "../../src";
-import { Action, numericLiteral, stringLiteral } from "../../src/lexer";
+import { Lexer } from "../../../src";
+import { Action, numericLiteral, stringLiteral } from "../../../src/lexer";
 
 /**
  * This example shows how to handle errors without stopping the parsing process.

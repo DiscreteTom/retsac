@@ -1,11 +1,11 @@
 import { readFileSync } from "fs";
-import { ELR, Lexer } from "../../src";
-import { SerializableParserData } from "../../src/parser/ELR";
+import { ELR, Lexer } from "../../../src";
+import { SerializableParserData } from "../../../src/parser/ELR";
 
 const cache = (() => {
   try {
     return JSON.parse(
-      readFileSync("./example/advanced-builder/dfa.json", "utf8")
+      readFileSync("./examples/parser/advanced-builder/dfa.json", "utf8")
     ) as SerializableParserData;
   } catch {
     return undefined;

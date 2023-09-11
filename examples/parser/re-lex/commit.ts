@@ -1,4 +1,4 @@
-import { Lexer, ELR } from "../../src";
+import { Lexer, ELR } from "../../../src";
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())

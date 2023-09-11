@@ -1,4 +1,4 @@
-import { Lexer } from "../../src";
+import { Lexer } from "../../../src";
 
 function findUnescaped(s: string, target: string) {
   for (let i = 0; i < s.length - target.length + 1; ++i) {

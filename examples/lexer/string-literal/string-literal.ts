@@ -1,4 +1,4 @@
-import { Lexer } from "../../src";
+import { Lexer } from "../../../src";
 
 export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
