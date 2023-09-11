@@ -398,7 +398,7 @@ export class ParserBuilder<
 
     // serialize
     if (options?.serialize ?? false) {
-      this._serializable = this.buildSerializable(dfa);
+      this._serializable = options?.hydrate ?? this.buildSerializable(dfa);
     }
 
     return new Parser(dfa, lexer);

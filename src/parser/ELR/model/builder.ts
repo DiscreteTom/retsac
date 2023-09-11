@@ -55,6 +55,8 @@ export type BuildOptions = Partial<
   reLex?: boolean;
   /**
    * If `true` and the build is successful, {@link IParserBuilder.serializable} will be set.
+   * If the {@link BuildOptions.hydrate} is set, the {@link IParserBuilder.serializable} will be set to that
+   * instead of generating a new one.
    * @default false
    */
   serialize?: boolean;
