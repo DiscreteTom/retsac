@@ -13,9 +13,9 @@ export type Token<ErrorType, Kinds extends string> = {
 };
 
 /** Apply `action` and try to yield a token with `kind`. */
-export type Definition<ErrorType> = {
+export type Definition<ErrorType, Kinds extends string> = {
   /** Target token kind. Empty string if anonymous. */
-  kind: string;
+  kind: Kinds;
   action: Action<ErrorType>;
 };
 
@@ -35,7 +35,7 @@ export interface ILexer<ErrorType, Kinds extends string> {
    * You can clear the errors by setting it's length to 0.
    */
   readonly errors: Token<ErrorType, Kinds>[];
-  get defs(): readonly Readonly<Definition<ErrorType>>[];
+  get defs(): readonly Readonly<Definition<ErrorType, Kinds>>[];
   /**
    * The entire input string.
    */
@@ -134,7 +134,7 @@ export interface ILexer<ErrorType, Kinds extends string> {
   /**
    * Get all defined token kinds.
    */
-  getTokenKinds(): Set<string>;
+  getTokenKinds(): Set<Kinds>;
   /**
    * Get line number (starts from 1) and column number (starts from 1)
    * from the index (starts from 0) of the input string.

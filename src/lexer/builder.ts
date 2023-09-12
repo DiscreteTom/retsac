@@ -10,7 +10,7 @@ export type LexerBuildOptions = Partial<
  * Lexer builder.
  */
 export class Builder<ErrorType = string, Kinds extends string = never> {
-  private defs: Readonly<Definition<ErrorType>>[];
+  private defs: Readonly<Definition<ErrorType, Kinds>>[];
 
   constructor() {
     this.defs = [];
@@ -24,7 +24,7 @@ export class Builder<ErrorType = string, Kinds extends string = never> {
   }): Builder<ErrorType, Kinds | Append> {
     for (const kind in defs) {
       const raw = defs[kind];
-      this.defs.push({
+      (this as Builder<ErrorType, Kinds | Append>).defs.push({
         kind,
         action:
           raw instanceof Array

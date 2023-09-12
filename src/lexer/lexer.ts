@@ -12,7 +12,7 @@ export class Lexer<ErrorType, Kinds extends string>
   debug: boolean;
   logger: Logger;
   readonly errors: Token<ErrorType, Kinds>[];
-  readonly defs: readonly Readonly<Definition<ErrorType>>[];
+  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
   /** Only `feed`, `reset` can modify this var. */
   private _buffer: string;
   /**
@@ -37,7 +37,7 @@ export class Lexer<ErrorType, Kinds extends string>
   private rest?: string;
 
   constructor(
-    defs: readonly Readonly<Definition<ErrorType>>[],
+    defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
     options?: LexerBuildOptions
   ) {
     this.defs = defs;
@@ -158,7 +158,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
   private res2token(
     res: Readonly<AcceptedActionOutput<ErrorType>>,
-    def: Readonly<Definition<ErrorType>>
+    def: Readonly<Definition<ErrorType, Kinds>>
   ): Token<ErrorType, Kinds> {
     return {
       kind: def.kind as Kinds,
@@ -435,7 +435,7 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   getTokenKinds() {
-    const res: Set<string> = new Set();
+    const res: Set<Kinds> = new Set();
     this.defs.forEach((d) => res.add(d.kind));
     return res;
   }
