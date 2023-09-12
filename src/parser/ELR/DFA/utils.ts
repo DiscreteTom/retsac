@@ -230,13 +230,10 @@ export function processDefinitions<
   Kinds extends string,
   LexerKinds extends string
 >(
-  data: ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>,
-  /**
-   * This will be modified to add the resolved conflicts defined in definition context in data.
-   * Since the definition context has higher priority,
-   * those resolved conflicts will be append to the front of this array.
-   */
-  resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[]
+  data: Readonly<ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>>,
+  resolvedTemp: readonly Readonly<
+    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
+  >[]
 ): {
   tempGrammarRules: readonly TempGrammarRule<
     ASTData,
@@ -245,6 +242,9 @@ export function processDefinitions<
     LexerKinds
   >[];
   NTs: ReadonlySet<string>;
+  allResolvedTemp: readonly Readonly<
+    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
+  >[];
 } {
   const tempGrammarRules: TempGrammarRule<
     ASTData,
@@ -253,6 +253,7 @@ export function processDefinitions<
     LexerKinds
   >[] = [];
   const NTs: Set<string> = new Set();
+  const allResolvedTemp = [...resolvedTemp];
 
   data.forEach((d, hydrationId) => {
     const ctx = d.ctxBuilder?.build();
@@ -263,7 +264,7 @@ export function processDefinitions<
       NTs.add(gr.NT);
     });
 
-    // append resolved conflicts defined in ctx into the front of resolvedTemp
+    // append resolved conflicts defined in ctx into the front of allResolvedTemp
     const toBeAppend = [] as ResolvedTempConflict<
       ASTData,
       ErrorType,
@@ -304,10 +305,10 @@ export function processDefinitions<
         });
       }
     });
-    resolvedTemp.unshift(...toBeAppend);
+    allResolvedTemp.unshift(...toBeAppend);
   });
 
-  return { tempGrammarRules, NTs };
+  return { tempGrammarRules, NTs, allResolvedTemp };
 }
 
 /**

@@ -84,7 +84,6 @@ export class ParserBuilder<
    * You can also customize this.
    */
   private readonly cascadeQueryPrefix?: string;
-  private _serializable?: SerializableParserData;
 
   constructor(options?: {
     /**
@@ -238,6 +237,7 @@ export class ParserBuilder<
       cs,
       allStates,
       NTs,
+      allResolvedTemp,
     } = DFABuilder.prepare<ASTData, ErrorType, Kinds, LexerKinds>(
       repo,
       lexer,
@@ -267,7 +267,7 @@ export class ParserBuilder<
 
     // transform resolved temp conflicts to resolved conflicts
     // and append into grammar rules
-    this.resolvedTemp.forEach((r) => {
+    allResolvedTemp.forEach((r) => {
       // find the grammar rules
       const reducerRule = grs.get(r.reducerRule);
       if (!reducerRule) {
@@ -344,17 +344,15 @@ export class ParserBuilder<
     };
   }
 
-  // TODO: this function should not change data in this builder
-  // currently the resolvedTemp will be changed.
-  build(lexer: ILexer<any, LexerKinds>, options?: BuildOptions) {
+  build(
+    lexer: ILexer<any, LexerKinds>,
+    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+  ) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
     const printAll = options?.printAll ?? false;
     const rollback = options?.rollback ?? false;
     const reLex = options?.reLex ?? true;
-
-    // TODO: optimize pipeline: build/restore -> hydrate -> checks -> serialize
-    // maybe we don't need to hydrate when buildDFA?
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
@@ -398,12 +396,15 @@ export class ParserBuilder<
       });
     }
 
-    // serialize
-    if (options?.serialize ?? false) {
-      this._serializable = options?.hydrate ?? this.buildSerializable(dfa);
-    }
-
-    return new Parser(dfa, lexer);
+    return {
+      parser: new Parser(dfa, lexer),
+      serializable:
+        options?.serialize ?? false
+          ? ((options?.hydrate ?? this.buildSerializable(dfa)) as Readonly<
+              SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>
+            >)
+          : undefined,
+    };
   }
 
   /**
@@ -710,7 +711,7 @@ export class ParserBuilder<
 
   private buildSerializable<LexerKinds extends string>(
     dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>
-  ): SerializableParserData {
+  ): SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds> {
     return {
       // meta: JSON.stringify({
       //   data: this.data.map((d) => ({
@@ -729,7 +730,7 @@ export class ParserBuilder<
   }
 
   private restoreAndHydrate(
-    data: SerializableParserData,
+    data: SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>,
     options: Parameters<typeof DFA.fromJSON>[1]
   ) {
     const dfa = DFA.fromJSON<ASTData, ErrorType, Kinds, LexerKinds>(
@@ -758,9 +759,5 @@ export class ParserBuilder<
     });
 
     return { dfa, NTs: dfa.NTs, grs: dfa.grammarRules };
-  }
-
-  get serializable(): Readonly<SerializableParserData> | undefined {
-    return this._serializable;
   }
 }

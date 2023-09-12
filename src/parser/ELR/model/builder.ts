@@ -1,5 +1,6 @@
 import { ILexer } from "../../../lexer";
 import { IParser } from "../../model";
+import type { DFA } from "../DFA";
 import {
   Definition,
   DefinitionContextBuilder,
@@ -10,8 +11,13 @@ import {
 // type only import for js doc
 import type { Parser } from "../parser";
 
-export type BuildOptions = Partial<
-  Pick<IParser<any, any, any, any>, "logger" | "debug">
+export type BuildOptions<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string
+> = Partial<
+  Pick<IParser<ASTData, ErrorType, Kinds, LexerKinds>, "logger" | "debug">
 > & {
   /**
    * Which format to generate resolvers.
@@ -64,7 +70,7 @@ export type BuildOptions = Partial<
    * If provided and valid, the parser will be hydrated from this data.
    * The value is always checked to make sure it's valid.
    */
-  hydrate?: SerializableParserData;
+  hydrate?: SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>;
 };
 
 export interface IParserBuilder<
@@ -95,13 +101,23 @@ export interface IParserBuilder<
   ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
   /**
    * Generate the {@link Parser ELR Parser}.
+   * This won't modify the builder, so you can call this multiple times.
    */
   build(
     // lexer's error type is not important yet, since we don't need token's error in parser's output.
     // if user wants to get lexer's errors, they can use `lexer.errors`.
     lexer: ILexer<any, LexerKinds>,
-    options?: BuildOptions
-  ): IParser<ASTData, ErrorType, Kinds, LexerKinds>;
+    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+  ): {
+    parser: IParser<ASTData, ErrorType, Kinds, LexerKinds>;
+    /**
+     * If you build the parser with {@link BuildOptions.serialize},
+     * this will be set to the serializable object.
+     */
+    serializable?: Readonly<
+      SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>
+    >;
+  };
   /**
    * Resolve a reduce-shift conflict.
    */
@@ -169,11 +185,6 @@ export interface IParserBuilder<
    * ```
    */
   rightSA(...defs: Definition<Kinds>[]): this;
-  /**
-   * If you build the parser with {@link BuildOptions.serialize},
-   * this property will be set to the serializable object.
-   */
-  get serializable(): Readonly<SerializableParserData> | undefined;
   // /**
   //  * Restore the parser from a serializable object.
   //  */
@@ -199,11 +210,18 @@ export type BuilderDecorator<
 /**
  * Used to store the parser to a serializable object.
  */
-export type SerializableParserData = {
+export type SerializableParserData<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string
+> = {
   /**
    * The meta data for hydrating the parser.
    * If meta data mismatch, the parser builder will reject to hydrate.
    */
   // meta: string; // do we need to check meta?
-  data: { [key: string]: any }; // TODO: type this
+  data: {
+    dfa: ReturnType<DFA<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]>;
+  };
 };

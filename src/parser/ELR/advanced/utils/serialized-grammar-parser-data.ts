@@ -1752,4 +1752,4 @@ export const data = {
       cascadeQueryPrefix: undefined
     }
   }
-} as SerializableParserData;
+} as SerializableParserData<string[], any, "gr", "" | "rename" | "grammar" | "literal">;

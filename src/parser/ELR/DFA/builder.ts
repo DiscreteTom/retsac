@@ -40,7 +40,7 @@ export class DFABuilder {
   ) {
     // transform definitions to temp grammar rules
     // and append resolved conflicts defined in definition context in data into resolvedTemp
-    const { tempGrammarRules, NTs } = processDefinitions<
+    const { tempGrammarRules, NTs, allResolvedTemp } = processDefinitions<
       ASTData,
       ErrorType,
       Kinds,
@@ -148,6 +148,7 @@ export class DFABuilder {
       allStates,
       NTs,
       cs,
+      allResolvedTemp,
     };
   }
 }

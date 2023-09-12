@@ -77,7 +77,10 @@ export class AdvancedBuilder<
     }
   }
 
-  build(lexer: ILexer<any, LexerKinds>, options?: BuildOptions) {
+  build(
+    lexer: ILexer<any, LexerKinds>,
+    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+  ) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
 
@@ -89,6 +92,7 @@ export class AdvancedBuilder<
         res.defs.forEach((def) => this.data.push({ defs: def, ctxBuilder }));
         res.rs.forEach((r) =>
           // the reducerRule/anotherRule is already expanded, so we use super.resolveRS()
+          // TODO: don't use super.resolveRS, will cause hydration error
           super.resolveRS(r.reducerRule, r.anotherRule, r.options)
         );
       });

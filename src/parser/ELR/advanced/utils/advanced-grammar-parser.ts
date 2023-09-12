@@ -149,7 +149,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       // debug: true,
       // checkAll: true,
       // generateResolvers: "builder",
-    });
+    }).parser;
   }
 
   expand<ASTData, ErrorType>(

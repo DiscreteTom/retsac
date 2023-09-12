@@ -38,6 +38,7 @@
   - **_Breaking Change_**: `IParserBuilder.build` with `checkAll` will also check if there is any rollback functions if rollback is disabled.
     - Add `checkRollback` for `IParserBuilder.build`.
   - **_Breaking Change_**: `IParserBuilder.entry` will check kinds.
+  - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable }`.
   - Feat: add `ASTNodeSelector`.
   - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.
