@@ -1,9 +1,9 @@
-import { ILexer } from "../../lexer";
-import { Logger } from "../../logger";
-import { ASTNode } from "../ast";
-import { IParser, ParserOutput } from "../model";
-import { DFA, State } from "./DFA";
-import { ReLexStack, RollbackStack } from "./model";
+import type { ILexer } from "../../lexer";
+import type { Logger } from "../../logger";
+import type { ASTNode } from "../ast";
+import type { IParser, ParserOutput } from "../model";
+import type { DFA, State } from "./DFA";
+import type { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
 export class Parser<

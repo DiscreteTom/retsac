@@ -1,7 +1,7 @@
-import { AtLeastOneOf } from "../../../../type-helper";
-import { Condition, ConflictType, ResolverHydrationId } from "../../model";
-import { Definition } from "./definition";
-import { TempGrammarRule } from "./temp-grammar";
+import type { AtLeastOneOf } from "../../../../type-helper";
+import type { Condition, ConflictType, ResolverHydrationId } from "../../model";
+import type { Definition } from "./definition";
+import type { TempGrammarRule } from "./temp-grammar";
 
 export type BaseResolverOptions<
   ASTData,

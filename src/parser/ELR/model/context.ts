@@ -1,5 +1,5 @@
-import { ILexer } from "../../../lexer";
-import {
+import type { ILexer } from "../../../lexer";
+import type {
   ASTNode,
   ASTNodeChildrenSelector,
   ASTNodeFirstMatchChildSelector,

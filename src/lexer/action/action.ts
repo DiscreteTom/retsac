@@ -1,8 +1,9 @@
 import { CaretNotAllowedError } from "../error";
-import { ActionInput } from "./input";
-import {
+import type { ActionInput } from "./input";
+import type {
   ActionOutput,
-  SimpleAcceptedActionOutput,
+  SimpleAcceptedActionOutput} from "./output";
+import {
   rejectedActionOutput,
   AcceptedActionOutput,
 } from "./output";

@@ -1,5 +1,6 @@
-import { Conflict, ConflictType, Grammar, GrammarRule } from "../model";
-import { TempGrammarRule } from "./model";
+import type { Conflict, Grammar, GrammarRule } from "../model";
+import { ConflictType } from "../model";
+import type { TempGrammarRule } from "./model";
 
 export type ELR_BuilderErrorType =
   | "GRAMMAR_RULE_NOT_FOUND"

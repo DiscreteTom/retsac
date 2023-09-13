@@ -1,6 +1,6 @@
-import { ASTNode } from "../../../ast";
-import { Grammar } from "./grammar";
-import { GrammarRepo } from "./grammar-repo";
+import type { ASTNode } from "../../../ast";
+import type { Grammar } from "./grammar";
+import type { GrammarRepo } from "./grammar-repo";
 
 /**
  * A set of different grammars, ignore the name.

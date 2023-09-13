@@ -1,12 +1,13 @@
-import { ILexer } from "../../../lexer";
-import { Logger } from "../../../logger";
-import {
+import type { ILexer } from "../../../lexer";
+import type { Logger } from "../../../logger";
+import type {
   Definition,
-  ParserBuilder,
   RR_ResolverOptions,
-  RS_ResolverOptions,
+  RS_ResolverOptions} from "../builder";
+import {
+  ParserBuilder
 } from "../builder";
-import { BuildOptions, IParserBuilder } from "../model";
+import type { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<

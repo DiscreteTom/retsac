@@ -1,4 +1,4 @@
-import { Grammar } from "./grammar";
+import type { Grammar } from "./grammar";
 
 /**
  * Return whether `anotherRule` starts with the `reducerRule`.

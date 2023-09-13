@@ -1,22 +1,24 @@
-import { ILexer } from "../../../lexer";
-import { Logger } from "../../../logger";
-import { ASTNode } from "../../ast";
-import {
+import type { ILexer } from "../../../lexer";
+import type { Logger } from "../../../logger";
+import type { ASTNode } from "../../ast";
+import type {
   AcceptedParserOutput,
-  RejectedParserOutput,
+  RejectedParserOutput} from "../../model";
+import {
   rejectedParserOutput,
 } from "../../model";
 import { StateCacheMissError } from "../error";
-import {
+import type {
   GrammarRule,
-  GrammarType,
   GrammarRuleContext,
   Callback,
   GrammarRepo,
-  Grammar,
+  Grammar} from "../model";
+import {
+  GrammarType
 } from "../model";
-import { Candidate, CandidateRepo } from "./candidate";
-import { ReadonlyFollowSets } from "./model";
+import type { Candidate, CandidateRepo } from "./candidate";
+import type { ReadonlyFollowSets } from "./model";
 import { map2serializable } from "./utils";
 
 /**

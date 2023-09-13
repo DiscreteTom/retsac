@@ -1,10 +1,11 @@
 import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
-import { Logger } from "../../../../logger";
-import { IParser } from "../../../model";
-import {
+import type { Logger } from "../../../../logger";
+import type { IParser } from "../../../model";
+import type {
   Definition,
+  RS_ResolverOptions} from "../../builder";
+import {
   ParserBuilder,
-  RS_ResolverOptions,
   traverser,
 } from "../../builder";
 import { InvalidGrammarRuleError } from "../error";

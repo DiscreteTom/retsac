@@ -1,16 +1,16 @@
-import { Traverser } from "../../../ast";
+import type { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
-import {
+import type {
   Conflict,
   ConflictType,
   ResolvedConflict,
   ResolverHydrationId,
 } from "../conflict";
-import { Callback, Condition } from "../context";
+import type { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "../util";
-import { Grammar } from "./grammar";
-import { GrammarRepo } from "./grammar-repo";
-import { GrammarRuleRepo } from "./grammar-rule-repo";
+import type { Grammar } from "./grammar";
+import type { GrammarRepo } from "./grammar-repo";
+import type { GrammarRuleRepo } from "./grammar-rule-repo";
 import { GrammarSet } from "./grammar-set";
 
 // only for js doc

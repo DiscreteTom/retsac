@@ -1,8 +1,8 @@
-import { ILexer } from "../../../../lexer";
-import { Logger } from "../../../../logger";
-import { Traverser } from "../../../ast";
+import type { ILexer } from "../../../../lexer";
+import type { Logger } from "../../../../logger";
+import type { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
-import { Callback, Condition, GrammarRepo } from "../../model";
+import type { Callback, Condition, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 
 /**

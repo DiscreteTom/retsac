@@ -1,6 +1,6 @@
-import { Logger } from "../../../logger";
-import { ReadonlyFollowSets } from "../DFA";
-import { Conflict, GrammarRule, GrammarRuleRepo } from "../model";
+import type { Logger } from "../../../logger";
+import type { ReadonlyFollowSets } from "../DFA";
+import type { Conflict, GrammarRule, GrammarRuleRepo } from "../model";
 import {
   UnknownGrammarError,
   DuplicatedDefinitionError,

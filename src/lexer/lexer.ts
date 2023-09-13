@@ -1,8 +1,9 @@
-import { Logger } from "../logger";
-import { AcceptedActionOutput, ActionInput } from "./action";
-import { LexerBuildOptions } from "./builder";
+import type { Logger } from "../logger";
+import type { AcceptedActionOutput} from "./action";
+import { ActionInput } from "./action";
+import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import { Definition, ILexer, Token } from "./model";
+import type { Definition, ILexer, Token } from "./model";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */

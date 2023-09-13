@@ -1,22 +1,24 @@
-import { ILexer } from "../../../lexer";
-import { ASTNodeSelector, ASTNode, ASTNodeFirstMatchSelector } from "../../ast";
-import {
+import type { ILexer } from "../../../lexer";
+import type { ASTNodeSelector, ASTNodeFirstMatchSelector } from "../../ast";
+import { ASTNode } from "../../ast";
+import type {
   ParserBuilderData,
   ResolvedTempConflict,
   TempGrammarRule,
 } from "../builder";
 import { defToTempGRs } from "../builder/utils/definition";
-import {
-  ConflictType,
+import type {
   Grammar,
   GrammarRepo,
   GrammarRule,
-  GrammarRuleRepo,
+  GrammarRuleRepo} from "../model";
+import {
+  ConflictType,
   GrammarSet,
   GrammarType,
 } from "../model";
-import { CandidateRepo } from "./candidate";
-import { StateRepo } from "./state";
+import type { CandidateRepo } from "./candidate";
+import type { StateRepo } from "./state";
 
 export function getAllNTClosure<
   ASTData,

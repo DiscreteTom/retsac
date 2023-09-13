@@ -1,6 +1,6 @@
-import { ILexer } from "../../../lexer";
-import { ASTNode } from "../../ast";
-import { Callback, GrammarRuleContext } from "./context";
+import type { ILexer } from "../../../lexer";
+import type { ASTNode } from "../../ast";
+import type { Callback, GrammarRuleContext } from "./context";
 
 export type ReLexStack<
   State,

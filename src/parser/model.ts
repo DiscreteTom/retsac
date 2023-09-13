@@ -1,6 +1,6 @@
-import { ILexer } from "../lexer";
-import { Logger } from "../logger";
-import { ASTNode } from "./ast";
+import type { ILexer } from "../lexer";
+import type { Logger } from "../logger";
+import type { ASTNode } from "./ast";
 
 export type AcceptedParserOutput<
   ASTData,

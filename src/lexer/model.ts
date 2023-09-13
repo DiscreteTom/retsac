@@ -1,5 +1,5 @@
-import { Logger } from "../logger";
-import { Action } from "./action";
+import type { Logger } from "../logger";
+import type { Action } from "./action";
 
 /** The output of a lexer. */
 export type Token<ErrorType, Kinds extends string> = {

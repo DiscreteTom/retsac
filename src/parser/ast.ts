@@ -1,4 +1,4 @@
-import { Token } from "../lexer";
+import type { Token } from "../lexer";
 import { StringCache } from "./cache";
 import { InvalidTraverseError } from "./error";
 

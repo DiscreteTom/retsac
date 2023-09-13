@@ -1,4 +1,4 @@
-import { IParserBuilder } from "../../model";
+import type { IParserBuilder } from "../../model";
 
 export function applyResolvers<
   ASTData,

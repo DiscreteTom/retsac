@@ -6,9 +6,10 @@ import {
   NoRenameTargetError,
   TokenizeGrammarRuleFailedError,
 } from "../error";
-import {
+import type {
   Definition,
-  DefinitionContext,
+  DefinitionContext} from "../model";
+import {
   TempGrammar,
   TempGrammarRule,
   TempGrammarType,

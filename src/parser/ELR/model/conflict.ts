@@ -1,5 +1,5 @@
-import { Condition } from "./context";
-import { GrammarRule, GrammarSet } from "./grammar";
+import type { Condition } from "./context";
+import type { GrammarRule, GrammarSet } from "./grammar";
 import type { ParserBuilder } from "../builder";
 import type { DefinitionContextBuilder } from "../builder";
 

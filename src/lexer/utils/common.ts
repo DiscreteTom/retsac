@@ -1,4 +1,5 @@
-import { Action, ActionInput } from "../action";
+import type { ActionInput } from "../action";
+import { Action } from "../action";
 
 /**
  * Escape regex special characters.

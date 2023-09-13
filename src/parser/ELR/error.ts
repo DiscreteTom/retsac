@@ -1,5 +1,5 @@
-import { ASTNode } from "../ast";
-import { State } from "./DFA";
+import type { ASTNode } from "../ast";
+import type { State } from "./DFA";
 
 export type ELR_RuntimeErrorType = "STATE_CACHE_MISS";
 

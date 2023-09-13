@@ -1,4 +1,4 @@
-import { ASTNode } from "./ast";
+import type { ASTNode } from "./ast";
 
 export type ParserErrorType = "INVALID_TRAVERSE";
 

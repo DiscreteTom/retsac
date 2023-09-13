@@ -1,14 +1,15 @@
-import { Logger } from "../../../../logger";
-import { DFA } from "../../DFA";
-import {
+import type { Logger } from "../../../../logger";
+import type { DFA } from "../../DFA";
+import type {
   GrammarRule,
-  GrammarSet,
   Grammar,
-  GrammarType,
   Conflict,
-  ConflictType,
   GrammarRepo,
-  GrammarRuleRepo,
+  GrammarRuleRepo} from "../../model";
+import {
+  GrammarSet,
+  GrammarType,
+  ConflictType
 } from "../../model";
 import { TooManyEndHandlerError } from "../error";
 

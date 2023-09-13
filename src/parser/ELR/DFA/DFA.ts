@@ -1,18 +1,21 @@
-import { ILexer } from "../../../lexer";
-import { Logger } from "../../../logger";
-import { ASTNode } from "../../ast";
-import { ParserOutput, rejectedParserOutput } from "../../model";
+import type { ILexer } from "../../../lexer";
+import type { Logger } from "../../../logger";
+import type { ASTNode } from "../../ast";
+import type { ParserOutput} from "../../model";
+import { rejectedParserOutput } from "../../model";
+import type {
+  GrammarRule,
+  ReLexStack,
+  RollbackStack} from "../model";
 import {
   GrammarRepo,
-  GrammarRule,
   GrammarRuleRepo,
-  GrammarSet,
-  ReLexStack,
-  RollbackStack,
+  GrammarSet
 } from "../model";
 import { CandidateRepo } from "./candidate";
-import { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
-import { State, StateRepo } from "./state";
+import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
+import type { State} from "./state";
+import { StateRepo } from "./state";
 import { map2serializable, serializable2map } from "./utils";
 
 /**

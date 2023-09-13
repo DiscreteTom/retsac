@@ -1,7 +1,7 @@
-import { ILexer } from "../../../lexer";
-import { IParser } from "../../model";
+import type { ILexer } from "../../../lexer";
+import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
-import {
+import type {
   Definition,
   DefinitionContextBuilder,
   RR_ResolverOptions,

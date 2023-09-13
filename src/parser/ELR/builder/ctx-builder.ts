@@ -1,12 +1,13 @@
-import { Traverser } from "../../ast";
-import {
+import type { Traverser } from "../../ast";
+import type {
   Callback,
   Condition,
+  Reducer} from "../model";
+import {
   ConflictType,
-  Reducer,
   ResolverHydrationType,
 } from "../model";
-import {
+import type {
   DefinitionContext,
   Definition,
   ResolvedPartialTempConflict,

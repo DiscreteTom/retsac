@@ -1,4 +1,4 @@
-import { GrammarSet } from "../model";
+import type { GrammarSet } from "../model";
 
 /**
  * `NT => Grammars`

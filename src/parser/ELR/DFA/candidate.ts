@@ -1,19 +1,21 @@
-import { ILexer } from "../../../lexer";
-import { Logger } from "../../../logger";
+import type { ILexer } from "../../../lexer";
+import type { Logger } from "../../../logger";
 import { ASTNode } from "../../ast";
-import {
+import type {
   AcceptedParserOutput,
-  RejectedParserOutput,
+  RejectedParserOutput} from "../../model";
+import {
   rejectedParserOutput,
 } from "../../model";
-import {
+import type {
   GrammarRule,
-  GrammarRuleContext,
-  ConflictType,
   Grammar,
-  GrammarRuleRepo,
+  GrammarRuleRepo} from "../model";
+import {
+  GrammarRuleContext,
+  ConflictType
 } from "../model";
-import { ReadonlyFollowSets } from "./model";
+import type { ReadonlyFollowSets } from "./model";
 import {
   ASTNodeFirstMatchSelectorFactory,
   ASTNodeSelectorFactory,

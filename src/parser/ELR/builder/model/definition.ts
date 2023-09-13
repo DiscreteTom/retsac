@@ -1,6 +1,6 @@
-import { Traverser } from "../../../ast";
-import { Callback, Condition } from "../../model";
-import { ResolvedPartialTempConflict } from "./resolver";
+import type { Traverser } from "../../../ast";
+import type { Callback, Condition } from "../../model";
+import type { ResolvedPartialTempConflict } from "./resolver";
 
 // TODO: apply this in Definition?
 type JoinableString<

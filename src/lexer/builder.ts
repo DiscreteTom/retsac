@@ -1,6 +1,7 @@
-import { Action, ActionSource } from "./action";
+import type { ActionSource } from "./action";
+import { Action } from "./action";
 import { Lexer } from "./lexer";
-import { Definition, ILexer } from "./model";
+import type { Definition, ILexer } from "./model";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<any, any>, "logger" | "debug">

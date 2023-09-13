@@ -1,14 +1,15 @@
-import {
+import type {
   GrammarRule,
   BuilderDecorator,
   BuildOptions,
   IParserBuilder,
   Conflict,
+  SerializableParserData,
+  Condition} from "../model";
+import {
   ConflictType,
   GrammarRepo,
   GrammarRuleRepo,
-  SerializableParserData,
-  Condition,
   GrammarSet,
   ResolverHydrationType,
 } from "../model";
@@ -24,7 +25,7 @@ import {
   UnknownGrammarError,
 } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
-import {
+import type {
   ParserBuilderData,
   ResolvedTempConflict,
   RR_ResolverOptions,
@@ -34,10 +35,10 @@ import {
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
-import { ILexer } from "../../../lexer";
+import type { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-import { Logger } from "../../../logger";
+import type { Logger } from "../../../logger";
 
 // type only import for js doc
 import type { AdvancedBuilder } from "../advanced/builder";

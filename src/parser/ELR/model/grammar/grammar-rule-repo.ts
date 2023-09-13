@@ -1,5 +1,5 @@
-import { TempGrammarRule } from "../../builder";
-import { GrammarRepo } from "./grammar-repo";
+import type { TempGrammarRule } from "../../builder";
+import type { GrammarRepo } from "./grammar-repo";
 import { GrammarRule } from "./grammar-rule";
 
 /**

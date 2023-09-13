@@ -1,15 +1,16 @@
-import { ILexer } from "../../../lexer";
-import { Logger } from "../../../logger";
-import { ResolvedTempConflict, ParserBuilderData } from "../builder";
+import type { ILexer } from "../../../lexer";
+import type { Logger } from "../../../logger";
+import type { ResolvedTempConflict, ParserBuilderData } from "../builder";
+import type {
+  GrammarRepo} from "../model";
 import {
-  GrammarRepo,
   GrammarRule,
   GrammarRuleRepo,
   GrammarSet,
   GrammarType,
 } from "../model";
 import { CandidateRepo } from "./candidate";
-import {
+import type {
   FirstSets,
   FollowSets,
   ReadonlyFirstSets,
