@@ -1,4 +1,4 @@
-import { AtLeastOneOf } from "../../../../utils";
+import { AtLeastOneOf } from "../../../../type-helper";
 import { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import { Definition } from "./definition";
 import { TempGrammarRule } from "./temp-grammar";

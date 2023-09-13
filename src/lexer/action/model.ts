@@ -1,4 +1,4 @@
-import { AtLeastOneOf } from "../../utils";
+import { AtLeastOneOf } from "../../type-helper";
 
 // This has to be a class, since we need to cache the `rest` of the input.
 export class AcceptedActionOutput<ErrorType> {
