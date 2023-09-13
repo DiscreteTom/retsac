@@ -1,11 +1,11 @@
 import { CaretNotAllowedError } from "../error";
+import { ActionInput } from "./input";
 import {
-  ActionInput,
   ActionOutput,
   SimpleAcceptedActionOutput,
-  AcceptedActionOutput,
   rejectedActionOutput,
-} from "./model";
+  AcceptedActionOutput,
+} from "./output";
 
 export type ActionExec<ErrorType> = (
   input: Readonly<ActionInput>

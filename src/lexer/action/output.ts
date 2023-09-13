@@ -59,33 +59,10 @@ export type ActionOutput<ErrorType> =
   | typeof rejectedActionOutput
   | AcceptedActionOutput<ErrorType>;
 
-export class ActionInput {
-  /** The whole input string. */
-  readonly buffer: string;
-  /** From where to lex. */
-  readonly start: number;
-  private _rest?: string;
-
-  constructor(
-    data: Pick<ActionInput, "buffer" | "start"> &
-      // maybe the rest is provided by the last accepted action's output
-      // or is calculated by lexer.getRest
-      Partial<Pick<ActionInput, "rest">>
-  ) {
-    this.buffer = data.buffer;
-    this.start = data.start;
-    this._rest = data.rest;
-  }
-
-  /**
-   * The rest of the input, equals to `input.slice(start)`.
-   * This is lazy and cached.
-   */
-  get rest() {
-    return this._rest ?? (this._rest = this.buffer.slice(this.start));
-  }
-}
-
+/**
+ * The simple version of `AcceptedActionOutput`.
+ * Users can use this type to create an action output.
+ */
 export type SimpleAcceptedActionOutput<ErrorType> = Partial<
   Pick<
     AcceptedActionOutput<ErrorType>,
