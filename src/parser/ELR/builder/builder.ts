@@ -41,6 +41,7 @@ import { Logger } from "../../../model";
 
 // type only import for js doc
 import type { AdvancedBuilder } from "../advanced/builder";
+import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
 
 /**
  * Builder for ELR parsers.
@@ -147,67 +148,6 @@ export class ParserBuilder<
       Kinds | Append,
       LexerKinds
     >;
-  }
-
-  /**
-   * Ensure all T/NTs have their definitions, and no duplication, and all literals are valid.
-   * If ok, return this.
-   */
-  private checkSymbols<LexerKinds extends string>(
-    NTs: ReadonlySet<string>,
-    Ts: ReadonlySet<string>,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-    printAll: boolean,
-    logger: Logger
-  ) {
-    // all grammar symbols should have its definition, either in NTs or Ts
-    grs.grammarRules.forEach((gr) => {
-      gr.rule.forEach((g) => {
-        if (g.text == undefined) {
-          // N/NT
-          if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
-            const e = new UnknownGrammarError(g.kind);
-            if (printAll) logger(e.message);
-            else throw e;
-          }
-        }
-      });
-    });
-
-    // check duplication
-    NTs.forEach((name) => {
-      if (Ts.has(name)) {
-        const e = new DuplicatedDefinitionError(name);
-        if (printAll) logger(e.message);
-        else throw e;
-      }
-    });
-
-    // entry NTs must in NTs
-    this.entryNTs.forEach((NT) => {
-      if (!NTs.has(NT)) {
-        const e = new UnknownEntryNTError(NT);
-        if (printAll) logger(e.message);
-        else throw e;
-      }
-    });
-
-    // all literals must be able to be tokenized by lexer
-    // this is this already checked when GrammarRepo create the grammar
-    // lexer = lexer.dryClone();
-    // grs.grammarRules.forEach((gr) => {
-    //   gr.rule.forEach((grammar) => {
-    //     if (grammar.text != undefined) {
-    //       if (lexer.reset().lex(grammar.text!) == null) {
-    //         const e = new InvalidLiteralError(grammar.text!);
-    //         if (printAll) logger(e.message);
-    //         else throw e;
-    //       }
-    //     }
-    //   });
-    // });
-
-    return this;
   }
 
   private buildDFA(
@@ -367,7 +307,14 @@ export class ParserBuilder<
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
-      this.checkSymbols(NTs, lexer.getTokenKinds(), grs, printAll, logger);
+      checkSymbols(
+        this.entryNTs,
+        NTs,
+        lexer.getTokenKinds(),
+        grs,
+        printAll,
+        logger
+      );
 
     // deal with conflicts
     if (
@@ -382,19 +329,12 @@ export class ParserBuilder<
         this.generateResolvers(unresolved, options.generateResolvers, logger);
 
       if (options?.checkAll || options?.checkConflicts)
-        this.checkConflicts(dfa, unresolved, grs, printAll, logger);
+        checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
     }
 
     // ensure no rollback if rollback is not enabled
-    if ((options?.checkAll || options?.checkRollback) && !rollback) {
-      grs.grammarRules.forEach((gr) => {
-        if (gr.rollback !== undefined) {
-          const e = new RollbackDefinedWhileNotEnabledError(gr);
-          if (printAll) logger(e);
-          else throw e;
-        }
-      });
-    }
+    if ((options?.checkAll || options?.checkRollback) && !rollback)
+      checkRollbacks(grs, printAll, logger);
 
     return {
       parser: new Parser(dfa, lexer),
@@ -405,101 +345,6 @@ export class ParserBuilder<
             >)
           : undefined,
     };
-  }
-
-  /**
-   * Ensure all reduce-shift and reduce-reduce conflicts are resolved.
-   * If ok, return this.
-   *
-   * If `printAll` is true, print all conflicts instead of throwing error.
-   */
-  private checkConflicts(
-    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>,
-    unresolved: ReadonlyMap<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
-      Conflict<ASTData, ErrorType, Kinds, LexerKinds>[]
-    >,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-    printAll: boolean,
-    logger: Logger
-  ) {
-    const followSets = dfa.followSets;
-
-    // ensure all conflicts are resolved
-    unresolved.forEach((cs, gr) => {
-      cs.forEach((c) => {
-        const err = new ConflictError(gr, c);
-        if (printAll) logger(err.message);
-        else throw err;
-      });
-    });
-
-    // ensure all grammar rules resolved are appeared in the grammar rules
-    // this is done in `buildDFA`
-
-    // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
-    grs.grammarRules.forEach((reducerRule) => {
-      reducerRule.resolved.forEach((g) => {
-        if (g.next == "*") return;
-        g.next.grammars.forEach((n) => {
-          if (!followSets.get(reducerRule.NT)!.has(n)) {
-            const err = new NextGrammarNotFoundError(n, reducerRule.NT);
-            if (printAll) logger(err.message);
-            else throw err;
-          }
-        });
-      });
-    });
-
-    // ensure all resolved are indeed conflicts
-    grs.grammarRules.forEach((reducerRule) => {
-      reducerRule.resolved.forEach((c) => {
-        // check next
-        if (c.next != "*")
-          c.next.grammars.forEach((n) => {
-            if (
-              !reducerRule.conflicts.some(
-                (conflict) =>
-                  c.anotherRule == conflict.anotherRule &&
-                  c.type == conflict.type &&
-                  conflict.next.some((nn) => n.equalWithoutName(nn)) // don't use `==` here since we don't want to compare grammar name
-              )
-            ) {
-              const err = new NoSuchConflictError(
-                reducerRule,
-                c.anotherRule,
-                c.type,
-                [n],
-                false
-              );
-              if (printAll) logger(err.message);
-              else throw err;
-            }
-          });
-        // check handleEnd
-        if (
-          c.next != "*" &&
-          c.handleEnd &&
-          reducerRule.conflicts.some(
-            (conflict) =>
-              c.anotherRule == conflict.anotherRule &&
-              c.type == conflict.type &&
-              conflict.handleEnd
-          )
-        ) {
-          const err = new NoSuchConflictError(
-            reducerRule,
-            c.anotherRule,
-            c.type,
-            [],
-            true
-          );
-          if (printAll) logger(err.message);
-          else throw err;
-        }
-      });
-    });
-    return this;
   }
 
   private generateResolvers(
