@@ -1,5 +1,5 @@
 import { ILexer } from "../../../../lexer";
-import { Logger } from "../../../../model";
+import { Logger } from "../../../../logger";
 import { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
 import { Callback, Condition, GrammarRepo } from "../../model";

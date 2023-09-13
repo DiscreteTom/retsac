@@ -1,4 +1,4 @@
-import { Logger } from "../model";
+import { Logger } from "../logger";
 import { AcceptedActionOutput, ActionInput } from "./action";
 import { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";

@@ -1,4 +1,4 @@
-import { Logger } from "../../../../model";
+import { Logger } from "../../../../logger";
 import { DFA } from "../../DFA";
 import {
   GrammarRule,

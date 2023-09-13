@@ -37,7 +37,7 @@ import { DFA, DFABuilder } from "../DFA";
 import { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-import { Logger } from "../../../model";
+import { Logger } from "../../../logger";
 
 // type only import for js doc
 import type { AdvancedBuilder } from "../advanced/builder";

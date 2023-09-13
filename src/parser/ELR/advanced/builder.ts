@@ -1,5 +1,5 @@
 import { ILexer } from "../../../lexer";
-import { Logger } from "../../../model";
+import { Logger } from "../../../logger";
 import {
   Definition,
   ParserBuilder,

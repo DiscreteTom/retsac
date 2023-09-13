@@ -1,5 +1,5 @@
 import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
-import { Logger } from "../../../../model";
+import { Logger } from "../../../../logger";
 import { IParser } from "../../../model";
 import {
   Definition,

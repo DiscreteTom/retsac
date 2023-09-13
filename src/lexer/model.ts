@@ -1,4 +1,4 @@
-import { Logger } from "../model";
+import { Logger } from "../logger";
 import { Action } from "./action";
 
 /** The output of a lexer. */

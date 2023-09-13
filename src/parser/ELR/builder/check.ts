@@ -1,4 +1,4 @@
-import { Logger } from "../../../model";
+import { Logger } from "../../../logger";
 import { ReadonlyFollowSets } from "../DFA";
 import { Conflict, GrammarRule, GrammarRuleRepo } from "../model";
 import {
