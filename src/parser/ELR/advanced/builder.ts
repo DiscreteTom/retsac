@@ -81,6 +81,8 @@ export class AdvancedBuilder<
     lexer: ILexer<any, LexerKinds>,
     options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
   ) {
+    // TODO: if hydrate, just super.build
+
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
 
