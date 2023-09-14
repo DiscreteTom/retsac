@@ -56,7 +56,7 @@ export class ParserBuilder<
     ErrorType,
     Kinds,
     LexerKinds
-  > = [];
+  >[] = [];
   private readonly entryNTs: Set<string>;
   /**
    * Resolved temporary conflicts.
@@ -158,7 +158,7 @@ export class ParserBuilder<
         ErrorType,
         Kinds | Append,
         LexerKinds
-      >
+      >[]
     ).push({
       defs,
       ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),

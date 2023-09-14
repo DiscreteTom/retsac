@@ -255,7 +255,9 @@ export function processDefinitions<
   Kinds extends string,
   LexerKinds extends string,
 >(
-  data: Readonly<ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>>,
+  data: readonly Readonly<
+    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
+  >[],
   resolvedTemp: readonly Readonly<
     ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
   >[],

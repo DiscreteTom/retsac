@@ -12,4 +12,4 @@ export type ParserBuilderData<
 > = {
   defs: Definition<Kinds>;
   ctxBuilder?: DefinitionContextBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
-}[];
+};
