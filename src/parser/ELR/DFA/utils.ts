@@ -46,8 +46,8 @@ export function getAllNTClosure<
 /**
  * Get all direct/indirect grammar rules which can reduce to the specified NT.
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
- * When we construct DFA state, if we have `X <= @ A`, we should also have `A <= @ B 'c'` and `B <= @ 'd'`.
- * In this case, `A <= @ B 'c'` and `B <= @ 'd'` are the closure of the NT 'A'.
+ * When we construct DFA state, if we have `X <= # A`, we should also have `A <= # B 'c'` and `B <= # 'd'`.
+ * In this case, `A <= # B 'c'` and `B <= # 'd'` are the closure of the NT 'A'.
  */
 export function getNTClosure<
   ASTData,
@@ -72,7 +72,7 @@ export function getNTClosure<
 /**
  * If a rule starts with NT, merge result with that NT's grammar rules.
  * E.g. knowing `A <= B 'c'` and `B <= 'd'`, we can infer `A <= 'd' 'c'`.
- * When we construct DFA state, if we have `A <= @ B 'c'`, we should also have `B <= @ 'd'`.
+ * When we construct DFA state, if we have `A <= # B 'c'`, we should also have `B <= # 'd'`.
  */
 export function getGrammarRulesClosure<
   ASTData,
