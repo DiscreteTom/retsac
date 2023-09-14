@@ -2,7 +2,7 @@ import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
 import type { Conflict, ResolvedConflict } from "../conflict";
 import type { Callback, Condition } from "../context";
-import { ruleStartsWith, ruleEndsWith } from "../util";
+import { ruleStartsWith, ruleEndsWith } from "./utils";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 import type { GrammarRuleRepo } from "./grammar-rule-repo";
