@@ -1,6 +1,6 @@
 import type { Logger } from "../../../logger";
 import type { ReadonlyFollowSets } from "../DFA";
-import type { Conflict, GrammarRule, GrammarRuleRepo } from "../model";
+import type { Conflict, GrammarRule, ReadonlyGrammarRuleRepo } from "../model";
 import {
   UnknownGrammarError,
   DuplicatedDefinitionError,
@@ -26,8 +26,7 @@ export function checkSymbols<
   NTs: ReadonlySet<string>,
   Ts: ReadonlySet<string>,
   // grammar rule repo is already readonly
-  // TODO: rename GrammarRuleRepo to ReadonlyGrammarRuleRepo?
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
   logger: Logger,
 ) {
@@ -95,7 +94,7 @@ export function checkConflicts<
     Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
     readonly Readonly<Conflict<ASTData, ErrorType, Kinds, LexerKinds>>[]
   >,
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
   logger: Logger,
 ) {
@@ -186,7 +185,7 @@ export function checkRollbacks<
   Kinds extends string,
   LexerKinds extends string,
 >(
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
   logger: Logger,
 ) {

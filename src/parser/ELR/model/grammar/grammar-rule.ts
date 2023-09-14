@@ -5,7 +5,7 @@ import type { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "./utils";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
-import type { GrammarRuleRepo } from "./grammar-rule-repo";
+import type { ReadonlyGrammarRuleRepo } from "./grammar-rule-repo";
 import { GrammarSet } from "./grammar-set";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ParserBuilder } from "../../builder";
@@ -180,7 +180,7 @@ export class GrammarRule<
 
   toJSON(
     repo: GrammarRepo<Kinds | LexerKinds>,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     return {
       NT: this.NT,
@@ -231,7 +231,7 @@ export class GrammarRule<
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
-      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+      grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     ) => {
       gr.resolved.push(
         ...data.resolved.map((r) => ({

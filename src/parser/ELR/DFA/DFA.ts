@@ -4,7 +4,7 @@ import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import type { GrammarRule, ReLexStack, RollbackStack } from "../model";
-import { GrammarRepo, GrammarRuleRepo, GrammarSet } from "../model";
+import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
@@ -23,7 +23,7 @@ export class DFA<
   LexerError,
 > {
   constructor(
-    readonly grammarRules: GrammarRuleRepo<
+    readonly grammarRules: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
@@ -283,10 +283,12 @@ export class DFA<
   ) {
     const NTs = new Set(data.NTs);
     const grammars = GrammarRepo.fromJSON(data.grammars);
-    const grs = GrammarRuleRepo.fromJSON<ASTData, ErrorType, Kinds, LexerKinds>(
-      data.grammarRules,
-      grammars,
-    );
+    const grs = ReadonlyGrammarRuleRepo.fromJSON<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds
+    >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
       ASTData,
       ErrorType,

@@ -6,7 +6,8 @@ import { GrammarRule } from "./grammar-rule";
  * A set of different grammar rules, grammar's name will be included.
  * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
  */
-export class GrammarRuleRepo<
+// GrammarRuleRepo is always readonly since all inner grammar rules are created before the repo is created.
+export class ReadonlyGrammarRuleRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
@@ -76,9 +77,14 @@ export class GrammarRuleRepo<
     repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const callbacks = [] as ((
-      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+      grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     ) => void)[];
-    const res = new GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>(
+    const res = new ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds
+    >(
       data.map((d) => {
         const { gr, restoreConflicts } = GrammarRule.fromJSON<
           ASTData,

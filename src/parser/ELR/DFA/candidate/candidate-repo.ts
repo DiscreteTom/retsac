@@ -1,4 +1,4 @@
-import type { GrammarRule, GrammarRuleRepo } from "../../model";
+import type { GrammarRule, ReadonlyGrammarRuleRepo } from "../../model";
 import { Candidate } from "./candidate";
 
 /**
@@ -90,7 +90,7 @@ export class CandidateRepo<
     return next;
   }
 
-  toJSON(grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>) {
+  toJSON(grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>) {
     const res = [] as ReturnType<
       Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >[];
@@ -108,7 +108,7 @@ export class CandidateRepo<
     data: ReturnType<
       CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   ): ReadonlyCandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     const callbacks = [] as ((
       cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,

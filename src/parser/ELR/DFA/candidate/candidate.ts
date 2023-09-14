@@ -7,7 +7,11 @@ import type {
   AcceptedParserOutput,
 } from "../../../output";
 import { rejectedParserOutput } from "../../../output";
-import type { GrammarRule, Grammar, GrammarRuleRepo } from "../../model";
+import type {
+  GrammarRule,
+  Grammar,
+  ReadonlyGrammarRuleRepo,
+} from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
 import { nonNullFilter } from "../../utils";
 import type { ReadonlyFollowSets } from "../model";
@@ -381,7 +385,7 @@ export class Candidate<
   }
 
   toJSON(
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     cs: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
@@ -411,7 +415,7 @@ export class Candidate<
     data: ReturnType<
       Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
       gr: grs.getByString(data.gr)!,

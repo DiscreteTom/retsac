@@ -5,7 +5,7 @@ import type {
   Grammar,
   Conflict,
   GrammarRepo,
-  GrammarRuleRepo,
+  ReadonlyGrammarRuleRepo,
 } from "../../model";
 import { GrammarSet, GrammarType, ConflictType } from "../../model";
 import { TooManyEndHandlerError } from "../error";
@@ -23,7 +23,7 @@ function getEndSet<
 >(
   repo: GrammarRepo<Kinds | LexerKinds>,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
 ) {
   const result = new GrammarSet<Kinds | LexerKinds>();
 
@@ -153,7 +153,7 @@ export function getConflicts<
 >(
   repo: GrammarRepo<Kinds | LexerKinds>,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   debug: boolean,
   logger: Logger,
@@ -340,7 +340,7 @@ export function getUnresolvedConflicts<
   Kinds extends string,
   LexerKinds extends string,
 >(
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   debug: boolean,
   logger: Logger,
 ) {

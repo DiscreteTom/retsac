@@ -15,7 +15,7 @@ import type {
   Grammar,
   GrammarRepo,
   GrammarRule,
-  GrammarRuleRepo,
+  ReadonlyGrammarRuleRepo,
 } from "../model";
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
@@ -28,7 +28,12 @@ export function getAllNTClosure<
   LexerKinds extends string,
 >(
   NTs: ReadonlySet<string>,
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allGrammarRules: ReadonlyGrammarRuleRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >,
 ): Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
   const result = new Map<
     string,
@@ -51,7 +56,12 @@ export function getNTClosure<
   LexerKinds extends string,
 >(
   NT: string,
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allGrammarRules: ReadonlyGrammarRuleRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >,
 ): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
@@ -71,7 +81,12 @@ export function getGrammarRulesClosure<
   LexerKinds extends string,
 >(
   rules: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allGrammarRules: ReadonlyGrammarRuleRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >,
 ): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   const result = [...rules];
 
@@ -198,7 +213,12 @@ export function calculateAllStates<
   LexerError,
 >(
   repo: GrammarRepo<Kinds | LexerKinds>,
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allGrammarRules: ReadonlyGrammarRuleRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >,
   allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   NTClosures: Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
   cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,

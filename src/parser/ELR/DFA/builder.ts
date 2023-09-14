@@ -4,7 +4,7 @@ import type { ResolvedTempConflict, ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
 import {
   GrammarRule,
-  GrammarRuleRepo,
+  ReadonlyGrammarRuleRepo,
   GrammarSet,
   GrammarType,
 } from "../model";
@@ -49,7 +49,7 @@ export class DFABuilder {
     >(data, resolvedTemp);
 
     // transform temp grammar rules to grammar rules
-    const grs = new GrammarRuleRepo(
+    const grs = new ReadonlyGrammarRuleRepo(
       tempGrammarRules.map(
         (gr) =>
           new GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>({
