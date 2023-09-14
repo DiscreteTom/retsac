@@ -627,11 +627,13 @@ export class ParserBuilder<
       gr.traverser = ctxs[gr.hydrationId]?.traverser;
 
       gr.resolved.forEach((r) => {
-        r.accepter =
-          r.hydrationId.type == ResolverHydrationType.BUILDER
-            ? this.resolvedTemp[r.hydrationId.index].options.accept ?? true
-            : ctxs[gr.hydrationId]?.resolved?.[r.hydrationId.index]?.accept ??
-              true;
+        if (r.hydrationId !== undefined) {
+          r.accepter = (
+            r.hydrationId.type == ResolverHydrationType.BUILDER
+              ? this.resolvedTemp[r.hydrationId.index].options.accept
+              : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
+          ) as Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+        }
       });
     });
 

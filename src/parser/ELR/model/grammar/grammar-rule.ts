@@ -199,8 +199,8 @@ export class GrammarRule<
         handleEnd: r.handleEnd,
         next:
           r.next == "*" ? ("*" as const) : r.next.map((g) => repo.getKey(g)),
-        // accepter
-        hydrationId: r.hydrationId,
+        accepter: r.hydrationId === undefined ? r.accepter : undefined,
+        hydrationId: r.hydrationId === undefined ? undefined : r.hydrationId,
       })),
       str: this.str.value,
       strWithGrammarName: this.strWithGrammarName.value,
@@ -234,17 +234,32 @@ export class GrammarRule<
       grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     ) => {
       gr.resolved.push(
-        ...data.resolved.map((r) => ({
-          type: r.type,
-          anotherRule: grs.getByString(r.anotherRule)!,
-          handleEnd: r.handleEnd,
-          next:
-            r.next == "*"
-              ? ("*" as const)
-              : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
-          accepter: false, // accepter will be restored when hydrate
-          hydrationId: r.hydrationId,
-        })),
+        ...data.resolved.map((r) =>
+          r.hydrationId == undefined
+            ? {
+                type: r.type,
+                anotherRule: grs.getByString(r.anotherRule)!,
+                handleEnd: r.handleEnd,
+                next:
+                  r.next == "*"
+                    ? ("*" as const)
+                    : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
+                accepter: r.accepter!,
+                hydrationId: undefined,
+              }
+            : {
+                type: r.type,
+                anotherRule: grs.getByString(r.anotherRule)!,
+                handleEnd: r.handleEnd,
+                next:
+                  r.next == "*"
+                    ? ("*" as const)
+                    : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
+                // accepter will be restored when hydrate if hydration id is provided.
+                accepter: () => true,
+                hydrationId: r.hydrationId,
+              },
+        ),
       );
       gr.conflicts.push(
         ...data.conflicts.map((c) => ({

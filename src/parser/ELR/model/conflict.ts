@@ -70,9 +70,19 @@ export type ResolvedConflict<
   next:
     | Pick<Conflict<ASTData, ErrorType, Kinds, LexerKinds>, "next">["next"]
     | "*";
-  /**
-   * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
-   */
-  accepter: boolean | Condition<ASTData, ErrorType, Kinds, LexerKinds>;
-  hydrationId: Readonly<ResolverHydrationId>;
-};
+} & (
+    | {
+        /**
+         * If the value is `true` or the condition is met, the conflict will be resolved by accepting the reducer rule.
+         */
+        accepter: boolean;
+        hydrationId: undefined; // we don't need to hydrate if the accepter is a boolean
+      }
+    | {
+        accepter: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+        /**
+         * If the accepter is not a boolean, we need this hydration ID to restore the accepter.
+         */
+        hydrationId: Readonly<ResolverHydrationId>;
+      }
+  );
