@@ -152,8 +152,8 @@ export function regexLiteral<ErrorType = string>(options?: {
 }): Action<ErrorType> {
   const action =
     options?.boundary ?? true
-      ? Action.from<ErrorType>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
-      : Action.from<ErrorType>(/\/(?:[^\/\\]|\\.)+\/(?:[gimuy]*)/);
+      ? Action.from<ErrorType>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
+      : Action.from<ErrorType>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/);
 
   const err = options?.invalidError ?? ("invalid regex literal" as ErrorType);
 

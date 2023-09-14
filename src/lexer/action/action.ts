@@ -188,7 +188,7 @@ export class Action<ErrorType = string> {
     return new Action<NewErrorType>((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
-        const converted = output as any as AcceptedActionOutput<NewErrorType>;
+        const converted = output as unknown as AcceptedActionOutput<NewErrorType>;
         converted.error = condition(output);
         return converted;
       }
@@ -203,7 +203,7 @@ export class Action<ErrorType = string> {
     return new Action((input) => {
       const output = this.exec(input);
       if (output.accept) {
-        const converted = output as any as AcceptedActionOutput<NewErrorType>;
+        const converted = output as unknown as AcceptedActionOutput<NewErrorType>;
         converted.error = error;
         return converted;
       }

@@ -4,11 +4,11 @@ import { Grammar, GrammarType } from "./grammar";
  * A set of different grammars, include the name.
  * This is used to manage the creation of grammars, to prevent creating the same grammar twice.
  */
-export class GrammarRepo {
+export class GrammarRepo<AllKinds extends string> {
   /**
    * Grammars. {@link Grammar.getGrammarStrWithName} => grammar
    */
-  private gs: Map<string, Grammar>;
+  private gs: Map<string, Grammar<AllKinds>>;
 
   constructor() {
     this.gs = new Map();
@@ -18,25 +18,26 @@ export class GrammarRepo {
     return this.gs.get(str);
   }
 
-  getKey(data: Pick<Grammar, "kind" | "name" | "text">) {
-    if (data instanceof Grammar) return data.grammarStrWithName;
-    return Grammar.getGrammarStrWithName(data);
+  getKey(data: Pick<Grammar<AllKinds>, "kind" | "name" | "text">): string {
+    return data instanceof Grammar
+      ? data.grammarStrWithName
+      : Grammar.getGrammarStrWithName(data);
   }
 
-  get(data: Pick<Grammar, "kind" | "name" | "text">) {
+  get(data: Pick<Grammar<AllKinds>, "kind" | "name" | "text">) {
     return this.getByString(this.getKey(data));
   }
 
   /**
    * Get or create a T grammar.
    */
-  T(kind: string, name?: string) {
+  T(kind: AllKinds, name?: string) {
     name = name ?? kind;
     const str = Grammar.getGrammarStrWithName({ kind, name });
     const res = this.getByString(str);
     if (res !== undefined) return res;
 
-    const g = new Grammar({
+    const g = new Grammar<AllKinds>({
       type: GrammarType.T,
       kind,
       name,
@@ -52,7 +53,7 @@ export class GrammarRepo {
   /**
    * Get or create a NT grammar.
    */
-  NT(kind: string, name?: string) {
+  NT(kind: AllKinds, name?: string) {
     name = name ?? kind;
     const str = Grammar.getGrammarStrWithName({ kind, name });
     const res = this.getByString(str);
@@ -74,7 +75,7 @@ export class GrammarRepo {
   /**
    * Get or create a T grammar with text.
    */
-  Literal(text: string, kind: string, name?: string) {
+  Literal(text: string, kind: AllKinds, name?: string) {
     name = name ?? kind;
     const str = Grammar.getGrammarStrWithName({ kind, name, text });
     const res = this.getByString(str);
@@ -95,13 +96,15 @@ export class GrammarRepo {
   }
 
   toJSON() {
-    const result = [] as ReturnType<Grammar["toJSON"]>[];
+    const result = [] as ReturnType<Grammar<AllKinds>["toJSON"]>[];
     this.gs.forEach((g) => result.push(g.toJSON()));
     return result;
   }
 
-  static fromJSON(data: ReturnType<GrammarRepo["toJSON"]>) {
-    const repo = new GrammarRepo();
+  static fromJSON<AllKinds extends string>(
+    data: ReturnType<GrammarRepo<AllKinds>["toJSON"]>,
+  ) {
+    const repo = new GrammarRepo<AllKinds>();
     data.forEach((d) => repo.gs.set(d.grammarStrWithName, Grammar.fromJSON(d)));
     return repo;
   }

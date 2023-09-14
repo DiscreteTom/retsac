@@ -10,7 +10,7 @@ export class GrammarRuleRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
   /**
    * {@link GrammarRule.strWithGrammarName} => grammar rule
@@ -21,7 +21,7 @@ export class GrammarRuleRepo<
   >;
 
   constructor(
-    grs: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+    grs: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
   ) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.strWithGrammarName.value, gr));
@@ -41,7 +41,7 @@ export class GrammarRuleRepo<
   }
 
   map<R>(
-    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => R
+    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => R,
   ) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
@@ -49,7 +49,9 @@ export class GrammarRuleRepo<
   }
 
   filter(
-    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => boolean
+    callback: (
+      g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+    ) => boolean,
   ) {
     const res = [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[];
     this.grammarRules.forEach((gr) => {
@@ -58,7 +60,7 @@ export class GrammarRuleRepo<
     return res;
   }
 
-  toJSON(repo: GrammarRepo) {
+  toJSON(repo: GrammarRepo<Kinds | LexerKinds>) {
     return this.map((gr) => gr.toJSON(repo, this));
   }
 
@@ -66,15 +68,15 @@ export class GrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
   >(
     data: ReturnType<
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
     >[],
-    repo: GrammarRepo
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const callbacks = [] as ((
-      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     ) => void)[];
     const res = new GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>(
       data.map((d) => {
@@ -86,7 +88,7 @@ export class GrammarRuleRepo<
         >(d, repo);
         callbacks.push(restoreConflicts);
         return gr;
-      })
+      }),
     );
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     callbacks.forEach((c) => c(res));

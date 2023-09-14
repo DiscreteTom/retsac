@@ -4,17 +4,26 @@ export function applyResolvers<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
->(builder: IParserBuilder<ASTData, ErrorType, "gr" | Kinds, LexerKinds>) {
+  LexerKinds extends string,
+  LexerError,
+>(
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    "gr" | Kinds,
+    LexerKinds,
+    LexerError
+  >,
+) {
   return builder
     .priority(
       [{ gr: `gr '?'` }, { gr: `gr '*'` }, { gr: `gr '+'` }],
       { gr: `gr gr` },
-      { gr: `gr '|' gr` }
+      { gr: `gr '|' gr` },
     )
     .priority(
       { gr: `grammar rename | literal rename` },
-      { gr: `grammar | literal` }
+      { gr: `grammar | literal` },
     )
     .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` });
 }

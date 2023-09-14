@@ -1,6 +1,8 @@
 import type { Condition } from "./context";
 import type { GrammarRule, GrammarSet } from "./grammar";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ParserBuilder } from "../builder";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { DefinitionContextBuilder } from "../builder";
 
 export enum ConflictType {
@@ -12,7 +14,7 @@ export interface Conflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
   type: ConflictType;
   /**
@@ -22,7 +24,7 @@ export interface Conflict<
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: GrammarSet;
+  next: GrammarSet<Kinds | LexerKinds>;
   /**
    * Is this a conflict if there is no next input?
    */
@@ -57,7 +59,7 @@ export type ResolvedConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = Pick<
   Conflict<ASTData, ErrorType, Kinds, LexerKinds>,
   "type" | "anotherRule" | "handleEnd"

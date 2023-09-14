@@ -1,19 +1,12 @@
 import * as Lexer from "../../../../lexer";
 import {
-  ELR_BuilderError,
   EmptyLiteralError,
   EmptyRuleError,
   NoRenameTargetError,
   TokenizeGrammarRuleFailedError,
 } from "../error";
-import type {
-  Definition,
-  DefinitionContext} from "../model";
-import {
-  TempGrammar,
-  TempGrammarRule,
-  TempGrammarType,
-} from "../model";
+import type { Definition, DefinitionContext } from "../model";
+import { TempGrammar, TempGrammarRule, TempGrammarType } from "../model";
 
 const ruleLexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
@@ -32,11 +25,11 @@ export function defToTempGRs<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   defs: Definition<Kinds>,
   hydrationId: number = 0,
-  ctx?: DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds>
+  ctx?: DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds>,
 ) {
   const result: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] = [];
 
@@ -102,7 +95,7 @@ export function defToTempGRs<
           commit: ctx?.commit,
           traverser: ctx?.traverser,
           hydrationId,
-        })
+        }),
       );
     });
   }

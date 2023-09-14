@@ -4,7 +4,7 @@ import { Lexer } from "./lexer";
 import type { Definition, ILexer } from "./model";
 
 export type LexerBuildOptions = Partial<
-  Pick<ILexer<any, any>, "logger" | "debug">
+  Pick<ILexer<unknown, string>, "logger" | "debug">
 >;
 
 /**

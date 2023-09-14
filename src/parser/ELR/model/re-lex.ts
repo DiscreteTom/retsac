@@ -7,11 +7,12 @@ export type ReLexStack<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > = {
   readonly stateStack: State[];
   readonly buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  readonly lexer: ILexer<any, LexerKinds>;
+  readonly lexer: ILexer<LexerError, LexerKinds>;
   readonly index: number;
   /**
    * Newly collected errors in that parsing process.
@@ -24,7 +25,7 @@ export type RollbackStack<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = {
   readonly rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
   readonly context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>;

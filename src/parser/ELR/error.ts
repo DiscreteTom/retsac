@@ -12,14 +12,22 @@ export class ELR_RuntimeError extends Error {
   }
 }
 
-export class StateCacheMissError extends ELR_RuntimeError {
+export class StateCacheMissError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+> extends ELR_RuntimeError {
   constructor(
-    public state: Readonly<State<any, any, any, any>>,
-    public node: Readonly<ASTNode<any, any, any>>
+    public state: Readonly<
+      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    >,
+    public node: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>,
   ) {
     super(
       "STATE_CACHE_MISS",
-      `State cache miss for node ${node}, state: ${state} `
+      `State cache miss for node ${node}, state: ${state} `,
     );
     Object.setPrototypeOf(this, StateCacheMissError.prototype);
   }

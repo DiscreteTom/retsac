@@ -5,25 +5,15 @@ import type {
   IParserBuilder,
   Conflict,
   SerializableParserData,
-  Condition} from "../model";
+  Condition,
+} from "../model";
 import {
   ConflictType,
   GrammarRepo,
-  GrammarRuleRepo,
   GrammarSet,
   ResolverHydrationType,
 } from "../model";
-import {
-  ConflictError,
-  DuplicatedDefinitionError,
-  GrammarRuleNotFoundError,
-  NextGrammarNotFoundError,
-  NoEntryNTError,
-  NoSuchConflictError,
-  RollbackDefinedWhileNotEnabledError,
-  UnknownEntryNTError,
-  UnknownGrammarError,
-} from "./error";
+import { GrammarRuleNotFoundError, NoEntryNTError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import type {
   ParserBuilderData,
@@ -39,8 +29,7 @@ import type { ILexer } from "../../../lexer";
 import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import type { Logger } from "../../../logger";
-
-// type only import for js doc
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { AdvancedBuilder } from "../advanced/builder";
 import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
 
@@ -53,10 +42,11 @@ import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
  */
 export class ParserBuilder<
   ASTData,
-  ErrorType = any,
+  ErrorType = unknown,
   Kinds extends string = never,
-  LexerKinds extends string = never
-> implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
+  LexerKinds extends string = never,
+  LexerError = never,
+> implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
   /**
    * Use protected for {@link AdvancedBuilder}
@@ -99,12 +89,36 @@ export class ParserBuilder<
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
+  useLexer<AppendLexerKinds extends string, AppendLexerError>(
+    _lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  ): IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds | AppendLexerKinds,
+    LexerError | AppendLexerError
+  > {
+    return this as IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >;
+  }
+
   entry(
     ...defs: Kinds[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds> {
+  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     this.entryNTs.clear();
     defs.forEach((d) => this.entryNTs.add(d));
-    return this as IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
+    return this as IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >;
   }
 
   /**
@@ -131,7 +145,13 @@ export class ParserBuilder<
       Kinds | Append,
       LexerKinds
     >[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds> {
+  ): IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds | Append,
+    LexerKinds,
+    LexerError
+  > {
     (
       this.data as ParserBuilderData<
         ASTData,
@@ -147,17 +167,18 @@ export class ParserBuilder<
       ASTData,
       ErrorType,
       Kinds | Append,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >;
   }
 
   private buildDFA(
-    lexer: ILexer<any, LexerKinds>,
+    lexer: ILexer<LexerError, LexerKinds>,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
     rollback: boolean,
-    reLex: boolean
+    reLex: boolean,
   ) {
     if (this.entryNTs.size == 0) {
       const e = new NoEntryNTError();
@@ -165,7 +186,7 @@ export class ParserBuilder<
       else throw e;
     }
 
-    const repo = new GrammarRepo();
+    const repo = new GrammarRepo<Kinds | LexerKinds>();
 
     // build the DFA
     const {
@@ -179,14 +200,14 @@ export class ParserBuilder<
       allStates,
       NTs,
       allResolvedTemp,
-    } = DFABuilder.prepare<ASTData, ErrorType, Kinds, LexerKinds>(
+    } = DFABuilder.prepare<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       repo,
       lexer,
       this.entryNTs,
       this.data,
       this.resolvedTemp,
       printAll,
-      logger
+      logger,
     );
     const dfa = new DFA(
       grs,
@@ -203,7 +224,7 @@ export class ParserBuilder<
       rollback,
       reLex,
       debug,
-      logger
+      logger,
     );
 
     // transform resolved temp conflicts to resolved conflicts
@@ -235,8 +256,8 @@ export class ParserBuilder<
               defToTempGRs({
                 "": r.options.next ?? "",
               } as Definition<Kinds>)[0]?.rule.map((g) =>
-                g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content))
-              ) ?? []
+                g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content)),
+              ) ?? [],
             );
 
       const resolved = {
@@ -286,8 +307,8 @@ export class ParserBuilder<
   }
 
   build(
-    lexer: ILexer<any, LexerKinds>,
-    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    lexer: ILexer<LexerError, LexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds>,
   ) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
@@ -314,7 +335,7 @@ export class ParserBuilder<
         lexer.getTokenKinds(),
         grs,
         printAll,
-        logger
+        logger,
       );
 
     // deal with conflicts
@@ -342,7 +363,7 @@ export class ParserBuilder<
       serializable:
         options?.serialize ?? false
           ? ((options?.hydrate ?? this.buildSerializable(dfa)) as Readonly<
-              SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>
+              SerializableParserData<Kinds, LexerKinds>
             >)
           : undefined,
     };
@@ -354,7 +375,7 @@ export class ParserBuilder<
       Conflict<ASTData, ErrorType, Kinds, LexerKinds>[]
     >,
     style: "builder" | "context",
-    logger: Logger
+    logger: Logger,
   ) {
     if (style == "builder") {
       unresolved.forEach((v, reducerRule) => {
@@ -369,7 +390,7 @@ export class ParserBuilder<
                       .map((g) => g.grammarStrWithName)
                       .join(" ")}\`, `
                   : ""
-              }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`
+              }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
           )
           .join("\n");
         logger(txt);
@@ -389,7 +410,7 @@ export class ParserBuilder<
                         .map((g) => g.grammarStrWithName)
                         .join(" ")}\`, `
                     : ""
-                }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`
+                }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
             )
             .join("\n  ");
         logger(txt);
@@ -403,15 +424,15 @@ export class ParserBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     // we don't need grammar rule's hydration ID here
     // since we only want to record conflicts, instead of creating new grammar rules
     const reducerRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      reducerRule
+      reducerRule,
     );
     const anotherRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      anotherRule
+      anotherRule,
     );
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
@@ -433,15 +454,15 @@ export class ParserBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     // we don't need grammar rule's hydration ID here
     // since we only want to record conflicts, instead of creating new grammar rules
     const reducerRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      reducerRule
+      reducerRule,
     );
     const anotherRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      anotherRule
+      anotherRule,
     );
     reducerRules.forEach((r) => {
       anotherRules.forEach((a) => {
@@ -460,21 +481,31 @@ export class ParserBuilder<
     return this;
   }
 
-  use<Append extends string>(
-    f: BuilderDecorator<ASTData, ErrorType, Kinds, LexerKinds, Append>
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds> {
-    return f(this);
-  }
-
-  useLexerKinds<AppendLexerKinds extends string>(
-    ...lexer: (AppendLexerKinds | ILexer<any, AppendLexerKinds>)[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds> {
-    return this as IParserBuilder<
+  use<
+    AppendKinds extends string,
+    AppendLexerKinds extends string,
+    AppendError,
+    AppendLexerError,
+  >(
+    f: BuilderDecorator<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds | AppendLexerKinds
-    >;
+      LexerKinds,
+      LexerError,
+      AppendKinds,
+      AppendLexerKinds,
+      AppendError,
+      AppendLexerError
+    >,
+  ): IParserBuilder<
+    ASTData,
+    ErrorType | AppendError,
+    Kinds | AppendKinds,
+    LexerKinds | AppendLexerKinds,
+    LexerError | AppendLexerError
+  > {
+    return f(this);
   }
 
   priority(...groups: (Definition<Kinds> | Definition<Kinds>[])[]) {
@@ -506,9 +537,9 @@ export class ParserBuilder<
                   accept: false,
                   handleEnd: true,
                 });
-              }
+              },
             );
-          }
+          },
         );
       });
     });
@@ -556,8 +587,8 @@ export class ParserBuilder<
   }
 
   private buildSerializable<LexerKinds extends string>(
-    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>
-  ): SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds> {
+    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ): SerializableParserData<Kinds, LexerKinds> {
     return {
       // meta: JSON.stringify({
       //   data: this.data.map((d) => ({
@@ -576,15 +607,15 @@ export class ParserBuilder<
   }
 
   private restoreAndHydrate(
-    data: SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>,
-    options: Parameters<typeof DFA.fromJSON>[1]
+    data: SerializableParserData<Kinds, LexerKinds>,
+    options: Parameters<typeof DFA.fromJSON>[1],
   ) {
-    const dfa = DFA.fromJSON<ASTData, ErrorType, Kinds, LexerKinds>(
+    const dfa = DFA.fromJSON<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       data.data.dfa,
-      options
+      options,
     );
-    const ctxs = this.data.map((d) =>
-      d.ctxBuilder?.build()
+    const ctxs = this.data.map(
+      (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds>[];
 
     // hydrate grammar rules with user defined functions & resolvers

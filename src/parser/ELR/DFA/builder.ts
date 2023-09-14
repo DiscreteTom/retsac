@@ -1,8 +1,7 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ResolvedTempConflict, ParserBuilderData } from "../builder";
-import type {
-  GrammarRepo} from "../model";
+import type { GrammarRepo } from "../model";
 import {
   GrammarRule,
   GrammarRuleRepo,
@@ -29,15 +28,16 @@ export class DFABuilder {
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
+    LexerError,
   >(
-    repo: GrammarRepo,
-    lexer: ILexer<any, LexerKinds>,
+    repo: GrammarRepo<Kinds | LexerKinds>,
+    lexer: ILexer<unknown, LexerKinds>,
     entryNTs: ReadonlySet<string>,
     data: ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>,
     resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[],
     printAll: boolean,
-    logger: Logger
+    logger: Logger,
   ) {
     // transform definitions to temp grammar rules
     // and append resolved conflicts defined in definition context in data into resolvedTemp
@@ -60,15 +60,21 @@ export class DFABuilder {
             commit: gr.commit,
             traverser: gr.traverser,
             rule: gr.rule.map((g) =>
-              g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content))
+              g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content)),
             ),
             hydrationId: gr.hydrationId,
-          })
-      )
+          }),
+      ),
     );
 
     // init all initial candidates, initial candidate is candidate with digested=0
-    const cs = new CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
+    const cs = new CandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
     });
@@ -76,21 +82,30 @@ export class DFABuilder {
     const entryCandidates = getGrammarRulesClosure(
       // find those grammar rules which can reduce to entry NTs
       grs.filter((gr) => entryNTs.has(gr.NT)),
-      grs
+      grs,
     ).map(
       (gr) =>
         // find candidate corresponding to the grammar rule
-        cs.getInitial(gr)!
+        cs.getInitial(gr)!,
     );
 
     // init all states
-    const allStates = new StateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
+    const allStates = new StateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >();
     const entryState = allStates.addEntry(entryCandidates)!;
 
     const NTClosures = getAllNTClosure(NTs, grs);
 
     // construct first sets for all NTs
-    const firstSets = new Map<string, GrammarSet>() as FirstSets;
+    const firstSets = new Map<
+      string,
+      GrammarSet<Kinds | LexerKinds>
+    >() as FirstSets<Kinds | LexerKinds>;
     NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
     NTClosures.forEach((grs, NT) => {
       const gs = firstSets.get(NT);
@@ -99,7 +114,10 @@ export class DFABuilder {
     });
 
     // construct follow sets for all grammars
-    const followSets = new Map<string, GrammarSet>() as FollowSets;
+    const followSets = new Map<
+      string,
+      GrammarSet<Kinds | LexerKinds>
+    >() as FollowSets<Kinds | LexerKinds>;
     NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
     grs.grammarRules.forEach((gr) => {
       gr.rule.forEach((g, i, rule) => {
@@ -127,7 +145,7 @@ export class DFABuilder {
         followSets
           .get(gr.NT)! // target NT's follow set
           .grammars.forEach(
-            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g))
+            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g)),
           );
         followSets
           .get(gr.rule.at(-1)!.kind)! // last grammar's follow set
@@ -144,8 +162,8 @@ export class DFABuilder {
       entryNTs,
       entryState,
       NTClosures,
-      firstSets: firstSets as ReadonlyFirstSets,
-      followSets: followSets as ReadonlyFollowSets,
+      firstSets: firstSets as ReadonlyFirstSets<Kinds | LexerKinds>,
+      followSets: followSets as ReadonlyFollowSets<Kinds | LexerKinds>,
       allStates,
       NTs,
       cs,

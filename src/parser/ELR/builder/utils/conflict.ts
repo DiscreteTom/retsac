@@ -5,12 +5,9 @@ import type {
   Grammar,
   Conflict,
   GrammarRepo,
-  GrammarRuleRepo} from "../../model";
-import {
-  GrammarSet,
-  GrammarType,
-  ConflictType
+  GrammarRuleRepo,
 } from "../../model";
+import { GrammarSet, GrammarType, ConflictType } from "../../model";
 import { TooManyEndHandlerError } from "../error";
 
 /**
@@ -22,16 +19,16 @@ function getEndSet<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
-  repo: GrammarRepo,
+  repo: GrammarRepo<Kinds | LexerKinds>,
   entryNTs: ReadonlySet<string>,
-  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
 ) {
-  const result = new GrammarSet();
+  const result = new GrammarSet<Kinds | LexerKinds>();
 
   // entry NTs might be the last input grammar of course
-  entryNTs.forEach((nt) => result.add(repo.NT(nt)));
+  entryNTs.forEach((nt) => result.add(repo.NT(nt as Kinds)));
 
   while (true) {
     let changed = false;
@@ -61,24 +58,24 @@ function getUserUnresolvedConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   type: ConflictType,
   reducerRule: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
   anotherRule: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
-  next: GrammarSet,
+  next: GrammarSet<Kinds | LexerKinds>,
   checkHandleEnd: boolean,
   debug: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   const related = reducerRule.resolved.filter(
     // we don't need to check reducerRule here
     // since the resolved conflicts are in the reducer rule's GrammarRule.resolved
-    (r) => r.type == type && r.anotherRule == anotherRule
+    (r) => r.type == type && r.anotherRule == anotherRule,
   );
 
   // collect resolved next & calculate unresolved next
-  const resolvedNext = [] as Grammar[];
+  const resolvedNext = [] as Grammar<Kinds | LexerKinds>[];
   let resolveAll = false;
   related.forEach((r) => {
     if (r.next == "*") {
@@ -88,7 +85,7 @@ function getUserUnresolvedConflicts<
       r.next.grammars.forEach((n) => resolvedNext.push(n));
   });
   const unresolvedNext = resolveAll
-    ? new GrammarSet()
+    ? new GrammarSet<Kinds | LexerKinds>()
     : next.filter((n) => !resolvedNext.some((rn) => n.equalWithoutName(rn)));
 
   if (debug) {
@@ -96,19 +93,19 @@ function getUserUnresolvedConflicts<
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: *`
+        }]: ${reducerRule} | ${anotherRule} next: *`,
       );
     if (resolvedNext.length > 0)
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext}`
+        }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext}`,
       );
     if (unresolvedNext.grammars.size > 0)
       logger(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext}`
+        }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext}`,
       );
   }
 
@@ -131,7 +128,7 @@ function getUserUnresolvedConflicts<
         logger(`[unresolved RR]: ${reducerRule} | ${anotherRule} end of input`);
       if (unresolvedNext.grammars.size > 0)
         logger(
-          `[user resolved RR]: ${reducerRule} | ${anotherRule} end of input`
+          `[user resolved RR]: ${reducerRule} | ${anotherRule} end of input`,
         );
     }
   }
@@ -151,14 +148,15 @@ export function getConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 >(
-  repo: GrammarRepo,
+  repo: GrammarRepo<Kinds | LexerKinds>,
   entryNTs: ReadonlySet<string>,
   grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-  dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>,
+  dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   debug: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   const firstSets = dfa.firstSets;
   const followSets = dfa.followSets;
@@ -187,7 +185,7 @@ export function getConflicts<
             // no overlap, conflicts can be auto resolved
             if (debug)
               logger(
-                `[auto resolve RS (no follow overlap)]: ${reducerRule} | ${c.shifterRule}`
+                `[auto resolve RS (no follow overlap)]: ${reducerRule} | ${c.shifterRule}`,
               );
             return;
           }
@@ -196,13 +194,13 @@ export function getConflicts<
             !states.some(
               (s) =>
                 s.contains(reducerRule, reducerRule.rule.length) &&
-                s.contains(anotherRule, c.overlapped)
+                s.contains(anotherRule, c.overlapped),
             )
           ) {
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               logger(
-                `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
+                `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
               );
             return;
           }
@@ -224,13 +222,13 @@ export function getConflicts<
               !states.some(
                 (s) =>
                   s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.overlapped)
+                  s.contains(anotherRule, c.overlapped),
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 logger(
-                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
                 );
               return;
             }
@@ -253,13 +251,13 @@ export function getConflicts<
               !states.some(
                 (s) =>
                   s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.overlapped)
+                  s.contains(anotherRule, c.overlapped),
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 logger(
-                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`
+                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
                 );
               return;
             }
@@ -295,7 +293,7 @@ export function getConflicts<
           // no overlap, all conflicts can be auto resolved
           if (debug)
             logger(
-              `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`
+              `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`,
             );
           return;
         }
@@ -304,13 +302,13 @@ export function getConflicts<
           !states.some(
             (s) =>
               s.contains(reducerRule, reducerRule.rule.length) &&
-              s.contains(anotherRule, anotherRule.rule.length)
+              s.contains(anotherRule, anotherRule.rule.length),
           )
         ) {
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
           if (debug)
             logger(
-              `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`
+              `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`,
             );
           return;
         }
@@ -340,11 +338,11 @@ export function getUnresolvedConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   debug: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   const result = new Map<
     GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
@@ -361,7 +359,7 @@ export function getUnresolvedConflicts<
           c.next,
           false, // for a RS conflict, we don't need to handle end of input
           debug,
-          logger
+          logger,
         );
 
         if (res.next.grammars.size > 0) {
@@ -384,7 +382,7 @@ export function getUnresolvedConflicts<
           c.next,
           c.handleEnd,
           debug,
-          logger
+          logger,
         );
         if (res.next.grammars.size > 0 || res.end) {
           const conflict: Conflict<ASTData, ErrorType, Kinds, LexerKinds> = {

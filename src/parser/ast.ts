@@ -1,4 +1,5 @@
 import type { Token } from "../lexer";
+import type { StringOrLiteral } from "../type-helper";
 import { StringCache } from "./cache";
 import { InvalidTraverseError } from "./error";
 
@@ -40,40 +41,32 @@ export type ASTObj = {
 export type ASTNodeChildrenSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string
-> = (name: (string & {}) | AllKinds) => ASTNode<ASTData, ErrorType, AllKinds>[];
+  AllKinds extends string,
+> = (
+  name: StringOrLiteral<AllKinds>,
+) => ASTNode<ASTData, ErrorType, AllKinds>[];
 /**
  * Select the first matched child node by the name.
  */
 export type ASTNodeFirstMatchChildSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string
+  AllKinds extends string,
 > = (
-  name: (string & {}) | AllKinds
+  name: StringOrLiteral<AllKinds>,
 ) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
 export type ASTNodeSelector<ASTData, ErrorType, AllKinds extends string> = (
-  name: (string & {}) | AllKinds,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
+  name: StringOrLiteral<AllKinds>,
+  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
 ) => ASTNode<ASTData, ErrorType, AllKinds>[];
 export type ASTNodeFirstMatchSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string
+  AllKinds extends string,
 > = (
-  name: (string & {}) | AllKinds,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
+  name: StringOrLiteral<AllKinds>,
+  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
 ) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
-
-/**
- * This is used when the ASTNode is not an NT, or the ASTNode is temporary.
- */
-export const mockASTNodeSelector: ASTNodeSelector<any, any, any> = () => [];
-export const mockASTNodeFirstMatchSelector: ASTNodeFirstMatchSelector<
-  any,
-  any,
-  any
-> = () => undefined;
 
 /**
  * Traverser is called when a top-down traverse is performed.
@@ -84,14 +77,14 @@ export type Traverser<ASTData, ErrorType, AllKinds extends string> = (
   self: ASTNode<ASTData, ErrorType, AllKinds> & {
     // children is not undefined
     children: NonNullable<ASTNode<ASTData, ErrorType, AllKinds>["children"]>;
-  }
+  },
 ) => ASTData | undefined | void;
 
 /**
  * The default traverser.
  */
 export function defaultTraverser<ASTData, ErrorType, AllKinds extends string>(
-  self: Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0]
+  self: Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0],
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length == 1)
@@ -175,7 +168,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
         ErrorType,
         AllKinds
       >;
-    } & Partial<Pick<ASTNode<ASTData, ErrorType, AllKinds>, "name">>
+    } & Partial<Pick<ASTNode<ASTData, ErrorType, AllKinds>, "name">>,
   ) {
     this._name = p.name ?? p.kind;
     this.kind = p.kind;
@@ -186,9 +179,8 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
     this.data = p.data;
     this.error = p.error;
     this.traverser = p.traverser ?? defaultTraverser;
-    const selector = p.selector ?? mockASTNodeSelector;
-    const firstMatchSelector =
-      p.firstMatchSelector ?? mockASTNodeFirstMatchSelector;
+    const selector = p.selector ?? (() => []);
+    const firstMatchSelector = p.firstMatchSelector ?? (() => undefined);
     this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
     this.$$ = (name: string) => selector(name, this.children ?? []);
 
@@ -197,17 +189,17 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
         `ASTNode({ kind: "${this.kind}", start: ${
           this.start
         }, text: ${JSON.stringify(this.text)}, data: ${JSON.stringify(
-          this.data
-        )}, error: ${JSON.stringify(this.error)} })`
+          this.data,
+        )}, error: ${JSON.stringify(this.error)} })`,
     );
     this.strWithName = new StringCache(() => ASTNode.getStrWithName(this));
     this.strWithoutName = new StringCache(() =>
-      ASTNode.getStrWithoutName(this)
+      ASTNode.getStrWithoutName(this),
     );
   }
 
   static from<ASTData, ErrorType, AllKinds extends string>(
-    t: Readonly<Token<any, AllKinds>>
+    t: Readonly<Token<unknown, AllKinds>>,
   ) {
     return new ASTNode<ASTData, ErrorType, AllKinds>({
       kind: t.kind,
@@ -267,7 +259,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
    * This value will be changed if you change the name of this node.
    */
   static getStrWithName(
-    data: Pick<ASTNode<any, any, any>, "kind" | "name" | "text">
+    data: Pick<ASTNode<unknown, unknown, string>, "kind" | "name" | "text">,
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
@@ -280,7 +272,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
    * Format: `kind: text`.
    */
   static getStrWithoutName(
-    data: Pick<ASTNode<any, any, any>, "kind" | "text">
+    data: Pick<ASTNode<unknown, unknown, string>, "kind" | "text">,
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
@@ -309,7 +301,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(
-      this as Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0] // children is not undefined
+      this as Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0], // children is not undefined
     );
     this.data =
       res ??

@@ -39,19 +39,19 @@ export class TempGrammar {
     this.name = p.name;
 
     this.strWithGrammarName = new StringCache(() =>
-      this.toGrammarStringWithName()
+      this.toGrammarStringWithName(),
     );
   }
 
-  toGrammar<LexerKinds extends string>(
-    repo: GrammarRepo,
+  toGrammar<LexerKinds extends string, LexerError>(
+    repo: GrammarRepo<LexerKinds>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: Readonly<ILexer<any, LexerKinds>>,
+    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     printAll: boolean,
     logger: Logger,
-    isNT = true
+    isNT = true,
   ) {
     if (this.type == TempGrammarType.LITERAL) {
       const token = lexer.dryClone().lex(this.content);
@@ -64,14 +64,14 @@ export class TempGrammar {
       }
       return repo.Literal(
         this.content,
-        token?.kind ?? "", // this null check is for printAll
-        this.name
+        token?.kind ?? ("" as LexerKinds), // this null check is for printAll
+        this.name,
       );
     }
 
     return isNT
-      ? repo.NT(this.content, this.name)
-      : repo.T(this.content, this.name);
+      ? repo.NT(this.content as LexerKinds, this.name)
+      : repo.T(this.content as LexerKinds, this.name);
   }
 
   /**
@@ -96,7 +96,7 @@ export class TempGrammarRule<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
   readonly rule: readonly TempGrammar[];
   /**
@@ -122,7 +122,7 @@ export class TempGrammarRule<
       | "rollback"
       | "traverser"
       | "hydrationId"
-    >
+    >,
   ) {
     this.rule = data.rule;
     this.NT = data.NT;
@@ -134,7 +134,7 @@ export class TempGrammarRule<
     this.hydrationId = data.hydrationId;
 
     this.strWithGrammarName = new StringCache(() =>
-      this.toStringWithGrammarName()
+      this.toStringWithGrammarName(),
     );
   }
 

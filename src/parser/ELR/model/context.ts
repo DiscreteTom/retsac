@@ -14,7 +14,7 @@ export class GrammarRuleContext<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
   readonly matched: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   /**
@@ -44,7 +44,7 @@ export class GrammarRuleContext<
    * Current lexer state. You'd better not modify it.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
    */
-  readonly lexer: ILexer<any, LexerKinds>;
+  readonly lexer: ILexer<unknown, LexerKinds>;
   /**
    * Data of the result AST node.
    * You can set this field, and if the grammar rule is accepted,
@@ -81,7 +81,7 @@ export class GrammarRuleContext<
         ErrorType,
         Kinds | LexerKinds
       >;
-    }
+    },
   ) {
     this.matched = p.matched;
     this.lexer = p.lexer;
@@ -100,18 +100,18 @@ export type Callback<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = (
-  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>
+  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>,
 ) => void;
 
 export type Condition<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = (
-  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>
+  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>,
 ) => boolean;
 
 /**
@@ -121,7 +121,7 @@ export type Reducer<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = (
-  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>
+  context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>,
 ) => ASTData | undefined;

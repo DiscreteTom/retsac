@@ -1,20 +1,11 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import { ASTNode } from "../../ast";
-import type {
-  AcceptedParserOutput,
-  RejectedParserOutput} from "../../model";
-import {
-  rejectedParserOutput,
-} from "../../model";
-import type {
-  GrammarRule,
-  Grammar,
-  GrammarRuleRepo} from "../model";
-import {
-  GrammarRuleContext,
-  ConflictType
-} from "../model";
+import type { AcceptedParserOutput, RejectedParserOutput } from "../../model";
+import { rejectedParserOutput } from "../../model";
+import type { GrammarRule, Grammar, GrammarRuleRepo } from "../model";
+import { GrammarRuleContext, ConflictType } from "../model";
+import { nonNullFilter } from "../utils";
 import type { ReadonlyFollowSets } from "./model";
 import {
   ASTNodeFirstMatchSelectorFactory,
@@ -28,7 +19,8 @@ export class Candidate<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > {
   readonly gr: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>;
   /**
@@ -44,7 +36,7 @@ export class Candidate<
   // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<
     string,
-    Candidate<ASTData, ErrorType, Kinds, LexerKinds> | null
+    Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null
   >;
 
   /**
@@ -61,10 +53,15 @@ export class Candidate<
    */
   constructor(
     data: Pick<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds>,
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
       "gr" | "digested" | "strWithGrammarName"
     > &
-      Partial<Pick<Candidate<ASTData, ErrorType, Kinds, LexerKinds>, "str">>
+      Partial<
+        Pick<
+          Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+          "str"
+        >
+      >,
   ) {
     this.gr = data.gr;
     this.digested = data.digested;
@@ -78,7 +75,7 @@ export class Candidate<
    * Current undigested grammar.
    * Use this to match the next node.
    */
-  get current(): Grammar | undefined {
+  get current(): Grammar<Kinds | LexerKinds> | undefined {
     return this.gr.rule[this.digested];
   }
 
@@ -92,8 +89,8 @@ export class Candidate<
    * @return `null` if the this can't digest more.
    */
   generateNext(
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
-  ): Candidate<ASTData, ErrorType, Kinds, LexerKinds> | null {
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ): Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null {
     if (this.current == undefined) return null;
 
     const key = this.current.cacheKeyWithoutName.value;
@@ -123,12 +120,13 @@ export class Candidate<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
+    LexerError,
   >(
     data: Pick<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds>,
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
       "gr" | "digested"
-    >
+    >,
   ) {
     return [
       data.gr.NT,
@@ -160,16 +158,16 @@ export class Candidate<
    * Return all the possible results.
    */
   tryLex(
-    lexer: Readonly<ILexer<any, LexerKinds>>,
-    followSets: ReadonlyFollowSets
+    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
+    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<any, LexerKinds>;
+    lexer: ILexer<LexerError, LexerKinds>;
   }[] {
     if (this.canDigestMore()) {
-      const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds>(
+      const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
         this.current!,
-        lexer
+        lexer,
       );
       if (res != null) return [res];
       else return [];
@@ -178,11 +176,10 @@ export class Candidate<
     // else, digestion finished, check follow set
     return followSets
       .get(this.gr.NT)!
-      .map((g) => lexGrammar<ASTData, ErrorType, Kinds, LexerKinds>(g, lexer))
-      .filter((r) => r != null) as {
-      node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<any, LexerKinds>;
-    }[];
+      .map((g) =>
+        lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(g, lexer),
+      )
+      .filter(nonNullFilter);
   }
 
   /**
@@ -195,11 +192,11 @@ export class Candidate<
   tryReduce(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
-    followSets: ReadonlyFollowSets,
-    lexer: Readonly<ILexer<any, LexerKinds>>,
+    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    lexer: Readonly<ILexer<unknown, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
-    logger: Logger
+    logger: Logger,
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<ASTData, ErrorType, Kinds | LexerKinds> & {
@@ -267,8 +264,8 @@ export class Candidate<
               // don't use context.after here to optimize performance
               `[Follow Mismatch] ${this.gr} follow=${context.lexer.buffer.slice(
                 context.lexer.digested,
-                context.lexer.digested + 10 // only show first 10 chars
-              )}`
+                context.lexer.digested + 10, // only show first 10 chars
+              )}`,
             );
           rollbackNames();
           return rejectedParserOutput;
@@ -291,7 +288,7 @@ export class Candidate<
               (r) =>
                 r.type == ConflictType.REDUCE_REDUCE &&
                 r.anotherRule == c.anotherRule &&
-                r.handleEnd
+                r.handleEnd,
             )!;
             // if not accepted, reject
             if (
@@ -381,13 +378,13 @@ export class Candidate<
 
   toJSON(
     grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   ) {
     return {
       gr: grs.getKey(this.gr),
       digested: this.digested,
       nextMap: map2serializable(this.nextMap, (c) =>
-        c == null ? null : cs.getKey(c)
+        c == null ? null : cs.getKey(c),
       ),
       str: this.str,
       strWithGrammarName: this.strWithGrammarName,
@@ -398,14 +395,15 @@ export class Candidate<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
+    LexerError,
   >(
     data: ReturnType<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
-    const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds>({
+    const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
       gr: grs.getByString(data.gr)!,
       digested: data.digested,
       strWithGrammarName: data.strWithGrammarName,
@@ -414,7 +412,7 @@ export class Candidate<
 
     // restore next map after the whole candidate repo is filled
     const restoreNextMap = (
-      cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+      cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
@@ -431,27 +429,37 @@ export class CandidateRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > {
   /**
    * Candidates. {@link Candidate.strWithGrammarName} => {@link Candidate}
    */
-  private cs: Map<string, Candidate<ASTData, ErrorType, Kinds, LexerKinds>>;
+  private cs: Map<
+    string,
+    Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  >;
 
   constructor() {
     this.cs = new Map();
   }
 
   getKey(
-    c: Pick<Candidate<ASTData, ErrorType, Kinds, LexerKinds>, "gr" | "digested">
-  ) {
+    c: Pick<
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      "gr" | "digested"
+    >,
+  ): string {
     return c instanceof Candidate
       ? c.strWithGrammarName
       : Candidate.getStrWithGrammarName(c);
   }
 
   get(
-    c: Pick<Candidate<ASTData, ErrorType, Kinds, LexerKinds>, "gr" | "digested">
+    c: Pick<
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      "gr" | "digested"
+    >,
   ) {
     return this.cs.get(this.getKey(c));
   }
@@ -472,7 +480,7 @@ export class CandidateRepo<
     const key = this.getKey(raw);
     if (this.cs.has(key)) return undefined;
 
-    const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds>({
+    const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
       ...raw,
       strWithGrammarName: key,
     });
@@ -483,13 +491,19 @@ export class CandidateRepo<
   /**
    * If already exists, return the cache, else create a new one and return.
    */
-  addNext(c: Candidate<ASTData, ErrorType, Kinds, LexerKinds>) {
+  addNext(c: Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     const raw = { gr: c.gr, digested: c.digested + 1 };
     const key = this.getKey(raw);
     const cache = this.cs.get(key);
     if (cache != undefined) return cache;
 
-    const next = new Candidate<ASTData, ErrorType, Kinds, LexerKinds>({
+    const next = new Candidate<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >({
       ...raw,
       strWithGrammarName: key,
     });
@@ -499,7 +513,7 @@ export class CandidateRepo<
 
   toJSON(grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>) {
     const res = [] as ReturnType<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >[];
     this.cs.forEach((c) => res.push(c.toJSON(grs, this)));
     return res;
@@ -509,23 +523,31 @@ export class CandidateRepo<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
+    LexerError,
   >(
     data: ReturnType<
-      CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+      CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
-  ) {
+    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  ): CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     const callbacks = [] as ((
-      cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+      cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ) => void)[];
-    const res = new CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>();
+    const res = new CandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >();
     data.forEach((d) => {
       const { c, restoreNextMap } = Candidate.fromJSON<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds
+        LexerKinds,
+        LexerError
       >(d, grs);
       callbacks.push(restoreNextMap);
       res.cs.set(c.strWithGrammarName, c);
@@ -540,8 +562,9 @@ export type ReadonlyCandidateRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > = Omit<
-  CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   "addNext" | "addInitial"
 >;

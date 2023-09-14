@@ -7,17 +7,14 @@ import type {
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
-
-// type only import for js doc
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Parser } from "../parser";
 
 export type BuildOptions<
-  ASTData,
-  ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = Partial<
-  Pick<IParser<ASTData, ErrorType, Kinds, LexerKinds>, "logger" | "debug">
+  Pick<IParser<never, never, Kinds, LexerKinds, never>, "logger" | "debug">
 > & {
   /**
    * Which format to generate resolvers.
@@ -70,14 +67,15 @@ export type BuildOptions<
    * If provided and valid, the parser will be hydrated from this data.
    * The value is always checked to make sure it's valid.
    */
-  hydrate?: SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>;
+  hydrate?: SerializableParserData<Kinds, LexerKinds>;
 };
 
 export interface IParserBuilder<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > {
   /**
    * Declare top-level NT's.
@@ -86,7 +84,7 @@ export interface IParserBuilder<
    */
   entry(
     ...defs: Kinds[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
+  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   /**
    * Declare grammar rules.
    */
@@ -98,7 +96,7 @@ export interface IParserBuilder<
       Kinds | Append,
       LexerKinds
     >[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
+  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds, LexerError>;
   /**
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
@@ -106,17 +104,15 @@ export interface IParserBuilder<
   build(
     // lexer's error type is not important yet, since we don't need token's error in parser's output.
     // if user wants to get lexer's errors, they can use `lexer.errors`.
-    lexer: ILexer<any, LexerKinds>,
-    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    lexer: ILexer<LexerError, LexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds>,
   ): {
-    parser: IParser<ASTData, ErrorType, Kinds, LexerKinds>;
+    parser: IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
     /**
      * If you build the parser with {@link BuildOptions.serialize},
      * this will be set to the serializable object.
      */
-    serializable?: Readonly<
-      SerializableParserData<ASTData, ErrorType, Kinds, LexerKinds>
-    >;
+    serializable?: Readonly<SerializableParserData<Kinds, LexerKinds>>;
   };
   /**
    * Resolve a reduce-shift conflict.
@@ -124,7 +120,7 @@ export interface IParserBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
@@ -132,29 +128,50 @@ export interface IParserBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ): this;
   /**
    * Apply a function to this builder.
    */
-  use<AppendKinds extends string>(
-    f: BuilderDecorator<ASTData, ErrorType, Kinds, LexerKinds, AppendKinds>
-  ): IParserBuilder<ASTData, ErrorType, Kinds | AppendKinds, LexerKinds>;
+  use<
+    AppendKinds extends string,
+    AppendLexerKinds extends string,
+    AppendError,
+    AppendLexerError,
+  >(
+    f: BuilderDecorator<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      AppendKinds,
+      AppendLexerKinds,
+      AppendError,
+      AppendLexerError
+    >,
+  ): IParserBuilder<
+    ASTData,
+    ErrorType | AppendError,
+    Kinds | AppendKinds,
+    LexerKinds | AppendLexerKinds,
+    LexerError | AppendLexerError
+  >;
   /**
-   * Append those kinds to the lexer kinds.
-   * You can also pass lexers as the parameter.
+   * Append lexer's kinds to the parser kinds, and append lexer's error type to the parser lexer's error type.
    *
-   * This function will do nothing but set the lexer kinds of the parser builder in TypeScript.
+   * This function will do nothing but set the generic type parameter of the parser builder in TypeScript.
    * So this function is only useful in TypeScript.
-   *
-   * @example
-   * useLexerKinds(someLexer) // use lexer
-   * useLexerKinds('some_kind') // use string literal
-   * useLexerKinds('some_kind', someLexer) // mix
    */
-  useLexerKinds<AppendLexerKinds extends string>(
-    ...lexer: (ILexer<any, AppendLexerKinds> | AppendLexerKinds)[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>;
+  useLexer<AppendLexerKinds extends string, AppendLexerError>(
+    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  ): IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds | AppendLexerKinds,
+    LexerError | AppendLexerError
+  >;
   /**
    * Generate resolvers by grammar rules' priorities.
    *
@@ -202,19 +219,27 @@ export type BuilderDecorator<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
-  Append extends string
+  LexerError,
+  AppendKinds extends string,
+  AppendLexerKinds extends string,
+  AppendError,
+  AppendLexerError,
 > = (
-  pb: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
-) => IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds>;
+  pb: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+) => IParserBuilder<
+  ASTData,
+  ErrorType | AppendError,
+  Kinds | AppendKinds,
+  LexerKinds | AppendLexerKinds,
+  LexerError | AppendLexerError
+>;
 
 /**
  * Used to store the parser to a serializable object.
  */
 export type SerializableParserData<
-  ASTData,
-  ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = {
   /**
    * The meta data for hydrating the parser.
@@ -222,6 +247,6 @@ export type SerializableParserData<
    */
   // meta: string; // do we need to check meta?
   data: {
-    dfa: ReturnType<DFA<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]>;
+    dfa: ReturnType<DFA<never, never, Kinds, LexerKinds, never>["toJSON"]>;
   };
 };

@@ -3,21 +3,21 @@ import type { Logger } from "../../../logger";
 import type {
   Definition,
   RR_ResolverOptions,
-  RS_ResolverOptions} from "../builder";
-import {
-  ParserBuilder
+  RS_ResolverOptions,
 } from "../builder";
+import { ParserBuilder } from "../builder";
 import type { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
 export class AdvancedBuilder<
     ASTData,
-    ErrorType = any,
+    ErrorType = unknown,
     Kinds extends string = never,
-    LexerKinds extends string = never
+    LexerKinds extends string = never,
+    LexerError = never,
   >
-  extends ParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
-  implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds>
+  extends ParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
   private readonly expander: GrammarExpander<Kinds, LexerKinds>;
   // resolved conflicts will be stored here first
@@ -62,7 +62,7 @@ export class AdvancedBuilder<
         anotherRule: Definition<Kinds>;
         options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
       }[];
-    }) => void
+    }) => void,
   ) {
     for (const NT in d) {
       const def = d[NT];
@@ -72,15 +72,15 @@ export class AdvancedBuilder<
         NT,
         debug,
         logger,
-        resolve
+        resolve,
       );
       cb(res);
     }
   }
 
   build(
-    lexer: ILexer<any, LexerKinds>,
-    options?: BuildOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    lexer: ILexer<LexerError, LexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds>,
   ) {
     // TODO: if hydrate, just super.build
 
@@ -96,7 +96,7 @@ export class AdvancedBuilder<
         res.rs.forEach((r) =>
           // the reducerRule/anotherRule is already expanded, so we use super.resolveRS()
           // TODO: don't use super.resolveRS, will cause hydration error
-          super.resolveRS(r.reducerRule, r.anotherRule, r.options)
+          super.resolveRS(r.reducerRule, r.anotherRule, r.options),
         );
       });
     });
@@ -140,7 +140,7 @@ export class AdvancedBuilder<
     >(debug, logger);
     res.defs.forEach((def) => this.data.push({ defs: def }));
     res.rs.forEach((r) =>
-      super.resolveRS(r.reducerRule, r.anotherRule, r.options)
+      super.resolveRS(r.reducerRule, r.anotherRule, r.options),
     );
 
     return super.build(lexer, options);
@@ -149,7 +149,7 @@ export class AdvancedBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     this.resolvedRS.push({ reducerRule, anotherRule, options });
     return this;
@@ -157,7 +157,7 @@ export class AdvancedBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>
+    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     this.resolvedRR.push({ reducerRule, anotherRule, options });
     return this;

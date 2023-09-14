@@ -1,4 +1,4 @@
-import type { AtLeastOneOf } from "../../../../type-helper";
+import type { AtLeastOneOf, StringOrLiteral } from "../../../../type-helper";
 import type { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import type { Definition } from "./definition";
 import type { TempGrammarRule } from "./temp-grammar";
@@ -7,7 +7,7 @@ export type BaseResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = {
   /**
    *  Default: true
@@ -19,11 +19,11 @@ export type RR_ResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds> &
   AtLeastOneOf<
     {
-      next: (string & {}) | "*";
+      next: StringOrLiteral<"*">;
       handleEnd: boolean;
     },
     "next" | "handleEnd"
@@ -33,16 +33,16 @@ export type RS_ResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds> & {
-  next: (string & {}) | "*";
+  next: StringOrLiteral<"*">;
 };
 
 export type ConflictTypeAndResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = (
   | {
       type: ConflictType.REDUCE_REDUCE;
@@ -59,7 +59,7 @@ export type ResolvedTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = {
   reducerRule: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>;
   anotherRule: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>;
@@ -70,7 +70,7 @@ export type ResolvedPartialTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > = {
   anotherRule: Definition<Kinds>;
   hydrationId: Readonly<ResolverHydrationId>;

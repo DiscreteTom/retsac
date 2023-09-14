@@ -29,30 +29,47 @@ export class ELR_BuilderError extends Error {
   }
 }
 
-export class GrammarRuleNotFoundError extends ELR_BuilderError {
-  constructor(public gr: TempGrammarRule<any, any, any, any>) {
+export class GrammarRuleNotFoundError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+> extends ELR_BuilderError {
+  constructor(
+    public gr: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+  ) {
     super(
       "GRAMMAR_RULE_NOT_FOUND",
-      `No such grammar rule: ${gr.strWithGrammarName.value}`
+      `No such grammar rule: ${gr.strWithGrammarName.value}`,
     );
     Object.setPrototypeOf(this, GrammarRuleNotFoundError.prototype);
   }
 }
 
-export class NextGrammarNotFoundError extends ELR_BuilderError {
-  constructor(public next: Grammar, public NT: string) {
+export class NextGrammarNotFoundError<
+  AllKinds extends string,
+> extends ELR_BuilderError {
+  constructor(
+    public next: Grammar<AllKinds>,
+    public NT: string,
+  ) {
     super(
       "NEXT_GRAMMAR_NOT_FOUND",
-      `Next grammar ${next} not in follow set of ${NT}`
+      `Next grammar ${next} not in follow set of ${NT}`,
     );
     Object.setPrototypeOf(this, NextGrammarNotFoundError.prototype);
   }
 }
 
-export class ConflictError extends ELR_BuilderError {
+export class ConflictError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+> extends ELR_BuilderError {
   constructor(
-    public reducerRule: GrammarRule<any, any, any, any>,
-    public c: Conflict<any, any, any, any>
+    public reducerRule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+    public c: Conflict<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
     super(
       "CONFLICT",
@@ -60,7 +77,7 @@ export class ConflictError extends ELR_BuilderError {
         ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${c.next
             .map((g) => g.toString())
             .join(
-              " "
+              " ",
             )}\`): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
         : `Unresolved R-R conflict (${
             (c.handleEnd ? "end of input" : "") +
@@ -69,7 +86,7 @@ export class ConflictError extends ELR_BuilderError {
                   .map((g) => g.toString())
                   .join(" ")}\``
               : "")
-          }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
+          }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`,
     );
     Object.setPrototypeOf(this, ConflictError.prototype);
   }
@@ -86,7 +103,7 @@ export class DuplicatedDefinitionError extends ELR_BuilderError {
   constructor(public name: string) {
     super(
       "DUPLICATED_DEFINITION",
-      `Duplicated definition for grammar symbol: ${name}`
+      `Duplicated definition for grammar symbol: ${name}`,
     );
     Object.setPrototypeOf(this, DuplicatedDefinitionError.prototype);
   }
@@ -107,46 +124,65 @@ export class NoEntryNTError extends ELR_BuilderError {
 }
 
 export class TokenizeGrammarRuleFailedError extends ELR_BuilderError {
-  constructor(public rule: string, public rest: string) {
+  constructor(
+    public rule: string,
+    public rest: string,
+  ) {
     super(
       "TOKENIZE_GRAMMAR_RULE_FAILED",
-      `Unable to tokenize: "${rest}" in grammar rule: "${rule}"`
+      `Unable to tokenize: "${rest}" in grammar rule: "${rule}"`,
     );
     Object.setPrototypeOf(this, TokenizeGrammarRuleFailedError.prototype);
   }
 }
 
 export class EmptyRuleError extends ELR_BuilderError {
-  constructor(public NT: string, public rule: string) {
+  constructor(
+    public NT: string,
+    public rule: string,
+  ) {
     super("EMPTY_RULE", `Empty rule: "${NT} <= ${rule}"`);
     Object.setPrototypeOf(this, EmptyRuleError.prototype);
   }
 }
 
 export class EmptyLiteralError extends ELR_BuilderError {
-  constructor(public NT: string, public rule: string) {
+  constructor(
+    public NT: string,
+    public rule: string,
+  ) {
     super("EMPTY_LITERAL", `Empty literal: "${NT} <= ${rule}"`);
     Object.setPrototypeOf(this, EmptyLiteralError.prototype);
   }
 }
 
-export class TooManyEndHandlerError extends ELR_BuilderError {
-  constructor(public rule: GrammarRule<any, any, any, any>) {
+export class TooManyEndHandlerError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+> extends ELR_BuilderError {
+  constructor(public rule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
     super(
       "TOO_MANY_END_HANDLER",
-      `Too many end handlers for rule ${rule.toString()}`
+      `Too many end handlers for rule ${rule.toString()}`,
     );
     Object.setPrototypeOf(this, TooManyEndHandlerError.prototype);
   }
 }
 
-export class NoSuchConflictError extends ELR_BuilderError {
+export class NoSuchConflictError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+> extends ELR_BuilderError {
   constructor(
-    public reducerRule: GrammarRule<any, any, any, any>,
-    public anotherRule: GrammarRule<any, any, any, any>,
+    public reducerRule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+    public anotherRule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
     public conflictType: ConflictType,
-    public next: Grammar[],
-    public handleEnd: boolean
+    public next: Grammar<Kinds | LexerKinds>[],
+    public handleEnd: boolean,
   ) {
     super(
       "NO_SUCH_CONFLICT",
@@ -156,7 +192,7 @@ export class NoSuchConflictError extends ELR_BuilderError {
         (next.length > 0
           ? ` next: ${next.map((n) => n.toString()).join(",")}`
           : "") +
-        (handleEnd ? " end of input" : "")
+        (handleEnd ? " end of input" : ""),
     );
     Object.setPrototypeOf(this, NoSuchConflictError.prototype);
   }
@@ -170,21 +206,29 @@ export class InvalidLiteralError extends ELR_BuilderError {
 }
 
 export class NoRenameTargetError extends ELR_BuilderError {
-  constructor(public def: string | string[], public rename: string) {
+  constructor(
+    public def: string | string[],
+    public rename: string,
+  ) {
     super(
       "NO_RENAME_TARGET",
-      `No rename target in rule ${def} for rename ${rename}`
+      `No rename target in rule ${def} for rename ${rename}`,
     );
     Object.setPrototypeOf(this, NoRenameTargetError.prototype);
   }
 }
 
-export class RollbackDefinedWhileNotEnabledError extends ELR_BuilderError {
-  constructor(public rule: GrammarRule<any, any, any, any>) {
+export class RollbackDefinedWhileNotEnabledError<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+> extends ELR_BuilderError {
+  constructor(public rule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
     super(
       "ROLLBACK_DEFINED_WHILE_NOT_ENABLED",
       `Rollback defined in the grammar rule while parser's rollback is not enabled: ${rule.toString()}. ` +
-        `To enable rollback, set the rollback option to true when build the parser.`
+        `To enable rollback, set the rollback option to true when build the parser.`,
     );
     Object.setPrototypeOf(this, RollbackDefinedWhileNotEnabledError.prototype);
   }

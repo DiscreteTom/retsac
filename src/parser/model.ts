@@ -5,7 +5,7 @@ import type { ASTNode } from "./ast";
 export type AcceptedParserOutput<
   ASTData,
   ErrorType,
-  AllKinds extends string
+  AllKinds extends string,
 > = {
   accept: true;
   /**
@@ -41,14 +41,15 @@ export type ParseExec<ASTData, ErrorType, AllKinds extends string> = (
          * Default: `false`.
          */
         stopOnError?: boolean;
-      }
+      },
 ) => ParserOutput<ASTData, ErrorType, AllKinds>;
 
 export interface IParser<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
@@ -60,7 +61,7 @@ export interface IParser<
    * Default: `console.log`.
    */
   logger: Logger;
-  readonly lexer: ILexer<any, LexerKinds>;
+  readonly lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Reset state.
    */
@@ -71,14 +72,14 @@ export interface IParser<
   clone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): IParser<ASTData, ErrorType, Kinds, LexerKinds>;
+  }): IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   /**
    * Clone a new parser without states.
    */
   dryClone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): IParser<ASTData, ErrorType, Kinds, LexerKinds>;
+  }): IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   /**
    * Feed a string to the lexer.
    */

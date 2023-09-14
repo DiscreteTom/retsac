@@ -1,28 +1,22 @@
 import type { Traverser } from "../../../ast";
 import { StringCache } from "../../../cache";
-import type {
-  Conflict,
-  ConflictType,
-  ResolvedConflict,
-  ResolverHydrationId,
-} from "../conflict";
+import type { Conflict, ResolvedConflict } from "../conflict";
 import type { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "../util";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 import type { GrammarRuleRepo } from "./grammar-rule-repo";
 import { GrammarSet } from "./grammar-set";
-
-// only for js doc
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ParserBuilder } from "../../builder";
 
 export class GrammarRule<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
-  readonly rule: readonly Grammar[];
+  readonly rule: readonly Grammar<Kinds | LexerKinds>[];
   /**
    * The reduce target's kind name.
    */
@@ -78,7 +72,7 @@ export class GrammarRule<
       | "commit"
       | "traverser"
       | "hydrationId"
-    >
+    >,
   ) {
     this.rule = p.rule;
     this.NT = p.NT;
@@ -92,10 +86,10 @@ export class GrammarRule<
 
     this.str = new StringCache(() => this.strWithGrammarName.value);
     this.strWithGrammarName = new StringCache(() =>
-      GrammarRule.getStrWithGrammarName(this)
+      GrammarRule.getStrWithGrammarName(this),
     );
     this.strWithoutGrammarName = new StringCache(() =>
-      GrammarRule.getStrWithoutGrammarName(this)
+      GrammarRule.getStrWithoutGrammarName(this),
     );
     this.hydrationId = p.hydrationId;
   }
@@ -105,7 +99,7 @@ export class GrammarRule<
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
   checkRSConflict(
-    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>
+    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
   ) {
     const result = [] as {
       shifterRule: Pick<
@@ -140,7 +134,7 @@ export class GrammarRule<
    * Check if the tail of this's rule is the same as another's whole rule.
    */
   checkRRConflict(
-    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>
+    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
   ) {
     return ruleEndsWith(this.rule, another.rule);
   }
@@ -155,8 +149,13 @@ export class GrammarRule<
   /**
    * Return ``{ NT: `grammar rules with name` }``.
    */
-  static getStrWithGrammarName(
-    gr: Pick<GrammarRule<any, any, any, any>, "NT" | "rule">
+  static getStrWithGrammarName<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string,
+  >(
+    gr: Pick<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>, "NT" | "rule">,
   ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithName)
@@ -166,8 +165,13 @@ export class GrammarRule<
   /**
    * Return ``{ NT: `grammar rules without name` }``.
    */
-  static getStrWithoutGrammarName(
-    gr: Pick<GrammarRule<any, any, any, any>, "NT" | "rule">
+  static getStrWithoutGrammarName<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    LexerKinds extends string,
+  >(
+    gr: Pick<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>, "NT" | "rule">,
   ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithoutName.value)
@@ -175,33 +179,9 @@ export class GrammarRule<
   }
 
   toJSON(
-    repo: GrammarRepo,
-    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
-  ): {
-    // TODO: why the return type has to be typed explicitly?
-    // if without this type, got: src/parser/ELR/model/grammar/grammar-rule.ts:140:3 - error TS7023: 'toJSON' implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
-    NT: string;
-    rule: string[];
-    conflicts: {
-      type: ConflictType;
-      anotherRule: string;
-      next: string[];
-      handleEnd: boolean;
-      overlapped: number | undefined;
-      resolvers: number[];
-    }[];
-    resolved: {
-      type: ConflictType;
-      anotherRule: string;
-      handleEnd: boolean;
-      next: string[] | "*";
-      hydrationId: ResolverHydrationId;
-    }[];
-    str: string;
-    strWithGrammarName: string;
-    strWithoutGrammarName: string;
-    hydrationId: number;
-  } {
+    repo: GrammarRepo<Kinds | LexerKinds>,
+    grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  ) {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => repo.getKey(g)),
@@ -233,12 +213,12 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string
+    LexerKinds extends string,
   >(
     data: ReturnType<
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
     >,
-    repo: GrammarRepo
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const gr = new GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>({
       rule: data.rule.map((r) => repo.getByString(r)!),
@@ -251,7 +231,7 @@ export class GrammarRule<
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
-      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+      grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
     ) => {
       gr.resolved.push(
         ...data.resolved.map((r) => ({
@@ -264,7 +244,7 @@ export class GrammarRule<
               : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
           accepter: false, // accepter will be restored when hydrate
           hydrationId: r.hydrationId,
-        }))
+        })),
       );
       gr.conflicts.push(
         ...data.conflicts.map((c) => ({
@@ -274,7 +254,7 @@ export class GrammarRule<
           handleEnd: c.handleEnd,
           overlapped: c.overlapped,
           resolvers: c.resolvers.map((i) => gr.resolved[i]),
-        }))
+        })),
       );
     };
 

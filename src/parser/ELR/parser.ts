@@ -10,20 +10,22 @@ export class Parser<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
-> implements IParser<ASTData, ErrorType, Kinds, LexerKinds>
+  LexerKinds extends string,
+  LexerError,
+> implements IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
-  lexer: ILexer<any, LexerKinds>;
-  readonly dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>;
+  lexer: ILexer<LexerError, LexerKinds>;
+  readonly dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   private _buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
 
   private reLexStack: ReLexStack<
-    State<ASTData, ErrorType, Kinds, LexerKinds>,
+    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >;
   private rollbackStack: RollbackStack<ASTData, ErrorType, Kinds, LexerKinds>;
 
@@ -48,8 +50,8 @@ export class Parser<
   }
 
   constructor(
-    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds>,
-    lexer: ILexer<any, LexerKinds>
+    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    lexer: ILexer<LexerError, LexerKinds>,
   ) {
     this.dfa = dfa;
     this.lexer = lexer;
@@ -75,9 +77,9 @@ export class Parser<
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds>(
+    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       this.dfa,
-      this.lexer.clone()
+      this.lexer.clone(),
     );
     res._buffer = [...this._buffer];
     res.errors.push(...this.errors);
@@ -89,9 +91,9 @@ export class Parser<
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds>(
+    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       this.dfa,
-      this.lexer.dryClone()
+      this.lexer.dryClone(),
     );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
@@ -113,7 +115,7 @@ export class Parser<
   }
 
   parse(
-    input?: string | { input?: string; stopOnError?: boolean }
+    input?: string | { input?: string; stopOnError?: boolean },
   ): ParserOutput<ASTData, ErrorType, Kinds | LexerKinds> {
     // feed input if provided
     if (typeof input === "string") {
@@ -136,7 +138,7 @@ export class Parser<
       this.reLexStack,
       this.rollbackStack,
       () => this.commit(),
-      stopOnError
+      stopOnError,
     );
     if (res.output.accept) {
       // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
@@ -150,7 +152,7 @@ export class Parser<
   }
 
   parseAll(
-    input: string | { input?: string; stopOnError?: boolean } = ""
+    input: string | { input?: string; stopOnError?: boolean } = "",
   ): ParserOutput<ASTData, ErrorType, Kinds | LexerKinds> {
     let buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] = [];
     /** Aggregate results if the parser can accept more. */

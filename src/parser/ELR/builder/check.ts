@@ -20,7 +20,7 @@ export function checkSymbols<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
@@ -29,7 +29,7 @@ export function checkSymbols<
   // TODO: rename GrammarRuleRepo to ReadonlyGrammarRuleRepo?
   grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   // all grammar symbols should have its definition, either in NTs or Ts
   grs.grammarRules.forEach((gr) => {
@@ -88,16 +88,16 @@ export function checkConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
-  followSets: ReadonlyFollowSets,
+  followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
   unresolved: ReadonlyMap<
     Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
     readonly Readonly<Conflict<ASTData, ErrorType, Kinds, LexerKinds>>[]
   >,
   grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   // ensure all conflicts are resolved
   unresolved.forEach((cs, gr) => {
@@ -136,7 +136,7 @@ export function checkConflicts<
               (conflict) =>
                 c.anotherRule == conflict.anotherRule &&
                 c.type == conflict.type &&
-                conflict.next.some((nn) => n.equalWithoutName(nn)) // don't use `==` here since we don't want to compare grammar name
+                conflict.next.some((nn) => n.equalWithoutName(nn)), // don't use `==` here since we don't want to compare grammar name
             )
           ) {
             const err = new NoSuchConflictError(
@@ -144,7 +144,7 @@ export function checkConflicts<
               c.anotherRule,
               c.type,
               [n],
-              false
+              false,
             );
             if (printAll) logger(err.message);
             else throw err;
@@ -158,7 +158,7 @@ export function checkConflicts<
           (conflict) =>
             c.anotherRule == conflict.anotherRule &&
             c.type == conflict.type &&
-            conflict.handleEnd
+            conflict.handleEnd,
         )
       ) {
         const err = new NoSuchConflictError(
@@ -166,7 +166,7 @@ export function checkConflicts<
           c.anotherRule,
           c.type,
           [],
-          true
+          true,
         );
         if (printAll) logger(err.message);
         else throw err;
@@ -184,11 +184,11 @@ export function checkRollbacks<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
   printAll: boolean,
-  logger: Logger
+  logger: Logger,
 ) {
   grs.grammarRules.forEach((gr) => {
     if (gr.rollback !== undefined) {

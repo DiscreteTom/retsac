@@ -1,13 +1,8 @@
 import { Builder, stringLiteral, exact, whitespaces } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { IParser } from "../../../model";
-import type {
-  Definition,
-  RS_ResolverOptions} from "../../builder";
-import {
-  ParserBuilder,
-  traverser,
-} from "../../builder";
+import type { Definition, RS_ResolverOptions } from "../../builder";
+import { ParserBuilder, traverser } from "../../builder";
 import { InvalidGrammarRuleError } from "../error";
 import { applyResolvers } from "./resolvers";
 import { data } from "./serialized-grammar-parser-data";
@@ -61,25 +56,25 @@ export function grammarParserFactory(placeholderPrefix: string) {
 
   // the data `string[]` represent all the expanded possibilities of the grammar rule
   const parserBuilder = new ParserBuilder<string[]>()
-    .useLexerKinds(lexer)
+    .useLexer(lexer)
     .define(
       { gr: `grammar | literal` },
       // return the matched token text as a list
-      traverser(({ children }) => [children[0].text!])
+      traverser(({ children }) => [children[0].text!]),
     )
     .define(
       { gr: `grammar rename | literal rename` },
       // just keep the format, but return as a list
-      traverser(({ children }) => [children[0].text! + children[1].text!])
+      traverser(({ children }) => [children[0].text! + children[1].text!]),
     )
     .define(
       { gr: `'(' gr ')'` },
-      traverser(({ children }) => [...children[1].traverse()!])
+      traverser(({ children }) => [...children[1].traverse()!]),
     )
     .define(
       { gr: `gr '?'` },
       // append the possibility with empty string
-      traverser(({ children }) => [...children[0].traverse()!, ""])
+      traverser(({ children }) => [...children[0].traverse()!, ""]),
     )
     .define(
       { gr: `gr '*'` },
@@ -87,14 +82,14 @@ export function grammarParserFactory(placeholderPrefix: string) {
       traverser(({ children }) => [
         "",
         ...children[0].traverse()!.map((s) => placeholderMap.add(s.trim())),
-      ])
+      ]),
     )
     .define(
       { gr: `gr '+'` },
       // keep the `gr+`, we use a placeholder to represent it
       traverser(({ children }) =>
-        children[0].traverse()!.map((s) => placeholderMap.add(s.trim()))
-      )
+        children[0].traverse()!.map((s) => placeholderMap.add(s.trim())),
+      ),
     )
     .define(
       { gr: `gr '|' gr` },
@@ -102,7 +97,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
       traverser(({ children }) => [
         ...children[0].traverse()!,
         ...children[2].traverse()!,
-      ])
+      ]),
     )
     .define(
       { gr: `gr gr` },
@@ -118,7 +113,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
           });
         });
         return result;
-      })
+      }),
     )
     .use(applyResolvers)
     .entry("gr");
@@ -130,9 +125,10 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
     string[],
-    any,
+    unknown,
     "gr",
-    "" | "grammar" | "literal" | "rename"
+    "" | "grammar" | "literal" | "rename",
+    string
   >;
   readonly placeholderPrefix: string;
 
@@ -140,7 +136,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     this.placeholderPrefix = options.placeholderPrefix;
 
     const { parserBuilder, lexer, placeholderMap } = grammarParserFactory(
-      this.placeholderPrefix
+      this.placeholderPrefix,
     );
 
     this.placeholderMap = placeholderMap;
@@ -158,7 +154,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     NT: Kinds,
     debug: boolean,
     logger: Logger,
-    resolve: boolean
+    resolve: boolean,
   ) {
     const result = {
       defs: [] as Definition<Kinds>[],
@@ -194,7 +190,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
           });
           if (debug)
             logger(
-              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`
+              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
             );
         });
       });
@@ -215,7 +211,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
 
   generatePlaceholderGrammarRules<ASTData, ErrorType>(
     debug: boolean,
-    logger: Logger
+    logger: Logger,
   ) {
     const result = {
       defs: [] as Definition<Kinds>[],
@@ -241,7 +237,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       if (debug) {
         logger(`Generated: ${p}: \`${gr}\``);
         logger(
-          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`
+          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
         );
       }
     });

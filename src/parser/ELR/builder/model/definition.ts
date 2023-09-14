@@ -3,9 +3,10 @@ import type { Callback, Condition } from "../../model";
 import type { ResolvedPartialTempConflict } from "./resolver";
 
 // TODO: apply this in Definition?
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type JoinableString<
   Target extends string,
-  Arr extends string
+  Arr extends string,
 > = Target extends ` ${infer Tail}` // first, remove the leading space
   ? JoinableString<Tail, Arr> // continue
   : Target extends `${infer Head} ${infer Tail}` // no leading space now, take the first word
@@ -26,7 +27,7 @@ export interface DefinitionContext<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 > {
   resolved: ResolvedPartialTempConflict<
     ASTData,

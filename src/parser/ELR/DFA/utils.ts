@@ -1,4 +1,5 @@
 import type { ILexer } from "../../../lexer";
+import type { StringOrLiteral } from "../../../type-helper";
 import type { ASTNodeSelector, ASTNodeFirstMatchSelector } from "../../ast";
 import { ASTNode } from "../../ast";
 import type {
@@ -11,12 +12,9 @@ import type {
   Grammar,
   GrammarRepo,
   GrammarRule,
-  GrammarRuleRepo} from "../model";
-import {
-  ConflictType,
-  GrammarSet,
-  GrammarType,
+  GrammarRuleRepo,
 } from "../model";
+import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
 import type { StateRepo } from "./state";
 
@@ -24,10 +22,10 @@ export function getAllNTClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   NTs: ReadonlySet<string>,
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
 ): Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
   const result = new Map<
     string,
@@ -47,14 +45,14 @@ export function getNTClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   NT: string,
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
 ): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
-    allGrammarRules
+    allGrammarRules,
   );
 }
 
@@ -67,10 +65,10 @@ export function getGrammarRulesClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   rules: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
-  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
 ): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
   const result = [...rules];
 
@@ -100,13 +98,13 @@ export function getGrammarRulesClosure<
 export function ASTNodeSelectorFactory<
   ASTData,
   ErrorType,
-  AllKinds extends string
+  AllKinds extends string,
 >(
-  cascadeQueryPrefix: string | undefined
+  cascadeQueryPrefix: string | undefined,
 ): ASTNodeSelector<ASTData, ErrorType, AllKinds> {
   return (
-    name: (string & {}) | AllKinds,
-    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
+    name: StringOrLiteral<AllKinds>,
+    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
   ) => {
     const result: ASTNode<ASTData, ErrorType, AllKinds>[] = [];
     nodes.forEach((n) => {
@@ -125,13 +123,13 @@ export function ASTNodeSelectorFactory<
 export function ASTNodeFirstMatchSelectorFactory<
   ASTData,
   ErrorType,
-  AllKinds extends string
+  AllKinds extends string,
 >(
-  cascadeQueryPrefix: string | undefined
+  cascadeQueryPrefix: string | undefined,
 ): ASTNodeFirstMatchSelector<ASTData, ErrorType, AllKinds> {
   return (
-    name: (string & {}) | AllKinds,
-    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[]
+    name: StringOrLiteral<AllKinds>,
+    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
   ) => {
     for (const n of nodes) {
       if (n.name === name) return n;
@@ -157,13 +155,14 @@ export function lexGrammar<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 >(
-  g: Grammar,
-  lexer: Readonly<ILexer<any, LexerKinds>>
+  g: Grammar<Kinds | LexerKinds>,
+  lexer: Readonly<ILexer<LexerError, LexerKinds>>,
 ): {
   node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-  lexer: ILexer<any, LexerKinds>;
+  lexer: ILexer<LexerError, LexerKinds>;
 } | null {
   if (g.type == GrammarType.NT) {
     // NT can't be lexed
@@ -192,16 +191,17 @@ export function calculateAllStates<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
+  LexerError,
 >(
-  repo: GrammarRepo,
+  repo: GrammarRepo<Kinds | LexerKinds>,
   allGrammarRules: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-  allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+  allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   NTClosures: Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
-  cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds>
+  cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
 ) {
   // collect all grammars in rules
-  const gs = new GrammarSet();
+  const gs = new GrammarSet<Kinds | LexerKinds>();
   allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
@@ -230,12 +230,12 @@ export function processDefinitions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string
+  LexerKinds extends string,
 >(
   data: Readonly<ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>>,
   resolvedTemp: readonly Readonly<
     ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
-  >[]
+  >[],
 ): {
   tempGrammarRules: readonly TempGrammarRule<
     ASTData,
@@ -277,7 +277,7 @@ export function processDefinitions<
       if (r.type == ConflictType.REDUCE_REDUCE) {
         defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
-          hydrationId
+          hydrationId,
         ).forEach((another) => {
           grs.forEach((gr) => {
             toBeAppend.push({
@@ -293,7 +293,7 @@ export function processDefinitions<
         // ConflictType.REDUCE_SHIFT
         defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
-          hydrationId
+          hydrationId,
         ).forEach((another) => {
           grs.forEach((gr) => {
             toBeAppend.push({
@@ -318,7 +318,7 @@ export function processDefinitions<
  */
 export function map2serializable<V, R>(
   map: ReadonlyMap<string, V>,
-  transformer: (v: V) => R
+  transformer: (v: V) => R,
 ) {
   const obj = {} as { [key: string]: R };
   map.forEach((v, k) => (obj[k] = transformer(v)));
@@ -327,7 +327,7 @@ export function map2serializable<V, R>(
 
 export function serializable2map<V, R>(
   obj: { [key: string]: R },
-  transformer: (v: R) => V
+  transformer: (v: R) => V,
 ) {
   const map = new Map<string, V>();
   Object.entries(obj).forEach(([k, v]) => map.set(k, transformer(v)));

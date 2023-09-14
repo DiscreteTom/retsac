@@ -3,9 +3,9 @@ import type { Grammar } from "./grammar";
 /**
  * Return whether `anotherRule` starts with the `reducerRule`.
  */
-export function ruleStartsWith(
-  anotherRule: readonly Grammar[],
-  reducerRule: readonly Grammar[]
+export function ruleStartsWith<AllKinds extends string>(
+  anotherRule: readonly Grammar<AllKinds>[],
+  reducerRule: readonly Grammar<AllKinds>[],
 ) {
   if (reducerRule.length > anotherRule.length) return false;
   for (let i = 0; i < reducerRule.length; i++) {
@@ -17,9 +17,9 @@ export function ruleStartsWith(
 /**
  * Return whether `reducerRule` ends with `anotherRule`.
  */
-export function ruleEndsWith(
-  reducerRule: readonly Grammar[],
-  anotherRule: readonly Grammar[]
+export function ruleEndsWith<AllKinds extends string>(
+  reducerRule: readonly Grammar<AllKinds>[],
+  anotherRule: readonly Grammar<AllKinds>[],
 ) {
   if (reducerRule.length < anotherRule.length) return false;
   for (let i = 0; i < anotherRule.length; i++) {
