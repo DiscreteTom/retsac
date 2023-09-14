@@ -231,7 +231,7 @@ export class State<
       LexerKinds,
       LexerError
     >,
-    ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    ss: ReadonlyStateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   ) {
     return {
       candidates: this.candidates.map((c) => cs.getKey(c)),
@@ -457,3 +457,14 @@ export class StateRepo<
     return ss;
   }
 }
+
+export type ReadonlyStateRepo<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+> = Omit<
+  StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  "addEntry" | "addNext"
+>;

@@ -8,7 +8,7 @@ import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
-import type { State } from "./state";
+import type { ReadonlyStateRepo, State } from "./state";
 import { StateRepo } from "./state";
 import { map2serializable, serializable2map } from "./utils";
 
@@ -50,7 +50,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    private readonly states: StateRepo<
+    private readonly states: ReadonlyStateRepo<
       ASTData,
       ErrorType,
       Kinds,
