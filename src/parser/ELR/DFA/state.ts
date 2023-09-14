@@ -12,6 +12,7 @@ import type {
   Grammar,
 } from "../model";
 import { GrammarType } from "../model";
+import { nonNullFilter } from "../utils";
 import type { Candidate, CandidateRepo } from "./candidate";
 import type { ReadonlyFollowSets } from "./model";
 import { map2serializable } from "./utils";
@@ -339,13 +340,7 @@ export class StateRepo<
     const directCandidates = current.candidates
       .filter((c) => c.current?.equalWithoutName(grammar)) // current grammar match the next node, name should be ignored since the next node's name is defined by its parent
       .map((c) => c.generateNext(cs))
-      .filter((c) => c != null) as Candidate<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    >[];
+      .filter(nonNullFilter);
     const indirectCandidates = directCandidates
       .reduce((p, c) => {
         if (
