@@ -13,6 +13,7 @@
     "clean:example": "tsc --build example.tsconfig.json --clean",
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "format": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
