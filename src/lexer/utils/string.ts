@@ -28,7 +28,7 @@ export function stringLiteral<ErrorType = string>(
     acceptUnclosed?: boolean;
     /** Default: `'unclosed string literal'` */
     unclosedError?: ErrorType;
-  }
+  },
 ): Action<ErrorType> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
@@ -53,16 +53,16 @@ export function stringLiteral<ErrorType = string>(
             ? // if accept unclosed, accept '$'(EOF) or '\n'(if not multiline)
               `(?:${esc4regex(close)})|$${multiline ? "" : "|\\n"}`
             : esc4regex(close)
-        })`
+        })`,
       // DON'T set the `m` flag, because we want to match the whole string literal when `multiline` is true
       // if we set the `m` flag, the `$` will match the end of each line, instead of the end of the whole string literal
       // multiline ? "m" : undefined
-    )
+    ),
   );
 
   if (acceptUnclosed) {
     return action.check((output) =>
-      output.content.endsWith(close) ? undefined : unclosedError
+      output.content.endsWith(close) ? undefined : unclosedError,
     );
   }
 

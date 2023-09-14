@@ -11,7 +11,7 @@ export class LR_AdvancedBuilderError extends Error {
   static invalidGrammarRule(gr: string) {
     return new LR_AdvancedBuilderError(
       "INVALID_GRAMMAR_RULE",
-      `Invalid grammar rule for advanced parser: \`${gr}\``
+      `Invalid grammar rule for advanced parser: \`${gr}\``,
     );
   }
 }

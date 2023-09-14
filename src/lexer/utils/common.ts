@@ -34,7 +34,7 @@ export function fromTo<ErrorType = string>(
      * Default: `true`.
      */
     autoGlobal?: boolean;
-  }
+  },
 ): Action<ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
@@ -78,7 +78,7 @@ export function fromTo<ErrorType = string>(
       : (input: ActionInput, fromDigested: number) => {
           const index = input.buffer.indexOf(
             to as string,
-            input.start + fromDigested
+            input.start + fromDigested,
           );
           if (index != -1) return index + (to as string).length - input.start;
           return 0;
@@ -120,7 +120,7 @@ export function comment<ErrorType = string>(
   options?: Omit<Parameters<typeof fromTo>[2], "acceptEof"> & {
     /** Default: `true`. */
     acceptEof?: boolean;
-  }
+  },
 ) {
   return fromTo<ErrorType>(start, end, {
     ...options,

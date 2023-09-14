@@ -65,17 +65,17 @@ export function numericLiteral<ErrorType = string>(options?: {
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
             boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }`,
-          "i"
+          "i",
         )
       : new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
             boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
           }`,
-          "i"
-        )
+          "i",
+        ),
   );
   const invalid = Action.from<ErrorType>(
-    /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i
+    /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
   ).check(() => invalidError);
 
   if (acceptInvalid) {

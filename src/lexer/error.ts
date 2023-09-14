@@ -15,7 +15,7 @@ export class CaretNotAllowedError extends LexerError {
     super(
       "CARET_NOT_ALLOWED",
       "Regex starts with '^' is not allowed when use regex to create actions." +
-        "If this is intentional, use `Action.match(regex, { rejectCaret: false })` instead."
+        "If this is intentional, use `Action.match(regex, { rejectCaret: false })` instead.",
     );
     Object.setPrototypeOf(this, CaretNotAllowedError.prototype);
   }
@@ -25,7 +25,7 @@ export class InvalidLengthForTakeError extends LexerError {
   constructor(public n: number) {
     super(
       "INVALID_LENGTH_FOR_TAKE",
-      `Invalid length \`${n}\` for \`lexer.take\`, must be greater than 0.`
+      `Invalid length \`${n}\` for \`lexer.take\`, must be greater than 0.`,
     );
     Object.setPrototypeOf(this, InvalidLengthForTakeError.prototype);
   }

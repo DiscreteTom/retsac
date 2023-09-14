@@ -1,22 +1,17 @@
 import { CaretNotAllowedError } from "../error";
 import type { ActionInput } from "./input";
-import type {
-  ActionOutput,
-  SimpleAcceptedActionOutput} from "./output";
-import {
-  rejectedActionOutput,
-  AcceptedActionOutput,
-} from "./output";
+import type { ActionOutput, SimpleAcceptedActionOutput } from "./output";
+import { rejectedActionOutput, AcceptedActionOutput } from "./output";
 
 export type ActionExec<ErrorType> = (
-  input: Readonly<ActionInput>
+  input: Readonly<ActionInput>,
 ) => ActionOutput<ErrorType>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  */
 export type SimpleActionExec<ErrorType> = (
-  input: Readonly<ActionInput>
+  input: Readonly<ActionInput>,
 ) => number | string | SimpleAcceptedActionOutput<ErrorType>;
 
 export type ActionSource<ErrorType> =
@@ -41,14 +36,14 @@ export class Action<ErrorType = string> {
    */
   constructor(
     exec: ActionExec<ErrorType>,
-    options?: Partial<Pick<Action<ErrorType>, "maybeMuted">>
+    options?: Partial<Pick<Action<ErrorType>, "maybeMuted">>,
   ) {
     this.exec = exec;
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
   static simple<ErrorType = string>(
-    f: SimpleActionExec<ErrorType>
+    f: SimpleActionExec<ErrorType>,
   ): Action<ErrorType> {
     return new Action((input) => {
       const res = f(input);
@@ -102,7 +97,7 @@ export class Action<ErrorType = string> {
        * Default: `true`.
        */
       rejectCaret?: boolean;
-    }
+    },
   ): Action<ErrorType> {
     if (options?.autoSticky ?? true) {
       if (!r.sticky && !r.global)
@@ -133,7 +128,7 @@ export class Action<ErrorType = string> {
   }
 
   static from<ErrorType = string>(
-    r: ActionSource<ErrorType>
+    r: ActionSource<ErrorType>,
   ): Action<ErrorType> {
     return r instanceof RegExp
       ? Action.match<ErrorType>(r)
@@ -148,7 +143,7 @@ export class Action<ErrorType = string> {
   mute(
     muted:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true
+      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true,
   ) {
     if (typeof muted === "boolean")
       return new Action(
@@ -160,7 +155,7 @@ export class Action<ErrorType = string> {
           }
           return output;
         },
-        { maybeMuted: muted }
+        { maybeMuted: muted },
       );
     // else, muted is a function
     return new Action(
@@ -172,7 +167,7 @@ export class Action<ErrorType = string> {
         }
         return output;
       },
-      { maybeMuted: true }
+      { maybeMuted: true },
     );
   }
 
@@ -182,13 +177,14 @@ export class Action<ErrorType = string> {
    */
   check<NewErrorType>(
     condition: (
-      output: Readonly<AcceptedActionOutput<ErrorType>>
-    ) => NewErrorType | undefined
+      output: Readonly<AcceptedActionOutput<ErrorType>>,
+    ) => NewErrorType | undefined,
   ) {
     return new Action<NewErrorType>((buffer) => {
       const output = this.exec(buffer);
       if (output.accept) {
-        const converted = output as unknown as AcceptedActionOutput<NewErrorType>;
+        const converted =
+          output as unknown as AcceptedActionOutput<NewErrorType>;
         converted.error = condition(output);
         return converted;
       }
@@ -203,7 +199,8 @@ export class Action<ErrorType = string> {
     return new Action((input) => {
       const output = this.exec(input);
       if (output.accept) {
-        const converted = output as unknown as AcceptedActionOutput<NewErrorType>;
+        const converted =
+          output as unknown as AcceptedActionOutput<NewErrorType>;
         converted.error = error;
         return converted;
       }
@@ -217,7 +214,7 @@ export class Action<ErrorType = string> {
   reject(
     rejecter:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true
+      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true,
   ) {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
@@ -258,7 +255,7 @@ export class Action<ErrorType = string> {
       },
       {
         maybeMuted: this.maybeMuted || other.maybeMuted,
-      }
+      },
     );
   }
 
@@ -268,7 +265,7 @@ export class Action<ErrorType = string> {
    */
   static reduce<ErrorType = string>(...actions: ActionSource<ErrorType>[]) {
     return Action.from<ErrorType>(
-      actions.reduce((a, b) => Action.from<ErrorType>(a).or(b))
+      actions.reduce((a, b) => Action.from<ErrorType>(a).or(b)),
     );
   }
 }

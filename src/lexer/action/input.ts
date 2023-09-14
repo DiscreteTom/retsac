@@ -9,7 +9,7 @@ export class ActionInput {
     data: Pick<ActionInput, "buffer" | "start"> &
       // maybe the rest is provided by the last accepted action's output
       // or is calculated by lexer.getRest
-      Partial<Pick<ActionInput, "rest">>
+      Partial<Pick<ActionInput, "rest">>,
   ) {
     this.buffer = data.buffer;
     this.start = data.start;

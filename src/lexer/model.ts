@@ -88,7 +88,7 @@ export interface ILexer<ErrorType, Kinds extends string> {
        * Default: `true`.
        */
       autoGlobal?: boolean;
-    }
+    },
   ): string;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
@@ -109,13 +109,13 @@ export interface ILexer<ErrorType, Kinds extends string> {
            * Default: `false`.
            */
           peek?: boolean;
-        }>
+        }>,
   ): Token<ErrorType, Kinds> | null;
   /**
    * Try to retrieve a token list exhaustively.
    */
   lexAll(
-    input?: string | { input?: string; stopOnError?: boolean }
+    input?: string | { input?: string; stopOnError?: boolean },
   ): Token<ErrorType, Kinds>[];
   /**
    * Remove ignored chars from the start of the rest of buffer.

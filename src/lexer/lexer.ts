@@ -1,5 +1,5 @@
 import type { Logger } from "../logger";
-import type { AcceptedActionOutput} from "./action";
+import type { AcceptedActionOutput } from "./action";
 import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
@@ -39,7 +39,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
   constructor(
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-    options?: LexerBuildOptions
+    options?: LexerBuildOptions,
   ) {
     this.defs = defs;
     this.debug = options?.debug ?? false;
@@ -115,7 +115,7 @@ export class Lexer<ErrorType, Kinds extends string>
     pattern: string | RegExp,
     options?: {
       autoGlobal?: boolean;
-    }
+    },
   ) {
     let regex =
       typeof pattern === "string" ? new RegExp(esc4regex(pattern)) : pattern;
@@ -134,7 +134,7 @@ export class Lexer<ErrorType, Kinds extends string>
     const content = this._buffer.slice(this._digested, res.index + 1);
     if (this.debug)
       this.logger(
-        `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`
+        `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`,
       );
     this.update(content.length, content);
     return content;
@@ -159,7 +159,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
   private res2token(
     res: Readonly<AcceptedActionOutput<ErrorType>>,
-    def: Readonly<Definition<ErrorType, Kinds>>
+    def: Readonly<Definition<ErrorType, Kinds>>,
   ): Token<ErrorType, Kinds> {
     return {
       kind: def.kind as Kinds,
@@ -179,7 +179,7 @@ export class Lexer<ErrorType, Kinds extends string>
             text?: string;
           }>;
           peek?: boolean;
-        }> = ""
+        }> = "",
   ): Token<ErrorType, Kinds> | null {
     // feed input if provided
     if (typeof input === "string") {
@@ -199,7 +199,7 @@ export class Lexer<ErrorType, Kinds extends string>
     if (expect.kind || expect.text) {
       if (this.debug)
         this.logger(
-          `[Lexer.lex] expect${peek ? "(peek)" : ""} ${JSON.stringify(expect)}`
+          `[Lexer.lex] expect${peek ? "(peek)" : ""} ${JSON.stringify(expect)}`,
         );
     } else {
       if (peek) {
@@ -235,14 +235,14 @@ export class Lexer<ErrorType, Kinds extends string>
             (expect.text !== undefined &&
               !this._buffer.startsWith(
                 expect.text,
-                this._digested + digestedByPeek
+                this._digested + digestedByPeek,
               )))
         ) {
           if (this.debug)
             this.logger(
               `[Lexer.lex] skip ${
                 def.kind || "<anonymous>"
-              } (unexpected and never muted)`
+              } (unexpected and never muted)`,
             );
           continue; // try next def
         }
@@ -265,7 +265,7 @@ export class Lexer<ErrorType, Kinds extends string>
             this.logger(
               `[Lexer.lex] accept ${def.kind || "<anonymous>"}${
                 res.muted ? "(muted)" : ""
-              }: ${JSON.stringify(res.content)}`
+              }: ${JSON.stringify(res.content)}`,
             );
           // update this state
           if (!peek) this.update(res.digested, res.content, res._rest);
@@ -310,7 +310,7 @@ export class Lexer<ErrorType, Kinds extends string>
                 `[Lexer.lex] unexpected: ${JSON.stringify({
                   kind: def.kind,
                   content: res.content,
-                })}`
+                })}`,
               );
           }
         }
@@ -325,7 +325,7 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   lexAll(
-    input: string | { input?: string; stopOnError?: boolean } = ""
+    input: string | { input?: string; stopOnError?: boolean } = "",
   ): Token<ErrorType, Kinds>[] {
     // feed input if provided
     if (typeof input === "string") {
@@ -369,7 +369,7 @@ export class Lexer<ErrorType, Kinds extends string>
             this.logger(
               `[Lexer.trimStart] skip ${
                 def.kind || "<anonymous>"
-              } (never muted)`
+              } (never muted)`,
             );
           continue;
         }
@@ -383,7 +383,7 @@ export class Lexer<ErrorType, Kinds extends string>
               this.logger(
                 `[Lexer.trimStart] not muted: ${
                   def.kind || "<anonymous>"
-                }, stop trimming`
+                }, stop trimming`,
               );
             this.trimmed = true;
             return this;
@@ -394,7 +394,7 @@ export class Lexer<ErrorType, Kinds extends string>
             this.logger(
               `[Lexer.trimStart] trim: ${
                 def.kind || "<anonymous>"
-              } content: ${JSON.stringify(res.content)}`
+              } content: ${JSON.stringify(res.content)}`,
             );
 
           // next token is muted, update this state
@@ -413,7 +413,7 @@ export class Lexer<ErrorType, Kinds extends string>
           // not accept, try next def
           if (this.debug)
             this.logger(
-              `[Lexer.trimStart] rejected: ${def.kind || "<anonymous>"}`
+              `[Lexer.trimStart] rejected: ${def.kind || "<anonymous>"}`,
             );
         }
       }

@@ -30,7 +30,7 @@ export class AcceptedActionOutput<ErrorType> {
       AcceptedActionOutput<ErrorType>,
       "buffer" | "start" | "muted" | "digested" | "error" | "content"
     > &
-      Partial<Pick<AcceptedActionOutput<ErrorType>, "rest">>
+      Partial<Pick<AcceptedActionOutput<ErrorType>, "rest">>,
   ) {
     this.accept = true;
     this.buffer = data.buffer;
