@@ -1,8 +1,8 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
-import type { AcceptedParserOutput, RejectedParserOutput } from "../../model";
-import { rejectedParserOutput } from "../../model";
+import type { AcceptedParserOutput, RejectedParserOutput } from "../../output";
+import { rejectedParserOutput } from "../../output";
 import { StateCacheMissError } from "../error";
 import type {
   GrammarRule,

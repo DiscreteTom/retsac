@@ -1,8 +1,8 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import { ASTNode } from "../../ast";
-import type { AcceptedParserOutput, RejectedParserOutput } from "../../model";
-import { rejectedParserOutput } from "../../model";
+import type { AcceptedParserOutput, RejectedParserOutput } from "../../output";
+import { rejectedParserOutput } from "../../output";
 import type { GrammarRule, Grammar, GrammarRuleRepo } from "../model";
 import { GrammarRuleContext, ConflictType } from "../model";
 import { nonNullFilter } from "../utils";

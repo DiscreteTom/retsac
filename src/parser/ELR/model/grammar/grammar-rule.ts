@@ -1,4 +1,4 @@
-import type { Traverser } from "../../../ast";
+import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
 import type { Conflict, ResolvedConflict } from "../conflict";
 import type { Callback, Condition } from "../context";

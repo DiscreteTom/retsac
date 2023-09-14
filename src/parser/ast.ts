@@ -1,7 +1,14 @@
 import type { Token } from "../lexer";
-import type { StringOrLiteral } from "../type-helper";
+import type {
+  ASTNodeFirstMatchChildSelector,
+  ASTNodeChildrenSelector,
+  ASTNodeSelector,
+  ASTNodeFirstMatchSelector,
+} from "./selector";
 import { StringCache } from "./cache";
 import { InvalidTraverseError } from "./error";
+import type { Traverser } from "./traverser";
+import { defaultTraverser } from "./traverser";
 
 /**
  * A structured type for serialization.
@@ -34,64 +41,6 @@ export type ASTObj = {
    */
   children: ASTObj[];
 };
-
-/**
- * Select children nodes by the name.
- */
-export type ASTNodeChildrenSelector<
-  ASTData,
-  ErrorType,
-  AllKinds extends string,
-> = (
-  name: StringOrLiteral<AllKinds>,
-) => ASTNode<ASTData, ErrorType, AllKinds>[];
-/**
- * Select the first matched child node by the name.
- */
-export type ASTNodeFirstMatchChildSelector<
-  ASTData,
-  ErrorType,
-  AllKinds extends string,
-> = (
-  name: StringOrLiteral<AllKinds>,
-) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
-export type ASTNodeSelector<ASTData, ErrorType, AllKinds extends string> = (
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
-) => ASTNode<ASTData, ErrorType, AllKinds>[];
-export type ASTNodeFirstMatchSelector<
-  ASTData,
-  ErrorType,
-  AllKinds extends string,
-> = (
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
-) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
-
-/**
- * Traverser is called when a top-down traverse is performed.
- * The result of the traverser is stored in the ASTNode's data field.
- * Traverser should never be called in a leaf node (no children).
- */
-export type Traverser<ASTData, ErrorType, AllKinds extends string> = (
-  self: ASTNode<ASTData, ErrorType, AllKinds> & {
-    // children is not undefined
-    children: NonNullable<ASTNode<ASTData, ErrorType, AllKinds>["children"]>;
-  },
-) => ASTData | undefined | void;
-
-/**
- * The default traverser.
- */
-export function defaultTraverser<ASTData, ErrorType, AllKinds extends string>(
-  self: Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0],
-): ASTData | undefined | void {
-  // if there is only one child, use its data or traverse to get its data
-  if (self.children.length == 1)
-    return self.children[0].data ?? self.children[0].traverse();
-  // if there are multiple children, traverse all, don't return anything
-  self.children.forEach((c) => c.traverse());
-}
 
 // ASTNode's AllKinds should be Parser's kinds union with Lexer's kinds
 export class ASTNode<ASTData, ErrorType, AllKinds extends string> {

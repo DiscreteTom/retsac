@@ -1,11 +1,11 @@
 import type { ILexer } from "../../../lexer";
+import type { ASTNode } from "../../ast";
 import type {
-  ASTNode,
   ASTNodeChildrenSelector,
   ASTNodeFirstMatchChildSelector,
   ASTNodeFirstMatchSelector,
   ASTNodeSelector,
-} from "../../ast";
+} from "../../selector";
 
 /**
  * This is used in grammar rule's callback, reducer and condition of rejecter/committer.

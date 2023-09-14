@@ -1,8 +1,8 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
-import type { ParserOutput } from "../../model";
-import { rejectedParserOutput } from "../../model";
+import type { ParserOutput } from "../../output";
+import { rejectedParserOutput } from "../../output";
 import type { GrammarRule, ReLexStack, RollbackStack } from "../model";
 import { GrammarRepo, GrammarRuleRepo, GrammarSet } from "../model";
 import { CandidateRepo } from "./candidate";

@@ -1,6 +1,6 @@
 import type { ILexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import type { Traverser } from "../../../ast";
+import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
 import type { Callback, Condition, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";

@@ -1,6 +1,9 @@
 import type { ILexer } from "../../../lexer";
 import type { StringOrLiteral } from "../../../type-helper";
-import type { ASTNodeSelector, ASTNodeFirstMatchSelector } from "../../ast";
+import type {
+  ASTNodeSelector,
+  ASTNodeFirstMatchSelector,
+} from "../../selector";
 import { ASTNode } from "../../ast";
 import type {
   ParserBuilderData,

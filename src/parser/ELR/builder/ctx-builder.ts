@@ -1,4 +1,4 @@
-import type { Traverser } from "../../ast";
+import type { Traverser } from "../../traverser";
 import type { Callback, Condition, Reducer } from "../model";
 import { ConflictType, ResolverHydrationType } from "../model";
 import type {
