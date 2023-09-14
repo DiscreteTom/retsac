@@ -41,3 +41,33 @@ export interface DefinitionContext<
   commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
 }
+
+export enum DefinitionAssociativity {
+  LeftToRight,
+  RightToLeft,
+}
+
+export class DefinitionGroupWithAssociativity<Kinds extends string> {
+  constructor(
+    public associativity: DefinitionAssociativity,
+    public defs: Definition<Kinds>[],
+  ) {}
+}
+
+export function leftToRight<Kinds extends string>(
+  ...defs: Definition<Kinds>[]
+) {
+  return new DefinitionGroupWithAssociativity(
+    DefinitionAssociativity.LeftToRight,
+    defs,
+  );
+}
+
+export function rightToLeft<Kinds extends string>(
+  ...defs: Definition<Kinds>[]
+) {
+  return new DefinitionGroupWithAssociativity(
+    DefinitionAssociativity.RightToLeft,
+    defs,
+  );
+}

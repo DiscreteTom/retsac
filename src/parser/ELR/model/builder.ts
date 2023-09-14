@@ -4,6 +4,7 @@ import type { DFA } from "../DFA";
 import type {
   Definition,
   DefinitionContextBuilder,
+  DefinitionGroupWithAssociativity,
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
@@ -174,44 +175,27 @@ export interface IParserBuilder<
   >;
   /**
    * Generate resolvers by grammar rules' priorities.
+   * Grammar rules with higher priority will always be accepted first.
    *
-   * ```ts
-   * // gr1 > gr2 = gr3
-   * builder.priority(gr1, [gr2, gr3])
-   * ```
+   * For those grammar rules with the same priority, the associativity will be used.
+   * The default associativity is left-to-right.
    *
-   * Grammar rules with higher priority will always be accepted first,
-   * and grammar rules with the same priority will be accepted according to the order of definition you provided here.
+   * @example
+   * builder.priority(
+   *   { exp: `'-' exp` }, // highest priority
+   *   [{ exp: `exp '*' exp` }, { exp: `exp '/' exp` }],
+   *   [{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }], // lowest priority
+   * )
+   * // if you need right-to-left associativity, you can use `ELR.rightToLeft`:
+   * builder.priority(ELR.rightToLeft({ exp: `exp '**' exp` }))
    */
-  // TODO: update comments
-  priority(...defs: (Definition<Kinds> | Definition<Kinds>[])[]): this;
-  /**
-   * Generate resolvers to make these definitions left-self-associative.
-   *
-   * ```ts
-   * // `1 - 2 - 3` means `(1 - 2) - 3` instead of `1 - (2 - 3)`
-   * builder.leftSA({ exp: `exp '-' exp` })
-   * ```
-   */
-  leftSA(...defs: Definition<Kinds>[]): this;
-  /**
-   * Generate resolvers to make these definitions right-self-associative.
-   * ```ts
-   * // `a = b = 1` means `a = (b = 1)` instead of `(a = b) = 1`
-   * builder.rightSA({ exp: `var '=' exp` })
-   * ```
-   */
-  rightSA(...defs: Definition<Kinds>[]): this;
-  // /**
-  //  * Restore the parser from a serializable object.
-  //  */
-  // hydrate(
-  //   data: SerializableParserData,
-  //   options?: Pick<
-  //     BuildOptions,
-  //     "debug" | "logger" | "printAll" | "reLex" | "rollback"
-  //   >
-  // ): ReturnType<this["build"]>;
+  priority(
+    ...groups: (
+      | Definition<Kinds>
+      | Definition<Kinds>[]
+      | DefinitionGroupWithAssociativity<Kinds>
+    )[]
+  ): this;
 }
 
 export type BuilderDecorator<

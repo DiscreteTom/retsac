@@ -6,6 +6,7 @@ import type {
   Conflict,
   SerializableParserData,
   Condition,
+  ResolvedConflict,
 } from "../model";
 import {
   ConflictType,
@@ -15,6 +16,10 @@ import {
 } from "../model";
 import { GrammarRuleNotFoundError, NoEntryNTError } from "./error";
 import { DefinitionContextBuilder } from "./ctx-builder";
+import {
+  DefinitionAssociativity,
+  DefinitionGroupWithAssociativity,
+} from "./model";
 import type {
   ParserBuilderData,
   ResolvedTempConflict,
@@ -518,7 +523,13 @@ export class ParserBuilder<
     return f(this);
   }
 
-  priority(...groups: (Definition<Kinds> | Definition<Kinds>[])[]) {
+  priority(
+    ...groups: (
+      | Definition<Kinds>
+      | Definition<Kinds>[]
+      | DefinitionGroupWithAssociativity<Kinds>
+    )[]
+  ) {
     // grammar rules with higher priority will always be reduced first
     // e.g. priority([{ exp: `exp '*' exp` }], [{ exp: `exp '+' exp` }])
     groups.forEach((higherDefs, higherIndex) => {
@@ -528,11 +539,21 @@ export class ParserBuilder<
         if (lowerIndex <= higherIndex) return;
 
         // higherDefs: [{ exp: `exp '*' exp` }]
-        (higherDefs instanceof Array ? higherDefs : [higherDefs]).forEach(
+        (higherDefs instanceof DefinitionGroupWithAssociativity
+          ? higherDefs.defs
+          : higherDefs instanceof Array
+          ? higherDefs
+          : [higherDefs]
+        ).forEach(
           // higher: { exp: `exp '*' exp` }
           (higher) => {
             // lowerDefs: [{ exp: `exp '+' exp` }]
-            (lowerDefs instanceof Array ? lowerDefs : [lowerDefs]).forEach(
+            (lowerDefs instanceof DefinitionGroupWithAssociativity
+              ? lowerDefs.defs
+              : lowerDefs instanceof Array
+              ? lowerDefs
+              : [lowerDefs]
+            ).forEach(
               // lower: { exp: `exp '+' exp` }
               (lower) => {
                 this.resolveRS(higher, lower, { next: `*`, accept: true });
@@ -554,44 +575,48 @@ export class ParserBuilder<
       });
     });
 
-    // TODO: move this to a new function?
-    // grammar rules with the same priority will be reduced from left to right
+    // grammar rules with the same priority will be accepted by associativity
     // e.g. priority([{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }])
-    groups.forEach((defs) => {
-      if (defs instanceof Array) {
-        defs.forEach((d1, i) => {
-          defs.forEach((d2, j) => {
-            if (i == j) return; // skip itself
-            this.resolveRS(d1, d2, { next: `*`, accept: true });
+    groups.forEach((group) => {
+      const defs =
+        group instanceof DefinitionGroupWithAssociativity
+          ? group.defs
+          : group instanceof Array
+          ? group
+          : [group];
+      const associativity =
+        group instanceof DefinitionGroupWithAssociativity
+          ? group.associativity
+          : DefinitionAssociativity.LeftToRight;
+
+      defs.forEach((d1) => {
+        defs.forEach((d2) => {
+          // even d1 == d2, we still need to resolve them
+          // e.g. { exp: `exp '+' exp` } need to resolve RS conflicts with it self.
+          this.resolveRS(d1, d2, {
+            next: `*`,
+            accept: associativity == DefinitionAssociativity.LeftToRight,
+          });
+
+          // the following conflicts are only valid if d1 != d2
+          if (d1 != d2) {
             this.resolveRR(d1, d2, {
               next: `*`,
-              accept: true,
+              accept: associativity == DefinitionAssociativity.LeftToRight,
               handleEnd: true,
             });
-            this.resolveRS(d2, d1, { next: `*`, accept: true });
+            this.resolveRS(d2, d1, {
+              next: `*`,
+              accept: associativity == DefinitionAssociativity.LeftToRight,
+            });
             this.resolveRR(d2, d1, {
               next: `*`,
-              accept: true,
+              accept: associativity == DefinitionAssociativity.LeftToRight,
               handleEnd: true,
             });
-          });
+          }
         });
-      }
-    });
-
-    return this;
-  }
-
-  leftSA(...defs: Definition<Kinds>[]) {
-    defs.forEach((def) => {
-      this.resolveRS(def, def, { next: `*`, accept: true });
-    });
-    return this;
-  }
-
-  rightSA(...defs: Definition<Kinds>[]) {
-    defs.forEach((def) => {
-      this.resolveRS(def, def, { next: `*`, accept: false });
+      });
     });
     return this;
   }

@@ -24,6 +24,5 @@ export function applyResolvers<
     .priority(
       { gr: `grammar rename | literal rename` },
       { gr: `grammar | literal` },
-    )
-    .leftSA({ gr: `gr '|' gr` }, { gr: `gr gr` });
+    );
 }
