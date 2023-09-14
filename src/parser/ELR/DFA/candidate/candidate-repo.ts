@@ -109,7 +109,7 @@ export class CandidateRepo<
       CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
     grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-  ): CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
+  ): ReadonlyCandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     const callbacks = [] as ((
       cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ) => void)[];

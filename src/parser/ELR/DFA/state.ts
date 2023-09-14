@@ -13,7 +13,11 @@ import type {
 } from "../model";
 import { GrammarType } from "../model";
 import { nonNullFilter } from "../utils";
-import type { Candidate, CandidateRepo } from "./candidate";
+import type {
+  Candidate,
+  CandidateRepo,
+  ReadonlyCandidateRepo,
+} from "./candidate";
 import type { ReadonlyFollowSets } from "./model";
 import { map2serializable } from "./utils";
 
@@ -220,7 +224,13 @@ export class State<
   }
 
   toJSON(
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    cs: ReadonlyCandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   ) {
     return {
@@ -242,7 +252,13 @@ export class State<
     data: ReturnType<
       State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    cs: ReadonlyCandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     const s = new State(
       data.candidates.map((c) => cs.getByString(c)!),
@@ -391,7 +407,15 @@ export class StateRepo<
     return false;
   }
 
-  toJSON(cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
+  toJSON(
+    cs: ReadonlyCandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
+  ) {
     return map2serializable(this.ss, (s) => s.toJSON(cs, this));
   }
 
@@ -405,7 +429,13 @@ export class StateRepo<
     data: ReturnType<
       StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    cs: ReadonlyCandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     const ss = new StateRepo<
       ASTData,

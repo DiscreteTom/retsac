@@ -5,6 +5,7 @@ import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import type { GrammarRule, ReLexStack, RollbackStack } from "../model";
 import { GrammarRepo, GrammarRuleRepo, GrammarSet } from "../model";
+import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
 import type { State } from "./state";
@@ -42,7 +43,7 @@ export class DFA<
     >,
     public readonly firstSets: ReadonlyFirstSets<Kinds | LexerKinds>,
     public readonly followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
-    private readonly candidates: CandidateRepo<
+    private readonly candidates: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
       Kinds,

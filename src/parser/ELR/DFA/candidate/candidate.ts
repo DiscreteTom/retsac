@@ -1,4 +1,4 @@
-import type { CandidateRepo } from "./candidate-repo";
+import type { CandidateRepo, ReadonlyCandidateRepo } from "./candidate-repo";
 import type { ILexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import { ASTNode } from "../../../ast";
@@ -382,7 +382,13 @@ export class Candidate<
 
   toJSON(
     grs: GrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    cs: ReadonlyCandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     return {
       gr: grs.getKey(this.gr),
@@ -416,7 +422,13 @@ export class Candidate<
 
     // restore next map after the whole candidate repo is filled
     const restoreNextMap = (
-      cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      cs: ReadonlyCandidateRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >,
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
