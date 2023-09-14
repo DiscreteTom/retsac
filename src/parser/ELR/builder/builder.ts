@@ -260,21 +260,31 @@ export class ParserBuilder<
               ) ?? [],
             );
 
-      const resolved = {
-        anotherRule,
-        type: r.type,
-        next,
-        handleEnd:
-          r.type == ConflictType.REDUCE_REDUCE
-            ? r.options.handleEnd ?? false
-            : false,
-        accepter:
-          (r.options.accept as
-            | boolean
-            | Condition<ASTData, ErrorType, Kinds, LexerKinds>
-            | undefined) ?? true,
-        hydrationId: r.hydrationId,
-      };
+      const accepter = r.options.accept ?? true;
+      const resolved: ResolvedConflict<ASTData, ErrorType, Kinds, LexerKinds> =
+        typeof accepter == "boolean"
+          ? {
+              anotherRule,
+              type: r.type,
+              next,
+              handleEnd:
+                r.type == ConflictType.REDUCE_REDUCE
+                  ? r.options.handleEnd ?? false
+                  : false,
+              accepter,
+              hydrationId: undefined,
+            }
+          : {
+              anotherRule,
+              type: r.type,
+              next,
+              handleEnd:
+                r.type == ConflictType.REDUCE_REDUCE
+                  ? r.options.handleEnd ?? false
+                  : false,
+              accepter,
+              hydrationId: r.hydrationId,
+            };
 
       reducerRule.resolved.push(resolved);
     });
