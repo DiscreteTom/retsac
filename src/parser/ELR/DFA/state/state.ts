@@ -18,7 +18,7 @@ import type {
   CandidateRepo,
   ReadonlyCandidateRepo,
 } from "../candidate";
-import type { ReadonlyFollowSets } from "../model";
+import type { ReadonlyFollowSets } from "../first-follow-sets";
 import { map2serializable } from "../utils";
 import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
 

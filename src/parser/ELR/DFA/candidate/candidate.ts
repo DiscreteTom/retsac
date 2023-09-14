@@ -14,7 +14,7 @@ import type {
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
 import { nonNullFilter } from "../../utils";
-import type { ReadonlyFollowSets } from "../model";
+import type { ReadonlyFollowSets } from "../first-follow-sets";
 import {
   lexGrammar,
   ASTNodeSelectorFactory,

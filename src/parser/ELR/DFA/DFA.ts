@@ -7,7 +7,10 @@ import type { GrammarRule, ReLexStack, RollbackStack } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
-import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
+import type {
+  ReadonlyFirstSets,
+  ReadonlyFollowSets,
+} from "./first-follow-sets";
 import type { ReadonlyStateRepo, State } from "./state";
 import { StateRepo } from "./state";
 import { map2serializable, serializable2map } from "./utils";

@@ -14,7 +14,7 @@ import type {
   FollowSets,
   ReadonlyFirstSets,
   ReadonlyFollowSets,
-} from "./model";
+} from "./first-follow-sets";
 import { StateRepo } from "./state";
 import {
   getGrammarRulesClosure,
