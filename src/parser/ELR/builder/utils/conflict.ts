@@ -161,7 +161,7 @@ export function getConflicts<
   const firstSets = dfa.firstSets;
   const followSets = dfa.followSets;
   const endSet = getEndSet(repo, entryNTs, grs);
-  const states = dfa.getAllStates();
+  const states = dfa.states;
 
   // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
   // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict

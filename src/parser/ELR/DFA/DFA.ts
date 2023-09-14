@@ -53,7 +53,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    private readonly states: ReadonlyStateRepo<
+    readonly states: ReadonlyStateRepo<
       ASTData,
       ErrorType,
       Kinds,
@@ -68,12 +68,6 @@ export class DFA<
     public debug: boolean,
     public logger: Logger,
   ) {}
-
-  getAllStates() {
-    return this.states as Readonly<
-      StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
-    >;
-  }
 
   /**
    * Try to yield an entry NT.
