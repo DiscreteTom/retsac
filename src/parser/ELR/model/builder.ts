@@ -241,11 +241,11 @@ export type SerializableParserData<
   Kinds extends string,
   LexerKinds extends string,
 > = {
-  /**
-   * The meta data for hydrating the parser.
-   * If meta data mismatch, the parser builder will reject to hydrate.
-   */
   // TODO: add meta
+  // /**
+  //  * The meta data for hydrating the parser.
+  //  * If meta data mismatch, the parser builder will reject to hydrate.
+  //  */
   // meta: string; // do we need to check meta?
   data: {
     dfa: ReturnType<DFA<never, never, Kinds, LexerKinds, never>["toJSON"]>;
