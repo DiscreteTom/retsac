@@ -58,8 +58,8 @@ export type BuildOptions<
    */
   reLex?: boolean;
   /**
-   * If `true` and the build is successful, {@link IParserBuilder.serializable} will be set.
-   * If the {@link BuildOptions.hydrate} is set, the {@link IParserBuilder.serializable} will be set to that
+   * If `true` and the build is successful, {@link IParserBuilder.build} will return a serializable object.
+   * If the {@link BuildOptions.hydrate} is set, the serializable will be set to that directly
    * instead of generating a new one.
    * @default false
    */
