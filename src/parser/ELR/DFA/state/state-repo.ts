@@ -1,10 +1,10 @@
 import type { Candidate } from "..";
 import { State } from "..";
-import type { Grammar, GrammarRule } from "../../model";
+import type { Grammar, GrammarRepo, GrammarRule } from "../../model";
 import { GrammarType } from "../../model";
 import { nonNullFilter } from "../../utils";
 import type { CandidateRepo, ReadonlyCandidateRepo } from "../candidate";
-import { map2serializable } from "../utils";
+import { stringMap2serializable } from "../utils";
 
 /**
  * Store all states.
@@ -145,8 +145,9 @@ export class StateRepo<
       LexerKinds,
       LexerError
     >,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
-    return map2serializable(this.ss, (s) => s.toJSON(cs, this));
+    return stringMap2serializable(this.ss, (s) => s.toJSON(cs, this, repo));
   }
 
   static fromJSON<
@@ -166,6 +167,7 @@ export class StateRepo<
       LexerKinds,
       LexerError
     >,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const ss = new StateRepo<
       ASTData,
@@ -178,7 +180,7 @@ export class StateRepo<
       ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ) => void)[];
     for (const key in data) {
-      const { s, restoreNextMap } = State.fromJSON(data[key], cs);
+      const { s, restoreNextMap } = State.fromJSON(data[key], cs, repo);
       ss.ss.set(key, s);
       callbacks.push(restoreNextMap);
     }

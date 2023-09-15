@@ -341,13 +341,24 @@ export function processDefinitions<
 /**
  * Transform a Map to a serializable object.
  */
-export function map2serializable<V, R>(
+export function map2serializable<K, V, R>(
+  map: ReadonlyMap<K, V>,
+  keyTransformer: (k: K) => string,
+  valueTransformer: (v: V) => R,
+) {
+  const obj = {} as { [key: string]: R };
+  map.forEach((v, k) => (obj[keyTransformer(k)] = valueTransformer(v)));
+  return obj;
+}
+
+/**
+ * Transform a Map with string as the key to a serializable object.
+ */
+export function stringMap2serializable<V, R>(
   map: ReadonlyMap<string, V>,
   transformer: (v: V) => R,
 ) {
-  const obj = {} as { [key: string]: R };
-  map.forEach((v, k) => (obj[k] = transformer(v)));
-  return obj;
+  return map2serializable(map, (k) => k, transformer);
 }
 
 export function serializable2map<V, R>(

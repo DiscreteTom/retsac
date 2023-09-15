@@ -19,7 +19,7 @@ import {
   lexGrammar,
   ASTNodeSelectorFactory,
   ASTNodeFirstMatchSelectorFactory,
-  map2serializable,
+  stringMap2serializable,
 } from "../utils";
 
 /** Candidate for ELR parsers. */
@@ -397,7 +397,7 @@ export class Candidate<
     return {
       gr: grs.getKey(this.gr),
       digested: this.digested,
-      nextMap: map2serializable(this.nextMap, (c) =>
+      nextMap: stringMap2serializable(this.nextMap, (c) =>
         c == null ? null : cs.getKey(c),
       ),
       str: this.str,

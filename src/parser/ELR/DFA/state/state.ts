@@ -12,6 +12,7 @@ import type {
   GrammarRule,
   GrammarRuleContext,
   Callback,
+  Grammar,
 } from "../../model";
 import type {
   Candidate,
@@ -41,15 +42,15 @@ export class State<
   >[];
   readonly str: string;
   /**
-   * `ASTNode.toString => state`.
    * This will be calculated during `DFA.calculateAllStates`.
    * `null` means the node can not be accepted.
+   *
+   * Since we have GrammarRepo to store all grammars,
+   * we can use Grammar as the key of this map.
    */
-  // don't use `undefined` here
-  // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<
-    string,
-    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null
+    Grammar<Kinds | LexerKinds>,
+    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
   constructor(
@@ -88,15 +89,14 @@ export class State<
         kind: next.kind,
         name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
       })!; // this will always return a result
-    const key = grammar.cacheKeyWithoutName.value;
 
     // try to get from local cache
-    const cache = this.nextMap.get(key);
+    const cache = this.nextMap.get(grammar);
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, calculate and cache
     const res = allStates.addNext(this, grammar, NTClosures, cs);
-    this.nextMap.set(key, res.state);
+    this.nextMap.set(grammar, res.state);
     return res;
   }
 
@@ -121,11 +121,9 @@ export class State<
         kind: next.kind,
         name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
       })!; // this will always return a result
-    // TODO: directly use grammar as key, since we have grammar repo
-    const key = grammar.cacheKeyWithoutName.value;
 
     // try to get from local cache
-    const cache = this.nextMap.get(key);
+    const cache = this.nextMap.get(grammar);
     if (cache !== undefined) return { state: cache, changed: false };
 
     // not in cache, throw
@@ -234,11 +232,14 @@ export class State<
       LexerError
     >,
     ss: ReadonlyStateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     return {
       candidates: this.candidates.map((c) => cs.getKey(c)),
-      nextMap: map2serializable(this.nextMap, (s) =>
-        s == null ? null : ss.getKey(s),
+      nextMap: map2serializable(
+        this.nextMap,
+        (g) => repo.getKey(g),
+        (s) => (s == null ? null : ss.getKey(s)),
       ),
       str: this.str,
     };
@@ -261,6 +262,7 @@ export class State<
       LexerKinds,
       LexerError
     >,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const s = new State(
       data.candidates.map((c) => cs.getByString(c)!),
@@ -273,8 +275,8 @@ export class State<
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next == null) s.nextMap.set(key, null);
-        else s.nextMap.set(key, ss.getByString(next)!);
+        if (next == null) s.nextMap.set(repo.getByString(key)!, null);
+        else s.nextMap.set(repo.getByString(key)!, ss.getByString(next)!);
       }
     };
     return { s, restoreNextMap };

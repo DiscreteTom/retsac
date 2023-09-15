@@ -13,7 +13,7 @@ import type {
 } from "./first-follow-sets";
 import type { ReadonlyStateRepo, State } from "./state";
 import { StateRepo } from "./state";
-import { map2serializable, serializable2map } from "./utils";
+import { stringMap2serializable, serializable2map } from "./utils";
 
 /**
  * DFA for ELR parsers. Stateless.
@@ -249,15 +249,15 @@ export class DFA<
       grammars: this.grammars.toJSON(),
       grammarRules: this.grammarRules.toJSON(this.grammars),
       candidates: this.candidates.toJSON(this.grammarRules),
-      states: this.states.toJSON(this.candidates),
+      states: this.states.toJSON(this.candidates, this.grammars),
       entryState: this.states.getKey(this.entryState),
-      NTClosures: map2serializable(this.NTClosures, (grs) =>
+      NTClosures: stringMap2serializable(this.NTClosures, (grs) =>
         grs.map((gr) => this.grammarRules.getKey(gr)),
       ),
-      firstSets: map2serializable(this.firstSets, (v) =>
+      firstSets: stringMap2serializable(this.firstSets, (v) =>
         v.toJSON(this.grammars),
       ),
-      followSets: map2serializable(this.followSets, (v) =>
+      followSets: stringMap2serializable(this.followSets, (v) =>
         v.toJSON(this.grammars),
       ),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
@@ -296,7 +296,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >(data.candidates, grs);
-    const states = StateRepo.fromJSON(data.states, candidates);
+    const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
     ) as ReadonlyFirstSets<Kinds | LexerKinds>;
