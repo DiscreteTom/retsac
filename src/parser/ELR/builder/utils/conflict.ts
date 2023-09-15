@@ -180,7 +180,7 @@ export function getConflicts<
         // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
         const A = reducerRule.NT;
         const E = c.shifterRule.rule[c.overlapped];
-        const EFirst = firstSets.get(E.kind)!;
+        const EFirst = firstSets.get(E.kind as Kinds)!;
         const AFollow = followSets.get(A)!;
         if (E.type == GrammarType.NT) {
           // E is a NT, check if A's follow has some grammar that is also in E's first

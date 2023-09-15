@@ -32,8 +32,7 @@ export class DFA<
       Kinds,
       LexerKinds
     >,
-    // TODO: use Kinds
-    private readonly entryNTs: ReadonlySet<string>,
+    private readonly entryNTs: ReadonlySet<Kinds>,
     private readonly entryState: State<
       ASTData,
       ErrorType,
@@ -41,12 +40,11 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    // TODO: use Kinds
     private readonly NTClosures: ReadonlyMap<
-      string,
+      Kinds,
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
     >,
-    public readonly firstSets: ReadonlyFirstSets<Kinds | LexerKinds>,
+    public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
     public readonly followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     private readonly candidates: ReadonlyCandidateRepo<
       ASTData,
@@ -63,8 +61,7 @@ export class DFA<
       LexerError
     >,
     readonly grammars: GrammarRepo<Kinds | LexerKinds>,
-    // TODO: use Kinds
-    readonly NTs: ReadonlySet<string>,
+    readonly NTs: ReadonlySet<Kinds>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -232,7 +229,7 @@ export class DFA<
       errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].kind) && index == 0)
+      if (this.entryNTs.has(buffer[0].kind as Kinds) && index == 0)
         return { output: { accept: true, buffer, errors }, lexer };
       // if stop on error, return partial result
       if (stopOnError && errors.length > 0)
@@ -299,7 +296,7 @@ export class DFA<
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFirstSets<Kinds | LexerKinds>;
+    ) as ReadonlyFirstSets<Kinds, LexerKinds>;
     const followSets = serializable2map(data.followSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
     ) as ReadonlyFollowSets<Kinds | LexerKinds>;

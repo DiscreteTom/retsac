@@ -3,35 +3,31 @@ import type { GrammarSet } from "../model";
 /**
  * `NT => Grammars`
  */
-// TODO: use Kinds
-export type FirstSets<AllKinds extends string> = Map<
-  string,
-  GrammarSet<AllKinds>
+export type FirstSets<Kinds extends string, LexerKinds extends string> = Map<
+  Kinds,
+  GrammarSet<Kinds | LexerKinds>
 >;
 
 /**
  * `grammar.kind => Grammars`
  */
-// TODO: use Kinds
 export type FollowSets<AllKinds extends string> = Map<
-  string,
+  AllKinds,
   GrammarSet<AllKinds>
 >;
 
 /**
  * @see {@link FirstSets}
  */
-// TODO: use Kinds
-export type ReadonlyFirstSets<AllKinds extends string> = ReadonlyMap<
-  string,
-  GrammarSet<AllKinds>
->;
+export type ReadonlyFirstSets<
+  Kinds extends string,
+  LexerKinds extends string,
+> = ReadonlyMap<Kinds, GrammarSet<Kinds | LexerKinds>>;
 
 /**
  * @see {@link FollowSets}
  */
-// TODO: use Kinds
 export type ReadonlyFollowSets<AllKinds extends string> = ReadonlyMap<
-  string,
+  AllKinds,
   GrammarSet<AllKinds>
 >;

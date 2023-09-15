@@ -274,7 +274,13 @@ export class ParserBuilder<
               defToTempGRs({
                 "": r.options.next ?? "",
               } as Definition<Kinds>)[0]?.rule.map((g) =>
-                g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content)),
+                g.toGrammar(
+                  repo,
+                  lexer,
+                  printAll,
+                  logger,
+                  NTs.has(g.content as Kinds),
+                ),
               ) ?? [],
             );
 
@@ -399,7 +405,7 @@ export class ParserBuilder<
       serializable:
         options?.serialize ?? false
           ? ((options?.hydrate ?? this.buildSerializable(dfa)) as Readonly<
-              SerializableParserData<Kinds, LexerKinds>
+              SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
             >)
           : undefined,
       mermaid: options?.mermaid ?? false ? dfa.toMermaid() : undefined,
@@ -713,6 +719,6 @@ export class ParserBuilder<
       });
     });
 
-    return { dfa, NTs: dfa.NTs, grs: dfa.grammarRules };
+    return { dfa, NTs: dfa.NTs as ReadonlySet<Kinds>, grs: dfa.grammarRules };
   }
 }

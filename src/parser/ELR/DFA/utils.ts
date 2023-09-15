@@ -27,16 +27,16 @@ export function getAllNTClosure<
   Kinds extends string,
   LexerKinds extends string,
 >(
-  NTs: ReadonlySet<string>,
+  NTs: ReadonlySet<Kinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds
   >,
-): Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
+): Map<Kinds, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
   const result = new Map<
-    string,
+    Kinds,
     GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
   >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
@@ -55,7 +55,7 @@ export function getNTClosure<
   Kinds extends string,
   LexerKinds extends string,
 >(
-  NT: string,
+  NT: Kinds,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
@@ -220,7 +220,7 @@ export function calculateAllStates<
     LexerKinds
   >,
   allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  NTClosures: Map<string, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
+  NTClosures: Map<Kinds, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
   cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
 ) {
   // collect all grammars in rules
@@ -268,7 +268,7 @@ export function processDefinitions<
     Kinds,
     LexerKinds
   >[];
-  NTs: ReadonlySet<string>;
+  NTs: ReadonlySet<Kinds>;
   allResolvedTemp: readonly Readonly<
     ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
   >[];
@@ -279,7 +279,7 @@ export function processDefinitions<
     Kinds,
     LexerKinds
   >[] = [];
-  const NTs: Set<string> = new Set();
+  const NTs: Set<Kinds> = new Set();
   const allResolvedTemp = [...resolvedTemp];
 
   data.forEach((d, hydrationId) => {
@@ -354,18 +354,22 @@ export function map2serializable<K, V, R>(
 /**
  * Transform a Map with string as the key to a serializable object.
  */
-export function stringMap2serializable<V, R>(
-  map: ReadonlyMap<string, V>,
+export function stringMap2serializable<K extends string, V, R>(
+  map: ReadonlyMap<K, V>,
   transformer: (v: V) => R,
 ) {
-  return map2serializable(map, (k) => k, transformer);
+  const obj = {} as { [key in K]: R };
+  map.forEach((v, k) => (obj[k] = transformer(v)));
+  return obj;
 }
 
-export function serializable2map<V, R>(
-  obj: { [key: string]: R },
+export function serializable2map<K extends string, V, R>(
+  obj: { [key in K]: R },
   transformer: (v: R) => V,
 ) {
-  const map = new Map<string, V>();
-  Object.entries(obj).forEach(([k, v]) => map.set(k, transformer(v)));
+  const map = new Map<K, V>();
+  for (const key in obj) {
+    map.set(key, transformer(obj[key]));
+  }
   return map;
 }

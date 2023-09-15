@@ -62,7 +62,13 @@ export class DFABuilder {
             commit: gr.commit,
             traverser: gr.traverser,
             rule: gr.rule.map((g) =>
-              g.toGrammar(repo, lexer, printAll, logger, NTs.has(g.content)),
+              g.toGrammar(
+                repo,
+                lexer,
+                printAll,
+                logger,
+                NTs.has(g.content as Kinds),
+              ),
             ),
             hydrationId: gr.hydrationId,
           }),
@@ -105,9 +111,9 @@ export class DFABuilder {
 
     // construct first sets for all NTs
     const firstSets = new Map<
-      string,
+      Kinds,
       GrammarSet<Kinds | LexerKinds>
-    >() as FirstSets<Kinds | LexerKinds>;
+    >() as FirstSets<Kinds, LexerKinds>;
     NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
     NTClosures.forEach((grs, NT) => {
       const gs = firstSets.get(NT);
@@ -135,7 +141,9 @@ export class DFABuilder {
           gs.add(rule[i + 1]);
           // if next grammar is also NT, merge with its first set
           if (rule[i + 1].type == GrammarType.NT)
-            firstSets.get(rule[i + 1].kind)!.grammars.forEach((g) => gs.add(g));
+            firstSets
+              .get(rule[i + 1].kind as Kinds)!
+              .grammars.forEach((g) => gs.add(g));
         }
       });
     });
@@ -164,7 +172,7 @@ export class DFABuilder {
       entryNTs,
       entryState,
       NTClosures,
-      firstSets: firstSets as ReadonlyFirstSets<Kinds | LexerKinds>,
+      firstSets: firstSets as ReadonlyFirstSets<Kinds, LexerKinds>,
       followSets: followSets as ReadonlyFollowSets<Kinds | LexerKinds>,
       allStates,
       NTs,
