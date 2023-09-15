@@ -102,18 +102,24 @@ export interface IParserBuilder<
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
    */
-  build(
-    // lexer's error type is not important yet, since we don't need token's error in parser's output.
-    // if user wants to get lexer's errors, they can use `lexer.errors`.
-    lexer: ILexer<LexerError, LexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds>,
+  build<AppendLexerKinds extends string, AppendLexerError>(
+    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
   ): {
-    parser: IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+    parser: IParser<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >;
     /**
      * If you build the parser with {@link BuildOptions.serialize},
      * this will be set to the serializable object.
      */
-    serializable?: Readonly<SerializableParserData<Kinds, LexerKinds>>;
+    serializable?: Readonly<
+      SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
+    >;
   };
   /**
    * Resolve a reduce-shift conflict.

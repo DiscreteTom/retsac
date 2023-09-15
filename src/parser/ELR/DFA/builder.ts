@@ -33,7 +33,7 @@ export class DFABuilder {
   >(
     repo: GrammarRepo<Kinds | LexerKinds>,
     lexer: ILexer<unknown, LexerKinds>,
-    entryNTs: ReadonlySet<string>,
+    entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
       ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
     >[],

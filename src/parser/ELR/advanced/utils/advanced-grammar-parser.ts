@@ -56,7 +56,6 @@ export function grammarParserFactory(placeholderPrefix: string) {
 
   // the data `string[]` represent all the expanded possibilities of the grammar rule
   const parserBuilder = new ParserBuilder<string[]>()
-    .useLexer(lexer)
     .define(
       { gr: `grammar | literal` },
       // return the matched token text as a list

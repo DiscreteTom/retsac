@@ -53,16 +53,13 @@ export class ParserBuilder<
   LexerError = never,
 > implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
-  /**
-   * Use protected for {@link AdvancedBuilder}
-   */
-  protected readonly data: ParserBuilderData<
+  private readonly data: ParserBuilderData<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds
   >[] = [];
-  private readonly entryNTs: Set<string>;
+  protected readonly entryNTs: Set<Kinds>;
   /**
    * Resolved temporary conflicts.
    * This will be filled in 2 places:
@@ -80,7 +77,7 @@ export class ParserBuilder<
    * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
    * You can also customize this.
    */
-  private readonly cascadeQueryPrefix?: string;
+  protected readonly cascadeQueryPrefix?: string;
 
   constructor(options?: {
     /**
@@ -177,8 +174,8 @@ export class ParserBuilder<
     >;
   }
 
-  private buildDFA(
-    lexer: ILexer<LexerError, LexerKinds>,
+  private buildDFA<AppendLexerKinds extends string, AppendLexerError>(
+    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
@@ -191,7 +188,7 @@ export class ParserBuilder<
       else throw e;
     }
 
-    const repo = new GrammarRepo<Kinds | LexerKinds>();
+    const repo = new GrammarRepo<Kinds | LexerKinds | AppendLexerKinds>();
 
     // build the DFA
     const {
@@ -205,12 +202,28 @@ export class ParserBuilder<
       allStates,
       NTs,
       allResolvedTemp,
-    } = DFABuilder.prepare<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
+    } = DFABuilder.prepare<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >(
       repo,
       lexer,
       this.entryNTs,
-      this.data,
-      this.resolvedTemp,
+      this.data as ParserBuilderData<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds | AppendLexerKinds
+      >[],
+      this.resolvedTemp as ResolvedTempConflict<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds | AppendLexerKinds
+      >[],
       printAll,
       logger,
     );
@@ -266,7 +279,12 @@ export class ParserBuilder<
             );
 
       const accepter = r.options.accept ?? true;
-      const resolved: ResolvedConflict<ASTData, ErrorType, Kinds, LexerKinds> =
+      const resolved: ResolvedConflict<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds | AppendLexerKinds
+      > =
         typeof accepter == "boolean"
           ? {
               anotherRule,
@@ -321,9 +339,9 @@ export class ParserBuilder<
     };
   }
 
-  build(
-    lexer: ILexer<LexerError, LexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds>,
+  build<AppendLexerKinds extends string, AppendLexerError>(
+    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
   ) {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
@@ -335,12 +353,15 @@ export class ParserBuilder<
     const { dfa, NTs, grs } =
       options?.hydrate == undefined
         ? this.buildDFA(lexer, printAll, debug, logger, rollback, reLex)
-        : this.restoreAndHydrate(options.hydrate, {
-            debug,
-            logger,
-            rollback,
-            reLex,
-          });
+        : this.restoreAndHydrate<AppendLexerKinds, AppendLexerError>(
+            options.hydrate,
+            {
+              debug,
+              logger,
+              rollback,
+              reLex,
+            },
+          );
 
     // check symbols first
     if (options?.checkAll || options?.checkSymbols)
@@ -384,10 +405,10 @@ export class ParserBuilder<
     };
   }
 
-  private generateResolvers(
+  private generateResolvers<AppendLexerKinds extends string>(
     unresolved: Map<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
-      Conflict<ASTData, ErrorType, Kinds, LexerKinds>[]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>,
+      Conflict<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>[]
     >,
     style: "builder" | "context",
     logger: Logger,
@@ -621,9 +642,15 @@ export class ParserBuilder<
     return this;
   }
 
-  private buildSerializable<LexerKinds extends string>(
-    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  ): SerializableParserData<Kinds, LexerKinds> {
+  private buildSerializable<AppendLexerKinds extends string, AppendLexerError>(
+    dfa: DFA<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >,
+  ): SerializableParserData<Kinds, LexerKinds | AppendLexerKinds> {
     return {
       // meta: JSON.stringify({
       //   data: this.data.map((d) => ({
@@ -641,17 +668,25 @@ export class ParserBuilder<
     };
   }
 
-  private restoreAndHydrate(
-    data: SerializableParserData<Kinds, LexerKinds>,
+  private restoreAndHydrate<AppendLexerKinds extends string, AppendLexerError>(
+    data: SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>,
     options: Parameters<typeof DFA.fromJSON>[1],
   ) {
-    const dfa = DFA.fromJSON<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-      data.data.dfa,
-      options,
-    );
+    const dfa = DFA.fromJSON<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >(data.data.dfa, options);
     const ctxs = this.data.map(
       (d) => d.ctxBuilder?.build(),
-    ) as DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds>[];
+    ) as DefinitionContext<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds | AppendLexerKinds
+    >[];
 
     // hydrate grammar rules with user defined functions & resolvers
     dfa.grammarRules.grammarRules.forEach((gr) => {
@@ -667,7 +702,12 @@ export class ParserBuilder<
             r.hydrationId.type == ResolverHydrationType.BUILDER
               ? this.resolvedTemp[r.hydrationId.index].options.accept
               : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
-          ) as Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+          ) as Condition<
+            ASTData,
+            ErrorType,
+            Kinds,
+            LexerKinds | AppendLexerKinds
+          >;
         }
       });
     });
