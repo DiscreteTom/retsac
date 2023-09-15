@@ -15,7 +15,7 @@ export const lexer = new Lexer.Builder()
     identifier: Action.from(/\w+/).check(({ content }) =>
       content.match(/\d/)
         ? "identifier should not starts with a number"
-        : undefined
+        : undefined,
     ),
   })
   // if you are **not working with parser**, you can define a fallback rule
