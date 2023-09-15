@@ -13,7 +13,6 @@
           "kind": "number",
           "name": "number",
           "str": "Grammar({ type: \"T\", kind: \"number\", name: \"number\", text: undefined })",
-          "cacheKeyWithoutName": "number",
           "strWithName": "number",
           "strWithoutName": "number",
           "grammarStrWithName": "number",
@@ -25,7 +24,6 @@
           "name": "",
           "text": "-",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"-\" })",
-          "cacheKeyWithoutName": ":-",
           "strWithName": "<anonymous>: \"-\"",
           "strWithoutName": "<anonymous>: \"-\"",
           "grammarStrWithName": "\"-\"",
@@ -36,7 +34,6 @@
           "kind": "exp",
           "name": "exp",
           "str": "Grammar({ type: \"NT\", kind: \"exp\", name: \"exp\", text: undefined })",
-          "cacheKeyWithoutName": "exp",
           "strWithName": "exp",
           "strWithoutName": "exp",
           "grammarStrWithName": "exp",
@@ -48,7 +45,6 @@
           "name": "",
           "text": "(",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"(\" })",
-          "cacheKeyWithoutName": ":(",
           "strWithName": "<anonymous>: \"(\"",
           "strWithoutName": "<anonymous>: \"(\"",
           "grammarStrWithName": "\"(\"",
@@ -60,7 +56,6 @@
           "name": "",
           "text": ")",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \")\" })",
-          "cacheKeyWithoutName": ":)",
           "strWithName": "<anonymous>: \")\"",
           "strWithoutName": "<anonymous>: \")\"",
           "grammarStrWithName": "\")\"",
@@ -72,7 +67,6 @@
           "name": "",
           "text": "+",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"+\" })",
-          "cacheKeyWithoutName": ":+",
           "strWithName": "<anonymous>: \"+\"",
           "strWithoutName": "<anonymous>: \"+\"",
           "grammarStrWithName": "\"+\"",
@@ -84,7 +78,6 @@
           "name": "",
           "text": "*",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"*\" })",
-          "cacheKeyWithoutName": ":*",
           "strWithName": "<anonymous>: \"*\"",
           "strWithoutName": "<anonymous>: \"*\"",
           "grammarStrWithName": "\"*\"",
@@ -96,7 +89,6 @@
           "name": "",
           "text": "/",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"/\" })",
-          "cacheKeyWithoutName": ":/",
           "strWithName": "<anonymous>: \"/\"",
           "strWithoutName": "<anonymous>: \"/\"",
           "grammarStrWithName": "\"/\"",
@@ -839,7 +831,7 @@
           "gr": "{ exp: `\"-\" exp` }",
           "digested": 0,
           "nextMap": {
-            ":-": "exp := \"-\" # exp"
+            "\"-\"": "exp := \"-\" # exp"
           },
           "str": "exp := # \"-\" exp",
           "strWithGrammarName": "exp := # \"-\" exp"
@@ -848,7 +840,7 @@
           "gr": "{ exp: `\"(\" exp \")\"` }",
           "digested": 0,
           "nextMap": {
-            ":(": "exp := \"(\" # exp \")\""
+            "\"(\"": "exp := \"(\" # exp \")\""
           },
           "str": "exp := # \"(\" exp \")\"",
           "strWithGrammarName": "exp := # \"(\" exp \")\""
@@ -909,7 +901,7 @@
           "gr": "{ exp: `exp \"+\" exp` }",
           "digested": 1,
           "nextMap": {
-            ":+": "exp := exp \"+\" # exp"
+            "\"+\"": "exp := exp \"+\" # exp"
           },
           "str": "exp := exp # \"+\" exp",
           "strWithGrammarName": "exp := exp # \"+\" exp"
@@ -918,7 +910,7 @@
           "gr": "{ exp: `exp \"-\" exp` }",
           "digested": 1,
           "nextMap": {
-            ":-": "exp := exp \"-\" # exp"
+            "\"-\"": "exp := exp \"-\" # exp"
           },
           "str": "exp := exp # \"-\" exp",
           "strWithGrammarName": "exp := exp # \"-\" exp"
@@ -927,7 +919,7 @@
           "gr": "{ exp: `exp \"*\" exp` }",
           "digested": 1,
           "nextMap": {
-            ":*": "exp := exp \"*\" # exp"
+            "\"*\"": "exp := exp \"*\" # exp"
           },
           "str": "exp := exp # \"*\" exp",
           "strWithGrammarName": "exp := exp # \"*\" exp"
@@ -936,7 +928,7 @@
           "gr": "{ exp: `exp \"/\" exp` }",
           "digested": 1,
           "nextMap": {
-            ":/": "exp := exp \"/\" # exp"
+            "\"/\"": "exp := exp \"/\" # exp"
           },
           "str": "exp := exp # \"/\" exp",
           "strWithGrammarName": "exp := exp # \"/\" exp"
@@ -997,7 +989,7 @@
           "gr": "{ exp: `\"(\" exp \")\"` }",
           "digested": 2,
           "nextMap": {
-            ":)": "exp := \"(\" exp \")\" #"
+            "\")\"": "exp := \"(\" exp \")\" #"
           },
           "str": "exp := \"(\" exp # \")\"",
           "strWithGrammarName": "exp := \"(\" exp # \")\""
@@ -1051,13 +1043,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
         },
@@ -1067,13 +1059,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": null,
+            "\"-\"": null,
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := number #"
         },
@@ -1090,13 +1082,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
         },
@@ -1109,13 +1101,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1132,13 +1124,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := \"(\" exp # \")\"\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
         },
@@ -1152,13 +1144,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1175,13 +1167,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := exp \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp"
         },
@@ -1198,13 +1190,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := exp \"+\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp"
         },
@@ -1221,13 +1213,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := exp \"*\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp"
         },
@@ -1244,13 +1236,13 @@
           ],
           "nextMap": {
             "number": "exp := number #",
-            ":-": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
             "exp": "exp := exp \"/\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            ":(": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
         },
@@ -1264,13 +1256,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": "exp := \"(\" exp \")\" #",
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": "exp := \"(\" exp \")\" #",
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := \"(\" exp # \")\"\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1284,13 +1276,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := exp \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1304,13 +1296,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := exp \"+\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1324,13 +1316,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := exp \"*\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1344,13 +1336,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            ":*": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            ":/": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
+            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
+            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
           },
           "str": "exp := exp \"/\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
         },
@@ -1360,13 +1352,13 @@
           ],
           "nextMap": {
             "number": null,
-            ":-": null,
+            "\"-\"": null,
             "exp": null,
-            ":(": null,
-            ":)": null,
-            ":+": null,
-            ":*": null,
-            ":/": null
+            "\"(\"": null,
+            "\")\"": null,
+            "\"+\"": null,
+            "\"*\"": null,
+            "\"/\"": null
           },
           "str": "exp := \"(\" exp \")\" #"
         }

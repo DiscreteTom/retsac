@@ -18,7 +18,6 @@
           "kind": "string",
           "name": "string",
           "str": "Grammar({ type: \"T\", kind: \"string\", name: \"string\", text: undefined })",
-          "cacheKeyWithoutName": "string",
           "strWithName": "string",
           "strWithoutName": "string",
           "grammarStrWithName": "string",
@@ -29,7 +28,6 @@
           "kind": "number",
           "name": "number",
           "str": "Grammar({ type: \"T\", kind: \"number\", name: \"number\", text: undefined })",
-          "cacheKeyWithoutName": "number",
           "strWithName": "number",
           "strWithoutName": "number",
           "grammarStrWithName": "number",
@@ -40,7 +38,6 @@
           "kind": "true",
           "name": "true",
           "str": "Grammar({ type: \"T\", kind: \"true\", name: \"true\", text: undefined })",
-          "cacheKeyWithoutName": "true",
           "strWithName": "true",
           "strWithoutName": "true",
           "grammarStrWithName": "true",
@@ -51,7 +48,6 @@
           "kind": "false",
           "name": "false",
           "str": "Grammar({ type: \"T\", kind: \"false\", name: \"false\", text: undefined })",
-          "cacheKeyWithoutName": "false",
           "strWithName": "false",
           "strWithoutName": "false",
           "grammarStrWithName": "false",
@@ -62,7 +58,6 @@
           "kind": "null",
           "name": "null",
           "str": "Grammar({ type: \"T\", kind: \"null\", name: \"null\", text: undefined })",
-          "cacheKeyWithoutName": "null",
           "strWithName": "null",
           "strWithoutName": "null",
           "grammarStrWithName": "null",
@@ -73,7 +68,6 @@
           "kind": "object",
           "name": "object",
           "str": "Grammar({ type: \"NT\", kind: \"object\", name: \"object\", text: undefined })",
-          "cacheKeyWithoutName": "object",
           "strWithName": "object",
           "strWithoutName": "object",
           "grammarStrWithName": "object",
@@ -84,7 +78,6 @@
           "kind": "array",
           "name": "array",
           "str": "Grammar({ type: \"NT\", kind: \"array\", name: \"array\", text: undefined })",
-          "cacheKeyWithoutName": "array",
           "strWithName": "array",
           "strWithoutName": "array",
           "grammarStrWithName": "array",
@@ -96,7 +89,6 @@
           "name": "",
           "text": "[",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"[\" })",
-          "cacheKeyWithoutName": ":[",
           "strWithName": "<anonymous>: \"[\"",
           "strWithoutName": "<anonymous>: \"[\"",
           "grammarStrWithName": "\"[\"",
@@ -107,7 +99,6 @@
           "kind": "value",
           "name": "value",
           "str": "Grammar({ type: \"NT\", kind: \"value\", name: \"value\", text: undefined })",
-          "cacheKeyWithoutName": "value",
           "strWithName": "value",
           "strWithoutName": "value",
           "grammarStrWithName": "value",
@@ -119,7 +110,6 @@
           "name": "",
           "text": "]",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"]\" })",
-          "cacheKeyWithoutName": ":]",
           "strWithName": "<anonymous>: \"]\"",
           "strWithoutName": "<anonymous>: \"]\"",
           "grammarStrWithName": "\"]\"",
@@ -130,7 +120,6 @@
           "kind": "__0",
           "name": "__0",
           "str": "Grammar({ type: \"NT\", kind: \"__0\", name: \"__0\", text: undefined })",
-          "cacheKeyWithoutName": "__0",
           "strWithName": "__0",
           "strWithoutName": "__0",
           "grammarStrWithName": "__0",
@@ -142,7 +131,6 @@
           "name": "",
           "text": "{",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"{\" })",
-          "cacheKeyWithoutName": ":{",
           "strWithName": "<anonymous>: \"{\"",
           "strWithoutName": "<anonymous>: \"{\"",
           "grammarStrWithName": "\"{\"",
@@ -153,7 +141,6 @@
           "kind": "object_item",
           "name": "object_item",
           "str": "Grammar({ type: \"NT\", kind: \"object_item\", name: \"object_item\", text: undefined })",
-          "cacheKeyWithoutName": "object_item",
           "strWithName": "object_item",
           "strWithoutName": "object_item",
           "grammarStrWithName": "object_item",
@@ -165,7 +152,6 @@
           "name": "",
           "text": "}",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"}\" })",
-          "cacheKeyWithoutName": ":}",
           "strWithName": "<anonymous>: \"}\"",
           "strWithoutName": "<anonymous>: \"}\"",
           "grammarStrWithName": "\"}\"",
@@ -176,7 +162,6 @@
           "kind": "__1",
           "name": "__1",
           "str": "Grammar({ type: \"NT\", kind: \"__1\", name: \"__1\", text: undefined })",
-          "cacheKeyWithoutName": "__1",
           "strWithName": "__1",
           "strWithoutName": "__1",
           "grammarStrWithName": "__1",
@@ -188,7 +173,6 @@
           "name": "",
           "text": ":",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \":\" })",
-          "cacheKeyWithoutName": "::",
           "strWithName": "<anonymous>: \":\"",
           "strWithoutName": "<anonymous>: \":\"",
           "grammarStrWithName": "\":\"",
@@ -200,7 +184,6 @@
           "name": "",
           "text": ",",
           "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \",\" })",
-          "cacheKeyWithoutName": ":,",
           "strWithName": "<anonymous>: \",\"",
           "strWithoutName": "<anonymous>: \",\"",
           "grammarStrWithName": "\",\"",
@@ -555,7 +538,7 @@
           "gr": "{ array: `\"[\" value \"]\"` }",
           "digested": 0,
           "nextMap": {
-            ":[": "array := \"[\" # value \"]\""
+            "\"[\"": "array := \"[\" # value \"]\""
           },
           "str": "array := # \"[\" value \"]\"",
           "strWithGrammarName": "array := # \"[\" value \"]\""
@@ -564,7 +547,7 @@
           "gr": "{ array: `\"[\" value __0 \"]\"` }",
           "digested": 0,
           "nextMap": {
-            ":[": "array := \"[\" # value __0 \"]\""
+            "\"[\"": "array := \"[\" # value __0 \"]\""
           },
           "str": "array := # \"[\" value __0 \"]\"",
           "strWithGrammarName": "array := # \"[\" value __0 \"]\""
@@ -573,7 +556,7 @@
           "gr": "{ array: `\"[\" \"]\"` }",
           "digested": 0,
           "nextMap": {
-            ":[": "array := \"[\" # \"]\""
+            "\"[\"": "array := \"[\" # \"]\""
           },
           "str": "array := # \"[\" \"]\"",
           "strWithGrammarName": "array := # \"[\" \"]\""
@@ -582,7 +565,7 @@
           "gr": "{ object: `\"{\" object_item \"}\"` }",
           "digested": 0,
           "nextMap": {
-            ":{": "object := \"{\" # object_item \"}\""
+            "\"{\"": "object := \"{\" # object_item \"}\""
           },
           "str": "object := # \"{\" object_item \"}\"",
           "strWithGrammarName": "object := # \"{\" object_item \"}\""
@@ -591,7 +574,7 @@
           "gr": "{ object: `\"{\" object_item __1 \"}\"` }",
           "digested": 0,
           "nextMap": {
-            ":{": "object := \"{\" # object_item __1 \"}\""
+            "\"{\"": "object := \"{\" # object_item __1 \"}\""
           },
           "str": "object := # \"{\" object_item __1 \"}\"",
           "strWithGrammarName": "object := # \"{\" object_item __1 \"}\""
@@ -600,7 +583,7 @@
           "gr": "{ object: `\"{\" \"}\"` }",
           "digested": 0,
           "nextMap": {
-            ":{": "object := \"{\" # \"}\""
+            "\"{\"": "object := \"{\" # \"}\""
           },
           "str": "object := # \"{\" \"}\"",
           "strWithGrammarName": "object := # \"{\" \"}\""
@@ -618,7 +601,7 @@
           "gr": "{ __0: `\",\" value` }",
           "digested": 0,
           "nextMap": {
-            ":,": "__0 := \",\" # value"
+            "\",\"": "__0 := \",\" # value"
           },
           "str": "__0 := # \",\" value",
           "strWithGrammarName": "__0 := # \",\" value"
@@ -627,7 +610,7 @@
           "gr": "{ __0: `\",\" value __0` }",
           "digested": 0,
           "nextMap": {
-            ":,": "__0 := \",\" # value __0"
+            "\",\"": "__0 := \",\" # value __0"
           },
           "str": "__0 := # \",\" value __0",
           "strWithGrammarName": "__0 := # \",\" value __0"
@@ -636,7 +619,7 @@
           "gr": "{ __1: `\",\" object_item` }",
           "digested": 0,
           "nextMap": {
-            ":,": "__1 := \",\" # object_item"
+            "\",\"": "__1 := \",\" # object_item"
           },
           "str": "__1 := # \",\" object_item",
           "strWithGrammarName": "__1 := # \",\" object_item"
@@ -645,7 +628,7 @@
           "gr": "{ __1: `\",\" object_item __1` }",
           "digested": 0,
           "nextMap": {
-            ":,": "__1 := \",\" # object_item __1"
+            "\",\"": "__1 := \",\" # object_item __1"
           },
           "str": "__1 := # \",\" object_item __1",
           "strWithGrammarName": "__1 := # \",\" object_item __1"
@@ -721,7 +704,7 @@
           "gr": "{ array: `\"[\" \"]\"` }",
           "digested": 1,
           "nextMap": {
-            ":]": "array := \"[\" \"]\" #"
+            "\"]\"": "array := \"[\" \"]\" #"
           },
           "str": "array := \"[\" # \"]\"",
           "strWithGrammarName": "array := \"[\" # \"]\""
@@ -748,7 +731,7 @@
           "gr": "{ object: `\"{\" \"}\"` }",
           "digested": 1,
           "nextMap": {
-            ":}": "object := \"{\" \"}\" #"
+            "\"}\"": "object := \"{\" \"}\" #"
           },
           "str": "object := \"{\" # \"}\"",
           "strWithGrammarName": "object := \"{\" # \"}\""
@@ -757,7 +740,7 @@
           "gr": "{ array: `\"[\" value \"]\"` }",
           "digested": 2,
           "nextMap": {
-            ":]": "array := \"[\" value \"]\" #"
+            "\"]\"": "array := \"[\" value \"]\" #"
           },
           "str": "array := \"[\" value # \"]\"",
           "strWithGrammarName": "array := \"[\" value # \"]\""
@@ -782,7 +765,7 @@
           "gr": "{ object_item: `string \":\" value` }",
           "digested": 1,
           "nextMap": {
-            "::": "object_item := string \":\" # value"
+            "\":\"": "object_item := string \":\" # value"
           },
           "str": "object_item := string # \":\" value",
           "strWithGrammarName": "object_item := string # \":\" value"
@@ -791,7 +774,7 @@
           "gr": "{ object: `\"{\" object_item \"}\"` }",
           "digested": 2,
           "nextMap": {
-            ":}": "object := \"{\" object_item \"}\" #"
+            "\"}\"": "object := \"{\" object_item \"}\" #"
           },
           "str": "object := \"{\" object_item # \"}\"",
           "strWithGrammarName": "object := \"{\" object_item # \"}\""
@@ -823,7 +806,7 @@
           "gr": "{ array: `\"[\" value __0 \"]\"` }",
           "digested": 3,
           "nextMap": {
-            ":]": "array := \"[\" value __0 \"]\" #"
+            "\"]\"": "array := \"[\" value __0 \"]\" #"
           },
           "str": "array := \"[\" value __0 # \"]\"",
           "strWithGrammarName": "array := \"[\" value __0 # \"]\""
@@ -866,7 +849,7 @@
           "gr": "{ object: `\"{\" object_item __1 \"}\"` }",
           "digested": 3,
           "nextMap": {
-            ":}": "object := \"{\" object_item __1 \"}\" #"
+            "\"}\"": "object := \"{\" object_item __1 \"}\" #"
           },
           "str": "object := \"{\" object_item __1 # \"}\"",
           "strWithGrammarName": "object := \"{\" object_item __1 # \"}\""
@@ -982,16 +965,16 @@
             "null": "value := null #",
             "object": "value := object #",
             "array": "value := array #",
-            ":[": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
+            "\"[\"": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
+            "\"{\"": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
         },
@@ -1007,16 +990,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := string #"
         },
@@ -1032,16 +1015,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := number #"
         },
@@ -1057,16 +1040,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := true #"
         },
@@ -1082,16 +1065,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := false #"
         },
@@ -1107,16 +1090,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := null #"
         },
@@ -1132,16 +1115,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := object #"
         },
@@ -1157,16 +1140,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "value := array #"
         },
@@ -1197,16 +1180,16 @@
             "null": "value := null #",
             "object": "value := object #",
             "array": "value := array #",
-            ":[": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
+            "\"[\"": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
             "value": "__0 := # \",\" value\n__0 := # \",\" value __0\narray := \"[\" value # \"]\"\narray := \"[\" value # __0 \"]\"",
-            ":]": "array := \"[\" \"]\" #",
+            "\"]\"": "array := \"[\" \"]\" #",
             "__0": null,
-            ":{": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
+            "\"{\"": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
         },
@@ -1225,16 +1208,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": "__1 := # \",\" object_item\n__1 := # \",\" object_item __1\nobject := \"{\" object_item # \"}\"\nobject := \"{\" object_item # __1 \"}\"",
-            ":}": "object := \"{\" \"}\" #",
+            "\"}\"": "object := \"{\" \"}\" #",
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value"
         },
@@ -1253,16 +1236,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": "array := \"[\" value \"]\" #",
+            "\"]\"": "array := \"[\" value \"]\" #",
             "__0": "array := \"[\" value __0 # \"]\"",
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": "__0 := \",\" # value\n__0 := \",\" # value __0\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
+            "\":\"": null,
+            "\",\"": "__0 := \",\" # value\n__0 := \",\" # value __0\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
           },
           "str": "__0 := # \",\" value\n__0 := # \",\" value __0\narray := \"[\" value # \"]\"\narray := \"[\" value # __0 \"]\""
         },
@@ -1278,16 +1261,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := \"[\" \"]\" #"
         },
@@ -1303,16 +1286,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": "array := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nobject_item := string \":\" # value\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
-            ":,": null
+            "\":\"": "array := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nobject_item := string \":\" # value\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
+            "\",\"": null
           },
           "str": "object_item := string # \":\" value"
         },
@@ -1331,16 +1314,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": "object := \"{\" object_item \"}\" #",
+            "\"}\"": "object := \"{\" object_item \"}\" #",
             "__1": "object := \"{\" object_item __1 # \"}\"",
-            "::": null,
-            ":,": "__1 := \",\" # object_item\n__1 := \",\" # object_item __1\nobject_item := # string \":\" value"
+            "\":\"": null,
+            "\",\"": "__1 := \",\" # object_item\n__1 := \",\" # object_item __1\nobject_item := # string \":\" value"
           },
           "str": "__1 := # \",\" object_item\n__1 := # \",\" object_item __1\nobject := \"{\" object_item # \"}\"\nobject := \"{\" object_item # __1 \"}\""
         },
@@ -1356,16 +1339,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object := \"{\" \"}\" #"
         },
@@ -1381,16 +1364,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := \"[\" value \"]\" #"
         },
@@ -1406,16 +1389,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": "array := \"[\" value __0 \"]\" #",
+            "\"]\"": "array := \"[\" value __0 \"]\" #",
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := \"[\" value __0 # \"]\""
         },
@@ -1445,16 +1428,16 @@
             "null": "value := null #",
             "object": "value := object #",
             "array": "value := array #",
-            ":[": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
+            "\"[\"": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
             "value": "__0 := \",\" value #\n__0 := \",\" value # __0\n__0 := # \",\" value\n__0 := # \",\" value __0",
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
+            "\"{\"": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "__0 := \",\" # value\n__0 := \",\" # value __0\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
         },
@@ -1483,16 +1466,16 @@
             "null": "value := null #",
             "object": "value := object #",
             "array": "value := array #",
-            ":[": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
+            "\"[\"": "array := \"[\" # \"]\"\narray := \"[\" # value \"]\"\narray := \"[\" # value __0 \"]\"\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true",
             "value": "object_item := string \":\" value #",
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
+            "\"{\"": "object := \"{\" # \"}\"\nobject := \"{\" # object_item \"}\"\nobject := \"{\" # object_item __1 \"}\"\nobject_item := # string \":\" value",
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nobject_item := string \":\" # value\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
         },
@@ -1508,16 +1491,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object := \"{\" object_item \"}\" #"
         },
@@ -1533,16 +1516,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": "object := \"{\" object_item __1 \"}\" #",
+            "\"}\"": "object := \"{\" object_item __1 \"}\" #",
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object := \"{\" object_item __1 # \"}\""
         },
@@ -1560,16 +1543,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": "__1 := \",\" object_item #\n__1 := \",\" object_item # __1\n__1 := # \",\" object_item\n__1 := # \",\" object_item __1",
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "__1 := \",\" # object_item\n__1 := \",\" # object_item __1\nobject_item := # string \":\" value"
         },
@@ -1585,16 +1568,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "array := \"[\" value __0 \"]\" #"
         },
@@ -1613,16 +1596,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": "__0 := \",\" value __0 #",
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": "__0 := \",\" # value\n__0 := \",\" # value __0\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
+            "\":\"": null,
+            "\",\"": "__0 := \",\" # value\n__0 := \",\" # value __0\narray := # \"[\" \"]\"\narray := # \"[\" value \"]\"\narray := # \"[\" value __0 \"]\"\nobject := # \"{\" \"}\"\nobject := # \"{\" object_item \"}\"\nobject := # \"{\" object_item __1 \"}\"\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true"
           },
           "str": "__0 := \",\" value #\n__0 := \",\" value # __0\n__0 := # \",\" value\n__0 := # \",\" value __0"
         },
@@ -1638,16 +1621,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object_item := string \":\" value #"
         },
@@ -1663,16 +1646,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "object := \"{\" object_item __1 \"}\" #"
         },
@@ -1691,16 +1674,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": "__1 := \",\" object_item __1 #",
-            "::": null,
-            ":,": "__1 := \",\" # object_item\n__1 := \",\" # object_item __1\nobject_item := # string \":\" value"
+            "\":\"": null,
+            "\",\"": "__1 := \",\" # object_item\n__1 := \",\" # object_item __1\nobject_item := # string \":\" value"
           },
           "str": "__1 := \",\" object_item #\n__1 := \",\" object_item # __1\n__1 := # \",\" object_item\n__1 := # \",\" object_item __1"
         },
@@ -1716,16 +1699,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "__0 := \",\" value __0 #"
         },
@@ -1741,16 +1724,16 @@
             "null": null,
             "object": null,
             "array": null,
-            ":[": null,
+            "\"[\"": null,
             "value": null,
-            ":]": null,
+            "\"]\"": null,
             "__0": null,
-            ":{": null,
+            "\"{\"": null,
             "object_item": null,
-            ":}": null,
+            "\"}\"": null,
             "__1": null,
-            "::": null,
-            ":,": null
+            "\":\"": null,
+            "\",\"": null
           },
           "str": "__1 := \",\" object_item __1 #"
         }

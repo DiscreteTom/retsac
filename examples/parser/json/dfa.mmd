@@ -1,0 +1,90 @@
+stateDiagram-v2
+direction LR
+[*] --> p1isnk8
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; value &quot;]&quot;\narray := # &quot;[&quot; value __0 &quot;]&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true" as p1isnk8
+p1isnk8 --> ni8p34u: #115;#116;#114;#105;#110;#103;
+p1isnk8 --> n83f946: #110;#117;#109;#98;#101;#114;
+p1isnk8 --> pcbppr3: #116;#114;#117;#101;
+p1isnk8 --> pqcxq54: #102;#97;#108;#115;#101;
+p1isnk8 --> p9ixrh4: #110;#117;#108;#108;
+p1isnk8 --> pollbps: #111;#98;#106;#101;#99;#116;
+p1isnk8 --> pw4tmby: #97;#114;#114;#97;#121;
+p1isnk8 --> nmuqptn: #34;#91;#34;
+p1isnk8 --> nr4imeh: #34;#123;#34;
+state "value := string #" as ni8p34u
+state "value := number #" as n83f946
+state "value := true #" as pcbppr3
+state "value := false #" as pqcxq54
+state "value := null #" as p9ixrh4
+state "value := object #" as pollbps
+state "value := array #" as pw4tmby
+state "array := &quot;[&quot; # &quot;]&quot;\narray := &quot;[&quot; # value &quot;]&quot;\narray := &quot;[&quot; # value __0 &quot;]&quot;\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; value &quot;]&quot;\narray := # &quot;[&quot; value __0 &quot;]&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true" as nmuqptn
+nmuqptn --> ni8p34u: #115;#116;#114;#105;#110;#103;
+nmuqptn --> n83f946: #110;#117;#109;#98;#101;#114;
+nmuqptn --> pcbppr3: #116;#114;#117;#101;
+nmuqptn --> pqcxq54: #102;#97;#108;#115;#101;
+nmuqptn --> p9ixrh4: #110;#117;#108;#108;
+nmuqptn --> pollbps: #111;#98;#106;#101;#99;#116;
+nmuqptn --> pw4tmby: #97;#114;#114;#97;#121;
+nmuqptn --> nmuqptn: #34;#91;#34;
+nmuqptn --> niaa92u: #118;#97;#108;#117;#101;
+nmuqptn --> p6ippfh: #34;#93;#34;
+nmuqptn --> nr4imeh: #34;#123;#34;
+state "object := &quot;{&quot; # &quot;}&quot;\nobject := &quot;{&quot; # object_item &quot;}&quot;\nobject := &quot;{&quot; # object_item __1 &quot;}&quot;\nobject_item := # string &quot;:&quot; value" as nr4imeh
+nr4imeh --> nhocv7l: #115;#116;#114;#105;#110;#103;
+nr4imeh --> psuc31o: #111;#98;#106;#101;#99;#116;#95;#105;#116;#101;#109;
+nr4imeh --> pnt6gt3: #34;#125;#34;
+state "__0 := # &quot;,&quot; value\n__0 := # &quot;,&quot; value __0\narray := &quot;[&quot; value # &quot;]&quot;\narray := &quot;[&quot; value # __0 &quot;]&quot;" as niaa92u
+niaa92u --> ny6blbm: #34;#93;#34;
+niaa92u --> njbussi: #95;#95;#48;
+niaa92u --> pa9yddk: #34;#44;#34;
+state "array := &quot;[&quot; &quot;]&quot; #" as p6ippfh
+state "object_item := string # &quot;:&quot; value" as nhocv7l
+nhocv7l --> nwyx937: #34;#58;#34;
+state "__1 := # &quot;,&quot; object_item\n__1 := # &quot;,&quot; object_item __1\nobject := &quot;{&quot; object_item # &quot;}&quot;\nobject := &quot;{&quot; object_item # __1 &quot;}&quot;" as psuc31o
+psuc31o --> p9o3t1m: #34;#125;#34;
+psuc31o --> pnxi3y3: #95;#95;#49;
+psuc31o --> pjv35e2: #34;#44;#34;
+state "object := &quot;{&quot; &quot;}&quot; #" as pnt6gt3
+state "array := &quot;[&quot; value &quot;]&quot; #" as ny6blbm
+state "array := &quot;[&quot; value __0 # &quot;]&quot;" as njbussi
+njbussi --> njbbon6: #34;#93;#34;
+state "__0 := &quot;,&quot; # value\n__0 := &quot;,&quot; # value __0\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; value &quot;]&quot;\narray := # &quot;[&quot; value __0 &quot;]&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true" as pa9yddk
+pa9yddk --> ni8p34u: #115;#116;#114;#105;#110;#103;
+pa9yddk --> n83f946: #110;#117;#109;#98;#101;#114;
+pa9yddk --> pcbppr3: #116;#114;#117;#101;
+pa9yddk --> pqcxq54: #102;#97;#108;#115;#101;
+pa9yddk --> p9ixrh4: #110;#117;#108;#108;
+pa9yddk --> pollbps: #111;#98;#106;#101;#99;#116;
+pa9yddk --> pw4tmby: #97;#114;#114;#97;#121;
+pa9yddk --> nmuqptn: #34;#91;#34;
+pa9yddk --> pbfri3u: #118;#97;#108;#117;#101;
+pa9yddk --> nr4imeh: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; value &quot;]&quot;\narray := # &quot;[&quot; value __0 &quot;]&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nobject_item := string &quot;:&quot; # value\nvalue := # array\nvalue := # false\nvalue := # null\nvalue := # number\nvalue := # object\nvalue := # string\nvalue := # true" as nwyx937
+nwyx937 --> ni8p34u: #115;#116;#114;#105;#110;#103;
+nwyx937 --> n83f946: #110;#117;#109;#98;#101;#114;
+nwyx937 --> pcbppr3: #116;#114;#117;#101;
+nwyx937 --> pqcxq54: #102;#97;#108;#115;#101;
+nwyx937 --> p9ixrh4: #110;#117;#108;#108;
+nwyx937 --> pollbps: #111;#98;#106;#101;#99;#116;
+nwyx937 --> pw4tmby: #97;#114;#114;#97;#121;
+nwyx937 --> nmuqptn: #34;#91;#34;
+nwyx937 --> pfiq67z: #118;#97;#108;#117;#101;
+nwyx937 --> nr4imeh: #34;#123;#34;
+state "object := &quot;{&quot; object_item &quot;}&quot; #" as p9o3t1m
+state "object := &quot;{&quot; object_item __1 # &quot;}&quot;" as pnxi3y3
+pnxi3y3 --> pnylmwr: #34;#125;#34;
+state "__1 := &quot;,&quot; # object_item\n__1 := &quot;,&quot; # object_item __1\nobject_item := # string &quot;:&quot; value" as pjv35e2
+pjv35e2 --> nhocv7l: #115;#116;#114;#105;#110;#103;
+pjv35e2 --> nl1vfkk: #111;#98;#106;#101;#99;#116;#95;#105;#116;#101;#109;
+state "array := &quot;[&quot; value __0 &quot;]&quot; #" as njbbon6
+state "__0 := &quot;,&quot; value #\n__0 := &quot;,&quot; value # __0\n__0 := # &quot;,&quot; value\n__0 := # &quot;,&quot; value __0" as pbfri3u
+pbfri3u --> psq39hr: #95;#95;#48;
+pbfri3u --> pa9yddk: #34;#44;#34;
+state "object_item := string &quot;:&quot; value #" as pfiq67z
+state "object := &quot;{&quot; object_item __1 &quot;}&quot; #" as pnylmwr
+state "__1 := &quot;,&quot; object_item #\n__1 := &quot;,&quot; object_item # __1\n__1 := # &quot;,&quot; object_item\n__1 := # &quot;,&quot; object_item __1" as nl1vfkk
+nl1vfkk --> pf9xpjl: #95;#95;#49;
+nl1vfkk --> pjv35e2: #34;#44;#34;
+state "__0 := &quot;,&quot; value __0 #" as psq39hr
+state "__1 := &quot;,&quot; object_item __1 #" as pf9xpjl
