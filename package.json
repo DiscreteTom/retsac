@@ -18,9 +18,9 @@
     "format:check": "prettier --check --end-of-line auto \"src/**/*.ts\"",
     "format:check:all": "prettier --check --end-of-line auto \"src/**/*.ts\" \"examples/**/*.ts\" \"tests/**/*.ts\" \"utils/**/*.ts\"",
     "lint": "eslint src/",
-    "lint:all": "eslint . --ext .ts",
+    "lint:all": "eslint src/ examples/ tests/ utils/",
     "lint:fix": "eslint --fix src/",
-    "lint:fix:all": "eslint --fix . --ext .ts",
+    "lint:fix:all": "eslint --fix src/ examples/ tests/ utils/",
     "prepublishOnly": "yarn format:check:all && yarn lint:all && yarn test && yarn clean && yarn build && yarn build:readme",
     "prepare": "husky install"
   },
