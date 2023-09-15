@@ -40,11 +40,6 @@ export class Grammar<AllKinds extends string> {
    */
   readonly str: StringCache;
   /**
-   * @see {@link Grammar.getCacheKeyWithoutName}
-   */
-  // TODO: rename this to some `nodeMatcher`?
-  readonly cacheKeyWithoutName: StringCache;
-  /**
    * @see {@link ASTNode.strWithName}
    */
   readonly strWithName: StringCache;
@@ -86,9 +81,6 @@ export class Grammar<AllKinds extends string> {
         `Grammar({ type: "${GrammarType[this.type]}", kind: "${
           this.kind
         }", name: "${this.name}", text: ${JSON.stringify(this.text)} })`, // quote text, escape literal
-    );
-    this.cacheKeyWithoutName = new StringCache(() =>
-      Grammar.getCacheKeyWithoutName(this),
     );
     this.strWithName = new StringCache(() => ASTNode.getStrWithName(this));
     this.strWithoutName = new StringCache(() =>
@@ -176,7 +168,6 @@ export class Grammar<AllKinds extends string> {
       name: this.name,
       text: this.text,
       str: this.str.value,
-      cacheKeyWithoutName: this.cacheKeyWithoutName.value,
       strWithName: this.strWithName.value,
       strWithoutName: this.strWithoutName.value,
       grammarStrWithName: this.grammarStrWithName,
@@ -195,7 +186,6 @@ export class Grammar<AllKinds extends string> {
       grammarStrWithName: data.grammarStrWithName,
     });
     g.str.value = data.str;
-    g.cacheKeyWithoutName.value = data.cacheKeyWithoutName;
     g.strWithName.value = data.strWithName;
     g.strWithoutName.value = data.strWithoutName;
     g.grammarStrWithoutName.value = data.grammarStrWithoutName;
