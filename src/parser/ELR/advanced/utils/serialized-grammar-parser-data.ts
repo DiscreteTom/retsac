@@ -20,7 +20,6 @@ export const data: SerializableParserData<
           name: "grammar",
           text: undefined,
           str: 'Grammar({ type: "T", kind: "grammar", name: "grammar", text: undefined })',
-          cacheKeyWithoutName: "grammar",
           strWithName: "grammar",
           strWithoutName: "grammar",
           grammarStrWithName: "grammar",
@@ -32,7 +31,6 @@ export const data: SerializableParserData<
           name: "literal",
           text: undefined,
           str: 'Grammar({ type: "T", kind: "literal", name: "literal", text: undefined })',
-          cacheKeyWithoutName: "literal",
           strWithName: "literal",
           strWithoutName: "literal",
           grammarStrWithName: "literal",
@@ -44,7 +42,6 @@ export const data: SerializableParserData<
           name: "rename",
           text: undefined,
           str: 'Grammar({ type: "T", kind: "rename", name: "rename", text: undefined })',
-          cacheKeyWithoutName: "rename",
           strWithName: "rename",
           strWithoutName: "rename",
           grammarStrWithName: "rename",
@@ -56,7 +53,6 @@ export const data: SerializableParserData<
           name: "",
           text: "(",
           str: 'Grammar({ type: "T", kind: "", name: "", text: "(" })',
-          cacheKeyWithoutName: ":(",
           strWithName: '<anonymous>: "("',
           strWithoutName: '<anonymous>: "("',
           grammarStrWithName: '"("',
@@ -68,7 +64,6 @@ export const data: SerializableParserData<
           name: "gr",
           text: undefined,
           str: 'Grammar({ type: "NT", kind: "gr", name: "gr", text: undefined })',
-          cacheKeyWithoutName: "gr",
           strWithName: "gr",
           strWithoutName: "gr",
           grammarStrWithName: "gr",
@@ -80,7 +75,6 @@ export const data: SerializableParserData<
           name: "",
           text: ")",
           str: 'Grammar({ type: "T", kind: "", name: "", text: ")" })',
-          cacheKeyWithoutName: ":)",
           strWithName: '<anonymous>: ")"',
           strWithoutName: '<anonymous>: ")"',
           grammarStrWithName: '")"',
@@ -92,7 +86,6 @@ export const data: SerializableParserData<
           name: "",
           text: "?",
           str: 'Grammar({ type: "T", kind: "", name: "", text: "?" })',
-          cacheKeyWithoutName: ":?",
           strWithName: '<anonymous>: "?"',
           strWithoutName: '<anonymous>: "?"',
           grammarStrWithName: '"?"',
@@ -104,7 +97,6 @@ export const data: SerializableParserData<
           name: "",
           text: "*",
           str: 'Grammar({ type: "T", kind: "", name: "", text: "*" })',
-          cacheKeyWithoutName: ":*",
           strWithName: '<anonymous>: "*"',
           strWithoutName: '<anonymous>: "*"',
           grammarStrWithName: '"*"',
@@ -116,7 +108,6 @@ export const data: SerializableParserData<
           name: "",
           text: "+",
           str: 'Grammar({ type: "T", kind: "", name: "", text: "+" })',
-          cacheKeyWithoutName: ":+",
           strWithName: '<anonymous>: "+"',
           strWithoutName: '<anonymous>: "+"',
           grammarStrWithName: '"+"',
@@ -128,7 +119,6 @@ export const data: SerializableParserData<
           name: "",
           text: "|",
           str: 'Grammar({ type: "T", kind: "", name: "", text: "|" })',
-          cacheKeyWithoutName: ":|",
           strWithName: '<anonymous>: "|"',
           strWithoutName: '<anonymous>: "|"',
           grammarStrWithName: '"|"',
@@ -1026,7 +1016,7 @@ export const data: SerializableParserData<
         {
           gr: '{ gr: `"(" gr ")"` }',
           digested: 0,
-          nextMap: { ":(": 'gr := "(" # gr ")"' },
+          nextMap: { '"("': 'gr := "(" # gr ")"' },
           str: 'gr := # "(" gr ")"',
           strWithGrammarName: 'gr := # "(" gr ")"',
         },
@@ -1103,28 +1093,28 @@ export const data: SerializableParserData<
         {
           gr: '{ gr: `gr "?"` }',
           digested: 1,
-          nextMap: { ":?": 'gr := gr "?" #' },
+          nextMap: { '"?"': 'gr := gr "?" #' },
           str: 'gr := gr # "?"',
           strWithGrammarName: 'gr := gr # "?"',
         },
         {
           gr: '{ gr: `gr "*"` }',
           digested: 1,
-          nextMap: { ":*": 'gr := gr "*" #' },
+          nextMap: { '"*"': 'gr := gr "*" #' },
           str: 'gr := gr # "*"',
           strWithGrammarName: 'gr := gr # "*"',
         },
         {
           gr: '{ gr: `gr "+"` }',
           digested: 1,
-          nextMap: { ":+": 'gr := gr "+" #' },
+          nextMap: { '"+"': 'gr := gr "+" #' },
           str: 'gr := gr # "+"',
           strWithGrammarName: 'gr := gr # "+"',
         },
         {
           gr: '{ gr: `gr "|" gr` }',
           digested: 1,
-          nextMap: { ":|": 'gr := gr "|" # gr' },
+          nextMap: { '"|"': 'gr := gr "|" # gr' },
           str: 'gr := gr # "|" gr',
           strWithGrammarName: 'gr := gr # "|" gr',
         },
@@ -1152,7 +1142,7 @@ export const data: SerializableParserData<
         {
           gr: '{ gr: `"(" gr ")"` }',
           digested: 2,
-          nextMap: { ":)": 'gr := "(" gr ")" #' },
+          nextMap: { '")"': 'gr := "(" gr ")" #' },
           str: 'gr := "(" gr # ")"',
           strWithGrammarName: 'gr := "(" gr # ")"',
         },
@@ -1225,7 +1215,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1253,11 +1243,11 @@ export const data: SerializableParserData<
                 'gr := gr # "?"\n' +
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr",
-              ":)": null,
-              ":?": null,
-              ":*": null,
-              ":+": null,
-              ":|": null,
+              '")"': null,
+              '"?"': null,
+              '"*"': null,
+              '"+"': null,
+              '"|"': null,
             },
             str:
               'gr := # "(" gr ")"\n' +
@@ -1277,13 +1267,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: "gr := grammar rename #",
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: "gr := grammar #\ngr := grammar # rename",
         },
@@ -1293,13 +1283,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: "gr := literal rename #",
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: "gr := literal #\ngr := literal # rename",
         },
@@ -1322,7 +1312,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1351,11 +1341,11 @@ export const data: SerializableParserData<
                 'gr := gr # "?"\n' +
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr",
-              ":)": null,
-              ":?": null,
-              ":*": null,
-              ":+": null,
-              ":|": null,
+              '")"': null,
+              '"?"': null,
+              '"*"': null,
+              '"+"': null,
+              '"|"': null,
             },
             str:
               'gr := "(" # gr ")"\n' +
@@ -1393,7 +1383,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1422,11 +1412,11 @@ export const data: SerializableParserData<
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr\n" +
                 "gr := gr gr #",
-              ":)": null,
-              ":?": 'gr := gr "?" #',
-              ":*": 'gr := gr "*" #',
-              ":+": 'gr := gr "+" #',
-              ":|":
+              '")"': null,
+              '"?"': 'gr := gr "?" #',
+              '"*"': 'gr := gr "*" #',
+              '"+"': 'gr := gr "+" #',
+              '"|"':
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
                 'gr := # gr "+"\n' +
@@ -1462,13 +1452,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: "gr := grammar rename #",
         },
@@ -1478,13 +1468,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: "gr := literal rename #",
         },
@@ -1512,7 +1502,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1541,11 +1531,11 @@ export const data: SerializableParserData<
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr\n" +
                 "gr := gr gr #",
-              ":)": 'gr := "(" gr ")" #',
-              ":?": 'gr := gr "?" #',
-              ":*": 'gr := gr "*" #',
-              ":+": 'gr := gr "+" #',
-              ":|":
+              '")"': 'gr := "(" gr ")" #',
+              '"?"': 'gr := gr "?" #',
+              '"*"': 'gr := gr "*" #',
+              '"+"': 'gr := gr "+" #',
+              '"|"':
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
                 'gr := # gr "+"\n' +
@@ -1600,7 +1590,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1629,11 +1619,11 @@ export const data: SerializableParserData<
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr\n" +
                 "gr := gr gr #",
-              ":)": null,
-              ":?": 'gr := gr "?" #',
-              ":*": 'gr := gr "*" #',
-              ":+": 'gr := gr "+" #',
-              ":|":
+              '")"': null,
+              '"?"': 'gr := gr "?" #',
+              '"*"': 'gr := gr "*" #',
+              '"+"': 'gr := gr "+" #',
+              '"|"':
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
                 'gr := # gr "+"\n' +
@@ -1670,13 +1660,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: 'gr := gr "?" #',
         },
@@ -1686,13 +1676,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: 'gr := gr "*" #',
         },
@@ -1702,13 +1692,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: 'gr := gr "+" #',
         },
@@ -1731,7 +1721,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1760,11 +1750,11 @@ export const data: SerializableParserData<
                 'gr := gr # "?"\n' +
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr",
-              ":)": null,
-              ":?": null,
-              ":*": null,
-              ":+": null,
-              ":|": null,
+              '")"': null,
+              '"?"': null,
+              '"*"': null,
+              '"+"': null,
+              '"|"': null,
             },
             str:
               'gr := # "(" gr ")"\n' +
@@ -1785,13 +1775,13 @@ export const data: SerializableParserData<
             grammar: null,
             literal: null,
             rename: null,
-            ":(": null,
+            '"("': null,
             gr: null,
-            ":)": null,
-            ":?": null,
-            ":*": null,
-            ":+": null,
-            ":|": null,
+            '")"': null,
+            '"?"': null,
+            '"*"': null,
+            '"+"': null,
+            '"|"': null,
           },
           str: 'gr := "(" gr ")" #',
         },
@@ -1819,7 +1809,7 @@ export const data: SerializableParserData<
               grammar: "gr := grammar #\ngr := grammar # rename",
               literal: "gr := literal #\ngr := literal # rename",
               rename: null,
-              ":(":
+              '"("':
                 'gr := "(" # gr ")"\n' +
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
@@ -1848,11 +1838,11 @@ export const data: SerializableParserData<
                 'gr := gr # "|" gr\n' +
                 "gr := gr # gr\n" +
                 "gr := gr gr #",
-              ":)": null,
-              ":?": 'gr := gr "?" #',
-              ":*": 'gr := gr "*" #',
-              ":+": 'gr := gr "+" #',
-              ":|":
+              '")"': null,
+              '"?"': 'gr := gr "?" #',
+              '"*"': 'gr := gr "*" #',
+              '"+"': 'gr := gr "+" #',
+              '"|"':
                 'gr := # "(" gr ")"\n' +
                 'gr := # gr "*"\n' +
                 'gr := # gr "+"\n' +
