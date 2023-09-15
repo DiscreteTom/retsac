@@ -179,13 +179,8 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
 
     // don't use `this.toStringWithName` here
     // since this output will always have ': '
-    let res = `${indent}${
-      this.kind == ""
-        ? "<anonymous>"
-        : this.kind == this.name
-        ? this.kind
-        : `${this.kind}@${this.name}`
-    }: `;
+    const kind = this.kind == "" ? "<anonymous>" : this.kind;
+    let res = `${indent}${kind == this.name ? kind : `${kind}@${this.name}`}: `;
     if (this.text) res += JSON.stringify(this.text); // quote the text
     res += "\n";
     this.children?.forEach((c) => {
