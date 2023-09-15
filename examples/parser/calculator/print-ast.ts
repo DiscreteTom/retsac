@@ -5,7 +5,7 @@ if (!res.accept || res.buffer.length != 1)
   throw new Error(
     `Reduce failed for input. Result: ${parser.buffer
       .map((node) => node.toString())
-      .join(" ")}`
+      .join(" ")}`,
   );
 
 console.log(res.buffer[0].toTreeString());

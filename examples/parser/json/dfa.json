@@ -416,10 +416,7 @@
               "anotherRule": "{ __0: `\",\" value __0` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 0
-              }
+              "accepter": false
             }
           ],
           "str": "{ __0: `\",\" value` }",
@@ -467,10 +464,7 @@
               "anotherRule": "{ __1: `\",\" object_item __1` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 1
-              }
+              "accepter": false
             }
           ],
           "str": "{ __1: `\",\" object_item` }",

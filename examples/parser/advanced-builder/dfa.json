@@ -551,10 +551,7 @@
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 0
-              }
+              "accepter": true
             }
           ],
           "str": "{ exp: `exp \"+\" exp` }",
@@ -588,10 +585,7 @@
               "anotherRule": "{ __0: `\",\" param __0` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 1
-              }
+              "accepter": false
             }
           ],
           "str": "{ __0: `\",\" param` }",
@@ -642,10 +636,7 @@
               "anotherRule": "{ __1: `stmt __1` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 2
-              }
+              "accepter": false
             }
           ],
           "str": "{ __1: `stmt` }",

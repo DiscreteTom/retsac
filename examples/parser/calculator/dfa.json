@@ -178,80 +178,63 @@
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 0
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 1
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 4
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 5
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 8
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 9
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 12
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 13
-              }
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `\"-\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
             }
           ],
           "str": "{ exp: `\"-\" exp` }",
@@ -290,7 +273,7 @@
               "handleEnd": false,
               "overlapped": 1,
               "resolvers": [
-                10
+                6
               ]
             },
             {
@@ -302,8 +285,8 @@
               "handleEnd": false,
               "overlapped": 1,
               "resolvers": [
-                6,
-                8
+                7,
+                9
               ]
             },
             {
@@ -337,110 +320,77 @@
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 10
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 11
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 18
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 19
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 26
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 27
-              }
-            },
-            {
-              "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
-              "handleEnd": false,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 40
-              }
-            },
-            {
-              "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
-              "handleEnd": true,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 41
-              }
-            },
-            {
-              "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
-              "handleEnd": false,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 46
-              }
-            },
-            {
-              "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
-              "handleEnd": true,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 47
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 50
-              }
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 1,
+              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "handleEnd": true,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 1,
+              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "handleEnd": true,
+              "next": "*",
+              "accepter": true
             }
           ],
           "str": "{ exp: `exp \"+\" exp` }",
@@ -512,110 +462,77 @@
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 14
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 15
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 22
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 23
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 30
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 31
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 42
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 43
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 44
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 45
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 51
-              }
+              "accepter": true
             }
           ],
           "str": "{ exp: `exp \"-\" exp` }",
@@ -664,7 +581,7 @@
               "handleEnd": false,
               "overlapped": 1,
               "resolvers": [
-                10
+                6
               ]
             },
             {
@@ -676,8 +593,8 @@
               "handleEnd": false,
               "overlapped": 1,
               "resolvers": [
-                6,
-                8
+                7,
+                9
               ]
             }
           ],
@@ -687,110 +604,77 @@
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 2
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 3
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 16
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 17
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 20
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 21
-              }
-            },
-            {
-              "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
-              "handleEnd": false,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 32
-              }
-            },
-            {
-              "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
-              "handleEnd": true,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 33
-              }
-            },
-            {
-              "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
-              "handleEnd": false,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 38
-              }
-            },
-            {
-              "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
-              "handleEnd": true,
-              "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 39
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 48
-              }
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 1,
+              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "handleEnd": true,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 1,
+              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "handleEnd": true,
+              "next": "*",
+              "accepter": true
             }
           ],
           "str": "{ exp: `exp \"*\" exp` }",
@@ -862,110 +746,77 @@
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 6
-              }
+              "accepter": false
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `\"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 7
-              }
+              "accepter": false
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 24
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"+\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 25
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 28
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"-\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 29
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 34
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 35
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 36
-              }
+              "accepter": true
             },
             {
               "type": 1,
               "anotherRule": "{ exp: `exp \"*\" exp` }",
               "handleEnd": true,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 37
-              }
+              "accepter": true
             },
             {
               "type": 0,
               "anotherRule": "{ exp: `exp \"/\" exp` }",
               "handleEnd": false,
               "next": "*",
-              "hydrationId": {
-                "type": 0,
-                "index": 49
-              }
+              "accepter": true
             }
           ],
           "str": "{ exp: `exp \"/\" exp` }",
@@ -1534,34 +1385,10 @@
       },
       "firstSets": {
         "exp": [
-          "\")\"",
-          "\"+\"",
-          "\"-\"",
-          "\"*\"",
-          "\"/\"",
-          "exp",
-          "number",
-          "\"(\""
-        ],
-        "number": [
-          "\")\"",
-          "\"+\"",
-          "\"-\"",
-          "\"*\"",
-          "\"/\"",
-          "exp",
-          "number",
-          "\"(\""
-        ],
-        "": [
-          "exp",
           "number",
           "\"-\"",
           "\"(\"",
-          "\")\"",
-          "\"+\"",
-          "\"*\"",
-          "\"/\""
+          "exp"
         ]
       },
       "followSets": {

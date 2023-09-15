@@ -12,8 +12,7 @@ const lexer = new Lexer.Builder()
 export let fName = "";
 export let returnType = "";
 
-export const parser = new ELR.ParserBuilder()
-  .useLexerKinds(lexer)
+export const { parser } = new ELR.ParserBuilder()
   .define(
     {
       fn_def: `
@@ -27,7 +26,7 @@ export const parser = new ELR.ParserBuilder()
       fName = $("identifier")!.text!;
       // use `$$` to get all matched tokens
       returnType = $$("identifier")[1].text!;
-    })
+    }),
   )
   .entry("fn_def")
   .build(lexer);

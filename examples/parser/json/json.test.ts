@@ -2,8 +2,8 @@ import { parser } from "./json";
 
 function getResult(input: string) {
   const res = parser.reset().parse(input);
-  if (!res.accept) throw new Error();
-  if (res.buffer.length != 1) throw new Error();
+  if (!res.accept) throw new Error("rejected");
+  if (res.buffer.length != 1) throw new Error("unfinished reduction");
   return res.buffer[0].traverse();
 }
 

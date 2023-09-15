@@ -13,8 +13,7 @@ const lexer = new Lexer.Builder()
 /** name => value */
 export const varMap = new Map<string, number>();
 
-export const parser = new ELR.ParserBuilder<number>()
-  .useLexerKinds(lexer)
+export const { parser } = new ELR.ParserBuilder<number>()
   // if a node has only one child, the default traverser will return the child's data.
   // if the child's data is undefined, the child's traverser will be called to get the data.
   .define({ stmts: `stmt` })
@@ -26,36 +25,35 @@ export const parser = new ELR.ParserBuilder<number>()
       // store the value of the expression to the variable
       // remember to use `child.traverse()` instead of `child.data` to get the data
       varMap.set($(`identifier`)!.text!, $(`exp`)!.traverse()!);
-    })
+    }),
   )
   .define(
     { exp: `exp '+' exp` },
     ELR.traverser(
       // remember to use `child.traverse()` instead of `child.data` to get the data
-      ({ children }) => children[0].traverse()! + children[2].traverse()!
-    )
+      ({ children }) => children[0].traverse()! + children[2].traverse()!,
+    ),
   )
   .define(
     { exp: `number` },
-    ELR.traverser(({ children }) => Number(children[0].text!))
+    ELR.traverser(({ children }) => Number(children[0].text!)),
     // reducer can still be used to set the data before traversing
     // ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children[0].text!)!)
+    ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
   .resolveRS(
     { exp: `exp '+' exp` },
     { exp: `exp '+' exp` },
-    { next: `'+'`, accept: true }
+    { next: `'+'`, accept: true },
   )
   .entry("stmts")
   .build(lexer, { checkAll: true });
 
-export const parser2 = new ELR.ParserBuilder<number>()
-  .useLexerKinds(lexer)
+export const { parser: parser2 } = new ELR.ParserBuilder<number>()
   .define(
     {
       fn_def_stmt: `
@@ -71,17 +69,17 @@ export const parser2 = new ELR.ParserBuilder<number>()
       varMap.set($$(`identifier`)[1].text!, 456);
       // traverse the function body
       $(`stmt`)!.traverse();
-    })
+    }),
   )
   .define(
     { stmt: `return exp` },
     // return expression value
-    ELR.traverser(({ children }) => children[1].traverse())
+    ELR.traverser(({ children }) => children[1].traverse()),
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children[0].text!)!)
+    ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
   .entry("fn_def_stmt")
   .build(lexer, { checkAll: true });
