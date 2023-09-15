@@ -49,7 +49,7 @@
   - Feat: `children` in traverser is never `undefined`.
   - Feat: serialize parser. [#2](https://github.com/DiscreteTom/retsac/issues/2)
   - Feat: `IParserBuilder.define` can accept multi `DefinitionContextBuilder` to optimize type inference.
-  - Feat: DFA to mermaid diagram.
+  - Feat: add `BuildOptions.mermaid` for parser to generate mermaid graph.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
   - [#2](https://github.com/DiscreteTom/retsac/issues/2)
