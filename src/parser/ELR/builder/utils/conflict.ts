@@ -99,13 +99,17 @@ function getUserUnresolvedConflicts<
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext}`,
+        }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext
+          .map((g) => g.grammarStrWithoutName.value)
+          .join(" ")}`,
       );
     if (unresolvedNext.grammars.size > 0)
       logger(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext}`,
+        }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext
+          .map((g) => g.grammarStrWithoutName.value)
+          .join(" ")}`,
       );
   }
 
