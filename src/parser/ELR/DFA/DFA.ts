@@ -248,7 +248,7 @@ export class DFA<
       entryNTs: [...this.entryNTs],
       grammars: this.grammars.toJSON(),
       grammarRules: this.grammarRules.toJSON(this.grammars),
-      candidates: this.candidates.toJSON(this.grammarRules),
+      candidates: this.candidates.toJSON(this.grammarRules, this.grammars),
       states: this.states.toJSON(this.candidates, this.grammars),
       entryState: this.states.getKey(this.entryState),
       NTClosures: stringMap2serializable(this.NTClosures, (grs) =>
@@ -295,7 +295,7 @@ export class DFA<
       Kinds,
       LexerKinds,
       LexerError
-    >(data.candidates, grs);
+    >(data.candidates, grs, grammars);
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars),

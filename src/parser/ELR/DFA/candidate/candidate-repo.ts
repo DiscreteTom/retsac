@@ -1,4 +1,8 @@
-import type { GrammarRule, ReadonlyGrammarRuleRepo } from "../../model";
+import type {
+  GrammarRepo,
+  GrammarRule,
+  ReadonlyGrammarRuleRepo,
+} from "../../model";
 import { Candidate } from "./candidate";
 
 /**
@@ -90,11 +94,14 @@ export class CandidateRepo<
     return next;
   }
 
-  toJSON(grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>) {
+  toJSON(
+    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds | LexerKinds>,
+  ) {
     const res = [] as ReturnType<
       Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >[];
-    this.cs.forEach((c) => res.push(c.toJSON(grs, this)));
+    this.cs.forEach((c) => res.push(c.toJSON(grs, this, repo)));
     return res;
   }
 
@@ -109,6 +116,7 @@ export class CandidateRepo<
       CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ): ReadonlyCandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     const callbacks = [] as ((
       cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
@@ -127,7 +135,7 @@ export class CandidateRepo<
         Kinds,
         LexerKinds,
         LexerError
-      >(d, grs);
+      >(d, grs, repo);
       callbacks.push(restoreNextMap);
       res.cs.set(c.strWithGrammarName, c);
     });

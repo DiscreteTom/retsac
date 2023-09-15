@@ -11,6 +11,7 @@ import type {
   GrammarRule,
   Grammar,
   ReadonlyGrammarRuleRepo,
+  GrammarRepo,
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
 import { nonNullFilter } from "../../utils";
@@ -19,7 +20,7 @@ import {
   lexGrammar,
   ASTNodeSelectorFactory,
   ASTNodeFirstMatchSelectorFactory,
-  stringMap2serializable,
+  map2serializable,
 } from "../utils";
 
 /** Candidate for ELR parsers. */
@@ -36,15 +37,15 @@ export class Candidate<
    */
   readonly digested: number;
   /**
-   * `ASTNode.toString => candidate`.
    * This will be calculated during `DFA.calculateAllStates`.
    * `null` means the node can not be accepted.
+   *
+   * Since we have GrammarRepo to store all grammars,
+   * we can use Grammar as the key of this map.
    */
-  // don't use `undefined` here
-  // because `Map.get` return `undefined` when key not found
   private readonly nextMap: Map<
-    string,
-    Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null
+    Grammar<Kinds | LexerKinds>,
+    Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
   /**
@@ -101,15 +102,13 @@ export class Candidate<
   ): Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null {
     if (this.current == undefined) return null;
 
-    const key = this.current.cacheKeyWithoutName.value;
-
     // try to get from cache
-    const cache = this.nextMap.get(key);
+    const cache = this.nextMap.get(this.current);
     if (cache !== undefined) return cache;
 
     // not in cache, calculate and cache
     const res = this.canDigestMore() ? cs.addNext(this) : null;
-    this.nextMap.set(key, res);
+    this.nextMap.set(this.current, res);
     return res;
   }
 
@@ -393,12 +392,15 @@ export class Candidate<
       LexerKinds,
       LexerError
     >,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     return {
       gr: grs.getKey(this.gr),
       digested: this.digested,
-      nextMap: stringMap2serializable(this.nextMap, (c) =>
-        c == null ? null : cs.getKey(c),
+      nextMap: map2serializable(
+        this.nextMap,
+        (g) => repo.getKey(g),
+        (c) => (c == null ? null : cs.getKey(c)),
       ),
       str: this.str,
       strWithGrammarName: this.strWithGrammarName,
@@ -416,6 +418,7 @@ export class Candidate<
       Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
       gr: grs.getByString(data.gr)!,
@@ -436,8 +439,8 @@ export class Candidate<
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next == null) c.nextMap.set(key, null);
-        else c.nextMap.set(key, cs.getByString(next)!);
+        if (next == null) c.nextMap.set(repo.getByString(key)!, null);
+        else c.nextMap.set(repo.getByString(key)!, cs.getByString(next)!);
       }
     };
 
