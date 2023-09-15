@@ -7,7 +7,7 @@ import type {
 } from "../builder";
 import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import type { BuildOptions, IParserBuilder } from "../model";
-import { GrammarExpander } from "./utils/advanced-grammar-parser";
+import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
     ASTData,
