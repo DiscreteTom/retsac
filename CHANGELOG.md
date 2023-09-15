@@ -40,8 +40,6 @@
   - **_Breaking Change_**: `IParserBuilder.entry` will check kinds.
   - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable }`.
   - **_Breaking Change_**: remove `IParserBuilder.leftSA/rightSA`, enhance the `IParserBuilder.priority` to support left-to-right or right-to-left associativity.
-  - Feat: add `ASTNodeSelector`.
-  - Feat: resolved conflicts in definition context will have higher priority than resolved conflicts defined in parser builder.
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
