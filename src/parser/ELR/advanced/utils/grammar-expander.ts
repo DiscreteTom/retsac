@@ -26,6 +26,7 @@ class PlaceholderMap {
   add(gs: GrammarSnippet): Placeholder {
     let placeholder = this.g2p.get(gs);
     if (placeholder === undefined) {
+      // TODO: optimize placeholder name for better readability
       placeholder = this.placeholderPrefix + this.g2p.size;
       this.g2p.set(gs, placeholder);
       this.p2g.set(placeholder, gs);
