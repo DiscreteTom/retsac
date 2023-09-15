@@ -73,6 +73,7 @@ test("to tree string", () => {
         kind: "",
         start: 4,
         text: "+",
+        name: "plus",
       }),
       new ASTNode<unknown, unknown, "exp" | "num" | "">({
         kind: "num",
@@ -83,6 +84,34 @@ test("to tree string", () => {
   });
 
   expect(node.toTreeString()).toBe(
-    'exp: \n  num: "123"\n  <anonymous>: "+"\n  num: "123"\n',
+    'exp: \n  num: "123"\n  <anonymous>@plus: "+"\n  num: "123"\n',
   );
+});
+
+test("query selector", () => {
+  const node = new ASTNode({
+    kind: "exp",
+    start: 0,
+    children: [
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+        kind: "num",
+        start: 0,
+        text: "123",
+      }),
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+        kind: "",
+        start: 4,
+        text: "+",
+        name: "plus",
+      }),
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+        kind: "num",
+        start: 5,
+        text: "123",
+      }),
+    ],
+  });
+
+  expect(node.$("plus")).toBe(node.children![1]);
+  expect(node.$$("num")).toEqual([node.children![0], node.children![2]]);
 });
