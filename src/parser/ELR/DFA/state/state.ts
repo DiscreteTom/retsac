@@ -281,4 +281,27 @@ export class State<
     };
     return { s, restoreNextMap };
   }
+
+  toMermaid(
+    hash: (s: string) => unknown,
+    escapeStateDescription: (s: string) => string,
+    escapeTransition: (s: string) => string,
+  ) {
+    const res = [] as string[];
+
+    // append state
+    res.push(`state ${escapeStateDescription(this.str)} as ${hash(this.str)}`);
+
+    // append transition
+    this.nextMap.forEach((next, key) => {
+      if (next !== null)
+        res.push(
+          `${hash(this.str)} --> ${hash(next.str)}: ${escapeTransition(
+            key.grammarStrWithoutName.value,
+          )}`,
+        );
+      // else, next == null, don't draw this transition since the graph will grow too large
+    });
+    return res.join("\n");
+  }
 }

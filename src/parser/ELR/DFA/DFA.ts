@@ -325,4 +325,38 @@ export class DFA<
       options.logger,
     );
   }
+
+  toMermaid() {
+    // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+    const hashCode = (s: string) =>
+      s.split("").reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0);
+        return a & a;
+      }, 0);
+    const hashStr = (s: string) => {
+      // use 36 radix to reduce length
+      // raw may starts with '-' if negative
+      const raw = hashCode(s).toString(36);
+      // use p/n as prefix to avoid starting with number or contains '-'
+      return raw.startsWith("-") ? raw.replace("-", "n") : "p" + raw;
+    };
+    const escapeStateDescription = (s: string) =>
+      // escape quote and newline
+      `"${s.replace(/"/g, "&quot;").replace(/\n/g, "\\n")}"`;
+    const escapeTransition = (s: string) =>
+      `${s.replace(/./g, (i) => "#" + i.charCodeAt(0) + ";")}`;
+
+    const res = [
+      `stateDiagram-v2`,
+      "direction LR",
+      `[*] --> ${hashStr(this.entryState.str)}`, // entry state
+    ];
+
+    // push states & transitions
+    this.states.states.forEach((c) =>
+      res.push(c.toMermaid(hashStr, escapeStateDescription, escapeTransition)),
+    );
+
+    return res.join("\n");
+  }
 }
