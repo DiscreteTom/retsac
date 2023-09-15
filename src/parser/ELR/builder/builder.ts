@@ -22,11 +22,10 @@ import {
 } from "./model";
 import type {
   ParserBuilderData,
-  ResolvedTempConflict,
-  RR_ResolverOptions,
   RS_ResolverOptions,
   Definition,
   DefinitionContext,
+  RR_ResolverOptions,
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
@@ -53,26 +52,13 @@ export class ParserBuilder<
   LexerError = never,
 > implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
-  private readonly data: ParserBuilderData<
+  protected readonly data: ParserBuilderData<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds
   >[] = [];
   protected readonly entryNTs: Set<Kinds>;
-  /**
-   * Resolved temporary conflicts.
-   * This will be filled in 2 places:
-   *
-   * 1. When `builder.resolveRS` or `builder.resolveRR` is called, the resolved conflicts will be pushed to this array.
-   * 2. When `builder.build` is called, the resolved conflicts in DefinitionContext will be transformed and pushed to this.
-   */
-  private readonly resolvedTemp: ResolvedTempConflict<
-    ASTData,
-    ErrorType,
-    Kinds,
-    LexerKinds
-  >[];
   /**
    * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
    * You can also customize this.
@@ -87,7 +73,6 @@ export class ParserBuilder<
     cascadeQueryPrefix?: string;
   }) {
     this.entryNTs = new Set();
-    this.resolvedTemp = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
@@ -123,22 +108,19 @@ export class ParserBuilder<
     >;
   }
 
-  /**
-   * Definition syntax:
-   * - `A | B` means `A` or `B`
-   * - `A B` means `A` then `B`
-   * - `'xxx'` or `"xxx"` means literal string `xxx`
-   *   - Escaped quote is supported. E.g.: `'abc\'def'`
-   *
-   * E.g.:
-   *
-   * ```js
-   * define({ exp: `A B | 'xxx' B` })
-   * // means `A B` or `'xxx' B`, and reduce to `exp`
-   * // equals to:
-   * define({ exp: [`A B`, `'xxx' B`] })
-   * ```
-   */
+  load(
+    data: readonly ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>[],
+  ) {
+    this.data.push(...data);
+    return this as IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >;
+  }
+
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
     ...ctxBuilders: DefinitionContextBuilder<
@@ -164,6 +146,8 @@ export class ParserBuilder<
     ).push({
       defs,
       ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),
+      resolveOnly: false,
+      hydrationId: this.data.length,
     });
     return this as IParserBuilder<
       ASTData,
@@ -201,7 +185,7 @@ export class ParserBuilder<
       cs,
       allStates,
       NTs,
-      allResolvedTemp,
+      resolvedTemps,
     } = DFABuilder.prepare<
       ASTData,
       ErrorType,
@@ -213,12 +197,6 @@ export class ParserBuilder<
       lexer,
       this.entryNTs,
       this.data as ParserBuilderData<
-        ASTData,
-        ErrorType,
-        Kinds,
-        LexerKinds | AppendLexerKinds
-      >[],
-      this.resolvedTemp as ResolvedTempConflict<
         ASTData,
         ErrorType,
         Kinds,
@@ -247,7 +225,7 @@ export class ParserBuilder<
 
     // transform resolved temp conflicts to resolved conflicts
     // and append into grammar rules
-    allResolvedTemp.forEach((r) => {
+    resolvedTemps.forEach((r) => {
       // find the grammar rules
       const reducerRule = grs.get(r.reducerRule);
       if (!reducerRule) {
@@ -469,28 +447,13 @@ export class ParserBuilder<
     anotherRule: Definition<Kinds>,
     options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
-    // we don't need grammar rule's hydration ID here
-    // since we only want to record conflicts, instead of creating new grammar rules
-    const reducerRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      reducerRule,
-    );
-    const anotherRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      anotherRule,
-    );
-    reducerRules.forEach((r) => {
-      anotherRules.forEach((a) => {
-        this.resolvedTemp.push({
-          type: ConflictType.REDUCE_SHIFT,
-          reducerRule: r,
-          anotherRule: a,
-          options,
-          hydrationId: {
-            type: ResolverHydrationType.BUILDER,
-            index: this.resolvedTemp.length,
-          },
-        });
-      });
+    this.data.push({
+      defs: reducerRule,
+      ctxBuilder: DefinitionContextBuilder.resolveRS(anotherRule, options),
+      resolveOnly: true,
+      hydrationId: this.data.length,
     });
+
     return this;
   }
 
@@ -499,28 +462,13 @@ export class ParserBuilder<
     anotherRule: Definition<Kinds>,
     options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
   ) {
-    // we don't need grammar rule's hydration ID here
-    // since we only want to record conflicts, instead of creating new grammar rules
-    const reducerRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      reducerRule,
-    );
-    const anotherRules = defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
-      anotherRule,
-    );
-    reducerRules.forEach((r) => {
-      anotherRules.forEach((a) => {
-        this.resolvedTemp.push({
-          type: ConflictType.REDUCE_REDUCE,
-          reducerRule: r,
-          anotherRule: a,
-          options,
-          hydrationId: {
-            type: ResolverHydrationType.BUILDER,
-            index: this.resolvedTemp.length,
-          },
-        });
-      });
+    this.data.push({
+      defs: reducerRule,
+      ctxBuilder: DefinitionContextBuilder.resolveRR(anotherRule, options),
+      resolveOnly: true,
+      hydrationId: this.data.length,
     });
+
     return this;
   }
 
@@ -707,7 +655,7 @@ export class ParserBuilder<
         if (r.hydrationId !== undefined) {
           r.accepter = (
             r.hydrationId.type == ResolverHydrationType.BUILDER
-              ? this.resolvedTemp[r.hydrationId.index].options.accept
+              ? ctxs[r.hydrationId.index].resolved[0].accept // resolvers in builder mode only have one resolver
               : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
           ) as Condition<
             ASTData,

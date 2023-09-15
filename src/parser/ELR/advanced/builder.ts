@@ -3,11 +3,9 @@ import type { Logger } from "../../../logger";
 import type {
   Definition,
   ParserBuilderData,
-  RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
-import { DefinitionContextBuilder } from "../builder";
-import { ParserBuilder } from "../builder";
+import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import type { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
 
@@ -23,27 +21,6 @@ export class AdvancedBuilder<
 {
   private readonly expander: GrammarExpander<Kinds, LexerKinds>;
 
-  // user defined data & conflicts will be stored here first
-  // before passing to the super class
-  // because we may need to expand the definitions
-  // and send them to a new parser builder
-  private readonly _data: ParserBuilderData<
-    ASTData,
-    ErrorType,
-    Kinds,
-    LexerKinds
-  >[] = [];
-  private readonly resolvedRS: {
-    reducerRule: Definition<Kinds>;
-    anotherRule: Definition<Kinds>;
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
-  }[];
-  private readonly resolvedRR: {
-    reducerRule: Definition<Kinds>;
-    anotherRule: Definition<Kinds>;
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
-  }[];
-
   constructor(options?: {
     /**
      * Prefix of the generated placeholder grammar rules.
@@ -56,45 +33,6 @@ export class AdvancedBuilder<
     this.expander = new GrammarExpander<Kinds, LexerKinds>({
       placeholderPrefix: prefix,
     });
-    this._data = [];
-    this.resolvedRS = [];
-    this.resolvedRR = [];
-  }
-
-  // intercept the super.define() method
-  define<Append extends string>(
-    defs: Definition<Kinds | Append>,
-    ...ctxBuilders: DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds | Append,
-      LexerKinds
-    >[]
-  ): IParserBuilder<
-    ASTData,
-    ErrorType,
-    Kinds | Append,
-    LexerKinds,
-    LexerError
-  > {
-    (
-      this._data as ParserBuilderData<
-        ASTData,
-        ErrorType,
-        Kinds | Append,
-        LexerKinds
-      >[]
-    ).push({
-      defs,
-      ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),
-    });
-    return this as IParserBuilder<
-      ASTData,
-      ErrorType,
-      Kinds | Append,
-      LexerKinds,
-      LexerError
-    >;
   }
 
   private expand(
@@ -130,6 +68,7 @@ export class AdvancedBuilder<
     options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
   ) {
     // if hydrate, just call super.build()
+    // since all data needed for build is in super.data
     if (options?.hydrate !== undefined) return super.build(lexer, options);
 
     const debug = options?.debug ?? false;
@@ -148,85 +87,50 @@ export class AdvancedBuilder<
     builder.entry(...this.entryNTs);
 
     // expand definitions in data
-    this._data.forEach(({ defs, ctxBuilder }) => {
+    const toBeLoaded = [] as ParserBuilderData<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds
+    >[];
+    this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
       this.expand(defs, debug, logger, true, (res) => {
         res.defs.forEach((def) => {
-          // TODO: we need hydration id here
-          if (ctxBuilder === undefined) builder.define(def);
-          else builder.define(def, ctxBuilder);
+          toBeLoaded.push({
+            defs: def,
+            ctxBuilder,
+            resolveOnly,
+            hydrationId,
+          });
         });
-        res.rs.forEach((r) =>
-          // TODO: don't use builder.resolveRS, will cause hydration error
-          // we need to add hydration id to the resolvedRS
-          builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
-        );
-      });
-    });
-
-    // expand definitions in resolvers
-    this.resolvedRS.forEach((rc) => {
-      const reducerRules: Definition<Kinds>[] = [];
-      const anotherRules: Definition<Kinds>[] = [];
-      this.expand(rc.reducerRule, false, logger, false, (res) => {
-        reducerRules.push(...res.defs);
-      });
-      this.expand(rc.anotherRule, false, logger, false, (res) => {
-        anotherRules.push(...res.defs);
-      });
-      reducerRules.forEach((r) => {
-        anotherRules.forEach((a) => {
-          // TODO: with hydration id
-          builder.resolveRS(r, a, rc.options);
+        // generated rs resolver
+        res.rs.forEach((r) => {
+          toBeLoaded.push({
+            defs: r.reducerRule,
+            ctxBuilder: DefinitionContextBuilder.resolveRS(
+              r.anotherRule,
+              r.options,
+            ),
+            resolveOnly: true,
+            hydrationId, // the hydration id does not matter, since the generated resolvers are serializable
+          });
         });
       });
     });
-    this.resolvedRR.forEach((rc) => {
-      const reducerRules: Definition<Kinds>[] = [];
-      const anotherRules: Definition<Kinds>[] = [];
-      this.expand(rc.reducerRule, false, logger, false, (res) => {
-        reducerRules.push(...res.defs);
-      });
-      this.expand(rc.anotherRule, false, logger, false, (res) => {
-        anotherRules.push(...res.defs);
-      });
-      reducerRules.forEach((r) => {
-        anotherRules.forEach((a) => {
-          // TODO: with hydration id
-          builder.resolveRR(r, a, rc.options);
-        });
-      });
-    });
+    builder.load(toBeLoaded);
 
     // generate placeholder grammar rules
+    // hydration id does not matter here
+    // since generated resolvers are serializable
     const res = this.expander.generatePlaceholderGrammarRules<
       ASTData,
       ErrorType
     >(debug, logger);
     res.defs.forEach((def) => builder.define(def));
     res.rs.forEach((r) =>
-      // hydration id is not needed here
-      // since the accepter in r.options is boolean and can be serialized
       builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
     );
 
     return builder.build(lexer, options);
-  }
-
-  // these 2 methods will also intercept the super.priority() method
-  resolveRS(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
-  ) {
-    this.resolvedRS.push({ reducerRule, anotherRule, options });
-    return this;
-  }
-  resolveRR(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
-  ) {
-    this.resolvedRR.push({ reducerRule, anotherRule, options });
-    return this;
   }
 }

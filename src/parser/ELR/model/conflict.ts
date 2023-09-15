@@ -49,8 +49,12 @@ export enum ResolverHydrationType {
 export type ResolverHydrationId = {
   type: ResolverHydrationType;
   /**
-   * If {@link ResolverHydrationId.type} is {@link ResolverHydrationType.BUILDER}, this is the index of the {@link ParserBuilder.data data} in the builder.
-   * If {@link ResolverHydrationId.type} is {@link ResolverHydrationType.CONTEXT}, this is the index of the {@link DefinitionContextBuilder.resolved resolvers} in the definition context.
+   * If {@link ResolverHydrationId.type type} is {@link ResolverHydrationType.BUILDER BUILDER},
+   * this is the index of the {@link ParserBuilder.data data} in the builder,
+   * and the resolver should be the first element of the resolvers array.
+   *
+   * If {@link ResolverHydrationId.type type} is {@link ResolverHydrationType.CONTEXT CONTEXT},
+   * this is the index of the {@link DefinitionContextBuilder.resolved resolvers} in the grammar rule's definition context.
    */
   index: number;
 };

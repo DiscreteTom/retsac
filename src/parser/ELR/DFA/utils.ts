@@ -247,7 +247,7 @@ export function calculateAllStates<
 
 /**
  * Transform the data user defined into temp grammar rules,
- * and append resolved conflicts defined in definition context in data into resolvedTemp.
+ * collect all resolved conflicts in `resolvedTemp`.
  */
 export function processDefinitions<
   ASTData,
@@ -258,9 +258,6 @@ export function processDefinitions<
   data: readonly Readonly<
     ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
   >[],
-  resolvedTemp: readonly Readonly<
-    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
-  >[],
 ): {
   tempGrammarRules: readonly TempGrammarRule<
     ASTData,
@@ -269,7 +266,7 @@ export function processDefinitions<
     LexerKinds
   >[];
   NTs: ReadonlySet<Kinds>;
-  allResolvedTemp: readonly Readonly<
+  resolvedTemps: readonly Readonly<
     ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
   >[];
 } {
@@ -280,32 +277,31 @@ export function processDefinitions<
     LexerKinds
   >[] = [];
   const NTs: Set<Kinds> = new Set();
-  const allResolvedTemp = [...resolvedTemp];
+  const resolvedTemps = [] as ResolvedTempConflict<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >[];
 
-  data.forEach((d, hydrationId) => {
+  data.forEach((d) => {
     const ctx = d.ctxBuilder?.build();
-    const grs = defToTempGRs(d.defs, hydrationId, ctx);
+    const grs = defToTempGRs(d.defs, d.hydrationId, ctx);
 
-    tempGrammarRules.push(...grs);
+    // don't record temp grammar rules if only resolve conflicts
+    if (!d.resolveOnly) tempGrammarRules.push(...grs);
+
     grs.forEach((gr) => {
       NTs.add(gr.NT);
     });
 
-    // append resolved conflicts defined in ctx into the front of allResolvedTemp
-    const toBeAppend = [] as ResolvedTempConflict<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds
-    >[];
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
         defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
-          hydrationId,
         ).forEach((another) => {
           grs.forEach((gr) => {
-            toBeAppend.push({
+            resolvedTemps.push({
               type: ConflictType.REDUCE_REDUCE,
               reducerRule: gr,
               anotherRule: another,
@@ -318,10 +314,9 @@ export function processDefinitions<
         // ConflictType.REDUCE_SHIFT
         defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
           r.anotherRule,
-          hydrationId,
         ).forEach((another) => {
           grs.forEach((gr) => {
-            toBeAppend.push({
+            resolvedTemps.push({
               type: ConflictType.REDUCE_SHIFT,
               reducerRule: gr,
               anotherRule: another,
@@ -332,10 +327,9 @@ export function processDefinitions<
         });
       }
     });
-    allResolvedTemp.unshift(...toBeAppend);
   });
 
-  return { tempGrammarRules, NTs, allResolvedTemp };
+  return { tempGrammarRules, NTs, resolvedTemps };
 }
 
 /**

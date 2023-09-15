@@ -1,6 +1,6 @@
 import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
-import type { ResolvedTempConflict, ParserBuilderData } from "../builder";
+import type { ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
 import {
   GrammarRule,
@@ -37,24 +37,16 @@ export class DFABuilder {
     data: readonly Readonly<
       ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
     >[],
-    resolvedTemp: ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>[],
     printAll: boolean,
     logger: Logger,
   ) {
-    // transform definitions to temp grammar rules
-    // and append resolved conflicts defined in definition context in data into resolvedTemp
-    const { tempGrammarRules, NTs, allResolvedTemp } = processDefinitions<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds
-    >(data, resolvedTemp);
+    const { tempGrammarRules, NTs, resolvedTemps } = processDefinitions(data);
 
     // transform temp grammar rules to grammar rules
     const grs = new ReadonlyGrammarRuleRepo(
       tempGrammarRules.map(
         (gr) =>
-          new GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>({
+          new GrammarRule({
             NT: gr.NT,
             callback: gr.callback,
             rejecter: gr.rejecter,
@@ -177,7 +169,7 @@ export class DFABuilder {
       allStates,
       NTs,
       cs,
-      allResolvedTemp,
+      resolvedTemps,
     };
   }
 }

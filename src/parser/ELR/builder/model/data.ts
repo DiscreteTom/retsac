@@ -12,5 +12,12 @@ export type ParserBuilderData<
 > = {
   defs: Definition<Kinds>;
   ctxBuilder?: DefinitionContextBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
-  // TODO: add hydration id?
+  /**
+   * If `true`, only resolve conflicts, don't create definition.
+   */
+  resolveOnly: boolean;
+  /**
+   * The index of data where the restored grammar rule can find its context.
+   */
+  hydrationId: number;
 };
