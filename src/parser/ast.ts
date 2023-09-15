@@ -128,8 +128,11 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
     this.data = p.data;
     this.error = p.error;
     this.traverser = p.traverser ?? defaultTraverser;
-    const selector = p.selector ?? (() => []);
-    const firstMatchSelector = p.firstMatchSelector ?? (() => undefined);
+    const selector =
+      p.selector ?? ((name, nodes) => nodes.filter((c) => c.name == name));
+    const firstMatchSelector =
+      p.firstMatchSelector ??
+      ((name, nodes) => nodes.find((c) => c.name == name));
     this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
     this.$$ = (name: string) => selector(name, this.children ?? []);
 
