@@ -2,9 +2,11 @@ import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type {
   Definition,
+  ParserBuilderData,
   RR_ResolverOptions,
   RS_ResolverOptions,
 } from "../builder";
+import { DefinitionContextBuilder } from "../builder";
 import { ParserBuilder } from "../builder";
 import type { BuildOptions, IParserBuilder } from "../model";
 import { GrammarExpander } from "./utils/advanced-grammar-parser";
@@ -20,9 +22,17 @@ export class AdvancedBuilder<
   implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
   private readonly expander: GrammarExpander<Kinds, LexerKinds>;
-  // resolved conflicts will be stored here first
+
+  // user defined data & conflicts will be stored here first
   // before passing to the super class
   // because we may need to expand the definitions
+  // and send them to a new parser builder
+  private readonly _data: ParserBuilderData<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds
+  >[] = [];
   private readonly resolvedRS: {
     reducerRule: Definition<Kinds>;
     anotherRule: Definition<Kinds>;
@@ -46,8 +56,45 @@ export class AdvancedBuilder<
     this.expander = new GrammarExpander<Kinds, LexerKinds>({
       placeholderPrefix: prefix,
     });
+    this._data = [];
     this.resolvedRS = [];
     this.resolvedRR = [];
+  }
+
+  // intercept the super.define() method
+  define<Append extends string>(
+    defs: Definition<Kinds | Append>,
+    ...ctxBuilders: DefinitionContextBuilder<
+      ASTData,
+      ErrorType,
+      Kinds | Append,
+      LexerKinds
+    >[]
+  ): IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds | Append,
+    LexerKinds,
+    LexerError
+  > {
+    (
+      this._data as ParserBuilderData<
+        ASTData,
+        ErrorType,
+        Kinds | Append,
+        LexerKinds
+      >[]
+    ).push({
+      defs,
+      ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),
+    });
+    return this as IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds | Append,
+      LexerKinds,
+      LexerError
+    >;
   }
 
   private expand(
@@ -78,25 +125,40 @@ export class AdvancedBuilder<
     }
   }
 
-  build(
-    lexer: ILexer<LexerError, LexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds>,
+  build<AppendLexerKinds extends string, AppendLexerError>(
+    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
   ) {
-    // TODO: if hydrate, just super.build
+    // if hydrate, just call super.build()
+    if (options?.hydrate !== undefined) return super.build(lexer, options);
 
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? console.log;
 
-    // re-generate this.data
-    const raw = [...this.data]; // deep copy since we will clear this.data
-    this.data.length = 0; // clear
-    raw.forEach(({ defs, ctxBuilder }) => {
+    // generate a new parser builder to prevent side effects
+    const builder = new ParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >({
+      cascadeQueryPrefix: this.cascadeQueryPrefix,
+    });
+    builder.entry(...this.entryNTs);
+
+    // expand definitions in data
+    this._data.forEach(({ defs, ctxBuilder }) => {
       this.expand(defs, debug, logger, true, (res) => {
-        res.defs.forEach((def) => this.data.push({ defs: def, ctxBuilder }));
+        res.defs.forEach((def) => {
+          // TODO: we need hydration id here
+          if (ctxBuilder === undefined) builder.define(def);
+          else builder.define(def, ctxBuilder);
+        });
         res.rs.forEach((r) =>
-          // the reducerRule/anotherRule is already expanded, so we use super.resolveRS()
-          // TODO: don't use super.resolveRS, will cause hydration error
-          super.resolveRS(r.reducerRule, r.anotherRule, r.options),
+          // TODO: don't use builder.resolveRS, will cause hydration error
+          // we need to add hydration id to the resolvedRS
+          builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
         );
       });
     });
@@ -113,7 +175,8 @@ export class AdvancedBuilder<
       });
       reducerRules.forEach((r) => {
         anotherRules.forEach((a) => {
-          super.resolveRS(r, a, rc.options);
+          // TODO: with hydration id
+          builder.resolveRS(r, a, rc.options);
         });
       });
     });
@@ -128,7 +191,8 @@ export class AdvancedBuilder<
       });
       reducerRules.forEach((r) => {
         anotherRules.forEach((a) => {
-          super.resolveRR(r, a, rc.options);
+          // TODO: with hydration id
+          builder.resolveRR(r, a, rc.options);
         });
       });
     });
@@ -138,14 +202,17 @@ export class AdvancedBuilder<
       ASTData,
       ErrorType
     >(debug, logger);
-    res.defs.forEach((def) => this.data.push({ defs: def }));
+    res.defs.forEach((def) => builder.define(def));
     res.rs.forEach((r) =>
-      super.resolveRS(r.reducerRule, r.anotherRule, r.options),
+      // hydration id is not needed here
+      // since the accepter in r.options is boolean and can be serialized
+      builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
     );
 
-    return super.build(lexer, options);
+    return builder.build(lexer, options);
   }
 
+  // these 2 methods will also intercept the super.priority() method
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
