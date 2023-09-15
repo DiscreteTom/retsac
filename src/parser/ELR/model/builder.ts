@@ -69,6 +69,11 @@ export type BuildOptions<
    * The value is always checked to make sure it's valid.
    */
   hydrate?: SerializableParserData<Kinds, LexerKinds>;
+  /**
+   * If `true` and the build is successful, {@link IParserBuilder.build} will return a mermaid graph.
+   * @default false
+   */
+  mermaid?: boolean;
 };
 
 export interface IParserBuilder<
@@ -120,6 +125,7 @@ export interface IParserBuilder<
     serializable?: Readonly<
       SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
     >;
+    mermaid?: string;
   };
   /**
    * Resolve a reduce-shift conflict.

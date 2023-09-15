@@ -402,6 +402,7 @@ export class ParserBuilder<
               SerializableParserData<Kinds, LexerKinds>
             >)
           : undefined,
+      mermaid: options?.mermaid ?? false ? dfa.toMermaid() : undefined,
     };
   }
 
