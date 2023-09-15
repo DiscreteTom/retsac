@@ -1,5 +1,6 @@
 import { Lexer } from "../../src";
-import { Action, InvalidLengthForTakeError, Token } from "../../src/lexer";
+import type { Token } from "../../src/lexer";
+import { Action, InvalidLengthForTakeError } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
@@ -22,7 +23,7 @@ test("lexer basic functions", () => {
   expect(lexer.feed("123").reset().getRest()).toBe("");
   expect(lexer.feed("123").lex()?.content).toBe("123");
   expect(Array.from(lexer.getTokenKinds()).sort()).toEqual(
-    ["", "number", "someErr", "mutedErr"].sort()
+    ["", "number", "someErr", "mutedErr"].sort(),
   );
 });
 
@@ -53,10 +54,10 @@ test("lexer take", () => {
   expect(lexer.getRest()).toBe("");
   expect(lexer.digested).toBe(3);
   expect(() => lexer.reset().feed("123").take(0)).toThrow(
-    InvalidLengthForTakeError
+    InvalidLengthForTakeError,
   );
   expect(() => lexer.reset().feed("123").take(-1)).toThrow(
-    InvalidLengthForTakeError
+    InvalidLengthForTakeError,
   );
 });
 
@@ -65,7 +66,7 @@ test("lexer takeUntil", () => {
   expect(lexer.reset().feed("123").takeUntil(/3/)).toBe("123");
   expect(lexer.reset().feed("123").takeUntil(/4/)).toBe("");
   expect(lexer.reset().feed("123").takeUntil(/3/g, { autoGlobal: false })).toBe(
-    "123"
+    "123",
   );
 });
 
@@ -76,7 +77,7 @@ test("number", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<any, any>);
+    } as Token<string, "number">);
   });
 });
 
@@ -93,7 +94,7 @@ test("anonymous", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<any, any>);
+    } as Token<string, "">);
   });
 });
 
@@ -102,7 +103,7 @@ test("lexAll", () => {
     lexer
       .reset()
       .lexAll("123 123")
-      .map((token) => token.content)
+      .map((token) => token.content),
   ).toEqual(["123", "123"]);
 });
 
@@ -161,7 +162,7 @@ test("expectation", () => {
   expect(
     lexer.reset().lex({
       input: "123",
-    })?.content
+    })?.content,
   ).toBe("123");
 
   // wrong type
@@ -172,7 +173,7 @@ test("expectation", () => {
         kind: "",
         text: "+",
       },
-    })
+    }),
   ).toBe(null);
 
   // wrong text
@@ -182,7 +183,7 @@ test("expectation", () => {
       expect: {
         text: "1234",
       },
-    })
+    }),
   ).toBe(null);
 
   // starts with muted, yield token
@@ -193,6 +194,6 @@ test("expectation", () => {
         kind: "number",
         text: "123",
       },
-    })?.content
+    })?.content,
   ).toBe("123");
 });

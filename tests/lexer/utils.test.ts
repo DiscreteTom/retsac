@@ -1,6 +1,5 @@
 import { Lexer } from "../../src";
 import {
-  ILexer,
   exact,
   fromTo,
   stringLiteral,
@@ -103,13 +102,13 @@ test("lexer utils stringLiteral", () => {
             multiline: true,
             escape: false,
             acceptUnclosed: false,
-          })
+          }),
         )
         .or(
           stringLiteral("g", {
             escape: false,
             acceptUnclosed: false,
-          })
+          }),
         ),
     })
     .build();
@@ -223,7 +222,7 @@ test("lexer utils comment", () => {
   expect(lexer.reset().lex(`/* 123 */`)?.content).toBe(`/* 123 */`);
   expect(lexer.reset().lex(`/* 123\n123 */`)?.content).toBe(`/* 123\n123 */`);
   expect(lexer.reset().lex(`/* 123\n123 */123`)?.content).toBe(
-    `/* 123\n123 */`
+    `/* 123\n123 */`,
   );
   expect(lexer.reset().lex(`# 123\n123`)?.content).toBe(`# 123\n`);
   expect(lexer.reset().lex(`# 123`)).toBe(null);
@@ -236,7 +235,7 @@ test("lexer utils comment", () => {
   expect(lexer.reset().lex(`  /* 123 */`)?.content).toBe(`/* 123 */`);
   expect(lexer.reset().lex(`  /* 123\n123 */`)?.content).toBe(`/* 123\n123 */`);
   expect(lexer.reset().lex(`  /* 123\n123 */123`)?.content).toBe(
-    `/* 123\n123 */`
+    `/* 123\n123 */`,
   );
   expect(lexer.reset().lex(`  # 123\n123`)?.content).toBe(`# 123\n`);
   expect(lexer.reset().lex(`  # 123`)).toBe(null);
@@ -258,7 +257,7 @@ test("lexer utils numericLiteral", () => {
   expect(lexer.reset().lex(`0o755`)?.content).toBe(`0o755`);
   expect(lexer.reset().lex(`1_000_000`)?.content).toBe(`1_000_000`);
   expect(lexer.reset().lex(`1_000_000.000_001`)?.content).toBe(
-    `1_000_000.000_001`
+    `1_000_000.000_001`,
   );
   expect(lexer.reset().lex(`1e6_000`)?.content).toBe(`1e6_000`);
   // additional test for #6
@@ -271,7 +270,7 @@ test("lexer utils numericLiteral", () => {
   expect(lexer.reset().lex(`  0o755`)?.content).toBe(`0o755`);
   expect(lexer.reset().lex(`  1_000_000`)?.content).toBe(`1_000_000`);
   expect(lexer.reset().lex(`  1_000_000.000_001`)?.content).toBe(
-    `1_000_000.000_001`
+    `1_000_000.000_001`,
   );
   expect(lexer.reset().lex(`  1e6_000`)?.content).toBe(`1e6_000`);
 
@@ -362,7 +361,7 @@ test("lexer utils regexLiteral", () => {
   // complex
   expect(
     lexer1.reset().lex("/\\/(?:[^\\/\\\\]|\\\\.)+\\/(?:[gimuy]*)(?=\\W|$)/")
-      ?.content
+      ?.content,
   ).toBe("/\\/(?:[^\\/\\\\]|\\\\.)+\\/(?:[gimuy]*)(?=\\W|$)/");
   // with flags
   expect(lexer1.reset().lex("/a/g")?.content).toBe("/a/g");

@@ -7,7 +7,7 @@ test("Ensure no rollback if rollback is disabled", () => {
     new ELR.ParserBuilder()
       .define(
         { test: `a b | a b c` },
-        rollback(() => "")
+        rollback(() => ""),
       )
       .entry("test")
       .build(new Lexer.Builder().build(), {

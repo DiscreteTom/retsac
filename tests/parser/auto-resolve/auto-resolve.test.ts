@@ -11,5 +11,5 @@ test.each([`a b c?`, `a b c*`, `a b c+`, `a? b c d?`])(
         .entry("test")
         .build(new Lexer.Builder().build(), { checkConflicts: true });
     }).not.toThrow(`Unresolved R-S conflict`);
-  }
+  },
 );

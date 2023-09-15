@@ -30,7 +30,7 @@ test("builder anonymous", () => {
 
 test("builder getTokenKinds", () => {
   expect(Array.from(builder.getTokenKinds()).sort()).toEqual(
-    ["", "number", "someErr"].sort()
+    ["", "number", "someErr"].sort(),
   );
 });
 

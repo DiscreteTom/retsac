@@ -54,7 +54,7 @@ test("Use '*' as next in RR conflict", () => {
       .resolveRR(
         { test: `a b c` },
         { test: `b c` },
-        { next: `*`, handleEnd: true }
+        { next: `*`, handleEnd: true },
       )
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).not.toThrow(`Unresolved R-R conflict`);

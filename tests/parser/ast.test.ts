@@ -26,7 +26,7 @@ test("to obj", () => {
   const node2 = new ASTNode({
     kind: "exp",
     start: 0,
-    children: [node1 as ASTNode<any, any, "exp" | "num">],
+    children: [node1 as ASTNode<unknown, unknown, "exp" | "num">],
   });
   const obj2 = node2.toJSON();
 
@@ -49,13 +49,13 @@ test("to obj", () => {
 
 test("to string", () => {
   expect(
-    ASTNode.from({ start: 0, kind: "num", content: "123" }).toString()
+    ASTNode.from({ start: 0, kind: "num", content: "123" }).toString(),
   ).toBe(
-    'ASTNode({ kind: "num", start: 0, text: "123", data: undefined, error: undefined })'
+    'ASTNode({ kind: "num", start: 0, text: "123", data: undefined, error: undefined })',
   );
 
   expect(ASTNode.from({ start: 0, kind: "", content: "+" }).toString()).toBe(
-    'ASTNode({ kind: "", start: 0, text: "+", data: undefined, error: undefined })'
+    'ASTNode({ kind: "", start: 0, text: "+", data: undefined, error: undefined })',
   );
 });
 
@@ -64,17 +64,17 @@ test("to tree string", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<any, any, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<any, any, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
         kind: "",
         start: 4,
         text: "+",
       }),
-      new ASTNode<any, any, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "">({
         kind: "num",
         start: 5,
         text: "123",
@@ -83,6 +83,6 @@ test("to tree string", () => {
   });
 
   expect(node.toTreeString()).toBe(
-    'exp: \n  num: "123"\n  <anonymous>: "+"\n  num: "123"\n'
+    'exp: \n  num: "123"\n  <anonymous>: "+"\n  num: "123"\n',
   );
 });
