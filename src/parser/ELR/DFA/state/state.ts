@@ -121,6 +121,7 @@ export class State<
         kind: next.kind,
         name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
       })!; // this will always return a result
+    // TODO: directly use grammar as key, since we have grammar repo
     const key = grammar.cacheKeyWithoutName.value;
 
     // try to get from local cache

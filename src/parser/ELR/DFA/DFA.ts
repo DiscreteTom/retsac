@@ -32,6 +32,7 @@ export class DFA<
       Kinds,
       LexerKinds
     >,
+    // TODO: use Kinds
     private readonly entryNTs: ReadonlySet<string>,
     private readonly entryState: State<
       ASTData,
@@ -40,6 +41,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
+    // TODO: use Kinds
     private readonly NTClosures: ReadonlyMap<
       string,
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
@@ -61,6 +63,7 @@ export class DFA<
       LexerError
     >,
     readonly grammars: GrammarRepo<Kinds | LexerKinds>,
+    // TODO: use Kinds
     readonly NTs: ReadonlySet<string>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
