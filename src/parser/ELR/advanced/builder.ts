@@ -160,6 +160,7 @@ export class AdvancedBuilder<
     // generate placeholder grammar rules
     // hydration id does not matter here
     // since generated resolvers are serializable
+    // TODO: should be auto resolve conflicts for generated rules and existing rules?
     const res = this.expander.generatePlaceholderGrammarRules<
       ASTData,
       ErrorType
