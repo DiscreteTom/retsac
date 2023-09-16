@@ -154,6 +154,9 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     NT: Kinds,
     debug: boolean,
     logger: Logger,
+    /**
+     * Whether to auto resolve R-S conflict.
+     */
     resolve: boolean,
   ) {
     const result = {
