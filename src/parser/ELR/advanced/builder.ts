@@ -7,6 +7,7 @@ import type {
 } from "../builder";
 import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import type { BuildOptions, IParserBuilder } from "../model";
+import { ConflictType } from "../model";
 import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
@@ -39,28 +40,33 @@ export class AdvancedBuilder<
     d: Definition<Kinds>,
     debug: boolean,
     logger: Logger,
+    /**
+     * Whether to auto resolve R-S conflict.
+     */
     resolve: boolean,
-    cb: (res: {
+  ) {
+    const res = [] as {
       defs: Definition<Kinds>[];
       rs: {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
         options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
       }[];
-    }) => void,
-  ) {
+    }[];
     for (const NT in d) {
       const def = d[NT];
       const defStr = def instanceof Array ? def.join("|") : (def as string);
-      const res = this.expander.expand<ASTData, ErrorType>(
-        defStr,
-        NT,
-        debug,
-        logger,
-        resolve,
+      res.push(
+        this.expander.expand<ASTData, ErrorType>(
+          defStr,
+          NT,
+          debug,
+          logger,
+          resolve,
+        ),
       );
-      cb(res);
     }
+    return res;
   }
 
   build<AppendLexerKinds extends string, AppendLexerError>(
@@ -94,16 +100,48 @@ export class AdvancedBuilder<
       LexerKinds
     >[];
     this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
-      this.expand(defs, debug, logger, true, (res) => {
+      // first, expand another rules in ctx.resolvers if exists
+      const ctx = ctxBuilder?.build();
+      const expandedCtxBuilder = new DefinitionContextBuilder<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds
+      >();
+      ctx?.resolved.forEach((r) => {
+        // for another rule, we don't need to log debug info or auto resolve R-S conflict
+        this.expand(r.anotherRule, false, logger, false).forEach((res) => {
+          res.defs.forEach((d) => {
+            if (r.type == ConflictType.REDUCE_SHIFT) {
+              expandedCtxBuilder.resolveRS(d, r.options);
+            } else {
+              expandedCtxBuilder.resolveRR(d, r.options);
+            }
+          });
+        });
+      });
+      // assign other ctx builder fields
+      if (ctx?.callback !== undefined)
+        expandedCtxBuilder.callback(ctx.callback);
+      if (ctx?.rejecter !== undefined)
+        expandedCtxBuilder.rejecter(ctx.rejecter);
+      if (ctx?.rollback !== undefined)
+        expandedCtxBuilder.rollback(ctx.rollback);
+      if (ctx?.commit !== undefined) expandedCtxBuilder.commit(ctx.commit);
+      if (ctx?.traverser !== undefined)
+        expandedCtxBuilder.traverser(ctx.traverser);
+
+      // now we can expand definitions
+      this.expand(defs, debug, logger, true).forEach((res) => {
         res.defs.forEach((def) => {
           toBeLoaded.push({
             defs: def,
-            ctxBuilder,
+            ctxBuilder: expandedCtxBuilder,
             resolveOnly,
             hydrationId,
           });
         });
-        // generated rs resolver
+        // append generated rs resolver
         res.rs.forEach((r) => {
           toBeLoaded.push({
             defs: r.reducerRule,
