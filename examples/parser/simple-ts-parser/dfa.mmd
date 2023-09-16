@@ -1,0 +1,557 @@
+stateDiagram-v2
+direction LR
+[*] --> prffelf
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nblock_stmt := # &quot;{&quot; &quot;}&quot;\nblock_stmt := # &quot;{&quot; __2 &quot;}&quot;\nconst_stmt := # const identifier &quot;=&quot; exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nif_stmt := # if &quot;(&quot; exp &quot;)&quot; stmt\nimport_stmt := # import &quot;*&quot; as identifier from string &quot;;&quot;\nimport_stmt := # import &quot;{&quot; identifier &quot;}&quot; from string &quot;;&quot;\nimport_stmt := # import &quot;{&quot; identifier __3 &quot;}&quot; from string &quot;;&quot;\nlet_stmt := # let identifier &quot;=&quot; exp_stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nstmt := # block_stmt\nstmt := # const_stmt\nstmt := # exp_stmt\nstmt := # if_stmt\nstmt := # let_stmt\nstmt := # while_stmt\nwhile_stmt := # while &quot;(&quot; exp &quot;)&quot; stmt" as prffelf
+prffelf --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+prffelf --> nxbgw36: #115;#116;#114;#105;#110;#103;
+prffelf --> nduxh80: #114;#101;#103;#101;#120;
+prffelf --> p9vc8y3: #116;#114;#117;#101;
+prffelf --> plagb58: #102;#97;#108;#115;#101;
+prffelf --> p9itirg: #111;#98;#106;#101;#99;#116;
+prffelf --> pr2c7c2: #97;#114;#114;#97;#121;
+prffelf --> nthj6ig: #98;#114;#101;#97;#107;
+prffelf --> nfi3tvk: #110;#101;#119;
+prffelf --> pccjo3p: #34;#33;#34;
+prffelf --> nhwyji3: #101;#120;#112;
+prffelf --> py7fwix: #34;#91;#34;
+prffelf --> ptmjntk: #34;#46;#46;#46;#34;
+prffelf --> ninev0b: #34;#123;#34;
+prffelf --> pak97kd: #105;#102;
+prffelf --> pia8n9b: #99;#111;#110;#115;#116;
+prffelf --> p5lobf6: #101;#120;#112;#95;#115;#116;#109;#116;
+prffelf --> nu46t5d: #108;#101;#116;
+prffelf --> pe0x5zn: #119;#104;#105;#108;#101;
+prffelf --> pho0q20: #105;#102;#95;#115;#116;#109;#116;
+prffelf --> pjvck24: #99;#111;#110;#115;#116;#95;#115;#116;#109;#116;
+prffelf --> pqtadck: #108;#101;#116;#95;#115;#116;#109;#116;
+prffelf --> n7aahaa: #119;#104;#105;#108;#101;#95;#115;#116;#109;#116;
+prffelf --> nwnbkri: #98;#108;#111;#99;#107;#95;#115;#116;#109;#116;
+prffelf --> p69yqbf: #105;#109;#112;#111;#114;#116;
+state "exp := identifier #" as npreqca
+state "exp := string #" as nxbgw36
+state "exp := regex #" as nduxh80
+state "exp := true #" as p9vc8y3
+state "exp := false #" as plagb58
+state "exp := object #" as p9itirg
+state "exp := array #" as pr2c7c2
+state "exp := break #" as nthj6ig
+state "exp := new # identifier" as nfi3tvk
+nfi3tvk --> pqaqlk6: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := &quot;!&quot; # exp\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as pccjo3p
+pccjo3p --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+pccjo3p --> nxbgw36: #115;#116;#114;#105;#110;#103;
+pccjo3p --> nduxh80: #114;#101;#103;#101;#120;
+pccjo3p --> p9vc8y3: #116;#114;#117;#101;
+pccjo3p --> plagb58: #102;#97;#108;#115;#101;
+pccjo3p --> p9itirg: #111;#98;#106;#101;#99;#116;
+pccjo3p --> pr2c7c2: #97;#114;#114;#97;#121;
+pccjo3p --> nthj6ig: #98;#114;#101;#97;#107;
+pccjo3p --> nfi3tvk: #110;#101;#119;
+pccjo3p --> pccjo3p: #34;#33;#34;
+pccjo3p --> pr4mvt8: #101;#120;#112;
+pccjo3p --> py7fwix: #34;#91;#34;
+pccjo3p --> ptmjntk: #34;#46;#46;#46;#34;
+pccjo3p --> nm7mohl: #34;#123;#34;
+state "exp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;\nexp_stmt := exp # &quot;;&quot;" as nhwyji3
+nhwyji3 --> p56cmmg: #34;#63;#34;
+nhwyji3 --> pnd8ckt: #34;#46;#34;
+nhwyji3 --> nuqixo9: #34;#40;#34;
+nhwyji3 --> nyu4ywj: #34;#91;#34;
+nhwyji3 --> p2rmy6b: #34;#33;#61;#34;
+nhwyji3 --> ne6hp4x: #34;#38;#38;#34;
+nhwyji3 --> nov9r0e: #34;#59;#34;
+state "array := &quot;[&quot; # &quot;]&quot;\narray := &quot;[&quot; # exp &quot;]&quot;\narray := &quot;[&quot; # exp __0 &quot;]&quot;\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as py7fwix
+py7fwix --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+py7fwix --> nxbgw36: #115;#116;#114;#105;#110;#103;
+py7fwix --> nduxh80: #114;#101;#103;#101;#120;
+py7fwix --> p9vc8y3: #116;#114;#117;#101;
+py7fwix --> plagb58: #102;#97;#108;#115;#101;
+py7fwix --> p9itirg: #111;#98;#106;#101;#99;#116;
+py7fwix --> pr2c7c2: #97;#114;#114;#97;#121;
+py7fwix --> nthj6ig: #98;#114;#101;#97;#107;
+py7fwix --> nfi3tvk: #110;#101;#119;
+py7fwix --> pccjo3p: #34;#33;#34;
+py7fwix --> niv56r7: #101;#120;#112;
+py7fwix --> py7fwix: #34;#91;#34;
+py7fwix --> p6ippfh: #34;#93;#34;
+py7fwix --> ptmjntk: #34;#46;#46;#46;#34;
+py7fwix --> nm7mohl: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := &quot;...&quot; # exp\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as ptmjntk
+ptmjntk --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+ptmjntk --> nxbgw36: #115;#116;#114;#105;#110;#103;
+ptmjntk --> nduxh80: #114;#101;#103;#101;#120;
+ptmjntk --> p9vc8y3: #116;#114;#117;#101;
+ptmjntk --> plagb58: #102;#97;#108;#115;#101;
+ptmjntk --> p9itirg: #111;#98;#106;#101;#99;#116;
+ptmjntk --> pr2c7c2: #97;#114;#114;#97;#121;
+ptmjntk --> nthj6ig: #98;#114;#101;#97;#107;
+ptmjntk --> nfi3tvk: #110;#101;#119;
+ptmjntk --> pccjo3p: #34;#33;#34;
+ptmjntk --> nvzxg4h: #101;#120;#112;
+ptmjntk --> py7fwix: #34;#91;#34;
+ptmjntk --> ptmjntk: #34;#46;#46;#46;#34;
+ptmjntk --> nm7mohl: #34;#123;#34;
+state "__2 := # stmt\n__2 := # stmt __2\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nblock_stmt := &quot;{&quot; # &quot;}&quot;\nblock_stmt := &quot;{&quot; # __2 &quot;}&quot;\nblock_stmt := # &quot;{&quot; &quot;}&quot;\nblock_stmt := # &quot;{&quot; __2 &quot;}&quot;\nconst_stmt := # const identifier &quot;=&quot; exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nif_stmt := # if &quot;(&quot; exp &quot;)&quot; stmt\nlet_stmt := # let identifier &quot;=&quot; exp_stmt\nobject := &quot;{&quot; # &quot;}&quot;\nobject := &quot;{&quot; # object_item &quot;}&quot;\nobject := &quot;{&quot; # object_item __1 &quot;}&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nobject_item := # identifier\nobject_item := # identifier &quot;:&quot; exp\nstmt := # block_stmt\nstmt := # const_stmt\nstmt := # exp_stmt\nstmt := # if_stmt\nstmt := # let_stmt\nstmt := # while_stmt\nwhile_stmt := # while &quot;(&quot; exp &quot;)&quot; stmt" as ninev0b
+ninev0b --> ph9efsh: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+ninev0b --> nxbgw36: #115;#116;#114;#105;#110;#103;
+ninev0b --> nduxh80: #114;#101;#103;#101;#120;
+ninev0b --> p9vc8y3: #116;#114;#117;#101;
+ninev0b --> plagb58: #102;#97;#108;#115;#101;
+ninev0b --> p9itirg: #111;#98;#106;#101;#99;#116;
+ninev0b --> pr2c7c2: #97;#114;#114;#97;#121;
+ninev0b --> nthj6ig: #98;#114;#101;#97;#107;
+ninev0b --> nfi3tvk: #110;#101;#119;
+ninev0b --> pccjo3p: #34;#33;#34;
+ninev0b --> nhwyji3: #101;#120;#112;
+ninev0b --> py7fwix: #34;#91;#34;
+ninev0b --> ptmjntk: #34;#46;#46;#46;#34;
+ninev0b --> ninev0b: #34;#123;#34;
+ninev0b --> psuc31o: #111;#98;#106;#101;#99;#116;#95;#105;#116;#101;#109;
+ninev0b --> niv712v: #34;#125;#34;
+ninev0b --> pak97kd: #105;#102;
+ninev0b --> n2elac0: #115;#116;#109;#116;
+ninev0b --> pia8n9b: #99;#111;#110;#115;#116;
+ninev0b --> p5lobf6: #101;#120;#112;#95;#115;#116;#109;#116;
+ninev0b --> nu46t5d: #108;#101;#116;
+ninev0b --> pe0x5zn: #119;#104;#105;#108;#101;
+ninev0b --> pmvb3am: #95;#95;#50;
+ninev0b --> pho0q20: #105;#102;#95;#115;#116;#109;#116;
+ninev0b --> pjvck24: #99;#111;#110;#115;#116;#95;#115;#116;#109;#116;
+ninev0b --> pqtadck: #108;#101;#116;#95;#115;#116;#109;#116;
+ninev0b --> n7aahaa: #119;#104;#105;#108;#101;#95;#115;#116;#109;#116;
+ninev0b --> nwnbkri: #98;#108;#111;#99;#107;#95;#115;#116;#109;#116;
+state "if_stmt := if # &quot;(&quot; exp &quot;)&quot; stmt" as pak97kd
+pak97kd --> n86u0yh: #34;#40;#34;
+state "const_stmt := const # identifier &quot;=&quot; exp_stmt" as pia8n9b
+pia8n9b --> p712di1: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "stmt := exp_stmt #" as p5lobf6
+state "let_stmt := let # identifier &quot;=&quot; exp_stmt" as nu46t5d
+nu46t5d --> ptnqz2h: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "while_stmt := while # &quot;(&quot; exp &quot;)&quot; stmt" as pe0x5zn
+pe0x5zn --> nokeoen: #34;#40;#34;
+state "stmt := if_stmt #" as pho0q20
+state "stmt := const_stmt #" as pjvck24
+state "stmt := let_stmt #" as pqtadck
+state "stmt := while_stmt #" as n7aahaa
+state "stmt := block_stmt #" as nwnbkri
+state "import_stmt := import # &quot;*&quot; as identifier from string &quot;;&quot;\nimport_stmt := import # &quot;{&quot; identifier &quot;}&quot; from string &quot;;&quot;\nimport_stmt := import # &quot;{&quot; identifier __3 &quot;}&quot; from string &quot;;&quot;" as p69yqbf
+p69yqbf --> niilxkz: #34;#123;#34;
+p69yqbf --> poj9djc: #34;#42;#34;
+state "exp := new identifier #" as pqaqlk6
+state "exp := &quot;!&quot; exp #\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as pr4mvt8
+pr4mvt8 --> p56cmmg: #34;#63;#34;
+pr4mvt8 --> pnd8ckt: #34;#46;#34;
+pr4mvt8 --> nuqixo9: #34;#40;#34;
+pr4mvt8 --> nyu4ywj: #34;#91;#34;
+pr4mvt8 --> p2rmy6b: #34;#33;#61;#34;
+pr4mvt8 --> ne6hp4x: #34;#38;#38;#34;
+state "object := &quot;{&quot; # &quot;}&quot;\nobject := &quot;{&quot; # object_item &quot;}&quot;\nobject := &quot;{&quot; # object_item __1 &quot;}&quot;\nobject_item := # identifier\nobject_item := # identifier &quot;:&quot; exp" as nm7mohl
+nm7mohl --> p8lco0l: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+nm7mohl --> psuc31o: #111;#98;#106;#101;#99;#116;#95;#105;#116;#101;#109;
+nm7mohl --> pnt6gt3: #34;#125;#34;
+state "exp := exp &quot;?&quot; # &quot;.&quot; identifier" as p56cmmg
+p56cmmg --> p6jvh54: #34;#46;#34;
+state "exp := exp &quot;.&quot; # identifier" as pnd8ckt
+pnd8ckt --> n5v19yl: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp := exp &quot;(&quot; # &quot;)&quot;\nexp := exp &quot;(&quot; # exp &quot;)&quot;\nexp := exp &quot;(&quot; # exp __0 &quot;)&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as nuqixo9
+nuqixo9 --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+nuqixo9 --> nxbgw36: #115;#116;#114;#105;#110;#103;
+nuqixo9 --> nduxh80: #114;#101;#103;#101;#120;
+nuqixo9 --> p9vc8y3: #116;#114;#117;#101;
+nuqixo9 --> plagb58: #102;#97;#108;#115;#101;
+nuqixo9 --> p9itirg: #111;#98;#106;#101;#99;#116;
+nuqixo9 --> pr2c7c2: #97;#114;#114;#97;#121;
+nuqixo9 --> nthj6ig: #98;#114;#101;#97;#107;
+nuqixo9 --> nfi3tvk: #110;#101;#119;
+nuqixo9 --> pccjo3p: #34;#33;#34;
+nuqixo9 --> n2s8rqr: #101;#120;#112;
+nuqixo9 --> pclsm9p: #34;#41;#34;
+nuqixo9 --> py7fwix: #34;#91;#34;
+nuqixo9 --> ptmjntk: #34;#46;#46;#46;#34;
+nuqixo9 --> nm7mohl: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp := exp &quot;[&quot; # exp &quot;]&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as nyu4ywj
+nyu4ywj --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+nyu4ywj --> nxbgw36: #115;#116;#114;#105;#110;#103;
+nyu4ywj --> nduxh80: #114;#101;#103;#101;#120;
+nyu4ywj --> p9vc8y3: #116;#114;#117;#101;
+nyu4ywj --> plagb58: #102;#97;#108;#115;#101;
+nyu4ywj --> p9itirg: #111;#98;#106;#101;#99;#116;
+nyu4ywj --> pr2c7c2: #97;#114;#114;#97;#121;
+nyu4ywj --> nthj6ig: #98;#114;#101;#97;#107;
+nyu4ywj --> nfi3tvk: #110;#101;#119;
+nyu4ywj --> pccjo3p: #34;#33;#34;
+nyu4ywj --> nm5d9hm: #101;#120;#112;
+nyu4ywj --> py7fwix: #34;#91;#34;
+nyu4ywj --> ptmjntk: #34;#46;#46;#46;#34;
+nyu4ywj --> nm7mohl: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp := exp &quot;!=&quot; # exp\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as p2rmy6b
+p2rmy6b --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+p2rmy6b --> nxbgw36: #115;#116;#114;#105;#110;#103;
+p2rmy6b --> nduxh80: #114;#101;#103;#101;#120;
+p2rmy6b --> p9vc8y3: #116;#114;#117;#101;
+p2rmy6b --> plagb58: #102;#97;#108;#115;#101;
+p2rmy6b --> p9itirg: #111;#98;#106;#101;#99;#116;
+p2rmy6b --> pr2c7c2: #97;#114;#114;#97;#121;
+p2rmy6b --> nthj6ig: #98;#114;#101;#97;#107;
+p2rmy6b --> nfi3tvk: #110;#101;#119;
+p2rmy6b --> pccjo3p: #34;#33;#34;
+p2rmy6b --> pk6gqzo: #101;#120;#112;
+p2rmy6b --> py7fwix: #34;#91;#34;
+p2rmy6b --> ptmjntk: #34;#46;#46;#46;#34;
+p2rmy6b --> nm7mohl: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp := exp &quot;&&&quot; # exp\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as ne6hp4x
+ne6hp4x --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+ne6hp4x --> nxbgw36: #115;#116;#114;#105;#110;#103;
+ne6hp4x --> nduxh80: #114;#101;#103;#101;#120;
+ne6hp4x --> p9vc8y3: #116;#114;#117;#101;
+ne6hp4x --> plagb58: #102;#97;#108;#115;#101;
+ne6hp4x --> p9itirg: #111;#98;#106;#101;#99;#116;
+ne6hp4x --> pr2c7c2: #97;#114;#114;#97;#121;
+ne6hp4x --> nthj6ig: #98;#114;#101;#97;#107;
+ne6hp4x --> nfi3tvk: #110;#101;#119;
+ne6hp4x --> pccjo3p: #34;#33;#34;
+ne6hp4x --> pai56sg: #101;#120;#112;
+ne6hp4x --> py7fwix: #34;#91;#34;
+ne6hp4x --> ptmjntk: #34;#46;#46;#46;#34;
+ne6hp4x --> nm7mohl: #34;#123;#34;
+state "exp_stmt := exp &quot;;&quot; #" as nov9r0e
+state "__0 := # &quot;,&quot; exp\n__0 := # &quot;,&quot; exp __0\narray := &quot;[&quot; exp # &quot;]&quot;\narray := &quot;[&quot; exp # __0 &quot;]&quot;\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as niv56r7
+niv56r7 --> p56cmmg: #34;#63;#34;
+niv56r7 --> pnd8ckt: #34;#46;#34;
+niv56r7 --> nuqixo9: #34;#40;#34;
+niv56r7 --> pj8uip6: #95;#95;#48;
+niv56r7 --> nyu4ywj: #34;#91;#34;
+niv56r7 --> nmuaz46: #34;#93;#34;
+niv56r7 --> p2rmy6b: #34;#33;#61;#34;
+niv56r7 --> ne6hp4x: #34;#38;#38;#34;
+niv56r7 --> n2pept0: #34;#44;#34;
+state "array := &quot;[&quot; &quot;]&quot; #" as p6ippfh
+state "exp := &quot;...&quot; exp #\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as nvzxg4h
+nvzxg4h --> p56cmmg: #34;#63;#34;
+nvzxg4h --> pnd8ckt: #34;#46;#34;
+nvzxg4h --> nuqixo9: #34;#40;#34;
+nvzxg4h --> nyu4ywj: #34;#91;#34;
+nvzxg4h --> p2rmy6b: #34;#33;#61;#34;
+nvzxg4h --> ne6hp4x: #34;#38;#38;#34;
+state "exp := identifier #\nobject_item := identifier #\nobject_item := identifier # &quot;:&quot; exp" as ph9efsh
+ph9efsh --> phn8c6d: #34;#58;#34;
+state "__1 := # &quot;,&quot; object_item\n__1 := # &quot;,&quot; object_item __1\nobject := &quot;{&quot; object_item # &quot;}&quot;\nobject := &quot;{&quot; object_item # __1 &quot;}&quot;" as psuc31o
+psuc31o --> p9o3t1m: #34;#125;#34;
+psuc31o --> pnxi3y3: #95;#95;#49;
+psuc31o --> prrj5tm: #34;#44;#34;
+state "block_stmt := &quot;{&quot; &quot;}&quot; #\nobject := &quot;{&quot; &quot;}&quot; #" as niv712v
+state "__2 := # stmt\n__2 := # stmt __2\n__2 := stmt #\n__2 := stmt # __2\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nblock_stmt := # &quot;{&quot; &quot;}&quot;\nblock_stmt := # &quot;{&quot; __2 &quot;}&quot;\nconst_stmt := # const identifier &quot;=&quot; exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nif_stmt := # if &quot;(&quot; exp &quot;)&quot; stmt\nlet_stmt := # let identifier &quot;=&quot; exp_stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nstmt := # block_stmt\nstmt := # const_stmt\nstmt := # exp_stmt\nstmt := # if_stmt\nstmt := # let_stmt\nstmt := # while_stmt\nwhile_stmt := # while &quot;(&quot; exp &quot;)&quot; stmt" as n2elac0
+n2elac0 --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+n2elac0 --> nxbgw36: #115;#116;#114;#105;#110;#103;
+n2elac0 --> nduxh80: #114;#101;#103;#101;#120;
+n2elac0 --> p9vc8y3: #116;#114;#117;#101;
+n2elac0 --> plagb58: #102;#97;#108;#115;#101;
+n2elac0 --> p9itirg: #111;#98;#106;#101;#99;#116;
+n2elac0 --> pr2c7c2: #97;#114;#114;#97;#121;
+n2elac0 --> nthj6ig: #98;#114;#101;#97;#107;
+n2elac0 --> nfi3tvk: #110;#101;#119;
+n2elac0 --> pccjo3p: #34;#33;#34;
+n2elac0 --> nhwyji3: #101;#120;#112;
+n2elac0 --> py7fwix: #34;#91;#34;
+n2elac0 --> ptmjntk: #34;#46;#46;#46;#34;
+n2elac0 --> ninev0b: #34;#123;#34;
+n2elac0 --> pak97kd: #105;#102;
+n2elac0 --> n2elac0: #115;#116;#109;#116;
+n2elac0 --> pia8n9b: #99;#111;#110;#115;#116;
+n2elac0 --> p5lobf6: #101;#120;#112;#95;#115;#116;#109;#116;
+n2elac0 --> nu46t5d: #108;#101;#116;
+n2elac0 --> pe0x5zn: #119;#104;#105;#108;#101;
+n2elac0 --> piqru3w: #95;#95;#50;
+n2elac0 --> pho0q20: #105;#102;#95;#115;#116;#109;#116;
+n2elac0 --> pjvck24: #99;#111;#110;#115;#116;#95;#115;#116;#109;#116;
+n2elac0 --> pqtadck: #108;#101;#116;#95;#115;#116;#109;#116;
+n2elac0 --> n7aahaa: #119;#104;#105;#108;#101;#95;#115;#116;#109;#116;
+n2elac0 --> nwnbkri: #98;#108;#111;#99;#107;#95;#115;#116;#109;#116;
+state "block_stmt := &quot;{&quot; __2 # &quot;}&quot;" as pmvb3am
+pmvb3am --> pmwem9a: #34;#125;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nif_stmt := if &quot;(&quot; # exp &quot;)&quot; stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as n86u0yh
+n86u0yh --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+n86u0yh --> nxbgw36: #115;#116;#114;#105;#110;#103;
+n86u0yh --> nduxh80: #114;#101;#103;#101;#120;
+n86u0yh --> p9vc8y3: #116;#114;#117;#101;
+n86u0yh --> plagb58: #102;#97;#108;#115;#101;
+n86u0yh --> p9itirg: #111;#98;#106;#101;#99;#116;
+n86u0yh --> pr2c7c2: #97;#114;#114;#97;#121;
+n86u0yh --> nthj6ig: #98;#114;#101;#97;#107;
+n86u0yh --> nfi3tvk: #110;#101;#119;
+n86u0yh --> pccjo3p: #34;#33;#34;
+n86u0yh --> phq4jje: #101;#120;#112;
+n86u0yh --> py7fwix: #34;#91;#34;
+n86u0yh --> ptmjntk: #34;#46;#46;#46;#34;
+n86u0yh --> nm7mohl: #34;#123;#34;
+state "const_stmt := const identifier # &quot;=&quot; exp_stmt" as p712di1
+p712di1 --> njowvil: #34;#61;#34;
+state "let_stmt := let identifier # &quot;=&quot; exp_stmt" as ptnqz2h
+ptnqz2h --> nqmf34t: #34;#61;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nwhile_stmt := while &quot;(&quot; # exp &quot;)&quot; stmt" as nokeoen
+nokeoen --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+nokeoen --> nxbgw36: #115;#116;#114;#105;#110;#103;
+nokeoen --> nduxh80: #114;#101;#103;#101;#120;
+nokeoen --> p9vc8y3: #116;#114;#117;#101;
+nokeoen --> plagb58: #102;#97;#108;#115;#101;
+nokeoen --> p9itirg: #111;#98;#106;#101;#99;#116;
+nokeoen --> pr2c7c2: #97;#114;#114;#97;#121;
+nokeoen --> nthj6ig: #98;#114;#101;#97;#107;
+nokeoen --> nfi3tvk: #110;#101;#119;
+nokeoen --> pccjo3p: #34;#33;#34;
+nokeoen --> puxzh2o: #101;#120;#112;
+nokeoen --> py7fwix: #34;#91;#34;
+nokeoen --> ptmjntk: #34;#46;#46;#46;#34;
+nokeoen --> nm7mohl: #34;#123;#34;
+state "import_stmt := import &quot;{&quot; # identifier &quot;}&quot; from string &quot;;&quot;\nimport_stmt := import &quot;{&quot; # identifier __3 &quot;}&quot; from string &quot;;&quot;" as niilxkz
+niilxkz --> nsymw14: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "import_stmt := import &quot;*&quot; # as identifier from string &quot;;&quot;" as poj9djc
+poj9djc --> n89vgim: #97;#115;
+state "object_item := identifier #\nobject_item := identifier # &quot;:&quot; exp" as p8lco0l
+p8lco0l --> phn8c6d: #34;#58;#34;
+state "object := &quot;{&quot; &quot;}&quot; #" as pnt6gt3
+state "exp := exp &quot;?&quot; &quot;.&quot; # identifier" as p6jvh54
+p6jvh54 --> nmoe5ea: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "exp := exp &quot;.&quot; identifier #" as n5v19yl
+state "__0 := # &quot;,&quot; exp\n__0 := # &quot;,&quot; exp __0\nexp := exp &quot;(&quot; exp # &quot;)&quot;\nexp := exp &quot;(&quot; exp # __0 &quot;)&quot;\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as n2s8rqr
+n2s8rqr --> p56cmmg: #34;#63;#34;
+n2s8rqr --> pnd8ckt: #34;#46;#34;
+n2s8rqr --> nuqixo9: #34;#40;#34;
+n2s8rqr --> nwu8fie: #34;#41;#34;
+n2s8rqr --> p87l3oq: #95;#95;#48;
+n2s8rqr --> nyu4ywj: #34;#91;#34;
+n2s8rqr --> p2rmy6b: #34;#33;#61;#34;
+n2s8rqr --> ne6hp4x: #34;#38;#38;#34;
+n2s8rqr --> n2pept0: #34;#44;#34;
+state "exp := exp &quot;(&quot; &quot;)&quot; #" as pclsm9p
+state "exp := exp &quot;[&quot; exp # &quot;]&quot;\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as nm5d9hm
+nm5d9hm --> p56cmmg: #34;#63;#34;
+nm5d9hm --> pnd8ckt: #34;#46;#34;
+nm5d9hm --> nuqixo9: #34;#40;#34;
+nm5d9hm --> nyu4ywj: #34;#91;#34;
+nm5d9hm --> p511xv7: #34;#93;#34;
+nm5d9hm --> p2rmy6b: #34;#33;#61;#34;
+nm5d9hm --> ne6hp4x: #34;#38;#38;#34;
+state "exp := exp &quot;!=&quot; exp #\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as pk6gqzo
+pk6gqzo --> p56cmmg: #34;#63;#34;
+pk6gqzo --> pnd8ckt: #34;#46;#34;
+pk6gqzo --> nuqixo9: #34;#40;#34;
+pk6gqzo --> nyu4ywj: #34;#91;#34;
+pk6gqzo --> p2rmy6b: #34;#33;#61;#34;
+pk6gqzo --> ne6hp4x: #34;#38;#38;#34;
+state "exp := exp &quot;&&&quot; exp #\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as pai56sg
+pai56sg --> p56cmmg: #34;#63;#34;
+pai56sg --> pnd8ckt: #34;#46;#34;
+pai56sg --> nuqixo9: #34;#40;#34;
+pai56sg --> nyu4ywj: #34;#91;#34;
+pai56sg --> p2rmy6b: #34;#33;#61;#34;
+pai56sg --> ne6hp4x: #34;#38;#38;#34;
+state "array := &quot;[&quot; exp __0 # &quot;]&quot;" as pj8uip6
+pj8uip6 --> pj9dmui: #34;#93;#34;
+state "array := &quot;[&quot; exp &quot;]&quot; #" as nmuaz46
+state "__0 := &quot;,&quot; # exp\n__0 := &quot;,&quot; # exp __0\narray := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as n2pept0
+n2pept0 --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+n2pept0 --> nxbgw36: #115;#116;#114;#105;#110;#103;
+n2pept0 --> nduxh80: #114;#101;#103;#101;#120;
+n2pept0 --> p9vc8y3: #116;#114;#117;#101;
+n2pept0 --> plagb58: #102;#97;#108;#115;#101;
+n2pept0 --> p9itirg: #111;#98;#106;#101;#99;#116;
+n2pept0 --> pr2c7c2: #97;#114;#114;#97;#121;
+n2pept0 --> nthj6ig: #98;#114;#101;#97;#107;
+n2pept0 --> nfi3tvk: #110;#101;#119;
+n2pept0 --> pccjo3p: #34;#33;#34;
+n2pept0 --> n1b3jdf: #101;#120;#112;
+n2pept0 --> py7fwix: #34;#91;#34;
+n2pept0 --> ptmjntk: #34;#46;#46;#46;#34;
+n2pept0 --> nm7mohl: #34;#123;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nobject_item := identifier &quot;:&quot; # exp" as phn8c6d
+phn8c6d --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+phn8c6d --> nxbgw36: #115;#116;#114;#105;#110;#103;
+phn8c6d --> nduxh80: #114;#101;#103;#101;#120;
+phn8c6d --> p9vc8y3: #116;#114;#117;#101;
+phn8c6d --> plagb58: #102;#97;#108;#115;#101;
+phn8c6d --> p9itirg: #111;#98;#106;#101;#99;#116;
+phn8c6d --> pr2c7c2: #97;#114;#114;#97;#121;
+phn8c6d --> nthj6ig: #98;#114;#101;#97;#107;
+phn8c6d --> nfi3tvk: #110;#101;#119;
+phn8c6d --> pccjo3p: #34;#33;#34;
+phn8c6d --> p9herwm: #101;#120;#112;
+phn8c6d --> py7fwix: #34;#91;#34;
+phn8c6d --> ptmjntk: #34;#46;#46;#46;#34;
+phn8c6d --> nm7mohl: #34;#123;#34;
+state "object := &quot;{&quot; object_item &quot;}&quot; #" as p9o3t1m
+state "object := &quot;{&quot; object_item __1 # &quot;}&quot;" as pnxi3y3
+pnxi3y3 --> pnylmwr: #34;#125;#34;
+state "__1 := &quot;,&quot; # object_item\n__1 := &quot;,&quot; # object_item __1\nobject_item := # identifier\nobject_item := # identifier &quot;:&quot; exp" as prrj5tm
+prrj5tm --> p8lco0l: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+prrj5tm --> nl1vfkk: #111;#98;#106;#101;#99;#116;#95;#105;#116;#101;#109;
+state "__2 := stmt __2 #" as piqru3w
+state "block_stmt := &quot;{&quot; __2 &quot;}&quot; #" as pmwem9a
+state "exp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;\nif_stmt := if &quot;(&quot; exp # &quot;)&quot; stmt" as phq4jje
+phq4jje --> p56cmmg: #34;#63;#34;
+phq4jje --> pnd8ckt: #34;#46;#34;
+phq4jje --> nuqixo9: #34;#40;#34;
+phq4jje --> p5rjh7b: #34;#41;#34;
+phq4jje --> nyu4ywj: #34;#91;#34;
+phq4jje --> p2rmy6b: #34;#33;#61;#34;
+phq4jje --> ne6hp4x: #34;#38;#38;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nconst_stmt := const identifier &quot;=&quot; # exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as njowvil
+njowvil --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+njowvil --> nxbgw36: #115;#116;#114;#105;#110;#103;
+njowvil --> nduxh80: #114;#101;#103;#101;#120;
+njowvil --> p9vc8y3: #116;#114;#117;#101;
+njowvil --> plagb58: #102;#97;#108;#115;#101;
+njowvil --> p9itirg: #111;#98;#106;#101;#99;#116;
+njowvil --> pr2c7c2: #97;#114;#114;#97;#121;
+njowvil --> nthj6ig: #98;#114;#101;#97;#107;
+njowvil --> nfi3tvk: #110;#101;#119;
+njowvil --> pccjo3p: #34;#33;#34;
+njowvil --> nhwyji3: #101;#120;#112;
+njowvil --> py7fwix: #34;#91;#34;
+njowvil --> ptmjntk: #34;#46;#46;#46;#34;
+njowvil --> nm7mohl: #34;#123;#34;
+njowvil --> nsyrhkx: #101;#120;#112;#95;#115;#116;#109;#116;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nlet_stmt := let identifier &quot;=&quot; # exp_stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;" as nqmf34t
+nqmf34t --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+nqmf34t --> nxbgw36: #115;#116;#114;#105;#110;#103;
+nqmf34t --> nduxh80: #114;#101;#103;#101;#120;
+nqmf34t --> p9vc8y3: #116;#114;#117;#101;
+nqmf34t --> plagb58: #102;#97;#108;#115;#101;
+nqmf34t --> p9itirg: #111;#98;#106;#101;#99;#116;
+nqmf34t --> pr2c7c2: #97;#114;#114;#97;#121;
+nqmf34t --> nthj6ig: #98;#114;#101;#97;#107;
+nqmf34t --> nfi3tvk: #110;#101;#119;
+nqmf34t --> pccjo3p: #34;#33;#34;
+nqmf34t --> nhwyji3: #101;#120;#112;
+nqmf34t --> py7fwix: #34;#91;#34;
+nqmf34t --> ptmjntk: #34;#46;#46;#46;#34;
+nqmf34t --> nm7mohl: #34;#123;#34;
+nqmf34t --> n6c2w0h: #101;#120;#112;#95;#115;#116;#109;#116;
+state "exp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;\nwhile_stmt := while &quot;(&quot; exp # &quot;)&quot; stmt" as puxzh2o
+puxzh2o --> p56cmmg: #34;#63;#34;
+puxzh2o --> pnd8ckt: #34;#46;#34;
+puxzh2o --> nuqixo9: #34;#40;#34;
+puxzh2o --> pc66ikl: #34;#41;#34;
+puxzh2o --> nyu4ywj: #34;#91;#34;
+puxzh2o --> p2rmy6b: #34;#33;#61;#34;
+puxzh2o --> ne6hp4x: #34;#38;#38;#34;
+state "__3 := # &quot;,&quot; identifier\n__3 := # &quot;,&quot; identifier __3\nimport_stmt := import &quot;{&quot; identifier # &quot;}&quot; from string &quot;;&quot;\nimport_stmt := import &quot;{&quot; identifier # __3 &quot;}&quot; from string &quot;;&quot;" as nsymw14
+nsymw14 --> ngji16: #34;#125;#34;
+nsymw14 --> pwup7hl: #95;#95;#51;
+nsymw14 --> pypdxet: #34;#44;#34;
+state "import_stmt := import &quot;*&quot; as # identifier from string &quot;;&quot;" as n89vgim
+n89vgim --> nzap96g: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "exp := exp &quot;?&quot; &quot;.&quot; identifier #" as nmoe5ea
+state "exp := exp &quot;(&quot; exp &quot;)&quot; #" as nwu8fie
+state "exp := exp &quot;(&quot; exp __0 # &quot;)&quot;" as p87l3oq
+p87l3oq --> p8771re: #34;#41;#34;
+state "exp := exp &quot;[&quot; exp &quot;]&quot; #" as p511xv7
+state "array := &quot;[&quot; exp __0 &quot;]&quot; #" as pj9dmui
+state "__0 := &quot;,&quot; exp #\n__0 := &quot;,&quot; exp # __0\n__0 := # &quot;,&quot; exp\n__0 := # &quot;,&quot; exp __0\nexp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;" as n1b3jdf
+n1b3jdf --> p56cmmg: #34;#63;#34;
+n1b3jdf --> pnd8ckt: #34;#46;#34;
+n1b3jdf --> nuqixo9: #34;#40;#34;
+n1b3jdf --> nawl6md: #95;#95;#48;
+n1b3jdf --> nyu4ywj: #34;#91;#34;
+n1b3jdf --> p2rmy6b: #34;#33;#61;#34;
+n1b3jdf --> ne6hp4x: #34;#38;#38;#34;
+n1b3jdf --> n2pept0: #34;#44;#34;
+state "exp := exp # &quot;!=&quot; exp\nexp := exp # &quot;&&&quot; exp\nexp := exp # &quot;(&quot; &quot;)&quot;\nexp := exp # &quot;(&quot; exp &quot;)&quot;\nexp := exp # &quot;(&quot; exp __0 &quot;)&quot;\nexp := exp # &quot;.&quot; identifier\nexp := exp # &quot;?&quot; &quot;.&quot; identifier\nexp := exp # &quot;[&quot; exp &quot;]&quot;\nobject_item := identifier &quot;:&quot; exp #" as p9herwm
+p9herwm --> p56cmmg: #34;#63;#34;
+p9herwm --> pnd8ckt: #34;#46;#34;
+p9herwm --> nuqixo9: #34;#40;#34;
+p9herwm --> nyu4ywj: #34;#91;#34;
+p9herwm --> p2rmy6b: #34;#33;#61;#34;
+p9herwm --> ne6hp4x: #34;#38;#38;#34;
+state "object := &quot;{&quot; object_item __1 &quot;}&quot; #" as pnylmwr
+state "__1 := &quot;,&quot; object_item #\n__1 := &quot;,&quot; object_item # __1\n__1 := # &quot;,&quot; object_item\n__1 := # &quot;,&quot; object_item __1" as nl1vfkk
+nl1vfkk --> pf9xpjl: #95;#95;#49;
+nl1vfkk --> prrj5tm: #34;#44;#34;
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nblock_stmt := # &quot;{&quot; &quot;}&quot;\nblock_stmt := # &quot;{&quot; __2 &quot;}&quot;\nconst_stmt := # const identifier &quot;=&quot; exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nif_stmt := # if &quot;(&quot; exp &quot;)&quot; stmt\nif_stmt := if &quot;(&quot; exp &quot;)&quot; # stmt\nlet_stmt := # let identifier &quot;=&quot; exp_stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nstmt := # block_stmt\nstmt := # const_stmt\nstmt := # exp_stmt\nstmt := # if_stmt\nstmt := # let_stmt\nstmt := # while_stmt\nwhile_stmt := # while &quot;(&quot; exp &quot;)&quot; stmt" as p5rjh7b
+p5rjh7b --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+p5rjh7b --> nxbgw36: #115;#116;#114;#105;#110;#103;
+p5rjh7b --> nduxh80: #114;#101;#103;#101;#120;
+p5rjh7b --> p9vc8y3: #116;#114;#117;#101;
+p5rjh7b --> plagb58: #102;#97;#108;#115;#101;
+p5rjh7b --> p9itirg: #111;#98;#106;#101;#99;#116;
+p5rjh7b --> pr2c7c2: #97;#114;#114;#97;#121;
+p5rjh7b --> nthj6ig: #98;#114;#101;#97;#107;
+p5rjh7b --> nfi3tvk: #110;#101;#119;
+p5rjh7b --> pccjo3p: #34;#33;#34;
+p5rjh7b --> nhwyji3: #101;#120;#112;
+p5rjh7b --> py7fwix: #34;#91;#34;
+p5rjh7b --> ptmjntk: #34;#46;#46;#46;#34;
+p5rjh7b --> ninev0b: #34;#123;#34;
+p5rjh7b --> pak97kd: #105;#102;
+p5rjh7b --> ncj98zx: #115;#116;#109;#116;
+p5rjh7b --> pia8n9b: #99;#111;#110;#115;#116;
+p5rjh7b --> p5lobf6: #101;#120;#112;#95;#115;#116;#109;#116;
+p5rjh7b --> nu46t5d: #108;#101;#116;
+p5rjh7b --> pe0x5zn: #119;#104;#105;#108;#101;
+p5rjh7b --> pho0q20: #105;#102;#95;#115;#116;#109;#116;
+p5rjh7b --> pjvck24: #99;#111;#110;#115;#116;#95;#115;#116;#109;#116;
+p5rjh7b --> pqtadck: #108;#101;#116;#95;#115;#116;#109;#116;
+p5rjh7b --> n7aahaa: #119;#104;#105;#108;#101;#95;#115;#116;#109;#116;
+p5rjh7b --> nwnbkri: #98;#108;#111;#99;#107;#95;#115;#116;#109;#116;
+state "const_stmt := const identifier &quot;=&quot; exp_stmt #" as nsyrhkx
+state "let_stmt := let identifier &quot;=&quot; exp_stmt #" as n6c2w0h
+state "array := # &quot;[&quot; &quot;]&quot;\narray := # &quot;[&quot; exp &quot;]&quot;\narray := # &quot;[&quot; exp __0 &quot;]&quot;\nblock_stmt := # &quot;{&quot; &quot;}&quot;\nblock_stmt := # &quot;{&quot; __2 &quot;}&quot;\nconst_stmt := # const identifier &quot;=&quot; exp_stmt\nexp := # &quot;!&quot; exp\nexp := # &quot;...&quot; exp\nexp := # array\nexp := # break\nexp := # exp &quot;!=&quot; exp\nexp := # exp &quot;&&&quot; exp\nexp := # exp &quot;(&quot; &quot;)&quot;\nexp := # exp &quot;(&quot; exp &quot;)&quot;\nexp := # exp &quot;(&quot; exp __0 &quot;)&quot;\nexp := # exp &quot;.&quot; identifier\nexp := # exp &quot;?&quot; &quot;.&quot; identifier\nexp := # exp &quot;[&quot; exp &quot;]&quot;\nexp := # false\nexp := # identifier\nexp := # new identifier\nexp := # object\nexp := # regex\nexp := # string\nexp := # true\nexp_stmt := # exp &quot;;&quot;\nif_stmt := # if &quot;(&quot; exp &quot;)&quot; stmt\nlet_stmt := # let identifier &quot;=&quot; exp_stmt\nobject := # &quot;{&quot; &quot;}&quot;\nobject := # &quot;{&quot; object_item &quot;}&quot;\nobject := # &quot;{&quot; object_item __1 &quot;}&quot;\nstmt := # block_stmt\nstmt := # const_stmt\nstmt := # exp_stmt\nstmt := # if_stmt\nstmt := # let_stmt\nstmt := # while_stmt\nwhile_stmt := # while &quot;(&quot; exp &quot;)&quot; stmt\nwhile_stmt := while &quot;(&quot; exp &quot;)&quot; # stmt" as pc66ikl
+pc66ikl --> npreqca: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+pc66ikl --> nxbgw36: #115;#116;#114;#105;#110;#103;
+pc66ikl --> nduxh80: #114;#101;#103;#101;#120;
+pc66ikl --> p9vc8y3: #116;#114;#117;#101;
+pc66ikl --> plagb58: #102;#97;#108;#115;#101;
+pc66ikl --> p9itirg: #111;#98;#106;#101;#99;#116;
+pc66ikl --> pr2c7c2: #97;#114;#114;#97;#121;
+pc66ikl --> nthj6ig: #98;#114;#101;#97;#107;
+pc66ikl --> nfi3tvk: #110;#101;#119;
+pc66ikl --> pccjo3p: #34;#33;#34;
+pc66ikl --> nhwyji3: #101;#120;#112;
+pc66ikl --> py7fwix: #34;#91;#34;
+pc66ikl --> ptmjntk: #34;#46;#46;#46;#34;
+pc66ikl --> ninev0b: #34;#123;#34;
+pc66ikl --> pak97kd: #105;#102;
+pc66ikl --> n92lakn: #115;#116;#109;#116;
+pc66ikl --> pia8n9b: #99;#111;#110;#115;#116;
+pc66ikl --> p5lobf6: #101;#120;#112;#95;#115;#116;#109;#116;
+pc66ikl --> nu46t5d: #108;#101;#116;
+pc66ikl --> pe0x5zn: #119;#104;#105;#108;#101;
+pc66ikl --> pho0q20: #105;#102;#95;#115;#116;#109;#116;
+pc66ikl --> pjvck24: #99;#111;#110;#115;#116;#95;#115;#116;#109;#116;
+pc66ikl --> pqtadck: #108;#101;#116;#95;#115;#116;#109;#116;
+pc66ikl --> n7aahaa: #119;#104;#105;#108;#101;#95;#115;#116;#109;#116;
+pc66ikl --> nwnbkri: #98;#108;#111;#99;#107;#95;#115;#116;#109;#116;
+state "import_stmt := import &quot;{&quot; identifier &quot;}&quot; # from string &quot;;&quot;" as ngji16
+ngji16 --> pjqf0k0: #102;#114;#111;#109;
+state "import_stmt := import &quot;{&quot; identifier __3 # &quot;}&quot; from string &quot;;&quot;" as pwup7hl
+pwup7hl --> px3b4rt: #34;#125;#34;
+state "__3 := &quot;,&quot; # identifier\n__3 := &quot;,&quot; # identifier __3" as pypdxet
+pypdxet --> p3ckn64: #105;#100;#101;#110;#116;#105;#102;#105;#101;#114;
+state "import_stmt := import &quot;*&quot; as identifier # from string &quot;;&quot;" as nzap96g
+nzap96g --> nf3qqla: #102;#114;#111;#109;
+state "exp := exp &quot;(&quot; exp __0 &quot;)&quot; #" as p8771re
+state "__0 := &quot;,&quot; exp __0 #" as nawl6md
+state "__1 := &quot;,&quot; object_item __1 #" as pf9xpjl
+state "if_stmt := if &quot;(&quot; exp &quot;)&quot; stmt #" as ncj98zx
+state "while_stmt := while &quot;(&quot; exp &quot;)&quot; stmt #" as n92lakn
+state "import_stmt := import &quot;{&quot; identifier &quot;}&quot; from # string &quot;;&quot;" as pjqf0k0
+pjqf0k0 --> npg2szu: #115;#116;#114;#105;#110;#103;
+state "import_stmt := import &quot;{&quot; identifier __3 &quot;}&quot; # from string &quot;;&quot;" as px3b4rt
+px3b4rt --> nhquem5: #102;#114;#111;#109;
+state "__3 := &quot;,&quot; identifier #\n__3 := &quot;,&quot; identifier # __3\n__3 := # &quot;,&quot; identifier\n__3 := # &quot;,&quot; identifier __3" as p3ckn64
+p3ckn64 --> pfyavdj: #95;#95;#51;
+p3ckn64 --> pypdxet: #34;#44;#34;
+state "import_stmt := import &quot;*&quot; as identifier from # string &quot;;&quot;" as nf3qqla
+nf3qqla --> paqvhu0: #115;#116;#114;#105;#110;#103;
+state "import_stmt := import &quot;{&quot; identifier &quot;}&quot; from string # &quot;;&quot;" as npg2szu
+npg2szu --> npg5dl6: #34;#59;#34;
+state "import_stmt := import &quot;{&quot; identifier __3 &quot;}&quot; from # string &quot;;&quot;" as nhquem5
+nhquem5 --> p83rtt5: #115;#116;#114;#105;#110;#103;
+state "__3 := &quot;,&quot; identifier __3 #" as pfyavdj
+state "import_stmt := import &quot;*&quot; as identifier from string # &quot;;&quot;" as paqvhu0
+paqvhu0 --> paqsx8o: #34;#59;#34;
+state "import_stmt := import &quot;{&quot; identifier &quot;}&quot; from string &quot;;&quot; #" as npg5dl6
+state "import_stmt := import &quot;{&quot; identifier __3 &quot;}&quot; from string # &quot;;&quot;" as p83rtt5
+p83rtt5 --> p83p97t: #34;#59;#34;
+state "import_stmt := import &quot;*&quot; as identifier from string &quot;;&quot; #" as paqsx8o
+state "import_stmt := import &quot;{&quot; identifier __3 &quot;}&quot; from string &quot;;&quot; #" as p83p97t
