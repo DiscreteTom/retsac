@@ -540,20 +540,7 @@
             "\",\"",
             "param"
           ],
-          "conflicts": [
-            {
-              "type": 0,
-              "anotherRule": "{ __0: `\",\" param __0` }",
-              "next": [
-                "\",\""
-              ],
-              "handleEnd": false,
-              "overlapped": 2,
-              "resolvers": [
-                0
-              ]
-            }
-          ],
+          "conflicts": [],
           "resolved": [
             {
               "type": 0,
@@ -587,24 +574,7 @@
           "rule": [
             "stmt"
           ],
-          "conflicts": [
-            {
-              "type": 0,
-              "anotherRule": "{ __1: `stmt __1` }",
-              "next": [
-                "stmt",
-                "assign_stmt",
-                "ret_stmt",
-                "let",
-                "return"
-              ],
-              "handleEnd": false,
-              "overlapped": 1,
-              "resolvers": [
-                0
-              ]
-            }
-          ],
+          "conflicts": [],
           "resolved": [
             {
               "type": 0,
@@ -3307,31 +3277,11 @@
         ]
       },
       "followSets": {
-        "fn_def": [
-          "param",
-          "identifier",
-          "\":\"",
-          "\"}\"",
-          "__1",
-          "stmt",
-          "assign_stmt",
-          "ret_stmt",
-          "let",
-          "return",
-          "\")\"",
-          "exp",
-          "integer"
-        ],
+        "fn_def": [],
         "param": [
           "\")\"",
           "__0",
-          "\",\"",
-          "\"(\"",
-          "\"{\"",
-          "\":\"",
-          "\"=\"",
-          "\";\"",
-          "\"+\""
+          "\",\""
         ],
         "stmt": [
           "__1",
@@ -3340,13 +3290,7 @@
           "ret_stmt",
           "let",
           "return",
-          "param",
-          "identifier",
-          "\":\"",
-          "\"}\"",
-          "\")\"",
-          "exp",
-          "integer"
+          "\"}\""
         ],
         "assign_stmt": [
           "__1",
@@ -3355,13 +3299,7 @@
           "ret_stmt",
           "let",
           "return",
-          "param",
-          "identifier",
-          "\":\"",
-          "\"}\"",
-          "\")\"",
-          "exp",
-          "integer"
+          "\"}\""
         ],
         "ret_stmt": [
           "__1",
@@ -3370,50 +3308,17 @@
           "ret_stmt",
           "let",
           "return",
-          "param",
-          "identifier",
-          "\":\"",
-          "\"}\"",
-          "\")\"",
-          "exp",
-          "integer"
+          "\"}\""
         ],
         "exp": [
           "\";\"",
-          "\"+\"",
-          "\"(\"",
-          "\"{\"",
-          "\":\"",
-          "\"=\"",
-          "\")\"",
-          "__0",
-          "\",\""
-        ],
-        "__0": [
-          "\")\"",
-          "__0",
-          "\",\"",
-          "\"(\"",
-          "\"{\"",
-          "\":\"",
-          "\"=\"",
-          "\";\"",
           "\"+\""
         ],
+        "__0": [
+          "\")\""
+        ],
         "__1": [
-          "\"}\"",
-          "__1",
-          "stmt",
-          "assign_stmt",
-          "ret_stmt",
-          "let",
-          "return",
-          "param",
-          "identifier",
-          "\":\"",
-          "\")\"",
-          "exp",
-          "integer"
+          "\"}\""
         ],
         "pub": [
           "fn"
@@ -3457,14 +3362,7 @@
         ],
         "integer": [
           "\";\"",
-          "\"+\"",
-          "\"(\"",
-          "\"{\"",
-          "\":\"",
-          "\"=\"",
-          "\")\"",
-          "__0",
-          "\",\""
+          "\"+\""
         ]
       },
       "cascadeQueryPrefix": "__"
