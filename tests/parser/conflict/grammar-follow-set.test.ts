@@ -9,8 +9,9 @@ test("Terminator's follow sets are needed", () => {
         // so we can know that `c` should also be in the follow set of `test`
         // then when we check conflicts, we can detect the R-S conflict between `a b` and `a b c`
         test: `a b | a b c`,
+        test2: `test c`,
       })
-      .entry("test")
+      .entry("test", "test2")
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).toThrow(`Unresolved R-S conflict`);
 });

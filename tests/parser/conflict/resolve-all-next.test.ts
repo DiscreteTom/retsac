@@ -6,8 +6,9 @@ test("Use '*' as next in RS conflict", () => {
     new ELR.ParserBuilder()
       .define({
         test: `a b | a b c`,
+        test2: `test c`,
       })
-      .entry("test")
+      .entry("test", "test2")
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).toThrow(`Unresolved R-S conflict`);
   // resolved
@@ -15,19 +16,21 @@ test("Use '*' as next in RS conflict", () => {
     new ELR.ParserBuilder()
       .define({
         test: `a b | a b c`,
+        test2: `test c`,
       })
-      .entry("test")
+      .entry("test", "test2")
       .resolveRS({ test: `a b` }, { test: `a b c` }, { next: `*` })
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).not.toThrow(`Unresolved R-S conflict`);
 
-  // advanced builder should auto generate resolvers using '*'
+  // advanced builder should auto generate resolvers using '*' as the next
   expect(() => {
     new ELR.AdvancedBuilder()
       .define({
         test: `a b c?`,
+        test2: `test c`,
       })
-      .entry("test")
+      .entry("test", "test2")
       .build(new Lexer.Builder().build(), { checkConflicts: true });
   }).not.toThrow(`Unresolved R-S conflict`);
 });
