@@ -147,10 +147,15 @@ export class DFA<
             // no more ASTNode can be lexed, parsing failed
             if (this.debug)
               this.logger(
-                `[End] No matching token can be lexed. Rest of input: ${lexer.buffer.slice(
-                  lexer.digested,
-                  lexer.digested + 10,
-                )}\nCandidates:\n${stateStack.at(-1)!.str}`,
+                `[End] No matching token can be lexed. Rest of input: ${JSON.stringify(
+                  lexer.buffer.slice(lexer.digested, lexer.digested + 30),
+                )}${
+                  lexer.buffer.length - lexer.digested > 30
+                    ? `...${
+                        lexer.buffer.length - lexer.digested - 30
+                      } more chars`
+                    : ""
+                }\nCandidates:\n${stateStack.at(-1)!.str}`,
               );
             return { output: rejectedParserOutput, lexer };
           }
