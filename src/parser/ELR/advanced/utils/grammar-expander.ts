@@ -178,7 +178,15 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     if (debug) logger(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
     result.defs.push(resultDef);
 
-    // auto resolve R-S conflict
+    // auto resolve R-S conflict for generated grammar rules
+    // e.g.: { a: `b c?`, d: `a c` } will be expanded into
+    // { a: `b | b c`, d: `a c` }
+    // found RS conflict: reducer { a: `b` } and shifter { a: `b c` }
+    // and `c` is in the follow set of `a` and the first set of `c`
+    // so the conflict can't be auto resolved by LR(1) peeking
+    // in the worst cases, { a: `b` } and { a: `b c` } will appear in the same state
+    // in that case, this conflict can't be auto resolved by DFA state, either
+    // so we need to add resolvers here
     if (resolve)
       expanded.forEach((reducerRule, i) => {
         expanded.forEach((anotherRule, j) => {
@@ -212,6 +220,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     this.placeholderMap.reset();
   }
 
+  // TODO: what if the generated grammars have conflicts with user defined grammars? is this possible?
   generatePlaceholderGrammarRules<ASTData, ErrorType>(
     debug: boolean,
     logger: Logger,
