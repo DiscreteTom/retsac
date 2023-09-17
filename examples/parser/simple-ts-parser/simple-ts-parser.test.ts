@@ -3,7 +3,10 @@ import { readFileSync } from "fs";
 
 test("simple-ts-parser", () => {
   // process the source file
-  const code = readFileSync("./examples/parser/simple-ts-parser.ts", "utf-8");
+  const code = readFileSync(
+    "./examples/parser/simple-ts-parser/simple-ts-parser.ts",
+    "utf-8",
+  );
 
   const { parser } = builder.build(lexer, { checkAll: true });
   parser.feed(code);
