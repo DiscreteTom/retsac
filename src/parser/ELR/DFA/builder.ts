@@ -142,7 +142,7 @@ export class DFABuilder {
         }
       });
     });
-    // the last grammar's follow set should merge with the target NT's follow set, vice versa
+    // the last grammar's follow set should merge with the target NT's follow set
     while (true) {
       let changed = false;
 
@@ -152,9 +152,6 @@ export class DFABuilder {
           .grammars.forEach(
             (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g)),
           );
-        followSets
-          .get(gr.rule.at(-1)!.kind)! // last grammar's follow set
-          .grammars.forEach((g) => (changed ||= followSets.get(gr.NT)!.add(g)));
       });
 
       if (!changed) break;
