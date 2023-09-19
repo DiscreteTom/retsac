@@ -7,7 +7,10 @@ import { lexer, builder } from "./simple-ts-parser";
 const { parser } = builder.build(lexer, { debug: true, checkAll: true });
 
 // process the source file
-const code = readFileSync("./examples/parser/simple-ts-parser.ts", "utf-8");
+const code = readFileSync(
+  "./examples/parser/simple-ts-parser/simple-ts-parser.ts",
+  "utf-8",
+);
 parser.feed(code);
 
 while (true) {
