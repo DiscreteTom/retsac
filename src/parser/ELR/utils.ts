@@ -1,3 +1,3 @@
-export function nonNullFilter<T>(value: T | null): value is T {
+export function notNullFilter<T>(value: T | null): value is T {
   return value !== null;
 }
