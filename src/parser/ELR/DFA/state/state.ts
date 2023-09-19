@@ -7,12 +7,12 @@ import type {
 } from "../../../output";
 import { rejectedParserOutput } from "../../../output";
 import { StateCacheMissError } from "../../error";
-import type {
-  GrammarRepo,
-  GrammarRule,
-  GrammarRuleContext,
-  Callback,
-  Grammar,
+import {
+  type GrammarRepo,
+  type GrammarRule,
+  type GrammarRuleContext,
+  type Callback,
+  type Grammar,
 } from "../../model";
 import type {
   Candidate,
@@ -176,6 +176,8 @@ export class State<
   tryLex(
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    debug: boolean,
+    logger: Logger,
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
@@ -186,7 +188,17 @@ export class State<
     }[] = [];
     const done = new Set<string>(); // for deduplication
     this.candidates.forEach((c) => {
-      res.push(...c.tryLex(lexer, followSets, done));
+      const rs = c.tryLex(lexer, followSets, done);
+      if (debug) {
+        if (rs.length == 0) logger(`[Try Lex] Failed for candidate: ${c}`);
+        else
+          logger(
+            `[Try Lex] Got ${rs
+              .map((r) => r.node.strWithoutName.value) // node's name is not set yet
+              .join(", ")} for candidate: ${c}`,
+          );
+      }
+      res.push(...rs);
     });
     return res;
   }

@@ -137,11 +137,15 @@ export class DFA<
     while (true) {
       if (index >= buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
-        const res = stateStack.at(-1)!.tryLex(lexer, this.followSets);
+        const res = stateStack
+          .at(-1)!
+          .tryLex(lexer, this.followSets, this.debug, this.logger);
         // if no more ASTNode can be lexed
         if (res.length == 0) {
           // try to restore from re-lex stack
           if (this.reLex && reLexStack.length > 0) {
+            if (this.debug)
+              this.logger(`[Try Lex] All candidates failed. Try to re-lex.`);
             reLex();
           } else {
             // no more ASTNode can be lexed, parsing failed
@@ -183,6 +187,10 @@ export class DFA<
             buffer = buffer.concat(res[0].node);
             lexer = res[0].lexer;
           }
+          if (this.debug)
+            this.logger(
+              `[Try Lex] Apply: ${buffer.at(-1)!.strWithoutName.value}`,
+            );
         }
       }
 
