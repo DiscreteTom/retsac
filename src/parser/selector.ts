@@ -42,3 +42,25 @@ export type ASTNodeFirstMatchSelector<
   name: StringOrLiteral<AllKinds>,
   nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
 ) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
+
+export function defaultASTNodeSelector<
+  ASTData,
+  ErrorType,
+  AllKinds extends string,
+>(
+  name: StringOrLiteral<AllKinds>,
+  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+) {
+  return nodes.filter((n) => n.name === name);
+}
+
+export function defaultASTNodeFirstMatchSelector<
+  ASTData,
+  ErrorType,
+  AllKinds extends string,
+>(
+  name: StringOrLiteral<AllKinds>,
+  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+) {
+  return nodes.find((c) => c.name == name);
+}

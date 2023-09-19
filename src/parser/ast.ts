@@ -1,9 +1,11 @@
 import type { Token } from "../lexer";
-import type {
-  ASTNodeFirstMatchChildSelector,
-  ASTNodeChildrenSelector,
-  ASTNodeSelector,
-  ASTNodeFirstMatchSelector,
+import {
+  type ASTNodeFirstMatchChildSelector,
+  type ASTNodeChildrenSelector,
+  type ASTNodeSelector,
+  type ASTNodeFirstMatchSelector,
+  defaultASTNodeSelector,
+  defaultASTNodeFirstMatchSelector,
 } from "./selector";
 import { StringCache } from "./cache";
 import { InvalidTraverseError } from "./error";
@@ -128,11 +130,9 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
     this.data = p.data;
     this.error = p.error;
     this.traverser = p.traverser ?? defaultTraverser;
-    const selector =
-      p.selector ?? ((name, nodes) => nodes.filter((c) => c.name == name));
+    const selector = p.selector ?? defaultASTNodeSelector;
     const firstMatchSelector =
-      p.firstMatchSelector ??
-      ((name, nodes) => nodes.find((c) => c.name == name));
+      p.firstMatchSelector ?? defaultASTNodeFirstMatchSelector;
     this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
     this.$$ = (name: string) => selector(name, this.children ?? []);
 
