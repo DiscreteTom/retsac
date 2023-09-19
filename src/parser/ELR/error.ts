@@ -27,7 +27,8 @@ export class StateCacheMissError<
   ) {
     super(
       "STATE_CACHE_MISS",
-      `State cache miss for node ${node}, state: ${state} `,
+      `State cache miss for node ${node}, state: \n${state}\n` +
+        `This might be caused by an outdated parser data cache (rebuild the parser data to fix this) or you might forget to call \`parser.take\` to consume the ASTNode from the buffer.`,
     );
     Object.setPrototypeOf(this, StateCacheMissError.prototype);
   }
