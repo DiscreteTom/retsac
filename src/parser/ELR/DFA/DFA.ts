@@ -177,6 +177,11 @@ export class DFA<
             const state = reLexStack.pop()!;
             buffer = state.buffer;
             lexer = state.lexer;
+          } else {
+            // TODO: add tests when disable re-lex
+            // use the first lexing result to continue parsing
+            buffer = buffer.concat(res[0].node);
+            lexer = res[0].lexer;
           }
         }
       }
