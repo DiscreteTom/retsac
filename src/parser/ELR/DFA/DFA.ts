@@ -137,9 +137,7 @@ export class DFA<
     while (true) {
       if (index >= buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
-        const res = stateStack
-          .at(-1)!
-          .tryLex(lexer, this.followSets, this.debug, this.logger);
+        const res = stateStack.at(-1)!.tryLex(lexer, this.debug, this.logger);
         // if no more ASTNode can be lexed
         if (res.length == 0) {
           // try to restore from re-lex stack

@@ -13,6 +13,7 @@ import {
   type GrammarRuleContext,
   type Callback,
   type Grammar,
+  GrammarType,
 } from "../../model";
 import type {
   Candidate,
@@ -175,7 +176,6 @@ export class State<
    */
   tryLex(
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
-    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     debug: boolean,
     logger: Logger,
   ): {
@@ -187,8 +187,12 @@ export class State<
       lexer: ILexer<LexerError, LexerKinds>;
     }[] = [];
     const done = new Set<string>(); // for deduplication
+
     this.candidates.forEach((c) => {
-      const rs = c.tryLex(lexer, followSets, done);
+      // if already all digested, or the current grammar is not a T, skip
+      if (c.current == undefined || c.current.type !== GrammarType.T) return;
+
+      const rs = c.tryLex(lexer, done);
       if (debug) {
         if (rs.length == 0) logger(`[Try Lex] Failed for candidate: ${c}`);
         else

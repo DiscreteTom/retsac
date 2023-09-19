@@ -14,7 +14,6 @@ import type {
   GrammarRepo,
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
-import { nonNullFilter } from "../../utils";
 import type { ReadonlyFollowSets } from "../first-follow-sets";
 import {
   lexGrammar,
@@ -162,7 +161,8 @@ export class Candidate<
 
   /**
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
-   * If this already digested all the grammar rules, check follow set.
+   * The caller should make sure the current grammar exists (this can digest more).
+   *
    * Return all the possible results.
    *
    * If a grammar is already checked in `done`, it will be skipped.
@@ -170,45 +170,28 @@ export class Candidate<
    */
   tryLex(
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
-    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     done: Set<string>,
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   }[] {
-    // if can digest more, check current
-    if (this.canDigestMore()) {
-      // current grammar is already lexed, skip
-      // we don't need to check name here since ASTNode's name is set later
-      if (done.has(this.current!.grammarStrWithoutName.value)) return [];
+    // if current grammar is already lexed, skip
+    // we don't need to check name here since ASTNode's name is set later
+    if (done.has(this.current!.grammarStrWithoutName.value)) return [];
 
-      // mark this grammar as done, no matter if the lex is successful
-      done.add(this.current!.grammarStrWithoutName.value);
+    // mark this grammar as done, no matter if the lex is successful
+    done.add(this.current!.grammarStrWithoutName.value);
 
-      const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-        this.current!,
-        lexer,
-      );
-      if (res != null) return [res];
-      else return [];
-    }
+    const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
+      this.current!,
+      lexer,
+    );
+    if (res != null) return [res];
+    return [];
 
-    // else, digestion finished, check follow set
-    return followSets
-      .get(this.gr.NT)!
-      .map((g) => {
-        // already lexed, skip
-        if (done.has(g.grammarStrWithoutName.value)) return null;
-
-        // mark this grammar as done, no matter if the lex is successful
-        done.add(g.grammarStrWithoutName.value);
-
-        return lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-          g,
-          lexer,
-        );
-      })
-      .filter(nonNullFilter);
+    // even if this can't digest more, we don't need to check the follow set here
+    // since the state has the NT closure
+    // so grammars in the follow set will be checked by other candidates in the same state
   }
 
   /**
