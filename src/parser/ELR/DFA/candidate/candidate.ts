@@ -18,8 +18,8 @@ import { nonNullFilter } from "../../utils";
 import type { ReadonlyFollowSets } from "../first-follow-sets";
 import {
   lexGrammar,
-  ASTNodeSelectorFactory,
-  ASTNodeFirstMatchSelectorFactory,
+  cascadeASTNodeSelectorFactory,
+  cascadeASTNodeFirstMatchSelectorFactory,
   map2serializable,
 } from "../utils";
 
@@ -216,12 +216,12 @@ export class Candidate<
     matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
     const rollbackNames = () => matched.forEach((n) => (n.name = n.kind)); // rollback the name
 
-    const selector = ASTNodeSelectorFactory<
+    const selector = cascadeASTNodeSelectorFactory<
       ASTData,
       ErrorType,
       Kinds | LexerKinds
     >(cascadeQueryPrefix);
-    const firstMatchSelector = ASTNodeFirstMatchSelectorFactory<
+    const firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
       ASTData,
       ErrorType,
       Kinds | LexerKinds

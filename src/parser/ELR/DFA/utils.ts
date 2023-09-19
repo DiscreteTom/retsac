@@ -113,7 +113,7 @@ export function getGrammarRulesClosure<
 // this function is especially for ELR parser
 // since the cascade query is only used in ELR parser
 // so don't move this into ast.ts file
-export function ASTNodeSelectorFactory<
+export function cascadeASTNodeSelectorFactory<
   ASTData,
   ErrorType,
   AllKinds extends string,
@@ -138,7 +138,7 @@ export function ASTNodeSelectorFactory<
     return result;
   };
 }
-export function ASTNodeFirstMatchSelectorFactory<
+export function cascadeASTNodeFirstMatchSelectorFactory<
   ASTData,
   ErrorType,
   AllKinds extends string,
