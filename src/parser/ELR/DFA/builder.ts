@@ -143,6 +143,9 @@ export class DFABuilder {
       });
     });
     // the last grammar's follow set should merge with the target NT's follow set
+    // be ware: don't merge the target NT's follow set with the last grammar's follow set
+    // the last grammar's follow set should be a super set of the target NT's follow set, not vice versa
+    // TODO: add tests
     while (true) {
       let changed = false;
 
