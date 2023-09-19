@@ -167,7 +167,8 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
 
 /**
  * Try to use lexer to yield the specified grammar.
- * Return `null` if failed.
+ *
+ * The caller should make sure that the grammar is not a NT.
  */
 export function lexGrammar<
   ASTData,
@@ -178,28 +179,28 @@ export function lexGrammar<
 >(
   g: Grammar<Kinds | LexerKinds>,
   lexer: Readonly<ILexer<LexerError, LexerKinds>>,
-): {
-  node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-  lexer: ILexer<LexerError, LexerKinds>;
-} | null {
-  if (g.type == GrammarType.NT) {
-    // NT can't be lexed
-    return null;
-  }
+):
+  | {
+      node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
+      lexer: ILexer<LexerError, LexerKinds>;
+    }
+  | undefined {
+  // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
+  // so we will need many lexers with different states
+  lexer = lexer.clone();
 
-  // try to lex to get the token
-  lexer = lexer.clone(); // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex, so we will need many lexers with different states
   const token = lexer.lex({
     expect: {
       kind: g.kind,
       text: g.text, // maybe undefined
     },
   });
-  if (token == null) return null;
-  return {
-    node: ASTNode.from<ASTData, ErrorType, Kinds | LexerKinds>(token),
-    lexer,
-  };
+  return token == null
+    ? undefined
+    : {
+        node: ASTNode.from<ASTData, ErrorType, Kinds | LexerKinds>(token),
+        lexer,
+      };
 }
 
 /**

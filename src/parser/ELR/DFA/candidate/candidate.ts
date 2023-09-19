@@ -16,7 +16,6 @@ import type {
 import { GrammarRuleContext, ConflictType } from "../../model";
 import type { ReadonlyFollowSets } from "../first-follow-sets";
 import {
-  lexGrammar,
   cascadeASTNodeSelectorFactory,
   cascadeASTNodeFirstMatchSelectorFactory,
   map2serializable,
@@ -157,41 +156,6 @@ export class Candidate<
       (this.gr == other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
         this.digested === other.digested)
     );
-  }
-
-  /**
-   * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
-   * The caller should make sure the current grammar exists (this can digest more).
-   *
-   * Return all the possible results.
-   *
-   * If a grammar is already checked in `done`, it will be skipped.
-   * Otherwise, it will be added to `done` no matter if the lex is successful.
-   */
-  tryLex(
-    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
-    done: Set<string>,
-  ): {
-    node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<LexerError, LexerKinds>;
-  }[] {
-    // if current grammar is already lexed, skip
-    // we don't need to check name here since ASTNode's name is set later
-    if (done.has(this.current!.grammarStrWithoutName.value)) return [];
-
-    // mark this grammar as done, no matter if the lex is successful
-    done.add(this.current!.grammarStrWithoutName.value);
-
-    const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-      this.current!,
-      lexer,
-    );
-    if (res != null) return [res];
-    return [];
-
-    // even if this can't digest more, we don't need to check the follow set here
-    // since the state has the NT closure
-    // so grammars in the follow set will be checked by other candidates in the same state
   }
 
   /**

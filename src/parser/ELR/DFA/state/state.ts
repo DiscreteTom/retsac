@@ -15,13 +15,14 @@ import {
   type Grammar,
   GrammarType,
 } from "../../model";
+import { notUndefinedFilter } from "../../utils";
 import type {
   Candidate,
   CandidateRepo,
   ReadonlyCandidateRepo,
 } from "../candidate";
 import type { ReadonlyFollowSets } from "../first-follow-sets";
-import { map2serializable } from "../utils";
+import { lexGrammar, map2serializable } from "../utils";
 import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
 
 /**
@@ -182,29 +183,49 @@ export class State<
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   }[] {
-    const res: {
-      node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<LexerError, LexerKinds>;
-    }[] = [];
-    const done = new Set<string>(); // for deduplication
+    // for deduplication
+    const done = new Map<
+      string,
+      ASTNode<ASTData, ErrorType, Kinds | LexerKinds> | null // don't use undefined, use null
+    >();
 
-    this.candidates.forEach((c) => {
-      // if already all digested, or the current grammar is not a T, skip
-      if (c.current == undefined || c.current.type !== GrammarType.T) return;
+    return this.candidates
+      .map((c) => {
+        // if already all digested, or the current grammar is not a T, skip
+        if (c.current == undefined || c.current.type !== GrammarType.T) return;
 
-      const rs = c.tryLex(lexer, done);
-      if (debug) {
-        if (rs.length == 0) logger(`[Try Lex] Failed for candidate: ${c}`);
-        else
-          logger(
-            `[Try Lex] Got ${rs
-              .map((r) => r.node.strWithoutName.value) // node's name is not set yet
-              .join(", ")} for candidate: ${c}`,
-          );
-      }
-      res.push(...rs);
-    });
-    return res;
+        // if current grammar is already lexed, skip
+        // we don't need to check name here since ASTNode's name is set later
+        if (done.has(c.current.grammarStrWithoutName.value)) {
+          if (debug) {
+            const cache = done.get(c.current.grammarStrWithoutName.value);
+            if (cache)
+              logger(
+                `[Try Lex] Got ${cache.strWithoutName.value} for candidate: ${c}`,
+              );
+            else logger(`[Try Lex] Failed for candidate: ${c}`);
+          }
+          return;
+        }
+
+        // lex candidate.current
+        const r = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
+          c.current,
+          lexer,
+        );
+        // mark this grammar as done, no matter if the lex is successful
+        done.set(c.current.grammarStrWithoutName.value, r?.node ?? null);
+
+        if (debug) {
+          if (r == undefined) logger(`[Try Lex] Failed for candidate: ${c}`);
+          else
+            logger(
+              `[Try Lex] Got ${r.node.strWithoutName.value} for candidate: ${c}`,
+            );
+        }
+        return r;
+      })
+      .filter(notUndefinedFilter);
   }
 
   /** Traverse all candidates to try to reduce. */
