@@ -84,6 +84,7 @@ export class Candidate<
    * Current undigested grammar.
    * Use this to match the next node.
    */
+  // TODO: rename this to something like `toBeMatched`?
   get current(): Grammar<Kinds | LexerKinds> | undefined {
     return this.gr.rule[this.digested];
   }
