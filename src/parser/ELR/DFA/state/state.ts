@@ -171,7 +171,7 @@ export class State<
 
   /**
    * Try to use lexer to yield an ASTNode with type and/or content needed by a candidate.
-   * Return all the possible results.
+   * Return all the possible results after deduplication.
    */
   tryLex(
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
@@ -184,8 +184,9 @@ export class State<
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
       lexer: ILexer<LexerError, LexerKinds>;
     }[] = [];
+    const done = new Set<string>(); // for deduplication
     this.candidates.forEach((c) => {
-      res.push(...c.tryLex(lexer, followSets));
+      res.push(...c.tryLex(lexer, followSets, done));
     });
     return res;
   }

@@ -54,6 +54,7 @@
   - [#2](https://github.com/DiscreteTom/retsac/issues/2)
   - Lexer will skip unexpected actions by checking expected text.
   - Make unnecessary calculation lazy and cached.
+  - Deduplicate possibilities when re-lex.
   - Use serialized grammar parser in `AdvancedBuilder`. Thanks to [#2](https://github.com/DiscreteTom/retsac/issues/2).
     - The build time for grammar parser is reduced from 8ms to 2ms.
 

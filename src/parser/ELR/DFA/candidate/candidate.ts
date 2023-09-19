@@ -163,15 +163,27 @@ export class Candidate<
    * Try to use lexer to yield an ASTNode with type and/or content specified by `this.current`.
    * If this already digested all the grammar rules, check follow set.
    * Return all the possible results.
+   *
+   * If a grammar is already checked in `done`, it will be skipped.
+   * Otherwise, it will be added to `done` no matter if the lex is successful.
    */
   tryLex(
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    done: Set<string>,
   ): {
     node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   }[] {
+    // if can digest more, check current
     if (this.canDigestMore()) {
+      // current grammar is already lexed, skip
+      // we don't need to check name here since ASTNode's name is set later
+      if (done.has(this.current!.grammarStrWithoutName.value)) return [];
+
+      // mark this grammar as done, no matter if the lex is successful
+      done.add(this.current!.grammarStrWithoutName.value);
+
       const res = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
         this.current!,
         lexer,
@@ -183,9 +195,18 @@ export class Candidate<
     // else, digestion finished, check follow set
     return followSets
       .get(this.gr.NT)!
-      .map((g) =>
-        lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(g, lexer),
-      )
+      .map((g) => {
+        // already lexed, skip
+        if (done.has(g.grammarStrWithoutName.value)) return null;
+
+        // mark this grammar as done, no matter if the lex is successful
+        done.add(g.grammarStrWithoutName.value);
+
+        return lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
+          g,
+          lexer,
+        );
+      })
       .filter(nonNullFilter);
   }
 
