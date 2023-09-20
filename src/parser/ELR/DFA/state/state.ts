@@ -203,7 +203,8 @@ export class State<
               logger(
                 `[Try Lex] Got ${cache.strWithoutName.value} for candidate: ${c}`,
               );
-            else logger(`[Try Lex] Failed for candidate: ${c}`);
+            // uncomment next line for more details
+            // else logger(`[Try Lex] Failed for candidate: ${c}`);
           }
           return;
         }
@@ -217,11 +218,12 @@ export class State<
         done.set(c.current.grammarStrWithoutName.value, r?.node ?? null);
 
         if (debug) {
-          if (r == undefined) logger(`[Try Lex] Failed for candidate: ${c}`);
-          else
+          if (r != undefined)
             logger(
               `[Try Lex] Got ${r.node.strWithoutName.value} for candidate: ${c}`,
             );
+          // uncomment next line for more details
+          // else logger(`[Try Lex] Failed for candidate: ${c}`);
         }
         return r;
       })
