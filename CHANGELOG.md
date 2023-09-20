@@ -40,6 +40,7 @@
   - **_Breaking Change_**: `IParserBuilder.entry` will check kinds.
   - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable }`.
   - **_Breaking Change_**: remove `IParserBuilder.leftSA/rightSA`, enhance the `IParserBuilder.priority` to support left-to-right or right-to-left associativity.
+  - **_Breaking Change_**: entry NT's follow set will also be checked during parsing.
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
