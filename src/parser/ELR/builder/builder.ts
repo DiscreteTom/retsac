@@ -30,7 +30,7 @@ import type {
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import type { ILexer } from "../../../lexer";
-import { getConflicts, getUnresolvedConflicts } from "./utils/conflict";
+import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import type { Logger } from "../../../logger";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -296,8 +296,9 @@ export class ParserBuilder<
       reducerRule.resolved.push(resolved);
     });
 
-    // conflicts are stored in grs, they will be used during parsing
-    getConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
+    // calculate and store conflicts in grs, they will be used during parsing
+    appendConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
+
     // update conflicts with related resolvers
     grs.grammarRules.forEach((reducerRule) => {
       reducerRule.conflicts.forEach((c) => {

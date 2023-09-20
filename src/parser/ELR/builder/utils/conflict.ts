@@ -149,7 +149,7 @@ function getUserUnresolvedConflicts<
  * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
-export function getConflicts<
+export function appendConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
