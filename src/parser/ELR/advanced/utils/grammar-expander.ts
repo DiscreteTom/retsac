@@ -78,17 +78,17 @@ export function grammarParserFactory(placeholderPrefix: string) {
     )
     .define(
       { gr: `gr '*'` },
-      // expand to '' and `gr+`, and use a placeholder to represent `gr+`
+      // expand to `gr+` and '', and use a placeholder to represent `gr+`
       traverser(({ children }) => [
+        ...children[0].traverse()!.map((s) => placeholderMap.add(s)),
         "",
-        ...children[0].traverse()!.map((s) => placeholderMap.add(s.trim())),
       ]),
     )
     .define(
       { gr: `gr '+'` },
       // keep the `gr+`, we use a placeholder to represent it
       traverser(({ children }) =>
-        children[0].traverse()!.map((s) => placeholderMap.add(s.trim())),
+        children[0].traverse()!.map((s) => placeholderMap.add(s)),
       ),
     )
     .define(
@@ -103,16 +103,17 @@ export function grammarParserFactory(placeholderPrefix: string) {
       { gr: `gr gr` },
       // get cartesian product of the two possibility lists
       traverser(({ children }) => {
-        const result: string[] = [];
+        const result = new Set<string>(); // use set to deduplicate
         const grs1 = children[0].traverse()!;
         const grs2 = children[1].traverse()!;
         grs1.forEach((gr1) => {
           grs2.forEach((gr2) => {
             // separate the two grammar rules with a space
-            result.push(`${gr1} ${gr2}`);
+            // trim the result in case one of the grammar rule is empty
+            result.add(`${gr1} ${gr2}`.trim());
           });
         });
-        return result;
+        return [...result];
       }),
     )
     .use(applyResolvers)
