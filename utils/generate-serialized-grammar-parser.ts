@@ -1,5 +1,5 @@
 import { writeFileSync } from "fs";
-import { grammarParserFactory } from "../src/parser/ELR/advanced/utils/advanced-grammar-parser";
+import { grammarParserFactory } from "../src/parser/ELR/advanced/utils/grammar-expander";
 import prettier from "prettier";
 import util from "node:util";
 
