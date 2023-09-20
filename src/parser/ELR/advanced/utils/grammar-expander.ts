@@ -169,7 +169,8 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     };
     const res = this.parser.reset().parseAll(s);
 
-    if (!res.accept || !this.allParsed()) throw new InvalidGrammarRuleError(s);
+    if (!res.accept || !this.allParsed())
+      throw new InvalidGrammarRuleError(s, this.parser.lexer.getRest());
 
     const expanded = res.buffer[0].traverse()!;
 

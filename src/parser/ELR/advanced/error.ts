@@ -17,7 +17,13 @@ export class LR_AdvancedBuilderError extends Error {
 }
 
 export class InvalidGrammarRuleError extends LR_AdvancedBuilderError {
-  constructor(public gr: string) {
-    super("INVALID_GRAMMAR_RULE", `Invalid grammar rule: \`${gr}\``);
+  constructor(
+    public gr: string,
+    public rest: string,
+  ) {
+    super(
+      "INVALID_GRAMMAR_RULE",
+      `Invalid grammar rule: \`${gr}\`, rest: \`${rest}\``,
+    );
   }
 }
