@@ -175,7 +175,10 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
 
     const resultDef: Definition<Kinds> = {};
     resultDef[NT] = expanded;
-    if (debug) logger(`Expanded: ${NT}: \`${expanded.join(" | ")}\``);
+    if (debug)
+      logger(
+        `[AdvancedBuilder.build] Expanded: ${NT}: \`${expanded.join(" | ")}\``,
+      );
     result.defs.push(resultDef);
 
     // auto resolve R-S conflict for generated grammar rules
@@ -201,7 +204,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
           });
           if (debug)
             logger(
-              `Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
+              `[AdvancedBuilder.build] Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
             );
         });
       });
@@ -247,9 +250,9 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       });
 
       if (debug) {
-        logger(`Generated: ${p}: \`${gr}\``);
+        logger(`[AdvancedBuilder.build] Generated: ${p}: \`${gr}\``);
         logger(
-          `Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
+          `[AdvancedBuilder.build] Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
         );
       }
     });
