@@ -15,14 +15,9 @@ export function applyResolvers<
     LexerError
   >,
 ) {
-  return builder
-    .priority(
-      [{ gr: `gr '?'` }, { gr: `gr '*'` }, { gr: `gr '+'` }],
-      { gr: `gr gr` },
-      { gr: `gr '|' gr` },
-    )
-    .priority(
-      { gr: `grammar rename | literal rename` },
-      { gr: `grammar | literal` },
-    );
+  return builder.priority(
+    [{ gr: `gr '?'` }, { gr: `gr '*'` }, { gr: `gr '+'` }],
+    { gr: `gr gr` },
+    { gr: `gr '|' gr` },
+  );
 }
