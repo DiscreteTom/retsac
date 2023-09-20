@@ -167,7 +167,6 @@ export class Candidate<
    */
   tryReduce(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
-    entryNTs: ReadonlySet<string>,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<unknown, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,

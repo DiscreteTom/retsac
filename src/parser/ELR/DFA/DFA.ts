@@ -221,7 +221,6 @@ export class DFA<
         .at(-1)!
         .tryReduce(
           buffer,
-          this.entryNTs,
           this.followSets,
           lexer,
           this.cascadeQueryPrefix,
