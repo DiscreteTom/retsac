@@ -50,6 +50,7 @@
   - Feat: `IParserBuilder.define` can accept multi `DefinitionContextBuilder` to optimize type inference.
   - Feat: add `BuildOptions.mermaid` for parser to generate mermaid graph.
   - Fix: fix follow set calculation. This will also reduce the number of unresolved conflicts.
+  - Fix: fix `gr+` logic, treat the `gr` as a whole.
   - Note: optimize debug output.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)

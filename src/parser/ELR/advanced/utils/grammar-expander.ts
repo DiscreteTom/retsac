@@ -8,11 +8,11 @@ import { applyResolvers } from "./resolvers";
 import { data } from "./serialized-grammar-parser-data";
 
 type Placeholder = string;
-type GrammarSnippet = string;
+type GrammarSnippet = string[];
 
 class PlaceholderMap {
   readonly p2g = new Map<Placeholder, GrammarSnippet>();
-  readonly g2p = new Map<GrammarSnippet, Placeholder>();
+  readonly g2p = new Map<string, Placeholder>();
   readonly placeholderPrefix: string;
 
   constructor(options: { placeholderPrefix: string }) {
@@ -24,11 +24,12 @@ class PlaceholderMap {
    * If the grammar snippet is already in the map, return the placeholder.
    */
   add(gs: GrammarSnippet): Placeholder {
-    let placeholder = this.g2p.get(gs);
+    const key = gs.join(" | ");
+    let placeholder = this.g2p.get(key);
     if (placeholder === undefined) {
       // TODO: optimize placeholder name for better readability
       placeholder = this.placeholderPrefix + this.g2p.size;
-      this.g2p.set(gs, placeholder);
+      this.g2p.set(key, placeholder);
       this.p2g.set(placeholder, gs);
     }
     return placeholder;
@@ -80,16 +81,21 @@ export function grammarParserFactory(placeholderPrefix: string) {
       { gr: `gr '*'` },
       // expand to `gr+` and '', and use a placeholder to represent `gr+`
       traverser(({ children }) => [
-        ...children[0].traverse()!.map((s) => placeholderMap.add(s)),
+        placeholderMap.add(
+          children[0].traverse()!.filter((s) => s.length != 0),
+        ),
         "",
       ]),
     )
     .define(
       { gr: `gr '+'` },
       // keep the `gr+`, we use a placeholder to represent it
-      traverser(({ children }) =>
-        children[0].traverse()!.map((s) => placeholderMap.add(s)),
-      ),
+      // TODO: add tests for `gr+`
+      traverser(({ children }) => [
+        placeholderMap.add(
+          children[0].traverse()!.filter((s) => s.length != 0),
+        ),
+      ]),
     )
     .define(
       { gr: `gr '|' gr` },
@@ -240,23 +246,27 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     };
 
     this.placeholderMap.p2g.forEach((gs, p) => {
-      const gr = `${gs} | ${gs} ${p}`;
+      const gr = gs.map((s) => `${s} | ${s} ${p}`).join(" | ");
 
       result.defs.push({ [p]: gr } as Definition<Kinds>);
       // the gr will introduce an RS conflict, so we need to resolve it
-      result.rs.push({
-        reducerRule: { [p]: `${gs}` } as Definition<Kinds>,
-        anotherRule: { [p]: `${gs} ${p}` } as Definition<Kinds>,
-        // in most cases we want the `+*?` to be greedy
-        options: { next: "*", accept: false },
-      });
+      result.rs.push(
+        ...gs.map((s) => ({
+          reducerRule: { [p]: `${s}` } as Definition<Kinds>,
+          anotherRule: { [p]: `${s} ${p}` } as Definition<Kinds>,
+          // in most cases we want the `+*?` to be greedy
+          options: { next: "*", accept: false },
+        })),
+      );
 
       if (debug) {
         logger(
           `[AdvancedBuilder] Generated placeholder grammar rule: { ${p}: \`${gr}\` }`,
         );
-        logger(
-          `[AdvancedBuilder] Generated RS resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
+        gs.forEach((s) =>
+          logger(
+            `[AdvancedBuilder] Generated RS resolver: { ${p}: \`${s}\`} | { ${p}: \`${s} ${p}\`}, { next: "*", accept: false }`,
+          ),
         );
       }
     });
