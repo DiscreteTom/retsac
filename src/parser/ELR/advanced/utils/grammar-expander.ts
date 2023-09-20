@@ -177,7 +177,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
     resultDef[NT] = expanded;
     if (debug)
       logger(
-        `[AdvancedBuilder.build] Expanded: ${NT}: \`${expanded.join(" | ")}\``,
+        `[AdvancedBuilder] Expanded: { ${NT}: \`${expanded.join(" | ")}\` }`,
       );
     result.defs.push(resultDef);
 
@@ -204,7 +204,7 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
           });
           if (debug)
             logger(
-              `[AdvancedBuilder.build] Generated Resolver: { ${NT}: \`${reducerRule}\`} | { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
+              `[AdvancedBuilder] Generated RS resolver: { ${NT}: \`${reducerRule}\`} vs { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
             );
         });
       });
@@ -250,9 +250,11 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       });
 
       if (debug) {
-        logger(`[AdvancedBuilder.build] Generated: ${p}: \`${gr}\``);
         logger(
-          `[AdvancedBuilder.build] Generated Resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
+          `[AdvancedBuilder] Generated placeholder grammar rule: { ${p}: \`${gr}\` }`,
+        );
+        logger(
+          `[AdvancedBuilder] Generated RS resolver: { ${p}: \`${gs}\`} | { ${p}: \`${gs} ${p}\`}, { next: "*", accept: false }`,
         );
       }
     });
