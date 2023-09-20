@@ -90,16 +90,17 @@ function getUserUnresolvedConflicts<
 
   if (debug) {
     if (resolveAll)
+      // TODO: print `accept` if it is a boolean
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: *`,
+        }] ${reducerRule} | ${anotherRule} next: *`,
       );
     if (resolvedNext.length > 0)
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${resolvedNext
+        }] ${reducerRule} | ${anotherRule} next: ${resolvedNext
           .map((g) => g.grammarStrWithoutName.value)
           .join(" ")}`,
       );
@@ -107,7 +108,7 @@ function getUserUnresolvedConflicts<
       logger(
         `[unresolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }]: ${reducerRule} | ${anotherRule} next: ${unresolvedNext
+        }] ${reducerRule} | ${anotherRule} next: ${unresolvedNext
           .map((g) => g.grammarStrWithoutName.value)
           .join(" ")}`,
       );
@@ -129,10 +130,10 @@ function getUserUnresolvedConflicts<
     }
     if (debug) {
       if (unresolvedEnd)
-        logger(`[unresolved RR]: ${reducerRule} | ${anotherRule} end of input`);
+        logger(`[unresolved RR] ${reducerRule} | ${anotherRule} end of input`);
       if (unresolvedNext.grammars.size > 0)
         logger(
-          `[user resolved RR]: ${reducerRule} | ${anotherRule} end of input`,
+          `[user resolved RR] ${reducerRule} | ${anotherRule} end of input`,
         );
     }
   }
@@ -189,7 +190,7 @@ export function getConflicts<
             // no overlap, conflicts can be auto resolved
             if (debug)
               logger(
-                `[auto resolve RS (no follow overlap)]: ${reducerRule} | ${c.shifterRule}`,
+                `[auto resolve RS (no follow overlap)] ${reducerRule} | ${c.shifterRule}`,
               );
             return;
           }
@@ -204,7 +205,7 @@ export function getConflicts<
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
             if (debug)
               logger(
-                `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
+                `[auto resolve RS (DFA state)] ${reducerRule} | ${c.shifterRule}`,
               );
             return;
           }
@@ -232,7 +233,7 @@ export function getConflicts<
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 logger(
-                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
+                  `[auto resolve RS (DFA state)] ${reducerRule} | ${c.shifterRule}`,
                 );
               return;
             }
@@ -261,7 +262,7 @@ export function getConflicts<
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
               if (debug)
                 logger(
-                  `[auto resolve RS (DFA state)]: ${reducerRule} | ${c.shifterRule}`,
+                  `[auto resolve RS (DFA state)] ${reducerRule} | ${c.shifterRule}`,
                 );
               return;
             }
@@ -297,7 +298,7 @@ export function getConflicts<
           // no overlap, all conflicts can be auto resolved
           if (debug)
             logger(
-              `[auto resolve RR (no follow overlap)]: ${reducerRule} ${anotherRule}`,
+              `[auto resolve RR (no follow overlap)] ${reducerRule} ${anotherRule}`,
             );
           return;
         }
@@ -312,7 +313,7 @@ export function getConflicts<
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
           if (debug)
             logger(
-              `[auto resolve RR (DFA state)]: ${reducerRule} ${anotherRule}`,
+              `[auto resolve RR (DFA state)] ${reducerRule} ${anotherRule}`,
             );
           return;
         }
