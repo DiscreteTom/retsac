@@ -129,16 +129,7 @@ export const data: SerializableParserData<
         {
           NT: "gr",
           rule: ["grammar"],
-          conflicts: [
-            {
-              type: 0,
-              anotherRule: "{ gr: `grammar rename` }",
-              next: ["rename"],
-              handleEnd: false,
-              overlapped: 1,
-              resolvers: [0],
-            },
-          ],
+          conflicts: [],
           resolved: [
             {
               type: 0,
@@ -197,16 +188,7 @@ export const data: SerializableParserData<
         {
           NT: "gr",
           rule: ["literal"],
-          conflicts: [
-            {
-              type: 0,
-              anotherRule: "{ gr: `literal rename` }",
-              next: ["rename"],
-              handleEnd: false,
-              overlapped: 1,
-              resolvers: [1],
-            },
-          ],
+          conflicts: [],
           resolved: [
             {
               type: 0,
@@ -1911,7 +1893,6 @@ export const data: SerializableParserData<
           "grammar",
           "literal",
           '"("',
-          "rename",
         ],
         grammar: [
           "rename",
@@ -1947,7 +1928,6 @@ export const data: SerializableParserData<
           "grammar",
           "literal",
           '"("',
-          "rename",
         ],
         "": [
           "gr",
@@ -1959,7 +1939,6 @@ export const data: SerializableParserData<
           '"*"',
           '"+"',
           '"|"',
-          "rename",
         ],
       },
       cascadeQueryPrefix: undefined,
