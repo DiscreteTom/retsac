@@ -165,6 +165,7 @@ export class ParserBuilder<
     logger: Logger,
     rollback: boolean,
     reLex: boolean,
+    ignoreEntryFollow: boolean,
   ) {
     if (this.entryNTs.size == 0) {
       const e = new NoEntryNTError();
@@ -219,6 +220,7 @@ export class ParserBuilder<
       this.cascadeQueryPrefix,
       rollback,
       reLex,
+      ignoreEntryFollow,
       debug,
       logger,
     );
@@ -333,11 +335,20 @@ export class ParserBuilder<
     const printAll = options?.printAll ?? false;
     const rollback = options?.rollback ?? false;
     const reLex = options?.reLex ?? true;
+    const ignoreEntryFollow = options?.ignoreEntryFollow ?? false;
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
       options?.hydrate == undefined
-        ? this.buildDFA(lexer, printAll, debug, logger, rollback, reLex)
+        ? this.buildDFA(
+            lexer,
+            printAll,
+            debug,
+            logger,
+            rollback,
+            reLex,
+            ignoreEntryFollow,
+          )
         : this.restoreAndHydrate<AppendLexerKinds, AppendLexerError>(
             options.hydrate,
             {
@@ -345,6 +356,7 @@ export class ParserBuilder<
               logger,
               rollback,
               reLex,
+              ignoreEntryFollow,
             },
           );
 

@@ -167,6 +167,8 @@ export class Candidate<
    */
   tryReduce(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
+    entryNTs: ReadonlySet<string>,
+    ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<unknown, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
@@ -212,45 +214,47 @@ export class Candidate<
     // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
     const nextTokenExists = lexer.lex({ peek: true }) != null; // TODO: ensure lexer is already trimmed to optimize perf?
     if (nextTokenExists) {
-      // next token exists, check if the next token is in follow set.
-      // even if this.gr.NT is an entry NT, we still need to check next token
-
-      let mismatch = true; // if follow mismatch, reject
-      for (const [_, g] of followSets.get(this.gr.NT)!.grammars) {
-        if (
-          lexer.lex({
-            // peek with expectation
-            peek: true,
-            expect: {
-              kind: g.kind,
-              text: g.text,
-            },
-          }) != null
-        ) {
-          // found valid follow, continue
-          mismatch = false;
-          break;
+      if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
+        // entry NT, no need to check follow set if `ignoreEntryFollow` is set
+        // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
+      } else {
+        let mismatch = true; // if follow mismatch, reject
+        for (const [_, g] of followSets.get(this.gr.NT)!.grammars) {
+          if (
+            lexer.lex({
+              // peek with expectation
+              peek: true,
+              expect: {
+                kind: g.kind,
+                text: g.text,
+              },
+            }) != null
+          ) {
+            // found valid follow, continue
+            mismatch = false;
+            break;
+          }
         }
-      }
-      if (mismatch) {
-        if (debug)
-          logger(
-            // don't use context.after here to optimize performance
-            `[Follow Mismatch] ${this.gr} follow=${JSON.stringify(
-              context.lexer.buffer.slice(
-                context.lexer.digested,
-                context.lexer.digested + 30,
-              ),
-            )}${
-              context.lexer.buffer.length - context.lexer.digested > 30
-                ? `...${
-                    context.lexer.buffer.length - context.lexer.digested - 30
-                  } more chars`
-                : ""
-            }`,
-          );
-        rollbackNames();
-        return rejectedParserOutput;
+        if (mismatch) {
+          if (debug)
+            logger(
+              // don't use context.after here to optimize performance
+              `[Follow Mismatch] ${this.gr} follow=${JSON.stringify(
+                context.lexer.buffer.slice(
+                  context.lexer.digested,
+                  context.lexer.digested + 30,
+                ),
+              )}${
+                context.lexer.buffer.length - context.lexer.digested > 30
+                  ? `...${
+                      context.lexer.buffer.length - context.lexer.digested - 30
+                    } more chars`
+                  : ""
+              }`,
+            );
+          rollbackNames();
+          return rejectedParserOutput;
+        }
       }
       // else, follow set matched, continue
     }

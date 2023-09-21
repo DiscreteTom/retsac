@@ -67,6 +67,7 @@ export class DFA<
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
+    public readonly ignoreEntryFollow: boolean,
     public debug: boolean,
     public logger: Logger,
   ) {}
@@ -221,6 +222,8 @@ export class DFA<
         .at(-1)!
         .tryReduce(
           buffer,
+          this.entryNTs,
+          this.ignoreEntryFollow,
           this.followSets,
           lexer,
           this.cascadeQueryPrefix,
@@ -293,6 +296,7 @@ export class DFA<
       debug: boolean;
       rollback: boolean;
       reLex: boolean;
+      ignoreEntryFollow: boolean;
     },
   ) {
     const NTs = new Set(data.NTs);
@@ -335,6 +339,7 @@ export class DFA<
       data.cascadeQueryPrefix,
       options.rollback,
       options.reLex,
+      options.ignoreEntryFollow,
       options.debug,
       options.logger,
     );

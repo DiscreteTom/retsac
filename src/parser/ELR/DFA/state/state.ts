@@ -233,6 +233,8 @@ export class State<
   /** Traverse all candidates to try to reduce. */
   tryReduce(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
+    entryNTs: ReadonlySet<string>,
+    ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<unknown, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
@@ -248,6 +250,8 @@ export class State<
     for (const c of this.candidates) {
       const res = c.tryReduce(
         buffer,
+        entryNTs,
+        ignoreEntryFollow,
         followSets,
         lexer,
         cascadeQueryPrefix,

@@ -74,6 +74,13 @@ export type BuildOptions<
    * @default false
    */
   mermaid?: boolean;
+  /**
+   * If `true`, when an entry NT is reduced, the parser will accept it immediately
+   * without checking the entry NT's follow set.
+   *
+   * @default false
+   */
+  ignoreEntryFollow?: boolean; // TODO: maybe add a `greedy` option when re-parse is supported?
 };
 
 export interface IParserBuilder<
