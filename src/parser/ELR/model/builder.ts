@@ -80,6 +80,7 @@ export type BuildOptions<
    *
    * @default false
    */
+  // TODO: rename rename this to a more intuitive name
   ignoreEntryFollow?: boolean; // TODO: maybe add a `greedy` option when re-parse is supported?
 };
 
