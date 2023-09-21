@@ -132,7 +132,13 @@ export class AdvancedBuilder<
         expandedCtxBuilder.traverser(ctx.traverser);
 
       // now we can expand definitions
-      this.expand(defs, debug, logger, true).forEach((res) => {
+      this.expand(
+        defs,
+        resolveOnly ? false : debug,
+        logger,
+        // don't auto resolve R-S conflict if this data is resolve only
+        !resolveOnly,
+      ).forEach((res) => {
         res.defs.forEach((def) => {
           toBeLoaded.push({
             defs: def,
