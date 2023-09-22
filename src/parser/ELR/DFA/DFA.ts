@@ -203,71 +203,10 @@ export class DFA<
     const reLex = this.reLexFactory(parsingState, reLexStack, rollbackStack);
 
     while (true) {
+      // if no enough AST nodes, try to lex a new one
       if (parsingState.index >= parsingState.buffer.length) {
-        // end of buffer, try to lex input string to get next ASTNode
-        const res = parsingState.stateStack
-          .at(-1)!
-          .tryLex(parsingState.lexer, this.debug, this.logger);
-        // if no more ASTNode can be lexed
-        if (res.length == 0) {
-          // try to restore from re-lex stack
-          if (this.reLex && reLexStack.length > 0) {
-            if (this.debug)
-              this.logger(`[Try Lex] All candidates failed. Try to re-lex.`);
-            reLex();
-          } else {
-            // no more ASTNode can be lexed, parsing failed
-            if (this.debug)
-              this.logger(
-                `[End] No matching token can be lexed. Rest of input: ${JSON.stringify(
-                  parsingState.lexer.buffer.slice(
-                    parsingState.lexer.digested,
-                    parsingState.lexer.digested + 30,
-                  ),
-                )}${
-                  parsingState.lexer.buffer.length -
-                    parsingState.lexer.digested >
-                  30
-                    ? `...${
-                        parsingState.lexer.buffer.length -
-                        parsingState.lexer.digested -
-                        30
-                      } more chars`
-                    : ""
-                }\nCandidates:\n${parsingState.stateStack.at(-1)!.str}`,
-              );
-            return { output: rejectedParserOutput, lexer: parsingState.lexer };
-          }
-        } else {
-          // lex success, record all possible lexing results for later use
-          // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
-          if (this.reLex) {
-            for (let i = res.length - 1; i >= 0; --i) {
-              reLexStack.push({
-                stateStack: parsingState.stateStack.slice(), // make a copy
-                buffer: parsingState.buffer.slice().concat(res[i].node),
-                lexer: res[i].lexer,
-                index: parsingState.index,
-                errors: parsingState.errors.slice(),
-                rollbackStackLength: rollbackStack.length,
-              });
-            }
-            // use the first lexing result to continue parsing
-            const state = reLexStack.pop()!;
-            parsingState.buffer = state.buffer;
-            parsingState.lexer = state.lexer;
-          } else {
-            // TODO: add tests when disable re-lex
-            // use the first lexing result to continue parsing
-            parsingState.buffer = parsingState.buffer.concat(res[0].node);
-            parsingState.lexer = res[0].lexer;
-          }
-          if (this.debug)
-            this.logger(
-              `[Try Lex] Apply: ${
-                parsingState.buffer.at(-1)!.strWithoutName.value
-              }`,
-            );
+        if (!this.tryLex(parsingState, reLexStack, rollbackStack, reLex)) {
+          return { output: rejectedParserOutput, lexer: parsingState.lexer };
         }
       }
 
@@ -378,6 +317,98 @@ export class DFA<
 
       // continue loop, try to digest more with the newly reduced buffer
     }
+  }
+
+  /**
+   * This is called when the buffer doesn't have enough AST nodes.
+   * This will try to lex the rest input to get an expected AST node.
+   *
+   * Return `true` if lex success, `false` if lex failed.
+   */
+  private tryLex(
+    parsingState: ParsingState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
+    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    rollbackStack: RollbackState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
+    reLex: () => void,
+  ) {
+    // end of buffer, try to lex input string to get next ASTNode
+    const res = parsingState.stateStack
+      .at(-1)!
+      .tryLex(parsingState.lexer, this.debug, this.logger);
+    // if no more ASTNode can be lexed
+    if (res.length == 0) {
+      // try to restore from re-lex stack
+      if (this.reLex && reLexStack.length > 0) {
+        if (this.debug)
+          this.logger(`[Try Lex] All candidates failed. Try to re-lex.`);
+        reLex();
+      } else {
+        // no more ASTNode can be lexed, parsing failed
+        if (this.debug)
+          this.logger(
+            `[End] No matching token can be lexed. Rest of input: ${JSON.stringify(
+              parsingState.lexer.buffer.slice(
+                parsingState.lexer.digested,
+                parsingState.lexer.digested + 30,
+              ),
+            )}${
+              parsingState.lexer.buffer.length - parsingState.lexer.digested >
+              30
+                ? `...${
+                    parsingState.lexer.buffer.length -
+                    parsingState.lexer.digested -
+                    30
+                  } more chars`
+                : ""
+            }\nCandidates:\n${parsingState.stateStack.at(-1)!.str}`,
+          );
+        return false;
+      }
+    } else {
+      // lex success, record all possible lexing results for later use
+      // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
+      if (this.reLex) {
+        for (let i = res.length - 1; i >= 0; --i) {
+          reLexStack.push({
+            stateStack: parsingState.stateStack.slice(), // make a copy
+            buffer: parsingState.buffer.slice().concat(res[i].node),
+            lexer: res[i].lexer,
+            index: parsingState.index,
+            errors: parsingState.errors.slice(),
+            rollbackStackLength: rollbackStack.length,
+          });
+        }
+        // use the first lexing result to continue parsing
+        const state = reLexStack.pop()!;
+        parsingState.buffer = state.buffer;
+        parsingState.lexer = state.lexer;
+      } else {
+        // TODO: add tests when disable re-lex
+        // use the first lexing result to continue parsing
+        parsingState.buffer = parsingState.buffer.concat(res[0].node);
+        parsingState.lexer = res[0].lexer;
+      }
+      if (this.debug)
+        this.logger(
+          `[Try Lex] Apply: ${
+            parsingState.buffer.at(-1)!.strWithoutName.value
+          }`,
+        );
+    }
+
+    return true;
   }
 
   toJSON() {
