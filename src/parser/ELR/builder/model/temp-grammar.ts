@@ -97,23 +97,24 @@ export class TempGrammarRule<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > {
   readonly rule: readonly TempGrammar[];
   /**
    * The reduce target.
    */
   readonly NT: Kinds;
-  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
-  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
   readonly hydrationId: number;
   readonly strWithGrammarName: StringCache;
 
   constructor(
     data: Pick<
-      TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+      TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
       | "rule"
       | "NT"
       | "commit"

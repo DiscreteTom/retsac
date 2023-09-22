@@ -8,11 +8,14 @@ export type BaseResolverOptions<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = {
   /**
    *  Default: true
    */
-  accept?: boolean | Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  accept?:
+    | boolean
+    | Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
 };
 
 export type RR_ResolverOptions<
@@ -20,7 +23,8 @@ export type RR_ResolverOptions<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
-> = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds> &
+  LexerError,
+> = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds, LexerError> &
   AtLeastOneOf<
     {
       next: StringOrLiteral<"*">;
@@ -34,7 +38,8 @@ export type RS_ResolverOptions<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
-> = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds> & {
+  LexerError,
+> = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds, LexerError> & {
   next: StringOrLiteral<"*">;
 };
 
@@ -43,35 +48,74 @@ export type ConflictTypeAndResolverOptions<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = (
   | {
       type: ConflictType.REDUCE_REDUCE;
-      options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+      options: RR_ResolverOptions<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >;
     }
   | {
       type: ConflictType.REDUCE_SHIFT;
-      options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+      options: RS_ResolverOptions<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >;
     }
 ) &
-  BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+  BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
 
 export type ResolvedTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = {
-  reducerRule: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>;
-  anotherRule: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>;
+  reducerRule: TempGrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
+  anotherRule: TempGrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
   hydrationId: Readonly<ResolverHydrationId>;
-} & ConflictTypeAndResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+} & ConflictTypeAndResolverOptions<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError
+>;
 
 export type ResolvedPartialTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = {
   anotherRule: Definition<Kinds>;
   hydrationId: Readonly<ResolverHydrationId>;
-} & ConflictTypeAndResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+} & ConflictTypeAndResolverOptions<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError
+>;

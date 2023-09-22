@@ -108,7 +108,8 @@ export interface IParserBuilder<
       ASTData,
       ErrorType,
       Kinds | Append,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >[]
   ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds, LexerError>;
   /**
@@ -141,7 +142,13 @@ export interface IParserBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RS_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
@@ -149,7 +156,13 @@ export interface IParserBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RR_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ): this;
   /**
    * Apply a function to this builder.

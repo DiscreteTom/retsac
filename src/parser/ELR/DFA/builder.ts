@@ -32,10 +32,10 @@ export class DFABuilder {
     LexerError,
   >(
     repo: GrammarRepo<Kinds | LexerKinds>,
-    lexer: ILexer<unknown, LexerKinds>,
+    lexer: ILexer<LexerError, LexerKinds>,
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
-      ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
+      ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
     >[],
     printAll: boolean,
     logger: Logger,

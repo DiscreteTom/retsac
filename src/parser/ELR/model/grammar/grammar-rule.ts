@@ -15,6 +15,7 @@ export class GrammarRule<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > {
   readonly rule: readonly Grammar<Kinds | LexerKinds>[];
   /**
@@ -26,22 +27,40 @@ export class GrammarRule<
    * All conflicts must be resolved before the DFA can be built.
    * This will be evaluated during the parsing process.
    */
-  readonly conflicts: (Conflict<ASTData, ErrorType, Kinds, LexerKinds> & {
+  readonly conflicts: (Conflict<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  > & {
     /**
      * Related resolvers.
      */
-    resolvers: ResolvedConflict<ASTData, ErrorType, Kinds, LexerKinds>[];
+    resolvers: ResolvedConflict<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[];
   })[];
   /**
    * A list of resolved conflicts.
    * All conflicts must be resolved by this before the DFA can be built.
    * This will be evaluated by candidate during parsing.
    */
-  readonly resolved: ResolvedConflict<ASTData, ErrorType, Kinds, LexerKinds>[];
-  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
-  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  readonly resolved: ResolvedConflict<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >[];
+  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
 
   /**
@@ -63,7 +82,7 @@ export class GrammarRule<
 
   constructor(
     p: Pick<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
       | "rule"
       | "NT"
       | "callback"
@@ -99,16 +118,18 @@ export class GrammarRule<
    * Which means this rule want's to reduce, and another rule want's to shift.
    */
   checkRSConflict(
-    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
+    another: Readonly<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    >,
   ) {
     const result = [] as {
       shifterRule: Pick<
-        Conflict<ASTData, ErrorType, Kinds, LexerKinds>,
+        Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
         "anotherRule"
       >["anotherRule"];
       overlapped: Extract<
         Pick<
-          Conflict<ASTData, ErrorType, Kinds, LexerKinds>,
+          Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
           "overlapped"
         >["overlapped"],
         number
@@ -134,7 +155,9 @@ export class GrammarRule<
    * Check if the tail of this's rule is the same as another's whole rule.
    */
   checkRRConflict(
-    another: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
+    another: Readonly<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    >,
   ) {
     return ruleEndsWith(this.rule, another.rule);
   }
@@ -154,8 +177,12 @@ export class GrammarRule<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
-    gr: Pick<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>, "NT" | "rule">,
+    gr: Pick<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      "NT" | "rule"
+    >,
   ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithName)
@@ -170,8 +197,12 @@ export class GrammarRule<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
-    gr: Pick<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>, "NT" | "rule">,
+    gr: Pick<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      "NT" | "rule"
+    >,
   ) {
     return `{ ${gr.NT}: \`${gr.rule
       .map((g) => g.grammarStrWithoutName.value)
@@ -180,7 +211,13 @@ export class GrammarRule<
 
   toJSON(
     repo: GrammarRepo<Kinds | LexerKinds>,
-    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     return {
       NT: this.NT,
@@ -214,13 +251,20 @@ export class GrammarRule<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
     data: ReturnType<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
     repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
-    const gr = new GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>({
+    const gr = new GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >({
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
       hydrationId: data.hydrationId,
@@ -231,7 +275,13 @@ export class GrammarRule<
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
-      grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+      grs: ReadonlyGrammarRuleRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >,
     ) => {
       gr.resolved.push(
         ...data.resolved.map((r) =>

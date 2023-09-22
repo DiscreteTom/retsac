@@ -29,7 +29,9 @@ export class Candidate<
   LexerKinds extends string,
   LexerError,
 > {
-  readonly gr: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>;
+  readonly gr: Readonly<
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  >;
   /**
    * How many grammars are already matched in `this.gr`.
    */
@@ -148,7 +150,9 @@ export class Candidate<
    */
   // Since there will be temporary candidates, this function can't be removed.
   eq(other: {
-    gr: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>;
+    gr: Readonly<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    >;
     digested: number;
   }) {
     return (
@@ -170,14 +174,20 @@ export class Candidate<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
-    lexer: Readonly<ILexer<unknown, LexerKinds>>,
+    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<ASTData, ErrorType, Kinds | LexerKinds> & {
-        context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>;
+        context: GrammarRuleContext<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError
+        >;
         commit: boolean;
       }) {
     if (this.canDigestMore()) return rejectedParserOutput;
@@ -200,7 +210,8 @@ export class Candidate<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >({
       matched,
       lexer,
@@ -374,7 +385,13 @@ export class Candidate<
   }
 
   toJSON(
-    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     cs: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
@@ -407,7 +424,13 @@ export class Candidate<
     data: ReturnType<
       Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({

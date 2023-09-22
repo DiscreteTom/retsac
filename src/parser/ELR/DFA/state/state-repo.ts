@@ -79,7 +79,7 @@ export class StateRepo<
     grammar: Grammar<Kinds | LexerKinds>,
     NTClosures: ReadonlyMap<
       string,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
     >,
     cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   ) {
@@ -104,7 +104,7 @@ export class StateRepo<
           });
           return p;
         },
-        [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
+        [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
       ) // de-duplicated GrammarRule list
       .map(
         (gr) =>

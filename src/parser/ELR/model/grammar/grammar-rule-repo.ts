@@ -12,28 +12,37 @@ export class ReadonlyGrammarRuleRepo<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > {
   /**
    * {@link GrammarRule.strWithGrammarName} => grammar rule
    */
   readonly grammarRules: ReadonlyMap<
     string,
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
   >;
 
   constructor(
-    grs: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
+    grs: readonly GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
   ) {
     const map = new Map();
     grs.forEach((gr) => map.set(gr.strWithGrammarName.value, gr));
     this.grammarRules = map;
   }
 
-  getKey(gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>): string {
+  getKey(
+    gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ): string {
     return gr.strWithGrammarName.value;
   }
 
-  get(gr: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
+  get(gr: TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return this.grammarRules.get(gr.strWithGrammarName.value);
   }
 
@@ -42,7 +51,9 @@ export class ReadonlyGrammarRuleRepo<
   }
 
   map<R>(
-    callback: (g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) => R,
+    callback: (
+      g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    ) => R,
   ) {
     const res = [] as R[];
     this.grammarRules.forEach((gr) => res.push(callback(gr)));
@@ -51,10 +62,16 @@ export class ReadonlyGrammarRuleRepo<
 
   filter(
     callback: (
-      g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>,
+      g: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ) => boolean,
   ) {
-    const res = [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[];
+    const res = [] as GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
     });
@@ -70,27 +87,36 @@ export class ReadonlyGrammarRuleRepo<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
     data: ReturnType<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>["toJSON"]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >[],
     repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const callbacks = [] as ((
-      grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+      grs: ReadonlyGrammarRuleRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >,
     ) => void)[];
     const res = new ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >(
       data.map((d) => {
         const { gr, restoreConflicts } = GrammarRule.fromJSON<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds
+          LexerKinds,
+          LexerError
         >(d, repo);
         callbacks.push(restoreConflicts);
         return gr;

@@ -9,9 +9,16 @@ export type ParserBuilderData<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = {
   defs: Definition<Kinds>;
-  ctxBuilder?: DefinitionContextBuilder<ASTData, ErrorType, Kinds, LexerKinds>;
+  ctxBuilder?: DefinitionContextBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
   /**
    * If `true`, only resolve conflicts, don't create definition.
    */

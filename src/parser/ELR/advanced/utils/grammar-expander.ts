@@ -127,7 +127,11 @@ export function grammarParserFactory(placeholderPrefix: string) {
   return { parserBuilder, lexer, placeholderMap };
 }
 
-export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
+export class GrammarExpander<
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+> {
   private readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
@@ -171,7 +175,13 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError
+        >;
       }[],
     };
     const res = this.parser.reset().parseAll(s);
@@ -241,7 +251,13 @@ export class GrammarExpander<Kinds extends string, LexerKinds extends string> {
       rs: [] as {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError
+        >;
       }[],
     };
 

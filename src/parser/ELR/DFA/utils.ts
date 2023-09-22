@@ -26,18 +26,23 @@ export function getAllNTClosure<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 >(
   NTs: ReadonlySet<Kinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >,
-): Map<Kinds, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]> {
+): Map<
+  Kinds,
+  GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+> {
   const result = new Map<
     Kinds,
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
   >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
@@ -54,15 +59,17 @@ export function getNTClosure<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 >(
   NT: Kinds,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >,
-): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
+): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules,
@@ -79,15 +86,23 @@ export function getGrammarRulesClosure<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 >(
-  rules: readonly GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[],
+  rules: readonly GrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >[],
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >,
-): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[] {
+): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[] {
   const result = [...rules];
 
   while (true) {
@@ -218,10 +233,14 @@ export function calculateAllStates<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >,
   allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  NTClosures: Map<Kinds, GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]>,
+  NTClosures: Map<
+    Kinds,
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+  >,
   cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
 ) {
   // collect all grammars in rules
@@ -255,34 +274,38 @@ export function processDefinitions<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 >(
   data: readonly Readonly<
-    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>
+    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
   >[],
 ): {
   tempGrammarRules: readonly TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >[];
   NTs: ReadonlySet<Kinds>;
   resolvedTemps: readonly Readonly<
-    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds>
+    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
   >[];
 } {
   const tempGrammarRules: TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >[] = [];
   const NTs: Set<Kinds> = new Set();
   const resolvedTemps = [] as ResolvedTempConflict<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >[];
 
   data.forEach((d) => {
@@ -298,7 +321,7 @@ export function processDefinitions<
 
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
+        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
           r.anotherRule,
         ).forEach((another) => {
           grs.forEach((gr) => {
@@ -313,7 +336,7 @@ export function processDefinitions<
         });
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds>(
+        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
           r.anotherRule,
         ).forEach((another) => {
           grs.forEach((gr) => {

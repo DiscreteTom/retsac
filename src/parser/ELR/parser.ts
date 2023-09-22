@@ -28,7 +28,13 @@ export class Parser<
     LexerKinds,
     LexerError
   >;
-  private rollbackStack: RollbackStack<ASTData, ErrorType, Kinds, LexerKinds>;
+  private rollbackStack: RollbackStack<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
 
   get debug() {
     return this.dfa.debug;

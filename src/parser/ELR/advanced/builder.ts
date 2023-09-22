@@ -20,7 +20,7 @@ export class AdvancedBuilder<
   extends ParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
   implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
 {
-  private readonly expander: GrammarExpander<Kinds, LexerKinds>;
+  private readonly expander: GrammarExpander<Kinds, LexerKinds, LexerError>;
 
   constructor(options?: {
     /**
@@ -31,7 +31,7 @@ export class AdvancedBuilder<
   }) {
     const prefix = options?.prefix ?? `__`;
     super({ cascadeQueryPrefix: prefix });
-    this.expander = new GrammarExpander<Kinds, LexerKinds>({
+    this.expander = new GrammarExpander<Kinds, LexerKinds, LexerError>({
       placeholderPrefix: prefix,
     });
   }
@@ -50,7 +50,13 @@ export class AdvancedBuilder<
       rs: {
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
-        options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>;
+        options: RS_ResolverOptions<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError
+        >;
       }[];
     }[];
     for (const NT in d) {
@@ -97,7 +103,8 @@ export class AdvancedBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >[];
     this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
       // first, expand another rules in ctx.resolvers if exists
@@ -106,7 +113,8 @@ export class AdvancedBuilder<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds
+        LexerKinds,
+        LexerError
       >();
       ctx?.resolved.forEach((r) => {
         // for another rule, we don't need to log debug info or auto resolve R-S conflict

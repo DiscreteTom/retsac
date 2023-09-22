@@ -15,12 +15,15 @@ export interface Conflict<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > {
   type: ConflictType;
   /**
    * If this is a R-S conflict, this rule is a shifter rule. If this is a R-R conflict, this rule is a reducer rule.
    */
-  anotherRule: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>;
+  anotherRule: Readonly<
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  >;
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
@@ -64,15 +67,19 @@ export type ResolvedConflict<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = Pick<
-  Conflict<ASTData, ErrorType, Kinds, LexerKinds>,
+  Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   "type" | "anotherRule" | "handleEnd"
 > & {
   /**
    * Use `'*'` to represent any grammars.
    */
   next:
-    | Pick<Conflict<ASTData, ErrorType, Kinds, LexerKinds>, "next">["next"]
+    | Pick<
+        Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+        "next"
+      >["next"]
     | "*";
 } & (
     | {
@@ -83,7 +90,7 @@ export type ResolvedConflict<
         hydrationId: undefined; // we don't need to hydrate if the accepter is a boolean
       }
     | {
-        accepter: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+        accepter: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
         /**
          * If the accepter is not a boolean, we need this hydration ID to restore the accepter.
          */

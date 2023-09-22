@@ -51,14 +51,18 @@ export class CandidateRepo<
     return this.cs.get(str);
   }
 
-  getInitial(gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
+  getInitial(
+    gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ) {
     return this.get({ gr, digested: 0 });
   }
 
   /**
    * If already exists, return `undefined`.
    */
-  addInitial(gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>) {
+  addInitial(
+    gr: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ) {
     const raw = { gr, digested: 0 };
     const key = this.getKey(raw);
     if (this.cs.has(key)) return undefined;
@@ -95,7 +99,13 @@ export class CandidateRepo<
   }
 
   toJSON(
-    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     repo: GrammarRepo<Kinds | LexerKinds>,
   ) {
     const res = [] as ReturnType<
@@ -115,7 +125,13 @@ export class CandidateRepo<
     data: ReturnType<
       CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    grs: ReadonlyGrammarRuleRepo<ASTData, ErrorType, Kinds, LexerKinds>,
+    grs: ReadonlyGrammarRuleRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     repo: GrammarRepo<Kinds | LexerKinds>,
   ): ReadonlyCandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
     const callbacks = [] as ((

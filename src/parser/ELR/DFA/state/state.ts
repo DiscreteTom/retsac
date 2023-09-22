@@ -69,7 +69,7 @@ export class State<
     next: Readonly<ASTNode<never, never, Kinds | LexerKinds>>,
     NTClosures: ReadonlyMap<
       string,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
     >,
     allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
@@ -133,7 +133,9 @@ export class State<
   }
 
   contains(
-    gr: Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>>,
+    gr: Readonly<
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    >,
     digested: number,
   ) {
     return this.candidates.some((c) => c.eq({ gr, digested }));
@@ -236,16 +238,22 @@ export class State<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
-    lexer: Readonly<ILexer<unknown, LexerKinds>>,
+    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<ASTData, ErrorType, Kinds | LexerKinds> & {
-        context: GrammarRuleContext<ASTData, ErrorType, Kinds, LexerKinds>;
+        context: GrammarRuleContext<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError
+        >;
         commit: boolean;
-        rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
+        rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
       }) {
     if (debug) logger(`[Try Reduce] State: \n${this.str}`);
 

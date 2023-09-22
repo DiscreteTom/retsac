@@ -30,7 +30,8 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >,
     private readonly entryNTs: ReadonlySet<Kinds>,
     private readonly entryState: State<
@@ -42,7 +43,7 @@ export class DFA<
     >,
     private readonly NTClosures: ReadonlyMap<
       Kinds,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds>[]
+      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
     >,
     // TODO: remove this? this is not used during runtime
     // maybe other vars are not used too?
@@ -86,7 +87,13 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    rollbackStack: RollbackStack<ASTData, ErrorType, Kinds, LexerKinds>,
+    rollbackStack: RollbackStack<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     commitParser: () => void,
     stopOnError = false,
   ): {
@@ -305,7 +312,8 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
       ASTData,

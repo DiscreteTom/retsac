@@ -14,17 +14,43 @@ export class DefinitionContextBuilder<
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > {
   private resolved: ResolvedPartialTempConflict<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >[];
-  private _callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  private _rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
-  private _rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
-  private _commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds>;
+  private _callback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
+  private _rejecter?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
+  private _rollback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
+  private _commit?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >;
   private _traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
 
   constructor() {
@@ -34,7 +60,7 @@ export class DefinitionContextBuilder<
   /**
    * Modify this context with the new callback appended.
    */
-  callback(f: Callback<ASTData, ErrorType, Kinds, LexerKinds>) {
+  callback(f: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     const _callback = this._callback;
     this._callback =
       _callback == undefined
@@ -50,7 +76,7 @@ export class DefinitionContextBuilder<
   /**
    * Modify this context with the new rejecter appended.
    */
-  rejecter(f: Condition<ASTData, ErrorType, Kinds, LexerKinds>) {
+  rejecter(f: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     const _rejecter = this._rejecter;
     this._rejecter =
       _rejecter == undefined
@@ -65,14 +91,14 @@ export class DefinitionContextBuilder<
   /**
    * Modify this context with a reducer appended which can reduce data.
    */
-  reducer(f: Reducer<ASTData, ErrorType, Kinds, LexerKinds>) {
+  reducer(f: Reducer<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return this.callback((context) => (context.data = f(context)));
   }
 
   /**
    *  Modify this context with a rollback function appended.
    */
-  rollback(f: Callback<ASTData, ErrorType, Kinds, LexerKinds>) {
+  rollback(f: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     const _rollback = this._rollback;
     this._rollback =
       _rollback == undefined
@@ -97,7 +123,9 @@ export class DefinitionContextBuilder<
    * If `true` or returns `true`, the parser will commit the current state when the grammar rule is accepted.
    */
   commit(
-    enable: boolean | Condition<ASTData, ErrorType, Kinds, LexerKinds> = true,
+    enable:
+      | boolean
+      | Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError> = true,
   ) {
     this._commit = typeof enable === "boolean" ? () => enable : enable;
     return this;
@@ -108,7 +136,13 @@ export class DefinitionContextBuilder<
    */
   resolveRS(
     another: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RS_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     this.resolved.push({
       type: ConflictType.REDUCE_SHIFT,
@@ -127,7 +161,13 @@ export class DefinitionContextBuilder<
    */
   resolveRR(
     another: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RR_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     this.resolved.push({
       type: ConflictType.REDUCE_REDUCE,
@@ -141,7 +181,13 @@ export class DefinitionContextBuilder<
     return this;
   }
 
-  build(): DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds> {
+  build(): DefinitionContext<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  > {
     return {
       resolved: this.resolved,
       callback: this._callback,
@@ -160,15 +206,23 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
     another: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RS_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().resolveRS(another, options);
   }
   /**
@@ -179,15 +233,23 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
     another: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RR_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().resolveRR(another, options);
   }
   /** Create a new DefinitionContextBuilder with the new callback appended. */
@@ -196,12 +258,14 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
-  >(f: Callback<ASTData, ErrorType, Kinds, LexerKinds>) {
+    LexerError,
+  >(f: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().callback(f);
   }
   /** Create a new DefinitionContextBuilder with the new rejecter appended. */
@@ -210,12 +274,14 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
-  >(f: Condition<ASTData, ErrorType, Kinds, LexerKinds>) {
+    LexerError,
+  >(f: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().rejecter(f);
   }
   /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
@@ -224,12 +290,14 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
-  >(f: Reducer<ASTData, ErrorType, Kinds, LexerKinds>) {
+    LexerError,
+  >(f: Reducer<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().reducer(f);
   }
   /** Create a new DefinitionContextBuilder with the new rollback function appended. */
@@ -238,12 +306,14 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
-  >(f: Callback<ASTData, ErrorType, Kinds, LexerKinds>) {
+    LexerError,
+  >(f: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().rollback(f);
   }
   /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
@@ -252,12 +322,18 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
-  >(enable: boolean | Condition<ASTData, ErrorType, Kinds, LexerKinds> = true) {
+    LexerError,
+  >(
+    enable:
+      | boolean
+      | Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError> = true,
+  ) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().commit(enable);
   }
   /** Create a new DefinitionContextBuilder with the traverser set. */
@@ -266,12 +342,14 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(f: Traverser<ASTData, ErrorType, Kinds | LexerKinds>) {
     return new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >().traverser(f);
   }
 
@@ -283,14 +361,22 @@ export class DefinitionContextBuilder<
     ErrorType,
     Kinds extends string,
     LexerKinds extends string,
+    LexerError,
   >(
-    builders: DefinitionContextBuilder<ASTData, ErrorType, Kinds, LexerKinds>[],
+    builders: DefinitionContextBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
   ) {
     const res = new DefinitionContextBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >();
     for (const b of builders) {
       res.resolved.push(...b.resolved);

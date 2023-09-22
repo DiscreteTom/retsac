@@ -56,7 +56,8 @@ export class ParserBuilder<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds
+    LexerKinds,
+    LexerError
   >[] = [];
   protected readonly entryNTs: Set<Kinds>;
   /**
@@ -109,7 +110,13 @@ export class ParserBuilder<
   }
 
   load(
-    data: readonly ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds>[],
+    data: readonly ParserBuilderData<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
   ) {
     this.data.push(...data);
     return this as IParserBuilder<
@@ -127,7 +134,8 @@ export class ParserBuilder<
       ASTData,
       ErrorType,
       Kinds | Append,
-      LexerKinds
+      LexerKinds,
+      LexerError
     >[]
   ): IParserBuilder<
     ASTData,
@@ -141,7 +149,8 @@ export class ParserBuilder<
         ASTData,
         ErrorType,
         Kinds | Append,
-        LexerKinds
+        LexerKinds,
+        LexerError
       >[]
     ).push({
       defs,
@@ -201,7 +210,8 @@ export class ParserBuilder<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds | AppendLexerKinds
+        LexerKinds | AppendLexerKinds,
+        LexerError | AppendLexerError
       >[],
       printAll,
       logger,
@@ -269,7 +279,8 @@ export class ParserBuilder<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds | AppendLexerKinds
+        LexerKinds | AppendLexerKinds,
+        LexerError | AppendLexerError
       > =
         typeof accepter == "boolean"
           ? {
@@ -405,8 +416,20 @@ export class ParserBuilder<
 
   private generateResolvers<AppendLexerKinds extends string>(
     unresolved: Map<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>,
-      Conflict<ASTData, ErrorType, Kinds, LexerKinds | AppendLexerKinds>[]
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds | AppendLexerKinds,
+        LexerError
+      >,
+      Conflict<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds | AppendLexerKinds,
+        LexerError
+      >[]
     >,
     style: "builder" | "context",
     logger: Logger,
@@ -458,7 +481,13 @@ export class ParserBuilder<
   resolveRS(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RS_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RS_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     this.data.push({
       defs: reducerRule,
@@ -473,7 +502,13 @@ export class ParserBuilder<
   resolveRR(
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
-    options: RR_ResolverOptions<ASTData, ErrorType, Kinds, LexerKinds>,
+    options: RR_ResolverOptions<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
   ) {
     this.data.push({
       defs: reducerRule,
@@ -653,7 +688,8 @@ export class ParserBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds | AppendLexerKinds
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
     >[];
 
     // hydrate grammar rules with user defined functions & resolvers
@@ -674,7 +710,8 @@ export class ParserBuilder<
             ASTData,
             ErrorType,
             Kinds,
-            LexerKinds | AppendLexerKinds
+            LexerKinds | AppendLexerKinds,
+            LexerError | AppendLexerError
           >;
         }
       });
