@@ -3,7 +3,7 @@ import type { Logger } from "../../logger";
 import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
-import type { DFA, State } from "./DFA";
+import type { DFA } from "./DFA";
 import type { ReLexStack, RollbackStack } from "./model";
 
 /** ELR parser. */
@@ -21,7 +21,6 @@ export class Parser<
   readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
 
   private reLexStack: ReLexStack<
-    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     ASTData,
     ErrorType,
     Kinds,

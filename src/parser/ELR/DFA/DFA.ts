@@ -80,14 +80,7 @@ export class DFA<
   parse(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     lexer: ILexer<LexerError, LexerKinds>,
-    reLexStack: ReLexStack<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    >,
+    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     rollbackStack: RollbackStack<
       ASTData,
       ErrorType,
