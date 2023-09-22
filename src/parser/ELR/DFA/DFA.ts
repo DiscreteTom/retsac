@@ -3,8 +3,9 @@ import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
-import type { GrammarRule, ReLexStack, RollbackStack } from "../model";
+import type { GrammarRule, ReLexStack } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
+import type { RollbackState } from "../model/parsing";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type {
@@ -81,13 +82,13 @@ export class DFA<
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     lexer: ILexer<LexerError, LexerKinds>,
     reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-    rollbackStack: RollbackStack<
+    rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
       LexerError
-    >,
+    >[],
     commitParser: () => void,
     stopOnError: boolean,
   ): {
@@ -127,13 +128,13 @@ export class DFA<
       lexer: ILexer<LexerError, LexerKinds>;
     },
     reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-    rollbackStack: RollbackStack<
+    rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
       LexerError
-    >,
+    >[],
   ) {
     return () => {
       const targetState = reLexStack.pop()!;
@@ -176,13 +177,13 @@ export class DFA<
       lexer: ILexer<LexerError, LexerKinds>;
     },
     reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-    rollbackStack: RollbackStack<
+    rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
       LexerError
-    >,
+    >[],
     commitParser: () => void,
     stopOnError: boolean,
     /**

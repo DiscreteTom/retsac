@@ -4,9 +4,12 @@ import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
 import type { DFA } from "./DFA";
-import type { ReLexStack, RollbackStack } from "./model";
+import type { ReLexStack } from "./model";
+import type { RollbackState } from "./model/parsing";
 
-/** ELR parser. */
+/**
+ * ELR parser.
+ */
 export class Parser<
   ASTData,
   ErrorType,
@@ -27,13 +30,20 @@ export class Parser<
     LexerKinds,
     LexerError
   >;
-  private rollbackStack: RollbackStack<
+  private rollbackStack: RollbackState<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
     LexerError
-  >;
+  >[];
+  // private reParseStack: ReParseStack<
+  //   ASTData,
+  //   ErrorType,
+  //   Kinds,
+  //   LexerKinds,
+  //   LexerError
+  // >;
 
   get debug() {
     return this.dfa.debug;
@@ -65,12 +75,14 @@ export class Parser<
     this.errors = [];
     this.reLexStack = [];
     this.rollbackStack = [];
+    // this.reParseStack = [];
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
     this.reLexStack.length = 0; // clear re-lex stack
     this.rollbackStack.length = 0; // clear rollback stack
+    // this.reParseStack.length = 0; // clear re-parse stack
     return this;
   }
 
@@ -91,6 +103,7 @@ export class Parser<
     res.errors.push(...this.errors);
     res.reLexStack = [...this.reLexStack];
     res.rollbackStack = [...this.rollbackStack];
+    // res.reParseStack = [...this.reParseStack];
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -138,23 +151,45 @@ export class Parser<
     // If we put this in `DFA.parse` and parse failed, the lexer won't be updated.
     if (!this.lexer.trimStart().hasRest()) return { accept: false };
 
-    const res = this.dfa.parse(
-      this._buffer,
-      this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
-      this.reLexStack,
-      this.rollbackStack,
-      () => this.commit(),
-      stopOnError,
-    );
-    if (res.output.accept) {
-      // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
-      // so we need to update it using `res.lexer`
-      this.lexer = res.lexer;
-      this._buffer = res.output.buffer.slice(); // make a copy of buffer
-      this.errors.push(...res.output.errors);
+    while (true) {
+      const res = this.dfa.parse(
+        this._buffer,
+        this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
+        this.reLexStack,
+        this.rollbackStack,
+        // TODO: add reParseStack
+        () => this.commit(),
+        stopOnError,
+      );
+      if (res.output.accept) {
+        // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
+        // so we need to update it using `res.lexer`
+        this.lexer = res.lexer;
+        this._buffer = res.output.buffer.slice(); // make a copy of buffer
+        this.errors.push(...res.output.errors);
+        return res.output;
+      } else {
+        // rejected, try to re-parse
+        // if (this.dfa.reParse && this.reParseStack.length > 0) {
+        //   // restore state
+        //   const {
+        //     possibility,
+        //     lexer,
+        //     buffer,
+        //     errors,
+        //     reLexStack,
+        //     rollbackStack,
+        //   } = this.reParseStack.pop()!;
+        //   this.lexer = lexer;
+        //   this._buffer = buffer;
+        //   this.errors.length = 0;
+        //   this.errors.push(...errors);
+        //   this.reLexStack = reLexStack;
+        //   this.rollbackStack = rollbackStack;
+        //   // TODO: should we rollback something here?
+        // } else return res.output; // can't re-parse, return rejected output
+      }
     }
-
-    return res.output;
   }
 
   parseAll(
