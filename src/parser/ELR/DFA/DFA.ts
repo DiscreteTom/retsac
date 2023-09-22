@@ -5,7 +5,7 @@ import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import type { GrammarRule, ReLexStack } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
-import type { RollbackState } from "../model/parsing";
+import type { ParsingState, RollbackState } from "../model/parsing";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type {
@@ -95,16 +95,16 @@ export class DFA<
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   } {
-    const parsingState = {
-      /**
-       * Current state is `states.at(-1)`.
-       */
+    const parsingState: ParsingState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    > = {
       stateStack: [this.entryState],
-      /**
-       * ASTNode buffer index.
-       */
-      index: 0, // TODO: better description
-      errors: [] as ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
+      index: 0,
+      errors: [],
       buffer,
       lexer,
     };
@@ -120,13 +120,13 @@ export class DFA<
   }
 
   private reLexFactory(
-    parsingState: {
-      stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
-      index: number;
-      errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-      buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-      lexer: ILexer<LexerError, LexerKinds>;
-    },
+    parsingState: ParsingState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     rollbackStack: RollbackState<
       ASTData,
@@ -169,13 +169,13 @@ export class DFA<
   }
 
   private _parse(
-    parsingState: {
-      stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
-      index: number;
-      errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-      buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-      lexer: ILexer<LexerError, LexerKinds>;
-    },
+    parsingState: ParsingState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
     reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     rollbackStack: RollbackState<
       ASTData,
