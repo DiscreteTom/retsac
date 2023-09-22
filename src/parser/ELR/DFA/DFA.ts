@@ -124,6 +124,7 @@ export class DFA<
       }
 
       // apply state
+      const lastDigested = lexer.digested;
       stateStack = state.stateStack;
       buffer = state.buffer;
       lexer = state.lexer;
@@ -134,10 +135,8 @@ export class DFA<
         this.logger(
           `[Re-Lex] Restored input: "${
             // restored input
-            state.buffer.at(-1)!.text +
-            state.lexer
-              .getRest()
-              .slice(0, lexer.digested - state.lexer.digested)
+            buffer.at(-1)!.text +
+            lexer.buffer.slice(lexer.digested, lastDigested)
           }" Trying: ${buffer.at(-1)}`,
         );
     };
