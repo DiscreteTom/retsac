@@ -94,51 +94,108 @@ export class DFA<
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   } {
-    // reset state stack with entry state
-    /**
-     * Current state is `states.at(-1)`.
-     */
-    let stateStack = [this.entryState];
+    const parsingState = {
+      /**
+       * Current state is `states.at(-1)`.
+       */
+      stateStack: [this.entryState],
+      /**
+       * ASTNode buffer index.
+       */
+      index: 0, // TODO: better description
+      errors: [] as ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
+      buffer,
+      lexer,
+    };
 
-    let index = 0; // buffer index
-    let errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] = [];
+    return this._parse(
+      parsingState,
+      reLexStack,
+      rollbackStack,
+      commitParser,
+      stopOnError,
+      this.reLexFactory(parsingState, reLexStack, rollbackStack),
+    );
+  }
 
-    /**
-     * Before reLex, make sure the reLexStack is not empty!
-     */
-    const reLex = () => {
-      const state = reLexStack.pop()!;
+  private reLexFactory(
+    parsingState: {
+      stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
+      index: number;
+      errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+      buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+      lexer: ILexer<LexerError, LexerKinds>;
+    },
+    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    rollbackStack: RollbackStack<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
+  ) {
+    return () => {
+      const targetState = reLexStack.pop()!;
 
-      // rollback
+      if (this.debug)
+        this.logger(
+          `[Re-Lex] Restored input: "${
+            // restored input
+            targetState.buffer.at(-1)!.text +
+            targetState.lexer.buffer.slice(
+              targetState.lexer.digested,
+              parsingState.lexer.digested,
+            )
+          }" Trying: ${targetState.buffer.at(-1)}`,
+        );
+
+      // call rollbacks if rollback is enabled
       if (this.rollback) {
-        while (rollbackStack.length > state.rollbackStackLength) {
+        while (rollbackStack.length > targetState.rollbackStackLength) {
           const { context, rollback } = rollbackStack.pop()!;
           rollback?.(context);
         }
       }
 
       // apply state
-      const lastDigested = lexer.digested;
-      stateStack = state.stateStack;
-      buffer = state.buffer;
-      lexer = state.lexer;
-      index = state.index;
-      errors = state.errors;
-
-      if (this.debug)
-        this.logger(
-          `[Re-Lex] Restored input: "${
-            // restored input
-            buffer.at(-1)!.text +
-            lexer.buffer.slice(lexer.digested, lastDigested)
-          }" Trying: ${buffer.at(-1)}`,
-        );
+      parsingState.stateStack = targetState.stateStack;
+      parsingState.buffer = targetState.buffer;
+      parsingState.lexer = targetState.lexer;
+      parsingState.index = targetState.index;
+      parsingState.errors = targetState.errors;
     };
+  }
 
+  private _parse(
+    parsingState: {
+      stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
+      index: number;
+      errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+      buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+      lexer: ILexer<LexerError, LexerKinds>;
+    },
+    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    rollbackStack: RollbackStack<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
+    commitParser: () => void,
+    stopOnError: boolean,
+    /**
+     * Before re-lex, the caller should make sure the reLexStack is not empty!
+     */
+    reLex: () => void,
+  ) {
     while (true) {
-      if (index >= buffer.length) {
+      if (parsingState.index >= parsingState.buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
-        const res = stateStack.at(-1)!.tryLex(lexer, this.debug, this.logger);
+        const res = parsingState.stateStack
+          .at(-1)!
+          .tryLex(parsingState.lexer, this.debug, this.logger);
         // if no more ASTNode can be lexed
         if (res.length == 0) {
           // try to restore from re-lex stack
@@ -151,16 +208,23 @@ export class DFA<
             if (this.debug)
               this.logger(
                 `[End] No matching token can be lexed. Rest of input: ${JSON.stringify(
-                  lexer.buffer.slice(lexer.digested, lexer.digested + 30),
+                  parsingState.lexer.buffer.slice(
+                    parsingState.lexer.digested,
+                    parsingState.lexer.digested + 30,
+                  ),
                 )}${
-                  lexer.buffer.length - lexer.digested > 30
+                  parsingState.lexer.buffer.length -
+                    parsingState.lexer.digested >
+                  30
                     ? `...${
-                        lexer.buffer.length - lexer.digested - 30
+                        parsingState.lexer.buffer.length -
+                        parsingState.lexer.digested -
+                        30
                       } more chars`
                     : ""
-                }\nCandidates:\n${stateStack.at(-1)!.str}`,
+                }\nCandidates:\n${parsingState.stateStack.at(-1)!.str}`,
               );
-            return { output: rejectedParserOutput, lexer };
+            return { output: rejectedParserOutput, lexer: parsingState.lexer };
           }
         } else {
           // lex success, record all possible lexing results for later use
@@ -168,35 +232,37 @@ export class DFA<
           if (this.reLex) {
             for (let i = res.length - 1; i >= 0; --i) {
               reLexStack.push({
-                stateStack: stateStack.slice(), // make a copy
-                buffer: buffer.slice().concat(res[i].node),
+                stateStack: parsingState.stateStack.slice(), // make a copy
+                buffer: parsingState.buffer.slice().concat(res[i].node),
                 lexer: res[i].lexer,
-                index,
-                errors: errors.slice(),
+                index: parsingState.index,
+                errors: parsingState.errors.slice(),
                 rollbackStackLength: rollbackStack.length,
               });
             }
             // use the first lexing result to continue parsing
             const state = reLexStack.pop()!;
-            buffer = state.buffer;
-            lexer = state.lexer;
+            parsingState.buffer = state.buffer;
+            parsingState.lexer = state.lexer;
           } else {
             // TODO: add tests when disable re-lex
             // use the first lexing result to continue parsing
-            buffer = buffer.concat(res[0].node);
-            lexer = res[0].lexer;
+            parsingState.buffer = parsingState.buffer.concat(res[0].node);
+            parsingState.lexer = res[0].lexer;
           }
           if (this.debug)
             this.logger(
-              `[Try Lex] Apply: ${buffer.at(-1)!.strWithoutName.value}`,
+              `[Try Lex] Apply: ${
+                parsingState.buffer.at(-1)!.strWithoutName.value
+              }`,
             );
         }
       }
 
       // try to construct next state
-      const nextStateResult = stateStack
+      const nextStateResult = parsingState.stateStack
         .at(-1)!
-        .getNext(this.grammars, buffer[index]);
+        .getNext(this.grammars, parsingState.buffer[parsingState.index]);
       if (nextStateResult.state == null) {
         // try to restore from re-lex stack
         if (this.reLex && reLexStack.length > 0) {
@@ -206,26 +272,27 @@ export class DFA<
           // no more candidate can be constructed, parsing failed
           if (this.debug)
             this.logger(
-              `[End] No more candidate. Node=${buffer.at(-1)} Candidates:\n${
-                stateStack.at(-1)!.str
-              }`,
+              `[End] No more candidate. Node=${parsingState.buffer.at(
+                -1,
+              )} Candidates:\n${parsingState.stateStack.at(-1)!.str}`,
             );
-          return { output: rejectedParserOutput, lexer };
+          // TODO: re-parse
+          return { output: rejectedParserOutput, lexer: parsingState.lexer };
         }
       }
 
       // next state exist, push stack
-      stateStack.push(nextStateResult.state);
+      parsingState.stateStack.push(nextStateResult.state);
 
       // try reduce with the new state
-      const res = stateStack
+      const res = parsingState.stateStack
         .at(-1)!
         .tryReduce(
-          buffer,
+          parsingState.buffer,
           this.entryNTs,
           this.ignoreEntryFollow,
           this.followSets,
-          lexer,
+          parsingState.lexer,
           this.cascadeQueryPrefix,
           this.reParse,
           this.debug,
@@ -234,7 +301,7 @@ export class DFA<
 
       // rejected
       if (!res.accept) {
-        index++;
+        parsingState.index++;
         continue; // try to digest more
       }
       // else, accepted
@@ -252,17 +319,35 @@ export class DFA<
             context: possibility.context,
           });
       }
-      const reduced = buffer.length - possibility.buffer.length + 1; // how many nodes are digested
-      index -= reduced - 1; // digest n, generate 1
-      buffer = possibility.buffer;
-      errors.push(...possibility.errors);
-      for (let i = 0; i < reduced; ++i) stateStack.pop(); // remove the reduced states
+      const reduced =
+        parsingState.buffer.length - possibility.buffer.length + 1; // how many nodes are digested
+      parsingState.index -= reduced - 1; // digest n, generate 1
+      parsingState.buffer = possibility.buffer;
+      parsingState.errors.push(...possibility.errors);
+      for (let i = 0; i < reduced; ++i) parsingState.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
-      if (this.entryNTs.has(buffer[0].kind as Kinds) && index == 0)
-        return { output: { accept: true, buffer, errors }, lexer };
+      if (
+        this.entryNTs.has(parsingState.buffer[0].kind as Kinds) &&
+        parsingState.index == 0
+      )
+        return {
+          output: {
+            accept: true,
+            buffer: parsingState.buffer,
+            errors: parsingState.errors,
+          },
+          lexer: parsingState.lexer,
+        };
       // if stop on error, return partial result
-      if (stopOnError && errors.length > 0)
-        return { output: { accept: true, buffer, errors }, lexer };
+      if (stopOnError && parsingState.errors.length > 0)
+        return {
+          output: {
+            accept: true,
+            buffer: parsingState.buffer,
+            errors: parsingState.errors,
+          },
+          lexer: parsingState.lexer,
+        };
 
       // continue loop, try to digest more with the newly reduced buffer
     }
