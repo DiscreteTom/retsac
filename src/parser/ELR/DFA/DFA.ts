@@ -179,6 +179,8 @@ export class DFA<
     stopOnError: boolean,
   ) {
     /**
+     * Set the parsing state using the re-lex stack's top state.
+     *
      * Before re-lex, the caller should make sure the reLexStack is not empty!
      */
     const reLex = this.reLexFactory(parsingState, reLexStack, rollbackStack);
