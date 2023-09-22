@@ -14,6 +14,7 @@ export type ParsingState<
    * Current state is `states.at(-1)`.
    */
   stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
+  buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   /**
    * ASTNode buffer index.
    */
@@ -22,7 +23,6 @@ export type ParsingState<
    * Newly collected errors in that parsing process.
    */
   errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   lexer: ILexer<LexerError, LexerKinds>;
 };
 

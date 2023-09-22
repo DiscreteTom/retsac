@@ -153,8 +153,8 @@ export class DFA<
       // apply state
       parsingState.stateStack = targetState.stateStack;
       parsingState.buffer = targetState.buffer;
-      parsingState.lexer = targetState.lexer;
       parsingState.index = targetState.index;
+      parsingState.lexer = targetState.lexer;
       parsingState.errors = targetState.errors;
     };
   }
