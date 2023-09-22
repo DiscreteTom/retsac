@@ -84,6 +84,12 @@ export type BuildOptions<
   // TODO: add tests for this
   ignoreEntryFollow?: boolean; // TODO: maybe add a `greedy` option when re-parse is supported?
   // TODO: autoCommitEntry?
+  /**
+   * If `true`, the parser will try to re-parse the input if any conflict is not resolved.
+   *
+   * @default true
+   */
+  reParse?: boolean;
 };
 
 export interface IParserBuilder<

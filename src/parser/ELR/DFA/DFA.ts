@@ -69,6 +69,7 @@ export class DFA<
     public readonly rollback: boolean,
     public readonly reLex: boolean,
     public readonly ignoreEntryFollow: boolean,
+    public readonly reParse: boolean,
     public debug: boolean,
     public logger: Logger,
   ) {}
@@ -233,26 +234,35 @@ export class DFA<
           this.followSets,
           lexer,
           this.cascadeQueryPrefix,
+          this.reParse,
           this.debug,
           this.logger,
         );
+
+      // rejected
       if (!res.accept) {
         index++;
         continue; // try to digest more
       }
+      // else, accepted
 
-      // accepted
-      if (res.commit) {
+      const possibility = res.possibilities[0];
+      // TODO: handle other possibilities
+
+      if (possibility.commit) {
         commitParser();
       } else {
         // update rollback stack
         if (this.rollback)
-          rollbackStack.push({ rollback: res.rollback, context: res.context });
+          rollbackStack.push({
+            rollback: possibility.rollback,
+            context: possibility.context,
+          });
       }
-      const reduced = buffer.length - res.buffer.length + 1; // how many nodes are digested
+      const reduced = buffer.length - possibility.buffer.length + 1; // how many nodes are digested
       index -= reduced - 1; // digest n, generate 1
-      buffer = res.buffer;
-      errors.push(...res.errors);
+      buffer = possibility.buffer;
+      errors.push(...possibility.errors);
       for (let i = 0; i < reduced; ++i) stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
       if (this.entryNTs.has(buffer[0].kind as Kinds) && index == 0)
@@ -303,6 +313,7 @@ export class DFA<
       rollback: boolean;
       reLex: boolean;
       ignoreEntryFollow: boolean;
+      reParse: boolean;
     },
   ) {
     const NTs = new Set(data.NTs);
@@ -347,6 +358,7 @@ export class DFA<
       options.rollback,
       options.reLex,
       options.ignoreEntryFollow,
+      options.reParse,
       options.debug,
       options.logger,
     );
