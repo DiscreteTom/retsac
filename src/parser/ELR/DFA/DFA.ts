@@ -3,7 +3,7 @@ import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
-import type { GrammarRule } from "../model";
+import type { GrammarRule, ReParseState } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ParsingState, ReLexState, RollbackState } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
@@ -89,6 +89,13 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
+    reParseStack: ReParseState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
     commitParser: () => void,
     stopOnError: boolean,
   ): {
@@ -105,6 +112,7 @@ export class DFA<
       },
       reLexStack,
       rollbackStack,
+      reParseStack,
       commitParser,
       stopOnError,
     );
@@ -151,11 +159,13 @@ export class DFA<
       }
 
       // apply state
-      parsingState.stateStack = targetState.stateStack;
-      parsingState.buffer = targetState.buffer;
+      // shallow copy to prevent modifying the inner parsing state
+      // since re-parse need to copy re-lex stack
+      parsingState.stateStack = targetState.stateStack.slice();
+      parsingState.buffer = targetState.buffer.slice();
       parsingState.index = targetState.index;
-      parsingState.lexer = targetState.lexer;
-      parsingState.errors = targetState.errors;
+      parsingState.lexer = targetState.lexer.clone();
+      parsingState.errors = targetState.errors.slice();
     };
   }
 
@@ -169,6 +179,13 @@ export class DFA<
     >,
     reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
     rollbackStack: RollbackState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
+    reParseStack: ReParseState<
       ASTData,
       ErrorType,
       Kinds,
@@ -302,7 +319,22 @@ export class DFA<
       // else, accepted
 
       const possibility = res.possibilities[0];
-      // TODO: handle other possibilities
+      res.possibilities.slice(1).forEach((p) => {
+        // store other possibilities in re-parse stack
+        reParseStack.push({
+          possibility: p,
+          parsingState: {
+            // make a copy
+            stateStack: parsingState.stateStack.slice(),
+            buffer: parsingState.buffer.slice(),
+            index: parsingState.index,
+            errors: parsingState.errors.slice(),
+            lexer: parsingState.lexer.clone(),
+          },
+          reLexStack: reLexStack.slice(), // shallow copy, make sure re-lex won't modify the inner parsing state
+          rollbackStackLength: rollbackStack.length,
+        });
+      });
 
       if (possibility.commit) {
         commitParser();

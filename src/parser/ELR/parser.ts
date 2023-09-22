@@ -4,7 +4,7 @@ import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
 import type { DFA } from "./DFA";
-import type { ReLexState, RollbackState } from "./model";
+import type { ReLexState, ReParseState, RollbackState } from "./model";
 
 /**
  * ELR parser.
@@ -29,6 +29,12 @@ export class Parser<
     LexerKinds,
     LexerError
   >[];
+  /**
+   * There will only be one rollback stack for a parser.
+   * Every reduce will push a rollback state to this stack.
+   *
+   * Re-lex or re-parse will only pop this stack, they don't need to store or restore the stack.
+   */
   private rollbackStack: RollbackState<
     ASTData,
     ErrorType,
@@ -36,13 +42,13 @@ export class Parser<
     LexerKinds,
     LexerError
   >[];
-  // private reParseStack: ReParseStack<
-  //   ASTData,
-  //   ErrorType,
-  //   Kinds,
-  //   LexerKinds,
-  //   LexerError
-  // >;
+  private reParseStack: ReParseState<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >[];
 
   get debug() {
     return this.dfa.debug;
@@ -156,7 +162,7 @@ export class Parser<
         this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
         this.reLexStack,
         this.rollbackStack,
-        // TODO: add reParseStack
+        this.reParseStack,
         () => this.commit(),
         stopOnError,
       );
@@ -171,14 +177,8 @@ export class Parser<
         // rejected, try to re-parse
         // if (this.dfa.reParse && this.reParseStack.length > 0) {
         //   // restore state
-        //   const {
-        //     possibility,
-        //     lexer,
-        //     buffer,
-        //     errors,
-        //     reLexStack,
-        //     rollbackStack,
-        //   } = this.reParseStack.pop()!;
+        //   const { possibility, parsingState, reLexStack, rollbackStack } =
+        //     this.reParseStack.pop()!;
         //   this.lexer = lexer;
         //   this._buffer = buffer;
         //   this.errors.length = 0;
