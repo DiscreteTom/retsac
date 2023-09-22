@@ -89,7 +89,7 @@ export class DFA<
       LexerError
     >,
     commitParser: () => void,
-    stopOnError = false,
+    stopOnError: boolean,
   ): {
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
