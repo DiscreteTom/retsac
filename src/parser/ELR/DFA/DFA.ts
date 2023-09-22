@@ -3,9 +3,9 @@ import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
-import type { GrammarRule, ReLexStack } from "../model";
+import type { GrammarRule } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
-import type { ParsingState, RollbackState } from "../model/parsing";
+import type { ParsingState, ReLexState, RollbackState } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type {
@@ -81,7 +81,7 @@ export class DFA<
   parse(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     lexer: ILexer<LexerError, LexerKinds>,
-    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
@@ -127,7 +127,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
@@ -176,7 +176,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    reLexStack: ReLexStack<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,

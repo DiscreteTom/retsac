@@ -1,5 +1,5 @@
 export * from "./context";
 export * from "./grammar";
-export * from "./re-lex";
+export * from "./parsing";
 export * from "./builder";
 export * from "./conflict";
