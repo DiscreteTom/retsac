@@ -247,6 +247,8 @@ export class State<
         commit: boolean;
         rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds>;
       }) {
+    if (debug) logger(`[Try Reduce] State: \n${this.str}`);
+
     for (const c of this.candidates) {
       const res = c.tryReduce(
         buffer,

@@ -282,7 +282,10 @@ export class Candidate<
                 : r.accepter)
             ) {
               rollbackNames();
-              if (debug) logger(`[Reject by Conflict] ${this.gr}`);
+              if (debug)
+                logger(
+                  `[Reject by RR Conflict] ${this.gr} vs ${c.anotherRule} at EOF`,
+                );
               return rejectedParserOutput;
             }
             // else, accepted, continue
@@ -296,7 +299,9 @@ export class Candidate<
       // no matter if it's RR or SR conflict
       if (!nextTokenExists) continue; // skip if no next token
       let reject = false;
+      let next: Grammar<Kinds | LexerKinds> | undefined = undefined;
       for (const g of c.next.grammars.values()) {
+        next = g;
         const token = context.lexer.lex({
           // peek with expectation
           peek: true,
@@ -324,7 +329,14 @@ export class Candidate<
       }
       if (reject) {
         rollbackNames();
-        if (debug) logger(`[Reject by Conflict] ${this.gr}`);
+        if (debug)
+          logger(
+            `[Reject by ${
+              c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS"
+            } Conflict] ${this.gr} vs ${c.anotherRule}, next: ${
+              next!.grammarStrWithoutName.value
+            }`,
+          );
         return rejectedParserOutput;
       }
       // else, next not match, continue
