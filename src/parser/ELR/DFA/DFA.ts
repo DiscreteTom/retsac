@@ -95,27 +95,18 @@ export class DFA<
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
     lexer: ILexer<LexerError, LexerKinds>;
   } {
-    const parsingState: ParsingState<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    > = {
-      stateStack: [this.entryState],
-      index: 0,
-      errors: [],
-      buffer,
-      lexer,
-    };
-
     return this._parse(
-      parsingState,
+      {
+        stateStack: [this.entryState],
+        index: 0,
+        errors: [],
+        buffer,
+        lexer,
+      },
       reLexStack,
       rollbackStack,
       commitParser,
       stopOnError,
-      this.reLexFactory(parsingState, reLexStack, rollbackStack),
     );
   }
 
@@ -186,11 +177,12 @@ export class DFA<
     >[],
     commitParser: () => void,
     stopOnError: boolean,
+  ) {
     /**
      * Before re-lex, the caller should make sure the reLexStack is not empty!
      */
-    reLex: () => void,
-  ) {
+    const reLex = this.reLexFactory(parsingState, reLexStack, rollbackStack);
+
     while (true) {
       if (parsingState.index >= parsingState.buffer.length) {
         // end of buffer, try to lex input string to get next ASTNode
