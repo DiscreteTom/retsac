@@ -7,7 +7,8 @@ import util from "node:util";
 
 // use these to generate serialized grammar parser
 const { lexer, parserBuilder } = grammarParserFactory("__");
-const { serializable } = parserBuilder.build(lexer, {
+const { serializable } = parserBuilder.build({
+  lexer,
   checkAll: true,
   serialize: true,
 });
