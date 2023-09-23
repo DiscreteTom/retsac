@@ -1,6 +1,11 @@
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
-import type { Conflict, ResolvedConflict } from "../conflict";
+import type {
+  Conflict,
+  ConflictType,
+  ResolvedConflict,
+  ResolverHydrationId,
+} from "../conflict";
 import type { Callback, Condition } from "../context";
 import { ruleStartsWith, ruleEndsWith } from "./utils";
 import type { Grammar } from "./grammar";
@@ -218,7 +223,32 @@ export class GrammarRule<
       LexerKinds,
       LexerError
     >,
-  ) {
+  ): {
+    // TODO: omit this return type definition
+    // currently run `ts-node utils/generate-serialized-grammar-parser.ts` requires this return type definition
+    NT: Kinds;
+    rule: string[];
+    conflicts: {
+      type: ConflictType;
+      anotherRule: string;
+      next: string[];
+      handleEnd: boolean;
+      overlapped: number | undefined;
+      resolvers: number[];
+    }[];
+    resolved: {
+      type: ConflictType;
+      anotherRule: string;
+      handleEnd: boolean;
+      next: string[] | "*";
+      accepter: boolean | undefined;
+      hydrationId: Readonly<ResolverHydrationId> | undefined;
+    }[];
+    str: string;
+    strWithGrammarName: string;
+    strWithoutGrammarName: string;
+    hydrationId: number;
+  } {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => repo.getKey(g)),

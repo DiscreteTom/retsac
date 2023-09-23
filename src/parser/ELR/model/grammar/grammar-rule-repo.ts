@@ -78,7 +78,11 @@ export class ReadonlyGrammarRuleRepo<
     return res;
   }
 
-  toJSON(repo: GrammarRepo<Kinds | LexerKinds>) {
+  toJSON(
+    repo: GrammarRepo<Kinds | LexerKinds>,
+  ): ReturnType<
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+  >[] {
     return this.map((gr) => gr.toJSON(repo, this));
   }
 
