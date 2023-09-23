@@ -176,7 +176,7 @@ export class Candidate<
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
-    reParse: boolean,
+    reParse: boolean, // TODO: remove this
     debug: boolean,
     logger: Logger,
   ):
@@ -275,93 +275,86 @@ export class Candidate<
     }
 
     // check conflicts
-    if (reParse) {
-      // if re-parse is enabled, assume this gr is accepted for greedy parsing
-      // so we don't check conflicts here
-      // but when return, we should notify the caller that the result is re-parse-able
-    } else {
-      // re-parse is not enabled, check conflicts
-      for (const c of this.gr.conflicts) {
-        // check EOF for RR conflict
-        if (c.type == ConflictType.REDUCE_REDUCE) {
-          // if reach end of input
-          if (!nextTokenExists) {
-            // if the end needs to be handled
-            if (c.handleEnd) {
-              // find the resolver
-              const r = this.gr.resolved.find(
-                // use find instead of filter here since there can only be one end handler
-                (r) =>
-                  r.type == ConflictType.REDUCE_REDUCE &&
-                  r.anotherRule == c.anotherRule &&
-                  r.handleEnd,
-              )!;
-              // if not accepted, reject
-              if (
-                !(r.accepter instanceof Function
-                  ? r.accepter(context)
-                  : r.accepter)
-              ) {
-                rollbackNames();
-                if (debug)
-                  logger(
-                    `[Reject by RR Conflict] ${this.gr} vs ${c.anotherRule} at EOF`,
-                  );
-                return rejectedParserOutput;
-              }
-              // else, accepted, continue
+    for (const c of this.gr.conflicts) {
+      // check EOF for RR conflict
+      if (c.type == ConflictType.REDUCE_REDUCE) {
+        // if reach end of input
+        if (!nextTokenExists) {
+          // if the end needs to be handled
+          if (c.handleEnd) {
+            // find the resolver
+            const r = this.gr.resolved.find(
+              // use find instead of filter here since there can only be one end handler
+              (r) =>
+                r.type == ConflictType.REDUCE_REDUCE &&
+                r.anotherRule == c.anotherRule &&
+                r.handleEnd,
+            )!;
+            // if not accepted, reject
+            if (
+              !(r.accepter instanceof Function
+                ? r.accepter(context)
+                : r.accepter)
+            ) {
+              rollbackNames();
+              if (debug)
+                logger(
+                  `[Reject by RR Conflict] ${this.gr} vs ${c.anotherRule} at EOF`,
+                );
+              return rejectedParserOutput;
             }
-            // else, no need to handle end, continue
+            // else, accepted, continue
           }
-          // else, not reach to end of input, continue
+          // else, no need to handle end, continue
         }
-
-        // check if any next grammar match the next token
-        // no matter if it's RR or SR conflict
-        if (!nextTokenExists) continue; // skip if no next token
-        let reject = false;
-        let next: Grammar<Kinds | LexerKinds> | undefined = undefined;
-        for (const g of c.next.grammars.values()) {
-          next = g;
-          const token = context.lexer.lex({
-            // peek with expectation
-            peek: true,
-            expect: {
-              kind: g.kind,
-              text: g.text,
-            },
-          });
-          if (token == null) continue; // next not match, check next next
-          for (const r of c.resolvers) {
-            // find related resolver by the next
-            if (r.next == "*" || r.next.has(g)) {
-              // resolver's next match, check accepter
-              if (
-                !(r.accepter instanceof Function
-                  ? r.accepter(context)
-                  : r.accepter)
-              ) {
-                reject = true;
-                break; // stop check resolvers
-              }
-            }
-          }
-          if (reject) break;
-        }
-        if (reject) {
-          rollbackNames();
-          if (debug)
-            logger(
-              `[Reject by ${
-                c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS"
-              } Conflict] ${this.gr} vs ${c.anotherRule}, next: ${
-                next!.grammarStrWithoutName.value
-              }`,
-            );
-          return rejectedParserOutput;
-        }
-        // else, next not match, continue
+        // else, not reach to end of input, continue
       }
+
+      // check if any next grammar match the next token
+      // no matter if it's RR or SR conflict
+      if (!nextTokenExists) continue; // skip if no next token
+      let reject = false;
+      let next: Grammar<Kinds | LexerKinds> | undefined = undefined;
+      for (const g of c.next.grammars.values()) {
+        next = g;
+        const token = context.lexer.lex({
+          // peek with expectation
+          peek: true,
+          expect: {
+            kind: g.kind,
+            text: g.text,
+          },
+        });
+        if (token == null) continue; // next not match, check next next
+        for (const r of c.resolvers) {
+          // find related resolver by the next
+          if (r.next == "*" || r.next.has(g)) {
+            // resolver's next match, check accepter
+            if (
+              !(r.accepter instanceof Function
+                ? r.accepter(context)
+                : r.accepter)
+            ) {
+              reject = true;
+              break; // stop check resolvers
+            }
+          }
+        }
+        if (reject) break;
+      }
+      if (reject) {
+        rollbackNames();
+        if (debug)
+          logger(
+            `[Reject by ${
+              c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS"
+            } Conflict] ${this.gr} vs ${c.anotherRule}, next: ${
+              next!.grammarStrWithoutName.value
+            }`,
+          );
+        return rejectedParserOutput;
+      }
+      // else, next not match, continue
     }
 
     // check rejecter
