@@ -172,22 +172,8 @@ export class Parser<
         this.lexer = res.lexer;
         this._buffer = res.output.buffer.slice(); // make a copy of buffer
         this.errors.push(...res.output.errors);
-        return res.output;
-      } else {
-        // rejected, try to re-parse
-        // if (this.dfa.reParse && this.reParseStack.length > 0) {
-        //   // restore state
-        //   const { possibility, parsingState, reLexStack, rollbackStack } =
-        //     this.reParseStack.pop()!;
-        //   this.lexer = lexer;
-        //   this._buffer = buffer;
-        //   this.errors.length = 0;
-        //   this.errors.push(...errors);
-        //   this.reLexStack = reLexStack;
-        //   this.rollbackStack = rollbackStack;
-        //   // TODO: should we rollback something here?
-        // } else return res.output; // can't re-parse, return rejected output
       }
+      return res.output;
     }
   }
 

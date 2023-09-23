@@ -206,17 +206,37 @@ export class DFA<
         }
       }
 
-      const possibility = this.tryReduce(
+      const res = this.tryReduce(
         parsingState,
         reLexStack,
         rollbackStack,
         reParseStack,
       );
 
-      if (possibility == "continue") continue;
-      if (possibility == "reject/re-parse") {
-        // TODO: re-parse
-        return { output: rejectedParserOutput, lexer: parsingState.lexer };
+      if (res == "continue") continue;
+
+      let possibility: Exclude<typeof res, "continue" | "reject/re-parse">;
+
+      if (res == "reject/re-parse") {
+        if (this.reParse && reParseStack.length > 0) {
+          const reParseState = reParseStack.pop()!;
+          possibility = reParseState.possibility;
+          parsingState = reParseState.parsingState;
+          reLexStack = reParseState.reLexStack;
+          // rollback
+          // TODO: extract to a function
+          if (this.rollback) {
+            while (rollbackStack.length > reParseState.rollbackStackLength) {
+              const { context, rollback } = rollbackStack.pop()!;
+              rollback?.(context);
+            }
+          }
+        } else {
+          // re-parse failed or disabled, parsing failed
+          return { output: rejectedParserOutput, lexer: parsingState.lexer };
+        }
+      } else {
+        possibility = res;
       }
 
       if (possibility.commit) {
