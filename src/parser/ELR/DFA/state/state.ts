@@ -365,3 +365,5 @@ export class State<
     return res.join("\n");
   }
 }
+
+// TODO: add ReadonlyState

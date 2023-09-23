@@ -142,3 +142,5 @@ export interface ILexer<ErrorType, Kinds extends string> {
   getPos(index: number): { line: number; column: number };
   hasErrors(): boolean;
 }
+
+// TODO: add ReadonlyILexer
