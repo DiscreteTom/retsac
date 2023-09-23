@@ -210,70 +210,19 @@ export class DFA<
         }
       }
 
-      // try to construct next state
-      const nextStateResult = parsingState.stateStack
-        .at(-1)!
-        .getNext(this.grammars, parsingState.buffer[parsingState.index]);
-      if (nextStateResult.state == null) {
-        // try to restore from re-lex stack
-        if (this.reLex && reLexStack.length > 0) {
-          reLex();
-          continue;
-        } else {
-          // no more candidate can be constructed, parsing failed
-          if (this.debug)
-            this.logger(
-              `[End] No more candidate. Node=${parsingState.buffer.at(
-                -1,
-              )} Candidates:\n${parsingState.stateStack.at(-1)!.str}`,
-            );
-          // TODO: re-parse
-          return { output: rejectedParserOutput, lexer: parsingState.lexer };
-        }
+      const possibility = this.tryReduce(
+        parsingState,
+        reLexStack,
+        rollbackStack,
+        reParseStack,
+        reLex,
+      );
+
+      if (possibility == "continue") continue;
+      if (possibility == "reject/re-parse") {
+        // TODO: re-parse
+        return { output: rejectedParserOutput, lexer: parsingState.lexer };
       }
-
-      // next state exist, push stack
-      parsingState.stateStack.push(nextStateResult.state);
-
-      // try reduce with the new state
-      const res = parsingState.stateStack
-        .at(-1)!
-        .tryReduce(
-          parsingState.buffer,
-          this.entryNTs,
-          this.ignoreEntryFollow,
-          this.followSets,
-          parsingState.lexer,
-          this.cascadeQueryPrefix,
-          this.reParse,
-          this.debug,
-          this.logger,
-        );
-
-      // rejected
-      if (!res.accept) {
-        parsingState.index++;
-        continue; // try to digest more
-      }
-      // else, accepted
-
-      const possibility = res.possibilities[0];
-      res.possibilities.slice(1).forEach((p) => {
-        // store other possibilities in re-parse stack
-        reParseStack.push({
-          possibility: p,
-          parsingState: {
-            // make a copy
-            stateStack: parsingState.stateStack.slice(),
-            buffer: parsingState.buffer.slice(),
-            index: parsingState.index,
-            errors: parsingState.errors.slice(),
-            lexer: parsingState.lexer.clone(),
-          },
-          reLexStack: reLexStack.slice(), // shallow copy, make sure re-lex won't modify the inner parsing state
-          rollbackStackLength: rollbackStack.length,
-        });
-      });
 
       if (possibility.commit) {
         commitParser();
@@ -409,6 +358,105 @@ export class DFA<
     }
 
     return true;
+  }
+
+  /**
+   * Try to reduce to get new possibilities.
+   * Result will be stored in re-parse stack.
+   */
+  private tryReduce(
+    parsingState: ParsingState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >,
+    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    rollbackStack: RollbackState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
+    reParseStack: ReParseState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >[],
+    reLex: () => void,
+  ) {
+    // try to construct next state
+    const nextStateResult = parsingState.stateStack
+      .at(-1)!
+      .getNext(this.grammars, parsingState.buffer[parsingState.index]);
+    if (nextStateResult.state == null) {
+      // try to restore from re-lex stack
+      if (this.reLex && reLexStack.length > 0) {
+        reLex();
+        return "continue";
+      } else {
+        // no more candidate can be constructed, parsing failed
+        if (this.debug)
+          this.logger(
+            `[End] No more candidate. Node=${parsingState.buffer.at(
+              -1,
+            )} Candidates:\n${parsingState.stateStack.at(-1)!.str}`,
+          );
+        return "reject/re-parse";
+      }
+    }
+
+    // next state exist, push stack
+    parsingState.stateStack.push(nextStateResult.state);
+
+    // try reduce with the new state
+    const res = parsingState.stateStack
+      .at(-1)!
+      .tryReduce(
+        parsingState.buffer,
+        this.entryNTs,
+        this.ignoreEntryFollow,
+        this.followSets,
+        parsingState.lexer,
+        this.cascadeQueryPrefix,
+        this.reParse,
+        this.debug,
+        this.logger,
+      );
+
+    // rejected
+    if (!res.accept) {
+      parsingState.index++;
+      return "continue"; // try to digest more
+    }
+    // else, accepted
+
+    const possibility = res.possibilities[0];
+
+    // store other possibilities in re-parse stack
+    if (this.reParse) {
+      res.possibilities.slice(1).forEach((p) => {
+        reParseStack.push({
+          possibility: p,
+          parsingState: {
+            // make a copy
+            stateStack: parsingState.stateStack.slice(),
+            buffer: parsingState.buffer.slice(),
+            index: parsingState.index,
+            errors: parsingState.errors.slice(),
+            lexer: parsingState.lexer.clone(),
+          },
+          reLexStack: reLexStack.slice(), // shallow copy, make sure re-lex won't modify the inner parsing state
+          rollbackStackLength: rollbackStack.length,
+        });
+      });
+    }
+
+    return possibility;
   }
 
   toJSON() {
