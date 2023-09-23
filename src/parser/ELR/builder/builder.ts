@@ -42,7 +42,7 @@ import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
  *
  * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
  *
- * When build, it's recommended to set `checkAll` to `true` when developing.
+ * When build, it's recommended to set `checkAll` to `true` in development environment.
  */
 export class ParserBuilder<
   ASTData,

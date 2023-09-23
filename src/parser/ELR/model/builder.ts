@@ -108,7 +108,7 @@ export interface IParserBuilder<
     ...defs: Kinds[]
   ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   /**
-   * Declare grammar rules.
+   * Define grammar rules.
    */
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
