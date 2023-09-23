@@ -1,4 +1,3 @@
-import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type {
   Definition,
@@ -76,15 +75,18 @@ export class AdvancedBuilder<
   }
 
   build<AppendLexerKinds extends string, AppendLexerError>(
-    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
+    options: BuildOptions<
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >,
   ) {
     // if hydrate, just call super.build()
     // since all data needed for build is in super.data
-    if (options?.hydrate !== undefined) return super.build(lexer, options);
+    if (options.hydrate !== undefined) return super.build(options);
 
-    const debug = options?.debug ?? false;
-    const logger = options?.logger ?? console.log;
+    const debug = options.debug ?? false;
+    const logger = options.logger ?? console.log;
 
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder<
@@ -184,6 +186,6 @@ export class AdvancedBuilder<
       builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
     );
 
-    return builder.build(lexer, options);
+    return builder.build(options);
   }
 }

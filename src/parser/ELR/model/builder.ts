@@ -14,9 +14,11 @@ import type { Parser } from "../parser";
 export type BuildOptions<
   Kinds extends string,
   LexerKinds extends string,
+  LexerError,
 > = Partial<
   Pick<IParser<never, never, Kinds, LexerKinds, never>, "logger" | "debug">
 > & {
+  lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Which format to generate resolvers.
    * If `undefined`, resolvers will not be generated.
@@ -119,8 +121,11 @@ export interface IParserBuilder<
    * This won't modify the builder, so you can call this multiple times.
    */
   build<AppendLexerKinds extends string, AppendLexerError>(
-    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
+    options: BuildOptions<
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >,
   ): {
     parser: IParser<
       ASTData,

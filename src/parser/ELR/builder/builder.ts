@@ -338,19 +338,23 @@ export class ParserBuilder<
   }
 
   build<AppendLexerKinds extends string, AppendLexerError>(
-    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
-    options?: BuildOptions<Kinds, LexerKinds | AppendLexerKinds>,
+    options: BuildOptions<
+      Kinds,
+      LexerKinds | AppendLexerKinds,
+      LexerError | AppendLexerError
+    >,
   ) {
-    const debug = options?.debug ?? false;
-    const logger = options?.logger ?? console.log;
-    const printAll = options?.printAll ?? false;
-    const rollback = options?.rollback ?? false;
-    const reLex = options?.reLex ?? true;
-    const ignoreEntryFollow = options?.ignoreEntryFollow ?? false;
+    const debug = options.debug ?? false;
+    const logger = options.logger ?? console.log;
+    const printAll = options.printAll ?? false;
+    const rollback = options.rollback ?? false;
+    const reLex = options.reLex ?? true;
+    const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
+    const lexer = options.lexer;
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
-      options?.hydrate == undefined
+      options.hydrate == undefined
         ? this.buildDFA(
             lexer,
             printAll,
@@ -372,7 +376,7 @@ export class ParserBuilder<
           );
 
     // check symbols first
-    if (options?.checkAll || options?.checkSymbols)
+    if (options.checkAll || options.checkSymbols)
       checkSymbols(
         this.entryNTs,
         NTs,
@@ -384,33 +388,33 @@ export class ParserBuilder<
 
     // deal with conflicts
     if (
-      options?.checkAll ||
-      options?.checkConflicts ||
-      options?.generateResolvers
+      options.checkAll ||
+      options.checkConflicts ||
+      options.generateResolvers
     ) {
       // resolved conflicts are already stored in grs in this.buildDFA
       const unresolved = getUnresolvedConflicts(grs, debug, logger);
 
-      if (options?.generateResolvers !== undefined)
+      if (options.generateResolvers !== undefined)
         this.generateResolvers(unresolved, options.generateResolvers, logger);
 
-      if (options?.checkAll || options?.checkConflicts)
+      if (options.checkAll || options.checkConflicts)
         checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
     }
 
     // ensure no rollback if rollback is not enabled
-    if ((options?.checkAll || options?.checkRollback) && !rollback)
+    if ((options.checkAll || options.checkRollback) && !rollback)
       checkRollbacks(grs, printAll, logger);
 
     return {
       parser: new Parser(dfa, lexer),
       serializable:
-        options?.serialize ?? false
-          ? ((options?.hydrate ?? this.buildSerializable(dfa)) as Readonly<
+        options.serialize ?? false
+          ? ((options.hydrate ?? this.buildSerializable(dfa)) as Readonly<
               SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
             >)
           : undefined,
-      mermaid: options?.mermaid ?? false ? dfa.toMermaid() : undefined,
+      mermaid: options.mermaid ?? false ? dfa.toMermaid() : undefined,
     };
   }
 

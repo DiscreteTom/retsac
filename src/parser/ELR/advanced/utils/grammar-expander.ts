@@ -151,7 +151,8 @@ export class GrammarExpander<
     );
 
     this.placeholderMap = placeholderMap;
-    this.parser = parserBuilder.build(lexer, {
+    this.parser = parserBuilder.build({
+      lexer,
       hydrate: data,
       // for debug
       // debug: true,

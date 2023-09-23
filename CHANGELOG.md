@@ -42,6 +42,7 @@
   - **_Breaking Change_**: remove `IParserBuilder.leftSA/rightSA`, enhance the `IParserBuilder.priority` to support left-to-right or right-to-left associativity.
   - **_Breaking Change_**: entry NT's follow set will also be checked during parsing.
     - Add `BuildOptions.ignoreEntryFollow` to override the behaviour.
+  - **_Breaking Change_**: use `builder.build({ lexer })` instead of `builder.build(lexer)`.
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
