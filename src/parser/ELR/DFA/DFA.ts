@@ -220,6 +220,19 @@ export class DFA<
       if (res == "reject/re-parse") {
         if (this.reParse && reParseStack.length > 0) {
           const reParseState = reParseStack.pop()!;
+
+          if (this.debug)
+            this.logger(
+              `[Re-Parse] Restored input: "${
+                // restored input
+                reParseState.parsingState.buffer.at(-1)!.text +
+                reParseState.parsingState.lexer.buffer.slice(
+                  reParseState.parsingState.lexer.digested,
+                  parsingState.lexer.digested,
+                )
+              }"`,
+            );
+
           possibility = reParseState.possibility;
           parsingState = reParseState.parsingState;
           reLexStack = reParseState.reLexStack;
