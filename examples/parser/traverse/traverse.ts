@@ -51,7 +51,7 @@ export const { parser } = new ELR.ParserBuilder<number>()
     { next: `'+'`, accept: true },
   )
   .entry("stmts")
-  .build(lexer, { checkAll: true });
+  .build({ lexer, checkAll: true });
 
 export const { parser: parser2 } = new ELR.ParserBuilder<number>()
   .define(
@@ -82,4 +82,4 @@ export const { parser: parser2 } = new ELR.ParserBuilder<number>()
     ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
   .entry("fn_def_stmt")
-  .build(lexer, { checkAll: true });
+  .build({ lexer, checkAll: true });

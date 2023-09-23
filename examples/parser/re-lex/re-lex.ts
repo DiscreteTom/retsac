@@ -36,4 +36,4 @@ export const { parser } = new ELR.ParserBuilder<number>()
   .entry("exp")
   // IMPORTANT: set `rollback` to `true` to enable rollback functions
   // otherwise, rollback functions will not be called to improve performance
-  .build(lexer, { checkAll: true, rollback: true });
+  .build({ lexer, checkAll: true, rollback: true });

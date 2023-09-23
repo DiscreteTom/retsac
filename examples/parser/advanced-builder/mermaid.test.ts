@@ -7,6 +7,6 @@ const cache = readFileSync(
 );
 
 test("serialize", () => {
-  const { mermaid } = builder.build(lexer, { mermaid: true });
+  const { mermaid } = builder.build({ lexer, mermaid: true });
   expect(mermaid).toBe(cache);
 });

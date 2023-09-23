@@ -8,9 +8,11 @@ test("simple-ts-parser", () => {
     "utf-8",
   );
 
-  const { parser } = builder.build(lexer, {
+  const { parser } = builder.build({
+    lexer,
     checkAll: true,
     hydrate: cache,
+    ignoreEntryFollow: true,
     // debug: true,
   });
   parser.feed(code);

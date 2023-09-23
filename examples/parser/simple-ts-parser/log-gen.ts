@@ -4,7 +4,12 @@ import { lexer, builder } from "./simple-ts-parser";
 // Usage: ts-node examples/parser/simple-ts-parser/log-gen.ts
 // you'd better redirect the output to a file
 
-const { parser } = builder.build(lexer, { debug: true, checkAll: true });
+const { parser } = builder.build({
+  lexer,
+  debug: true,
+  checkAll: true,
+  ignoreEntryFollow: true,
+});
 
 // process the source file
 const code = readFileSync(

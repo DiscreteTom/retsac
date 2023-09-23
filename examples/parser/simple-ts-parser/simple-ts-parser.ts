@@ -1,6 +1,38 @@
+import { readFileSync } from "fs";
 import { Lexer, ELR } from "../../../src";
 
-// Usage: ts-node examples/parser/simple-ts-parser/simple-ts-parser.ts
+export const cache = (() => {
+  try {
+    return JSON.parse(
+      readFileSync("./examples/parser/simple-ts-parser/dfa.json", "utf8"),
+    );
+  } catch {
+    return undefined;
+  }
+})();
+
+// not all typescript keywords are supported for simplicity
+const keywords = [
+  "import",
+  "from",
+  "const",
+  "true",
+  "false",
+  "if",
+  "new",
+  "as",
+  "while",
+  "break",
+  "let",
+  "null",
+  "export",
+  "try",
+  "catch",
+  "undefined",
+  "return",
+  "readonly",
+  "as",
+] as const;
 
 export const lexer = new Lexer.Builder()
   .ignore(
@@ -8,24 +40,11 @@ export const lexer = new Lexer.Builder()
     Lexer.comment("//"), // single line comment
     Lexer.comment("/*", "*/"), // multiline comment
   )
-  .define(
-    // keywords, not all typescript keywords are supported for simplicity
-    Lexer.wordKind(
-      "import",
-      "from",
-      "const",
-      "true",
-      "false",
-      "if",
-      "new",
-      "as",
-      "while",
-      "break",
-      "let",
-    ),
-  )
+  .define(Lexer.wordKind(...keywords))
   .define({
-    identifier: /\w+/,
+    identifier: Lexer.Action.from(/\w+/).reject(({ content }) =>
+      (keywords as readonly string[]).includes(content),
+    ),
     number: Lexer.numericLiteral(),
     regex: Lexer.regexLiteral(),
     string: [
@@ -42,34 +61,43 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.AdvancedBuilder()
+  // types
+  .define({ type: `readonly? identifier ('[' ']')? | const` })
   // expressions, every expression has a value
-  .define({ exps: `exp (',' exp)*` })
   .define({
-    exp: `identifier | string | regex | true | false | object | array`, // primary expression
+    exp: `identifier | string | regex | true | false | object | array | null | undefined`, // primary expression
   })
-  .define({ exp: `new identifier '(' exps? ')'` }) // new expression
+  .define({ exp: `exp as type` })
+  .define({ exp: `'(' exp ')'` })
+  .define({ exp: `'(' ')' '=>' '{' stmt* '}'` }) // arrow function
+  .define({ exp: `new identifier` }) // new expression
   .define({ exp: [`'!' exp`, `'...' exp`] }) // unary expression
   .define({ exp: `exp '?'? '.' identifier` }) // member expression
-  .define({ exp: `exp '(' exps? ')'` }) // call expression
+  .define({ exp: `exp '(' (exp ',')* exp? ')'` }) // call expression
   .define({ exp: `exp '[' exp ']'` }) // index expression
   .define({ exp: [`exp '!=' exp`, `exp '&&' exp`] }) // conditional expression
   // object & array
   .define({ object: `'{' (object_entry (',' object_entry)*)? '}'` })
   .define({ object_entry: `identifier (':' exp)?` })
-  .define({ array: `'[' exps? ']'` })
+  .define({ array: `'[' (exp ',')* exp? ']'` })
   // statements
   .define({ exp_stmt: `exp ';'` })
+  .define({ ret_stmt: `return exp_stmt` })
   .define({ if_stmt: `if '(' exp ')' (stmt | '{' stmt* '}')` })
   .define({ const_stmt: `const identifier '=' exp_stmt` })
   .define({ let_stmt: `let identifier '=' exp_stmt` })
   .define({ while_stmt: `while '(' exp ')' (stmt | '{' stmt* '}')` })
   .define({ break_stmt: `break ';'` })
+  .define({ export_stmt: `export (const_stmt | let_stmt)` })
+  .define({
+    try_catch_stmt: `try '{' stmt* '}' catch ('(' identifier ')')? '{' stmt* '}'`,
+  })
   .define({
     // these statements can exist in blocks
     // some of them can also exist in top level
     // if they can't exist in top level, we can throw exception when parsing
     // for now for simplicity we treat them all as statements
-    stmt: `exp_stmt | if_stmt | const_stmt | let_stmt | while_stmt | break_stmt`,
+    stmt: `exp_stmt | if_stmt | const_stmt | let_stmt | while_stmt | break_stmt | try_catch_stmt | ret_stmt`,
   })
   // the import statement can only exist in top level
   // so we don't need to define it in stmt
@@ -79,22 +107,16 @@ export const builder = new ELR.AdvancedBuilder()
       `import '{' identifier (',' identifier)* '}' from string ';'`,
     ],
   })
-  // only these statements can exist in top level
-  .entry("import_stmt", "stmt")
+  .entry("import_stmt", "stmt", "export_stmt")
   .priority(
     // ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence#table
     { exp: `exp '?'? '.' identifier` },
-    [{ exp: `exp '(' exps? ')'` }, { exp: `exp '[' exp ']'` }],
+    [{ exp: `exp '(' (exp ',')* exp? ')'` }, { exp: `exp '[' exp ']'` }],
     [{ exp: `'!' exp` }, { exp: `'...' exp` }],
     [{ exp: `exp '!=' exp` }, { exp: `exp '&&' exp` }],
-    { exps: `exp (',' exp)*` },
-    { object_entry: `identifier ":" exp` },
+    { exp: `exp as type` },
   )
-  .resolveRS(
-    { exp: `identifier` },
-    { object_entry: `identifier ":" exp` },
-    { next: "':'", accept: false },
-  )
+  // TODO: optimize the user experience of resolving following conflicts
   .resolveRR(
     { exp: `identifier` },
     { object_entry: `identifier` },

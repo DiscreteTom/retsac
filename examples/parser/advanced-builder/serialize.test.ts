@@ -5,6 +5,6 @@ function stringify(obj: unknown) {
 }
 
 test("serialize", () => {
-  const { serializable } = builder.build(lexer, { serialize: true });
+  const { serializable } = builder.build({ lexer, serialize: true });
   expect(stringify(serializable)).toBe(stringify(cache));
 });
