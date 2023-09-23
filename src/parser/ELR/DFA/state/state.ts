@@ -234,7 +234,6 @@ export class State<
 
   /**
    * Traverse all candidates to try to reduce.
-   * Return all possibilities.
    */
   tryReduce(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
@@ -243,44 +242,11 @@ export class State<
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
-    reParse: boolean,
     debug: boolean,
     logger: Logger,
   ):
     | RejectedParserOutput
-    | {
-        accept: true;
-        possibilities: (AcceptedParserOutput<
-          ASTData,
-          ErrorType,
-          Kinds | LexerKinds
-        > & {
-          context: GrammarRuleContext<
-            ASTData,
-            ErrorType,
-            Kinds,
-            LexerKinds,
-            LexerError
-          >;
-          commit: boolean;
-          rollback?: Callback<
-            ASTData,
-            ErrorType,
-            Kinds,
-            LexerKinds,
-            LexerError
-          >;
-        })[];
-      } {
-    if (debug) logger(`[Try Reduce] State: \n${this.str}`);
-
-    const acceptedResult = {
-      accept: true,
-      possibilities: [] as (AcceptedParserOutput<
-        ASTData,
-        ErrorType,
-        Kinds | LexerKinds
-      > & {
+    | (AcceptedParserOutput<ASTData, ErrorType, Kinds | LexerKinds> & {
         context: GrammarRuleContext<
           ASTData,
           ErrorType,
@@ -290,8 +256,8 @@ export class State<
         >;
         commit: boolean;
         rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-      })[],
-    };
+      }) {
+    if (debug) logger(`[Try Reduce] State: \n${this.str}`);
 
     for (const c of this.candidates) {
       const res = c.tryReduce(
@@ -301,30 +267,20 @@ export class State<
         followSets,
         lexer,
         cascadeQueryPrefix,
-        reParse,
         debug,
         logger,
       );
 
       if (res.accept) {
-        acceptedResult.possibilities.push({
+        // we've already resolved all reduce-reduce conflicts, we can return the first accepted result
+        return {
           ...res,
           rollback: c.gr.rollback,
-        });
-
-        // if re-parse is not enabled, we've already resolved all reduce-reduce conflicts, we can return the first accepted result
-        if (!reParse) return acceptedResult;
-
-        // else, re-parse is enabled, we should record all possibilities
-        // but if the commit is true, we can return immediately
-        // and the caller should commit the parser when evaluating this possibility
-        if (res.commit) return acceptedResult;
+        };
       }
     }
 
-    return acceptedResult.possibilities.length > 0
-      ? acceptedResult
-      : rejectedParserOutput;
+    return rejectedParserOutput;
   }
 
   toJSON(

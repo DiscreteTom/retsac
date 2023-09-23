@@ -166,7 +166,7 @@ export class Candidate<
    * Only failed if:
    * 1. Digestion not finished.
    * 2. Check follow set failed.
-   * 3. Reject by conflict resolver and re-parse is not enabled.
+   * 3. Reject by conflict resolver.
    * 4. Rejecter rejected.
    */
   tryReduce(
@@ -176,7 +176,6 @@ export class Candidate<
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     lexer: Readonly<ILexer<LexerError, LexerKinds>>,
     cascadeQueryPrefix: string | undefined,
-    reParse: boolean, // TODO: remove this
     debug: boolean,
     logger: Logger,
   ):

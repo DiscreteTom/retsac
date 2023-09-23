@@ -175,7 +175,6 @@ export class ParserBuilder<
     rollback: boolean,
     reLex: boolean,
     ignoreEntryFollow: boolean,
-    reParse: boolean,
   ) {
     if (this.entryNTs.size == 0) {
       const e = new NoEntryNTError();
@@ -232,7 +231,6 @@ export class ParserBuilder<
       rollback,
       reLex,
       ignoreEntryFollow,
-      reParse,
       debug,
       logger,
     );
@@ -349,7 +347,6 @@ export class ParserBuilder<
     const rollback = options?.rollback ?? false;
     const reLex = options?.reLex ?? true;
     const ignoreEntryFollow = options?.ignoreEntryFollow ?? false;
-    const reParse = options?.reParse ?? false;
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
@@ -362,7 +359,6 @@ export class ParserBuilder<
             rollback,
             reLex,
             ignoreEntryFollow,
-            reParse,
           )
         : this.restoreAndHydrate<AppendLexerKinds, AppendLexerError>(
             options.hydrate,
@@ -372,7 +368,6 @@ export class ParserBuilder<
               rollback,
               reLex,
               ignoreEntryFollow,
-              reParse,
             },
           );
 
@@ -389,8 +384,8 @@ export class ParserBuilder<
 
     // deal with conflicts
     if (
-      // if reParse is true, we don't need to check conflicts
-      (!reParse && (options?.checkAll || options?.checkConflicts)) ||
+      options?.checkAll ||
+      options?.checkConflicts ||
       options?.generateResolvers
     ) {
       // resolved conflicts are already stored in grs in this.buildDFA

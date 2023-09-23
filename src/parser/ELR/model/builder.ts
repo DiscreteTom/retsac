@@ -82,14 +82,8 @@ export type BuildOptions<
    */
   // TODO: rename rename this to a more intuitive name
   // TODO: add tests for this
-  ignoreEntryFollow?: boolean; // TODO: maybe add a `greedy` option when re-parse is supported?
+  ignoreEntryFollow?: boolean;
   // TODO: autoCommitEntry?
-  /**
-   * If `true`, the parser will try to re-parse the input if any conflict is not resolved.
-   *
-   * @default false
-   */
-  reParse?: boolean;
 };
 
 export interface IParserBuilder<

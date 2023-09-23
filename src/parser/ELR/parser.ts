@@ -4,7 +4,7 @@ import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
 import type { DFA } from "./DFA";
-import type { ReLexState, ReParseState, RollbackState } from "./model";
+import type { ReLexState, RollbackState } from "./model";
 
 /**
  * ELR parser.
@@ -33,16 +33,9 @@ export class Parser<
    * There will only be one rollback stack for a parser.
    * Every reduce will push a rollback state to this stack.
    *
-   * Re-lex or re-parse will only pop this stack, they don't need to store or restore the stack.
+   * Re-lex will only pop this stack, they don't need to store or restore the stack.
    */
   private rollbackStack: RollbackState<
-    ASTData,
-    ErrorType,
-    Kinds,
-    LexerKinds,
-    LexerError
-  >[];
-  private reParseStack: ReParseState<
     ASTData,
     ErrorType,
     Kinds,
@@ -80,14 +73,12 @@ export class Parser<
     this.errors = [];
     this.reLexStack = [];
     this.rollbackStack = [];
-    this.reParseStack = [];
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
     this.reLexStack.length = 0; // clear re-lex stack
     this.rollbackStack.length = 0; // clear rollback stack
-    this.reParseStack.length = 0; // clear re-parse stack
     return this;
   }
 
@@ -108,7 +99,6 @@ export class Parser<
     res.errors.push(...this.errors);
     res.reLexStack = [...this.reLexStack];
     res.rollbackStack = [...this.rollbackStack];
-    res.reParseStack = [...this.reParseStack];
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -162,7 +152,6 @@ export class Parser<
         this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
         this.reLexStack,
         this.rollbackStack,
-        this.reParseStack,
         () => this.commit(),
         stopOnError,
       );

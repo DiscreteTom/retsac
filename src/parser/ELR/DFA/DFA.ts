@@ -3,7 +3,7 @@ import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
-import type { GrammarRule, ReParseState } from "../model";
+import type { GrammarRule } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ParsingState, ReLexState, RollbackState } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
@@ -70,7 +70,6 @@ export class DFA<
     public readonly rollback: boolean,
     public readonly reLex: boolean,
     public readonly ignoreEntryFollow: boolean,
-    public readonly reParse: boolean,
     public debug: boolean,
     public logger: Logger,
   ) {}
@@ -89,13 +88,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
-    reParseStack: ReParseState<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    >[],
+
     commitParser: () => void,
     stopOnError: boolean,
   ): {
@@ -112,7 +105,6 @@ export class DFA<
       },
       reLexStack,
       rollbackStack,
-      reParseStack,
       commitParser,
       stopOnError,
     );
@@ -163,13 +155,11 @@ export class DFA<
     }
 
     // apply state
-    // shallow copy to prevent modifying the inner parsing state
-    // since re-parse need to copy re-lex stack
-    parsingState.stateStack = targetState.stateStack.slice();
-    parsingState.buffer = targetState.buffer.slice();
+    parsingState.stateStack = targetState.stateStack;
+    parsingState.buffer = targetState.buffer;
     parsingState.index = targetState.index;
-    parsingState.lexer = targetState.lexer.clone();
-    parsingState.errors = targetState.errors.slice();
+    parsingState.lexer = targetState.lexer;
+    parsingState.errors = targetState.errors;
   }
 
   private _parse(
@@ -188,13 +178,6 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
-    reParseStack: ReParseState<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    >[],
     commitParser: () => void,
     stopOnError: boolean,
   ) {
@@ -206,48 +189,14 @@ export class DFA<
         }
       }
 
-      const res = this.tryReduce(
-        parsingState,
-        reLexStack,
-        rollbackStack,
-        reParseStack,
-      );
+      const res = this.tryReduce(parsingState, reLexStack, rollbackStack);
 
       if (res == "continue") continue;
 
-      let possibility: Exclude<typeof res, "continue" | "reject/re-parse">;
+      let possibility: Exclude<typeof res, "continue" | "reject">;
 
-      if (res == "reject/re-parse") {
-        if (this.reParse && reParseStack.length > 0) {
-          const reParseState = reParseStack.pop()!;
-
-          if (this.debug)
-            this.logger(
-              `[Re-Parse] Restored input: "${
-                // restored input
-                reParseState.parsingState.buffer.at(-1)!.text +
-                reParseState.parsingState.lexer.buffer.slice(
-                  reParseState.parsingState.lexer.digested,
-                  parsingState.lexer.digested,
-                )
-              }"`,
-            );
-
-          possibility = reParseState.possibility;
-          parsingState = reParseState.parsingState;
-          reLexStack = reParseState.reLexStack;
-          // rollback
-          // TODO: extract to a function
-          if (this.rollback) {
-            while (rollbackStack.length > reParseState.rollbackStackLength) {
-              const { context, rollback } = rollbackStack.pop()!;
-              rollback?.(context);
-            }
-          }
-        } else {
-          // re-parse failed or disabled, parsing failed
-          return { output: rejectedParserOutput, lexer: parsingState.lexer };
-        }
+      if (res == "reject") {
+        return { output: rejectedParserOutput, lexer: parsingState.lexer };
       } else {
         possibility = res;
       }
@@ -387,10 +336,6 @@ export class DFA<
     return true;
   }
 
-  /**
-   * Try to reduce to get new possibilities.
-   * Result will be stored in re-parse stack.
-   */
   private tryReduce(
     parsingState: ParsingState<
       ASTData,
@@ -401,13 +346,6 @@ export class DFA<
     >,
     reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
     rollbackStack: RollbackState<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
-    >[],
-    reParseStack: ReParseState<
       ASTData,
       ErrorType,
       Kinds,
@@ -432,7 +370,7 @@ export class DFA<
               -1,
             )} Candidates:\n${parsingState.stateStack.at(-1)!.str}`,
           );
-        return "reject/re-parse";
+        return "reject";
       }
     }
 
@@ -449,7 +387,6 @@ export class DFA<
         this.followSets,
         parsingState.lexer,
         this.cascadeQueryPrefix,
-        this.reParse,
         this.debug,
         this.logger,
       );
@@ -461,28 +398,7 @@ export class DFA<
     }
     // else, accepted
 
-    const possibility = res.possibilities[0];
-
-    // store other possibilities in re-parse stack
-    if (this.reParse) {
-      res.possibilities.slice(1).forEach((p) => {
-        reParseStack.push({
-          possibility: p,
-          parsingState: {
-            // make a copy
-            stateStack: parsingState.stateStack.slice(),
-            buffer: parsingState.buffer.slice(),
-            index: parsingState.index,
-            errors: parsingState.errors.slice(),
-            lexer: parsingState.lexer.clone(),
-          },
-          reLexStack: reLexStack.slice(), // shallow copy, make sure re-lex won't modify the inner parsing state
-          rollbackStackLength: rollbackStack.length,
-        });
-      });
-    }
-
-    return possibility;
+    return res;
   }
 
   toJSON() {
@@ -523,7 +439,6 @@ export class DFA<
       rollback: boolean;
       reLex: boolean;
       ignoreEntryFollow: boolean;
-      reParse: boolean;
     },
   ) {
     const NTs = new Set(data.NTs);
@@ -568,7 +483,6 @@ export class DFA<
       options.rollback,
       options.reLex,
       options.ignoreEntryFollow,
-      options.reParse,
       options.debug,
       options.logger,
     );
