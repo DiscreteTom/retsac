@@ -87,7 +87,7 @@ export type BuildOptions<
   /**
    * If `true`, the parser will try to re-parse the input if any conflict is not resolved.
    *
-   * @default true
+   * @default false
    */
   reParse?: boolean;
 };

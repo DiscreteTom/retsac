@@ -349,7 +349,7 @@ export class ParserBuilder<
     const rollback = options?.rollback ?? false;
     const reLex = options?.reLex ?? true;
     const ignoreEntryFollow = options?.ignoreEntryFollow ?? false;
-    const reParse = options?.reParse ?? true;
+    const reParse = options?.reParse ?? false;
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
