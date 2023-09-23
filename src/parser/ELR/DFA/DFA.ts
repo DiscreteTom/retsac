@@ -118,7 +118,12 @@ export class DFA<
     );
   }
 
-  private reLexFactory(
+  /**
+   * Set the parsing state using the re-lex stack's top state.
+   *
+   * Before re-lex, the caller should make sure the reLexStack is not empty!
+   */
+  private _reLex(
     parsingState: ParsingState<
       ASTData,
       ErrorType,
@@ -135,38 +140,36 @@ export class DFA<
       LexerError
     >[],
   ) {
-    return () => {
-      const targetState = reLexStack.pop()!;
+    const targetState = reLexStack.pop()!;
 
-      if (this.debug)
-        this.logger(
-          `[Re-Lex] Restored input: "${
-            // restored input
-            targetState.buffer.at(-1)!.text +
-            targetState.lexer.buffer.slice(
-              targetState.lexer.digested,
-              parsingState.lexer.digested,
-            )
-          }" Trying: ${targetState.buffer.at(-1)}`,
-        );
+    if (this.debug)
+      this.logger(
+        `[Re-Lex] Restored input: "${
+          // restored input
+          targetState.buffer.at(-1)!.text +
+          targetState.lexer.buffer.slice(
+            targetState.lexer.digested,
+            parsingState.lexer.digested,
+          )
+        }" Trying: ${targetState.buffer.at(-1)}`,
+      );
 
-      // call rollbacks if rollback is enabled
-      if (this.rollback) {
-        while (rollbackStack.length > targetState.rollbackStackLength) {
-          const { context, rollback } = rollbackStack.pop()!;
-          rollback?.(context);
-        }
+    // call rollbacks if rollback is enabled
+    if (this.rollback) {
+      while (rollbackStack.length > targetState.rollbackStackLength) {
+        const { context, rollback } = rollbackStack.pop()!;
+        rollback?.(context);
       }
+    }
 
-      // apply state
-      // shallow copy to prevent modifying the inner parsing state
-      // since re-parse need to copy re-lex stack
-      parsingState.stateStack = targetState.stateStack.slice();
-      parsingState.buffer = targetState.buffer.slice();
-      parsingState.index = targetState.index;
-      parsingState.lexer = targetState.lexer.clone();
-      parsingState.errors = targetState.errors.slice();
-    };
+    // apply state
+    // shallow copy to prevent modifying the inner parsing state
+    // since re-parse need to copy re-lex stack
+    parsingState.stateStack = targetState.stateStack.slice();
+    parsingState.buffer = targetState.buffer.slice();
+    parsingState.index = targetState.index;
+    parsingState.lexer = targetState.lexer.clone();
+    parsingState.errors = targetState.errors.slice();
   }
 
   private _parse(
@@ -195,17 +198,10 @@ export class DFA<
     commitParser: () => void,
     stopOnError: boolean,
   ) {
-    /**
-     * Set the parsing state using the re-lex stack's top state.
-     *
-     * Before re-lex, the caller should make sure the reLexStack is not empty!
-     */
-    const reLex = this.reLexFactory(parsingState, reLexStack, rollbackStack);
-
     while (true) {
       // if no enough AST nodes, try to lex a new one
       if (parsingState.index >= parsingState.buffer.length) {
-        if (!this.tryLex(parsingState, reLexStack, rollbackStack, reLex)) {
+        if (!this.tryLex(parsingState, reLexStack, rollbackStack)) {
           return { output: rejectedParserOutput, lexer: parsingState.lexer };
         }
       }
@@ -215,7 +211,6 @@ export class DFA<
         reLexStack,
         rollbackStack,
         reParseStack,
-        reLex,
       );
 
       if (possibility == "continue") continue;
@@ -290,7 +285,6 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
-    reLex: () => void,
   ) {
     // end of buffer, try to lex input string to get next ASTNode
     const res = parsingState.stateStack
@@ -302,7 +296,7 @@ export class DFA<
       if (this.reLex && reLexStack.length > 0) {
         if (this.debug)
           this.logger(`[Try Lex] All candidates failed. Try to re-lex.`);
-        reLex();
+        this._reLex(parsingState, reLexStack, rollbackStack);
       } else {
         // no more ASTNode can be lexed, parsing failed
         if (this.debug)
@@ -387,7 +381,6 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
-    reLex: () => void,
   ) {
     // try to construct next state
     const nextStateResult = parsingState.stateStack
@@ -396,8 +389,8 @@ export class DFA<
     if (nextStateResult.state == null) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
-        reLex();
-        return "continue";
+        this._reLex(parsingState, reLexStack, rollbackStack);
+        return "continue"; // TODO: use enum?
       } else {
         // no more candidate can be constructed, parsing failed
         if (this.debug)
