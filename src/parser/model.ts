@@ -69,6 +69,9 @@ export interface IParser<
   /**
    * Try to reduce till the parser can't accept more.
    * This is useful if your entry NT can be further reduced.
+   *
+   * The result may be a ***partial*** accepted result,
+   * because the result will be accepted if at least one parse is successful.
    */
   readonly parseAll: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
   /**
