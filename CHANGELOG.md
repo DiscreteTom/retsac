@@ -20,6 +20,7 @@
   - Feat: add `Lexer.utils.regexLiteral`. [#15](https://github.com/DiscreteTom/retsac/issues/15)
   - Feat: add `ILexer.lex.peek`.
   - Feat: typed lexer. [#17](https://github.com/DiscreteTom/retsac/issues/17)
+  - Feat: add `ReadonlyILexer`.
 - Parser
   - Feat: add `name` for `ASTNode` and `ASTObj`.
     - **_Breaking Change_**: `ASTNode.toTreeString` will also print `ASTNode.name`.
@@ -43,6 +44,7 @@
   - **_Breaking Change_**: entry NT's follow set will also be checked during parsing.
     - Add `BuildOptions.ignoreEntryFollow` to override the behaviour.
   - **_Breaking Change_**: use `builder.build({ lexer })` instead of `builder.build(lexer)`.
+  - **_Breaking Change_**: `GrammarRuleContext.lexer` is `ReadonlyILexer`.
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)

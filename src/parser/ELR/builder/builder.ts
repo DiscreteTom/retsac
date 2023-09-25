@@ -29,7 +29,7 @@ import type {
 } from "./model";
 import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
-import type { ILexer } from "../../../lexer";
+import type { ILexer, ReadonlyILexer } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import type { Logger } from "../../../logger";
@@ -78,7 +78,9 @@ export class ParserBuilder<
   }
 
   useLexer<AppendLexerKinds extends string, AppendLexerError>(
-    _lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+    _lexer:
+      | ILexer<AppendLexerError, AppendLexerKinds>
+      | ReadonlyILexer<AppendLexerError, AppendLexerKinds>,
   ): IParserBuilder<
     ASTData,
     ErrorType,

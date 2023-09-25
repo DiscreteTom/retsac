@@ -143,4 +143,25 @@ export interface ILexer<ErrorType, Kinds extends string> {
   hasErrors(): boolean;
 }
 
-// TODO: add ReadonlyILexer
+/**
+ * ReadonlyILexer's states won't be changed.
+ */
+export type ReadonlyILexer<ErrorType, Kinds extends string> = Omit<
+  ILexer<ErrorType, Kinds>,
+  "reset" | "feed" | "take" | "takeUntil" | "lexAll" | "trimStart"
+> & {
+  get debug(): boolean;
+  get logger(): Logger;
+  readonly errors: readonly Readonly<Token<ErrorType, Kinds>>[];
+  // readonly lex, must set peek to true
+  lex(
+    input: Readonly<{
+      input?: string;
+      expect?: Readonly<{
+        kind?: string;
+        text?: string;
+      }>;
+      peek: true;
+    }>,
+  ): Token<ErrorType, Kinds> | null;
+};

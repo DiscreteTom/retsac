@@ -1,4 +1,4 @@
-import type { ILexer } from "../../../lexer";
+import type { ILexer, ReadonlyILexer } from "../../../lexer";
 import type { StringOrLiteral } from "../../../type-helper";
 import type {
   ASTNodeSelector,
@@ -193,7 +193,7 @@ export function lexGrammar<
   LexerError,
 >(
   g: Grammar<Kinds | LexerKinds>,
-  lexer: Readonly<ILexer<LexerError, LexerKinds>>,
+  roLexer: ReadonlyILexer<LexerError, LexerKinds>,
 ):
   | {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
@@ -202,7 +202,7 @@ export function lexGrammar<
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
   // so we will need many lexers with different states
-  lexer = lexer.clone();
+  const lexer = roLexer.clone();
 
   const token = lexer.lex({
     expect: {
@@ -210,6 +210,7 @@ export function lexGrammar<
       text: g.text, // maybe undefined
     },
   });
+
   return token == null
     ? undefined
     : {

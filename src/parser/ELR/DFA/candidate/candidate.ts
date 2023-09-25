@@ -1,5 +1,5 @@
 import type { CandidateRepo, ReadonlyCandidateRepo } from "./candidate-repo";
-import type { ILexer } from "../../../../lexer";
+import type { ReadonlyILexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import { ASTNode } from "../../../ast";
 import type {
@@ -174,7 +174,7 @@ export class Candidate<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
-    lexer: Readonly<ILexer<LexerError, LexerKinds>>,
+    lexer: ReadonlyILexer<LexerError, LexerKinds>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,
