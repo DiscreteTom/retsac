@@ -70,6 +70,8 @@ export interface IParser<
    * Try to reduce till the parser can't accept more.
    * This is useful if your entry NT can also be reduced by other rules.
    */
+  // TODO: is there any diff between parse & parseAll?
+  // since we will check entry NT's follow now
   readonly parseAll: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
   /**
    * Accumulated error AST nodes.
