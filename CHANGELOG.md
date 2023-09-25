@@ -66,7 +66,6 @@
   - Deduplicate possibilities when re-lex.
   - Remove unnecessary calculation when try lexing in `DFA.parse`.
   - Use serialized grammar parser in `AdvancedBuilder`. Thanks to [#2](https://github.com/DiscreteTom/retsac/issues/2).
-    - The build time for grammar parser is reduced from 8ms to 2ms.
 
 ## v0.11.0
 
