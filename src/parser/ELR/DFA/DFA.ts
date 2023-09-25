@@ -310,7 +310,6 @@ export class DFA<
         parsingState.buffer = state.buffer;
         parsingState.lexer = state.lexer;
       } else {
-        // TODO: add tests when disable re-lex
         // use the first lexing result to continue parsing
         parsingState.buffer = parsingState.buffer.concat(res[0].node);
         parsingState.lexer = res[0].lexer;
