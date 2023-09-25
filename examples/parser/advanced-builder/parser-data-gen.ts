@@ -1,4 +1,4 @@
-import { generateParserDataFile } from "../utils/parser-data-gen";
+import { generateParserDataFile } from "../utils/parser-data-gen-common";
 import { lexer, builder } from "./advanced-builder";
 
 // Usage: ts-node examples/parser/advanced-builder/parser-data-gen.ts

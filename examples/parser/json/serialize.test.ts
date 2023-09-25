@@ -1,10 +1,6 @@
-import { lexer, builder, cache } from "./json";
-
-function stringify(obj: unknown) {
-  return JSON.stringify(obj, null, 2);
-}
+import { generateParserDataString } from "../utils/parser-data-gen-common";
+import { lexer, builder, cacheStr } from "./json";
 
 test("serialize", () => {
-  const { serializable } = builder.build({ lexer, serialize: true });
-  expect(stringify(serializable)).toBe(stringify(cache));
+  expect(generateParserDataString(builder, lexer)).toBe(cacheStr);
 });

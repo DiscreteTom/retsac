@@ -1,15 +1,4 @@
-import { readFileSync } from "fs";
 import { Lexer, ELR } from "../../../src";
-
-export const cache = (() => {
-  try {
-    return JSON.parse(
-      readFileSync("./examples/parser/simple-ts-parser/dfa.json", "utf8"),
-    );
-  } catch {
-    return undefined;
-  }
-})();
 
 // not all typescript keywords are supported for simplicity
 const keywords = [

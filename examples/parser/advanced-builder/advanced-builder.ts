@@ -1,15 +1,9 @@
-import { readFileSync } from "fs";
 import { ELR, Lexer } from "../../../src";
+import { loadCache } from "../utils/parser-data-gen-common";
 
-export const cache = (() => {
-  try {
-    return JSON.parse(
-      readFileSync("./examples/parser/advanced-builder/dfa.json", "utf8"),
-    );
-  } catch {
-    return undefined;
-  }
-})();
+export const { cacheStr, cache } = loadCache(
+  "./examples/parser/advanced-builder/dfa.json",
+);
 
 export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank chars
