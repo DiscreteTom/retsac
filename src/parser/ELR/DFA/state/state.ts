@@ -22,7 +22,7 @@ import type {
   ReadonlyCandidateRepo,
 } from "../candidate";
 import type { ReadonlyFollowSets } from "../first-follow-sets";
-import { lexGrammar, map2serializable } from "../utils";
+import { lexGrammar, map2serializable, prettierLexerRest } from "../utils";
 import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
 
 /**
@@ -206,7 +206,12 @@ export class State<
                 `[Try Lex] Got ${cache.strWithoutName.value} for candidate: ${c}`,
               );
             // uncomment next line for more details
-            // else logger(`[Try Lex] Failed for candidate: ${c}`);
+            else
+              logger(
+                `[Try Lex] Failed for candidate: ${c}, rest: ${prettierLexerRest(
+                  lexer,
+                )}`,
+              );
           }
           return;
         }
@@ -225,7 +230,12 @@ export class State<
               `[Try Lex] Got ${r.node.strWithoutName.value} for candidate: ${c}`,
             );
           // uncomment next line for more details
-          // else logger(`[Try Lex] Failed for candidate: ${c}`);
+          else
+            logger(
+              `[Try Lex] Failed for candidate: ${c}, rest: ${prettierLexerRest(
+                lexer,
+              )}`,
+            );
         }
         return r;
       })
