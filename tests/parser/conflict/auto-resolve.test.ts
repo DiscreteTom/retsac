@@ -9,7 +9,7 @@ test.each([`a b c?`, `a b c*`, `a b c+`, `a? b c d?`])(
           test: gr,
         })
         .entry("test")
-        .build(new Lexer.Builder().build(), { checkConflicts: true });
+        .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
     }).not.toThrow(`Unresolved R-S conflict`);
   },
 );
