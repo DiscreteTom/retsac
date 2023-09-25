@@ -19,6 +19,7 @@ import {
   cascadeASTNodeSelectorFactory,
   cascadeASTNodeFirstMatchSelectorFactory,
   map2serializable,
+  prettierLexerRest,
 } from "../utils";
 
 /** Candidate for ELR parsers. */
@@ -253,18 +254,9 @@ export class Candidate<
           if (debug)
             logger(
               // don't use context.after here to optimize performance
-              `[Follow Mismatch] ${this.gr} follow=${JSON.stringify(
-                context.lexer.buffer.slice(
-                  context.lexer.digested,
-                  context.lexer.digested + 30,
-                ),
-              )}${
-                context.lexer.buffer.length - context.lexer.digested > 30
-                  ? `...${
-                      context.lexer.buffer.length - context.lexer.digested - 30
-                    } more chars`
-                  : ""
-              }`,
+              `[Follow Mismatch] ${this.gr} follow=${prettierLexerRest(
+                context.lexer,
+              )}`,
             );
           rollbackNames();
           return rejectedParserOutput;

@@ -14,7 +14,11 @@ import type {
 } from "./first-follow-sets";
 import type { ReadonlyStateRepo, State } from "./state";
 import { StateRepo } from "./state";
-import { stringMap2serializable, serializable2map } from "./utils";
+import {
+  stringMap2serializable,
+  serializable2map,
+  prettierLexerRest,
+} from "./utils";
 
 /**
  * DFA for ELR parsers. Stateless.
@@ -281,21 +285,9 @@ export class DFA<
         // no more ASTNode can be lexed, parsing failed
         if (this.debug)
           this.logger(
-            `[End] No matching token can be lexed. Rest of input: ${JSON.stringify(
-              parsingState.lexer.buffer.slice(
-                parsingState.lexer.digested,
-                parsingState.lexer.digested + 30,
-              ),
-            )}${
-              parsingState.lexer.buffer.length - parsingState.lexer.digested >
-              30
-                ? `...${
-                    parsingState.lexer.buffer.length -
-                    parsingState.lexer.digested -
-                    30
-                  } more chars`
-                : ""
-            }\nCandidates:\n${parsingState.stateStack.at(-1)!.str}`,
+            `[End] No matching token can be lexed. Rest of input: ${prettierLexerRest(
+              parsingState.lexer,
+            )}\nCandidates:\n${parsingState.stateStack.at(-1)!.str}`,
           );
         return false;
       }

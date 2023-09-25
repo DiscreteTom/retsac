@@ -392,3 +392,18 @@ export function serializable2map<K extends string, V, R>(
   }
   return map;
 }
+
+/**
+ * Return a string to represent the rest of the lexer.
+ * This is used for debugging.
+ */
+export function prettierLexerRest(lexer: ReadonlyILexer<unknown, string>) {
+  const showLength = 30;
+  return `${JSON.stringify(
+    lexer.buffer.slice(lexer.digested, lexer.digested + showLength),
+  )}${
+    lexer.buffer.length - lexer.digested > showLength
+      ? `...${lexer.buffer.length - lexer.digested - showLength} more chars`
+      : ""
+  }`;
+}
