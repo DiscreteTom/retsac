@@ -254,9 +254,10 @@ export class Candidate<
           if (debug)
             logger(
               // don't use context.after here to optimize performance
-              `[Follow Mismatch] ${this.gr} follow=${prettierLexerRest(
-                context.lexer,
-              )}`,
+              `[Follow Mismatch] ${this.gr}, follows=${followSets
+                .get(this.gr.NT)!
+                .map((g) => g.grammarStrWithoutName.value)
+                .join(", ")} rest=${prettierLexerRest(context.lexer)}`,
             );
           rollbackNames();
           return rejectedParserOutput;
