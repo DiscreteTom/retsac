@@ -24,14 +24,18 @@ export class Builder<ErrorType = string, Kinds extends string = never> {
     [kind in Append]: ActionSource<ErrorType> | ActionSource<ErrorType>[];
   }): Builder<ErrorType, Kinds | Append> {
     for (const kind in defs) {
-      const raw = defs[kind];
-      (this as Builder<ErrorType, Kinds | Append>).defs.push({
-        kind,
-        action:
-          raw instanceof Array
-            ? // use `reduce` to merge actions to optimize performance
-              Action.reduce(...raw)
-            : Action.from(raw),
+      const raw = defs[kind] as
+        | ActionSource<ErrorType>
+        | ActionSource<ErrorType>[];
+
+      // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
+      // because when we lex with expectation, we should evaluate actions one by one
+
+      (raw instanceof Array ? raw : [raw]).forEach((a) => {
+        (this as Builder<ErrorType, Kinds | Append>).defs.push({
+          kind,
+          action: Action.from(a),
+        });
       });
     }
     return this;
