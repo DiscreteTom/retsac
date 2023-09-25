@@ -63,15 +63,13 @@ export interface IParser<
   feed(input: string): this;
   /**
    * Try to yield an entry NT.
-   * Stop when the first entry NT is reduced.
+   * Stop when the first entry NT is reduced and follow match(or reach EOF).
    */
   readonly parse: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
   /**
    * Try to reduce till the parser can't accept more.
-   * This is useful if your entry NT can also be reduced by other rules.
+   * This is useful if your entry NT can be further reduced.
    */
-  // TODO: is there any diff between parse & parseAll?
-  // since we will check entry NT's follow now
   readonly parseAll: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
   /**
    * Accumulated error AST nodes.
