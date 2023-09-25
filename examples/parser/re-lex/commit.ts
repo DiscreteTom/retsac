@@ -1,28 +1,22 @@
-// import { Lexer, ELR } from "../../../src";
+import { Lexer, ELR } from "../../../src";
 
-// const lexer = new Lexer.Builder()
-//   .ignore(Lexer.whitespaces())
-//   .define({
-//     // define types with the same rule
-//     // so the parser will not be able to distinguish them
-//     a: /\w+/,
-//     b: /\w+/,
-//     c: /\w+/,
-//   })
-//   .build();
+const lexer = new Lexer.Builder()
+  .ignore(Lexer.whitespaces())
+  .define({ num: Lexer.numericLiteral() })
+  .anonymous(...Lexer.exactArray("-", "--"))
+  .build();
 
-// export const config = {
-//   commitA: true,
-//   rejectA: true,
-// };
-
-// export const { parser } = new ELR.ParserBuilder()
-//   .define(
-//     { entry: "a" },
-//     ELR.commit(() => config.commitA),
-//     ELR.rejecter(() => config.rejectA),
-//   )
-//   .define({ entry: `b` }, ELR.commit())
-//   .define({ entry: `c` })
-//   .entry("entry")
-//   .build(lexer.clone(), { checkAll: true });
+export const { parser } = new ELR.AdvancedBuilder()
+  .define(
+    // the first rule will be tried first
+    { exp: `num '-'` },
+    ELR.commit(), // once commit, re-lex won't overwrite the result
+  )
+  .define({ exp: `exp '-'` })
+  .define({ exp: `num '--' num` })
+  .entry("exp")
+  .build({
+    lexer,
+    checkAll: true,
+    // debug: true,
+  });

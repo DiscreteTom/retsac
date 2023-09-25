@@ -1,21 +1,29 @@
-// import { parser, someState } from "./re-lex";
+import { parser, result } from "./re-lex";
 
-// test("re-lex", () => {
-//   const res = parser.parseAll("2--1");
-//   expect(res.accept).toBe(true);
+test("re-lex", () => {
+  const res = parser.parseAll("1--1");
+  expect(res.accept).toBe(true);
 
-//   if (res.accept) {
-//     expect(res.buffer.length).toBe(1);
-//     expect(res.buffer[0].data!).toBe(3);
-//   }
-// });
+  if (res.accept) {
+    expect(res.buffer.length).toBe(1);
+    expect(parser.lexer.getRest()).toBe("");
+  }
+});
 
-// test("rollback", () => {
-//   parser.reset().feed("2--1");
-//   parser.parse(); // first parse, `exp--1`
-//   parser.parse(); // second parse, `exp1`
-//   expect(someState).toBe(1);
-//   parser.parseAll(); // parse all, re-lex, should rollback
-//   expect(someState).toBe(0);
-// });
-// TODO
+test("rollback", () => {
+  let res = parser.reset().parseAll("1--");
+  expect(res.accept).toBe(true);
+  if (res.accept) {
+    expect(res.buffer.length).toBe(1);
+    expect(parser.lexer.getRest()).toBe("");
+  }
+  expect(result.value).toBe(1); // callback should be called without rollback
+
+  res = parser.reset().parseAll("1--1"); // re-lex, rollback should be called
+  expect(res.accept).toBe(true);
+  if (res.accept) {
+    expect(res.buffer.length).toBe(1);
+    expect(parser.lexer.getRest()).toBe("");
+  }
+  expect(result.value).toBe(0);
+});
