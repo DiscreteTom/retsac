@@ -46,8 +46,6 @@ export class DFA<
       Kinds,
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
     >,
-    // TODO: remove this? this is not used during runtime
-    // maybe other vars are not used too?
     public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
     public readonly followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
     private readonly candidates: ReadonlyCandidateRepo<
