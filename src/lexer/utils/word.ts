@@ -13,6 +13,15 @@ export function exact<ErrorType = string>(
 }
 
 /**
+ * Return a list of actions that match a list of strings exactly, ***NO LOOKAHEAD***.
+ */
+export function exactArray<ErrorType = string>(
+  ...ss: readonly string[]
+): Action<ErrorType>[] {
+  return ss.map((s) => exact(s));
+}
+
+/**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
 export function word<ErrorType = string>(
@@ -28,6 +37,15 @@ export function word<ErrorType = string>(
         return word;
     return 0;
   });
+}
+
+/**
+ * Return a list of actions that match a list of words, lookahead one char to ensure there is a word boundary or end of input.
+ */
+export function wordArray<ErrorType = string>(
+  ...words: readonly string[]
+): Action<ErrorType>[] {
+  return words.map((s) => word(s));
 }
 
 /**

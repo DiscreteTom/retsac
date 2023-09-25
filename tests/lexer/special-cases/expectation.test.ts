@@ -3,7 +3,7 @@ import { Lexer } from "../../../src";
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
   .anonymous(Lexer.exact("-", "--")) // one action, will only be evaluated once
-  .anonymous(Lexer.exact("+"), Lexer.exact("++")) // two actions, will be evaluated twice
+  .anonymous(...Lexer.exactArray("+", "++")) // two actions, will be evaluated twice
   .build();
 
 test("expectation with one action", () => {

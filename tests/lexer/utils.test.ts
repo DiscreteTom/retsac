@@ -58,6 +58,17 @@ test("lexer utils exact", () => {
   expect(lexer.reset().lex("  1234")?.content).toBe("123");
 });
 
+test("lexer utils exactArray", () => {
+  const actions = Lexer.exactArray("123", "456");
+  expect(actions.length).toBe(2);
+
+  const lexer = new Lexer.Builder().anonymous(...actions).build();
+  expect(lexer.reset().lex("123")?.content).toBe("123");
+  expect(lexer.reset().lex("123456")?.content).toBe("123");
+  expect(lexer.reset().lex("456")?.content).toBe("456");
+  expect(lexer.reset().lex("456123")?.content).toBe("456");
+});
+
 test("lexer utils word", () => {
   const lexer = new Lexer.Builder()
     .ignore(whitespaces())
@@ -75,6 +86,19 @@ test("lexer utils word", () => {
   expect(lexer.reset().lex("  123")?.content).toBe("123");
   expect(lexer.reset().lex("  1234")?.content).toBe(undefined);
   expect(lexer.reset().lex("  123 ")?.content).toBe("123");
+});
+
+test("lexer utils wordArray", () => {
+  const actions = Lexer.wordArray("123", "456");
+  expect(actions.length).toBe(2);
+
+  const lexer = new Lexer.Builder().anonymous(...actions).build();
+  expect(lexer.reset().lex("123")?.content).toBe("123");
+  expect(lexer.reset().lex("123 123")?.content).toBe("123");
+  expect(lexer.reset().lex("123123")?.content).toBe(undefined);
+  expect(lexer.reset().lex("456")?.content).toBe("456");
+  expect(lexer.reset().lex("456 456")?.content).toBe("456");
+  expect(lexer.reset().lex("456456")?.content).toBe(undefined);
 });
 
 test("lexer utils wordType", () => {
