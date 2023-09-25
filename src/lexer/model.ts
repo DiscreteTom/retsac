@@ -146,6 +146,7 @@ export interface ILexer<ErrorType, Kinds extends string> {
 /**
  * ReadonlyILexer's states won't be changed.
  */
+// TODO: rename to IReadonlyLexer
 export type ReadonlyILexer<ErrorType, Kinds extends string> = Omit<
   ILexer<ErrorType, Kinds>,
   "reset" | "feed" | "take" | "takeUntil" | "lexAll" | "trimStart"
