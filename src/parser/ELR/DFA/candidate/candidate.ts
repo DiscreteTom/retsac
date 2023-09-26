@@ -14,7 +14,7 @@ import type {
   GrammarRepo,
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
-import type { ReadonlyFollowSets } from "../first-follow-sets";
+import type { ReadonlyFollowSets } from "../model";
 import {
   cascadeASTNodeSelectorFactory,
   cascadeASTNodeFirstMatchSelectorFactory,

@@ -21,7 +21,7 @@ import type {
   CandidateRepo,
   ReadonlyCandidateRepo,
 } from "../candidate";
-import type { ReadonlyFollowSets } from "../first-follow-sets";
+import type { ReadonlyFollowSets } from "../model";
 import { lexGrammar, map2serializable, prettierLexerRest } from "../utils";
 import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
 

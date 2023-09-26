@@ -20,10 +20,7 @@ import type {
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
 import type { StateRepo } from "./state";
-import type {
-  ReadonlyFirstSets,
-  ReadonlyFollowSets,
-} from "./first-follow-sets";
+import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
 
 export function getAllNTClosure<
   ASTData,
