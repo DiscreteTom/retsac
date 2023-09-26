@@ -87,33 +87,57 @@ function getUserUnresolvedConflicts<
   );
 
   // collect resolved next & calculate unresolved next
-  const resolvedNext = [] as Grammar<Kinds | LexerKinds>[];
+  const resolvedNext = [] as {
+    grammar: Grammar<Kinds | LexerKinds>;
+    /**
+     * If `undefined`, the accepter is a function.
+     */
+    accepter: boolean | undefined;
+  }[];
   let resolveAll = false;
+  /**
+   * If `undefined`, the accepter is a function.
+   */
+  let acceptAll: boolean | undefined = undefined;
   related.forEach((r) => {
     if (r.next == "*") {
       resolveAll = true;
       resolvedNext.length = 0; // clear
+      acceptAll = typeof r.accepter == "boolean" ? r.accepter : undefined;
     } else if (!resolveAll)
-      r.next.grammars.forEach((n) => resolvedNext.push(n));
+      r.next.grammars.forEach((n) =>
+        resolvedNext.push({
+          grammar: n,
+          accepter: typeof r.accepter == "boolean" ? r.accepter : undefined,
+        }),
+      );
   });
   const unresolvedNext = resolveAll
     ? new GrammarSet<Kinds | LexerKinds>()
-    : next.filter((n) => !resolvedNext.some((rn) => n.equalWithoutName(rn)));
+    : next.filter(
+        (n) => !resolvedNext.some((rn) => n.equalWithoutName(rn.grammar)),
+      );
 
   if (debug) {
     if (resolveAll)
-      // TODO: print `accept` if it is a boolean
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-        }] ${reducerRule} vs ${anotherRule} next: *`,
+        }] ${reducerRule} vs ${anotherRule} next: *, accepter: ${
+          acceptAll == undefined ? "[function]" : acceptAll
+        }`,
       );
     if (resolvedNext.length > 0)
       logger(
         `[user resolved ${
           type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
         }] ${reducerRule} vs ${anotherRule} next: ${resolvedNext
-          .map((g) => g.grammarStrWithoutName.value)
+          .map(
+            (g) =>
+              `${g.grammar.grammarStrWithoutName.value}(${
+                g.accepter == undefined ? "[function]" : g.accepter
+              })`,
+          )
           .join(" ")}`,
       );
     if (unresolvedNext.grammars.size > 0)
