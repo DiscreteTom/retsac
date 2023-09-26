@@ -24,7 +24,6 @@ export function exactArray<ErrorType = string>(
 /**
  * Define kinds which name is the same as its literal value.
  */
-// TODO: check kind name when build
 export function exactKind<ErrorType = string, Kinds extends string = never>(
   ...ss: readonly Kinds[]
 ): {
