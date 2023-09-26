@@ -22,7 +22,7 @@ export type BuildOptions<
    * Declare top-level NT's.
    * This is required for ELR parser.
    */
-  entry: Kinds | Kinds[];
+  entry: Kinds | readonly Kinds[];
   lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Which format to generate resolvers.
