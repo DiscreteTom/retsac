@@ -22,6 +22,25 @@ export function exactArray<ErrorType = string>(
 }
 
 /**
+ * Define kinds which name is the same as its literal value.
+ */
+// TODO: add test
+// TODO: check kind name when build
+export function exactKind<ErrorType = string, Kinds extends string = never>(
+  ...ss: readonly Kinds[]
+): {
+  [kind in Kinds]: Action<ErrorType>;
+} {
+  const result: { [kind: string]: Action<ErrorType> } = {};
+  for (const s of ss) {
+    result[s] = exact(s);
+  }
+  return result as {
+    [kind in Kinds]: Action<ErrorType>;
+  };
+}
+
+/**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
 export function word<ErrorType = string>(
