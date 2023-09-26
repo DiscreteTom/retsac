@@ -10,7 +10,6 @@ import {
 } from "../model";
 import { CandidateRepo } from "./candidate";
 import type {
-  FirstSets,
   FollowSets,
   ReadonlyFirstSets,
   ReadonlyFollowSets,
@@ -21,6 +20,7 @@ import {
   getAllNTClosure,
   calculateAllStates,
   processDefinitions,
+  buildFirstSets,
 } from "./utils";
 
 export class DFABuilder {
@@ -99,21 +99,10 @@ export class DFABuilder {
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 
-    const NTClosures = getAllNTClosure(NTs, grs);
+    const NTClosures = getAllNTClosure(NTs, grs); // TODO: make NTClosures readonly
 
     // construct first sets for all NTs
-    // TODO: split logic into a separate function and add tests
-    const firstSets = new Map<
-      Kinds,
-      GrammarSet<Kinds | LexerKinds>
-    >() as FirstSets<Kinds, LexerKinds>;
-    NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
-    NTClosures.forEach((grs, NT) => {
-      const gs = firstSets.get(NT);
-      // for each direct/indirect grammar rule, add first grammar to first set
-      // including T and NT since we are using NT closures
-      grs.forEach((gr) => gs!.add(gr.rule[0]));
-    });
+    const firstSets = buildFirstSets(NTs, NTClosures);
 
     // construct follow sets for all grammars
     // TODO: split logic into a separate function and add tests

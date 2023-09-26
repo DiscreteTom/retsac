@@ -20,6 +20,7 @@ import type {
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
 import type { StateRepo } from "./state";
+import type { ReadonlyFirstSets } from "./first-follow-sets";
 
 export function getAllNTClosure<
   ASTData,
@@ -406,4 +407,30 @@ export function prettierLexerRest(lexer: IReadonlyLexer<unknown, string>) {
       ? `...${lexer.buffer.length - lexer.digested - showLength} more chars`
       : ""
   }`;
+}
+
+export function buildFirstSets<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+>(
+  NTs: ReadonlySet<Kinds>,
+  NTClosures: Map<
+    Kinds,
+    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+  >,
+) {
+  const firstSets = new Map<Kinds, GrammarSet<Kinds | LexerKinds>>();
+
+  NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
+  NTClosures.forEach((grs, NT) => {
+    const gs = firstSets.get(NT);
+    // for each direct/indirect grammar rule, add first grammar to first set
+    // including T and NT since we are using NT closures
+    grs.forEach((gr) => gs!.add(gr.rule[0]));
+  });
+
+  return firstSets as ReadonlyFirstSets<Kinds, LexerKinds>;
 }
