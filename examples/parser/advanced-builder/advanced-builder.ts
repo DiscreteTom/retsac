@@ -32,9 +32,11 @@ export const builder = new ELR.AdvancedBuilder()
   .define({ exp: `exp '+' exp` })
   .priority({ exp: `exp '+' exp` });
 
+export const entry = "fn_def" as const;
+
 export const { parser } = builder.build({
   lexer,
-  entry: "fn_def",
+  entry,
   // use the cached data to speed up
   // this is recommended in production
   hydrate: cache,

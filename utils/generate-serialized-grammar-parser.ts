@@ -1,5 +1,8 @@
 import { writeFileSync } from "fs";
-import { grammarParserFactory } from "../src/parser/ELR/advanced/utils/grammar-parser-factory";
+import {
+  grammarParserFactory,
+  entry,
+} from "../src/parser/ELR/advanced/utils/grammar-parser-factory";
 import prettier from "prettier";
 import util from "node:util";
 
@@ -9,6 +12,7 @@ import util from "node:util";
 const { lexer, parserBuilder } = grammarParserFactory("__");
 const { serializable } = parserBuilder.build({
   lexer,
+  entry,
   checkAll: true,
   serialize: true,
 });

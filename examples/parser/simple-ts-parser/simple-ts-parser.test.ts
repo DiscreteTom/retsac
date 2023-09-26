@@ -1,5 +1,5 @@
 import { loadCache } from "../utils/parser-data-gen-common";
-import { lexer, builder } from "./simple-ts-parser";
+import { lexer, builder, entry } from "./simple-ts-parser";
 import { readFileSync } from "fs";
 
 const { cache } = loadCache("./examples/parser/simple-ts-parser/dfa.json");
@@ -13,6 +13,7 @@ test("simple-ts-parser", () => {
 
   const { parser } = builder.build({
     lexer,
+    entry,
     checkAll: true,
     hydrate: cache,
     ignoreEntryFollow: true,

@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { lexer, builder } from "./advanced-builder";
+import { lexer, builder, entry } from "./advanced-builder";
 
 const cache = readFileSync(
   "./examples/parser/advanced-builder/dfa.mmd",
@@ -7,6 +7,6 @@ const cache = readFileSync(
 );
 
 test("serialize", () => {
-  const { mermaid } = builder.build({ lexer, mermaid: true });
+  const { mermaid } = builder.build({ lexer, entry, mermaid: true });
   expect(mermaid).toBe(cache);
 });

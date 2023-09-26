@@ -96,7 +96,6 @@ export const builder = new ELR.AdvancedBuilder()
       `import '{' identifier (',' identifier)* '}' from string ';'`,
     ],
   })
-  // .entry("import_stmt", "stmt", "export_stmt")
   .priority(
     // ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence#table
     { exp: `exp '?'? '.' identifier` },
@@ -134,3 +133,5 @@ export const builder = new ELR.AdvancedBuilder()
     { object: `"{" "}"` },
     { next: "*", accept: true },
   );
+
+export const entry = ["import_stmt", "stmt", "export_stmt"] as const;

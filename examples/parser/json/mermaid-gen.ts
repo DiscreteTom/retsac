@@ -1,6 +1,6 @@
 import { generateMermaidFile } from "../utils/mermaid-gen-common";
-import { lexer, builder } from "./json";
+import { lexer, builder, entry } from "./json";
 
 // Usage: ts-node examples/parser/json/mermaid-gen.ts
 
-generateMermaidFile(builder, lexer, "./examples/parser/json/dfa.mmd");
+generateMermaidFile(builder, lexer, entry, "./examples/parser/json/dfa.mmd");

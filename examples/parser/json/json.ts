@@ -51,9 +51,11 @@ export const builder = new ELR.AdvancedBuilder()
     }),
   );
 
+export const entry = "value" as const;
+
 export const { parser } = builder.build({
   lexer,
-  entry: "value",
+  entry,
   // use the cached data to speed up
   // this is recommended in production
   hydrate: cache,

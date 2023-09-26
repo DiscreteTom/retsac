@@ -48,9 +48,11 @@ export const builder = new ELR.ParserBuilder<number>()
     [{ exp: `exp '+' exp` }, { exp: `exp '-' exp` }], // lowest priority
   );
 
+export const entry = "exp" as const;
+
 export const { parser } = builder.build({
   lexer,
-  entry: "exp",
+  entry,
   // use the cached data to speed up
   // this is recommended in production
   hydrate: cache,

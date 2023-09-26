@@ -13,8 +13,9 @@ function generateSerializable<
 >(
   builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  entry: Kinds | readonly Kinds[],
 ) {
-  const { serializable } = builder.build({ lexer, serialize: true });
+  const { serializable } = builder.build({ lexer, entry, serialize: true });
   return serializable;
 }
 
@@ -33,8 +34,9 @@ export function generateParserDataString<
 >(
   builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  entry: Kinds | readonly Kinds[],
 ) {
-  const serializable = generateSerializable(builder, lexer);
+  const serializable = generateSerializable(builder, lexer, entry);
   return stringify(serializable);
 }
 
@@ -49,9 +51,10 @@ export function generateParserDataFile<
 >(
   builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  entry: Kinds | readonly Kinds[],
   path: string,
 ) {
-  const dfaStr = generateParserDataString(builder, lexer);
+  const dfaStr = generateParserDataString(builder, lexer, entry);
 
   writeFileSync(path, dfaStr);
 }

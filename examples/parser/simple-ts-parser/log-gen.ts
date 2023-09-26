@@ -1,11 +1,12 @@
 import { readFileSync } from "fs";
-import { lexer, builder } from "./simple-ts-parser";
+import { lexer, builder, entry } from "./simple-ts-parser";
 
 // Usage: ts-node examples/parser/simple-ts-parser/log-gen.ts
 // you'd better redirect the output to a file
 
 const { parser } = builder.build({
   lexer,
+  entry,
   debug: true,
   checkAll: true,
   ignoreEntryFollow: true,
