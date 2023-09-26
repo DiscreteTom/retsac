@@ -98,7 +98,6 @@ export class AdvancedBuilder<
     >({
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     });
-    builder.entry(...this.entryNTs);
 
     // expand definitions in data
     const toBeLoaded = [] as ParserBuilderData<

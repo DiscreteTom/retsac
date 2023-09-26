@@ -59,7 +59,6 @@ export class ParserBuilder<
     LexerKinds,
     LexerError
   >[] = [];
-  protected readonly entryNTs: Set<Kinds>;
   /**
    * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
    * You can also customize this.
@@ -73,7 +72,6 @@ export class ParserBuilder<
      */
     cascadeQueryPrefix?: string;
   }) {
-    this.entryNTs = new Set();
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
@@ -92,20 +90,6 @@ export class ParserBuilder<
       Kinds,
       LexerKinds | AppendLexerKinds,
       LexerError | AppendLexerError
-    >;
-  }
-
-  entry(
-    ...defs: Kinds[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
-    this.entryNTs.clear();
-    defs.forEach((d) => this.entryNTs.add(d));
-    return this as IParserBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError
     >;
   }
 
@@ -168,6 +152,7 @@ export class ParserBuilder<
   }
 
   private buildDFA<AppendLexerKinds extends string, AppendLexerError>(
+    entryNTs: ReadonlySet<Kinds>,
     lexer: ILexer<AppendLexerError, AppendLexerKinds>,
     printAll: boolean,
     debug: boolean,
@@ -176,7 +161,7 @@ export class ParserBuilder<
     reLex: boolean,
     ignoreEntryFollow: boolean,
   ) {
-    if (this.entryNTs.size == 0) {
+    if (entryNTs.size == 0) {
       const e = new NoEntryNTError();
       if (printAll) logger(e.message);
       else throw e;
@@ -187,7 +172,6 @@ export class ParserBuilder<
     // build the DFA
     const {
       grs,
-      entryNTs,
       entryState,
       NTClosures,
       firstSets,
@@ -205,7 +189,7 @@ export class ParserBuilder<
     >(
       repo,
       lexer,
-      this.entryNTs,
+      entryNTs,
       this.data as ParserBuilderData<
         ASTData,
         ErrorType,
@@ -310,7 +294,7 @@ export class ParserBuilder<
     });
 
     // calculate and store conflicts in grs, they will be used during parsing
-    appendConflicts(repo, this.entryNTs, grs, dfa, debug, logger);
+    appendConflicts(repo, entryNTs, grs, dfa, debug, logger);
 
     // update conflicts with related resolvers
     grs.grammarRules.forEach((reducerRule) => {
@@ -352,10 +336,15 @@ export class ParserBuilder<
     const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
     const lexer = options.lexer;
 
+    const entryNTs = new Set(
+      options.entry instanceof Array ? options.entry : [options.entry],
+    ) as ReadonlySet<Kinds>;
+
     // hydrate or build dfa
     const { dfa, NTs, grs } =
       options.hydrate == undefined
         ? this.buildDFA(
+            entryNTs,
             lexer,
             printAll,
             debug,
@@ -377,14 +366,7 @@ export class ParserBuilder<
 
     // check symbols first
     if (options.checkAll || options.checkSymbols)
-      checkSymbols(
-        this.entryNTs,
-        NTs,
-        lexer.getTokenKinds(),
-        grs,
-        printAll,
-        logger,
-      );
+      checkSymbols(entryNTs, NTs, lexer.getTokenKinds(), grs, printAll, logger);
 
     // deal with conflicts
     if (
@@ -663,7 +645,7 @@ export class ParserBuilder<
       //   data: this.data.map((d) => ({
       //     defs: d.defs,
       //   })),
-      //   entryNTs: [...this.entryNTs],
+      //   entryNTs: [...entryNTs],
       //   resolvedTemp: this.resolvedTemp.map((r) => ({
       //     reducerRule: r.reducerRule.toStringWithGrammarName(),
       //     anotherRule: r.anotherRule.toStringWithGrammarName(),

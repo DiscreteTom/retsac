@@ -117,7 +117,6 @@ export function grammarParserFactory(placeholderPrefix: string) {
         return [...result];
       }),
     )
-    .use(applyResolvers)
-    .entry("gr");
+    .use(applyResolvers);
   return { parserBuilder, lexer, placeholderMap };
 }

@@ -98,7 +98,6 @@ export class DFABuilder {
 
     return {
       grs,
-      entryNTs,
       entryState,
       NTClosures,
       firstSets,

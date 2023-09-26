@@ -18,6 +18,11 @@ export type BuildOptions<
 > = Partial<
   Pick<IParser<never, never, Kinds, LexerKinds, never>, "logger" | "debug">
 > & {
+  /**
+   * Declare top-level NT's.
+   * This is required for ELR parser.
+   */
+  entry: Kinds | Kinds[];
   lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Which format to generate resolvers.
@@ -96,14 +101,6 @@ export interface IParserBuilder<
   LexerError,
 > {
   /**
-   * Declare top-level NT's.
-   * This is required for ELR parser.
-   * You should call this only once. If you call this multiple times, the last one will be used.
-   */
-  entry(
-    ...defs: Kinds[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  /**
    * Define grammar rules.
    */
   define<Append extends string>(
@@ -120,6 +117,7 @@ export interface IParserBuilder<
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
    */
+  // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid
   build<AppendLexerKinds extends string, AppendLexerError>(
     options: BuildOptions<
       Kinds,

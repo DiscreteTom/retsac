@@ -32,6 +32,7 @@ export class GrammarExpander<
     this.placeholderMap = placeholderMap;
     this.parser = parserBuilder.build({
       lexer,
+      entry: "gr",
       hydrate: data,
       // for debug
       // debug: true,
