@@ -2,18 +2,8 @@ import type { ILexer } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
-import {
-  GrammarRule,
-  ReadonlyGrammarRuleRepo,
-  GrammarSet,
-  GrammarType,
-} from "../model";
+import { GrammarRule, ReadonlyGrammarRuleRepo } from "../model";
 import { CandidateRepo } from "./candidate";
-import type {
-  FollowSets,
-  ReadonlyFirstSets,
-  ReadonlyFollowSets,
-} from "./first-follow-sets";
 import { StateRepo } from "./state";
 import {
   getGrammarRulesClosure,
@@ -21,6 +11,7 @@ import {
   calculateAllStates,
   processDefinitions,
   buildFirstSets,
+  buildFollowSets,
 } from "./utils";
 
 export class DFABuilder {
@@ -100,54 +91,8 @@ export class DFABuilder {
     const entryState = allStates.addEntry(entryCandidates)!;
 
     const NTClosures = getAllNTClosure(NTs, grs); // TODO: make NTClosures readonly
-
-    // construct first sets for all NTs
     const firstSets = buildFirstSets(NTs, NTClosures);
-
-    // construct follow sets for all grammars
-    // TODO: split logic into a separate function and add tests
-    const followSets = new Map<
-      string,
-      GrammarSet<Kinds | LexerKinds>
-    >() as FollowSets<Kinds | LexerKinds>;
-    NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
-    grs.grammarRules.forEach((gr) => {
-      gr.rule.forEach((g, i, rule) => {
-        if (!followSets.has(g.kind)) {
-          // if g is a T (including literal), it might not have a follow set
-          // because we just init all follow sets only for NTs
-          // so now we init a new empty set for it
-          followSets.set(g.kind, new GrammarSet());
-        }
-        if (i < rule.length - 1) {
-          // next grammar exists, merge the current grammar's follow set with next grammar
-          const gs = followSets.get(g.kind)!;
-          gs.add(rule[i + 1]);
-          // if next grammar is also NT, merge with its first set
-          if (rule[i + 1].type == GrammarType.NT)
-            firstSets
-              .get(rule[i + 1].kind as Kinds)!
-              .grammars.forEach((g) => gs.add(g));
-        }
-      });
-    });
-    // the last grammar's follow set should merge with the target NT's follow set
-    // be ware: don't merge the target NT's follow set with the last grammar's follow set
-    // the last grammar's follow set should be a super set of the target NT's follow set, not vice versa
-    // TODO: add tests
-    while (true) {
-      let changed = false;
-
-      grs.grammarRules.forEach((gr) => {
-        followSets
-          .get(gr.NT)! // target NT's follow set
-          .grammars.forEach(
-            (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g)),
-          );
-      });
-
-      if (!changed) break;
-    }
+    const followSets = buildFollowSets(NTs, grs, firstSets);
 
     calculateAllStates(repo, grs, allStates, NTClosures, cs);
 
@@ -156,8 +101,8 @@ export class DFABuilder {
       entryNTs,
       entryState,
       NTClosures,
-      firstSets: firstSets as ReadonlyFirstSets<Kinds, LexerKinds>,
-      followSets: followSets as ReadonlyFollowSets<Kinds | LexerKinds>,
+      firstSets,
+      followSets,
       allStates,
       NTs,
       cs,

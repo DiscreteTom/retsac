@@ -20,7 +20,10 @@ import type {
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
 import type { StateRepo } from "./state";
-import type { ReadonlyFirstSets } from "./first-follow-sets";
+import type {
+  ReadonlyFirstSets,
+  ReadonlyFollowSets,
+} from "./first-follow-sets";
 
 export function getAllNTClosure<
   ASTData,
@@ -409,6 +412,9 @@ export function prettierLexerRest(lexer: IReadonlyLexer<unknown, string>) {
   }`;
 }
 
+/**
+ * Construct first sets for all NTs.
+ */
 export function buildFirstSets<
   ASTData,
   ErrorType,
@@ -433,4 +439,71 @@ export function buildFirstSets<
   });
 
   return firstSets as ReadonlyFirstSets<Kinds, LexerKinds>;
+}
+
+/**
+ * Construct follow sets for all grammars.
+ */
+export function buildFollowSets<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+>(
+  NTs: ReadonlySet<Kinds>,
+  grs: ReadonlyGrammarRuleRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError
+  >,
+  firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
+) {
+  const followSets = new Map<
+    Kinds | LexerKinds,
+    GrammarSet<Kinds | LexerKinds>
+  >();
+
+  NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
+  grs.grammarRules.forEach((gr) => {
+    gr.rule.forEach((g, i, rule) => {
+      if (!followSets.has(g.kind)) {
+        // if g is a T (including literal), it might not have a follow set
+        // because we just init all follow sets only for NTs
+        // so now we init a new empty set for it
+        followSets.set(g.kind, new GrammarSet());
+      }
+      if (i < rule.length - 1) {
+        // next grammar exists, merge the current grammar's follow set with next grammar
+        const gs = followSets.get(g.kind)!;
+        gs.add(rule[i + 1]);
+        // if next grammar is also NT, merge with its first set
+        if (rule[i + 1].type == GrammarType.NT)
+          firstSets
+            .get(rule[i + 1].kind as Kinds)!
+            .grammars.forEach((g) => gs.add(g));
+      }
+    });
+  });
+  // the last grammar's follow set should merge with the target NT's follow set
+  // be ware: don't merge the target NT's follow set with the last grammar's follow set
+  // the last grammar's follow set should be a super set of the target NT's follow set, not vice versa
+  // TODO: add tests
+  while (true) {
+    let changed = false;
+
+    grs.grammarRules.forEach((gr) => {
+      followSets
+        .get(gr.NT)! // target NT's follow set
+        .grammars.forEach(
+          (g) => (changed ||= followSets.get(gr.rule.at(-1)!.kind)!.add(g)),
+        );
+    });
+
+    if (!changed) break;
+  }
+
+  return followSets as ReadonlyFollowSets<Kinds | LexerKinds>;
 }
