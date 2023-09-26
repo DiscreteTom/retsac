@@ -41,7 +41,7 @@
   - **_Breaking Change_**: `IParserBuilder.build` with `checkAll` will also check if there is any rollback functions if rollback is disabled.
     - Add `checkRollback` for `IParserBuilder.build`.
   - **_Breaking Change_**: `IParserBuilder.entry` will check kinds.
-  - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable }`.
+  - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable, mermaid }`.
   - **_Breaking Change_**: remove `IParserBuilder.leftSA/rightSA`, enhance the `IParserBuilder.priority` to support left-to-right or right-to-left associativity.
   - **_Breaking Change_**: entry NT's follow set will also be checked during parsing.
     - Add `BuildOptions.ignoreEntryFollow` to override the behaviour.
