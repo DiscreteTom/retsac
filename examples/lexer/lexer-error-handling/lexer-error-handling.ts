@@ -22,10 +22,9 @@ export const lexer = new Lexer.Builder()
   // when you are working with parser, lexer's rejection is an important signal
   // for the parser, so we shouldn't define a fallback rule.
   .ignore(
-    Lexer.Action.from(/./).then(({ content }) =>
-      // print some logs
-      console.log(`eat "${content}" as a fallback`),
-    ),
+    Lexer.Action.from(/./),
+    // print some logs
+    // .then(({ content }) => console.log(`eat "${content}" as a fallback`)),
   )
   .build();
 
