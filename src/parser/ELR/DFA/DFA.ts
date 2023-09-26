@@ -193,31 +193,25 @@ export class DFA<
 
       const res = this.tryReduce(parsingState, reLexStack, rollbackStack);
 
-      if (res == "continue") continue;
-
-      let possibility: Exclude<typeof res, "continue" | "reject">;
-
-      if (res == "reject") {
+      if (!res.accept) {
+        if (res.continue) continue; // try to digest more input
         return { output: rejectedParserOutput, lexer: parsingState.lexer };
-      } else {
-        possibility = res;
       }
 
-      if (possibility.commit) {
+      if (res.commit) {
         commitParser();
       } else {
         // update rollback stack
         if (this.rollback)
           rollbackStack.push({
-            rollback: possibility.rollback,
-            context: possibility.context,
+            rollback: res.rollback,
+            context: res.context,
           });
       }
-      const reduced =
-        parsingState.buffer.length - possibility.buffer.length + 1; // how many nodes are digested
+      const reduced = parsingState.buffer.length - res.buffer.length + 1; // how many nodes are digested
       parsingState.index -= reduced - 1; // digest n, generate 1
-      parsingState.buffer = possibility.buffer;
-      parsingState.errors.push(...possibility.errors);
+      parsingState.buffer = res.buffer;
+      parsingState.errors.push(...res.errors);
       for (let i = 0; i < reduced; ++i) parsingState.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
       if (
@@ -350,7 +344,7 @@ export class DFA<
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
         this._reLex(parsingState, reLexStack, rollbackStack);
-        return "continue"; // TODO: use enum?
+        return { accept: false, continue: true } as const;
       } else {
         // no more candidate can be constructed, parsing failed
         if (this.debug)
@@ -359,7 +353,7 @@ export class DFA<
               -1,
             )} Candidates:\n${parsingState.stateStack.at(-1)!.str}`,
           );
-        return "reject";
+        return { accept: false, continue: false } as const;
       }
     }
 
@@ -383,7 +377,7 @@ export class DFA<
     // rejected
     if (!res.accept) {
       parsingState.index++;
-      return "continue"; // try to digest more
+      return { accept: false, continue: true } as const; // try to digest more
     }
     // else, accepted
 
