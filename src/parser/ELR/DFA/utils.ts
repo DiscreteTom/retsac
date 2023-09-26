@@ -1,4 +1,4 @@
-import type { ILexer, ReadonlyILexer } from "../../../lexer";
+import type { ILexer, IReadonlyLexer } from "../../../lexer";
 import type { StringOrLiteral } from "../../../type-helper";
 import type {
   ASTNodeSelector,
@@ -193,7 +193,7 @@ export function lexGrammar<
   LexerError,
 >(
   g: Grammar<Kinds | LexerKinds>,
-  roLexer: ReadonlyILexer<LexerError, LexerKinds>,
+  roLexer: IReadonlyLexer<LexerError, LexerKinds>,
 ):
   | {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
@@ -397,7 +397,7 @@ export function serializable2map<K extends string, V, R>(
  * Return a string to represent the rest of the lexer.
  * This is used for debugging.
  */
-export function prettierLexerRest(lexer: ReadonlyILexer<unknown, string>) {
+export function prettierLexerRest(lexer: IReadonlyLexer<unknown, string>) {
   const showLength = 30;
   return `${JSON.stringify(
     lexer.buffer.slice(lexer.digested, lexer.digested + showLength),

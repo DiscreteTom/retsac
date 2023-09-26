@@ -1,4 +1,4 @@
-import type { ILexer, ReadonlyILexer } from "../../../../lexer";
+import type { ILexer, IReadonlyLexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { ASTNode } from "../../../ast";
 import type {
@@ -178,7 +178,7 @@ export class State<
    * Return all the possible results after deduplication.
    */
   tryLex(
-    lexer: ReadonlyILexer<LexerError, LexerKinds>,
+    lexer: IReadonlyLexer<LexerError, LexerKinds>,
     debug: boolean,
     logger: Logger,
   ): {
@@ -250,7 +250,7 @@ export class State<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
-    lexer: ReadonlyILexer<LexerError, LexerKinds>,
+    lexer: IReadonlyLexer<LexerError, LexerKinds>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,

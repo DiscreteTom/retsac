@@ -1,4 +1,4 @@
-import type { ReadonlyILexer } from "../../../lexer";
+import type { IReadonlyLexer } from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type {
   ASTNodeChildrenSelector,
@@ -45,7 +45,7 @@ export class GrammarRuleContext<
    * Current lexer state.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
    */
-  readonly lexer: ReadonlyILexer<LexerError, LexerKinds>;
+  readonly lexer: IReadonlyLexer<LexerError, LexerKinds>;
   /**
    * Data of the result AST node.
    * You can set this field, and if the grammar rule is accepted,

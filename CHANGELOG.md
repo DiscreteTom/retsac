@@ -20,7 +20,7 @@
   - Feat: add `Lexer.utils.regexLiteral`. [#15](https://github.com/DiscreteTom/retsac/issues/15)
   - Feat: add `ILexer.lex.peek`.
   - Feat: typed lexer. [#17](https://github.com/DiscreteTom/retsac/issues/17)
-  - Feat: add `ReadonlyILexer`.
+  - Feat: add `IReadonlyLexer`.
   - Feat: add utils `exactArray/wordArray`.
   - Fix: actions won't be merged into one when calling `Builder.define/anonymous/ignore`. This will fix expectational lexing behaviour.
 - Parser

@@ -1,4 +1,4 @@
-import type { ReadonlyILexer } from "../../../../lexer";
+import type { IReadonlyLexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
@@ -48,7 +48,7 @@ export class TempGrammar {
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: ReadonlyILexer<LexerError, LexerKinds>,
+    lexer: IReadonlyLexer<LexerError, LexerKinds>,
     printAll: boolean,
     logger: Logger,
     isNT = true,

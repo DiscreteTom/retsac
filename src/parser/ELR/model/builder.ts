@@ -1,4 +1,4 @@
-import type { ILexer, ReadonlyILexer } from "../../../lexer";
+import type { ILexer, IReadonlyLexer } from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -205,9 +205,7 @@ export interface IParserBuilder<
    * So this function is only useful in TypeScript.
    */
   useLexer<AppendLexerKinds extends string, AppendLexerError>(
-    lexer:
-      | ILexer<AppendLexerError, AppendLexerKinds>
-      | ReadonlyILexer<AppendLexerError, AppendLexerKinds>,
+    lexer: IReadonlyLexer<AppendLexerError, AppendLexerKinds>,
   ): IParserBuilder<
     ASTData,
     ErrorType,

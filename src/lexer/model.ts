@@ -19,17 +19,20 @@ export type Definition<ErrorType, Kinds extends string> = {
   action: Action<ErrorType>;
 };
 
-export interface ILexer<ErrorType, Kinds extends string> {
+/**
+ * ReadonlyILexer's states won't be changed.
+ */
+export interface IReadonlyLexer<ErrorType, Kinds extends string> {
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
    */
-  debug: boolean;
+  get debug(): boolean;
   /**
    * The logger used when `debug` is `true`.
    * Default: `console.log`.
    */
-  logger: Logger;
+  get logger(): Logger;
   /**
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
@@ -49,10 +52,6 @@ export interface ILexer<ErrorType, Kinds extends string> {
    */
   get lineChars(): readonly number[];
   /**
-   * Reset the lexer's state, only keep the definitions.
-   */
-  reset(): this;
-  /**
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
@@ -68,55 +67,22 @@ export interface ILexer<ErrorType, Kinds extends string> {
     debug?: boolean;
     logger?: Logger;
   }): ILexer<ErrorType, Kinds>;
-  /** Append buffer with input. */
-  feed(input: string): this;
-  /**
-   * Take `n` chars from the rest of buffer and update state.
-   * This is useful when you have external logic to handle the token (e.g. error handling).
-   */
-  take(n?: number): string;
-  /**
-   * Take chars from the rest of buffer and update state until `pattern` matches.
-   * The pattern will be included in the result.
-   * This is useful when you have external logic to handle the token (e.g. error handling).
-   */
-  takeUntil(
-    pattern: string | RegExp,
-    options?: {
-      /**
-       * Auto add the `global` flag to the regex if `g` and 'y' is not set.
-       * Default: `true`.
-       */
-      autoGlobal?: boolean;
-    },
-  ): string;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
    * You can provide `expect` to limit the token kind/content to be accepted.
    */
   lex(
-    input?:
-      | string
-      | Readonly<{
-          input?: string;
-          expect?: Readonly<{
-            kind?: string;
-            text?: string;
-          }>;
-          /**
-           * If `true`, the lexer will not update its state.
-           * Default: `false`.
-           */
-          peek?: boolean;
-        }>,
+    input: Readonly<{
+      input?: string;
+      expect?: Readonly<{
+        kind?: string;
+        text?: string;
+      }>;
+      // readonly lex, must set peek to true
+      peek: true;
+    }>,
   ): Token<ErrorType, Kinds> | null;
-  /**
-   * Try to retrieve a token list exhaustively.
-   */
-  lexAll(
-    input?: string | { input?: string; stopOnError?: boolean },
-  ): Token<ErrorType, Kinds>[];
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
@@ -143,26 +109,56 @@ export interface ILexer<ErrorType, Kinds extends string> {
   hasErrors(): boolean;
 }
 
-/**
- * ReadonlyILexer's states won't be changed.
- */
-// TODO: rename to IReadonlyLexer
-export type ReadonlyILexer<ErrorType, Kinds extends string> = Omit<
-  ILexer<ErrorType, Kinds>,
-  "reset" | "feed" | "take" | "takeUntil" | "lexAll" | "trimStart"
-> & {
-  get debug(): boolean;
-  get logger(): Logger;
-  readonly errors: readonly Readonly<Token<ErrorType, Kinds>>[];
-  // readonly lex, must set peek to true
+export interface ILexer<ErrorType, Kinds extends string>
+  extends IReadonlyLexer<ErrorType, Kinds> {
+  set debug(value: boolean);
+  set logger(value: Logger);
+  /**
+   * Reset the lexer's state, only keep the definitions.
+   */
+  reset(): this;
+  /** Append buffer with input. */
+  feed(input: string): this;
+  /**
+   * Take `n` chars from the rest of buffer and update state.
+   * This is useful when you have external logic to handle the token (e.g. error handling).
+   */
+  take(n?: number): string;
+  /**
+   * Take chars from the rest of buffer and update state until `pattern` matches.
+   * The pattern will be included in the result.
+   * This is useful when you have external logic to handle the token (e.g. error handling).
+   */
+  takeUntil(
+    pattern: string | RegExp,
+    options?: {
+      /**
+       * Auto add the `global` flag to the regex if `g` and 'y' is not set.
+       * Default: `true`.
+       */
+      autoGlobal?: boolean;
+    },
+  ): string;
   lex(
-    input: Readonly<{
-      input?: string;
-      expect?: Readonly<{
-        kind?: string;
-        text?: string;
-      }>;
-      peek: true;
-    }>,
+    input?:
+      | string
+      | Readonly<{
+          input?: string;
+          expect?: Readonly<{
+            kind?: string;
+            text?: string;
+          }>;
+          /**
+           * If `true`, the lexer will not update its state.
+           * Default: `false`.
+           */
+          peek?: boolean;
+        }>,
   ): Token<ErrorType, Kinds> | null;
-};
+  /**
+   * Try to retrieve a token list exhaustively.
+   */
+  lexAll(
+    input?: string | { input?: string; stopOnError?: boolean },
+  ): Token<ErrorType, Kinds>[];
+}
