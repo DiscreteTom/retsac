@@ -20,7 +20,11 @@ import type {
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
 import type { StateRepo } from "./state";
-import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
+import type {
+  ReadonlyFirstSets,
+  ReadonlyFollowSets,
+  ReadonlyNTClosures,
+} from "./model";
 
 export function getAllNTClosure<
   ASTData,
@@ -37,10 +41,7 @@ export function getAllNTClosure<
     LexerKinds,
     LexerError
   >,
-): Map<
-  Kinds,
-  GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
-> {
+): ReadonlyNTClosures<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
   const result = new Map<
     Kinds,
     GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
@@ -239,9 +240,12 @@ export function calculateAllStates<
     LexerError
   >,
   allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  NTClosures: Map<
+  NTClosures: ReadonlyNTClosures<
+    ASTData,
+    ErrorType,
     Kinds,
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+    LexerKinds,
+    LexerError
   >,
   cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
 ) {
@@ -420,9 +424,12 @@ export function buildFirstSets<
   LexerError,
 >(
   NTs: ReadonlySet<Kinds>,
-  NTClosures: Map<
+  NTClosures: ReadonlyNTClosures<
+    ASTData,
+    ErrorType,
     Kinds,
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+    LexerKinds,
+    LexerError
   >,
 ) {
   const firstSets = new Map<Kinds, GrammarSet<Kinds | LexerKinds>>();

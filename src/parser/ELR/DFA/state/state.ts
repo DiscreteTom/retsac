@@ -21,7 +21,7 @@ import type {
   CandidateRepo,
   ReadonlyCandidateRepo,
 } from "../candidate";
-import type { ReadonlyFollowSets } from "../model";
+import type { ReadonlyFollowSets, ReadonlyNTClosures } from "../model";
 import { lexGrammar, map2serializable, prettierLexerRest } from "../utils";
 import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
 
@@ -67,9 +67,12 @@ export class State<
   generateNext(
     repo: GrammarRepo<Kinds | LexerKinds>,
     next: Readonly<ASTNode<never, never, Kinds | LexerKinds>>,
-    NTClosures: ReadonlyMap<
-      string,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+    NTClosures: ReadonlyNTClosures<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
     >,
     allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,

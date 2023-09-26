@@ -90,7 +90,7 @@ export class DFABuilder {
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 
-    const NTClosures = getAllNTClosure(NTs, grs); // TODO: make NTClosures readonly
+    const NTClosures = getAllNTClosure(NTs, grs);
     const firstSets = buildFirstSets(NTs, NTClosures);
     const followSets = buildFollowSets(NTs, grs, firstSets);
 

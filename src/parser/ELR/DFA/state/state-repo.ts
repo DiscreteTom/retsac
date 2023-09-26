@@ -1,4 +1,4 @@
-import type { Candidate } from "..";
+import type { Candidate, ReadonlyNTClosures } from "..";
 import { State } from "..";
 import type { Grammar, GrammarRepo, GrammarRule } from "../../model";
 import { GrammarType } from "../../model";
@@ -77,9 +77,12 @@ export class StateRepo<
   addNext(
     current: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     grammar: Grammar<Kinds | LexerKinds>,
-    NTClosures: ReadonlyMap<
-      string,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+    NTClosures: ReadonlyNTClosures<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
     >,
     cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
   ) {
@@ -92,11 +95,11 @@ export class StateRepo<
         if (
           c.canDigestMore() &&
           c.current!.type == GrammarType.NT &&
-          !p.includes(c.current!.kind)
+          !p.includes(c.current!.kind as Kinds)
         )
-          p.push(c.current!.kind);
+          p.push(c.current!.kind as Kinds);
         return p;
-      }, [] as string[]) // de-duplicated NT list
+      }, [] as Kinds[]) // de-duplicated NT list
       .reduce(
         (p, c) => {
           NTClosures.get(c)!.forEach((gr) => {

@@ -3,12 +3,15 @@ import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
-import type { GrammarRule } from "../model";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ParsingState, ReLexState, RollbackState } from "../model";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
-import type { ReadonlyFirstSets, ReadonlyFollowSets } from "./model";
+import type {
+  ReadonlyFirstSets,
+  ReadonlyFollowSets,
+  ReadonlyNTClosures,
+} from "./model";
 import type { ReadonlyStateRepo, State } from "./state";
 import { StateRepo } from "./state";
 import {
@@ -43,9 +46,12 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    private readonly NTClosures: ReadonlyMap<
+    private readonly NTClosures: ReadonlyNTClosures<
+      ASTData,
+      ErrorType,
       Kinds,
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+      LexerKinds,
+      LexerError
     >,
     public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
     public readonly followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
