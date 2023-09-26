@@ -328,8 +328,10 @@ export class Candidate<
                 : r.accepter)
             ) {
               reject = true;
-              break; // stop check resolvers
             }
+            // we only check the first matched resolver
+            // stop checking resolvers
+            break;
           }
         }
         if (reject) break;
