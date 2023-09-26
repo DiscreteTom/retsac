@@ -3,7 +3,7 @@ import type { IParser } from "../../../model";
 import type { Definition, RS_ResolverOptions } from "../../builder";
 import { InvalidGrammarRuleError } from "../error";
 import type { PlaceholderMap } from "./grammar-parser-factory";
-import { grammarParserFactory } from "./grammar-parser-factory";
+import { grammarParserFactory, entry } from "./grammar-parser-factory";
 import { data } from "./serialized-grammar-parser-data";
 
 export class GrammarExpander<
@@ -32,7 +32,7 @@ export class GrammarExpander<
     this.placeholderMap = placeholderMap;
     this.parser = parserBuilder.build({
       lexer,
-      entry: "gr",
+      entry,
       hydrate: data,
       // for debug
       // debug: true,

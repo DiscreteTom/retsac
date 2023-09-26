@@ -120,3 +120,5 @@ export function grammarParserFactory(placeholderPrefix: string) {
     .use(applyResolvers);
   return { parserBuilder, lexer, placeholderMap };
 }
+
+export const entry = "gr" as const;
