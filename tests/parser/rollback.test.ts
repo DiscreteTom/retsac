@@ -9,7 +9,10 @@ test("Ensure no rollback if rollback is disabled", () => {
         { test: `a b | a b c` },
         rollback(() => ""),
       )
-      .entry("test")
-      .build({ lexer: new Lexer.Builder().build(), checkRollback: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: "test",
+        checkRollback: true,
+      });
   }).toThrow(RollbackDefinedWhileNotEnabledError);
 });

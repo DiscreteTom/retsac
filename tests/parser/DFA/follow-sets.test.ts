@@ -9,9 +9,9 @@ test("build follow sets", () => {
       B: `b`,
       D: `d`,
     })
-    .entry("entry")
     .build({
       lexer: new Lexer.Builder().define(Lexer.exactKind("a", "b", "d")).build(),
+      entry: "entry",
       serialize: true,
     });
 

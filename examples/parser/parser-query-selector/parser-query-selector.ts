@@ -28,5 +28,4 @@ export const { parser } = new ELR.ParserBuilder()
       returnType = $$("identifier")[1].text!;
     }),
   )
-  .entry("fn_def")
-  .build(lexer);
+  .build({ lexer, entry: "fn_def" });

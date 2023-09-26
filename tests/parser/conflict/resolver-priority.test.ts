@@ -23,9 +23,9 @@ test("no resolver", () => {
       .define({ exp: `num` })
       .define({ exp: `num num` })
       .define({ exp: `exp num` })
-      .entry("exp")
       .build({
         lexer: lexer.dryClone(),
+        entry: "exp",
         checkAll: true,
         // debug: true,
       })
@@ -48,9 +48,9 @@ test("2 in grammar rule context, accept", () => {
       ELR.callback(() => (result = 2)),
     )
     .define({ exp: `exp num` })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })
@@ -72,9 +72,9 @@ test("2 in grammar rule context, reject", () => {
       ELR.callback(() => (result = 2)),
     )
     .define({ exp: `exp num` })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })
@@ -97,9 +97,9 @@ test("2 in builder, accept", () => {
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })
@@ -121,9 +121,9 @@ test("2 in builder, reject", () => {
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })
@@ -146,9 +146,9 @@ test("1 in grammar rule context, 1 in builder, accept", () => {
     )
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })
@@ -170,9 +170,9 @@ test("1 in grammar rule context, 1 in builder, reject", () => {
     )
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
-    .entry("exp")
     .build({
       lexer: lexer.dryClone(),
+      entry: "exp",
       checkAll: true,
       // debug: true,
     })

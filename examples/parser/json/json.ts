@@ -49,11 +49,11 @@ export const builder = new ELR.AdvancedBuilder()
       result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
       return result;
     }),
-  )
-  .entry("value");
+  );
 
 export const { parser } = builder.build({
   lexer,
+  entry: "value",
   // use the cached data to speed up
   // this is recommended in production
   hydrate: cache,

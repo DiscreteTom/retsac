@@ -14,9 +14,9 @@ export const { parser } = new ELR.AdvancedBuilder()
   )
   .define({ exp: `exp '-'` })
   .define({ exp: `num '--' num` })
-  .entry("exp")
   .build({
     lexer,
+    entry: "exp",
     checkAll: true,
     // debug: true,
   });

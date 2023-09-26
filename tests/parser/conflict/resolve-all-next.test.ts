@@ -8,8 +8,11 @@ test("Use '*' as next in RS conflict", () => {
         test: `a b | a b c`,
         test2: `test c`,
       })
-      .entry("test", "test2")
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test", "test2"],
+        checkConflicts: true,
+      });
   }).toThrow(`Unresolved R-S conflict`);
   // resolved
   expect(() => {
@@ -18,9 +21,12 @@ test("Use '*' as next in RS conflict", () => {
         test: `a b | a b c`,
         test2: `test c`,
       })
-      .entry("test", "test2")
       .resolveRS({ test: `a b` }, { test: `a b c` }, { next: `*` })
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test", "test2"],
+        checkConflicts: true,
+      });
   }).not.toThrow(`Unresolved R-S conflict`);
 
   // advanced builder should auto generate resolvers using '*' as the next
@@ -30,8 +36,11 @@ test("Use '*' as next in RS conflict", () => {
         test: `a b c?`,
         test2: `test c`,
       })
-      .entry("test", "test2")
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test", "test2"],
+        checkConflicts: true,
+      });
   }).not.toThrow(`Unresolved R-S conflict`);
 });
 
@@ -43,8 +52,11 @@ test("Use '*' as next in RR conflict", () => {
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
-      .entry("entry")
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: "entry",
+        checkConflicts: true,
+      });
   }).toThrow(`Unresolved R-R conflict`);
   // resolved
   expect(() => {
@@ -53,13 +65,16 @@ test("Use '*' as next in RR conflict", () => {
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
-      .entry("test")
       .resolveRR(
         { test: `a b c` },
         { test: `b c` },
         { next: `*`, handleEnd: true },
       )
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test"],
+        checkConflicts: true,
+      });
   }).not.toThrow(`Unresolved R-R conflict`);
 
   // advanced builder should auto generate resolvers using '*'
@@ -69,7 +84,10 @@ test("Use '*' as next in RR conflict", () => {
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
-      .entry("test")
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test"],
+        checkConflicts: true,
+      });
   }).not.toThrow(`Unresolved R-R conflict`);
 });

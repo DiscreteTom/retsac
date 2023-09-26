@@ -30,11 +30,11 @@ export const builder = new ELR.AdvancedBuilder()
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })
   .define({ exp: `exp '+' exp` })
-  .priority({ exp: `exp '+' exp` })
-  .entry("fn_def");
+  .priority({ exp: `exp '+' exp` });
 
 export const { parser } = builder.build({
   lexer,
+  entry: "fn_def",
   // use the cached data to speed up
   // this is recommended in production
   hydrate: cache,

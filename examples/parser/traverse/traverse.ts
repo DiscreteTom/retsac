@@ -50,8 +50,7 @@ export const { parser } = new ELR.ParserBuilder<number>()
     { exp: `exp '+' exp` },
     { next: `'+'`, accept: true },
   )
-  .entry("stmts")
-  .build({ lexer, checkAll: true });
+  .build({ lexer, entry: "stmts", checkAll: true });
 
 export const { parser: parser2 } = new ELR.ParserBuilder<number>()
   .define(
@@ -81,5 +80,4 @@ export const { parser: parser2 } = new ELR.ParserBuilder<number>()
     // get the value of the variable from the map
     ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
-  .entry("fn_def_stmt")
-  .build({ lexer, checkAll: true });
+  .build({ lexer, entry: "fn_def_stmt", checkAll: true });

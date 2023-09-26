@@ -11,7 +11,10 @@ test("Terminator's follow sets are needed", () => {
         test: `a b | a b c`,
         test2: `test c`,
       })
-      .entry("test", "test2")
-      .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+      .build({
+        lexer: new Lexer.Builder().build(),
+        entry: ["test", "test2"],
+        checkConflicts: true,
+      });
   }).toThrow(`Unresolved R-S conflict`);
 });

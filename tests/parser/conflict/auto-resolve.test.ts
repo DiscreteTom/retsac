@@ -8,8 +8,11 @@ test.each([`a b c?`, `a b c*`, `a b c+`, `a? b c d?`])(
         .define({
           test: gr,
         })
-        .entry("test")
-        .build({ lexer: new Lexer.Builder().build(), checkConflicts: true });
+        .build({
+          lexer: new Lexer.Builder().build(),
+          entry: "test",
+          checkConflicts: true,
+        });
     }).not.toThrow(`Unresolved R-S conflict`);
   },
 );

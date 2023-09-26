@@ -9,9 +9,9 @@ test("build first sets", () => {
       B: `b`,
       D: `d`,
     })
-    .entry("entry")
     .build({
       lexer: new Lexer.Builder().define(Lexer.wordKind(..."abd")).build(),
+      entry: "entry",
       serialize: true,
     });
 

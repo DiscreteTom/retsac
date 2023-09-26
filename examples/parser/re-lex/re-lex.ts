@@ -19,7 +19,11 @@ export const { parser } = new ELR.AdvancedBuilder()
   )
   .define({ exp: `exp '-'` })
   .define({ exp: `num '--' num` })
-  .entry("exp")
   // IMPORTANT: set `rollback` to `true` to enable rollback functions
   // otherwise, rollback functions will not be called to improve performance
-  .build({ lexer, checkAll: true, rollback: true });
+  .build({
+    lexer,
+    entry: "exp",
+    checkAll: true,
+    rollback: true,
+  });
