@@ -1,6 +1,7 @@
 import { Lexer } from "../../src";
 import {
   exact,
+  exactKind,
   fromTo,
   stringLiteral,
   whitespaces,
@@ -69,6 +70,16 @@ test("lexer utils exactArray", () => {
   expect(lexer.reset().lex("456123")?.content).toBe("456");
 });
 
+test("lexer utils exactKind", () => {
+  const lexer = new Lexer.Builder()
+    .ignore(whitespaces())
+    .define(exactKind("123"))
+    .build();
+
+  expect(lexer.reset().lex("123")?.kind).toBe("123");
+  expect(lexer.reset().lex("123456")?.kind).toBe("123");
+});
+
 test("lexer utils word", () => {
   const lexer = new Lexer.Builder()
     .ignore(whitespaces())
@@ -101,13 +112,14 @@ test("lexer utils wordArray", () => {
   expect(lexer.reset().lex("456456")?.content).toBe(undefined);
 });
 
-test("lexer utils wordType", () => {
+test("lexer utils wordKind", () => {
   const lexer = new Lexer.Builder()
     .ignore(whitespaces())
     .define(wordKind("123"))
     .build();
 
   expect(lexer.reset().lex("123")?.kind).toBe("123");
+  expect(lexer.reset().lex("123123")?.kind).toBe(undefined);
 });
 
 test("lexer utils stringLiteral", () => {
