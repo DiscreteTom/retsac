@@ -17,6 +17,7 @@ export type FollowSets<AllKinds extends string> = Map<
 >;
 
 /**
+ * `NT => Grammars`
  * @see {@link FirstSets}
  */
 export type ReadonlyFirstSets<
@@ -25,6 +26,7 @@ export type ReadonlyFirstSets<
 > = ReadonlyMap<Kinds, GrammarSet<Kinds | LexerKinds>>;
 
 /**
+ * `grammar.kind => Grammars`
  * @see {@link FollowSets}
  */
 export type ReadonlyFollowSets<AllKinds extends string> = ReadonlyMap<
