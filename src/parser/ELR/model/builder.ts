@@ -88,7 +88,6 @@ export type BuildOptions<
    * @default false
    */
   // TODO: rename this to a more intuitive name
-  // TODO: add tests for this
   ignoreEntryFollow?: boolean;
   // TODO: autoCommitEntry?
 };
