@@ -85,7 +85,6 @@ export function grammarParserFactory(placeholderPrefix: string) {
     .define(
       { gr: `gr '+'` },
       // keep the `gr+`, we use a placeholder to represent it
-      // TODO: add tests for `gr+`
       traverser(({ children }) => [
         placeholderMap.add(
           children[0].traverse()!.filter((s) => s.length != 0),
