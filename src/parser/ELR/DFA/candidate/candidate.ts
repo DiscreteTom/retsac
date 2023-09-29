@@ -231,7 +231,10 @@ export class Candidate<
       if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
         // entry NT, no need to check follow set if `ignoreEntryFollow` is set
         // e.g. when we parse `int a; int b;`, we don't need to check follow set for `;`
+        // TODO: if the entry NT's follow set is empty, can we ignore the next check and accept it directly?
       } else {
+        // not entry NT, or not ignore entry follow(treat the entry NT as normal NT)
+
         let mismatch = true; // if follow mismatch, reject
         for (const [_, g] of followSets.get(this.gr.NT)!.grammars) {
           if (
