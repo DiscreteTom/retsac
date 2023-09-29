@@ -94,10 +94,9 @@ export function grammarParserFactory(placeholderPrefix: string) {
     )
     .define(
       { gr: `gr '|' gr` },
-      // merge the two possibility lists
+      // merge the two possibility lists, deduplicate
       traverser(({ children }) => [
-        ...children[0].traverse()!,
-        ...children[2].traverse()!,
+        ...new Set([...children[0].traverse()!, ...children[2].traverse()!]),
       ]),
     )
     .define(
