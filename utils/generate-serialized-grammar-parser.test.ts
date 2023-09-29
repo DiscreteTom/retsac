@@ -1,4 +1,7 @@
-import { grammarParserFactory } from "../src/parser/ELR/advanced/utils/grammar-expander";
+import {
+  grammarParserFactory,
+  entry,
+} from "../src/parser/ELR/advanced/utils/grammar-parser-factory";
 import { data } from "../src/parser/ELR/advanced/utils/serialized-grammar-parser-data";
 
 test("generate serialized grammar parser", async () => {
@@ -6,6 +9,7 @@ test("generate serialized grammar parser", async () => {
   const { lexer, parserBuilder } = grammarParserFactory("__");
   const { serializable } = parserBuilder.build({
     lexer,
+    entry,
     checkAll: true,
     serialize: true,
   });

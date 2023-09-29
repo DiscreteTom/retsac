@@ -1,7 +1,7 @@
-import { ELR, Lexer } from "../../../src";
+import { ELR, Lexer, Logger } from "../../../src";
 
 test("re-lex with expectation", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
 
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
@@ -29,7 +29,7 @@ test("re-lex with expectation", () => {
 });
 
 test("disable re-lex", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
 
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())

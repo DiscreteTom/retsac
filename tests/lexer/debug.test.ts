@@ -1,7 +1,7 @@
-import { Lexer } from "../../src";
+import { Lexer, Logger, jsonLogger } from "../../src";
 
 test("lexer debug lex", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact(..."+-*/()"))
@@ -66,7 +66,7 @@ test("lexer debug lex", () => {
 });
 
 test("lexer debug trimStart", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact("!"))
@@ -107,20 +107,20 @@ test("lexer debug trimStart", () => {
 });
 
 test("lexer clone with debug", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
   const lexer = new Lexer.Builder().build({ debug: true, logger });
   expect(lexer.clone().debug).toBe(true); // inherit debug
   expect(lexer.clone({ debug: false }).debug).toBe(false); // override debug
   expect(lexer.clone({ debug: true }).debug).toBe(true); // override debug
-  expect(lexer.clone({ logger: console.log }).logger).toBe(console.log); // override logger
+  expect(lexer.clone({ logger: jsonLogger }).logger).toBe(jsonLogger); // override logger
   expect(lexer.dryClone().debug).toBe(true); // dry clone also inherit debug
   expect(lexer.dryClone({ debug: true }).debug).toBe(true); // override debug
   expect(lexer.dryClone({ debug: false }).debug).toBe(false); // override debug
-  expect(lexer.dryClone({ logger: console.log }).logger).toBe(console.log); // override logger
+  expect(lexer.dryClone({ logger: jsonLogger }).logger).toBe(jsonLogger); // override logger
 });
 
 test("lexer debug takeUntil", () => {
-  const logger = jest.fn();
+  const logger = new Logger({ printer: jest.fn() });
   const lexer = new Lexer.Builder().build({ debug: true, logger });
 
   lexer.reset().feed("123").takeUntil("3");
