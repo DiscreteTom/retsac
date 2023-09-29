@@ -3,6 +3,7 @@
 ## v0.12.0
 
 - **_Breaking Changes_**: rename `type` to `kind`.
+- **_Breaking Change_**: rewrite `Logger`, add `defaultLogger` and `jsonLogger`. [#9](https://github.com/DiscreteTom/retsac/issues/9)
 - Lexer
   - **_Breaking Change_**: `ActionExec` will take `ActionInput` as the input. [#6](https://github.com/DiscreteTom/retsac/issues/6)
     - Rename `ActionAcceptedOutput` to `AcceptedActionOutput`, and make it a class, rewrite its logics.
