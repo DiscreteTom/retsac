@@ -119,49 +119,55 @@ function getUserUnresolvedConflicts<
       );
 
   if (debug) {
-    if (resolveAll)
+    if (resolveAll) {
+      const info = {
+        reducerRule: reducerRule.toString(),
+        anotherRule: anotherRule.toString(),
+        next: "*",
+        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        accepter: acceptAll == undefined ? "[function]" : acceptAll,
+      };
       logger.log({
-        entity: "parser",
-        message: "user resolved",
-        raw: {
-          "reducer rule": reducerRule.toString(),
-          "another rule": anotherRule.toString(),
-          next: "*",
-          type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
-        },
-        info: {
-          accepter: acceptAll == undefined ? "[function]" : acceptAll,
-        },
+        entity: "Parser",
+        message: `user resolved ${info.type}: ${info.reducerRule} vs ${info.anotherRule}, next: ${info.next}, accept: ${info.accepter}`,
+        info,
       });
-    if (resolvedNext.length > 0)
+    }
+    if (resolvedNext.length > 0) {
+      const info = {
+        reducerRule: reducerRule.toString(),
+        anotherRule: anotherRule.toString(),
+        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        next: resolvedNext.map((g) => ({
+          grammar: g.grammar.toString(),
+          accepter: g.accepter == undefined ? "[function]" : g.accepter,
+        })),
+      };
       logger.log({
-        entity: "parser",
-        message: "user resolved",
-        raw: {
-          "reducer rule": reducerRule.toString(),
-          "another rule": anotherRule.toString(),
-          type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
-        },
-        info: {
-          next: resolvedNext.map((g) => ({
-            grammar: g.grammar.toString(),
-            accepter: g.accepter == undefined ? "[function]" : g.accepter,
-          })),
-        },
+        entity: "Parser",
+        message: `user resolved ${info.type}: ${info.reducerRule} vs ${
+          info.anotherRule
+        }, next: ${info.next
+          .map((n) => `${n.grammar}(${n.accepter})`)
+          .join(", ")}`,
+        info,
       });
-    if (unresolvedNext.grammars.size > 0)
+    }
+    if (unresolvedNext.grammars.size > 0) {
+      const info = {
+        reducerRule: reducerRule.toString(),
+        anotherRule: anotherRule.toString(),
+        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        next: unresolvedNext.map((g) => g.toString()),
+      };
       logger.log({
-        entity: "parser",
-        message: "unresolved",
-        raw: {
-          "reducer rule": reducerRule.toString(),
-          "another rule": anotherRule.toString(),
-          type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
-        },
-        info: {
-          next: unresolvedNext.map((g) => g.toString()),
-        },
+        entity: "Parser",
+        message: `unresolved ${info.type}: ${info.reducerRule} vs ${
+          info.anotherRule
+        }, next: ${info.next.join(", ")}'`,
+        info,
       });
+    }
   }
 
   // check end
@@ -179,24 +185,17 @@ function getUserUnresolvedConflicts<
       unresolvedEnd = true;
     }
     if (debug) {
-      if (unresolvedEnd)
+      if (unresolvedEnd) {
+        const info = {
+          reducerRule: reducerRule.toString(),
+          anotherRule: anotherRule.toString(),
+        };
         logger.log({
-          entity: "parser",
-          message: "unresolved RR (end of input)",
-          raw: {
-            "reducer rule": reducerRule.toString(),
-            "another rule": anotherRule.toString(),
-          },
+          entity: "Parser",
+          message: `unresolved RR (end of input): ${info.reducerRule} vs ${info.anotherRule}`,
+          info,
         });
-      if (unresolvedNext.grammars.size > 0)
-        logger.log({
-          entity: "parser",
-          message: "user resolved RR (end of input)",
-          raw: {
-            "reducer rule": reducerRule.toString(),
-            "another rule": anotherRule.toString(),
-          },
-        });
+      }
     }
   }
 
@@ -256,15 +255,17 @@ export function appendConflicts<
           const overlap = AFollow.overlap(EFirst);
           if (overlap.grammars.size == 0) {
             // no overlap, conflicts can be auto resolved
-            if (debug)
+            if (debug) {
+              const info = {
+                reducerRule: reducerRule.toString(),
+                anotherRule: c.shifterRule.toString(),
+              };
               logger.log({
-                entity: "parser",
-                message: "auto resolve RS (no follow overlap)",
-                raw: {
-                  "reducer rule": reducerRule.toString(),
-                  "another rule": c.shifterRule.toString(),
-                },
+                entity: "Parser",
+                message: `auto resolve RS (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
+                info,
               });
+            }
             return;
           }
           // check states
@@ -276,15 +277,17 @@ export function appendConflicts<
             )
           ) {
             // no state contains both rules with the digestion condition, conflicts can be auto resolved
-            if (debug)
+            if (debug) {
+              const info = {
+                reducerRule: reducerRule.toString(),
+                anotherRule: c.shifterRule.toString(),
+              };
               logger.log({
-                entity: "parser",
-                message: "auto resolve RS (DFA state)",
-                raw: {
-                  "reducer rule": reducerRule.toString(),
-                  "another rule": c.shifterRule.toString(),
-                },
+                entity: "Parser",
+                message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
+                info,
               });
+            }
             return;
           }
 
@@ -309,15 +312,17 @@ export function appendConflicts<
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
-              if (debug)
+              if (debug) {
+                const info = {
+                  reducerRule: reducerRule.toString(),
+                  anotherRule: c.shifterRule.toString(),
+                };
                 logger.log({
-                  entity: "parser",
-                  message: "auto resolve RS (DFA state)",
-                  raw: {
-                    "reducer rule": reducerRule.toString(),
-                    "another rule": c.shifterRule.toString(),
-                  },
+                  entity: "Parser",
+                  message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
+                  info,
                 });
+              }
               return;
             }
 
@@ -343,15 +348,17 @@ export function appendConflicts<
               )
             ) {
               // no state contains both rules with the digestion condition, conflicts can be auto resolved
-              if (debug)
+              if (debug) {
+                const info = {
+                  reducerRule: reducerRule.toString(),
+                  anotherRule: c.shifterRule.toString(),
+                };
                 logger.log({
-                  entity: "parser",
-                  message: "auto resolve RS (DFA state)",
-                  raw: {
-                    "reducer rule": reducerRule.toString(),
-                    "another rule": c.shifterRule.toString(),
-                  },
+                  entity: "Parser",
+                  message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
+                  info,
                 });
+              }
               return;
             }
 
@@ -384,15 +391,17 @@ export function appendConflicts<
         const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
         if (overlap.grammars.size == 0) {
           // no overlap, all conflicts can be auto resolved
-          if (debug)
+          if (debug) {
+            const info = {
+              reducerRule: reducerRule.toString(),
+              anotherRule: anotherRule.toString(),
+            };
             logger.log({
-              entity: "parser",
-              message: "auto resolve RR (no follow overlap)",
-              raw: {
-                "reducer rule": reducerRule.toString(),
-                "another rule": anotherRule.toString(),
-              },
+              entity: "Parser",
+              message: `auto resolve RR (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
+              info,
             });
+          }
           return;
         }
         // check states
@@ -404,15 +413,17 @@ export function appendConflicts<
           )
         ) {
           // no state contains both rules with the digestion condition, conflicts can be auto resolved
-          if (debug)
+          if (debug) {
+            const info = {
+              reducerRule: reducerRule.toString(),
+              anotherRule: anotherRule.toString(),
+            };
             logger.log({
-              entity: "parser",
-              message: "auto resolve RR (DFA state)",
-              raw: {
-                "reducer rule": reducerRule.toString(),
-                "another rule": anotherRule.toString(),
-              },
+              entity: "Parser",
+              message: `auto resolve RR (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
+              info,
             });
+          }
           return;
         }
 

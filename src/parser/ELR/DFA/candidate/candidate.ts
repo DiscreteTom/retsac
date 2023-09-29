@@ -250,20 +250,22 @@ export class Candidate<
           }
         }
         if (mismatch) {
-          if (debug)
+          if (debug) {
+            const info = {
+              reducerRule: this.gr.toString(),
+              rest: prettierLexerRest(context.lexer),
+              follows: followSets
+                .get(this.gr.NT)!
+                .map((g) => g.grammarStrWithoutName.value),
+            };
             logger.log({
-              entity: "parser",
-              message: "follow mismatch",
-              raw: {
-                "reducer rule": this.gr.toString(),
-                rest: prettierLexerRest(context.lexer),
-              },
-              info: {
-                follows: followSets
-                  .get(this.gr.NT)!
-                  .map((g) => g.grammarStrWithoutName.value),
-              },
+              entity: "Parser",
+              message: `follow mismatch for reducer rule: ${
+                info.reducerRule
+              }, expect: ${info.follows.join(", ")}, rest: ${info.reducerRule}`,
+              info,
             });
+          }
           rollbackNames();
           return rejectedParserOutput;
         }
@@ -294,15 +296,17 @@ export class Candidate<
                 : r.accepter)
             ) {
               rollbackNames();
-              if (debug)
+              if (debug) {
+                const info = {
+                  reducerRule: this.gr.toString(),
+                  anotherRule: c.anotherRule.toString(),
+                };
                 logger.log({
-                  entity: "parser",
-                  message: "rejected by RR conflict (reach end)",
-                  raw: {
-                    "reducer rule": this.gr.toString(),
-                    "another rule": c.anotherRule.toString(),
-                  },
+                  entity: "Parser",
+                  message: `rejected by RR conflict (reach end): ${info.reducerRule} vs ${info.anotherRule}`,
+                  info,
                 });
+              }
               return rejectedParserOutput;
             }
             // else, accepted, continue
@@ -348,17 +352,19 @@ export class Candidate<
       }
       if (reject) {
         rollbackNames();
-        if (debug)
+        if (debug) {
+          const info = {
+            reducerRule: this.gr.toString(),
+            anotherRule: c.anotherRule.toString(),
+            type: c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS",
+            next: next!.grammarStrWithoutName.value,
+          };
           logger.log({
-            entity: "parser",
-            message: "rejected by conflict",
-            raw: {
-              "reducer rule": this.gr.toString(),
-              "another rule": c.anotherRule.toString(),
-              type: c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS",
-              next: next!.grammarStrWithoutName.value,
-            },
+            entity: "Parser",
+            message: `rejected by ${info.type} conflict: ${info.reducerRule} vs ${info.anotherRule}, next: ${info.next}`,
+            info,
           });
+        }
         return rejectedParserOutput;
       }
       // else, next not match, continue
@@ -366,14 +372,16 @@ export class Candidate<
 
     // check rejecter
     if (this.gr.rejecter?.(context) ?? false) {
-      if (debug)
+      if (debug) {
+        const info = {
+          reducerRule: this.gr.toString(),
+        };
         logger.log({
-          entity: "parser",
-          message: "rejected by rejecter",
-          raw: {
-            "reducer rule": this.gr.toString(),
-          },
+          entity: "Parser",
+          message: `rejected by rejecter: ${info.reducerRule}`,
+          info,
         });
+      }
       rollbackNames();
       return rejectedParserOutput;
     }
@@ -391,14 +399,16 @@ export class Candidate<
       firstMatchSelector,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
-    if (debug)
+    if (debug) {
+      const info = {
+        reducerRule: this.gr.toString(),
+      };
       logger.log({
-        entity: "parser",
-        message: "accepted",
-        raw: {
-          "reducer rule": this.gr.toString(),
-        },
+        entity: "Parser",
+        message: `accepted: ${info.reducerRule}`,
+        info,
       });
+    }
 
     return {
       accept: true,

@@ -74,14 +74,16 @@ export class GrammarExpander<
 
     const resultDef: Definition<Kinds> = {};
     resultDef[NT] = expanded;
-    if (debug)
+    if (debug) {
+      const info = {
+        grammarRule: `{ ${NT}: \`${expanded.join(" | ")}\` }`,
+      };
       logger.log({
-        entity: "parser",
-        message: "expanded",
-        raw: {
-          "grammar rule": `{ ${NT}: \`${expanded.join(" | ")}\` }`,
-        },
+        entity: "AdvancedBuilder",
+        message: `expanded: ${info.grammarRule}`,
+        info,
       });
+    }
     result.defs.push(resultDef);
 
     // auto resolve R-S conflict for generated grammar rules
@@ -105,19 +107,19 @@ export class GrammarExpander<
             // in most cases we want the `+*?` to be greedy
             options: { next: "*", accept: false },
           });
-          if (debug)
+          if (debug) {
+            const info = {
+              reducerRule: `{ ${NT}: \`${reducerRule}\` }`,
+              anotherRule: `{ ${NT}: \`${anotherRule}\` }`,
+              next: "*",
+              accept: false,
+            };
             logger.log({
-              entity: "parser",
-              message: "generated RS resolver",
-              raw: {
-                "reducer rule": `{ ${NT}: \`${reducerRule}\` }`,
-                "another rule": `{ ${NT}: \`${anotherRule}\` }`,
-                next: "*",
-              },
-              info: {
-                accept: false,
-              },
+              entity: "AdvancedBuilder",
+              message: `generated RS resolver: ${info.reducerRule} vs ${info.anotherRule}, next: *, accept: false`,
+              info,
             });
+          }
         });
       });
 
@@ -172,27 +174,27 @@ export class GrammarExpander<
       );
 
       if (debug) {
+        const info = {
+          grammarRule: `{ ${p}: \`${gr}\` }`,
+        };
         logger.log({
-          entity: "parser",
-          message: "generated placeholder grammar rule",
-          raw: {
-            "grammar rule": `{ ${p}: \`${gr}\` }`,
-          },
+          entity: "AdvancedBuilder",
+          message: `generated placeholder grammar rule: ${info.grammarRule}`,
+          info,
         });
-        gs.forEach((s) =>
+        gs.forEach((s) => {
+          const info = {
+            reducerRule: `{ ${p}: \`${s}\` }`,
+            anotherRule: `{ ${p}: \`${s} ${p}\` }`,
+            next: "*",
+            accept: false,
+          };
           logger.log({
-            entity: "parser",
-            message: "generated RS resolver",
-            raw: {
-              "reducer rule": `{ ${p}: \`${s}\` }`,
-              "another rule": `{ ${p}: \`${s} ${p}\` }`,
-              next: "*",
-            },
-            info: {
-              accept: false,
-            },
-          }),
-        );
+            entity: "AdvancedBuilder",
+            message: `generated RS resolver: ${info.reducerRule} vs ${info.anotherRule}, next: *, accept: false`,
+            info,
+          });
+        });
       }
     });
 

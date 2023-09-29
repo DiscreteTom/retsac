@@ -139,22 +139,24 @@ export class DFA<
   ) {
     const targetState = reLexStack.pop()!;
 
-    if (this.debug)
+    if (this.debug) {
+      const info = {
+        trying: targetState.buffer.at(-1)!.toString(),
+        restored:
+          targetState.buffer.at(-1)!.text +
+          targetState.lexer.buffer.slice(
+            targetState.lexer.digested,
+            parsingState.lexer.digested,
+          ),
+      };
       this.logger.log({
-        entity: "parser",
-        message: "re-lex",
-        raw: {
-          trying: targetState.buffer.at(-1)!.toString(),
-        },
-        info: {
-          "restored input":
-            targetState.buffer.at(-1)!.text +
-            targetState.lexer.buffer.slice(
-              targetState.lexer.digested,
-              parsingState.lexer.digested,
-            ),
-        },
+        entity: "Parser",
+        message: `re-lex, restored: ${JSON.stringify(info.restored)}, trying: ${
+          info.trying
+        }`,
+        info,
       });
+    }
 
     // call rollbacks if rollback is enabled
     if (this.rollback) {
@@ -280,23 +282,26 @@ export class DFA<
     if (res.length == 0) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
-        if (this.debug)
+        if (this.debug) {
           this.logger.log({
-            entity: "parser",
+            entity: "Parser",
             message: "try lex: all candidates failed, try to re-lex",
           });
+        }
         this._reLex(parsingState, reLexStack, rollbackStack);
       } else {
         // no more ASTNode can be lexed, parsing failed
-        if (this.debug)
+        if (this.debug) {
+          const info = {
+            state: parsingState.stateStack.at(-1)!.toString(),
+            rest: prettierLexerRest(parsingState.lexer),
+          };
           this.logger.log({
-            entity: "parser",
-            message: "end: no matching token can be lexed",
-            raw: {
-              state: parsingState.stateStack.at(-1)!.toString(),
-              rest: prettierLexerRest(parsingState.lexer),
-            },
+            entity: "Parser",
+            message: `end: no matching token can be lexed, rest: ${info.rest}, state: \n${info.state}`,
+            info,
           });
+        }
         return false;
       }
     } else {
@@ -322,14 +327,16 @@ export class DFA<
         parsingState.buffer = parsingState.buffer.concat(res[0].node);
         parsingState.lexer = res[0].lexer;
       }
-      if (this.debug)
+      if (this.debug) {
+        const info = {
+          apply: parsingState.buffer.at(-1)!.toString(),
+        };
         this.logger.log({
-          entity: "parser",
-          message: "try lex: apply",
-          raw: {
-            apply: parsingState.buffer.at(-1)!.toString(),
-          },
+          entity: "Parser",
+          message: `try lex: apply ${info.apply}`,
+          info,
         });
+      }
     }
 
     return true;
@@ -363,15 +370,17 @@ export class DFA<
         return { accept: false, continue: true } as const;
       } else {
         // no more candidate can be constructed, parsing failed
-        if (this.debug)
+        if (this.debug) {
+          const info = {
+            state: parsingState.stateStack.at(-1)!.toString(),
+            node: parsingState.buffer.at(parsingState.index)!.toString(),
+          };
           this.logger.log({
-            entity: "parser",
-            message: "end: no more candidate",
-            raw: {
-              state: parsingState.stateStack.at(-1)!.toString(),
-              node: parsingState.buffer.at(parsingState.index)!.toString(),
-            },
+            entity: "Parser",
+            message: `end: no more candidate, node: ${info.node}, state: \n${info.state}`,
+            info,
           });
+        }
         return { accept: false, continue: false } as const;
       }
     }

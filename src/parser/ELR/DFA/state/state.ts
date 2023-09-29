@@ -204,25 +204,27 @@ export class State<
         if (done.has(c.current.grammarStrWithoutName.value)) {
           if (debug) {
             const cache = done.get(c.current.grammarStrWithoutName.value);
-            if (cache)
+            if (cache) {
+              const info = {
+                candidate: c.toString(),
+                got: cache.strWithoutName.value,
+              };
               logger.log({
-                entity: "parser",
-                message: "try lex",
-                raw: {
-                  candidate: c.toString(),
-                  got: cache.strWithoutName.value,
-                },
+                entity: "Parser",
+                message: `try lex: got ${info.got} for candidate ${info.candidate} (cache hit)`,
+                info,
               });
-            // uncomment next line for more details
-            else
+            } else {
+              const info = {
+                candidate: c.toString(),
+                rest: prettierLexerRest(lexer),
+              };
               logger.log({
-                entity: "parser",
-                message: "try lex: failed",
-                raw: {
-                  candidate: c.toString(),
-                  rest: prettierLexerRest(lexer),
-                },
+                entity: "Parser",
+                message: `try lex: failed for candidate ${info.candidate} (cache hit), rest: ${info.rest}`,
+                info,
               });
+            }
           }
           return;
         }
@@ -236,25 +238,27 @@ export class State<
         done.set(c.current.grammarStrWithoutName.value, r?.node ?? null);
 
         if (debug) {
-          if (r != undefined)
+          if (r != undefined) {
+            const info = {
+              candidate: c.toString(),
+              got: r.node.strWithoutName.value,
+            };
             logger.log({
-              entity: "parser",
-              message: "try lex",
-              raw: {
-                candidate: c.toString(),
-                got: r.node.strWithoutName.value,
-              },
+              entity: "Parser",
+              message: `try lex: got ${info.got} for candidate ${info.candidate} (cache miss)`,
+              info: info,
             });
-          // uncomment next line for more details
-          else
+          } else {
+            const info = {
+              candidate: c.toString(),
+              rest: prettierLexerRest(lexer),
+            };
             logger.log({
-              entity: "parser",
-              message: "try lex: failed",
-              raw: {
-                candidate: c.toString(),
-                rest: prettierLexerRest(lexer),
-              },
+              entity: "Parser",
+              message: `try lex: failed for candidate ${info.candidate} (cache miss), rest: ${info.rest}`,
+              info,
             });
+          }
         }
         return r;
       })
@@ -286,14 +290,16 @@ export class State<
         commit: boolean;
         rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
       }) {
-    if (debug)
+    if (debug) {
+      const info = {
+        state: this.str,
+      };
       logger.log({
-        entity: "parser",
-        message: "try reduce",
-        raw: {
-          state: this.str,
-        },
+        entity: "Parser",
+        message: `try reduce, state: \n${info.state}`,
+        info,
       });
+    }
 
     for (const c of this.candidates) {
       const res = c.tryReduce(

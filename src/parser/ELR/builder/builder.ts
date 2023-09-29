@@ -163,7 +163,7 @@ export class ParserBuilder<
   ) {
     if (entryNTs.size == 0) {
       const e = new NoEntryNTError();
-      if (printAll) logger.log({ entity: "parser", message: e.message });
+      if (printAll) logger.log({ entity: "Parser", message: e.message });
       else throw e;
     }
 
@@ -227,7 +227,7 @@ export class ParserBuilder<
       if (!reducerRule) {
         const e = new GrammarRuleNotFoundError(r.reducerRule);
         if (printAll) {
-          logger.log({ entity: "parser", message: e.message });
+          logger.log({ entity: "Parser", message: e.message });
           return;
         } else throw e;
       }
@@ -235,7 +235,7 @@ export class ParserBuilder<
       if (!anotherRule) {
         const e = new GrammarRuleNotFoundError(r.anotherRule);
         if (printAll) {
-          logger.log({ entity: "parser", message: e.message });
+          logger.log({ entity: "Parser", message: e.message });
           return;
         } else throw e;
       }
