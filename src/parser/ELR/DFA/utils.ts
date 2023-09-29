@@ -259,6 +259,14 @@ export function calculateAllStates<
   // convert to mock AST node
   const mockNodes = gs.map((g) => g.mockNode.value);
 
+  // TODO: should we also convert entry-only NTs into ASTNodes?
+  // those entry-only NTs don't appear in grammar rules
+  // but when we enable ignoreEntryFollow, the entry-only NTs
+  // may appear as the first node in parser's buffer,
+  // and the `parser.parse` will throw StateCacheMissError.
+  // if we do convert entry-only NTs into ASTNodes,
+  // the `parser.parse` will just reject the input without throwing StateCacheMissError.
+
   while (true) {
     let changed = false;
     allStates.states.forEach((state) => {
