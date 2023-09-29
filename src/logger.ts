@@ -1,5 +1,3 @@
-// TODO: rename this file to log.ts
-
 export type LogData = {
   /**
    * Who is logging the message.
