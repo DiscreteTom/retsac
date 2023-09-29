@@ -205,16 +205,24 @@ export class State<
           if (debug) {
             const cache = done.get(c.current.grammarStrWithoutName.value);
             if (cache)
-              logger(
-                `[Try Lex] Got ${cache.strWithoutName.value} for candidate: ${c}`,
-              );
+              logger.log({
+                entity: "parser",
+                message: "try lex",
+                raw: {
+                  candidate: c.toString(),
+                  got: cache.strWithoutName.value,
+                },
+              });
             // uncomment next line for more details
             else
-              logger(
-                `[Try Lex] Failed for candidate: ${c}, rest: ${prettierLexerRest(
-                  lexer,
-                )}`,
-              );
+              logger.log({
+                entity: "parser",
+                message: "try lex: failed",
+                raw: {
+                  candidate: c.toString(),
+                  rest: prettierLexerRest(lexer),
+                },
+              });
           }
           return;
         }
@@ -229,16 +237,24 @@ export class State<
 
         if (debug) {
           if (r != undefined)
-            logger(
-              `[Try Lex] Got ${r.node.strWithoutName.value} for candidate: ${c}`,
-            );
+            logger.log({
+              entity: "parser",
+              message: "try lex",
+              raw: {
+                candidate: c.toString(),
+                got: r.node.strWithoutName.value,
+              },
+            });
           // uncomment next line for more details
           else
-            logger(
-              `[Try Lex] Failed for candidate: ${c}, rest: ${prettierLexerRest(
-                lexer,
-              )}`,
-            );
+            logger.log({
+              entity: "parser",
+              message: "try lex: failed",
+              raw: {
+                candidate: c.toString(),
+                rest: prettierLexerRest(lexer),
+              },
+            });
         }
         return r;
       })
@@ -270,7 +286,14 @@ export class State<
         commit: boolean;
         rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
       }) {
-    if (debug) logger(`[Try Reduce] State: \n${this.str}`);
+    if (debug)
+      logger.log({
+        entity: "parser",
+        message: "try reduce",
+        raw: {
+          state: this.str,
+        },
+      });
 
     for (const c of this.candidates) {
       const res = c.tryReduce(

@@ -32,7 +32,7 @@ import { DFA, DFABuilder } from "../DFA";
 import type { ILexer, IReadonlyLexer } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
-import type { Logger } from "../../../logger";
+import { defaultLogger, type Logger } from "../../../logger";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { AdvancedBuilder } from "../advanced/builder";
 import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
@@ -163,7 +163,7 @@ export class ParserBuilder<
   ) {
     if (entryNTs.size == 0) {
       const e = new NoEntryNTError();
-      if (printAll) logger(e.message);
+      if (printAll) logger.log({ entity: "parser", message: e.message });
       else throw e;
     }
 
@@ -227,7 +227,7 @@ export class ParserBuilder<
       if (!reducerRule) {
         const e = new GrammarRuleNotFoundError(r.reducerRule);
         if (printAll) {
-          logger(e.message);
+          logger.log({ entity: "parser", message: e.message });
           return;
         } else throw e;
       }
@@ -235,7 +235,7 @@ export class ParserBuilder<
       if (!anotherRule) {
         const e = new GrammarRuleNotFoundError(r.anotherRule);
         if (printAll) {
-          logger(e.message);
+          logger.log({ entity: "parser", message: e.message });
           return;
         } else throw e;
       }
@@ -329,7 +329,7 @@ export class ParserBuilder<
     >,
   ) {
     const debug = options.debug ?? false;
-    const logger = options.logger ?? console.log;
+    const logger = options.logger ?? defaultLogger;
     const printAll = options.printAll ?? false;
     const rollback = options.rollback ?? false;
     const reLex = options.reLex ?? true;
@@ -378,7 +378,7 @@ export class ParserBuilder<
       const unresolved = getUnresolvedConflicts(grs, debug, logger);
 
       if (options.generateResolvers !== undefined)
-        this.generateResolvers(unresolved, options.generateResolvers, logger);
+        this.generateResolvers(unresolved, options.generateResolvers);
 
       if (options.checkAll || options.checkConflicts)
         checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
@@ -418,7 +418,6 @@ export class ParserBuilder<
       >[]
     >,
     style: "builder" | "context",
-    logger: Logger,
   ) {
     if (style == "builder") {
       unresolved.forEach((v, reducerRule) => {
@@ -436,7 +435,7 @@ export class ParserBuilder<
               }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
           )
           .join("\n");
-        logger(txt);
+        console.log(txt);
       });
     } else {
       unresolved.forEach((v, k) => {
@@ -456,8 +455,8 @@ export class ParserBuilder<
                 }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
             )
             .join("\n  ");
-        logger(txt);
-        logger(""); // add a blank line
+        console.log(txt);
+        console.log(""); // add a blank line
       });
     }
 

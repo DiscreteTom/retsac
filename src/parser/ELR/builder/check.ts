@@ -44,7 +44,7 @@ export function checkSymbols<
         // N/NT
         if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
           const e = new UnknownGrammarError(g.kind);
-          if (printAll) logger(e.message);
+          if (printAll) logger.log({ entity: "parser", message: e.message });
           else throw e;
         }
       }
@@ -55,7 +55,7 @@ export function checkSymbols<
   NTs.forEach((name) => {
     if (Ts.has(name)) {
       const e = new DuplicatedDefinitionError(name);
-      if (printAll) logger(e.message);
+      if (printAll) logger.log({ entity: "parser", message: e.message });
       else throw e;
     }
   });
@@ -64,7 +64,7 @@ export function checkSymbols<
   entryNTs.forEach((NT) => {
     if (!NTs.has(NT)) {
       const e = new UnknownEntryNTError(NT);
-      if (printAll) logger(e.message);
+      if (printAll) logger.log({ entity: "parser", message: e.message });
       else throw e;
     }
   });
@@ -77,7 +77,7 @@ export function checkSymbols<
   //     if (grammar.text != undefined) {
   //       if (lexer.reset().lex(grammar.text!) == null) {
   //         const e = new InvalidLiteralError(grammar.text!);
-  //         if (printAll) logger(e.message);
+  //         if (printAll) logger.log({ entity: "parser", message: e.message });
   //         else throw e;
   //       }
   //     }
@@ -117,9 +117,9 @@ export function checkConflicts<
   // ensure all conflicts are resolved
   unresolved.forEach((cs, gr) => {
     cs.forEach((c) => {
-      const err = new ConflictError(gr, c);
-      if (printAll) logger(err.message);
-      else throw err;
+      const e = new ConflictError(gr, c);
+      if (printAll) logger.log({ entity: "parser", message: e.message });
+      else throw e;
     });
   });
 
@@ -132,9 +132,9 @@ export function checkConflicts<
       if (g.next == "*") return;
       g.next.grammars.forEach((n) => {
         if (!followSets.get(reducerRule.NT)!.has(n)) {
-          const err = new NextGrammarNotFoundError(n, reducerRule.NT);
-          if (printAll) logger(err.message);
-          else throw err;
+          const e = new NextGrammarNotFoundError(n, reducerRule.NT);
+          if (printAll) logger.log({ entity: "parser", message: e.message });
+          else throw e;
         }
       });
     });
@@ -154,15 +154,15 @@ export function checkConflicts<
                 conflict.next.some((nn) => n.equalWithoutName(nn)), // don't use `==` here since we don't want to compare grammar name
             )
           ) {
-            const err = new NoSuchConflictError(
+            const e = new NoSuchConflictError(
               reducerRule,
               c.anotherRule,
               c.type,
               [n],
               false,
             );
-            if (printAll) logger(err.message);
-            else throw err;
+            if (printAll) logger.log({ entity: "parser", message: e.message });
+            else throw e;
           }
         });
       // check handleEnd
@@ -176,15 +176,15 @@ export function checkConflicts<
             conflict.handleEnd,
         )
       ) {
-        const err = new NoSuchConflictError(
+        const e = new NoSuchConflictError(
           reducerRule,
           c.anotherRule,
           c.type,
           [],
           true,
         );
-        if (printAll) logger(err.message);
-        else throw err;
+        if (printAll) logger.log({ entity: "parser", message: e.message });
+        else throw e;
       }
     });
   });
@@ -215,7 +215,7 @@ export function checkRollbacks<
   grs.grammarRules.forEach((gr) => {
     if (gr.rollback !== undefined) {
       const e = new RollbackDefinedWhileNotEnabledError(gr);
-      if (printAll) logger(e.message);
+      if (printAll) logger.log({ entity: "parser", message: e.message });
       else throw e;
     }
   });

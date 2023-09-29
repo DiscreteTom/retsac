@@ -59,7 +59,7 @@ export class TempGrammar {
         // for un-lexable literal, throw error instead of using anonymous type
         // this is to prevent mis-writing literal grammar
         const e = new InvalidLiteralError(this.content);
-        if (printAll) logger(e.message);
+        if (printAll) logger.log({ entity: "parser", message: e.message });
         else throw e;
       }
       return repo.Literal(

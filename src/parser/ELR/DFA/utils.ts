@@ -400,6 +400,7 @@ export function serializable2map<K extends string, V, R>(
 
 /**
  * Return a string to represent the rest of the lexer.
+ * The result is `JSON.stringify`-ed.
  * This is used for debugging.
  */
 export function prettierLexerRest(lexer: IReadonlyLexer<unknown, string>) {

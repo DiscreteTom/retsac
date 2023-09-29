@@ -35,7 +35,7 @@ export interface IParser<
   debug: boolean;
   /**
    * The logger used when `debug` is `true`.
-   * Default: `console.log`.
+   * Default: `defaultLogger`.
    */
   logger: Logger;
   readonly lexer: ILexer<LexerError, LexerKinds>;

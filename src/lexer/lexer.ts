@@ -1,4 +1,4 @@
-import type { Logger } from "../logger";
+import { defaultLogger, type Logger } from "../logger";
 import type { AcceptedActionOutput } from "./action";
 import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
@@ -43,7 +43,7 @@ export class Lexer<ErrorType, Kinds extends string>
   ) {
     this.defs = defs;
     this.debug = options?.debug ?? false;
-    this.logger = options?.logger ?? console.log;
+    this.logger = options?.logger ?? defaultLogger;
     this.errors = [];
     this.reset();
   }
@@ -61,7 +61,7 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   reset() {
-    if (this.debug) this.logger(`[Lexer.reset]`);
+    if (this.debug) this.logger.log({ entity: "lexer", message: "reset" });
     this._buffer = "";
     this._digested = 0;
     this._lineChars = [0];
@@ -91,7 +91,12 @@ export class Lexer<ErrorType, Kinds extends string>
 
   feed(input: string) {
     if (input.length == 0) return this;
-    if (this.debug) this.logger(`[Lexer.feed] ${input.length} chars`);
+    if (this.debug)
+      this.logger.log({
+        entity: "lexer",
+        message: "feed",
+        info: { length: input.length },
+      });
     this._buffer += input;
     this.trimmed = false; // maybe the new feed chars can construct a new token
     this.rest = undefined; // clear cache
@@ -103,8 +108,11 @@ export class Lexer<ErrorType, Kinds extends string>
 
     if (n > 0) {
       if (this.debug)
-        // stringify to escape '\n'
-        this.logger(`[Lexer.take] ${n} chars: ${JSON.stringify(content)}`);
+        this.logger.log({
+          entity: "lexer",
+          message: "take",
+          info: { length: n, content },
+        });
     } else throw new InvalidLengthForTakeError(n);
 
     this.update(n, content);
@@ -127,15 +135,21 @@ export class Lexer<ErrorType, Kinds extends string>
 
     if (!res || res.index == -1) {
       if (this.debug)
-        this.logger(`[Lexer.takeUntil] no match with regex ${regex}`);
+        this.logger.log({
+          entity: "lexer",
+          message: "take util: no match",
+          info: { regex },
+        });
       return "";
     }
 
     const content = this._buffer.slice(this._digested, res.index + 1);
     if (this.debug)
-      this.logger(
-        `[Lexer.takeUntil] ${content.length} chars: ${JSON.stringify(content)}`,
-      );
+      this.logger.log({
+        entity: "lexer",
+        message: "take until",
+        info: { regex, length: content.length, content },
+      });
     this.update(content.length, content);
     return content;
   }
@@ -196,14 +210,13 @@ export class Lexer<ErrorType, Kinds extends string>
     const peek = typeof input === "string" ? false : input.peek ?? false;
 
     // debug output
-    if (expect.kind || expect.text) {
-      if (this.debug)
-        this.logger(
-          `[Lexer.lex] expect${peek ? "(peek)" : ""} ${JSON.stringify(expect)}`,
-        );
-    } else {
-      if (peek) {
-        if (this.debug) this.logger(`[Lexer.lex] peek`);
+    if (this.debug) {
+      if (expect.kind || expect.text || peek) {
+        this.logger.log({
+          entity: "lexer",
+          message: "lex: options",
+          info: { expect, peek },
+        });
       }
     }
 
@@ -213,7 +226,11 @@ export class Lexer<ErrorType, Kinds extends string>
       // first, check rest
       // since maybe some token is muted which cause the rest is empty in the last iteration
       if (this._digested + digestedByPeek >= this.buffer.length) {
-        if (this.debug) this.logger(`[Lexer.lex] no rest`);
+        if (this.debug)
+          this.logger.log({
+            entity: "lexer",
+            message: "lex: no rest",
+          });
         return null;
       }
 
@@ -239,11 +256,11 @@ export class Lexer<ErrorType, Kinds extends string>
               )))
         ) {
           if (this.debug)
-            this.logger(
-              `[Lexer.lex] skip ${
-                def.kind || "<anonymous>"
-              } (unexpected and never muted)`,
-            );
+            this.logger.log({
+              entity: "lexer",
+              message: "lex: skip (unexpected and never muted)",
+              info: { kind: def.kind || "<anonymous>" },
+            });
           continue; // try next def
         }
 
@@ -262,11 +279,15 @@ export class Lexer<ErrorType, Kinds extends string>
             res.muted)
         ) {
           if (this.debug)
-            this.logger(
-              `[Lexer.lex] accept ${def.kind || "<anonymous>"}${
-                res.muted ? "(muted)" : ""
-              }: ${JSON.stringify(res.content)}`,
-            );
+            this.logger.log({
+              entity: "lexer",
+              message: "lex: accept",
+              info: {
+                kind: def.kind || "<anonymous>",
+                muted: res.muted,
+                content: res.content,
+              },
+            });
           // update this state
           if (!peek) this.update(res.digested, res.content, res._rest);
           else {
@@ -294,7 +315,11 @@ export class Lexer<ErrorType, Kinds extends string>
           // if not accept, try next def
           if (!res.accept) {
             if (this.debug)
-              this.logger(`[Lexer.lex] rejected: ${def.kind || "<anonymous>"}`);
+              this.logger.log({
+                entity: "lexer",
+                message: "lex: reject",
+                info: { kind: def.kind || "<anonymous>" },
+              });
           }
           // below won't happen, res.muted is always false here
           // else if (res.muted)
@@ -306,18 +331,24 @@ export class Lexer<ErrorType, Kinds extends string>
           else {
             // unexpected, try next def
             if (this.debug)
-              this.logger(
-                `[Lexer.lex] unexpected: ${JSON.stringify({
-                  kind: def.kind,
+              this.logger.log({
+                entity: "lexer",
+                message: "lex: unexpected",
+                info: {
+                  kind: def.kind || "<anonymous>",
                   content: res.content,
-                })}`,
-              );
+                },
+              });
           }
         }
       } // end of defs iteration
       if (!muted) {
         // all definition checked, no accept or muted
-        if (this.debug) this.logger(`[Lexer.lex] no accept`);
+        if (this.debug)
+          this.logger.log({
+            entity: "lexer",
+            message: "lex: no accept",
+          });
         return null;
       }
       // else, muted, re-loop all definitions
@@ -366,11 +397,11 @@ export class Lexer<ErrorType, Kinds extends string>
         // if def is never muted, ignore it
         if (!def.action.maybeMuted) {
           if (this.debug)
-            this.logger(
-              `[Lexer.trimStart] skip ${
-                def.kind || "<anonymous>"
-              } (never muted)`,
-            );
+            this.logger.log({
+              entity: "lexer",
+              message: "trim start: skip (never muted)",
+              info: { kind: def.kind || "<anonymous>" },
+            });
           continue;
         }
 
@@ -380,22 +411,25 @@ export class Lexer<ErrorType, Kinds extends string>
             // next token is not muted
             // don't update state, just return
             if (this.debug)
-              this.logger(
-                `[Lexer.trimStart] not muted: ${
-                  def.kind || "<anonymous>"
-                }, stop trimming`,
-              );
+              this.logger.log({
+                entity: "lexer",
+                message: "trim start: found unmuted, stop trimming", //
+                info: { kind: def.kind || "<anonymous>", content: res.content },
+              });
             this.trimmed = true;
             return this;
           }
 
           // else, muted
           if (this.debug)
-            this.logger(
-              `[Lexer.trimStart] trim: ${
-                def.kind || "<anonymous>"
-              } content: ${JSON.stringify(res.content)}`,
-            );
+            this.logger.log({
+              entity: "lexer",
+              message: "trim start: trim",
+              info: {
+                kind: def.kind || "<anonymous>",
+                content: res.content,
+              },
+            });
 
           // next token is muted, update this state
           this.update(res.digested, res.content, res._rest);
@@ -412,14 +446,20 @@ export class Lexer<ErrorType, Kinds extends string>
         } else {
           // not accept, try next def
           if (this.debug)
-            this.logger(
-              `[Lexer.trimStart] rejected: ${def.kind || "<anonymous>"}`,
-            );
+            this.logger.log({
+              entity: "lexer",
+              message: "trim start: reject",
+              info: { kind: def.kind || "<anonymous>" },
+            });
         }
       }
       if (!mute) {
         // all definition checked, no accept
-        if (this.debug) this.logger(`[Lexer.trimStart] no accept`);
+        if (this.debug)
+          this.logger.log({
+            entity: "lexer",
+            message: "trim start: no accept",
+          });
         this.trimmed = true;
         return this;
       }

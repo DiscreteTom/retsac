@@ -75,9 +75,13 @@ export class GrammarExpander<
     const resultDef: Definition<Kinds> = {};
     resultDef[NT] = expanded;
     if (debug)
-      logger(
-        `[AdvancedBuilder] Expanded: { ${NT}: \`${expanded.join(" | ")}\` }`,
-      );
+      logger.log({
+        entity: "parser",
+        message: "expanded",
+        raw: {
+          "grammar rule": `{ ${NT}: \`${expanded.join(" | ")}\` }`,
+        },
+      });
     result.defs.push(resultDef);
 
     // auto resolve R-S conflict for generated grammar rules
@@ -102,9 +106,18 @@ export class GrammarExpander<
             options: { next: "*", accept: false },
           });
           if (debug)
-            logger(
-              `[AdvancedBuilder] Generated RS resolver: { ${NT}: \`${reducerRule}\`} vs { ${NT}: \`${anotherRule}\`}, { next: "*", accept: false }`,
-            );
+            logger.log({
+              entity: "parser",
+              message: "generated RS resolver",
+              raw: {
+                "reducer rule": `{ ${NT}: \`${reducerRule}\` }`,
+                "another rule": `{ ${NT}: \`${anotherRule}\` }`,
+                next: "*",
+              },
+              info: {
+                accept: false,
+              },
+            });
         });
       });
 
@@ -159,13 +172,26 @@ export class GrammarExpander<
       );
 
       if (debug) {
-        logger(
-          `[AdvancedBuilder] Generated placeholder grammar rule: { ${p}: \`${gr}\` }`,
-        );
+        logger.log({
+          entity: "parser",
+          message: "generated placeholder grammar rule",
+          raw: {
+            "grammar rule": `{ ${p}: \`${gr}\` }`,
+          },
+        });
         gs.forEach((s) =>
-          logger(
-            `[AdvancedBuilder] Generated RS resolver: { ${p}: \`${s}\`} | { ${p}: \`${s} ${p}\`}, { next: "*", accept: false }`,
-          ),
+          logger.log({
+            entity: "parser",
+            message: "generated RS resolver",
+            raw: {
+              "reducer rule": `{ ${p}: \`${s}\` }`,
+              "another rule": `{ ${p}: \`${s} ${p}\` }`,
+              next: "*",
+            },
+            info: {
+              accept: false,
+            },
+          }),
         );
       }
     });

@@ -30,7 +30,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
   get debug(): boolean;
   /**
    * The logger used when `debug` is `true`.
-   * Default: `console.log`.
+   * Default: `defaultLogger`.
    */
   get logger(): Logger;
   /**

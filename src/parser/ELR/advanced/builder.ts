@@ -1,4 +1,4 @@
-import type { Logger } from "../../../logger";
+import { defaultLogger, type Logger } from "../../../logger";
 import type {
   Definition,
   ParserBuilderData,
@@ -86,7 +86,7 @@ export class AdvancedBuilder<
     if (options.hydrate !== undefined) return super.build(options);
 
     const debug = options.debug ?? false;
-    const logger = options.logger ?? console.log;
+    const logger = options.logger ?? defaultLogger;
 
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder<
