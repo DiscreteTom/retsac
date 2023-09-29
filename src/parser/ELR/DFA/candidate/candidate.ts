@@ -226,7 +226,7 @@ export class Candidate<
     // check follow for LR(1) with the rest input string
     // important! make sure lexer can still lex something not muted
     // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-    const nextTokenExists = lexer.lex({ peek: true }) != null; // TODO: ensure lexer is already trimmed to optimize perf?
+    const nextTokenExists = lexer.lex({ peek: true }) != null; // TODO: ensure lexer is already trimmed to optimize perf? new type: IReadonlyTrimmedLexer?
     if (nextTokenExists) {
       if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
         // entry NT, no need to check follow set if `ignoreEntryFollow` is set
