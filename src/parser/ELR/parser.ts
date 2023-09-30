@@ -61,6 +61,8 @@ export class Parser<
     lexer: ILexer<LexerError, LexerKinds>,
     autoCommit: boolean,
     ignoreEntryFollow: boolean,
+    debug: boolean,
+    logger: Logger,
   ) {
     this.dfa = dfa;
     this.lexer = lexer;
@@ -70,6 +72,8 @@ export class Parser<
     this.rollbackStack = [];
     this.autoCommit = autoCommit;
     this.ignoreEntryFollow = ignoreEntryFollow;
+    this.debug = debug;
+    this.logger = logger;
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
@@ -94,13 +98,13 @@ export class Parser<
       this.lexer.clone(),
       this.autoCommit,
       this.ignoreEntryFollow,
+      options?.debug ?? this.debug,
+      options?.logger ?? this.logger,
     );
     res._buffer = [...this._buffer];
     res.errors.push(...this.errors);
     res.reLexStack = [...this.reLexStack];
     res.rollbackStack = [...this.rollbackStack];
-    res.debug = options?.debug ?? this.debug;
-    res.logger = options?.logger ?? this.logger;
     return res;
   }
 
@@ -110,9 +114,9 @@ export class Parser<
       this.lexer.dryClone(),
       this.autoCommit,
       this.ignoreEntryFollow,
+      options?.debug ?? this.debug,
+      options?.logger ?? this.logger,
     );
-    res.debug = options?.debug ?? this.debug;
-    res.logger = options?.logger ?? this.logger;
     return res;
   }
 

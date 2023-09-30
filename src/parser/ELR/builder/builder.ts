@@ -384,7 +384,14 @@ export class ParserBuilder<
       checkRollbacks(grs, printAll, logger);
 
     return {
-      parser: new Parser(dfa, lexer, autoCommit, ignoreEntryFollow),
+      parser: new Parser(
+        dfa,
+        lexer,
+        autoCommit,
+        ignoreEntryFollow,
+        debug,
+        logger,
+      ),
       serializable:
         options.serialize ?? false
           ? ((options.hydrate ?? this.buildSerializable(dfa)) as Readonly<
