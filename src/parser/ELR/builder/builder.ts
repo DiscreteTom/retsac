@@ -215,8 +215,6 @@ export class ParserBuilder<
       rollback,
       reLex,
       ignoreEntryFollow,
-      debug,
-      logger,
     );
 
     // transform resolved temp conflicts to resolved conflicts

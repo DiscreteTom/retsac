@@ -43,18 +43,6 @@ export class Parser<
     LexerError
   >[];
 
-  get debug() {
-    return this.dfa.debug;
-  }
-  set debug(v: boolean) {
-    this.dfa.debug = v;
-  }
-  get logger() {
-    return this.dfa.logger;
-  }
-  set logger(v: Logger) {
-    this.dfa.logger = v;
-  }
   get buffer() {
     return this._buffer as readonly ASTNode<
       ASTData,
@@ -63,6 +51,8 @@ export class Parser<
     >[];
   }
 
+  debug: boolean;
+  logger: Logger;
   autoCommit: boolean;
 
   constructor(
@@ -161,6 +151,8 @@ export class Parser<
         this.rollbackStack,
         () => this.commit(),
         stopOnError,
+        this.debug,
+        this.logger,
       );
       if (res.output.accept) {
         // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
