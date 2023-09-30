@@ -336,6 +336,19 @@ export class DFA<
             rollbackStackLength: rollbackStack.length,
           });
         }
+        if (debug) {
+          if (res.length > 1) {
+            const info = {
+              others: res.slice(1).map((r) => r.node.strWithoutName.value),
+            };
+            logger.log({
+              entity: "Parser",
+              message: `try lex: store other possibilities for re-lex:\n${info.others.join(
+                "\n",
+              )}`,
+            });
+          }
+        }
         // use the first lexing result to continue parsing
         const state = reLexStack.pop()!;
         parsingState.buffer = state.buffer;
