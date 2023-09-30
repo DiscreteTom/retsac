@@ -1,7 +1,8 @@
 import { Lexer, Logger, jsonLogger } from "../../src";
 
 test("lexer debug lex", () => {
-  const logger = new Logger({ printer: jest.fn() });
+  const printer = jest.fn();
+  const logger = new Logger({ printer });
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact(..."+-*/()"))
@@ -13,60 +14,65 @@ test("lexer debug lex", () => {
     .build({ debug: true, logger });
 
   lexer.reset();
-  expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
+  expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
 
   expect(lexer.lex()).toBe(null); // no rest
-  expect(logger).toHaveBeenCalledWith("[Lexer.lex] no rest");
+  expect(printer).toHaveBeenCalledWith("[Lexer.lex] no rest");
 
   lexer.feed("0123");
-  expect(logger).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
+  expect(printer).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
 
   expect(lexer.take(1)).toBe("0");
-  expect(logger).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
+  expect(printer).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
 
   expect(
     lexer.lex({ input: "45", expect: { kind: "number", text: "12345" } })
       ?.content,
   ).toBe("12345");
-  expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] expect {"kind":"number","text":"12345"}',
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"},"peek":false}',
   );
-  expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: <anonymous>");
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.lex] skip hash (unexpected and never muted)",
+  expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: <anonymous>");
+  expect(printer).toHaveBeenCalledWith(
+    "[Lexer.lex] skip (unexpected and never muted): hash",
   );
-  expect(logger).toHaveBeenCalledWith("[Lexer.lex] rejected: string");
+  expect(printer).toHaveBeenCalledWith(
+    "[Lexer.lex] skip (unexpected and never muted): <anonymous>",
+  );
+  expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: string");
   expect(lexer.lex({ input: `'123'`, expect: { kind: "number" } })).toBe(null); // unexpected
 
-  expect(logger).toHaveBeenCalledWith('[Lexer.lex] accept number: "12345"');
-  expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] unexpected: {"kind":"string","content":"\'123\'"}',
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] accept kind number, 5 chars: "12345"',
   );
-
-  lexer.reset().lex({ input: "123", expect: { kind: "number" } });
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.lex] skip <anonymous> (unexpected and never muted)",
+  expect(printer).toHaveBeenCalledWith(
+    `[Lexer.lex] unexpected string: "'123'"`,
   );
 
   lexer.reset().lex("+");
-  expect(logger).toHaveBeenCalledWith('[Lexer.lex] accept <anonymous>: "+"');
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] accept kind <anonymous>, 1 chars: "+"',
+  );
   lexer.reset().lex(" ");
-  expect(logger).toHaveBeenCalledWith(
-    '[Lexer.lex] accept <anonymous>(muted): " "',
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] accept kind <anonymous>(muted), 1 chars: " "',
   );
 
   // peek with expect
   lexer.reset().lex({ input: "123", expect: { kind: "number" }, peek: true });
-  expect(logger).toHaveBeenCalledWith(
-    `[Lexer.lex] expect(peek) {"kind":"number"}`,
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] options: {"expect":{"kind":"number"},"peek":true}',
   );
   // peek without expect
   lexer.reset().lex({ input: "123", peek: true });
-  expect(logger).toHaveBeenCalledWith("[Lexer.lex] peek");
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.lex] options: {"expect":{},"peek":true}',
+  );
 });
 
 test("lexer debug trimStart", () => {
-  const logger = new Logger({ printer: jest.fn() });
+  const printer = jest.fn();
+  const logger = new Logger({ printer });
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact("!"))
@@ -81,33 +87,32 @@ test("lexer debug trimStart", () => {
   // generate logs
   lexer.reset();
   lexer.trimStart(" 123");
-  lexer.reset().trimStart("$"); // no accept
 
   // check logs
-  expect(logger).toHaveBeenCalledWith("[Lexer.reset]");
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip <anonymous> (never muted)",
+  expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.trimStart] trim <anonymous>: " "',
   );
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip hash (never muted)",
+  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: <anonymous>");
+  expect(printer).toHaveBeenCalledWith(
+    "[Lexer.trimStart] skip (never muted): <anonymous>",
   );
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] not muted: number, stop trimming",
+  expect(printer).toHaveBeenCalledWith(
+    "[Lexer.trimStart] skip (never muted): hash",
   );
-  expect(logger).toHaveBeenCalledWith(
-    '[Lexer.trimStart] trim: <anonymous> content: " "',
+  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: string");
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.trimStart] found unmuted number: "123"',
   );
-  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] rejected: string");
-  expect(logger).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
 
-  lexer.reset().trimStart("+");
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.trimStart] not muted: <anonymous>, stop trimming",
-  );
+  lexer.reset().trimStart("$"); // no accept
+
+  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
 });
 
 test("lexer clone with debug", () => {
-  const logger = new Logger({ printer: jest.fn() });
+  const printer = jest.fn();
+  const logger = new Logger({ printer });
   const lexer = new Lexer.Builder().build({ debug: true, logger });
   expect(lexer.clone().debug).toBe(true); // inherit debug
   expect(lexer.clone({ debug: false }).debug).toBe(false); // override debug
@@ -120,14 +125,15 @@ test("lexer clone with debug", () => {
 });
 
 test("lexer debug takeUntil", () => {
-  const logger = new Logger({ printer: jest.fn() });
+  const printer = jest.fn();
+  const logger = new Logger({ printer });
   const lexer = new Lexer.Builder().build({ debug: true, logger });
 
   lexer.reset().feed("123").takeUntil("3");
-  expect(logger).toHaveBeenCalledWith('[Lexer.takeUntil] 3 chars: "123"');
+  expect(printer).toHaveBeenCalledWith(
+    '[Lexer.takeUntil] 3 chars with /3/g: "123"',
+  );
 
   lexer.reset().feed("123").takeUntil("4");
-  expect(logger).toHaveBeenCalledWith(
-    "[Lexer.takeUntil] no match with regex /4/g",
-  );
+  expect(printer).toHaveBeenCalledWith("[Lexer.takeUntil] no match: /4/g");
 });
