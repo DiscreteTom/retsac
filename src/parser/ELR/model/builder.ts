@@ -16,7 +16,10 @@ export type BuildOptions<
   LexerKinds extends string,
   LexerError,
 > = Partial<
-  Pick<IParser<never, never, Kinds, LexerKinds, never>, "logger" | "debug">
+  Pick<
+    IParser<never, never, Kinds, LexerKinds, never>,
+    "logger" | "debug" | "autoCommit"
+  >
 > & {
   /**
    * Declare top-level NT's.
@@ -88,8 +91,8 @@ export type BuildOptions<
    * @default false
    */
   // TODO: rename this to a more intuitive name
+  // TODO: make this runtime configurable
   ignoreEntryFollow?: boolean;
-  // TODO: autoCommitEntry?
 };
 
 export interface IParserBuilder<

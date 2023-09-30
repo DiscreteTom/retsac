@@ -30,14 +30,21 @@ export interface IParser<
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
-   * Default: `false`.
+   * @default false
    */
   debug: boolean;
   /**
    * The logger used when `debug` is `true`.
-   * Default: `defaultLogger`.
+   * @default defaultLogger
    */
   logger: Logger;
+  /**
+   * If `true`, when `parser.parse` is successful, the parser will commit automatically.
+   * This is useful to optimize the performance.
+   *
+   * @default false
+   */
+  autoCommit: boolean;
   readonly lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Reset state.

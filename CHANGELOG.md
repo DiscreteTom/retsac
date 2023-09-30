@@ -56,6 +56,7 @@
   - Feat: serialize parser. [#2](https://github.com/DiscreteTom/retsac/issues/2)
   - Feat: `IParserBuilder.define` can accept multi `DefinitionContextBuilder` to optimize type inference.
   - Feat: add `BuildOptions.mermaid` for parser to generate mermaid graph.
+  - Feat: add `BuildOptions/IParser.autoCommit` for parser to auto commit when parsing.
   - Fix: fix follow set calculation. This will also reduce the number of unresolved conflicts.
   - Fix: fix `gr+` logic, treat the `gr` as a whole.
   - Fix: first defined resolver will be applied. Ignore others.

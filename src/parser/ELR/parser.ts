@@ -63,9 +63,12 @@ export class Parser<
     >[];
   }
 
+  autoCommit: boolean;
+
   constructor(
     dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
     lexer: ILexer<LexerError, LexerKinds>,
+    autoCommit: boolean,
   ) {
     this.dfa = dfa;
     this.lexer = lexer;
@@ -73,6 +76,7 @@ export class Parser<
     this.errors = [];
     this.reLexStack = [];
     this.rollbackStack = [];
+    this.autoCommit = autoCommit;
   }
 
   /** Clear re-lex stack (abandon all other possibilities). */
@@ -90,10 +94,12 @@ export class Parser<
     return this.commit();
   }
 
+  // TODO: remove options? rename it to `override`? allow more options?
   clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       this.dfa,
       this.lexer.clone(),
+      this.autoCommit,
     );
     res._buffer = [...this._buffer];
     res.errors.push(...this.errors);
@@ -108,6 +114,7 @@ export class Parser<
     const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       this.dfa,
       this.lexer.dryClone(),
+      this.autoCommit,
     );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
@@ -161,6 +168,8 @@ export class Parser<
         this.lexer = res.lexer;
         this._buffer = res.output.buffer.slice(); // make a copy of buffer
         this.errors.push(...res.output.errors);
+
+        if (this.autoCommit) this.commit();
       }
       return res.output;
     }

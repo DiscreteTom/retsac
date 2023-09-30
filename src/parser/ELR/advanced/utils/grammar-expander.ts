@@ -167,7 +167,7 @@ export class GrammarExpander<
           reducerRule: { [p]: `${s}` } as Definition<Kinds>,
           anotherRule: { [p]: `${s} ${p}` } as Definition<Kinds>,
           // in most cases we want the `+*?` to be greedy
-          // TODO: check if the rejecter if valid?
+          // TODO: check if the rejecter is valid?
           // e.g. invalid rule: { exps: `exp (',' exp)* ','?` }
           options: { next: "*", accept: false },
         })),
