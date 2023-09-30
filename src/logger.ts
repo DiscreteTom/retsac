@@ -24,7 +24,9 @@ export type LogPrinter = (log: string) => void;
  * Format the log data into human readable format.
  */
 export const defaultLogFormatter: LogFormatter = (data) => {
-  return `[${data.entity}] ${data.message}`;
+  return `[${data.entity}]${
+    data.message !== undefined ? " " + data.message : ""
+  }`;
 };
 
 /**
