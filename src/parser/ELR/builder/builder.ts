@@ -159,7 +159,6 @@ export class ParserBuilder<
     logger: Logger,
     rollback: boolean,
     reLex: boolean,
-    ignoreEntryFollow: boolean,
   ) {
     if (entryNTs.size == 0) {
       const e = new NoEntryNTError();
@@ -214,7 +213,6 @@ export class ParserBuilder<
       this.cascadeQueryPrefix,
       rollback,
       reLex,
-      ignoreEntryFollow,
     );
 
     // transform resolved temp conflicts to resolved conflicts
@@ -331,6 +329,7 @@ export class ParserBuilder<
     const printAll = options.printAll ?? false;
     const rollback = options.rollback ?? false;
     const reLex = options.reLex ?? true;
+    const autoCommit = options.autoCommit ?? false;
     const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
     const lexer = options.lexer;
 
@@ -349,7 +348,6 @@ export class ParserBuilder<
             logger,
             rollback,
             reLex,
-            ignoreEntryFollow,
           )
         : this.restoreAndHydrate<AppendLexerKinds, AppendLexerError>(
             options.hydrate,
@@ -358,7 +356,6 @@ export class ParserBuilder<
               logger,
               rollback,
               reLex,
-              ignoreEntryFollow,
             },
           );
 
@@ -387,7 +384,7 @@ export class ParserBuilder<
       checkRollbacks(grs, printAll, logger);
 
     return {
-      parser: new Parser(dfa, lexer, options.autoCommit ?? false),
+      parser: new Parser(dfa, lexer, autoCommit, ignoreEntryFollow),
       serializable:
         options.serialize ?? false
           ? ((options.hydrate ?? this.buildSerializable(dfa)) as Readonly<

@@ -74,7 +74,6 @@ export class DFA<
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
-    public readonly ignoreEntryFollow: boolean,
   ) {}
 
   /**
@@ -93,6 +92,7 @@ export class DFA<
     >[],
     commitParser: () => void,
     stopOnError: boolean,
+    ignoreEntryFollow: boolean,
     debug: boolean,
     logger: Logger,
   ): {
@@ -111,6 +111,7 @@ export class DFA<
       rollbackStack,
       commitParser,
       stopOnError,
+      ignoreEntryFollow,
       debug,
       logger,
     );
@@ -195,6 +196,7 @@ export class DFA<
     >[],
     commitParser: () => void,
     stopOnError: boolean,
+    ignoreEntryFollow: boolean,
     debug: boolean,
     logger: Logger,
   ) {
@@ -212,6 +214,7 @@ export class DFA<
         parsingState,
         reLexStack,
         rollbackStack,
+        ignoreEntryFollow,
         debug,
         logger,
       );
@@ -373,6 +376,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >[],
+    ignoreEntryFollow: boolean,
     debug: boolean,
     logger: Logger,
   ) {
@@ -411,7 +415,7 @@ export class DFA<
       .tryReduce(
         parsingState.buffer,
         this.entryNTs,
-        this.ignoreEntryFollow,
+        ignoreEntryFollow,
         this.followSets,
         parsingState.lexer,
         this.cascadeQueryPrefix,
@@ -466,7 +470,6 @@ export class DFA<
       debug: boolean;
       rollback: boolean;
       reLex: boolean;
-      ignoreEntryFollow: boolean;
     },
   ) {
     const NTs = new Set(data.NTs);
@@ -510,7 +513,6 @@ export class DFA<
       data.cascadeQueryPrefix,
       options.rollback,
       options.reLex,
-      options.ignoreEntryFollow,
     );
   }
 

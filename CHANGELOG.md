@@ -45,7 +45,7 @@
   - **_Breaking Change_**: `IParserBuilder.build` will return `{ parser, serializable, mermaid }`.
   - **_Breaking Change_**: remove `IParserBuilder.leftSA/rightSA`, enhance the `IParserBuilder.priority` to support left-to-right or right-to-left associativity.
   - **_Breaking Change_**: entry NT's follow set will also be checked during parsing.
-    - Add `BuildOptions.ignoreEntryFollow` to override the behaviour.
+    - Add `BuildOptions/IParser.ignoreEntryFollow` to override the behaviour.
   - **_Breaking Change_**: use `builder.build({ lexer, entry })` instead of `builder.build(lexer)` and `builder.entry`.
   - **_Breaking Change_**: `GrammarRuleContext.lexer` is `ReadonlyILexer`.
   - Feat: typed parser.

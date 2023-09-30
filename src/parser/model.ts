@@ -45,6 +45,13 @@ export interface IParser<
    * @default false
    */
   autoCommit: boolean;
+  /**
+   * If `true`, when an entry NT is reduced, the parser will accept it immediately
+   * without checking the entry NT's follow set.
+   *
+   * @default false
+   */
+  ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
   readonly lexer: ILexer<LexerError, LexerKinds>;
   /**
    * Reset state.

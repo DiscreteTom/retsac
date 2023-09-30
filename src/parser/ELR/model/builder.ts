@@ -18,7 +18,7 @@ export type BuildOptions<
 > = Partial<
   Pick<
     IParser<never, never, Kinds, LexerKinds, never>,
-    "logger" | "debug" | "autoCommit"
+    "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
   >
 > & {
   /**
@@ -84,15 +84,6 @@ export type BuildOptions<
    * @default false
    */
   mermaid?: boolean;
-  /**
-   * If `true`, when an entry NT is reduced, the parser will accept it immediately
-   * without checking the entry NT's follow set.
-   *
-   * @default false
-   */
-  // TODO: rename this to a more intuitive name
-  // TODO: make this runtime configurable
-  ignoreEntryFollow?: boolean;
 };
 
 export interface IParserBuilder<
