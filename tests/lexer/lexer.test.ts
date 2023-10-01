@@ -34,6 +34,20 @@ test("lex with peek", () => {
   // by default peek is false
   expect(lexer.reset().lex({ input: "123" })?.content).toBe("123");
   expect(lexer.reset().lex("123")?.content).toBe("123");
+
+  // peek with multi ignore
+  // this is to ensure digestedByPeek is correctly updated
+  const newLexer = new Lexer.Builder()
+    .ignore(
+      Lexer.whitespaces(), // blank
+      Lexer.comment("//"), // single line comment
+      Lexer.comment("/*", "*/"), // multiline comment
+    )
+    .anonymous(Lexer.exact("a"))
+    .build();
+  expect(
+    newLexer.lex({ input: " // multiline comment\na", peek: true }),
+  ).not.toBeNull();
 });
 
 test("trimStart", () => {
