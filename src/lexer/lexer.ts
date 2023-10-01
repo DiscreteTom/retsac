@@ -313,7 +313,7 @@ export class Lexer<ErrorType, Kinds extends string>
           // update this state
           if (!peek) this.update(res.digested, res.content, res._rest);
           else {
-            digestedByPeek = res.digested;
+            digestedByPeek += res.digested;
             peekRest = res._rest;
           }
 
