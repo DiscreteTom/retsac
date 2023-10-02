@@ -30,7 +30,7 @@ export class Lexer<ErrorType, Kinds extends string>
    * Cache whether this lexer already trim start.
    * Only `update`, `feed`, `reset`, `trimStart` can modify this var.
    */
-  private trimmed: boolean;
+  private _trimmed: boolean;
   /**
    * This is lazy and cached.
    * Only `update`, `reset` and `feed` can modify this var.
@@ -60,6 +60,10 @@ export class Lexer<ErrorType, Kinds extends string>
     return this._lineChars;
   }
 
+  get trimmed() {
+    return this._trimmed;
+  }
+
   reset() {
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });
@@ -68,7 +72,7 @@ export class Lexer<ErrorType, Kinds extends string>
     this._digested = 0;
     this._lineChars = [0];
     this.errors.length = 0;
-    this.trimmed = true; // no input yet, so no need to trim
+    this._trimmed = true; // no input yet, so no need to trim
     this.rest = undefined;
     return this;
   }
@@ -86,7 +90,7 @@ export class Lexer<ErrorType, Kinds extends string>
     res._digested = this._digested;
     res._lineChars = [...this._lineChars];
     res.errors.push(...this.errors);
-    res.trimmed = this.trimmed;
+    res._trimmed = this._trimmed;
     res.rest = this.rest;
     return res;
   }
@@ -102,7 +106,7 @@ export class Lexer<ErrorType, Kinds extends string>
       });
     }
     this._buffer += input;
-    this.trimmed = false; // maybe the new feed chars can construct a new token
+    this._trimmed = false; // maybe the new feed chars can construct a new token
     this.rest = undefined; // clear cache
     return this;
   }
@@ -171,7 +175,7 @@ export class Lexer<ErrorType, Kinds extends string>
   /** Update inner states. */
   private update(digested: number, content: string, rest?: string) {
     this._digested += digested;
-    this.trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
+    this._trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
     this.rest = rest;
     // calculate line chars
     // `split` is faster than iterate all chars
@@ -413,7 +417,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
     while (true) {
       // when no rest, this.trimmed is set to true by this.update
-      if (this.trimmed) return this;
+      if (this._trimmed) return this;
 
       let mute = false;
       // all defs will reuse this input to reuse lazy values
@@ -454,7 +458,7 @@ export class Lexer<ErrorType, Kinds extends string>
                 info,
               });
             }
-            this.trimmed = true;
+            this._trimmed = true;
             return this;
           }
 
@@ -503,7 +507,7 @@ export class Lexer<ErrorType, Kinds extends string>
             message: "no accept",
           });
         }
-        this.trimmed = true;
+        this._trimmed = true;
         return this;
       }
       // else, muted, re-loop all definitions

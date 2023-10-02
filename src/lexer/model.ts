@@ -52,6 +52,10 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    */
   get lineChars(): readonly number[];
   /**
+   * `true` if the lexer is trimStart-ed.
+   */
+  get trimmed(): boolean;
+  /**
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */

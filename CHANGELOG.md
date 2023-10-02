@@ -23,6 +23,7 @@
   - Feat: typed lexer. [#17](https://github.com/DiscreteTom/retsac/issues/17)
   - Feat: add `IReadonlyLexer`.
   - Feat: add utils `exactArray/wordArray/exactKind`.
+  - Feat: add `IReadonlyLexer.trimmed`.
   - Fix: actions won't be merged into one when calling `Builder.define/anonymous/ignore`. This will fix expectational lexing behaviour.
 - Parser
   - Feat: add `name` for `ASTNode` and `ASTObj`.
