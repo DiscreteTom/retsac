@@ -60,6 +60,7 @@
   - Fix: fix follow set calculation. This will also reduce the number of unresolved conflicts.
   - Fix: fix `gr+` logic, treat the `gr` as a whole.
   - Fix: first defined resolver will be applied. Ignore others.
+  - Fix: detect RS conflicts more accurately.
   - Note: optimize debug output.
 - Optimize performance.
   - [#6](https://github.com/DiscreteTom/retsac/issues/6)
