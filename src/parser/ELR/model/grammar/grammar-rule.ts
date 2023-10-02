@@ -7,7 +7,6 @@ import type {
   ResolverHydrationId,
 } from "../conflict";
 import type { Callback, Condition } from "../context";
-import { ruleStartsWith, ruleEndsWith } from "./utils";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 import type { ReadonlyGrammarRuleRepo } from "./grammar-rule-repo";
@@ -116,55 +115,6 @@ export class GrammarRule<
       GrammarRule.getStrWithoutGrammarName(this),
     );
     this.hydrationId = p.hydrationId;
-  }
-
-  /**
-   * Check if the tail of this's rule is the same as the head of another.
-   * Which means this rule want's to reduce, and another rule want's to shift.
-   */
-  checkRSConflict(
-    another: Readonly<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
-    >,
-  ) {
-    const result = [] as {
-      shifterRule: Pick<
-        Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-        "anotherRule"
-      >["anotherRule"];
-      overlapped: Extract<
-        Pick<
-          Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-          "overlapped"
-        >["overlapped"],
-        number
-      >;
-    }[];
-    for (let i = 0; i < this.rule.length; ++i) {
-      if (
-        ruleStartsWith(another.rule, this.rule.slice(i)) &&
-        // if the tail of this rule is the same as another's whole rule, it's a reduce-reduce conflict.
-        // e.g. `A B C | B C`
-        this.rule.length - i != another.rule.length
-      ) {
-        result.push({
-          shifterRule: another,
-          overlapped: this.rule.length - i,
-        });
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Check if the tail of this's rule is the same as another's whole rule.
-   */
-  checkRRConflict(
-    another: Readonly<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
-    >,
-  ) {
-    return ruleEndsWith(this.rule, another.rule);
   }
 
   /**

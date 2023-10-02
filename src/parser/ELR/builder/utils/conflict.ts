@@ -32,7 +32,7 @@ function getEndSet<
     LexerError
   >,
 ) {
-  const result = new GrammarSet<Kinds | LexerKinds>();
+  const result = new GrammarSet<Kinds | LexerKinds>(); // TODO: should be a set of NTs
 
   // entry NTs might be the last input grammar of course
   entryNTs.forEach((nt) => result.add(repo.NT(nt as Kinds)));
@@ -207,7 +207,7 @@ function getUserUnresolvedConflicts<
 }
 
 /**
- * Get all conflicts in a grammar rules. This function will try to auto resolve conflicts if possible.
+ * Calculate all conflicts for every grammar rule. This function will try to auto resolve conflicts if possible.
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
 export function appendConflicts<
@@ -230,215 +230,143 @@ export function appendConflicts<
   debug: boolean,
   logger: Logger,
 ) {
-  const firstSets = dfa.firstSets;
-  const followSets = dfa.followSets;
   const endSet = getEndSet(repo, entryNTs, grs);
-  const states = dfa.states;
 
-  // if the tail of a grammar rule is the same as the head of another grammar rule, it's a reduce-shift conflict
-  // e.g. `exp '+' exp | exp '*' exp` is a reduce-shift conflict, `A B C | B C D` is a reduce-shift conflict
-  // the following code will check every grammar rule pair, another way is to check every DFA state
-  // but different DFA states may contain same grammar rules which will cause duplicate check
-  grs.grammarRules.forEach((reducerRule) => {
-    grs.grammarRules.forEach((anotherRule) => {
-      const conflicts = reducerRule.checkRSConflict(anotherRule);
-      conflicts.forEach((c) => {
-        // try to auto resolve conflicts if possible
-        // e.g. for a reduce-shift conflict: `A <= B C` and `D <= C E`
-        // if A's follow overlap with E's first, then the conflict can't be auto resolved by LR1 peeking
-        const A = reducerRule.NT;
-        const E = c.shifterRule.rule[c.overlapped];
-        const EFirst = firstSets.get(E.kind as Kinds)!;
-        const AFollow = followSets.get(A)!;
-        if (E.type == GrammarType.NT) {
-          // E is a NT, check if A's follow has some grammar that is also in E's first
-          const overlap = AFollow.overlap(EFirst);
-          if (overlap.grammars.size == 0) {
-            // no overlap, conflicts can be auto resolved
-            if (debug) {
-              const info = {
-                reducerRule: reducerRule.toString(),
-                anotherRule: c.shifterRule.toString(),
-              };
-              logger.log({
-                entity: "Parser",
-                message: `auto resolve RS (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
-                info,
-              });
-            }
-            return;
-          }
-          // check states
-          if (
-            !states.some(
-              (s) =>
-                s.contains(reducerRule, reducerRule.rule.length) &&
-                s.contains(anotherRule, c.overlapped),
-            )
-          ) {
-            // no state contains both rules with the digestion condition, conflicts can be auto resolved
-            if (debug) {
-              const info = {
-                reducerRule: reducerRule.toString(),
-                anotherRule: c.shifterRule.toString(),
-              };
-              logger.log({
-                entity: "Parser",
-                message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
-                info,
-              });
-            }
-            return;
-          }
+  // calculate conflicts by DFA states
+  dfa.states.states.forEach((state) => {
+    // first, check if there is any reduce-able candidate in the current state
+    const reducers = state.candidates.filter((c) => !c.canDigestMore());
 
-          // auto resolve failed
-          reducerRule.conflicts.push({
-            type: ConflictType.REDUCE_SHIFT,
-            anotherRule,
-            handleEnd: false,
-            next: overlap,
-            overlapped: c.overlapped,
-            resolvers: [],
-          });
-        } else if (E.type == GrammarType.T) {
-          // E is a T, check if A's follow has E
-          if (AFollow.has(E)) {
-            // check states
-            if (
-              !states.some(
-                (s) =>
-                  s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.overlapped),
-              )
-            ) {
-              // no state contains both rules with the digestion condition, conflicts can be auto resolved
-              if (debug) {
-                const info = {
-                  reducerRule: reducerRule.toString(),
-                  anotherRule: c.shifterRule.toString(),
-                };
-                logger.log({
-                  entity: "Parser",
-                  message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
-                  info,
-                });
-              }
-              return;
-            }
+    // all reduce-able candidates may have RR conflicts with each other
+    reducers.forEach((reducer, i) => {
+      reducers.forEach((another, j) => {
+        // prevent duplicate check & self check
+        if (i >= j) return;
 
-            // auto resolve failed
-            reducerRule.conflicts.push({
-              type: ConflictType.REDUCE_SHIFT,
-              anotherRule,
-              handleEnd: false,
-              next: new GrammarSet([E]),
-              overlapped: c.overlapped,
-              resolvers: [],
-            });
-          }
-        } else {
-          // E is a literal, check if A's follow has E
-          if (AFollow.has(E)) {
-            // check states
-            if (
-              !states.some(
-                (s) =>
-                  s.contains(reducerRule, reducerRule.rule.length) &&
-                  s.contains(anotherRule, c.overlapped),
-              )
-            ) {
-              // no state contains both rules with the digestion condition, conflicts can be auto resolved
-              if (debug) {
-                const info = {
-                  reducerRule: reducerRule.toString(),
-                  anotherRule: c.shifterRule.toString(),
-                };
-                logger.log({
-                  entity: "Parser",
-                  message: `auto resolve RS (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
-                  info,
-                });
-              }
-              return;
-            }
+        // if there is no overlap between reducer's follow and another's follow
+        // then there is no RR conflict for next, but maybe still has RR conflict when handle end of input
+        const followOverlap = dfa.followSets
+          .get(reducer.gr.NT)!
+          .overlap(dfa.followSets.get(another.gr.NT)!);
 
-            // auto resolve failed
-            reducerRule.conflicts.push({
-              type: ConflictType.REDUCE_SHIFT,
-              anotherRule,
-              handleEnd: false,
-              next: new GrammarSet([E]),
-              overlapped: c.overlapped,
-              resolvers: [],
-            });
-          }
-        }
-      });
-    });
-  });
+        // if reducer's NT and another's NT are both in end set, then we need to handle end of input
+        const handleEnd =
+          endSet.has(repo.NT(reducer.gr.NT)) &&
+          endSet.has(repo.NT(another.gr.NT));
 
-  // if the tail of a grammar rule is the same as another grammar rule, it's a reduce-reduce conflict
-  // e.g. `A B C | B C` is a reduce-reduce conflict
-  grs.grammarRules.forEach((reducerRule) => {
-    grs.grammarRules.forEach((anotherRule) => {
-      if (anotherRule == reducerRule) return; // skip the same rule
-      if (reducerRule.checkRRConflict(anotherRule)) {
-        // try to auto resolve conflicts if possible
-        // e.g. for a reduce-reduce conflict: `A <= B` and `C <= D B`
-        // if A's follow has some grammar that is also in C's follow, the conflict can't be resolved by LR1 peeking
-        const A = reducerRule.NT;
-        const C = anotherRule.NT;
-        const overlap = followSets.get(A)!.overlap(followSets.get(C)!);
-        if (overlap.grammars.size == 0) {
-          // no overlap, all conflicts can be auto resolved
-          if (debug) {
-            const info = {
-              reducerRule: reducerRule.toString(),
-              anotherRule: anotherRule.toString(),
-            };
+        if (debug) {
+          const info = {
+            reducerRule: reducer.gr.toString(),
+            anotherRule: another.gr.toString(),
+          };
+          if (followOverlap.grammars.size == 0) {
             logger.log({
               entity: "Parser",
               message: `auto resolve RR (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
               info,
             });
           }
-          return;
-        }
-        // check states
-        if (
-          !states.some(
-            (s) =>
-              s.contains(reducerRule, reducerRule.rule.length) &&
-              s.contains(anotherRule, anotherRule.rule.length),
-          )
-        ) {
-          // no state contains both rules with the digestion condition, conflicts can be auto resolved
-          if (debug) {
-            const info = {
-              reducerRule: reducerRule.toString(),
-              anotherRule: anotherRule.toString(),
-            };
+          if (!handleEnd) {
             logger.log({
               entity: "Parser",
-              message: `auto resolve RR (DFA state): ${info.reducerRule} vs ${info.anotherRule}`,
+              message: `auto resolve RR (no handle end): ${info.reducerRule} vs ${info.anotherRule}`,
               info,
             });
           }
-          return;
         }
 
-        // auto resolve failed
-        reducerRule.conflicts.push({
-          type: ConflictType.REDUCE_REDUCE,
-          anotherRule,
-          next: overlap,
-          // for a RR conflict, we need to handle end of input if both's NT in end sets
-          handleEnd:
-            endSet.has(repo.NT(reducerRule.NT)) &&
-            endSet.has(repo.NT(anotherRule.NT)),
-          resolvers: [],
-        });
-      }
+        if (followOverlap.grammars.size != 0 || handleEnd) {
+          // TODO: deduplicate?
+          reducer.gr.conflicts.push({
+            type: ConflictType.REDUCE_REDUCE,
+            anotherRule: another.gr,
+            next: followOverlap,
+            handleEnd,
+            resolvers: [],
+          });
+          another.gr.conflicts.push({
+            type: ConflictType.REDUCE_REDUCE,
+            anotherRule: reducer.gr,
+            next: followOverlap,
+            handleEnd,
+            resolvers: [],
+          });
+        }
+      });
+    });
+
+    // all reduce-able candidates may have RS conflicts with non-reduce-able candidates
+    const anothers = state.candidates.filter(
+      (c) =>
+        c.canDigestMore() &&
+        // if digested == 0, this candidate has indirect RS conflict with reducer, skip it.
+        // we only want direct RS conflict
+        c.digested != 0,
+    );
+    reducers.forEach((reducer) => {
+      anothers.forEach((another) => {
+        // if there is no overlap between reducer's NT's follow and another's next
+        // then there is no RS conflict
+        if (another.current!.type == GrammarType.T) {
+          if (!dfa.followSets.get(reducer.gr.NT)!.has(another.current!)) {
+            // no overlap, no RS conflict
+            if (debug) {
+              const info = {
+                reducerRule: reducer.gr.toString(),
+                anotherRule: another.gr.toString(),
+              };
+              logger.log({
+                entity: "Parser",
+                message: `auto resolve RS (no follow overlap): ${reducer.gr.toString()} vs ${another.gr.toString()}`,
+                info,
+              });
+            }
+          } else {
+            // overlap, RS conflict
+            // TODO: deduplicate?
+            reducer.gr.conflicts.push({
+              type: ConflictType.REDUCE_SHIFT,
+              anotherRule: another.gr,
+              handleEnd: false,
+              next: new GrammarSet([another.current!]),
+              overlapped: another.digested,
+              resolvers: [],
+            });
+          }
+        } else {
+          // another's next is a NT, check if reducer's NT's follow has some grammar that is also in another's next's first
+          const overlap = dfa.followSets
+            .get(reducer.gr.NT)!
+            .overlap(dfa.firstSets.get(another.current!.kind as Kinds)!);
+
+          if (overlap.grammars.size > 0) {
+            // overlap, RS conflict
+            // TODO: deduplicate?
+            reducer.gr.conflicts.push({
+              type: ConflictType.REDUCE_SHIFT,
+              anotherRule: another.gr,
+              handleEnd: false,
+              next: overlap,
+              overlapped: another.digested,
+              resolvers: [],
+            });
+          } else {
+            if (debug) {
+              const info = {
+                reducerRule: reducer.gr.toString(),
+                anotherRule: another.gr.toString(),
+              };
+              if (overlap.grammars.size == 0) {
+                logger.log({
+                  entity: "Parser",
+                  message: `auto resolve RS (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
+                  info,
+                });
+              }
+            }
+          }
+        }
+      });
     });
   });
 }
