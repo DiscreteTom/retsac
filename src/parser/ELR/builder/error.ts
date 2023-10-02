@@ -88,9 +88,9 @@ export class ConflictError<
     super(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
-        ? `Unresolved R-S conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, length: ${
-            c.overlapped
-          }, next: \`${c.next.map((g) => g.toString()).join(" ")}\``
+        ? `Unresolved R-S conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, next: \`${c.next
+            .map((g) => g.toString())
+            .join(" ")}\``
         : `Unresolved R-R conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, ${
             (c.handleEnd ? "end of input" : "") +
             (c.next.grammars.size > 0

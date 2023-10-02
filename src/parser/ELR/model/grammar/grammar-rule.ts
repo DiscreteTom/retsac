@@ -183,7 +183,6 @@ export class GrammarRule<
       anotherRule: string;
       next: string[];
       handleEnd: boolean;
-      overlapped: number | undefined;
       resolvers: number[];
     }[];
     resolved: {
@@ -207,7 +206,6 @@ export class GrammarRule<
         anotherRule: grs.getKey(c.anotherRule),
         next: c.next.map((g) => repo.getKey(g)),
         handleEnd: c.handleEnd,
-        overlapped: c.overlapped,
         resolvers: c.resolvers.map((r) => this.resolved.indexOf(r)),
       })),
       resolved: this.resolved.map((r) => ({
@@ -303,7 +301,6 @@ export class GrammarRule<
             c.next.map((g) => repo.getByString(g)!),
           ),
           handleEnd: c.handleEnd,
-          overlapped: c.overlapped,
           resolvers: c.resolvers.map((i) => gr.resolved[i]),
         })),
       );

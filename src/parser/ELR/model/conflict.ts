@@ -32,10 +32,6 @@ export interface Conflict<
    * Is this a conflict if there is no next input?
    */
   handleEnd: boolean;
-  /**
-   * R-S conflict only. How many grammars are overlapped between the two rules.
-   */
-  overlapped?: number;
 }
 
 export enum ResolverHydrationType {

@@ -530,7 +530,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "?"` }',
               next: ['"?"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [0],
             },
             {
@@ -538,7 +537,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "*"` }',
               next: ['"*"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [2],
             },
             {
@@ -546,7 +544,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "+"` }',
               next: ['"+"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [4],
             },
             {
@@ -554,7 +551,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "|" gr` }',
               next: ['"|"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [8],
             },
             {
@@ -562,7 +558,6 @@ export const data: SerializableParserData<
               anotherRule: "{ gr: `gr gr` }",
               next: ["gr", "grammar", "literal", '"("'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [6],
             },
           ],
@@ -654,7 +649,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "?"` }',
               next: ['"?"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [0],
             },
             {
@@ -662,7 +656,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "*"` }',
               next: ['"*"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [2],
             },
             {
@@ -670,7 +663,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "+"` }',
               next: ['"+"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [4],
             },
             {
@@ -678,7 +670,6 @@ export const data: SerializableParserData<
               anotherRule: '{ gr: `gr "|" gr` }',
               next: ['"|"'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [6],
             },
             {
@@ -686,7 +677,6 @@ export const data: SerializableParserData<
               anotherRule: "{ gr: `gr gr` }",
               next: ["gr", "grammar", "literal", '"("'],
               handleEnd: false,
-              overlapped: 1,
               resolvers: [8],
             },
           ],

@@ -329,7 +329,6 @@ export function appendConflicts<
               anotherRule: another.gr,
               handleEnd: false,
               next: new GrammarSet<Kinds, LexerKinds>([another.current!]),
-              overlapped: another.digested,
               resolvers: [],
             });
           }
@@ -347,7 +346,6 @@ export function appendConflicts<
               anotherRule: another.gr,
               handleEnd: false,
               next: overlap,
-              overlapped: another.digested,
               resolvers: [],
             });
           } else {
@@ -423,7 +421,6 @@ export function getUnresolvedConflicts<
             anotherRule: c.anotherRule,
             handleEnd: false,
             next: res.next,
-            overlapped: c.overlapped,
           };
           if (result.has(reducerRule)) result.get(reducerRule)!.push(conflict);
           else result.set(reducerRule, [conflict]);
