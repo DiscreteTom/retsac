@@ -65,7 +65,7 @@ export class State<
   }
 
   generateNext(
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
     next: Readonly<ASTNode<never, never, Kinds | LexerKinds>>,
     NTClosures: ReadonlyNTClosures<
       ASTData,
@@ -106,7 +106,7 @@ export class State<
   }
 
   getNext(
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
     next: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>,
   ): {
     state: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null;
@@ -272,7 +272,7 @@ export class State<
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
-    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
     lexer: IReadonlyLexer<LexerError, LexerKinds>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
@@ -334,7 +334,7 @@ export class State<
       LexerError
     >,
     ss: ReadonlyStateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     return {
       candidates: this.candidates.map((c) => cs.getKey(c)),
@@ -364,7 +364,7 @@ export class State<
       LexerKinds,
       LexerError
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const s = new State(
       data.candidates.map((c) => cs.getByString(c)!),

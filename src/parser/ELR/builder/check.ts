@@ -97,7 +97,7 @@ export function checkConflicts<
   LexerKinds extends string,
   LexerError,
 >(
-  followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+  followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
   unresolved: ReadonlyMap<
     Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>>,
     readonly Readonly<

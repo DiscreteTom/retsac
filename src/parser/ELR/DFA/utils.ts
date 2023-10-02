@@ -231,7 +231,7 @@ export function calculateAllStates<
   LexerKinds extends string,
   LexerError,
 >(
-  repo: GrammarRepo<Kinds | LexerKinds>,
+  repo: GrammarRepo<Kinds, LexerKinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
@@ -250,7 +250,7 @@ export function calculateAllStates<
   cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
 ) {
   // collect all grammars in rules
-  const gs = new GrammarSet<Kinds | LexerKinds>();
+  const gs = new GrammarSet<Kinds, LexerKinds>();
   allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
@@ -441,7 +441,7 @@ export function buildFirstSets<
     LexerError
   >,
 ) {
-  const firstSets = new Map<Kinds, GrammarSet<Kinds | LexerKinds>>();
+  const firstSets = new Map<Kinds, GrammarSet<Kinds, LexerKinds>>();
 
   NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
   NTClosures.forEach((grs, NT) => {
@@ -476,7 +476,7 @@ export function buildFollowSets<
 ) {
   const followSets = new Map<
     Kinds | LexerKinds,
-    GrammarSet<Kinds | LexerKinds>
+    GrammarSet<Kinds, LexerKinds>
   >();
 
   NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
@@ -517,5 +517,5 @@ export function buildFollowSets<
     if (!changed) break;
   }
 
-  return followSets as ReadonlyFollowSets<Kinds | LexerKinds>;
+  return followSets as ReadonlyFollowSets<Kinds, LexerKinds>;
 }

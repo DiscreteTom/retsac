@@ -165,7 +165,7 @@ export class GrammarRule<
   }
 
   toJSON(
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
@@ -236,7 +236,7 @@ export class GrammarRule<
     data: ReturnType<
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const gr = new GrammarRule<
       ASTData,
@@ -273,7 +273,9 @@ export class GrammarRule<
                 next:
                   r.next == "*"
                     ? ("*" as const)
-                    : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
+                    : new GrammarSet<Kinds, LexerKinds>(
+                        r.next.map((g) => repo.getByString(g)!),
+                      ),
                 accepter: r.accepter!,
                 hydrationId: undefined,
               }
@@ -284,7 +286,9 @@ export class GrammarRule<
                 next:
                   r.next == "*"
                     ? ("*" as const)
-                    : new GrammarSet(r.next.map((g) => repo.getByString(g)!)),
+                    : new GrammarSet<Kinds, LexerKinds>(
+                        r.next.map((g) => repo.getByString(g)!),
+                      ),
                 // accepter will be restored when hydrate if hydration id is provided.
                 accepter: () => true,
                 hydrationId: r.hydrationId,
@@ -295,7 +299,9 @@ export class GrammarRule<
         ...data.conflicts.map((c) => ({
           type: c.type,
           anotherRule: grs.getByString(c.anotherRule)!,
-          next: new GrammarSet(c.next.map((g) => repo.getByString(g)!)),
+          next: new GrammarSet<Kinds, LexerKinds>(
+            c.next.map((g) => repo.getByString(g)!),
+          ),
           handleEnd: c.handleEnd,
           overlapped: c.overlapped,
           resolvers: c.resolvers.map((i) => gr.resolved[i]),

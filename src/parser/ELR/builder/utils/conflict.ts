@@ -22,7 +22,7 @@ function getEndSet<
   LexerKinds extends string,
   LexerError,
 >(
-  repo: GrammarRepo<Kinds | LexerKinds>,
+  repo: GrammarRepo<Kinds, LexerKinds>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
@@ -32,7 +32,7 @@ function getEndSet<
     LexerError
   >,
 ) {
-  const result = new GrammarSet<Kinds | LexerKinds>(); // TODO: should be a set of NTs
+  const result = new GrammarSet<Kinds, never>(); // never means no lexer kinds
 
   // entry NTs might be the last input grammar of course
   entryNTs.forEach((nt) => result.add(repo.NT(nt as Kinds)));
@@ -44,7 +44,7 @@ function getEndSet<
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type == GrammarType.NT) {
           // last grammar is a NT, so we need to check it in result
-          const last = repo.NT(gr.rule.at(-1)!.kind);
+          const last = repo.NT(gr.rule.at(-1)!.kind as Kinds);
           if (!result.has(last)) {
             result.add(last);
             changed = true;
@@ -75,7 +75,7 @@ function getUserUnresolvedConflicts<
   anotherRule: Readonly<
     GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
   >,
-  next: GrammarSet<Kinds | LexerKinds>,
+  next: GrammarSet<Kinds, LexerKinds>,
   checkHandleEnd: boolean,
   debug: boolean,
   logger: Logger,
@@ -113,7 +113,7 @@ function getUserUnresolvedConflicts<
       );
   });
   const unresolvedNext = resolveAll
-    ? new GrammarSet<Kinds | LexerKinds>()
+    ? new GrammarSet<Kinds, LexerKinds>()
     : next.filter(
         (n) => !resolvedNext.some((rn) => n.equalWithoutName(rn.grammar)),
       );
@@ -217,7 +217,7 @@ export function appendConflicts<
   LexerKinds extends string,
   LexerError,
 >(
-  repo: GrammarRepo<Kinds | LexerKinds>,
+  repo: GrammarRepo<Kinds, LexerKinds>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
@@ -328,7 +328,7 @@ export function appendConflicts<
               type: ConflictType.REDUCE_SHIFT,
               anotherRule: another.gr,
               handleEnd: false,
-              next: new GrammarSet([another.current!]),
+              next: new GrammarSet<Kinds, LexerKinds>([another.current!]),
               overlapped: another.digested,
               resolvers: [],
             });

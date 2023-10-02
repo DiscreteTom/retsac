@@ -54,7 +54,7 @@ export class DFA<
       LexerError
     >,
     public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
-    public readonly followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    public readonly followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
     private readonly candidates: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
@@ -69,7 +69,7 @@ export class DFA<
       LexerKinds,
       LexerError
     >,
-    readonly grammars: GrammarRepo<Kinds | LexerKinds>,
+    readonly grammars: GrammarRepo<Kinds, LexerKinds>,
     readonly NTs: ReadonlySet<Kinds>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
@@ -486,7 +486,7 @@ export class DFA<
     },
   ) {
     const NTs = new Set(data.NTs);
-    const grammars = GrammarRepo.fromJSON(data.grammars);
+    const grammars = GrammarRepo.fromJSON<Kinds, LexerKinds>(data.grammars);
     const grs = ReadonlyGrammarRuleRepo.fromJSON<
       ASTData,
       ErrorType,
@@ -507,7 +507,7 @@ export class DFA<
     ) as ReadonlyFirstSets<Kinds, LexerKinds>;
     const followSets = serializable2map(data.followSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFollowSets<Kinds | LexerKinds>;
+    ) as ReadonlyFollowSets<Kinds, LexerKinds>;
     const NTClosures = serializable2map(data.NTClosures, (v) =>
       v.map((s) => grs.getByString(s)!),
     );

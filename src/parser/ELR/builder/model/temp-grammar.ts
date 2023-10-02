@@ -2,7 +2,7 @@ import type { IReadonlyLexer } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
-import type { Callback, Condition, GrammarRepo } from "../../model";
+import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 
 /**
@@ -43,8 +43,8 @@ export class TempGrammar {
     );
   }
 
-  toGrammar<LexerKinds extends string, LexerError>(
-    repo: GrammarRepo<LexerKinds>,
+  toGrammar<Kinds extends string, LexerKinds extends string, LexerError>(
+    repo: GrammarRepo<Kinds, LexerKinds>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
@@ -66,12 +66,14 @@ export class TempGrammar {
         this.content,
         token?.kind ?? ("" as LexerKinds), // this null check is for printAll
         this.name,
-      );
+      ) as Grammar<Kinds | LexerKinds>;
     }
 
-    return isNT
-      ? repo.NT(this.content as LexerKinds, this.name)
-      : repo.T(this.content as LexerKinds, this.name);
+    return (
+      isNT
+        ? repo.NT(this.content as Kinds, this.name)
+        : repo.T(this.content as LexerKinds, this.name)
+    ) as Grammar<Kinds | LexerKinds>;
   }
 
   /**

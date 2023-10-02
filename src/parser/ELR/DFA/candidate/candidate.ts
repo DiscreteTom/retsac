@@ -173,7 +173,7 @@ export class Candidate<
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
-    followSets: ReadonlyFollowSets<Kinds | LexerKinds>,
+    followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
     lexer: IReadonlyLexer<LexerError, LexerKinds>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
@@ -437,7 +437,7 @@ export class Candidate<
       LexerKinds,
       LexerError
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     return {
       gr: grs.getKey(this.gr),
@@ -469,7 +469,7 @@ export class Candidate<
       LexerKinds,
       LexerError
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
       gr: grs.getByString(data.gr)!,

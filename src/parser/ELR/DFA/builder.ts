@@ -22,7 +22,7 @@ export class DFABuilder {
     LexerKinds extends string,
     LexerError,
   >(
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
     lexer: ILexer<LexerError, LexerKinds>,
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<

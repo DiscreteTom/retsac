@@ -79,7 +79,7 @@ export class ReadonlyGrammarRuleRepo<
   }
 
   toJSON(
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ): ReturnType<
     GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
   >[] {
@@ -96,7 +96,7 @@ export class ReadonlyGrammarRuleRepo<
     data: ReturnType<
       GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
     >[],
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const callbacks = [] as ((
       grs: ReadonlyGrammarRuleRepo<

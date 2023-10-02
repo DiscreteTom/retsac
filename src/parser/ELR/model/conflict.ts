@@ -27,7 +27,7 @@ export interface Conflict<
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: GrammarSet<Kinds | LexerKinds>;
+  next: GrammarSet<Kinds, LexerKinds>;
   /**
    * Is this a conflict if there is no next input?
    */

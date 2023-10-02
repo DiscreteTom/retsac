@@ -166,7 +166,7 @@ export class ParserBuilder<
       else throw e;
     }
 
-    const repo = new GrammarRepo<Kinds | LexerKinds | AppendLexerKinds>();
+    const repo = new GrammarRepo<Kinds, LexerKinds | AppendLexerKinds>();
 
     // build the DFA
     const {
@@ -239,18 +239,16 @@ export class ParserBuilder<
       const next =
         r.options.next == "*"
           ? ("*" as const)
-          : new GrammarSet(
+          : new GrammarSet<Kinds, LexerKinds | AppendLexerKinds>(
               // TODO: use a dedicated lexer to parse next
               defToTempGRs({
                 "": r.options.next ?? "",
               } as Definition<Kinds>)[0]?.rule.map((g) =>
-                g.toGrammar(
-                  repo,
-                  lexer,
-                  printAll,
-                  logger,
-                  NTs.has(g.content as Kinds),
-                ),
+                g.toGrammar<
+                  Kinds,
+                  LexerKinds | AppendLexerKinds,
+                  LexerError | AppendLexerError
+                >(repo, lexer, printAll, logger, NTs.has(g.content as Kinds)),
               ) ?? [],
             );
 

@@ -148,7 +148,7 @@ export class StateRepo<
       LexerKinds,
       LexerError
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     return stringMap2serializable(this.ss, (s) => s.toJSON(cs, this, repo));
   }
@@ -170,7 +170,7 @@ export class StateRepo<
       LexerKinds,
       LexerError
     >,
-    repo: GrammarRepo<Kinds | LexerKinds>,
+    repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const ss = new StateRepo<
       ASTData,
