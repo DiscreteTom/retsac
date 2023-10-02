@@ -175,7 +175,7 @@ export class AdvancedBuilder<
     // generate placeholder grammar rules
     // hydration id does not matter here
     // since generated resolvers are serializable
-    // TODO: should we auto resolve conflicts for generated rules and user defined rules?
+    // TODO: should we auto resolve conflicts between generated grammar rules and user defined grammar rules?
     const res = this.expander.generatePlaceholderGrammarRules<
       ASTData,
       ErrorType
