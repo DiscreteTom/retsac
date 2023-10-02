@@ -88,19 +88,17 @@ export class ConflictError<
     super(
       "CONFLICT",
       c.type == ConflictType.REDUCE_SHIFT
-        ? `Unresolved R-S conflict (length: ${c.overlapped}, next: \`${c.next
-            .map((g) => g.toString())
-            .join(
-              " ",
-            )}\`): ${reducerRule.toString()} | ${c.anotherRule.toString()}`
-        : `Unresolved R-R conflict (${
+        ? `Unresolved R-S conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, length: ${
+            c.overlapped
+          }, next: \`${c.next.map((g) => g.toString()).join(" ")}\``
+        : `Unresolved R-R conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, ${
             (c.handleEnd ? "end of input" : "") +
             (c.next.grammars.size > 0
               ? `${c.handleEnd ? ", " : ""}next: \`${c.next
                   .map((g) => g.toString())
                   .join(" ")}\``
               : "")
-          }): ${reducerRule.toString()} | ${c.anotherRule.toString()}`,
+          }`,
     );
     Object.setPrototypeOf(this, ConflictError.prototype);
   }
