@@ -84,10 +84,6 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
     }>,
   ): Token<ErrorType, Kinds> | null;
   /**
-   * Remove ignored chars from the start of the rest of buffer.
-   */
-  trimStart(input?: string): this;
-  /**
    * Get the un-lexed string buffer.
    * The rest string might be very long, be care of using this method.
    * The result will be cached in the lexer until its state is changed.
@@ -155,6 +151,10 @@ export interface ILexer<ErrorType, Kinds extends string>
           peek?: boolean;
         }>,
   ): Token<ErrorType, Kinds> | null;
+  /**
+   * Remove ignored chars from the start of the rest of buffer.
+   */
+  trimStart(input?: string): this;
   /**
    * Try to retrieve a token list exhaustively.
    */
