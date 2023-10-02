@@ -5,7 +5,7 @@ import type { GrammarRepo } from "./grammar-repo";
 /**
  * A set of different grammars, ignore the name.
  * This is used when the name of grammar is NOT needed.
- * E.g. DFA's first/follow sets.
+ * E.g. DFA first/follow sets.
  */
 export class GrammarSet<Kinds extends string, LexerKinds extends string> {
   /**
