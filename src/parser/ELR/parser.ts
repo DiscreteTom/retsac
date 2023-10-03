@@ -91,7 +91,6 @@ export class Parser<
     return this.commit();
   }
 
-  // TODO: remove options? rename it to `override`? allow more options?
   clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
       this.dfa,
