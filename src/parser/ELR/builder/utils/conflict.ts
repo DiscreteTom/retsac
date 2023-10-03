@@ -243,6 +243,17 @@ export function appendConflicts<
         // prevent duplicate check & self check
         if (i >= j) return;
 
+        // check if RR conflicts already exists between 2 grammar rules
+        if (
+          reducer.gr.conflicts.some(
+            (c) =>
+              c.type == ConflictType.REDUCE_REDUCE &&
+              c.anotherRule == another.gr,
+            // we don't need to check next & handleEnd
+          )
+        )
+          return;
+
         // if there is no overlap between reducer's follow and another's follow
         // then there is no RR conflict for next, but maybe still has RR conflict when handle end of input
         const followOverlap = dfa.followSets
@@ -276,7 +287,6 @@ export function appendConflicts<
         }
 
         if (followOverlap.grammars.size != 0 || handleEnd) {
-          // TODO: deduplicate?
           reducer.gr.conflicts.push({
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: another.gr,
@@ -323,14 +333,23 @@ export function appendConflicts<
             }
           } else {
             // overlap, RS conflict
-            // TODO: deduplicate?
-            reducer.gr.conflicts.push({
-              type: ConflictType.REDUCE_SHIFT,
-              anotherRule: another.gr,
-              handleEnd: false,
-              next: new GrammarSet<Kinds, LexerKinds>([another.current!]),
-              resolvers: [],
-            });
+            if (
+              // deduplicate
+              !reducer.gr.conflicts.some(
+                (c) =>
+                  c.type == ConflictType.REDUCE_SHIFT &&
+                  c.anotherRule == another.gr &&
+                  c.next.has(another.current!),
+                // we don't need to check handleEnd for RS conflict
+              )
+            )
+              reducer.gr.conflicts.push({
+                type: ConflictType.REDUCE_SHIFT,
+                anotherRule: another.gr,
+                handleEnd: false,
+                next: new GrammarSet<Kinds, LexerKinds>([another.current!]),
+                resolvers: [],
+              });
           }
         } else {
           // another's next is a NT, check if reducer's NT's follow has some grammar that is also in another's next's first
@@ -340,14 +359,24 @@ export function appendConflicts<
 
           if (overlap.grammars.size > 0) {
             // overlap, RS conflict
-            // TODO: deduplicate?
-            reducer.gr.conflicts.push({
-              type: ConflictType.REDUCE_SHIFT,
-              anotherRule: another.gr,
-              handleEnd: false,
-              next: overlap,
-              resolvers: [],
-            });
+            // deduplicate
+            const unrecordedNext = overlap.filter(
+              (g) =>
+                !reducer.gr.conflicts.some(
+                  (c) =>
+                    c.type == ConflictType.REDUCE_SHIFT &&
+                    c.anotherRule == another.gr &&
+                    c.next.has(g),
+                ),
+            );
+            if (unrecordedNext.grammars.size > 0)
+              reducer.gr.conflicts.push({
+                type: ConflictType.REDUCE_SHIFT,
+                anotherRule: another.gr,
+                handleEnd: false,
+                next: unrecordedNext,
+                resolvers: [],
+              });
           } else {
             if (debug) {
               const info = {
