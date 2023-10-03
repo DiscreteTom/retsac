@@ -61,7 +61,7 @@ export function generateParserDataFile<
 
 function loadCacheStr(path: string) {
   try {
-    return readFileSync(path, "utf8");
+    return readFileSync(path, "utf8").replace(/\r/g, ""); // remove \r for windows
   } catch {
     return undefined;
   }
