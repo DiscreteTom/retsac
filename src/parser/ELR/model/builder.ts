@@ -48,7 +48,7 @@ export type BuildOptions<
    */
   checkConflicts?: boolean;
   /**
-   * Short for {@link BuildOptions.checkSymbols} `&&` {@link BuildOptions.checkConflicts} `&&` {@link BuildOptions.checkRollback}.
+   * Short for {@link BuildOptions.checkSymbols} `&&` {@link BuildOptions.checkConflicts} `&&` {@link BuildOptions.checkRollback} `&&` {@link BuildOptions.checkHydrate}.
    * @default false
    */
   checkAll?: boolean;
@@ -74,6 +74,11 @@ export type BuildOptions<
    * @default false
    */
   serialize?: boolean;
+  /**
+   * If `true`, the parser will check the hash of the serialized parser data before hydrate.
+   * @default false
+   */
+  checkHydrate?: boolean;
   /**
    * If provided and valid, the parser will be hydrated from this data.
    * The value is always checked to make sure it's valid.
@@ -261,12 +266,11 @@ export type SerializableParserData<
   Kinds extends string,
   LexerKinds extends string,
 > = {
-  // TODO: add meta
-  // /**
-  //  * The meta data for hydrating the parser.
-  //  * If meta data mismatch, the parser builder will reject to hydrate.
-  //  */
-  // meta: string; // do we need to check meta?
+  /**
+   * The hash of the parser.
+   * If {@link BuildOptions} the hash mismatch, the parser builder will reject to hydrate.
+   */
+  hash: number;
   data: {
     dfa: ReturnType<DFA<never, never, Kinds, LexerKinds, never>["toJSON"]>;
   };

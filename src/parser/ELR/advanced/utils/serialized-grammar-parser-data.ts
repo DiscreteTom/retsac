@@ -9,6 +9,7 @@ export const data: SerializableParserData<
   "gr",
   "" | "rename" | "grammar" | "literal"
 > = {
+  hash: 554900317,
   data: {
     dfa: {
       NTs: ["gr"],

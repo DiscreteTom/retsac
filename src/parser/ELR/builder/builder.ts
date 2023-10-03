@@ -35,7 +35,13 @@ import { Parser } from "../parser";
 import { defaultLogger, type Logger } from "../../../logger";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { AdvancedBuilder } from "../advanced/builder";
-import { checkConflicts, checkRollbacks, checkSymbols } from "./check";
+import {
+  checkConflicts,
+  checkHydrateHash,
+  checkRollbacks,
+  checkSymbols,
+} from "./check";
+import { hashStringToNum } from "../utils";
 
 /**
  * Builder for ELR parsers.
@@ -387,6 +393,17 @@ export class ParserBuilder<
     if ((options.checkAll || options.checkRollback) && !rollback)
       checkRollbacks(grs, printAll, logger);
 
+    // check hydrate hash
+    if (
+      (options.checkAll || options.checkHydrate) &&
+      options.hydrate !== undefined
+    )
+      checkHydrateHash(
+        this.calculateHash(entryNTs, lexer) !== options.hydrate.hash,
+        printAll,
+        logger,
+      );
+
     return {
       parser: new Parser(
         dfa,
@@ -398,7 +415,8 @@ export class ParserBuilder<
       ),
       serializable:
         options.serialize ?? false
-          ? ((options.hydrate ?? this.buildSerializable(dfa)) as Readonly<
+          ? ((options.hydrate ??
+              this.buildSerializable(dfa, entryNTs, lexer)) as Readonly<
               SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
             >)
           : undefined,
@@ -648,22 +666,42 @@ export class ParserBuilder<
       LexerKinds | AppendLexerKinds,
       LexerError | AppendLexerError
     >,
+    entryNTs: ReadonlySet<Kinds>,
+    lexer: IReadonlyLexer<
+      LexerError | AppendLexerError,
+      LexerKinds | AppendLexerKinds
+    >,
   ): SerializableParserData<Kinds, LexerKinds | AppendLexerKinds> {
     return {
-      // meta: JSON.stringify({
-      //   data: this.data.map((d) => ({
-      //     defs: d.defs,
-      //   })),
-      //   entryNTs: [...entryNTs],
-      //   resolvedTemp: this.resolvedTemp.map((r) => ({
-      //     reducerRule: r.reducerRule.toStringWithGrammarName(),
-      //     anotherRule: r.anotherRule.toStringWithGrammarName(),
-      //     type: r.type,
-      //   })),
-      //   cascadeQueryPrefix: this.cascadeQueryPrefix,
-      // }),
+      hash: this.calculateHash(entryNTs, lexer),
       data: { dfa: dfa.toJSON() },
     };
+  }
+
+  private calculateHash<AppendLexerKinds extends string, AppendLexerError>(
+    entryNTs: ReadonlySet<Kinds>,
+    lexer: IReadonlyLexer<
+      LexerError | AppendLexerError,
+      LexerKinds | AppendLexerKinds
+    >,
+  ) {
+    return hashStringToNum(
+      JSON.stringify({
+        // ensure lexer kinds are not changed
+        lexerKinds: [...lexer.getTokenKinds()],
+        // ensure grammar rules & resolvers are not changed
+        data: this.data.map((d) => ({
+          defs: d.defs,
+          ctxBuilder: d.ctxBuilder?.build(),
+          resolveOnly: d.resolveOnly,
+          hydrationId: d.hydrationId,
+        })),
+        // ensure the cascade query prefix is not changed
+        cascadeQueryPrefix: this.cascadeQueryPrefix,
+        // ensure entry NTs are not changed
+        entryNTs: [...entryNTs],
+      }),
+    );
   }
 
   private restoreAndHydrate<AppendLexerKinds extends string, AppendLexerError>(

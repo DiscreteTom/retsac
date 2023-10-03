@@ -17,7 +17,8 @@ export type ELR_BuilderErrorType =
   | "TOO_MANY_END_HANDLER"
   | "NO_SUCH_CONFLICT"
   | "NO_RENAME_TARGET"
-  | "ROLLBACK_DEFINED_WHILE_NOT_ENABLED";
+  | "ROLLBACK_DEFINED_WHILE_NOT_ENABLED"
+  | "HYDRATE_HASH_MISMATCH";
 
 export class ELR_BuilderError extends Error {
   type: ELR_BuilderErrorType;
@@ -259,5 +260,15 @@ export class RollbackDefinedWhileNotEnabledError<
         `To enable rollback, set the rollback option to true when build the parser.`,
     );
     Object.setPrototypeOf(this, RollbackDefinedWhileNotEnabledError.prototype);
+  }
+}
+
+export class HydrateHashMismatchError extends ELR_BuilderError {
+  constructor() {
+    super(
+      "HYDRATE_HASH_MISMATCH",
+      `Hydrate hash mismatch. Please rebuild the serializable parser data.`,
+    );
+    Object.setPrototypeOf(this, HydrateHashMismatchError.prototype);
   }
 }

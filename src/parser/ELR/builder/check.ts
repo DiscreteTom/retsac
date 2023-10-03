@@ -9,6 +9,7 @@ import {
   NextGrammarNotFoundError,
   NoSuchConflictError,
   RollbackDefinedWhileNotEnabledError,
+  HydrateHashMismatchError,
 } from "./error";
 
 /**
@@ -219,4 +220,16 @@ export function checkRollbacks<
       else throw e;
     }
   });
+}
+
+export function checkHydrateHash(
+  mismatch: boolean,
+  printAll: boolean,
+  logger: Logger,
+) {
+  if (mismatch) {
+    const e = new HydrateHashMismatchError();
+    if (printAll) logger.log({ entity: "Parser", message: e.message });
+    else throw e;
+  }
 }
