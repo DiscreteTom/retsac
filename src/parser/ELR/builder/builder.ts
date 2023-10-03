@@ -239,10 +239,12 @@ export class ParserBuilder<
       const next =
         r.options.next == "*"
           ? ("*" as const)
+          : r.options.next == undefined
+          ? new GrammarSet<Kinds, LexerKinds | AppendLexerKinds>()
           : new GrammarSet<Kinds, LexerKinds | AppendLexerKinds>(
               // TODO: use a dedicated lexer to parse next
               defToTempGRs({
-                "": r.options.next ?? "",
+                "": r.options.next,
               } as Definition<Kinds>)[0]?.rule.map((g) =>
                 g.toGrammar<
                   Kinds,
