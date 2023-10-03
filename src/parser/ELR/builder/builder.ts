@@ -424,8 +424,8 @@ export class ParserBuilder<
     >,
     style: "builder" | "context",
   ) {
-    let res = "";
     if (style == "builder") {
+      const res = [] as string[];
       unresolved.forEach((v, reducerRule) => {
         const txt = v
           .map(
@@ -438,34 +438,37 @@ export class ParserBuilder<
                       .map((g) => g.grammarStrWithName)
                       .join(" ")}\`, `
                   : ""
-              }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
+              }${c.handleEnd ? `handleEnd: true, ` : ""}accept: TODO })`,
           )
           .join("\n");
-        res += txt + "\n";
+        res.push(txt);
       });
+
+      return res.join("\n");
     } else {
+      const res = [] as string[];
       unresolved.forEach((v, k) => {
         const txt =
-          `=== ${k} ===\nLR` +
+          `=== ${k} ===\n` +
           v
             .map(
               (c) =>
-                `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
-                  c.anotherRule.strWithGrammarName.value
-                }, { ${
+                `ELR.resolve${
+                  c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+                }(${c.anotherRule.strWithGrammarName.value}, { ${
                   c.next.grammars.size > 0
                     ? `next: \`${c.next
                         .map((g) => g.grammarStrWithName)
                         .join(" ")}\`, `
                     : ""
-                }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
+                }${c.handleEnd ? `handleEnd: true, ` : ""}accept: TODO })`,
             )
-            .join("\n  ");
-        res += txt + "\n\n";
+            .join(",\n");
+        res.push(txt);
       });
-    }
 
-    return res;
+      return res.join("\n\n");
+    }
   }
 
   resolveRS(
