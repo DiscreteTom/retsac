@@ -1,6 +1,23 @@
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import type { IParserBuilder } from "../../../src/parser/ELR";
 import type { ILexer } from "../../../src/lexer";
+
+export function generateMermaidString<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  AppendLexerKinds extends string,
+  LexerError,
+  AppendLexerError,
+>(
+  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  entry: Kinds | readonly Kinds[],
+) {
+  const { mermaid } = builder.build({ lexer, entry, mermaid: true });
+  return mermaid!;
+}
 
 export function generateMermaidFile<
   ASTData,
@@ -16,7 +33,9 @@ export function generateMermaidFile<
   entry: Kinds | readonly Kinds[],
   path: string,
 ) {
-  const { mermaid } = builder.build({ lexer, entry, mermaid: true });
+  writeFileSync(path, generateMermaidString(builder, lexer, entry));
+}
 
-  writeFileSync(path, mermaid!);
+export function loadMermaidString(path: string) {
+  return readFileSync(path, "utf8").replace(/\r/g, ""); // remove '\r' for Windows
 }
