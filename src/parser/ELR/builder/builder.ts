@@ -362,6 +362,7 @@ export class ParserBuilder<
       checkSymbols(entryNTs, NTs, lexer.getTokenKinds(), grs, printAll, logger);
 
     // deal with conflicts
+    let resolvers: string | undefined = undefined;
     if (
       options.checkAll ||
       options.checkConflicts ||
@@ -371,7 +372,10 @@ export class ParserBuilder<
       const unresolved = getUnresolvedConflicts(grs, debug, logger);
 
       if (options.generateResolvers !== undefined)
-        this.generateResolvers(unresolved, options.generateResolvers);
+        resolvers = this.generateResolvers(
+          unresolved,
+          options.generateResolvers,
+        );
 
       if (options.checkAll || options.checkConflicts)
         checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
@@ -397,6 +401,7 @@ export class ParserBuilder<
             >)
           : undefined,
       mermaid: options.mermaid ?? false ? dfa.toMermaid() : undefined,
+      resolvers,
     };
   }
 
@@ -419,6 +424,7 @@ export class ParserBuilder<
     >,
     style: "builder" | "context",
   ) {
+    let res = "";
     if (style == "builder") {
       unresolved.forEach((v, reducerRule) => {
         const txt = v
@@ -435,7 +441,7 @@ export class ParserBuilder<
               }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
           )
           .join("\n");
-        console.log(txt);
+        res += txt + "\n";
       });
     } else {
       unresolved.forEach((v, k) => {
@@ -455,12 +461,11 @@ export class ParserBuilder<
                 }${c.handleEnd ? `handleEnd: true, ` : ""}accept: true })`,
             )
             .join("\n  ");
-        console.log(txt);
-        console.log(""); // add a blank line
+        res += txt + "\n\n";
       });
     }
 
-    return this;
+    return res;
   }
 
   resolveRS(

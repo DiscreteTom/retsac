@@ -110,7 +110,7 @@ export interface IParserBuilder<
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
    */
-  // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid
+  // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
   build<AppendLexerKinds extends string, AppendLexerError>(
     options: BuildOptions<
       Kinds,
@@ -133,6 +133,11 @@ export interface IParserBuilder<
       SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>
     >;
     mermaid?: string;
+    /**
+     * If you build the parser with {@link BuildOptions.generateResolvers},
+     * this will be set to the generated resolver string.
+     */
+    resolvers?: string;
   };
   /**
    * Resolve a reduce-shift conflict.
