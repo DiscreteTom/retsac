@@ -59,7 +59,7 @@ export function generateParserDataFile<
   writeFileSync(path, dfaStr);
 }
 
-function loadCacheStr(path: string) {
+function loadCacheString(path: string) {
   try {
     return readFileSync(path, "utf8").replace(/\r/g, ""); // remove \r for windows
   } catch {
@@ -67,7 +67,7 @@ function loadCacheStr(path: string) {
   }
 }
 
-function parseCacheStr(cacheStr: string | undefined) {
+function parseCacheString(cacheStr: string | undefined) {
   if (cacheStr === undefined) return undefined;
   try {
     return JSON.parse(cacheStr);
@@ -77,6 +77,6 @@ function parseCacheStr(cacheStr: string | undefined) {
 }
 
 export function loadCache(path: string) {
-  const cacheStr = loadCacheStr(path);
-  return { cache: parseCacheStr(cacheStr), cacheStr };
+  const cacheStr = loadCacheString(path);
+  return { cache: parseCacheString(cacheStr), cacheStr };
 }
