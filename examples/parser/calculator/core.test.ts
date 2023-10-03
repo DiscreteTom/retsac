@@ -1,4 +1,14 @@
-import { parser } from "./core";
+import { builder, lexer, entry, cache } from "./core";
+
+const { parser } = builder.build({
+  lexer,
+  entry,
+  // use the cached data to speed up
+  // this is recommended in production
+  hydrate: cache,
+  // this should be set to `true` in development
+  checkAll: true,
+});
 
 function getResult(input: string) {
   const res = parser.reset().parseAll(input);

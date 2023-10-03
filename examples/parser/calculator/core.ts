@@ -49,13 +49,3 @@ export const builder = new ELR.ParserBuilder<number>()
   );
 
 export const entry = "exp" as const;
-
-export const { parser } = builder.build({
-  lexer,
-  entry,
-  // use the cached data to speed up
-  // this is recommended in production
-  hydrate: cache,
-  // this should be set to `true` in development
-  checkAll: true,
-});
