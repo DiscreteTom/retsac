@@ -48,7 +48,7 @@ export const { parser } = new ELR.ParserBuilder<number>()
   .resolveRS(
     { exp: `exp '+' exp` },
     { exp: `exp '+' exp` },
-    { next: `'+'`, accept: true },
+    { next: [`'+'`], accept: true },
   )
   .build({ lexer, entry: "stmts", checkAll: true });
 
