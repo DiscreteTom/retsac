@@ -422,7 +422,7 @@ export class Candidate<
     };
   }
 
-  toJSON(
+  toSerializable(
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
@@ -460,7 +460,13 @@ export class Candidate<
     LexerError,
   >(
     data: ReturnType<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      Candidate<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,

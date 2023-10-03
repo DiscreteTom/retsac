@@ -98,7 +98,7 @@ export class CandidateRepo<
     return next;
   }
 
-  toJSON(
+  toSerializable(
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
@@ -109,9 +109,15 @@ export class CandidateRepo<
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     const res = [] as ReturnType<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      Candidate<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >[];
-    this.cs.forEach((c) => res.push(c.toJSON(grs, this, repo)));
+    this.cs.forEach((c) => res.push(c.toSerializable(grs, this, repo)));
     return res;
   }
 
@@ -123,7 +129,13 @@ export class CandidateRepo<
     LexerError,
   >(
     data: ReturnType<
-      CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      CandidateRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,

@@ -140,7 +140,7 @@ export class StateRepo<
     return false;
   }
 
-  toJSON(
+  toSerializable(
     cs: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
@@ -150,7 +150,9 @@ export class StateRepo<
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
-    return stringMap2serializable(this.ss, (s) => s.toJSON(cs, this, repo));
+    return stringMap2serializable(this.ss, (s) =>
+      s.toSerializable(cs, this, repo),
+    );
   }
 
   static fromJSON<
@@ -161,7 +163,13 @@ export class StateRepo<
     LexerError,
   >(
     data: ReturnType<
-      StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      StateRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >,
     cs: ReadonlyCandidateRepo<
       ASTData,

@@ -452,18 +452,21 @@ export class DFA<
       NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],
       grammars: this.grammars.toJSON(),
-      grammarRules: this.grammarRules.toJSON(this.grammars),
-      candidates: this.candidates.toJSON(this.grammarRules, this.grammars),
-      states: this.states.toJSON(this.candidates, this.grammars),
+      grammarRules: this.grammarRules.toSerializable(this.grammars),
+      candidates: this.candidates.toSerializable(
+        this.grammarRules,
+        this.grammars,
+      ),
+      states: this.states.toSerializable(this.candidates, this.grammars),
       entryState: this.states.getKey(this.entryState),
       NTClosures: stringMap2serializable(this.NTClosures, (grs) =>
         grs.map((gr) => this.grammarRules.getKey(gr)),
       ),
       firstSets: stringMap2serializable(this.firstSets, (v) =>
-        v.toJSON(this.grammars),
+        v.toSerializable(this.grammars),
       ),
       followSets: stringMap2serializable(this.followSets, (v) =>
-        v.toJSON(this.grammars),
+        v.toSerializable(this.grammars),
       ),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };

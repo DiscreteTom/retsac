@@ -71,12 +71,12 @@ export class GrammarSet<Kinds extends string, LexerKinds extends string> {
     return new GrammarSet(result);
   }
 
-  toJSON(repo: GrammarRepo<Kinds, LexerKinds>) {
+  toSerializable(repo: GrammarRepo<Kinds, LexerKinds>) {
     return this.map((g) => repo.getKey(g));
   }
 
   static fromJSON<Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarSet<Kinds, LexerKinds>["toJSON"]>,
+    data: ReturnType<GrammarSet<Kinds, LexerKinds>["toSerializable"]>,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
     return new GrammarSet(data.map((s) => repo.getByString(s)!));

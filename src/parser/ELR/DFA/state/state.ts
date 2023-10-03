@@ -325,7 +325,7 @@ export class State<
     return rejectedParserOutput;
   }
 
-  toJSON(
+  toSerializable(
     cs: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
@@ -355,7 +355,7 @@ export class State<
     LexerError,
   >(
     data: ReturnType<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toSerializable"]
     >,
     cs: ReadonlyCandidateRepo<
       ASTData,

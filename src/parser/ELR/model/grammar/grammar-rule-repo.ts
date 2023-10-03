@@ -78,12 +78,18 @@ export class ReadonlyGrammarRuleRepo<
     return res;
   }
 
-  toJSON(
+  toSerializable(
     repo: GrammarRepo<Kinds, LexerKinds>,
   ): ReturnType<
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+    GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError
+    >["toSerializable"]
   >[] {
-    return this.map((gr) => gr.toJSON(repo, this));
+    return this.map((gr) => gr.toSerializable(repo, this));
   }
 
   static fromJSON<
@@ -94,7 +100,13 @@ export class ReadonlyGrammarRuleRepo<
     LexerError,
   >(
     data: ReturnType<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >[],
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {

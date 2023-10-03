@@ -164,7 +164,7 @@ export class GrammarRule<
       .join(" ")}\` }`;
   }
 
-  toJSON(
+  toSerializable(
     repo: GrammarRepo<Kinds, LexerKinds>,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
@@ -232,7 +232,13 @@ export class GrammarRule<
     LexerError,
   >(
     data: ReturnType<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError
+      >["toSerializable"]
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
