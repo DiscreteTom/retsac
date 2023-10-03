@@ -149,11 +149,8 @@ export class TokenizeGrammarRuleFailedError extends ELR_BuilderError {
 }
 
 export class EmptyRuleError extends ELR_BuilderError {
-  constructor(
-    public NT: string,
-    public rule: string,
-  ) {
-    super("EMPTY_RULE", `Empty rule: "${NT} <= ${rule}"`);
+  constructor(public NT: string) {
+    super("EMPTY_RULE", `Empty rule for NT: ${NT}`);
     Object.setPrototypeOf(this, EmptyRuleError.prototype);
   }
 }
@@ -163,7 +160,7 @@ export class EmptyLiteralError extends ELR_BuilderError {
     public NT: string,
     public rule: string,
   ) {
-    super("EMPTY_LITERAL", `Empty literal: "${NT} <= ${rule}"`);
+    super("EMPTY_LITERAL", `Empty literal: "${NT} := ${rule}"`);
     Object.setPrototypeOf(this, EmptyLiteralError.prototype);
   }
 }

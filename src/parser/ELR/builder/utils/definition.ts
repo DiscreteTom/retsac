@@ -64,13 +64,12 @@ export function defToTempGRs<
 
     if (ruleLexer.hasRest())
       throw new TokenizeGrammarRuleFailedError(defStr, ruleLexer.getRest());
-    if (rules.length == 1 && rules[0].length == 0)
-      throw new EmptyRuleError(NT, defStr);
+    if (rules.length == 1 && rules[0].length == 0) throw new EmptyRuleError(NT);
 
     rules.forEach((tokens) => {
       const ruleStr = tokens.map((t) => t.content).join(" ");
 
-      if (tokens.length == 0) throw new EmptyRuleError(NT, defStr);
+      if (tokens.length == 0) throw new EmptyRuleError(NT);
 
       if (
         !tokens
