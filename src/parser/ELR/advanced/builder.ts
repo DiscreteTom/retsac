@@ -5,6 +5,7 @@ import type {
   RS_ResolverOptions,
 } from "../builder";
 import { DefinitionContextBuilder, ParserBuilder } from "../builder";
+import { buildSerializable } from "../builder/utils/serialize";
 import type { BuildOptions, IParserBuilder } from "../model";
 import { ConflictType } from "../model";
 import { GrammarExpander } from "./utils/grammar-expander";
@@ -82,7 +83,7 @@ export class AdvancedBuilder<
     >,
   ) {
     // if hydrate, just call super.build()
-    // since all data needed for build is in super.data
+    // since all data needed for build is in super.data & serialized data
     if (options.hydrate !== undefined) return super.build(options);
 
     const debug = options.debug ?? false;
@@ -176,15 +177,32 @@ export class AdvancedBuilder<
     // hydration id does not matter here
     // since generated resolvers are serializable
     // TODO: should we auto resolve conflicts between generated grammar rules and user defined grammar rules?
-    const res = this.expander.generatePlaceholderGrammarRules<
+    const ph = this.expander.generatePlaceholderGrammarRules<
       ASTData,
       ErrorType
     >(debug, logger);
-    res.defs.forEach((def) => builder.define(def));
-    res.rs.forEach((r) =>
+    ph.defs.forEach((def) => builder.define(def));
+    ph.rs.forEach((r) =>
       builder.resolveRS(r.reducerRule, r.anotherRule, r.options),
     );
 
-    return builder.build(options);
+    // build but don't serialize
+    const res = builder.build({ ...options, serialize: false });
+
+    // if serialize, serialize with this.data instead of builder.data
+    // because when hydrate, we directly use this to hydrate, instead of the new created builder
+    if (options.serialize) {
+      res.serializable = buildSerializable(
+        this.data,
+        res.parser.dfa,
+        new Set(
+          options.entry instanceof Array ? options.entry : [options.entry],
+        ),
+        options.lexer,
+        this.cascadeQueryPrefix,
+      );
+    }
+
+    return res;
   }
 }
