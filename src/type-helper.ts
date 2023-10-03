@@ -6,3 +6,9 @@ export type AtLeastOneOf<T, Keys extends keyof T = keyof T> = {
 export type StringOrLiteral<T extends string> =
   | (string & NonNullable<unknown>) // same as `(string & {})`
   | T;
+
+/**
+ * A quoted string literal type.
+ * E.g. `"abc"`, `'abc'`
+ */
+export type QuotedString = `"${string}"` | `'${string}'`; // TODO: handle escape?

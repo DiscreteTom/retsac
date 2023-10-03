@@ -19,6 +19,8 @@ import { DefinitionContextBuilder } from "./ctx-builder";
 import {
   DefinitionAssociativity,
   DefinitionGroupWithAssociativity,
+  TempGrammar,
+  TempGrammarType,
 } from "./model";
 import type {
   ParserBuilderData,
@@ -27,7 +29,6 @@ import type {
   DefinitionContext,
   RR_ResolverOptions,
 } from "./model";
-import { defToTempGRs } from "./utils/definition";
 import { DFA, DFABuilder } from "../DFA";
 import type { ILexer, IReadonlyLexer } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
@@ -248,16 +249,20 @@ export class ParserBuilder<
           : r.options.next == undefined
           ? new GrammarSet<Kinds, LexerKinds | AppendLexerKinds>()
           : new GrammarSet<Kinds, LexerKinds | AppendLexerKinds>(
-              // TODO: use a dedicated lexer to parse next
-              defToTempGRs({
-                "": r.options.next,
-              } as Definition<Kinds>)[0]?.rule.map((g) =>
-                g.toGrammar<
+              r.options.next.map((n) =>
+                new TempGrammar({
+                  type:
+                    n.startsWith('"') || n.startsWith("'")
+                      ? TempGrammarType.LITERAL
+                      : TempGrammarType.GRAMMAR,
+                  content:
+                    n.startsWith('"') || n.startsWith("'") ? n.slice(1, -1) : n,
+                }).toGrammar<
                   Kinds,
                   LexerKinds | AppendLexerKinds,
                   LexerError | AppendLexerError
-                >(repo, lexer, printAll, logger, NTs.has(g.content as Kinds)),
-              ) ?? [],
+                >(repo, lexer, printAll, logger, NTs.has(n as Kinds)),
+              ),
             );
 
       const accepter = r.options.accept ?? true;

@@ -1,4 +1,4 @@
-import type { AtLeastOneOf, StringOrLiteral } from "../../../../type-helper";
+import type { AtLeastOneOf, QuotedString } from "../../../../type-helper";
 import type { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import type { Definition } from "./definition";
 import type { TempGrammarRule } from "./temp-grammar";
@@ -27,7 +27,7 @@ export type RR_ResolverOptions<
 > = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds, LexerError> &
   AtLeastOneOf<
     {
-      next: StringOrLiteral<"*">;
+      next: "*" | (Kinds | LexerKinds | QuotedString)[];
       handleEnd: boolean;
     },
     "next" | "handleEnd"
@@ -40,7 +40,7 @@ export type RS_ResolverOptions<
   LexerKinds extends string,
   LexerError,
 > = BaseResolverOptions<ASTData, ErrorType, Kinds, LexerKinds, LexerError> & {
-  next: StringOrLiteral<"*">;
+  next: "*" | (Kinds | LexerKinds | QuotedString)[];
 };
 
 export type ConflictTypeAndResolverOptions<

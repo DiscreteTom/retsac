@@ -50,6 +50,7 @@
   - **_Breaking Change_**: use `builder.build({ lexer, entry })` instead of `builder.build(lexer)` and `builder.entry`.
   - **_Breaking Change_**: `GrammarRuleContext.lexer` is `ReadonlyILexer`.
   - **_Breaking Change_**: `IParserBuilder.build` with `generateResolvers` won't print resolvers. The resolver string is stored in the result of `IParserBuilder.build`.
+  - **_Breaking Change_**: use array to define resolver's next set. E.g. ``{ next: [`'+'`], accept: true }``
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
