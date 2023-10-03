@@ -5,6 +5,7 @@ import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ParsingState, ReLexState, RollbackState } from "../model";
+import { hashStringToNum } from "../utils";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type {
@@ -530,16 +531,10 @@ export class DFA<
   }
 
   toMermaid() {
-    // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
-    const hashCode = (s: string) =>
-      s.split("").reduce((a, b) => {
-        a = (a << 5) - a + b.charCodeAt(0);
-        return a & a;
-      }, 0);
     const hashStr = (s: string) => {
       // use 36 radix to reduce length
       // raw may starts with '-' if negative
-      const raw = hashCode(s).toString(36);
+      const raw = hashStringToNum(s).toString(36);
       // use p/n as prefix to avoid starting with number or contains '-'
       return raw.startsWith("-") ? raw.replace("-", "n") : "p" + raw;
     };
