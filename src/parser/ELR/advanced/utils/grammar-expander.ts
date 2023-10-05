@@ -92,19 +92,22 @@ export class GrammarExpander<
     // found RS conflict: reducer { a: `b` } and shifter { a: `b c` }
     // and `c` is in the follow set of `a` and the first set of `c`
     // so the conflict can't be auto resolved by LR(1) peeking
-    // in the worst cases, { a: `b` } and { a: `b c` } will appear in the same state
+    // and { a: `b` } and { a: `b c` } will appear in the same state
     // in that case, this conflict can't be auto resolved by DFA state, either
     // so we need to add resolvers here
     if (resolve)
       expanded.forEach((reducerRule, i) => {
         expanded.forEach((anotherRule, j) => {
           if (i == j) return;
-          if (!anotherRule.startsWith(reducerRule)) return;
+
+          // every 2 rules will generate a resolver
+          // this should ensure all RS conflicts are resolved
 
           result.rs.push({
             reducerRule: { [NT]: reducerRule } as Definition<Kinds>,
             anotherRule: { [NT]: anotherRule } as Definition<Kinds>,
-            // in most cases we want the `+*?` to be greedy
+            // we want the `+*?` to be greedy
+            // so the shorter rule (reducer rule) should be rejected
             options: { next: "*", accept: false },
           });
           if (debug) {
