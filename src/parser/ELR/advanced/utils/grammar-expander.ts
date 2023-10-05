@@ -140,7 +140,6 @@ export class GrammarExpander<
     this.placeholderMap.reset();
   }
 
-  // TODO: what if the generated grammars have conflicts with user defined grammars? is this possible?
   generatePlaceholderGrammarRules<ASTData, ErrorType>(
     debug: boolean,
     logger: Logger,
@@ -169,9 +168,7 @@ export class GrammarExpander<
         ...gs.map((s) => ({
           reducerRule: { [p]: `${s}` } as Definition<Kinds>,
           anotherRule: { [p]: `${s} ${p}` } as Definition<Kinds>,
-          // in most cases we want the `+*?` to be greedy
-          // TODO: check if the rejecter is valid? #22
-          // e.g. invalid rule: { exps: `exp (',' exp)* ','?` }
+          // we want the `+*?` to be greedy
           options: { next: "*" as const, accept: false },
         })),
       );
