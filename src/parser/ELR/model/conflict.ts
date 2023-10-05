@@ -72,10 +72,7 @@ export type ResolvedConflict<
    * Use `'*'` to represent any grammars.
    */
   next:
-    | Pick<
-        Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-        "next"
-      >["next"]
+    | Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["next"]
     | "*";
 } & (
     | {
