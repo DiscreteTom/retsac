@@ -8,6 +8,7 @@ import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import { buildSerializable } from "../builder/utils/serialize";
 import type { BuildOptions, IParserBuilder } from "../model";
 import { ConflictType } from "../model";
+import { InvalidPlaceholderFollowError } from "./error";
 import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
@@ -203,7 +204,25 @@ export class AdvancedBuilder<
       );
     }
 
-    // TODO: additional checks for generated resolvers
+    // additional checks for #22
+    if (options.checkAll || options.checkConflicts) {
+      this.expander.placeholderMap.g2p.forEach((p, g) => {
+        // for each placeholder NT
+        // ensure there is no overlap between its follow set and first set
+        // because the presumption of the generated resolver is that the overlap is empty
+        // otherwise the LR(1) peek will fail
+        const overlap = res.parser.dfa.followSets
+          .get(p as Kinds)!
+          .overlap(res.parser.dfa.firstSets.get(p as Kinds)!);
+
+        if (overlap.grammars.size > 0) {
+          const e = new InvalidPlaceholderFollowError(p, g, overlap);
+          if (options.printAll)
+            logger.log({ entity: "AdvancedBuilder", message: e.message });
+          else throw e;
+        }
+      });
+    }
 
     return res;
   }

@@ -11,7 +11,7 @@ export class GrammarExpander<
   LexerKinds extends string,
   LexerError,
 > {
-  private readonly placeholderMap: PlaceholderMap;
+  readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
     string[],
