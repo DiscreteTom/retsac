@@ -11,11 +11,25 @@ export type BaseResolverOptions<
   LexerError,
 > = {
   /**
-   *  Default: true
+   * @default: true
    */
   accept?:
     | boolean
     | Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  // TODO: is the following feature needed?
+  // /**
+  //  * If `true`, the resolver will be applied to the conflict
+  //  * in which the reducer rule and another rule is reversed.
+  //  * @default: false
+  //  */
+  // viseVersa?: boolean;
+  // /**
+  //  * If `true`, the resolver will be applied to the conflict
+  //  * in which the reducer rule and another rule is reversed,
+  //  * and the `accept` is flipped.
+  //  * @default: false
+  //  */
+  // viceVersaFlip?: boolean;
 };
 
 export type RR_ResolverOptions<
