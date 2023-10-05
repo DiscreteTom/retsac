@@ -58,20 +58,6 @@ export interface IParser<
    */
   reset(): this;
   /**
-   * Clone a new parser with the same states.
-   */
-  clone(options?: {
-    debug?: boolean;
-    logger?: Logger;
-  }): IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  /**
-   * Clone a new parser without states.
-   */
-  dryClone(options?: {
-    debug?: boolean;
-    logger?: Logger;
-  }): IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  /**
    * Feed a string to the lexer.
    */
   feed(input: string): this;

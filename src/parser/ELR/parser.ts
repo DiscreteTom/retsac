@@ -91,34 +91,6 @@ export class Parser<
     return this.commit();
   }
 
-  clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-      this.dfa,
-      this.lexer.clone(),
-      this.autoCommit,
-      this.ignoreEntryFollow,
-      options?.debug ?? this.debug,
-      options?.logger ?? this.logger,
-    );
-    res._buffer = [...this._buffer];
-    res.errors.push(...this.errors);
-    res.reLexStack = [...this.reLexStack];
-    res.rollbackStack = [...this.rollbackStack];
-    return res;
-  }
-
-  dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Parser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-      this.dfa,
-      this.lexer.dryClone(),
-      this.autoCommit,
-      this.ignoreEntryFollow,
-      options?.debug ?? this.debug,
-      options?.logger ?? this.logger,
-    );
-    return res;
-  }
-
   feed(input: string) {
     this.lexer.feed(input);
     return this;
