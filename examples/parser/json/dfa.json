@@ -198,7 +198,36 @@
             "string"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `number` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `true` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `false` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `null` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `string` }",
           "strWithGrammarName": "{ value: `string` }",
           "strWithoutGrammarName": "{ value: `string` }",
@@ -210,7 +239,36 @@
             "number"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `string` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `true` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `false` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `null` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `number` }",
           "strWithGrammarName": "{ value: `number` }",
           "strWithoutGrammarName": "{ value: `number` }",
@@ -222,7 +280,36 @@
             "true"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `string` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `number` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `false` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `null` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `true` }",
           "strWithGrammarName": "{ value: `true` }",
           "strWithoutGrammarName": "{ value: `true` }",
@@ -234,7 +321,36 @@
             "false"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `string` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `number` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `true` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `null` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `false` }",
           "strWithGrammarName": "{ value: `false` }",
           "strWithoutGrammarName": "{ value: `false` }",
@@ -246,7 +362,36 @@
             "null"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `string` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `number` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `true` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ value: `false` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `null` }",
           "strWithGrammarName": "{ value: `null` }",
           "strWithoutGrammarName": "{ value: `null` }",
@@ -258,7 +403,15 @@
             "object"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `array` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `object` }",
           "strWithGrammarName": "{ value: `object` }",
           "strWithoutGrammarName": "{ value: `object` }",
@@ -270,7 +423,15 @@
             "array"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ value: `object` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ value: `array` }",
           "strWithGrammarName": "{ value: `array` }",
           "strWithoutGrammarName": "{ value: `array` }",
@@ -285,7 +446,22 @@
             "\"]\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" value \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ array: `\"[\" value __0 \"]\"` }",
           "strWithGrammarName": "{ array: `\"[\" value __0 \"]\"` }",
           "strWithoutGrammarName": "{ array: `\"[\" value __0 \"]\"` }",
@@ -299,7 +475,22 @@
             "\"]\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" value __0 \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ array: `\"[\" value \"]\"` }",
           "strWithGrammarName": "{ array: `\"[\" value \"]\"` }",
           "strWithoutGrammarName": "{ array: `\"[\" value \"]\"` }",
@@ -312,7 +503,22 @@
             "\"]\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" value __0 \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ array: `\"[\" value \"]\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ array: `\"[\" \"]\"` }",
           "strWithGrammarName": "{ array: `\"[\" \"]\"` }",
           "strWithoutGrammarName": "{ array: `\"[\" \"]\"` }",
@@ -327,7 +533,22 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" object_item \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ object: `\"{\" object_item __1 \"}\"` }",
           "strWithGrammarName": "{ object: `\"{\" object_item __1 \"}\"` }",
           "strWithoutGrammarName": "{ object: `\"{\" object_item __1 \"}\"` }",
@@ -341,7 +562,22 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" object_item __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ object: `\"{\" object_item \"}\"` }",
           "strWithGrammarName": "{ object: `\"{\" object_item \"}\"` }",
           "strWithoutGrammarName": "{ object: `\"{\" object_item \"}\"` }",
@@ -354,7 +590,22 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" object_item __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ object: `\"{\" object_item \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ object: `\"{\" \"}\"` }",
           "strWithGrammarName": "{ object: `\"{\" \"}\"` }",
           "strWithoutGrammarName": "{ object: `\"{\" \"}\"` }",
@@ -393,7 +644,7 @@
           "str": "{ __0: `\",\" value` }",
           "strWithGrammarName": "{ __0: `\",\" value` }",
           "strWithoutGrammarName": "{ __0: `\",\" value` }",
-          "hydrationId": 5
+          "hydrationId": 39
         },
         {
           "NT": "__0",
@@ -407,7 +658,7 @@
           "str": "{ __0: `\",\" value __0` }",
           "strWithGrammarName": "{ __0: `\",\" value __0` }",
           "strWithoutGrammarName": "{ __0: `\",\" value __0` }",
-          "hydrationId": 5
+          "hydrationId": 39
         },
         {
           "NT": "__1",
@@ -428,7 +679,7 @@
           "str": "{ __1: `\",\" object_item` }",
           "strWithGrammarName": "{ __1: `\",\" object_item` }",
           "strWithoutGrammarName": "{ __1: `\",\" object_item` }",
-          "hydrationId": 6
+          "hydrationId": 40
         },
         {
           "NT": "__1",
@@ -442,7 +693,7 @@
           "str": "{ __1: `\",\" object_item __1` }",
           "strWithGrammarName": "{ __1: `\",\" object_item __1` }",
           "strWithoutGrammarName": "{ __1: `\",\" object_item __1` }",
-          "hydrationId": 6
+          "hydrationId": 40
         }
       ],
       "candidates": [

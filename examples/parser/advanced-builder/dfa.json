@@ -294,7 +294,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param __0 \")\" \":\" identifier \"{\" __1 \"}\"` }",
@@ -316,7 +352,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param __0 \")\" \":\" identifier \"{\" \"}\"` }",
@@ -338,7 +410,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param \")\" \":\" identifier \"{\" __1 \"}\"` }",
@@ -359,7 +467,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" param \")\" \":\" identifier \"{\" \"}\"` }",
@@ -380,7 +524,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" \")\" \":\" identifier \"{\" __1 \"}\"` }",
@@ -400,7 +580,43 @@
             "\"}\""
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param __0 \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" param \")\" \":\" identifier@retType \"{\" \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            },
+            {
+              "type": 0,
+              "anotherRule": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" __1 \"}\"` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithGrammarName": "{ fn_def: `pub fn identifier@funcName \"(\" \")\" \":\" identifier@retType \"{\" \"}\"` }",
           "strWithoutGrammarName": "{ fn_def: `pub fn identifier \"(\" \")\" \":\" identifier \"{\" \"}\"` }",
@@ -426,7 +642,15 @@
             "assign_stmt"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ stmt: `ret_stmt` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ stmt: `assign_stmt` }",
           "strWithGrammarName": "{ stmt: `assign_stmt` }",
           "strWithoutGrammarName": "{ stmt: `assign_stmt` }",
@@ -438,7 +662,15 @@
             "ret_stmt"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ stmt: `assign_stmt` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ stmt: `ret_stmt` }",
           "strWithGrammarName": "{ stmt: `ret_stmt` }",
           "strWithoutGrammarName": "{ stmt: `ret_stmt` }",
@@ -482,7 +714,15 @@
             "integer"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `identifier` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ exp: `integer` }",
           "strWithGrammarName": "{ exp: `integer` }",
           "strWithoutGrammarName": "{ exp: `integer` }",
@@ -494,7 +734,15 @@
             "identifier"
           ],
           "conflicts": [],
-          "resolved": [],
+          "resolved": [
+            {
+              "type": 0,
+              "anotherRule": "{ exp: `integer` }",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": false
+            }
+          ],
           "str": "{ exp: `identifier` }",
           "strWithGrammarName": "{ exp: `identifier` }",
           "strWithoutGrammarName": "{ exp: `identifier` }",
@@ -553,7 +801,7 @@
           "str": "{ __0: `\",\" param` }",
           "strWithGrammarName": "{ __0: `\",\" param` }",
           "strWithoutGrammarName": "{ __0: `\",\" param` }",
-          "hydrationId": 8
+          "hydrationId": 42
         },
         {
           "NT": "__0",
@@ -567,7 +815,7 @@
           "str": "{ __0: `\",\" param __0` }",
           "strWithGrammarName": "{ __0: `\",\" param __0` }",
           "strWithoutGrammarName": "{ __0: `\",\" param __0` }",
-          "hydrationId": 8
+          "hydrationId": 42
         },
         {
           "NT": "__1",
@@ -587,7 +835,7 @@
           "str": "{ __1: `stmt` }",
           "strWithGrammarName": "{ __1: `stmt` }",
           "strWithoutGrammarName": "{ __1: `stmt` }",
-          "hydrationId": 9
+          "hydrationId": 43
         },
         {
           "NT": "__1",
@@ -600,7 +848,7 @@
           "str": "{ __1: `stmt __1` }",
           "strWithGrammarName": "{ __1: `stmt __1` }",
           "strWithoutGrammarName": "{ __1: `stmt __1` }",
-          "hydrationId": 9
+          "hydrationId": 43
         }
       ],
       "candidates": [
