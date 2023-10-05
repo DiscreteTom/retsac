@@ -42,6 +42,7 @@ export interface DefinitionContext<
   rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
+  // TODO: reParse?: boolean;
 }
 
 export enum DefinitionAssociativity {
