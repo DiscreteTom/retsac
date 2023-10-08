@@ -77,7 +77,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * You can provide `expect` to limit the token kind/content to be accepted.
    */
   lex(
-    input: Readonly<{
+    options: Readonly<{
       input?: string;
       expect?: Readonly<{
         kind?: string;
@@ -140,21 +140,20 @@ export interface ILexer<ErrorType, Kinds extends string>
     },
   ): string;
   lex(
-    input?:
-      | string
-      | Readonly<{
-          input?: string;
-          expect?: Readonly<{
-            kind?: string;
-            text?: string;
-          }>;
-          /**
-           * If `true`, the lexer will not update its state.
-           * Default: `false`.
-           */
-          peek?: boolean;
-        }>,
+    options: Readonly<{
+      input?: string;
+      expect?: Readonly<{
+        kind?: string;
+        text?: string;
+      }>;
+      /**
+       * If `true`, the lexer will not update its state.
+       * Default: `false`.
+       */
+      peek?: boolean;
+    }>,
   ): Token<ErrorType, Kinds> | null;
+  lex(input?: string): Token<ErrorType, Kinds> | null;
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
@@ -162,7 +161,9 @@ export interface ILexer<ErrorType, Kinds extends string>
   /**
    * Try to retrieve a token list exhaustively.
    */
-  lexAll(
-    input?: string | { input?: string; stopOnError?: boolean },
-  ): Token<ErrorType, Kinds>[];
+  lexAll(options: {
+    input?: string;
+    stopOnError?: boolean;
+  }): Token<ErrorType, Kinds>[];
+  lexAll(input?: string): Token<ErrorType, Kinds>[];
 }
