@@ -2,6 +2,7 @@ import { defaultLogger, type Logger } from "../logger";
 import type { AcceptedActionOutput } from "./action";
 import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
+import { LexerCore } from "./core";
 import { InvalidLengthForTakeError } from "./error";
 import type { Definition, ILexer, Token } from "./model";
 import { esc4regex } from "./utils";
@@ -12,6 +13,7 @@ export class Lexer<ErrorType, Kinds extends string>
 {
   debug: boolean;
   logger: Logger;
+  readonly core: LexerCore<ErrorType, Kinds>;
   readonly errors: Token<ErrorType, Kinds>[];
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
   /** Only `feed`, `reset` can modify this var. */
@@ -41,6 +43,7 @@ export class Lexer<ErrorType, Kinds extends string>
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
     options?: LexerBuildOptions,
   ) {
+    this.core = new LexerCore(defs); // TODO: use interface, don't create it here
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
@@ -173,7 +176,12 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   /** Update inner states. */
-  private update(digested: number, content: string, rest?: string) {
+  private update(
+    digested: number,
+    content: string,
+    // TODO: make this required?
+    rest?: string,
+  ) {
     this._digested += digested;
     this._trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
     this.rest = rest;
@@ -220,6 +228,8 @@ export class Lexer<ErrorType, Kinds extends string>
       if (input.input) this.feed(input.input);
     }
 
+    const entity = "Lexer.lex";
+
     // calculate expect & peek
     const expect = {
       kind: typeof input === "string" ? undefined : input.expect?.kind,
@@ -227,165 +237,36 @@ export class Lexer<ErrorType, Kinds extends string>
     };
     const peek = typeof input === "string" ? false : input.peek ?? false;
 
-    // debug output
     if (this.debug) {
-      if (expect.kind || expect.text || peek) {
-        const info = { expect, peek };
+      if (peek) {
+        const info = { peek };
         this.logger.log({
-          entity: "Lexer.lex",
-          message: `options: ${JSON.stringify(info)}`,
+          entity,
+          message: `peek`,
           info,
         });
       }
     }
 
-    let digestedByPeek = 0;
-    let peekRest = undefined as undefined | string;
-    while (true) {
-      // first, check rest
-      // since maybe some token is muted which cause the rest is empty in the last iteration
-      if (this._digested + digestedByPeek >= this.buffer.length) {
-        if (this.debug) {
-          this.logger.log({
-            entity: "Lexer.lex",
-            message: "no rest",
-          });
-        }
-        return null;
-      }
+    const res = this.core.lex(this._buffer, {
+      start: this._digested,
+      rest: this.rest,
+      expect,
+      debug: this.debug,
+      logger: this.logger,
+    });
 
-      let muted = false;
-      // all defs will reuse this input to reuse lazy values
-      const input = new ActionInput({
-        buffer: this._buffer,
-        start: this._digested + digestedByPeek,
-        rest: digestedByPeek == 0 ? this.rest : peekRest,
-      });
-      for (const def of this.defs) {
-        // if user provide expected kind, ignore unmatched kind, unless it's muted(still can be digested but not emit).
-        // so if an action is never muted, we can skip it safely
-        if (
-          // never muted, so we can check the expectation
-          !def.action.maybeMuted &&
-          // expectation mismatch
-          ((expect.kind !== undefined && def.kind != expect.kind) ||
-            (expect.text !== undefined &&
-              !this._buffer.startsWith(
-                expect.text,
-                this._digested + digestedByPeek,
-              )))
-        ) {
-          if (this.debug) {
-            const info = { kind: def.kind || "<anonymous>" };
-            this.logger.log({
-              entity: "Lexer.lex",
-              message: `skip (unexpected and never muted): ${info.kind}`,
-              info,
-            });
-          }
-          continue; // try next def
-        }
-
-        const res = def.action.exec(input);
-        if (
-          res.accept &&
-          // if user provide expected kind, reject unmatched kind
-          (!expect.kind ||
-            expect.kind == def.kind ||
-            // but if the unmatched kind is muted (e.g. ignored), accept it
-            res.muted) &&
-          // if user provide expected text, reject unmatched text
-          (!expect.text ||
-            expect.text == res.content ||
-            // but if the unmatched text is muted (e.g. ignored), accept it
-            res.muted)
-        ) {
-          if (this.debug) {
-            const info = {
-              kind: def.kind || "<anonymous>",
-              muted: res.muted,
-              content: res.content,
-            };
-            this.logger.log({
-              entity: "Lexer.lex",
-              message: `accept kind ${info.kind}${
-                info.muted ? "(muted)" : ""
-              }, ${info.content.length} chars: ${JSON.stringify(info.content)}`,
-              info,
-            });
-          }
-          // update this state
-          if (!peek) this.update(res.digested, res.content, res._rest);
-          else {
-            digestedByPeek += res.digested;
-            peekRest = res._rest;
-          }
-
-          // construct token
-          const token = this.res2token(res, def);
-
-          // collect errors
-          if (!peek && token.error) this.errors.push(token);
-
-          if (!res.muted) {
-            // emit token
-            return token;
-          } else {
-            // accept but muted, don't emit token, re-loop all definitions
-            muted = true;
-            break; // break the iteration of definitions
-          }
-        } else {
-          // not accept or unexpected
-
-          // if not accept, try next def
-          if (!res.accept) {
-            if (this.debug) {
-              const info = { kind: def.kind || "<anonymous>" };
-              this.logger.log({
-                entity: "Lexer.lex",
-                message: `reject: ${info.kind}`,
-                info,
-              });
-            }
-          }
-          // below won't happen, res.muted is always false here
-          // else if (res.muted)
-          //   if(this.debug) this.logger(
-          //     `[Lexer.lex] muted: ${
-          //       def.kind || "<anonymous>"
-          //     } content: ${JSON.stringify(res.content)}`
-          //   );
-          else {
-            // unexpected, try next def
-            if (this.debug) {
-              const info = {
-                kind: def.kind || "<anonymous>",
-                content: res.content,
-              };
-              this.logger.log({
-                entity: "Lexer.lex",
-                message: `unexpected ${info.kind}: ${JSON.stringify(
-                  info.content,
-                )}`,
-                info,
-              });
-            }
-          }
-        }
-      } // end of defs iteration
-      if (!muted) {
-        // all definition checked, no accept or muted
-        if (this.debug) {
-          this.logger.log({
-            entity: "Lexer.lex",
-            message: "no accept",
-          });
-        }
-        return null;
-      }
-      // else, muted, re-loop all definitions
+    // update state if not peek
+    if (!peek) {
+      this.update(
+        res.digested,
+        this._buffer.slice(this._digested, this._digested + res.digested),
+        res.rest,
+      );
+      this.errors.push(...res.errors);
     }
+
+    return res.token;
   }
 
   lexAll(
