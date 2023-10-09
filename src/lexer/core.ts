@@ -20,30 +20,18 @@ export class LexerCore<ErrorType, Kinds extends string> {
     options: Readonly<{
       /**
        * From which char of the input string to start lexing.
-       * @default 0
        */
       start: number;
       /**
        * If NOT `undefined`, the value should be `input.slice(options.offset)`.
        * This is to optimize the performance if some actions need to get the rest of the input.
-       * @default undefined
        */
       rest: string | undefined;
-      /**
-       * If `undefined` then no expectation is applied.
-       * @default undefined
-       */
       expect: Readonly<{
         kind?: Kinds;
         text?: string;
       }>;
-      /**
-       * @default false
-       */
       debug: boolean;
-      /**
-       * @default defaultLogger
-       */
       logger: Logger;
     }>,
   ): {
@@ -81,7 +69,7 @@ export class LexerCore<ErrorType, Kinds extends string> {
       }
     }
 
-    const start = options?.start ?? 0;
+    const start = options?.start;
     let rest = options?.rest;
     let digested = 0;
     const errors = [] as Token<ErrorType, Kinds>[];
