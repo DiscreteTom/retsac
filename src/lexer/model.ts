@@ -37,7 +37,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
    */
-  readonly errors: Token<ErrorType, Kinds>[];
+  get errors(): readonly Readonly<Token<ErrorType, Kinds>>[];
   get defs(): readonly Readonly<Definition<ErrorType, Kinds>>[];
   /**
    * The entire input string.
@@ -111,6 +111,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
 
 export interface ILexer<ErrorType, Kinds extends string>
   extends IReadonlyLexer<ErrorType, Kinds> {
+  get errors(): Readonly<Token<ErrorType, Kinds>>[]; // make the array writable
   set debug(value: boolean);
   set logger(value: Logger);
   /**

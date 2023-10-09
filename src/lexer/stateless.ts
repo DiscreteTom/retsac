@@ -2,6 +2,7 @@ import { defaultLogger, type Logger } from "../logger";
 import { ActionInput, type AcceptedActionOutput } from "./action";
 import type { Definition, Token } from "./model";
 
+// TODO: extract interface
 export class StatelessLexer<ErrorType, Kinds extends string> {
   constructor(
     readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
@@ -36,6 +37,10 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
        * @default defaultLogger
        */
       logger?: Logger;
+      /**
+       * @default "StatelessLexer.lex"
+       */
+      entity?: string;
     }>,
   ): {
     /**
@@ -58,7 +63,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
     const expect = options?.expect ?? {};
-    const entity = "StatelessLexer.lex";
+    const entity = options?.entity ?? "StatelessLexer.lex";
 
     // debug output
     if (debug) {

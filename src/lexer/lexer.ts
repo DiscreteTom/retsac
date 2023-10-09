@@ -4,6 +4,7 @@ import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import type { Definition, ILexer, Token } from "./model";
+import { LexerState } from "./state";
 import { StatelessLexer } from "./stateless";
 import { esc4regex } from "./utils";
 
@@ -13,70 +14,47 @@ export class Lexer<ErrorType, Kinds extends string>
 {
   debug: boolean;
   logger: Logger;
-  readonly stateless: StatelessLexer<ErrorType, Kinds>;
-  readonly errors: Token<ErrorType, Kinds>[];
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
-  /** Only `feed`, `reset` can modify this var. */
-  private _buffer: string;
-  /**
-   * How many chars are digested.
-   * Only `update`, `reset` can modify this var.
-   */
-  private _digested: number;
-  /**
-   * How many chars in each line.
-   * Only `update`, `reset` can modify this var.
-   */
-  private _lineChars: number[];
-  /**
-   * Cache whether this lexer already trim start.
-   * Only `update`, `feed`, `reset`, `trimStart` can modify this var.
-   */
-  private _trimmed: boolean;
-  /**
-   * This is lazy and cached.
-   * Only `update`, `reset` and `feed` can modify this var.
-   */
-  private rest?: string;
+  readonly stateless: StatelessLexer<ErrorType, Kinds>;
+  private state: LexerState<ErrorType, Kinds>;
 
   constructor(
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
     options?: LexerBuildOptions,
   ) {
     this.stateless = new StatelessLexer(defs); // TODO: use interface, don't create it here
+    this.state = new LexerState();
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
-    this.errors = [];
     this.reset();
   }
 
   get buffer() {
-    return this._buffer;
+    return this.state.buffer;
   }
 
   get digested() {
-    return this._digested;
+    return this.state.digested;
   }
 
   get lineChars(): readonly number[] {
-    return this._lineChars;
+    return this.state.lineChars;
   }
 
   get trimmed() {
-    return this._trimmed;
+    return this.state.trimmed;
+  }
+
+  get errors() {
+    return this.state.errors;
   }
 
   reset() {
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });
     }
-    this._buffer = "";
-    this._digested = 0;
-    this._lineChars = [0];
-    this.errors.length = 0;
-    this._trimmed = true; // no input yet, so no need to trim
-    this.rest = undefined;
+    this.state.reset();
     return this;
   }
 
@@ -89,12 +67,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
     const res = this.dryClone(options);
-    res._buffer = this._buffer;
-    res._digested = this._digested;
-    res._lineChars = [...this._lineChars];
-    res.errors.push(...this.errors);
-    res._trimmed = this._trimmed;
-    res.rest = this.rest;
+    res.state = this.state.clone();
     return res;
   }
 
@@ -108,14 +81,12 @@ export class Lexer<ErrorType, Kinds extends string>
         info,
       });
     }
-    this._buffer += input;
-    this._trimmed = false; // maybe the new feed chars can construct a new token
-    this.rest = undefined; // clear cache
+    this.state.feed(input);
     return this;
   }
 
   take(n = 1) {
-    const content = this._buffer.slice(this._digested, this._digested + n);
+    const content = this.buffer.slice(this.digested, this.digested + n);
 
     if (n > 0) {
       if (this.debug) {
@@ -130,7 +101,7 @@ export class Lexer<ErrorType, Kinds extends string>
       }
     } else throw new InvalidLengthForTakeError(n);
 
-    this.update(n, content, undefined);
+    this.state.update(n, content, undefined);
     return content;
   }
 
@@ -145,8 +116,8 @@ export class Lexer<ErrorType, Kinds extends string>
     if ((options?.autoGlobal ?? true) && !regex.global && !regex.sticky)
       regex = new RegExp(regex.source, regex.flags + "g");
 
-    regex.lastIndex = this._digested;
-    const res = regex.exec(this._buffer);
+    regex.lastIndex = this.digested;
+    const res = regex.exec(this.buffer);
 
     if (!res || res.index == -1) {
       if (this.debug) {
@@ -160,7 +131,7 @@ export class Lexer<ErrorType, Kinds extends string>
       return "";
     }
 
-    const content = this._buffer.slice(this._digested, res.index + 1);
+    const content = this.buffer.slice(this.digested, res.index + 1);
     if (this.debug) {
       const info = { regex, content };
       this.logger.log({
@@ -171,25 +142,8 @@ export class Lexer<ErrorType, Kinds extends string>
         info,
       });
     }
-    this.update(content.length, content, undefined);
+    this.state.update(content.length, content, undefined);
     return content;
-  }
-
-  /** Update inner states. */
-  private update(digested: number, content: string, rest: string | undefined) {
-    this._digested += digested;
-    this._trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
-    this.rest = rest;
-    // calculate line chars
-    // `split` is faster than iterate all chars
-    content.split("\n").forEach((part, i, list) => {
-      this._lineChars[this._lineChars.length - 1] += part.length;
-      if (i != list.length - 1) {
-        this._lineChars[this._lineChars.length - 1]++; // add '\n'
-        this._lineChars.push(0); // new line with 0 chars
-      }
-    });
-    return this;
   }
 
   private res2token(
@@ -243,19 +197,20 @@ export class Lexer<ErrorType, Kinds extends string>
       }
     }
 
-    const res = this.stateless.lex(this._buffer, {
-      start: this._digested,
-      rest: this.rest,
+    const res = this.stateless.lex(this.buffer, {
+      start: this.digested,
+      rest: this.state.rest,
       expect,
       debug: this.debug,
       logger: this.logger,
+      entity,
     });
 
     // update state if not peek
     if (!peek) {
-      this.update(
+      this.state.update(
         res.digested,
-        this._buffer.slice(this._digested, this._digested + res.digested),
+        this.buffer.slice(this.digested, this.digested + res.digested),
         res.rest,
       );
       this.errors.push(...res.errors);
@@ -292,15 +247,15 @@ export class Lexer<ErrorType, Kinds extends string>
     this.feed(input);
 
     while (true) {
-      // when no rest, this.trimmed is set to true by this.update
-      if (this._trimmed) return this;
+      // when no rest, this.trimmed is set to true by this.state.update
+      if (this.trimmed) return this;
 
       let mute = false;
       // all defs will reuse this input to reuse lazy values
       const input = new ActionInput({
-        buffer: this._buffer,
-        start: this._digested,
-        rest: this.rest,
+        buffer: this.buffer,
+        start: this.digested,
+        rest: this.state.rest,
       });
       for (const def of this.defs) {
         // if def is never muted, ignore it
@@ -334,7 +289,7 @@ export class Lexer<ErrorType, Kinds extends string>
                 info,
               });
             }
-            this._trimmed = true;
+            this.state.trimmed = true;
             return this;
           }
 
@@ -352,7 +307,7 @@ export class Lexer<ErrorType, Kinds extends string>
           }
 
           // next token is muted, update this state
-          this.update(res.digested, res.content, res._rest);
+          this.state.update(res.digested, res.content, res._rest);
 
           // construct token
           const token = this.res2token(res, def);
@@ -383,7 +338,7 @@ export class Lexer<ErrorType, Kinds extends string>
             message: "no accept",
           });
         }
-        this._trimmed = true;
+        this.state.trimmed = true;
         return this;
       }
       // else, muted, re-loop all definitions
@@ -391,7 +346,9 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   getRest() {
-    return this.rest ?? (this.rest = this._buffer.slice(this.digested));
+    return (
+      this.state.rest ?? (this.state.rest = this.buffer.slice(this.digested))
+    );
   }
 
   hasRest() {
