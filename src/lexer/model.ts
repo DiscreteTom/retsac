@@ -80,7 +80,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
     options: Readonly<{
       input?: string;
       expect?: Readonly<{
-        kind?: string;
+        kind?: Kinds;
         text?: string;
       }>;
       // readonly lex, must set peek to true
@@ -143,7 +143,7 @@ export interface ILexer<ErrorType, Kinds extends string>
     options: Readonly<{
       input?: string;
       expect?: Readonly<{
-        kind?: string;
+        kind?: Kinds;
         text?: string;
       }>;
       /**

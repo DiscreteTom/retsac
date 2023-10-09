@@ -231,7 +231,7 @@ export class State<
 
         // lex candidate.current
         const r = lexGrammar<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-          c.current,
+          c.current as Grammar<LexerKinds>,
           lexer,
         );
         // mark this grammar as done, no matter if the lex is successful

@@ -242,7 +242,7 @@ export class Candidate<
               // peek with expectation
               peek: true,
               expect: {
-                kind: g.kind,
+                kind: g.kind as LexerKinds,
                 text: g.text,
               },
             }) != null
@@ -330,7 +330,7 @@ export class Candidate<
           // peek with expectation
           peek: true,
           expect: {
-            kind: g.kind,
+            kind: g.kind as LexerKinds,
             text: g.text,
           },
         });

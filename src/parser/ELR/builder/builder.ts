@@ -160,7 +160,7 @@ export class ParserBuilder<
 
   private buildDFA<AppendLexerKinds extends string, AppendLexerError>(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+    lexer: ILexer<LexerError | AppendLexerError, LexerKinds | AppendLexerKinds>,
     printAll: boolean,
     debug: boolean,
     logger: Logger,

@@ -194,7 +194,7 @@ export function lexGrammar<
   LexerKinds extends string,
   LexerError,
 >(
-  g: Grammar<Kinds | LexerKinds>,
+  g: Grammar<LexerKinds>,
   roLexer: IReadonlyLexer<LexerError, LexerKinds>,
 ):
   | {
@@ -410,7 +410,9 @@ export function serializable2map<K extends string, V, R>(
  * The result is `JSON.stringify`-ed.
  * This is used for debugging.
  */
-export function prettierLexerRest(lexer: IReadonlyLexer<unknown, string>) {
+export function prettierLexerRest<LexerError, LexerKinds extends string>(
+  lexer: IReadonlyLexer<LexerError, LexerKinds>,
+) {
   const showLength = 30;
   return `${JSON.stringify(
     lexer.buffer.slice(lexer.digested, lexer.digested + showLength),

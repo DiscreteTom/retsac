@@ -207,7 +207,7 @@ export class Lexer<ErrorType, Kinds extends string>
       | Readonly<{
           input?: string;
           expect?: Readonly<{
-            kind?: string;
+            kind?: Kinds;
             text?: string;
           }>;
           peek?: boolean;
