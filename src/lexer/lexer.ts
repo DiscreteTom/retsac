@@ -2,9 +2,9 @@ import { defaultLogger, type Logger } from "../logger";
 import type { AcceptedActionOutput } from "./action";
 import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
-import { LexerCore } from "./core";
 import { InvalidLengthForTakeError } from "./error";
 import type { Definition, ILexer, Token } from "./model";
+import { StatelessLexer } from "./stateless";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
@@ -13,7 +13,7 @@ export class Lexer<ErrorType, Kinds extends string>
 {
   debug: boolean;
   logger: Logger;
-  readonly core: LexerCore<ErrorType, Kinds>;
+  readonly stateless: StatelessLexer<ErrorType, Kinds>;
   readonly errors: Token<ErrorType, Kinds>[];
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
   /** Only `feed`, `reset` can modify this var. */
@@ -43,7 +43,7 @@ export class Lexer<ErrorType, Kinds extends string>
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
     options?: LexerBuildOptions,
   ) {
-    this.core = new LexerCore(defs); // TODO: use interface, don't create it here
+    this.stateless = new StatelessLexer(defs); // TODO: use interface, don't create it here
     this.defs = defs;
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
@@ -248,7 +248,7 @@ export class Lexer<ErrorType, Kinds extends string>
       }
     }
 
-    const res = this.core.lex(this._buffer, {
+    const res = this.stateless.lex(this._buffer, {
       start: this._digested,
       rest: this.rest,
       expect,
