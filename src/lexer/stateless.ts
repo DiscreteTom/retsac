@@ -94,8 +94,6 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
         return { token: null, digested, rest, errors };
       }
 
-      /** Set this to `true` if any action is muted. */
-      let muted = false;
       // all defs will reuse this action input to reuse lazy values
       // so we have to create it outside the loop
       const input = new ActionInput({
@@ -103,132 +101,163 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
         start: start + digested,
         rest,
       });
-      for (const def of this.defs) {
-        // if user provide expected kind/text, ignore unmatched kind/text
-        // unless it's muted(still can be accepted but not emit).
-        if (
-          // if an action is never muted, we can skip it safely after checking expectation
-          !def.action.maybeMuted &&
-          // skip if expectation mismatch
-          ((expect.kind !== undefined && def.kind != expect.kind) ||
-            (expect.text !== undefined &&
-              !buffer.startsWith(expect.text, start + digested)))
-        ) {
+      const res = StatelessLexer.traverseDefs(
+        this.defs,
+        input,
+        expect,
+        debug,
+        logger,
+        entity,
+      );
+
+      if (res === undefined) {
+        // all definition checked, no accept or muted
+        return { token: null, digested, rest, errors };
+      }
+
+      // update state
+      digested += res.output.digested;
+      rest = res.output.rest;
+
+      if (res.output.muted) {
+        // accept but muted, don't emit token, re-loop all definitions after collecting errors
+        if (res.output.error !== undefined) {
+          // collect errors
+          const token = StatelessLexer.res2token(res.output, res.def);
+          errors.push(token);
+        }
+        continue;
+      } else {
+        // not muted, emit token after collecting errors
+        const token = StatelessLexer.res2token(res.output, res.def);
+        if (res.output.error !== undefined) {
+          // collect errors
+          errors.push(token);
+        }
+        return { token, digested, rest, errors };
+      }
+    }
+  }
+
+  /**
+   * If any definition is accepted, return the first accepted definition.
+   * If no definition is accepted, return `undefined`.
+   */
+  static traverseDefs<ErrorType, Kinds extends string>(
+    defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
+    input: ActionInput,
+    expect: Readonly<{ kind?: Kinds; text?: string }>,
+    debug: boolean,
+    logger: Logger,
+    entity: string,
+  ) {
+    for (const def of defs) {
+      // if user provide expected kind/text, ignore unmatched kind/text
+      // unless it's muted(still can be accepted but not emit).
+      if (
+        // if an action is never muted, we can skip it safely after checking expectation
+        !def.action.maybeMuted &&
+        // skip if expectation mismatch
+        ((expect.kind !== undefined && def.kind != expect.kind) ||
+          (expect.text !== undefined &&
+            !input.buffer.startsWith(expect.text, input.start)))
+      ) {
+        if (debug) {
+          const info = { kind: def.kind || "<anonymous>" };
+          logger.log({
+            entity,
+            message: `skip (unexpected and never muted): ${info.kind}`,
+            info,
+          });
+        }
+        // this action is skipped, try next def
+        continue;
+      }
+
+      const output = def.action.exec(input);
+      if (
+        output.accept &&
+        // if user provide expected kind, reject unmatched kind
+        (expect.kind === undefined ||
+          expect.kind === def.kind ||
+          // but if the unmatched kind is muted (e.g. ignored), accept it
+          output.muted) &&
+        // if user provide expected text, reject unmatched text
+        (expect.text === undefined ||
+          expect.text === output.content ||
+          // but if the unmatched text is muted (e.g. ignored), accept it
+          output.muted)
+      ) {
+        if (debug) {
+          const info = {
+            kind: def.kind || "<anonymous>",
+            muted: output.muted,
+            content: output.content,
+          };
+          logger.log({
+            entity,
+            message: `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
+              info.content.length
+            } chars: ${JSON.stringify(info.content)}`,
+            info,
+          });
+        }
+        return { output, def };
+      } else {
+        // not accept or unexpected
+        // TODO: split the 2 possibilities
+
+        // if not accept, try next def
+        if (!output.accept) {
           if (debug) {
             const info = { kind: def.kind || "<anonymous>" };
             logger.log({
               entity,
-              message: `skip (unexpected and never muted): ${info.kind}`,
+              message: `reject: ${info.kind}`,
               info,
             });
           }
-          // this action is skipped, try next def
+          // try next def
           continue;
         }
-
-        const res = def.action.exec(input);
-        if (
-          res.accept &&
-          // if user provide expected kind, reject unmatched kind
-          (expect.kind === undefined ||
-            expect.kind === def.kind ||
-            // but if the unmatched kind is muted (e.g. ignored), accept it
-            res.muted) &&
-          // if user provide expected text, reject unmatched text
-          (expect.text === undefined ||
-            expect.text === res.content ||
-            // but if the unmatched text is muted (e.g. ignored), accept it
-            res.muted)
-        ) {
+        // below won't happen, res.muted is always false here
+        // else if (res.muted)
+        //   if(debug) logger(
+        //     `[Lexer.lex] muted: ${
+        //       def.kind || "<anonymous>"
+        //     } content: ${JSON.stringify(res.content)}`
+        //   );
+        else {
+          // unexpected, try next def
           if (debug) {
             const info = {
               kind: def.kind || "<anonymous>",
-              muted: res.muted,
-              content: res.content,
+              content: output.content,
             };
             logger.log({
               entity,
-              message: `accept kind ${info.kind}${
-                info.muted ? "(muted)" : ""
-              }, ${info.content.length} chars: ${JSON.stringify(info.content)}`,
+              message: `unexpected ${info.kind}: ${JSON.stringify(
+                info.content,
+              )}`,
               info,
             });
           }
-
-          // construct token
-          const token = this.res2token(res, def);
-
-          // update state, collect errors
-          digested += res.digested;
-          rest = res._rest;
-          if (res.error !== undefined) errors.push(token);
-
-          if (!res.muted) {
-            // not muted, emit token
-            return { token, digested, rest, errors };
-          } else {
-            // accept but muted, don't emit token, re-loop all definitions
-            muted = true;
-            break; // break the iteration of definitions
-          }
-        } else {
-          // not accept or unexpected
-
-          // if not accept, try next def
-          if (!res.accept) {
-            if (debug) {
-              const info = { kind: def.kind || "<anonymous>" };
-              logger.log({
-                entity,
-                message: `reject: ${info.kind}`,
-                info,
-              });
-            }
-            // try next def
-            continue;
-          }
-          // below won't happen, res.muted is always false here
-          // else if (res.muted)
-          //   if(debug) logger(
-          //     `[Lexer.lex] muted: ${
-          //       def.kind || "<anonymous>"
-          //     } content: ${JSON.stringify(res.content)}`
-          //   );
-          else {
-            // unexpected, try next def
-            if (debug) {
-              const info = {
-                kind: def.kind || "<anonymous>",
-                content: res.content,
-              };
-              logger.log({
-                entity,
-                message: `unexpected ${info.kind}: ${JSON.stringify(
-                  info.content,
-                )}`,
-                info,
-              });
-            }
-            // try next def
-            continue;
-          }
+          // try next def
+          continue;
         }
-      } // end of defs iteration
-      if (!muted) {
-        // all definition checked, no accept or muted
-        if (debug) {
-          logger.log({
-            entity,
-            message: "no accept",
-          });
-        }
-        return { token: null, digested, rest, errors };
       }
-      // else, muted, re-loop all definitions
+    } // end of defs iteration
+
+    if (debug) {
+      logger.log({
+        entity,
+        message: "no accept",
+      });
     }
+    return undefined;
   }
 
-  res2token(
+  static res2token<ErrorType, Kinds extends string>(
     res: Readonly<AcceptedActionOutput<ErrorType>>,
     def: Readonly<Definition<ErrorType, Kinds>>,
   ): Token<ErrorType, Kinds> {
