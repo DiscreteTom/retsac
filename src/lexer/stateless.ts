@@ -58,7 +58,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
     const expect = options?.expect ?? {};
-    const entity = "LexerCore.lex";
+    const entity = "StatelessLexer.lex";
 
     // debug output
     if (debug) {
