@@ -130,7 +130,7 @@ export class Lexer<ErrorType, Kinds extends string>
       }
     } else throw new InvalidLengthForTakeError(n);
 
-    this.update(n, content);
+    this.update(n, content, undefined);
     return content;
   }
 
@@ -171,17 +171,12 @@ export class Lexer<ErrorType, Kinds extends string>
         info,
       });
     }
-    this.update(content.length, content);
+    this.update(content.length, content, undefined);
     return content;
   }
 
   /** Update inner states. */
-  private update(
-    digested: number,
-    content: string,
-    // TODO: make this required?
-    rest?: string,
-  ) {
+  private update(digested: number, content: string, rest: string | undefined) {
     this._digested += digested;
     this._trimmed = this._digested == this._buffer.length; // if all chars are digested, no need to trim
     this.rest = rest;
