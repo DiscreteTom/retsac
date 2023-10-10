@@ -211,7 +211,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       const res = StatelessLexer.evaluateDefs(
         input,
         this.defs,
-        {}, // no expectation
+        { muted: true },
         debug,
         logger,
         entity,
@@ -247,12 +247,14 @@ export class StatelessLexer<ErrorType, Kinds extends string>
    * Find the first definition which can accept the input (including muted).
    * If no definition is accepted, return `undefined`.
    *
-   * If the result token is muted, it may not match the expectation.
+   * If the result token is muted, it may not match the expectation's kind/text.
+   *
+   * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
    */
   static evaluateDefs<ErrorType, Kinds extends string>(
     input: ActionInput,
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-    expect: Readonly<{ kind?: Kinds; text?: string }>,
+    expect: Readonly<{ kind?: Kinds; text?: string; muted?: boolean }>, // TODO: muted is confusing, should move it to a new param
     debug: boolean,
     logger: Logger,
     entity: string,
@@ -270,8 +272,9 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         // because muted tokens are always accepted even mismatch the expectation
         // so we have to ensure the action is never muted
         !def.action.maybeMuted &&
-        ((expect.kind !== undefined && def.kind != expect.kind) || // def.kind mismatch
-          !restMatchExpectation) // rest head mismatch the text
+        (expect.muted || // if we expect muted, and the action is never muted, should skip
+          (expect.kind !== undefined && def.kind != expect.kind) || // def.kind mismatch, should skip
+          !restMatchExpectation) // rest head mismatch the text, should skip
       ) {
         if (debug) {
           const info = { kind: def.kind || "<anonymous>" };
