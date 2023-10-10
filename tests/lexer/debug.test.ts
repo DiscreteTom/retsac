@@ -30,7 +30,7 @@ test("lexer debug lex", () => {
       ?.content,
   ).toBe("12345");
   expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"},"peek":false}',
+    '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"}}',
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: <anonymous>");
   expect(printer).toHaveBeenCalledWith(
@@ -58,16 +58,9 @@ test("lexer debug lex", () => {
     '[Lexer.lex] accept kind <anonymous>(muted), 1 chars: " "',
   );
 
-  // peek with expect
+  // peek
   lexer.reset().lex({ input: "123", expect: { kind: "number" }, peek: true });
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] options: {"expect":{"kind":"number"},"peek":true}',
-  );
-  // peek without expect
-  lexer.reset().lex({ input: "123", peek: true });
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] options: {"expect":{},"peek":true}',
-  );
+  expect(printer).toHaveBeenCalledWith("[Lexer.lex] peek");
 });
 
 test("lexer debug trimStart", () => {
@@ -91,18 +84,18 @@ test("lexer debug trimStart", () => {
   // check logs
   expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
   expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] trim <anonymous>: " "',
+    '[Lexer.trimStart] accept kind <anonymous>(muted), 1 chars: " "',
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: <anonymous>");
   expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (never muted): <anonymous>",
+    "[Lexer.trimStart] skip (unexpected and never muted): <anonymous>",
   );
   expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (never muted): hash",
+    "[Lexer.trimStart] skip (unexpected and never muted): hash",
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: string");
   expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] found unmuted number: "123"',
+    '[Lexer.trimStart] accept kind number, 3 chars: "123"',
   );
 
   lexer.reset().trimStart("$"); // no accept
