@@ -289,14 +289,14 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       if (output.accept) {
         // check expectation
         if (
-          // we don't need to check def.kind here, since we've checked it before
-          // if user provide expected text, reject unmatched text
-          expect.text === undefined ||
-          expect.text === output.content ||
-          // but if the unmatched token is muted (e.g. ignored), still accept it
-          output.muted
+          // if muted, we don't need to check expectation
+          output.muted ||
+          // if user provide expected kind, reject unmatched kind
+          ((expect.kind === undefined || expect.kind === def.kind) &&
+            // if user provide expected text, reject unmatched text
+            (expect.text === undefined || expect.text === output.content))
         ) {
-          // accepted (expected or muted), return
+          // accepted (muted or expected), return
           if (debug) {
             const info = {
               kind: def.kind || "<anonymous>",
