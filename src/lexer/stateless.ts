@@ -266,7 +266,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       input.buffer.startsWith(expect.text, input.start);
 
     for (const def of defs) {
-      const res = StatelessLexer.tryDefinition(
+      const output = StatelessLexer.tryDefinition(
         input,
         def,
         expect,
@@ -275,8 +275,8 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         logger,
         entity,
       );
-      if (res !== undefined) {
-        return res;
+      if (output !== undefined) {
+        return { output, def };
       }
     }
 
@@ -290,7 +290,9 @@ export class StatelessLexer<ErrorType, Kinds extends string>
   }
 
   /**
-   * Return `undefined` if the definition can't accept the input(unexpected or reject).
+   * Try to apply the definition's action to the input.
+   * Return the action's output if accepted and expected.
+   * Return `undefined` if the definition is rejected or unexpected.
    */
   static tryDefinition<ErrorType, Kinds extends string>(
     input: ActionInput,
@@ -362,7 +364,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
           info,
         });
       }
-      return { output, def };
+      return output;
     }
 
     // accepted but unexpected and not muted, reject
