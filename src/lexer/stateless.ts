@@ -8,6 +8,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
     readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
   ) {}
 
+  // TODO: better name
   lex(
     /**
      * The whole input string.
@@ -123,8 +124,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          const token = StatelessLexer.res2token(res.output, res.def);
-          errors.push(token);
+          errors.push(StatelessLexer.res2token(res.output, res.def));
         }
         continue;
       } else {
@@ -139,14 +139,119 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
     }
   }
 
+  trimStart(
+    buffer: string,
+    options?: Readonly<{
+      /**
+       * From which char of the input string to start lexing.
+       * @default 0
+       */
+      start?: number;
+      /**
+       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
+       * This is to optimize the performance if some actions need to get the rest of the input.
+       * @default undefined
+       */
+      rest?: string;
+      /**
+       * @default false
+       */
+      debug?: boolean;
+      /**
+       * @default defaultLogger
+       */
+      logger?: Logger;
+      /**
+       * @default "StatelessLexer.lex"
+       */
+      entity?: string;
+    }>,
+  ): {
+    /**
+     * How many chars are digested during this lex.
+     */
+    digested: number;
+    /**
+     * Not `undefined` if the last action's output contains a rest.
+     */
+    rest: string | undefined;
+    /**
+     * Accumulated errors during this lex.
+     */
+    errors: Token<ErrorType, Kinds>[];
+  } {
+    const debug = options?.debug ?? false;
+    const logger = options?.logger ?? defaultLogger;
+    const entity = options?.entity ?? "StatelessLexer.trimStart";
+
+    const start = options?.start ?? 0;
+    let rest = options?.rest;
+    let digested = 0;
+    const errors = [] as Token<ErrorType, Kinds>[];
+    while (true) {
+      // first, ensure rest is not empty
+      // since maybe some token is muted in the last iteration which cause the rest is empty
+      if (start + digested >= buffer.length) {
+        if (debug) {
+          logger.log({
+            entity,
+            message: "no rest",
+          });
+        }
+        return { digested, rest, errors };
+      }
+
+      // all defs will reuse this input to reuse lazy values
+      const input = new ActionInput({
+        buffer,
+        start: start + digested,
+        rest,
+      });
+
+      const res = StatelessLexer.traverseDefs(
+        this.defs,
+        input,
+        {}, // no expectation
+        debug,
+        logger,
+        entity,
+      );
+
+      if (res === undefined) {
+        // all definition checked, no accept
+        return { digested, rest, errors };
+      }
+
+      if (res.output.muted) {
+        // accept but muted
+        // re-loop all definitions after update states
+        digested += res.output.digested;
+        rest = res.output.rest;
+        if (res.output.error !== undefined) {
+          // collect errors
+          errors.push(StatelessLexer.res2token(res.output, res.def));
+        }
+        continue;
+      } else {
+        // not muted, don't update state, return after collecting errors
+        if (res.output.error !== undefined) {
+          // collect errors
+          errors.push(StatelessLexer.res2token(res.output, res.def));
+        }
+        return { digested, rest, errors };
+      }
+    }
+  }
+
   /**
    * If any definition is accepted, return the first accepted definition.
    * If no definition is accepted, return `undefined`.
    */
+  // TODO: better name
   static traverseDefs<ErrorType, Kinds extends string>(
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
     input: ActionInput,
-    expect: Readonly<{ kind?: Kinds; text?: string }>,
+    expect: Readonly<{ kind?: Kinds; text?: string }>, // TODO: remove this?
     debug: boolean,
     logger: Logger,
     entity: string,

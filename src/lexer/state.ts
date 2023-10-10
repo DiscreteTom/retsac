@@ -29,6 +29,8 @@ export class LexerState<ErrorType, Kinds extends string> {
   }
 
   update(digested: number, content: string, rest: string | undefined) {
+    if (digested == 0) return;
+
     this.digested += digested;
     this.trimmed = this.digested == this.buffer.length; // if all chars are digested, no need to trim
     this.rest = rest;

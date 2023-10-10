@@ -1,6 +1,4 @@
 import { defaultLogger, type Logger } from "../logger";
-import type { AcceptedActionOutput } from "./action";
-import { ActionInput } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import type { Definition, ILexer, Token } from "./model";
@@ -146,18 +144,6 @@ export class Lexer<ErrorType, Kinds extends string>
     return content;
   }
 
-  private res2token(
-    res: Readonly<AcceptedActionOutput<ErrorType>>,
-    def: Readonly<Definition<ErrorType, Kinds>>,
-  ): Token<ErrorType, Kinds> {
-    return {
-      kind: def.kind as Kinds,
-      content: res.content,
-      start: res.start,
-      error: res.error,
-    };
-  }
-
   lex(
     input:
       | string
@@ -246,103 +232,27 @@ export class Lexer<ErrorType, Kinds extends string>
   trimStart(input = "") {
     this.feed(input);
 
-    while (true) {
-      // when no rest, this.trimmed is set to true by this.state.update
-      if (this.trimmed) return this;
+    const entity = "Lexer.trimStart";
 
-      let mute = false;
-      // all defs will reuse this input to reuse lazy values
-      const input = new ActionInput({
-        buffer: this.buffer,
+    if (!this.trimmed) {
+      const res = this.stateless.trimStart(this.buffer, {
         start: this.digested,
         rest: this.state.rest,
+        debug: this.debug,
+        logger: this.logger,
+        entity,
       });
-      for (const def of this.defs) {
-        // if def is never muted, ignore it
-        if (!def.action.maybeMuted) {
-          if (this.debug) {
-            const info = { kind: def.kind || "<anonymous>" };
-            this.logger.log({
-              entity: "Lexer.trimStart",
-              message: `skip (never muted): ${info.kind}`,
-              info,
-            });
-          }
-          continue;
-        }
-
-        const res = def.action.exec(input);
-        if (res.accept) {
-          if (!res.muted) {
-            // next token is not muted
-            // don't update state, just return
-            if (this.debug) {
-              const info = {
-                kind: def.kind || "<anonymous>",
-                content: res.content,
-              };
-              this.logger.log({
-                entity: "Lexer.trimStart",
-                message: `found unmuted ${info.kind}: ${JSON.stringify(
-                  info.content,
-                )}`,
-                info,
-              });
-            }
-            this.state.trimmed = true;
-            return this;
-          }
-
-          // else, muted
-          if (this.debug) {
-            const info = {
-              kind: def.kind || "<anonymous>",
-              content: res.content,
-            };
-            this.logger.log({
-              entity: "Lexer.trimStart",
-              message: `trim ${info.kind}: ${JSON.stringify(info.content)}`,
-              info,
-            });
-          }
-
-          // next token is muted, update this state
-          this.state.update(res.digested, res.content, res._rest);
-
-          // construct token
-          const token = this.res2token(res, def);
-
-          // collect errors
-          if (token.error) this.errors.push(token);
-
-          // since muted, re-loop all definitions
-          mute = true;
-          break;
-        } else {
-          // not accept, try next def
-          if (this.debug) {
-            const info = { kind: def.kind || "<anonymous>" };
-            this.logger.log({
-              entity: "Lexer.trimStart",
-              message: `reject: ${info.kind}`,
-              info,
-            });
-          }
-        }
-      }
-      if (!mute) {
-        // all definition checked, no accept
-        if (this.debug) {
-          this.logger.log({
-            entity: "Lexer.trimStart",
-            message: "no accept",
-          });
-        }
-        this.state.trimmed = true;
-        return this;
-      }
-      // else, muted, re-loop all definitions
+      // update state
+      this.state.update(
+        res.digested,
+        this.buffer.slice(this.digested, this.digested + res.digested),
+        res.rest,
+      );
+      this.errors.push(...res.errors);
+      this.state.trimmed = true;
     }
+
+    return this;
   }
 
   getRest() {
