@@ -30,7 +30,7 @@ import type {
   RR_ResolverOptions,
 } from "./model";
 import { DFA, DFABuilder } from "../DFA";
-import type { ILexer, IReadonlyLexer } from "../../../lexer";
+import type { IReadonlyLexer, IStatelessLexer } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import { defaultLogger, type Logger } from "../../../logger";
@@ -160,7 +160,10 @@ export class ParserBuilder<
 
   private buildDFA<AppendLexerKinds extends string, AppendLexerError>(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: ILexer<LexerError | AppendLexerError, LexerKinds | AppendLexerKinds>,
+    lexer: IStatelessLexer<
+      LexerError | AppendLexerError,
+      LexerKinds | AppendLexerKinds
+    >,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
@@ -353,7 +356,7 @@ export class ParserBuilder<
       options.hydrate == undefined
         ? this.buildDFA(
             entryNTs,
-            lexer,
+            lexer.stateless,
             printAll,
             debug,
             logger,
