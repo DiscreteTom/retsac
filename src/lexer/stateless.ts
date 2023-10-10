@@ -244,7 +244,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
   }
 
   /**
-   * If any definition is accepted, return the first accepted definition.
+   * If any definition is accepted, return the first accepted definition (including muted).
    * If no definition is accepted, return `undefined`.
    */
   // TODO: better name
@@ -280,60 +280,38 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
       }
 
       const output = def.action.exec(input);
-      if (
-        output.accept &&
-        // if user provide expected kind, reject unmatched kind
-        (expect.kind === undefined ||
-          expect.kind === def.kind ||
-          // but if the unmatched kind is muted (e.g. ignored), accept it
-          output.muted) &&
-        // if user provide expected text, reject unmatched text
-        (expect.text === undefined ||
-          expect.text === output.content ||
-          // but if the unmatched text is muted (e.g. ignored), accept it
-          output.muted)
-      ) {
-        if (debug) {
-          const info = {
-            kind: def.kind || "<anonymous>",
-            muted: output.muted,
-            content: output.content,
-          };
-          logger.log({
-            entity,
-            message: `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
-              info.content.length
-            } chars: ${JSON.stringify(info.content)}`,
-            info,
-          });
-        }
-        return { output, def };
-      } else {
-        // not accept or unexpected
-        // TODO: split the 2 possibilities
-
-        // if not accept, try next def
-        if (!output.accept) {
+      if (output.accept) {
+        if (
+          // TODO: extract function: checkExpectation
+          // if user provide expected kind, reject unmatched kind
+          (expect.kind === undefined ||
+            expect.kind === def.kind ||
+            // but if the unmatched kind is muted (e.g. ignored), accept it
+            output.muted) &&
+          // if user provide expected text, reject unmatched text
+          (expect.text === undefined ||
+            expect.text === output.content ||
+            // but if the unmatched text is muted (e.g. ignored), accept it
+            output.muted)
+        ) {
+          // accepted and expected, return
           if (debug) {
-            const info = { kind: def.kind || "<anonymous>" };
+            const info = {
+              kind: def.kind || "<anonymous>",
+              muted: output.muted,
+              content: output.content,
+            };
             logger.log({
               entity,
-              message: `reject: ${info.kind}`,
+              message: `accept kind ${info.kind}${
+                info.muted ? "(muted)" : ""
+              }, ${info.content.length} chars: ${JSON.stringify(info.content)}`,
               info,
             });
           }
-          // try next def
-          continue;
-        }
-        // below won't happen, res.muted is always false here
-        // else if (res.muted)
-        //   if(debug) logger(
-        //     `[Lexer.lex] muted: ${
-        //       def.kind || "<anonymous>"
-        //     } content: ${JSON.stringify(res.content)}`
-        //   );
-        else {
-          // unexpected, try next def
+          return { output, def };
+        } else {
+          // accepted but unexpected, try next def
           if (debug) {
             const info = {
               kind: def.kind || "<anonymous>",
@@ -350,6 +328,18 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
           // try next def
           continue;
         }
+      } else {
+        // rejected
+        if (debug) {
+          const info = { kind: def.kind || "<anonymous>" };
+          logger.log({
+            entity,
+            message: `reject: ${info.kind}`,
+            info,
+          });
+        }
+        // try next def
+        continue;
       }
     } // end of defs iteration
 
