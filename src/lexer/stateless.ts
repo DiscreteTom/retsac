@@ -325,48 +325,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
 
     const output = def.action.exec(input);
 
-    if (output.accept) {
-      // check expectation
-      if (
-        // if muted, we don't need to check expectation
-        output.muted ||
-        // if user provide expected kind, reject unmatched kind
-        ((expect.kind === undefined || expect.kind === def.kind) &&
-          // if user provide expected text, reject unmatched text
-          (expect.text === undefined || expect.text === output.content))
-      ) {
-        // accepted (muted or expected), return
-        if (debug) {
-          const info = {
-            kind: def.kind || "<anonymous>",
-            muted: output.muted,
-            content: output.content,
-          };
-          logger.log({
-            entity,
-            message: `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
-              info.content.length
-            } chars: ${JSON.stringify(info.content)}`,
-            info,
-          });
-        }
-        return { output, def };
-      } else {
-        // accepted but unexpected and not muted, reject
-        if (debug) {
-          const info = {
-            kind: def.kind || "<anonymous>",
-            content: output.content,
-          };
-          logger.log({
-            entity,
-            message: `unexpected ${info.kind}: ${JSON.stringify(info.content)}`,
-            info,
-          });
-        }
-        return;
-      }
-    } else {
+    if (!output.accept) {
       // rejected
       if (debug) {
         const info = { kind: def.kind || "<anonymous>" };
@@ -378,6 +337,47 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       }
       return;
     }
+
+    // accepted, check expectation
+    if (
+      // if muted, we don't need to check expectation
+      output.muted ||
+      // if user provide expected kind, reject unmatched kind
+      ((expect.kind === undefined || expect.kind === def.kind) &&
+        // if user provide expected text, reject unmatched text
+        (expect.text === undefined || expect.text === output.content))
+    ) {
+      // accepted (muted or expected), return
+      if (debug) {
+        const info = {
+          kind: def.kind || "<anonymous>",
+          muted: output.muted,
+          content: output.content,
+        };
+        logger.log({
+          entity,
+          message: `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
+            info.content.length
+          } chars: ${JSON.stringify(info.content)}`,
+          info,
+        });
+      }
+      return { output, def };
+    }
+
+    // accepted but unexpected and not muted, reject
+    if (debug) {
+      const info = {
+        kind: def.kind || "<anonymous>",
+        content: output.content,
+      };
+      logger.log({
+        entity,
+        message: `unexpected ${info.kind}: ${JSON.stringify(info.content)}`,
+        info,
+      });
+    }
+    return;
   }
 
   static res2token<ErrorType, Kinds extends string>(
