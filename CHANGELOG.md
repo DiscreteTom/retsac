@@ -24,6 +24,7 @@
   - Feat: add `IReadonlyLexer`.
   - Feat: add utils `exactArray/wordArray/exactKind`.
   - Feat: add `IReadonlyLexer.trimmed`.
+  - Feat: add `IStatelessLexer/StatelessLexer`.
   - Fix: actions won't be merged into one when calling `Builder.define/anonymous/ignore`. This will fix expectational lexing behaviour.
 - Parser
   - Feat: add `name` for `ASTNode` and `ASTObj`.
