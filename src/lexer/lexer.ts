@@ -1,9 +1,8 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import type { Definition, ILexer, Token } from "./model";
+import type { ILexer, IStatelessLexer, Token } from "./model";
 import { LexerState } from "./state";
-import { StatelessLexer } from "./stateless";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
@@ -12,20 +11,17 @@ export class Lexer<ErrorType, Kinds extends string>
 {
   debug: boolean;
   logger: Logger;
-  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
-  readonly stateless: StatelessLexer<ErrorType, Kinds>;
+  readonly stateless: IStatelessLexer<ErrorType, Kinds>;
   private state: LexerState<ErrorType, Kinds>;
 
   constructor(
-    defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
+    stateless: IStatelessLexer<ErrorType, Kinds>,
     options?: LexerBuildOptions,
   ) {
-    this.stateless = new StatelessLexer(defs); // TODO: use interface, don't create it here
-    this.state = new LexerState();
-    this.defs = defs;
+    this.stateless = stateless;
+    this.state = new LexerState(); // TODO: use interface?
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
-    this.reset();
   }
 
   get buffer() {
@@ -48,6 +44,10 @@ export class Lexer<ErrorType, Kinds extends string>
     return this.state.errors;
   }
 
+  get defs() {
+    return this.stateless.defs;
+  }
+
   reset() {
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });
@@ -57,7 +57,7 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds>(this.defs);
+    const res = new Lexer<ErrorType, Kinds>(this.stateless);
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
@@ -267,7 +267,7 @@ export class Lexer<ErrorType, Kinds extends string>
 
   getTokenKinds() {
     const res: Set<Kinds> = new Set();
-    this.defs.forEach((d) => res.add(d.kind));
+    this.stateless.defs.forEach((d) => res.add(d.kind));
     return res;
   }
 

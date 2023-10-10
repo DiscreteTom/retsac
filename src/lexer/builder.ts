@@ -2,6 +2,7 @@ import type { ActionSource } from "./action";
 import { Action } from "./action";
 import { Lexer } from "./lexer";
 import type { Definition, ILexer } from "./model";
+import { StatelessLexer } from "./stateless";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<unknown, string>, "logger" | "debug">
@@ -64,6 +65,6 @@ export class Builder<ErrorType = string, Kinds extends string = never> {
   }
 
   build(options?: LexerBuildOptions) {
-    return new Lexer<ErrorType, Kinds>(this.defs, options);
+    return new Lexer<ErrorType, Kinds>(new StatelessLexer(this.defs), options);
   }
 }

@@ -19,6 +19,103 @@ export type Definition<ErrorType, Kinds extends string> = {
   action: Action<ErrorType>;
 };
 
+export interface IStatelessLexer<ErrorType, Kinds extends string> {
+  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
+  lex(
+    /**
+     * The whole input string.
+     */
+    buffer: string,
+    options?: Readonly<{
+      /**
+       * From which char of the input string to start lexing.
+       * @default 0
+       */
+      start?: number;
+      /**
+       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
+       * This is to optimize the performance if some actions need to get the rest of the input.
+       * @default undefined
+       */
+      rest?: string;
+      expect?: Readonly<{
+        kind?: Kinds;
+        text?: string;
+      }>;
+      /**
+       * @default false
+       */
+      debug?: boolean;
+      /**
+       * @default defaultLogger
+       */
+      logger?: Logger;
+      /**
+       * @default "StatelessLexer.lex"
+       */
+      entity?: string;
+    }>,
+  ): {
+    /**
+     * `null` if no actions can be accepted or all muted.
+     */
+    token: Token<ErrorType, Kinds> | null;
+    /**
+     * How many chars are digested during this lex.
+     */
+    digested: number;
+    /**
+     * Not `undefined` if the last action's output contains a rest.
+     */
+    rest: string | undefined;
+    /**
+     * Accumulated errors during this lex.
+     */
+    errors: Token<ErrorType, Kinds>[];
+  };
+  trimStart(
+    buffer: string,
+    options?: Readonly<{
+      /**
+       * From which char of the input string to start lexing.
+       * @default 0
+       */
+      start?: number;
+      /**
+       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
+       * This is to optimize the performance if some actions need to get the rest of the input.
+       * @default undefined
+       */
+      rest?: string;
+      /**
+       * @default false
+       */
+      debug?: boolean;
+      /**
+       * @default defaultLogger
+       */
+      logger?: Logger;
+      /**
+       * @default "StatelessLexer.lex"
+       */
+      entity?: string;
+    }>,
+  ): {
+    /**
+     * How many chars are digested during this lex.
+     */
+    digested: number;
+    /**
+     * Not `undefined` if the last action's output contains a rest.
+     */
+    rest: string | undefined;
+    /**
+     * Accumulated errors during this lex.
+     */
+    errors: Token<ErrorType, Kinds>[];
+  };
+}
+
 /**
  * ReadonlyILexer's states won't be changed.
  */
@@ -38,7 +135,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * You can clear the errors by setting it's length to 0.
    */
   get errors(): readonly Readonly<Token<ErrorType, Kinds>>[];
-  get defs(): readonly Readonly<Definition<ErrorType, Kinds>>[];
+  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
   /**
    * The entire input string.
    */
@@ -55,6 +152,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
+  readonly stateless: IStatelessLexer<ErrorType, Kinds>;
   /**
    * Clone a new lexer with the same state and definitions.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.

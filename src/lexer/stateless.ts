@@ -1,14 +1,14 @@
 import { defaultLogger, type Logger } from "../logger";
 import { ActionInput, type AcceptedActionOutput } from "./action";
-import type { Definition, Token } from "./model";
+import type { Definition, IStatelessLexer, Token } from "./model";
 
-// TODO: extract interface
-export class StatelessLexer<ErrorType, Kinds extends string> {
+export class StatelessLexer<ErrorType, Kinds extends string>
+  implements IStatelessLexer<ErrorType, Kinds>
+{
   constructor(
     readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
   ) {}
 
-  // TODO: better name
   lex(
     /**
      * The whole input string.
