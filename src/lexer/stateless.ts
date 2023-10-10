@@ -246,26 +246,33 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
   /**
    * If any definition is accepted, return the first accepted definition (including muted).
    * If no definition is accepted, return `undefined`.
+   *
+   * If the result token is muted, it may not match the expectation.
    */
   // TODO: better name
   static traverseDefs<ErrorType, Kinds extends string>(
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-    input: ActionInput,
-    expect: Readonly<{ kind?: Kinds; text?: string }>, // TODO: remove this?
+    input: ActionInput, // TODO: construct ActionInput inside this function?
+    expect: Readonly<{ kind?: Kinds; text?: string }>,
     debug: boolean,
     logger: Logger,
     entity: string,
   ) {
+    // cache the result of `startsWith` to avoid duplicate calculation
+    // since we need to check `startsWith` for every definition
+    const restMatchExpectation =
+      expect.text === undefined ||
+      input.buffer.startsWith(expect.text, input.start);
+
     for (const def of defs) {
-      // if user provide expected kind/text, ignore unmatched kind/text
-      // unless it's muted(still can be accepted but not emit).
+      // skip if expectation mismatch
       if (
-        // if an action is never muted, we can skip it safely after checking expectation
+        // if the action may be muted, we can't skip it
+        // because muted tokens are always accepted even mismatch the expectation
+        // so we have to ensure the action is never muted
         !def.action.maybeMuted &&
-        // skip if expectation mismatch
-        ((expect.kind !== undefined && def.kind != expect.kind) ||
-          (expect.text !== undefined &&
-            !input.buffer.startsWith(expect.text, input.start)))
+        ((expect.kind !== undefined && def.kind != expect.kind) || // def.kind mismatch
+          !restMatchExpectation) // rest head mismatch the text
       ) {
         if (debug) {
           const info = { kind: def.kind || "<anonymous>" };
@@ -275,26 +282,22 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
             info,
           });
         }
-        // this action is skipped, try next def
+        // unexpected, try next def
         continue;
       }
 
       const output = def.action.exec(input);
       if (output.accept) {
+        // check expectation
         if (
-          // TODO: extract function: checkExpectation
-          // if user provide expected kind, reject unmatched kind
-          (expect.kind === undefined ||
-            expect.kind === def.kind ||
-            // but if the unmatched kind is muted (e.g. ignored), accept it
-            output.muted) &&
+          // we don't need to check def.kind here, since we've checked it before
           // if user provide expected text, reject unmatched text
-          (expect.text === undefined ||
-            expect.text === output.content ||
-            // but if the unmatched text is muted (e.g. ignored), accept it
-            output.muted)
+          expect.text === undefined ||
+          expect.text === output.content ||
+          // but if the unmatched token is muted (e.g. ignored), still accept it
+          output.muted
         ) {
-          // accepted and expected, return
+          // accepted (expected or muted), return
           if (debug) {
             const info = {
               kind: def.kind || "<anonymous>",
@@ -311,7 +314,7 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
           }
           return { output, def };
         } else {
-          // accepted but unexpected, try next def
+          // accepted but unexpected and not muted, try next def
           if (debug) {
             const info = {
               kind: def.kind || "<anonymous>",
