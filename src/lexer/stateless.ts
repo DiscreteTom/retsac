@@ -102,9 +102,9 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
         start: start + digested,
         rest,
       });
-      const res = StatelessLexer.traverseDefs(
-        this.defs,
+      const res = StatelessLexer.evaluateDefs(
         input,
+        this.defs,
         expect,
         debug,
         logger,
@@ -208,9 +208,9 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
         rest,
       });
 
-      const res = StatelessLexer.traverseDefs(
-        this.defs,
+      const res = StatelessLexer.evaluateDefs(
         input,
+        this.defs,
         {}, // no expectation
         debug,
         logger,
@@ -244,15 +244,14 @@ export class StatelessLexer<ErrorType, Kinds extends string> {
   }
 
   /**
-   * If any definition is accepted, return the first accepted definition (including muted).
+   * Find the first definition which can accept the input (including muted).
    * If no definition is accepted, return `undefined`.
    *
    * If the result token is muted, it may not match the expectation.
    */
-  // TODO: better name
-  static traverseDefs<ErrorType, Kinds extends string>(
+  static evaluateDefs<ErrorType, Kinds extends string>(
+    input: ActionInput,
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-    input: ActionInput, // TODO: construct ActionInput inside this function?
     expect: Readonly<{ kind?: Kinds; text?: string }>,
     debug: boolean,
     logger: Logger,
