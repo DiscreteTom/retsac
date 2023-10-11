@@ -84,18 +84,19 @@ test("lexer debug trimStart", () => {
   // check logs
   expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
   expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] accept kind <anonymous>(muted), 1 chars: " "',
+    '[Lexer.trimStart] trim <anonymous>, 1 chars: " "',
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: <anonymous>");
   expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (unexpected and never muted): <anonymous>",
+    "[Lexer.trimStart] skip (never muted): <anonymous>",
   );
   expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (unexpected and never muted): hash",
+    "[Lexer.trimStart] skip (never muted): hash",
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: string");
+  console.log(printer.mock.calls);
   expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] accept kind number, 3 chars: "123"',
+    '[Lexer.trimStart] found unmuted number, 3 chars: "123"',
   );
 
   lexer.reset().trimStart("$"); // no accept
