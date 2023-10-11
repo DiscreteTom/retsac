@@ -102,10 +102,37 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         start: start + digested,
         rest,
       });
+      // cache the result of `startsWith` to avoid duplicate calculation
+      // since we need to check `startsWith` for every definition
+      const restMatchExpectation =
+        expect.text === undefined ||
+        input.buffer.startsWith(expect.text, input.start);
       const res = StatelessLexer.evaluateDefs(
         input,
         this.defs,
-        expect,
+        {
+          pre: (def) => ({
+            accept:
+              // muted actions must be executed
+              def.action.maybeMuted ||
+              ((expect.kind === undefined || def.kind === expect.kind) && // def.kind match expectation
+                restMatchExpectation), // rest head match the text expectation
+            rejectMessageFormatter: (info) =>
+              `skip (unexpected and never muted): ${info.kind}`,
+          }),
+          post: (def, output) => ({
+            accept:
+              // if muted, we don't need to check expectation
+              output.muted ||
+              // ensure expectation match
+              ((expect.kind === undefined || expect.kind === def.kind) &&
+                (expect.text === undefined || expect.text === output.content)),
+            acceptMessageFormatter: (info) =>
+              `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
+                info.content.length
+              } chars: ${JSON.stringify(info.content)}`,
+          }),
+        },
         debug,
         logger,
         entity,
@@ -211,7 +238,26 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       const res = StatelessLexer.evaluateDefs(
         input,
         this.defs,
-        { muted: true },
+        {
+          pre: (def) => ({
+            // if the action may be muted, we can't skip it
+            // if the action is never muted, we just reject it
+            accept: def.action.maybeMuted,
+            rejectMessageFormatter: (info) =>
+              `skip (never muted): ${info.kind}`,
+          }),
+          post: () => ({
+            accept: true,
+            acceptMessageFormatter: (info) =>
+              info.muted
+                ? `trim ${info.kind}, ${
+                    info.content.length
+                  } chars: ${JSON.stringify(info.content)}`
+                : `found unmuted ${info.kind}, ${
+                    info.content.length
+                  } chars: ${JSON.stringify(info.content)}`,
+          }),
+        },
         debug,
         logger,
         entity,
@@ -254,23 +300,32 @@ export class StatelessLexer<ErrorType, Kinds extends string>
   static evaluateDefs<ErrorType, Kinds extends string>(
     input: ActionInput,
     defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-    expect: Readonly<{ kind?: Kinds; text?: string; muted?: boolean }>, // TODO: muted is confusing, should move it to a new param
+    validator: {
+      pre: (def: Readonly<Definition<ErrorType, Kinds>>) => {
+        accept: boolean;
+        rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
+      };
+      post: (
+        def: Readonly<Definition<ErrorType, Kinds>>,
+        output: AcceptedActionOutput<ErrorType>,
+      ) => {
+        accept: boolean;
+        acceptMessageFormatter: (info: {
+          kind: string | Kinds;
+          muted: boolean;
+          content: string;
+        }) => string;
+      };
+    },
     debug: boolean,
     logger: Logger,
     entity: string,
   ) {
-    // cache the result of `startsWith` to avoid duplicate calculation
-    // since we need to check `startsWith` for every definition
-    const restMatchExpectation =
-      expect.text === undefined ||
-      input.buffer.startsWith(expect.text, input.start);
-
     for (const def of defs) {
       const output = StatelessLexer.tryDefinition(
         input,
         def,
-        expect,
-        restMatchExpectation,
+        validator,
         debug,
         logger,
         entity,
@@ -297,31 +352,38 @@ export class StatelessLexer<ErrorType, Kinds extends string>
   static tryDefinition<ErrorType, Kinds extends string>(
     input: ActionInput,
     def: Readonly<Definition<ErrorType, Kinds>>,
-    expect: Readonly<{ kind?: Kinds; text?: string; muted?: boolean }>,
-    restMatchExpectation: boolean,
+    validator: {
+      pre: (def: Readonly<Definition<ErrorType, Kinds>>) => {
+        accept: boolean;
+        rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
+      };
+      post: (
+        def: Readonly<Definition<ErrorType, Kinds>>,
+        output: AcceptedActionOutput<ErrorType>,
+      ) => {
+        accept: boolean;
+        acceptMessageFormatter: (info: {
+          kind: string | Kinds;
+          muted: boolean;
+          content: string;
+        }) => string;
+      };
+    },
     debug: boolean,
     logger: Logger,
     entity: string,
   ) {
-    // reject if expectation mismatch before exec
-    if (
-      // if the action may be muted, we can't skip it
-      // because muted tokens are always accepted even mismatch the expectation
-      // so we have to ensure the action is never muted
-      !def.action.maybeMuted &&
-      (expect.muted || // if we expect muted, and the action is never muted, should skip
-        (expect.kind !== undefined && def.kind != expect.kind) || // def.kind mismatch, should skip
-        !restMatchExpectation) // rest head mismatch the text, should skip
-    ) {
+    const preCheckRes = validator.pre(def);
+    if (!preCheckRes.accept) {
+      // unexpected
       if (debug) {
         const info = { kind: def.kind || "<anonymous>" };
         logger.log({
           entity,
-          message: `skip (unexpected and never muted): ${info.kind}`,
+          message: preCheckRes.rejectMessageFormatter(info),
           info,
         });
       }
-      // unexpected, try next def
       return;
     }
 
@@ -341,15 +403,9 @@ export class StatelessLexer<ErrorType, Kinds extends string>
     }
 
     // accepted, check expectation
-    if (
-      // if muted, we don't need to check expectation
-      output.muted ||
-      // if user provide expected kind, reject unmatched kind
-      ((expect.kind === undefined || expect.kind === def.kind) &&
-        // if user provide expected text, reject unmatched text
-        (expect.text === undefined || expect.text === output.content))
-    ) {
-      // accepted (muted or expected), return
+    const postCheckRes = validator.post(def, output);
+    if (postCheckRes.accept) {
+      // accepted, return
       if (debug) {
         const info = {
           kind: def.kind || "<anonymous>",
@@ -358,9 +414,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         };
         logger.log({
           entity,
-          message: `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
-            info.content.length
-          } chars: ${JSON.stringify(info.content)}`,
+          message: postCheckRes.acceptMessageFormatter(info),
           info,
         });
       }
