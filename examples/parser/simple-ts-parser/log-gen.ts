@@ -6,7 +6,7 @@ import { lexer, builder, entry } from "./simple-ts-parser";
 // ts-node examples/parser/simple-ts-parser/log-gen.ts > output.log
 
 const { parser } = builder.build({
-  lexer,
+  lexer: lexer.dryClone(),
   entry,
   debug: true,
   checkAll: true,
