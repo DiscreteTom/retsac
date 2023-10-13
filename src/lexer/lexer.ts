@@ -52,6 +52,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });
     }
+    this.core.reset();
     this.state.reset();
     return this;
   }
@@ -195,6 +196,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
     });
 
     // update state if not peek
+    // TODO: call callback if not peek?
     if (!peek) {
       this.state.update(
         res.digested,

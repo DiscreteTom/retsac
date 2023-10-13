@@ -8,7 +8,7 @@ import type { ActionStateCloner, Definition, ILexerCore, Token } from "./model";
 export class LexerCore<ErrorType, Kinds extends string, ActionState>
   implements ILexerCore<ErrorType, Kinds, ActionState>
 {
-  readonly state: ActionState;
+  state: ActionState;
 
   constructor(
     readonly defs: readonly Readonly<
@@ -19,6 +19,11 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     state?: ActionState,
   ) {
     this.state = state ?? stateCloner(initialState);
+  }
+
+  reset() {
+    this.state = this.stateCloner(this.initialState);
+    return this;
   }
 
   dryClone() {

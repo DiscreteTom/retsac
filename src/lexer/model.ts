@@ -26,7 +26,7 @@ export type ActionStateCloner<ActionState> = (
 export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
   readonly initialState: Readonly<ActionState>;
-  readonly state: ActionState;
+  get state(): ActionState;
   readonly stateCloner: ActionStateCloner<ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the initial state.
@@ -36,6 +36,7 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
    * Clone a new lexer core with the same definitions and the current state.
    */
   clone(): ILexerCore<ErrorType, Kinds, ActionState>;
+  reset(): this;
   lex(
     /**
      * The whole input string.
