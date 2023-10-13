@@ -46,7 +46,7 @@ jobs:
       - name: Check Generated README
         run: |
           mv README.md README.md.bk
-          yarn build:doc
+          yarn build:readme
           diff README.md README.md.bk
           rm README.md.bk
 
