@@ -1,4 +1,4 @@
-import { lexer, builder, entry } from "./core";
+import { lexer, builder, entry } from "./calculator";
 import {
   generateMermaidString,
   loadMermaidString,

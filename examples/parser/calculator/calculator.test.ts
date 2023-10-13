@@ -1,4 +1,4 @@
-import { builder, lexer, entry, cache } from "./core";
+import { builder, lexer, entry, cache } from "./calculator";
 
 const { parser } = builder.build({
   lexer,

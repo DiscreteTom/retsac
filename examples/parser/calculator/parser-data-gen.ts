@@ -1,5 +1,5 @@
 import { generateParserDataFile } from "../utils/parser-data-gen-common";
-import { lexer, builder, entry } from "./core";
+import { lexer, builder, entry } from "./calculator";
 
 // Usage: ts-node examples/parser/calculator/parser-data-gen.ts
 

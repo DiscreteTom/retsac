@@ -1,5 +1,11 @@
 import * as readline from "readline";
-import { parser } from "./core";
+import { builder, lexer, cache, entry } from "./calculator";
+
+const { parser } = builder.build({
+  lexer,
+  entry,
+  hydrate: cache,
+});
 
 console.log(`This is a simple calculator.`);
 
