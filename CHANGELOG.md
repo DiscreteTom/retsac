@@ -25,7 +25,7 @@
   - Feat: add `IReadonlyLexer`.
   - Feat: add utils `exactArray/wordArray/exactKind`.
   - Feat: add `IReadonlyLexer.trimmed`.
-  - Feat: add `ILexerCore/LexerCore`.
+  - Feat: add `IReadonlyLexerCore/ILexerCore/LexerCore`.
   - Feat: add lexer's action state. [#25](https://github.com/DiscreteTom/retsac/issues/25)
   - Fix: actions won't be merged into one when calling `Builder.define/anonymous/ignore`. This will fix expectational lexing behaviour.
 - Parser

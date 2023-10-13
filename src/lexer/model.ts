@@ -23,10 +23,14 @@ export type ActionStateCloner<ActionState> = (
   ctx: Readonly<ActionState>,
 ) => ActionState;
 
-export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
+export interface IReadonlyLexerCore<
+  ErrorType,
+  Kinds extends string,
+  ActionState,
+> {
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
   readonly initialState: Readonly<ActionState>;
-  get state(): ActionState;
+  get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the initial state.
@@ -36,6 +40,67 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
    * Clone a new lexer core with the same definitions and the current state.
    */
   clone(): ILexerCore<ErrorType, Kinds, ActionState>;
+  lex(
+    /**
+     * The whole input string.
+     */
+    buffer: string,
+    options?: Readonly<{
+      /**
+       * From which char of the input string to start lexing.
+       * @default 0
+       */
+      start?: number;
+      /**
+       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
+       * This is to optimize the performance if some actions need to get the rest of the input.
+       * @default undefined
+       */
+      rest?: string;
+      expect?: Readonly<{
+        kind?: Kinds;
+        text?: string;
+      }>;
+      /**
+       * @default false
+       */
+      debug?: boolean;
+      /**
+       * @default defaultLogger
+       */
+      logger?: Logger;
+      /**
+       * @default "LexerCore.lex"
+       */
+      entity?: string;
+      /**
+       * @default false
+       */
+      peek?: true; // readonly lex, must set peek to true
+    }>,
+  ): {
+    /**
+     * `null` if no actions can be accepted or all muted.
+     */
+    token: Token<ErrorType, Kinds> | null;
+    /**
+     * How many chars are digested during this lex.
+     */
+    digested: number;
+    /**
+     * Not `undefined` if the last action's output contains a rest.
+     */
+    rest: string | undefined;
+    /**
+     * Accumulated errors during this lex.
+     */
+    errors: Token<ErrorType, Kinds>[];
+  };
+}
+
+export interface ILexerCore<ErrorType, Kinds extends string, ActionState>
+  extends IReadonlyLexerCore<ErrorType, Kinds, ActionState> {
+  get state(): ActionState; // make the state mutable
   reset(): this;
   lex(
     /**
@@ -229,7 +294,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
 
 export interface ILexer<ErrorType, Kinds extends string, ActionState>
   extends IReadonlyLexer<ErrorType, Kinds, ActionState> {
-  get errors(): Readonly<Token<ErrorType, Kinds>>[]; // make the array writable
+  get errors(): Readonly<Token<ErrorType, Kinds>>[]; // make the array mutable
   set debug(value: boolean);
   set logger(value: Logger);
   /**
