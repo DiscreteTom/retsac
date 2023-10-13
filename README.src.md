@@ -20,58 +20,59 @@ yarn add retsac
 
 - The Lexer, turns a text string to a [token](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/model.ts) list.
   - Regex support. See [examples](https://github.com/DiscreteTom/retsac#examples) below.
-  - [Built-in util functions](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils.ts) makes it super easy to process the input.
-  - Support custom error handling functions to prevent interruptions during the process.
+  - [Built-in util functions](https://github.com/DiscreteTom/retsac/blob/main/src/lexer/utils).
   - Support custom functions to yield tokens from the input string.
 - The Parser, co-work with the lexer and produce an [AST (Abstract Syntax Tree)](https://github.com/DiscreteTom/retsac/blob/main/src/parser/ast.ts).
-  - By default retsac provides an ELR(Expectational LR) parser.
-    - Support **meta characters** like `+*?` when defining a grammar rule, just like in Regex.
-    - Support **conflict detection** (for reduce-shift conflicts and reduce-reduce conflicts), try to **auto resolve conflicts** by peeking the rest of input, you can also set grammar rule's **priority** or **self-associativity** to auto generate resolvers. Besides, we provide a **code generator** as the low-level API to manually resolve conflict, .
-    - Query children nodes by using `$('name')` to avoid accessing them using ugly index like `children[0]`. You can also rename nodes if you want to query nodes with same type using different names.
-    - Optional data reducer to make it possible to get a result value when the parse is done.
-    - Optional traverser to make it easy to invoke a top-down traverse after the AST is build.
-    - Expect lexer to yield specific token type and/or content to parse the input more smartly.
-    - Try to re-lex the input if parsing failed. You can rollback global state when re-lex, or commit existing changes to prevent re-lex.
-  - The AST can be serialized to a JSON object to co-work with other tools (e.g. compiler backend libs).
-- Provide multi-level APIs to make this easy to use and highly customizable.
+  - ELR(Expectational LR) parser.
+    - **_Meta characters_** like `+*?` when defining a grammar rule.
+    - **_Conflict detection_**, try to **_auto resolve conflicts_**.
+    - Query children nodes by using `$('name')` instead of `children[0]`.
+    - Top-down traverse the AST.
+    - Bottom-up reduce data.
+    - Expect lexer to yield specific token type and/or content.
+    - Try to **_re-lex_** the input if parsing failed.
+    - **_DFA serialization_** to accelerate future building.
+  - Serializable AST to co-work with other tools (e.g. compiler backend libs).
+- Strict type checking with TypeScript.
+  - Including string literal type checking for token kinds and grammar kinds.
 
 ## Resources
 
-- [Documentation & API reference.](https://discretetom.github.io/retsac/)
+- [Documentation & API reference. (WIP)](https://discretetom.github.io/retsac/)
 - [VSCode extension.](https://github.com/DiscreteTom/vscode-retsac)
 - [Demo programming language which compiles to WebAssembly.](https://github.com/DiscreteTom/dt0)
 
-## [Examples](https://github.com/DiscreteTom/retsac/tree/main/example)
+## [Examples](https://github.com/DiscreteTom/retsac/tree/main/examples)
 
-### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/example/json/json.ts)
+### [JSON Parser](https://github.com/DiscreteTom/retsac/blob/main/examples/parser/json/json.ts)
 
-In this example, we use `AdvancedBuilder` to define grammar rules using `+*?`, define top-down traversers using `traverser`, and query nodes in grammar rules using `$`.
+In this example, we use `AdvancedBuilder` to define grammar rules with `+*?`, define top-down traversers using `traverser`, and query nodes in grammar rules using `$` and `$$`.
 
 All conflicts are auto resolved.
 
 <details open>
 <summary>Click to Expand</summary>
-<include path="./example/json/json.ts" from="3" to="48" />
+<include path="./examples/parser/json/json.ts" from="6" to="52" />
 </details>
 
-### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/example/calculator/core.ts)
+### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/examples/parser/calculator/calculator.ts)
 
-In this example, we use `reducer` to define bottom-up data reducers, so we can get result when the AST is built.
+In this example, we use `reducer` to define bottom-up data reducers, so we can get the result when the AST is built.
 
-There are conflicts introduced by those grammar rules, we use high-level resolver APIs `priority/leftSA` to resolve them.
+There are conflicts introduced by those grammar rules, we use the high-level resolver API `priority` to resolve them.
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/calculator/core.ts" from="3" to="53" />
+<include path="./examples/parser/calculator/calculator.ts" from="8" to="37" />
 </details>
 
-### [Function Definition](https://github.com/DiscreteTom/retsac/blob/main/example/advanced-builder/advanced-builder.ts)
+### [Function Definition](https://github.com/DiscreteTom/retsac/blob/main/examples/parser/advanced-builder/advanced-builder.ts)
 
 This example shows you how to define a simple `fn_def` grammar rule if you want to build a programming language compiler.
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./example/advanced-builder/advanced-builder.ts" from="3" to="30" />
+<include path="./examples/parser/advanced-builder/advanced-builder.ts" from="8" to="33" />
 </details>
 
 ## Contribute
