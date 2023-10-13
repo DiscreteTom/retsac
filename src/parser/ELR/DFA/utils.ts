@@ -231,7 +231,7 @@ export function lexGrammar<
   LexerActionState,
 >(
   g: Grammar<LexerKinds>,
-  roLexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>,
+  lexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>,
 ):
   | {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
@@ -240,9 +240,9 @@ export function lexGrammar<
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
   // so we will need many lexers with different states
-  const lexer = roLexer.clone();
+  const mutableLexer = lexer.clone();
 
-  const token = lexer.lex({
+  const token = mutableLexer.lex({
     expect: {
       kind: g.kind,
       text: g.text, // maybe undefined
@@ -253,7 +253,7 @@ export function lexGrammar<
     ? undefined
     : {
         node: ASTNode.from<ASTData, ErrorType, Kinds | LexerKinds>(token),
-        lexer,
+        lexer: mutableLexer,
       };
 }
 
