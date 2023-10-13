@@ -19,25 +19,32 @@ jobs:
       - name: Run Tests
         run: yarn test:coverage
 
-      - name: Fetch existing docs
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-          clean: false
-          path: gh-pages
+      # - name: Fetch existing docs
+      #   uses: actions/checkout@v3
+      #   with:
+      #     ref: gh-pages
+      #     clean: false
+      #     path: gh-pages
 
-      - name: Move existing docs
-        run: |
-          mv gh-pages/docs ./docs
-          rm -rf gh-pages
+      # - name: Move existing docs
+      #   run: |
+      #     mv gh-pages/docs ./docs
+      #     rm -rf gh-pages
 
-      - name: Build Doc & Check Generated README
+      # - name: Build Doc & Check Generated README
+      #   run: |
+      #     pushd docs
+      #     rm -rf dev
+      #     rm -rf stable
+      #     ls | grep -E '^v[0-9]+\.[0-9]+@?$' | xargs rm -rf --
+      #     popd
+      #     mv README.md README.md.bk
+      #     yarn build:doc
+      #     diff README.md README.md.bk
+      #     rm README.md.bk
+
+      - name: Check Generated README
         run: |
-          pushd docs
-          rm -rf dev
-          rm -rf stable
-          ls | grep -E '^v[0-9]+\.[0-9]+@?$' | xargs rm -rf --
-          popd
           mv README.md README.md.bk
           yarn build:doc
           diff README.md README.md.bk
@@ -52,9 +59,9 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
 
-      - name: GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: website/build
+      # - name: GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_branch: gh-pages
+      #     publish_dir: website/build
