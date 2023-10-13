@@ -19,6 +19,11 @@ export type ActionSource<ErrorType, ActionState> =
   | Action<ErrorType, ActionState>
   | SimpleActionExec<ErrorType, ActionState>;
 
+export type ActionDecoratorContext<ErrorType, ActionState> = {
+  input: Readonly<ActionInput<ActionState>>;
+  output: Readonly<AcceptedActionOutput<ErrorType>>;
+};
+
 export class Action<ErrorType = string, ActionState = never> {
   readonly exec: ActionExec<ErrorType, ActionState>;
   /**
@@ -143,10 +148,9 @@ export class Action<ErrorType = string, ActionState = never> {
   mute(
     muted:
       | boolean
-      | ((ctx: {
-          input: Readonly<ActionInput<ActionState>>;
-          output: Readonly<AcceptedActionOutput<ErrorType>>;
-        }) => boolean) = true,
+      | ((
+          ctx: ActionDecoratorContext<ErrorType, ActionState>,
+        ) => boolean) = true,
   ): Action<ErrorType, ActionState> {
     if (typeof muted === "boolean")
       return new Action<ErrorType, ActionState>(
@@ -179,10 +183,9 @@ export class Action<ErrorType = string, ActionState = never> {
    * `condition` should return error, `undefined` means no error.
    */
   check<NewErrorType>(
-    condition: (ctx: {
-      input: Readonly<ActionInput<ActionState>>;
-      output: Readonly<AcceptedActionOutput<ErrorType>>;
-    }) => NewErrorType | undefined,
+    condition: (
+      ctx: ActionDecoratorContext<ErrorType, ActionState>,
+    ) => NewErrorType | undefined,
   ): Action<NewErrorType, ActionState> {
     return new Action<NewErrorType, ActionState>((input) => {
       const output = this.exec(input);
@@ -218,10 +221,9 @@ export class Action<ErrorType = string, ActionState = never> {
   reject(
     rejecter:
       | boolean
-      | ((ctx: {
-          input: Readonly<ActionInput<ActionState>>;
-          output: Readonly<AcceptedActionOutput<ErrorType>>;
-        }) => boolean) = true,
+      | ((
+          ctx: ActionDecoratorContext<ErrorType, ActionState>,
+        ) => boolean) = true,
   ): Action<ErrorType, ActionState> {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
@@ -242,10 +244,7 @@ export class Action<ErrorType = string, ActionState = never> {
    */
   // TODO: when peek, the callback should not be executed.
   then(
-    f: (ctx: {
-      input: Readonly<ActionInput<ActionState>>;
-      output: Readonly<AcceptedActionOutput<ErrorType>>;
-    }) => void,
+    f: (ctx: ActionDecoratorContext<ErrorType, ActionState>) => void,
   ): Action<ErrorType, ActionState> {
     return new Action<ErrorType, ActionState>((input) => {
       const output = this.exec(input);
