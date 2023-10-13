@@ -9,11 +9,19 @@ export type ParsingState<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = {
   /**
    * Current state is `states.at(-1)`.
    */
-  stateStack: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[];
+  stateStack: State<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >[];
   buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
   /**
    * ASTNode buffer index.
@@ -23,17 +31,25 @@ export type ParsingState<
    * Newly collected errors in that parsing process.
    */
   errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  lexer: ILexer<LexerError, LexerKinds>;
+  lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
 };
 
-export type ReLexState<
+export type ReActionState<
   ASTData,
   ErrorType,
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = Readonly<
-  ParsingState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  ParsingState<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >
 > & {
   readonly rollbackStackLength: number;
 };
@@ -44,19 +60,22 @@ export type RollbackState<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = {
   readonly rollback?: Callback<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >;
   readonly context: GrammarRuleContext<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >;
 };

@@ -1,4 +1,4 @@
-import type { IStatelessLexer } from "../../../lexer";
+import type { ILexerCore } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
@@ -21,12 +21,20 @@ export class DFABuilder {
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     repo: GrammarRepo<Kinds, LexerKinds>,
-    lexer: IStatelessLexer<LexerError, LexerKinds>,
+    lexer: ILexerCore<LexerError, LexerKinds, LexerActionState>,
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
-      ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+      ParserBuilderData<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >
     >[],
     printAll: boolean,
     logger: Logger,
@@ -64,7 +72,8 @@ export class DFABuilder {
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
@@ -86,7 +95,8 @@ export class DFABuilder {
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 

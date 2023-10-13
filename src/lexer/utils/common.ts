@@ -12,14 +12,14 @@ export function esc4regex(str: string) {
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export function whitespaces<ErrorType = string>() {
-  return Action.from<ErrorType>(/\s+/);
+export function whitespaces<ErrorType = string, ActionState = never>() {
+  return Action.from<ErrorType, ActionState>(/\s+/);
 }
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
-export function fromTo<ErrorType = string>(
+export function fromTo<ErrorType = string, ActionState = never>(
   from: string | RegExp,
   to: string | RegExp,
   options: {
@@ -35,7 +35,7 @@ export function fromTo<ErrorType = string>(
      */
     autoGlobal?: boolean;
   },
-): Action<ErrorType> {
+): Action<ErrorType, ActionState> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -55,27 +55,27 @@ export function fromTo<ErrorType = string>(
   /** Return how many chars are digested, return 0 for reject. */
   const checkFrom =
     from instanceof RegExp
-      ? (input: ActionInput) => {
+      ? (input: ActionInput<ActionState>) => {
           (from as RegExp).lastIndex = input.start;
           const res = (from as RegExp).exec(input.buffer);
           if (!res || res.index == -1) return 0;
           return res[0].length;
         }
-      : (input: ActionInput) => {
+      : (input: ActionInput<ActionState>) => {
           if (!input.buffer.startsWith(from as string, input.start)) return 0;
           return (from as string).length;
         };
   /** Return how many chars are digested(including digested by `from`), return 0 for reject. */
   const checkTo =
     to instanceof RegExp
-      ? (input: ActionInput, fromDigested: number) => {
+      ? (input: ActionInput<ActionState>, fromDigested: number) => {
           (to as RegExp).lastIndex = input.start + fromDigested;
           const res = (to as RegExp).exec(input.buffer);
           if (res && res.index != -1)
             return res.index + res[0].length - input.start;
           return 0;
         }
-      : (input: ActionInput, fromDigested: number) => {
+      : (input: ActionInput<ActionState>, fromDigested: number) => {
           const index = input.buffer.indexOf(
             to as string,
             input.start + fromDigested,
@@ -113,7 +113,7 @@ export function fromTo<ErrorType = string>(
  * comment('/*', '*' + '/'); // multiline comment
  * ```
  */
-export function comment<ErrorType = string>(
+export function comment<ErrorType = string, ActionState = never>(
   start: string | RegExp,
   /** Default: `\n` */
   end: string | RegExp = "\n",
@@ -122,13 +122,16 @@ export function comment<ErrorType = string>(
     acceptEof?: boolean;
   },
 ) {
-  return fromTo<ErrorType>(start, end, {
+  return fromTo<ErrorType, ActionState>(start, end, {
     ...options,
     acceptEof: options?.acceptEof ?? true,
   });
 }
 
-export function regexLiteral<ErrorType = string>(options?: {
+export function regexLiteral<
+  ErrorType = string,
+  ActionState = never,
+>(options?: {
   /**
    * Default: `true`.
    */
@@ -149,17 +152,19 @@ export function regexLiteral<ErrorType = string>(options?: {
    * Default: `true`.
    */
   boundary?: boolean;
-}): Action<ErrorType> {
+}): Action<ErrorType, ActionState> {
   const action =
     options?.boundary ?? true
-      ? Action.from<ErrorType>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/)
-      : Action.from<ErrorType>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/);
+      ? Action.from<ErrorType, ActionState>(
+          /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
+        )
+      : Action.from<ErrorType, ActionState>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/);
 
   const err = options?.invalidError ?? ("invalid regex literal" as ErrorType);
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
-      return action.reject((output) => {
+      return action.reject(({ output }) => {
         try {
           new RegExp(output.content);
         } catch (e) {
@@ -170,7 +175,7 @@ export function regexLiteral<ErrorType = string>(options?: {
     }
 
     // else, set error on invalid
-    return action.check((output) => {
+    return action.check(({ output }) => {
       try {
         new RegExp(output.content);
       } catch (e) {

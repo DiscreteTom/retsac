@@ -1,13 +1,41 @@
 import { defaultLogger, type Logger } from "../logger";
 import { ActionInput, type AcceptedActionOutput } from "./action";
-import type { Definition, IStatelessLexer, Token } from "./model";
+import type { ActionStateCloner, Definition, ILexerCore, Token } from "./model";
 
-export class StatelessLexer<ErrorType, Kinds extends string>
-  implements IStatelessLexer<ErrorType, Kinds>
+// TODO: rename file
+
+/**
+ * LexerCore only store ActionState, no LexerState.
+ */
+export class LexerCore<ErrorType, Kinds extends string, ActionState>
+  implements ILexerCore<ErrorType, Kinds, ActionState>
 {
+  private readonly state: ActionState;
+
   constructor(
-    readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
-  ) {}
+    readonly defs: readonly Readonly<
+      Definition<ErrorType, Kinds, ActionState>
+    >[],
+    private readonly initialState: Readonly<ActionState>,
+    private readonly stateCloner: ActionStateCloner<ActionState>,
+    state?: ActionState,
+  ) {
+    this.state = state ?? stateCloner(initialState);
+  }
+
+  dryClone() {
+    return new LexerCore(this.defs, this.initialState, this.stateCloner);
+  }
+
+  clone() {
+    // clone the current state
+    return new LexerCore(
+      this.defs,
+      this.initialState,
+      this.stateCloner,
+      this.stateCloner(this.state),
+    );
+  }
 
   lex(
     /**
@@ -100,6 +128,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       const input = new ActionInput({
         buffer,
         start: start + digested,
+        state: this.state,
         rest,
       });
       // cache the result of `startsWith` to avoid duplicate calculation
@@ -107,7 +136,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       const restMatchExpectation =
         expect.text === undefined ||
         input.buffer.startsWith(expect.text, input.start);
-      const res = StatelessLexer.evaluateDefs(
+      const res = LexerCore.evaluateDefs(
         input,
         this.defs,
         {
@@ -151,12 +180,12 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(StatelessLexer.res2token(res.output, res.def));
+          errors.push(LexerCore.res2token(res.output, res.def));
         }
         continue;
       } else {
         // not muted, emit token after collecting errors
-        const token = StatelessLexer.res2token(res.output, res.def);
+        const token = LexerCore.res2token(res.output, res.def);
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(token);
@@ -232,10 +261,11 @@ export class StatelessLexer<ErrorType, Kinds extends string>
       const input = new ActionInput({
         buffer,
         start: start + digested,
+        state: this.state,
         rest,
       });
 
-      const res = StatelessLexer.evaluateDefs(
+      const res = LexerCore.evaluateDefs(
         input,
         this.defs,
         {
@@ -275,14 +305,14 @@ export class StatelessLexer<ErrorType, Kinds extends string>
         rest = res.output.rest;
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(StatelessLexer.res2token(res.output, res.def));
+          errors.push(LexerCore.res2token(res.output, res.def));
         }
         continue;
       } else {
         // not muted, don't update state, return after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(StatelessLexer.res2token(res.output, res.def));
+          errors.push(LexerCore.res2token(res.output, res.def));
         }
         return { digested, rest, errors };
       }
@@ -297,16 +327,16 @@ export class StatelessLexer<ErrorType, Kinds extends string>
    *
    * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
    */
-  static evaluateDefs<ErrorType, Kinds extends string>(
-    input: ActionInput,
-    defs: readonly Readonly<Definition<ErrorType, Kinds>>[],
+  static evaluateDefs<ErrorType, Kinds extends string, ActionState>(
+    input: ActionInput<ActionState>,
+    defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[],
     validator: {
-      pre: (def: Readonly<Definition<ErrorType, Kinds>>) => {
+      pre: (def: Readonly<Definition<ErrorType, Kinds, ActionState>>) => {
         accept: boolean;
         rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
       };
       post: (
-        def: Readonly<Definition<ErrorType, Kinds>>,
+        def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
         output: AcceptedActionOutput<ErrorType>,
       ) => {
         accept: boolean;
@@ -322,7 +352,7 @@ export class StatelessLexer<ErrorType, Kinds extends string>
     entity: string,
   ) {
     for (const def of defs) {
-      const output = StatelessLexer.tryDefinition(
+      const output = LexerCore.tryDefinition(
         input,
         def,
         validator,
@@ -349,16 +379,16 @@ export class StatelessLexer<ErrorType, Kinds extends string>
    * Return the action's output if accepted and expected.
    * Return `undefined` if the definition is rejected or unexpected.
    */
-  static tryDefinition<ErrorType, Kinds extends string>(
-    input: ActionInput,
-    def: Readonly<Definition<ErrorType, Kinds>>,
+  static tryDefinition<ErrorType, Kinds extends string, ActionState>(
+    input: ActionInput<ActionState>,
+    def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
     validator: {
-      pre: (def: Readonly<Definition<ErrorType, Kinds>>) => {
+      pre: (def: Readonly<Definition<ErrorType, Kinds, ActionState>>) => {
         accept: boolean;
         rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
       };
       post: (
-        def: Readonly<Definition<ErrorType, Kinds>>,
+        def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
         output: AcceptedActionOutput<ErrorType>,
       ) => {
         accept: boolean;
@@ -436,9 +466,9 @@ export class StatelessLexer<ErrorType, Kinds extends string>
     return;
   }
 
-  static res2token<ErrorType, Kinds extends string>(
+  static res2token<ErrorType, Kinds extends string, ActionState>(
     res: Readonly<AcceptedActionOutput<ErrorType>>,
-    def: Readonly<Definition<ErrorType, Kinds>>,
+    def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
   ): Token<ErrorType, Kinds> {
     return {
       kind: def.kind,

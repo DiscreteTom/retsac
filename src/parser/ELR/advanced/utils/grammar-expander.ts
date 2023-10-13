@@ -10,6 +10,7 @@ export class GrammarExpander<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
@@ -18,7 +19,8 @@ export class GrammarExpander<
     unknown,
     "gr",
     "" | "grammar" | "literal" | "rename",
-    string
+    string,
+    never
   >;
   readonly placeholderPrefix: string;
 
@@ -61,7 +63,8 @@ export class GrammarExpander<
           ErrorType,
           Kinds,
           LexerKinds,
-          LexerError
+          LexerError,
+          LexerActionState
         >;
       }[],
     };
@@ -154,7 +157,8 @@ export class GrammarExpander<
           ErrorType,
           Kinds,
           LexerKinds,
-          LexerError
+          LexerError,
+          LexerActionState
         >;
       }[],
     };

@@ -20,6 +20,7 @@ export class GrammarRule<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   readonly rule: readonly Grammar<Kinds | LexerKinds>[];
   /**
@@ -36,7 +37,8 @@ export class GrammarRule<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   > & {
     /**
      * Related resolvers.
@@ -46,7 +48,8 @@ export class GrammarRule<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[];
   })[];
   /**
@@ -59,12 +62,41 @@ export class GrammarRule<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[];
-  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  callback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rejecter?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rollback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  commit?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
 
   /**
@@ -86,7 +118,14 @@ export class GrammarRule<
 
   constructor(
     p: Pick<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       | "rule"
       | "NT"
       | "callback"
@@ -133,9 +172,17 @@ export class GrammarRule<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     gr: Pick<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "NT" | "rule"
     >,
   ) {
@@ -153,9 +200,17 @@ export class GrammarRule<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     gr: Pick<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "NT" | "rule"
     >,
   ) {
@@ -171,7 +226,8 @@ export class GrammarRule<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ): {
     // TODO: omit this return type definition
@@ -230,6 +286,7 @@ export class GrammarRule<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     data: ReturnType<
       GrammarRule<
@@ -237,7 +294,8 @@ export class GrammarRule<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >["toSerializable"]
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
@@ -247,7 +305,8 @@ export class GrammarRule<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >({
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
@@ -264,7 +323,8 @@ export class GrammarRule<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >,
     ) => {
       gr.resolved.push(

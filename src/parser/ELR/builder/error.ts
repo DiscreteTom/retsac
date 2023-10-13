@@ -36,6 +36,7 @@ export class GrammarRuleNotFoundError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_BuilderError {
   constructor(
     public gr: TempGrammarRule<
@@ -43,7 +44,8 @@ export class GrammarRuleNotFoundError<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ) {
     super(
@@ -75,6 +77,7 @@ export class ConflictError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
@@ -82,9 +85,17 @@ export class ConflictError<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    public c: Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    public c: Conflict<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
   ) {
     super(
       "CONFLICT",
@@ -172,9 +183,17 @@ export class TooManyEndHandlerError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_BuilderError {
   constructor(
-    public rule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    public rule: GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
   ) {
     super(
       "TOO_MANY_END_HANDLER",
@@ -190,6 +209,7 @@ export class NoSuchConflictError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
@@ -197,14 +217,16 @@ export class NoSuchConflictError<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     public anotherRule: GrammarRule<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     public conflictType: ConflictType,
     public next: Grammar<Kinds | LexerKinds>[],
@@ -250,9 +272,17 @@ export class RollbackDefinedWhileNotEnabledError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_BuilderError {
   constructor(
-    public rule: GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    public rule: GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
   ) {
     super(
       "ROLLBACK_DEFINED_WHILE_NOT_ENABLED",

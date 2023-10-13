@@ -3,24 +3,24 @@ import type { ActionInput } from "./input";
 import type { ActionOutput, SimpleAcceptedActionOutput } from "./output";
 import { rejectedActionOutput, AcceptedActionOutput } from "./output";
 
-export type ActionExec<ErrorType> = (
-  input: Readonly<ActionInput>,
+export type ActionExec<ErrorType, ActionState> = (
+  input: Readonly<ActionInput<ActionState>>,
 ) => ActionOutput<ErrorType>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  */
-export type SimpleActionExec<ErrorType> = (
-  input: Readonly<ActionInput>,
+export type SimpleActionExec<ErrorType, ActionState> = (
+  input: Readonly<ActionInput<ActionState>>,
 ) => number | string | SimpleAcceptedActionOutput<ErrorType>;
 
-export type ActionSource<ErrorType> =
+export type ActionSource<ErrorType, ActionState> =
   | RegExp
-  | Action<ErrorType>
-  | SimpleActionExec<ErrorType>;
+  | Action<ErrorType, ActionState>
+  | SimpleActionExec<ErrorType, ActionState>;
 
-export class Action<ErrorType = string> {
-  readonly exec: ActionExec<ErrorType>;
+export class Action<ErrorType = string, ActionState = never> {
+  readonly exec: ActionExec<ErrorType, ActionState>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -35,16 +35,16 @@ export class Action<ErrorType = string> {
    * For most cases, you should use `Action.from/match/simple` instead of `new Action`.
    */
   constructor(
-    exec: ActionExec<ErrorType>,
-    options?: Partial<Pick<Action<ErrorType>, "maybeMuted">>,
+    exec: ActionExec<ErrorType, ActionState>,
+    options?: Partial<Pick<Action<ErrorType, ActionState>, "maybeMuted">>,
   ) {
     this.exec = exec;
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
-  static simple<ErrorType = string>(
-    f: SimpleActionExec<ErrorType>,
-  ): Action<ErrorType> {
+  static simple<ErrorType = string, ActionState = never>(
+    f: SimpleActionExec<ErrorType, ActionState>,
+  ): Action<ErrorType, ActionState> {
     return new Action((input) => {
       const res = f(input);
       if (typeof res == "number") {
@@ -84,7 +84,7 @@ export class Action<ErrorType = string> {
     });
   }
 
-  static match<ErrorType = string>(
+  static match<ErrorType = string, ActionState = never>(
     r: RegExp,
     options?: {
       /**
@@ -98,7 +98,7 @@ export class Action<ErrorType = string> {
        */
       rejectCaret?: boolean;
     },
-  ): Action<ErrorType> {
+  ): Action<ErrorType, ActionState> {
     if (options?.autoSticky ?? true) {
       if (!r.sticky && !r.global)
         // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
@@ -127,14 +127,14 @@ export class Action<ErrorType = string> {
     });
   }
 
-  static from<ErrorType = string>(
-    r: ActionSource<ErrorType>,
-  ): Action<ErrorType> {
+  static from<ErrorType = string, ActionState = never>(
+    r: ActionSource<ErrorType, ActionState>,
+  ): Action<ErrorType, ActionState> {
     return r instanceof RegExp
-      ? Action.match<ErrorType>(r)
+      ? Action.match<ErrorType, ActionState>(r)
       : r instanceof Action
       ? r
-      : Action.simple<ErrorType>(r);
+      : Action.simple<ErrorType, ActionState>(r);
   }
 
   /**
@@ -143,10 +143,13 @@ export class Action<ErrorType = string> {
   mute(
     muted:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true,
-  ) {
+      | ((ctx: {
+          input: Readonly<ActionInput<ActionState>>;
+          output: Readonly<AcceptedActionOutput<ErrorType>>;
+        }) => boolean) = true,
+  ): Action<ErrorType, ActionState> {
     if (typeof muted === "boolean")
-      return new Action(
+      return new Action<ErrorType, ActionState>(
         (input) => {
           const output = this.exec(input);
           if (output.accept) {
@@ -158,11 +161,11 @@ export class Action<ErrorType = string> {
         { maybeMuted: muted },
       );
     // else, muted is a function
-    return new Action(
+    return new Action<ErrorType, ActionState>(
       (input) => {
         const output = this.exec(input);
         if (output.accept) {
-          output.muted = muted(output);
+          output.muted = muted({ input, output });
           return output;
         }
         return output;
@@ -176,16 +179,17 @@ export class Action<ErrorType = string> {
    * `condition` should return error, `undefined` means no error.
    */
   check<NewErrorType>(
-    condition: (
-      output: Readonly<AcceptedActionOutput<ErrorType>>,
-    ) => NewErrorType | undefined,
-  ) {
-    return new Action<NewErrorType>((buffer) => {
-      const output = this.exec(buffer);
+    condition: (ctx: {
+      input: Readonly<ActionInput<ActionState>>;
+      output: Readonly<AcceptedActionOutput<ErrorType>>;
+    }) => NewErrorType | undefined,
+  ): Action<NewErrorType, ActionState> {
+    return new Action<NewErrorType, ActionState>((input) => {
+      const output = this.exec(input);
       if (output.accept) {
         const converted =
           output as unknown as AcceptedActionOutput<NewErrorType>;
-        converted.error = condition(output);
+        converted.error = condition({ input, output });
         return converted;
       }
       return output;
@@ -195,8 +199,8 @@ export class Action<ErrorType = string> {
   /**
    * Set error if `accept` is `true`.
    */
-  error<NewErrorType>(error: NewErrorType) {
-    return new Action((input) => {
+  error<NewErrorType>(error: NewErrorType): Action<NewErrorType, ActionState> {
+    return new Action<NewErrorType, ActionState>((input) => {
       const output = this.exec(input);
       if (output.accept) {
         const converted =
@@ -214,16 +218,19 @@ export class Action<ErrorType = string> {
   reject(
     rejecter:
       | boolean
-      | ((output: Readonly<AcceptedActionOutput<ErrorType>>) => boolean) = true,
-  ) {
+      | ((ctx: {
+          input: Readonly<ActionInput<ActionState>>;
+          output: Readonly<AcceptedActionOutput<ErrorType>>;
+        }) => boolean) = true,
+  ): Action<ErrorType, ActionState> {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
       return this; // just return self, don't override the original output's accept
     }
-    return new Action((buffer) => {
-      const output = this.exec(buffer);
+    return new Action<ErrorType, ActionState>((input) => {
+      const output = this.exec(input);
       if (output.accept) {
-        if (rejecter(output)) return rejectedActionOutput;
+        if (rejecter({ input, output })) return rejectedActionOutput;
         else return output;
       }
       return output;
@@ -233,10 +240,16 @@ export class Action<ErrorType = string> {
   /**
    * Call `f` if `accept` is `true`.
    */
-  then(f: (output: Readonly<AcceptedActionOutput<ErrorType>>) => void) {
-    return new Action((buffer) => {
-      const output = this.exec(buffer);
-      if (output.accept) f(output);
+  // TODO: when peek, the callback should not be executed.
+  then(
+    f: (ctx: {
+      input: Readonly<ActionInput<ActionState>>;
+      output: Readonly<AcceptedActionOutput<ErrorType>>;
+    }) => void,
+  ): Action<ErrorType, ActionState> {
+    return new Action<ErrorType, ActionState>((input) => {
+      const output = this.exec(input);
+      if (output.accept) f({ input, output });
       return output;
     });
   }
@@ -245,13 +258,13 @@ export class Action<ErrorType = string> {
    * Execute the new action if current action can't accept input.
    * Sadly there is no operator overloading in typescript.
    */
-  or(a: ActionSource<ErrorType>) {
+  or(a: ActionSource<ErrorType, ActionState>): Action<ErrorType, ActionState> {
     const other = Action.from(a);
-    return new Action(
-      (buffer) => {
-        const output = this.exec(buffer);
+    return new Action<ErrorType, ActionState>(
+      (input) => {
+        const output = this.exec(input);
         if (output.accept) return output;
-        return other.exec(buffer);
+        return other.exec(input);
       },
       {
         maybeMuted: this.maybeMuted || other.maybeMuted,
@@ -263,9 +276,11 @@ export class Action<ErrorType = string> {
    * Reduce actions to one action. Actions will be executed in order.
    * This will reduce the lexer loop times to optimize the performance.
    */
-  static reduce<ErrorType = string>(...actions: ActionSource<ErrorType>[]) {
-    return Action.from<ErrorType>(
-      actions.reduce((a, b) => Action.from<ErrorType>(a).or(b)),
+  static reduce<ErrorType = string, ActionState = never>(
+    ...actions: ActionSource<ErrorType, ActionState>[]
+  ): Action<ErrorType, ActionState> {
+    return Action.from<ErrorType, ActionState>(
+      actions.reduce((a, b) => Action.from<ErrorType, ActionState>(a).or(b)),
     );
   }
 }

@@ -13,14 +13,26 @@ export type Token<ErrorType, Kinds extends string> = {
 };
 
 /** Apply `action` and try to yield a token with `kind`. */
-export type Definition<ErrorType, Kinds extends string> = {
+export type Definition<ErrorType, Kinds extends string, ActionState> = {
   /** Target token kind. Empty string if anonymous. */
   kind: Kinds;
-  action: Action<ErrorType>;
+  action: Action<ErrorType, ActionState>;
 };
 
-export interface IStatelessLexer<ErrorType, Kinds extends string> {
-  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
+export type ActionStateCloner<ActionState> = (
+  ctx: Readonly<ActionState>,
+) => ActionState;
+
+export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
+  readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
+  /**
+   * Clone a new lexer core with the same definitions and the initial state.
+   */
+  dryClone(): ILexerCore<ErrorType, Kinds, ActionState>;
+  /**
+   * Clone a new lexer core with the same definitions and the current state.
+   */
+  clone(): ILexerCore<ErrorType, Kinds, ActionState>;
   lex(
     /**
      * The whole input string.
@@ -117,9 +129,9 @@ export interface IStatelessLexer<ErrorType, Kinds extends string> {
 }
 
 /**
- * ReadonlyILexer's states won't be changed.
+ * IReadonlyLexer's states won't be changed.
  */
-export interface IReadonlyLexer<ErrorType, Kinds extends string> {
+export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
@@ -135,7 +147,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * You can clear the errors by setting it's length to 0.
    */
   get errors(): readonly Readonly<Token<ErrorType, Kinds>>[];
-  readonly defs: readonly Readonly<Definition<ErrorType, Kinds>>[];
+  readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
   /**
    * The entire input string.
    */
@@ -152,23 +164,23 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
-  readonly stateless: IStatelessLexer<ErrorType, Kinds>;
+  readonly stateless: ILexerCore<ErrorType, Kinds, ActionState>; // TODO: rename
   /**
-   * Clone a new lexer with the same state and definitions.
+   * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
   clone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<ErrorType, Kinds>;
+  }): ILexer<ErrorType, Kinds, ActionState>;
   /**
-   * Clone a new lexer with the same definitions, without states.
+   * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
   dryClone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<ErrorType, Kinds>;
+  }): ILexer<ErrorType, Kinds, ActionState>;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
@@ -207,8 +219,8 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string> {
   hasErrors(): boolean;
 }
 
-export interface ILexer<ErrorType, Kinds extends string>
-  extends IReadonlyLexer<ErrorType, Kinds> {
+export interface ILexer<ErrorType, Kinds extends string, ActionState>
+  extends IReadonlyLexer<ErrorType, Kinds, ActionState> {
   get errors(): Readonly<Token<ErrorType, Kinds>>[]; // make the array writable
   set debug(value: boolean);
   set logger(value: Logger);

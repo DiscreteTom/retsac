@@ -4,7 +4,7 @@ import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
-import type { ParsingState, ReLexState, RollbackState } from "../model";
+import type { ParsingState, ReActionState, RollbackState } from "../model";
 import { hashStringToNum } from "../utils";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
@@ -30,6 +30,7 @@ export class DFA<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   constructor(
     readonly grammarRules: ReadonlyGrammarRuleRepo<
@@ -37,7 +38,8 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     private readonly entryNTs: ReadonlySet<Kinds>,
     private readonly entryState: State<
@@ -45,14 +47,16 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     private readonly NTClosures: ReadonlyNTClosures<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
     public readonly followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
@@ -61,14 +65,16 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     readonly states: ReadonlyStateRepo<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     readonly grammars: GrammarRepo<Kinds, LexerKinds>,
     readonly NTs: ReadonlySet<Kinds>,
@@ -82,14 +88,22 @@ export class DFA<
    */
   parse(
     buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
-    lexer: ILexer<LexerError, LexerKinds>,
-    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    lexer: ILexer<LexerError, LexerKinds, LexerActionState>,
+    reLexStack: ReActionState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -98,7 +112,7 @@ export class DFA<
     logger: Logger,
   ): {
     output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<LexerError, LexerKinds>;
+    lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
   } {
     return this._parse(
       {
@@ -129,15 +143,24 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    reLexStack: ReActionState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
     debug: boolean,
     logger: Logger,
@@ -185,15 +208,24 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    reLexStack: ReActionState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -280,15 +312,24 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    reLexStack: ReActionState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
     debug: boolean,
     logger: Logger,
@@ -380,15 +421,24 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    reLexStack: ReLexState<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    reLexStack: ReActionState<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
     ignoreEntryFollow: boolean,
     debug: boolean,
@@ -478,9 +528,17 @@ export class DFA<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     data: ReturnType<
-      DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>["toJSON"]
+      DFA<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >["toJSON"]
     >,
     options: {
       logger: Logger;
@@ -496,14 +554,16 @@ export class DFA<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >(data.candidates, grs, grammars);
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>

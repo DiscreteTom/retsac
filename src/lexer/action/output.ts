@@ -1,6 +1,7 @@
 import type { AtLeastOneOf } from "../../type-helper";
 
 // This has to be a class, since we need to cache the `rest` of the input.
+// TODO: rename ErrorType to LexerError?
 export class AcceptedActionOutput<ErrorType> {
   /** This action can accept some input as a token. */
   accept: true;

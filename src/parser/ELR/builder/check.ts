@@ -23,6 +23,7 @@ export function checkSymbols<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
@@ -33,7 +34,8 @@ export function checkSymbols<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
   printAll: boolean,
   logger: Logger,
@@ -97,12 +99,29 @@ export function checkConflicts<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
   unresolved: ReadonlyMap<
-    Readonly<GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>>,
+    Readonly<
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >
+    >,
     readonly Readonly<
-      Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+      Conflict<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >
     >[]
   >,
   grs: ReadonlyGrammarRuleRepo<
@@ -110,7 +129,8 @@ export function checkConflicts<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
   printAll: boolean,
   logger: Logger,
@@ -202,13 +222,15 @@ export function checkRollbacks<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
   printAll: boolean,
   logger: Logger,

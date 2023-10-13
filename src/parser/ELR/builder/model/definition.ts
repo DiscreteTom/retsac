@@ -29,18 +29,48 @@ export interface DefinitionContext<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   resolved: ResolvedPartialTempConflict<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[];
-  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  callback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rejecter?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rollback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  commit?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
   // TODO: reParse?: boolean;
 }

@@ -22,7 +22,15 @@ export type ReadonlyNTClosures<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = ReadonlyMap<
   Kinds,
-  GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+  GrammarRule<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >[]
 >;

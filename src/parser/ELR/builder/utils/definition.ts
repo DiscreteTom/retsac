@@ -27,17 +27,26 @@ export function defToTempGRs<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   defs: Definition<Kinds>,
   hydrationId: number = 0,
-  ctx?: DefinitionContext<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  ctx?: DefinitionContext<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
 ) {
   const result: TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[] = [];
 
   // parse rules
@@ -79,7 +88,14 @@ export function defToTempGRs<
         throw new EmptyLiteralError(NT, ruleStr);
 
       result.push(
-        new TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
+        new TempGrammarRule<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError,
+          LexerActionState
+        >({
           NT,
           rule: tokens.map((t) => {
             if (t.kind == "grammar")

@@ -1,21 +1,21 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import type { ILexer, IStatelessLexer, Token } from "./model";
+import type { ILexer, ILexerCore, Token } from "./model";
 import { LexerState } from "./state";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
-export class Lexer<ErrorType, Kinds extends string>
-  implements ILexer<ErrorType, Kinds>
+export class Lexer<ErrorType, Kinds extends string, ActionState>
+  implements ILexer<ErrorType, Kinds, ActionState>
 {
   debug: boolean;
   logger: Logger;
-  readonly stateless: IStatelessLexer<ErrorType, Kinds>;
+  readonly stateless: ILexerCore<ErrorType, Kinds, ActionState>;
   private state: LexerState<ErrorType, Kinds>;
 
   constructor(
-    stateless: IStatelessLexer<ErrorType, Kinds>,
+    stateless: ILexerCore<ErrorType, Kinds, ActionState>,
     options?: LexerBuildOptions,
   ) {
     this.stateless = stateless;
@@ -57,14 +57,20 @@ export class Lexer<ErrorType, Kinds extends string>
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds>(this.stateless);
+    const res = new Lexer<ErrorType, Kinds, ActionState>(
+      this.stateless.dryClone(),
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = this.dryClone(options);
+    const res = new Lexer<ErrorType, Kinds, ActionState>(
+      this.stateless.clone(),
+    );
+    res.debug = options?.debug ?? this.debug;
+    res.logger = options?.logger ?? this.logger;
     res.state = this.state.clone();
     return res;
   }

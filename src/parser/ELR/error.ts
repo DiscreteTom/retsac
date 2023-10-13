@@ -18,10 +18,11 @@ export class StateCacheMissError<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > extends ELR_RuntimeError {
   constructor(
     public state: Readonly<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>
     >,
     public node: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>,
   ) {

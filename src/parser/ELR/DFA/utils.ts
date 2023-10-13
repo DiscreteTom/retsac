@@ -32,6 +32,7 @@ export function getAllNTClosure<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   NTs: ReadonlySet<Kinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
@@ -39,12 +40,27 @@ export function getAllNTClosure<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
-): ReadonlyNTClosures<ASTData, ErrorType, Kinds, LexerKinds, LexerError> {
+): ReadonlyNTClosures<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError,
+  LexerActionState
+> {
   const result = new Map<
     Kinds,
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[]
+    GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[]
   >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
   return result;
@@ -62,6 +78,7 @@ export function getNTClosure<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   NT: Kinds,
   allGrammarRules: ReadonlyGrammarRuleRepo<
@@ -69,9 +86,17 @@ export function getNTClosure<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
-): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[] {
+): GrammarRule<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError,
+  LexerActionState
+>[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
     allGrammarRules,
@@ -89,22 +114,32 @@ export function getGrammarRulesClosure<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   rules: readonly GrammarRule<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[],
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
-): GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[] {
+): GrammarRule<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError,
+  LexerActionState
+>[] {
   const result = [...rules];
 
   while (true) {
@@ -193,13 +228,14 @@ export function lexGrammar<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   g: Grammar<LexerKinds>,
-  roLexer: IReadonlyLexer<LexerError, LexerKinds>,
+  roLexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>,
 ):
   | {
       node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<LexerError, LexerKinds>;
+      lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
     }
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
@@ -230,6 +266,7 @@ export function calculateAllStates<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   repo: GrammarRepo<Kinds, LexerKinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
@@ -237,17 +274,33 @@ export function calculateAllStates<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
-  allStates: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  allStates: StateRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
   NTClosures: ReadonlyNTClosures<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
-  cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  cs: CandidateRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
 ) {
   // collect all grammars in grammar rules.
   // don't convert grammar rules' NTs into ASTNodes,
@@ -288,9 +341,17 @@ export function processDefinitions<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   data: readonly Readonly<
-    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    ParserBuilderData<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
   >[],
 ): {
   tempGrammarRules: readonly TempGrammarRule<
@@ -298,11 +359,19 @@ export function processDefinitions<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[];
   NTs: ReadonlySet<Kinds>;
   resolvedTemps: readonly Readonly<
-    ResolvedTempConflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    ResolvedTempConflict<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
   >[];
 } {
   const tempGrammarRules: TempGrammarRule<
@@ -310,7 +379,8 @@ export function processDefinitions<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[] = [];
   const NTs: Set<Kinds> = new Set();
   const resolvedTemps = [] as ResolvedTempConflict<
@@ -318,7 +388,8 @@ export function processDefinitions<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[];
 
   data.forEach((d) => {
@@ -334,9 +405,14 @@ export function processDefinitions<
 
     ctx?.resolved?.forEach((r) => {
       if (r.type == ConflictType.REDUCE_REDUCE) {
-        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-          r.anotherRule,
-        ).forEach((another) => {
+        defToTempGRs<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError,
+          LexerActionState
+        >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
               type: ConflictType.REDUCE_REDUCE,
@@ -349,9 +425,14 @@ export function processDefinitions<
         });
       } else {
         // ConflictType.REDUCE_SHIFT
-        defToTempGRs<ASTData, ErrorType, Kinds, LexerKinds, LexerError>(
-          r.anotherRule,
-        ).forEach((another) => {
+        defToTempGRs<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError,
+          LexerActionState
+        >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
               type: ConflictType.REDUCE_SHIFT,
@@ -410,9 +491,11 @@ export function serializable2map<K extends string, V, R>(
  * The result is `JSON.stringify`-ed.
  * This is used for debugging.
  */
-export function prettierLexerRest<LexerError, LexerKinds extends string>(
-  lexer: IReadonlyLexer<LexerError, LexerKinds>,
-) {
+export function prettierLexerRest<
+  LexerError,
+  LexerKinds extends string,
+  LexerActionState,
+>(lexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>) {
   const showLength = 30;
   return `${JSON.stringify(
     lexer.buffer.slice(lexer.digested, lexer.digested + showLength),
@@ -432,6 +515,7 @@ export function buildFirstSets<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   NTs: ReadonlySet<Kinds>,
   NTClosures: ReadonlyNTClosures<
@@ -439,7 +523,8 @@ export function buildFirstSets<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
 ) {
   const firstSets = new Map<Kinds, GrammarSet<Kinds, LexerKinds>>();
@@ -464,6 +549,7 @@ export function buildFollowSets<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   NTs: ReadonlySet<Kinds>,
   grs: ReadonlyGrammarRuleRepo<
@@ -471,7 +557,8 @@ export function buildFollowSets<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
   firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
 ) {

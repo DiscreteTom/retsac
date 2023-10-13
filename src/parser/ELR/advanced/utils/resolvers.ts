@@ -6,13 +6,15 @@ export function applyResolvers<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 >(
   builder: IParserBuilder<
     ASTData,
     ErrorType,
     "gr" | Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >,
 ) {
   return builder.priority(

@@ -10,16 +10,26 @@ export function calculateHash<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
   AppendLexerKinds extends string,
   AppendLexerError,
+  AppendLexerActionState,
 >(
   data: readonly Readonly<
-    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    ParserBuilderData<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
   >[],
   entryNTs: ReadonlySet<Kinds>,
   lexer: IReadonlyLexer<
     LexerError | AppendLexerError,
-    LexerKinds | AppendLexerKinds
+    LexerKinds | AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
   >,
   cascadeQueryPrefix: string | undefined,
 ) {
@@ -48,23 +58,34 @@ export function buildSerializable<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
   AppendLexerKinds extends string,
   AppendLexerError,
+  AppendLexerActionState,
 >(
   data: readonly Readonly<
-    ParserBuilderData<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    ParserBuilderData<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
   >[],
   dfa: DFA<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError
+    LexerError | AppendLexerError,
+    LexerActionState | AppendLexerActionState
   >,
   entryNTs: ReadonlySet<Kinds>,
   lexer: IReadonlyLexer<
     LexerError | AppendLexerError,
-    LexerKinds | AppendLexerKinds
+    LexerKinds | AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
   >,
   cascadeQueryPrefix: string | undefined,
 ): SerializableParserData<Kinds, LexerKinds | AppendLexerKinds> {

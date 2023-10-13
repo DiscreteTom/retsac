@@ -30,7 +30,7 @@ import type {
   RR_ResolverOptions,
 } from "./model";
 import { DFA, DFABuilder } from "../DFA";
-import type { IReadonlyLexer, IStatelessLexer } from "../../../lexer";
+import type { IReadonlyLexer, ILexerCore } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import { defaultLogger, type Logger } from "../../../logger";
@@ -57,14 +57,24 @@ export class ParserBuilder<
   Kinds extends string = never,
   LexerKinds extends string = never,
   LexerError = never,
-> implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  LexerActionState = never,
+> implements
+    IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
 {
   protected readonly data: ParserBuilderData<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[] = [];
   /**
    * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
@@ -82,21 +92,31 @@ export class ParserBuilder<
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
-  useLexer<AppendLexerKinds extends string, AppendLexerError>(
-    _lexer: IReadonlyLexer<AppendLexerError, AppendLexerKinds>,
+  useLexer<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
+    _lexer: IReadonlyLexer<
+      AppendLexerError,
+      AppendLexerKinds,
+      AppendLexerActionState
+    >,
   ): IParserBuilder<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError
+    LexerError | AppendLexerError,
+    LexerActionState | AppendLexerActionState
   > {
     return this as IParserBuilder<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >;
   }
 
@@ -106,7 +126,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[],
   ) {
     this.data.push(...data);
@@ -115,7 +136,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >;
   }
 
@@ -126,14 +148,16 @@ export class ParserBuilder<
       ErrorType,
       Kinds | Append,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[]
   ): IParserBuilder<
     ASTData,
     ErrorType,
     Kinds | Append,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   > {
     (
       this.data as ParserBuilderData<
@@ -141,7 +165,8 @@ export class ParserBuilder<
         ErrorType,
         Kinds | Append,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >[]
     ).push({
       defs,
@@ -154,15 +179,21 @@ export class ParserBuilder<
       ErrorType,
       Kinds | Append,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >;
   }
 
-  private buildDFA<AppendLexerKinds extends string, AppendLexerError>(
+  private buildDFA<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: IStatelessLexer<
+    lexer: ILexerCore<
       LexerError | AppendLexerError,
-      LexerKinds | AppendLexerKinds
+      LexerKinds | AppendLexerKinds,
+      LexerActionState | AppendLexerActionState
     >,
     printAll: boolean,
     debug: boolean,
@@ -194,7 +225,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >(
       repo,
       lexer,
@@ -204,7 +236,8 @@ export class ParserBuilder<
         ErrorType,
         Kinds,
         LexerKinds | AppendLexerKinds,
-        LexerError | AppendLexerError
+        LexerError | AppendLexerError,
+        LexerActionState | AppendLexerActionState
       >[],
       printAll,
       logger,
@@ -263,7 +296,8 @@ export class ParserBuilder<
                 }).toGrammar<
                   Kinds,
                   LexerKinds | AppendLexerKinds,
-                  LexerError | AppendLexerError
+                  LexerError | AppendLexerError,
+                  LexerActionState | AppendLexerActionState
                 >(repo, lexer, printAll, logger, NTs.has(n as Kinds)),
               ),
             );
@@ -274,7 +308,8 @@ export class ParserBuilder<
         ErrorType,
         Kinds,
         LexerKinds | AppendLexerKinds,
-        LexerError | AppendLexerError
+        LexerError | AppendLexerError,
+        LexerActionState | AppendLexerActionState
       > =
         typeof accepter == "boolean"
           ? {
@@ -331,11 +366,16 @@ export class ParserBuilder<
     };
   }
 
-  build<AppendLexerKinds extends string, AppendLexerError>(
+  build<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     options: BuildOptions<
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >,
   ) {
     const debug = options.debug ?? false;
@@ -363,15 +403,16 @@ export class ParserBuilder<
             rollback,
             reLex,
           )
-        : this.restoreAndHydrate<AppendLexerKinds, AppendLexerError>(
-            options.hydrate,
-            {
-              debug,
-              logger,
-              rollback,
-              reLex,
-            },
-          );
+        : this.restoreAndHydrate<
+            AppendLexerKinds,
+            AppendLexerError,
+            AppendLexerActionState
+          >(options.hydrate, {
+            debug,
+            logger,
+            rollback,
+            reLex,
+          });
 
     // check symbols first
     if (options.checkAll || options.checkSymbols)
@@ -440,21 +481,27 @@ export class ParserBuilder<
     };
   }
 
-  private generateResolvers<AppendLexerKinds extends string>(
+  private generateResolvers<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     unresolved: Map<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
         LexerKinds | AppendLexerKinds,
-        LexerError
+        LexerError | AppendLexerError,
+        LexerActionState | AppendLexerActionState
       >,
       Conflict<
         ASTData,
         ErrorType,
         Kinds,
         LexerKinds | AppendLexerKinds,
-        LexerError
+        LexerError | AppendLexerError,
+        LexerActionState | AppendLexerActionState
       >[]
     >,
     style: "builder" | "context",
@@ -514,7 +561,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ) {
     this.data.push({
@@ -535,7 +583,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ) {
     this.data.push({
@@ -553,6 +602,7 @@ export class ParserBuilder<
     AppendLexerKinds extends string,
     AppendError,
     AppendLexerError,
+    AppendLexerActionState,
   >(
     f: BuilderDecorator<
       ASTData,
@@ -560,17 +610,20 @@ export class ParserBuilder<
       Kinds,
       LexerKinds,
       LexerError,
+      LexerActionState,
       AppendKinds,
       AppendLexerKinds,
       AppendError,
-      AppendLexerError
+      AppendLexerError,
+      AppendLexerActionState
     >,
   ): IParserBuilder<
     ASTData,
     ErrorType | AppendError,
     Kinds | AppendKinds,
     LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError
+    LexerError | AppendLexerError,
+    LexerActionState | AppendLexerActionState
   > {
     return f(this);
   }
@@ -673,7 +726,11 @@ export class ParserBuilder<
     return this;
   }
 
-  private restoreAndHydrate<AppendLexerKinds extends string, AppendLexerError>(
+  private restoreAndHydrate<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     data: SerializableParserData<Kinds, LexerKinds | AppendLexerKinds>,
     options: Parameters<typeof DFA.fromJSON>[1],
   ) {
@@ -682,7 +739,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >(data.data.dfa, options);
     const ctxs = this.data.map(
       (d) => d.ctxBuilder?.build(),
@@ -691,7 +749,8 @@ export class ParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >[];
 
     // hydrate grammar rules with user defined functions & resolvers
@@ -713,7 +772,8 @@ export class ParserBuilder<
             ErrorType,
             Kinds,
             LexerKinds | AppendLexerKinds,
-            LexerError | AppendLexerError
+            LexerError | AppendLexerError,
+            LexerActionState | AppendLexerActionState
           >;
         }
       });

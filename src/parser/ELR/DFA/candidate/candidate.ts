@@ -29,9 +29,17 @@ export class Candidate<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   readonly gr: Readonly<
-    GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    GrammarRule<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
   >;
   /**
    * How many grammars are already matched in `this.gr`.
@@ -46,7 +54,14 @@ export class Candidate<
    */
   private readonly nextMap: Map<
     Grammar<Kinds | LexerKinds>,
-    Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
+    Candidate<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    > | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
   /**
@@ -63,12 +78,26 @@ export class Candidate<
    */
   constructor(
     data: Pick<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      Candidate<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "gr" | "digested" | "strWithGrammarName"
     > &
       Partial<
         Pick<
-          Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+          Candidate<
+            ASTData,
+            ErrorType,
+            Kinds,
+            LexerKinds,
+            LexerError,
+            LexerActionState
+          >,
           "str"
         >
       >,
@@ -99,8 +128,22 @@ export class Candidate<
    * @return `null` if the this can't digest more.
    */
   generateNext(
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  ): Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError> | null {
+    cs: CandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
+  ): Candidate<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  > | null {
     if (this.current == undefined) return null;
 
     // try to get from cache
@@ -130,9 +173,17 @@ export class Candidate<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     data: Pick<
-      Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      Candidate<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "gr" | "digested"
     >,
   ) {
@@ -151,7 +202,14 @@ export class Candidate<
   // Since there will be temporary candidates, this function can't be removed.
   eq(other: {
     gr: Readonly<
-      GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+      GrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >
     >;
     digested: number;
   }) {
@@ -174,7 +232,7 @@ export class Candidate<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
-    lexer: IReadonlyLexer<LexerError, LexerKinds>,
+    lexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,
@@ -186,7 +244,8 @@ export class Candidate<
           ErrorType,
           Kinds,
           LexerKinds,
-          LexerError
+          LexerError,
+          LexerActionState
         >;
         /**
          * If `true`, the parser will commit the current state.
@@ -214,7 +273,8 @@ export class Candidate<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >({
       matched,
       lexer,
@@ -428,14 +488,16 @@ export class Candidate<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     cs: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
@@ -458,6 +520,7 @@ export class Candidate<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     data: ReturnType<
       Candidate<
@@ -465,7 +528,8 @@ export class Candidate<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >["toSerializable"]
     >,
     grs: ReadonlyGrammarRuleRepo<
@@ -473,11 +537,19 @@ export class Candidate<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
-    const c = new Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>({
+    const c = new Candidate<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >({
       gr: grs.getByString(data.gr)!,
       digested: data.digested,
       strWithGrammarName: data.strWithGrammarName,
@@ -491,7 +563,8 @@ export class Candidate<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >,
     ) => {
       for (const key in data.nextMap) {

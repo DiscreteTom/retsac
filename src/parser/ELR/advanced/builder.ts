@@ -17,11 +17,32 @@ export class AdvancedBuilder<
     Kinds extends string = never,
     LexerKinds extends string = never,
     LexerError = never,
+    LexerActionState = never,
   >
-  extends ParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
-  implements IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  extends ParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >
+  implements
+    IParserBuilder<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
 {
-  private readonly expander: GrammarExpander<Kinds, LexerKinds, LexerError>;
+  private readonly expander: GrammarExpander<
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
 
   constructor(options?: {
     /**
@@ -32,7 +53,12 @@ export class AdvancedBuilder<
   }) {
     const prefix = options?.prefix ?? `__`;
     super({ cascadeQueryPrefix: prefix });
-    this.expander = new GrammarExpander<Kinds, LexerKinds, LexerError>({
+    this.expander = new GrammarExpander<
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >({
       placeholderPrefix: prefix,
     });
   }
@@ -56,7 +82,8 @@ export class AdvancedBuilder<
           ErrorType,
           Kinds,
           LexerKinds,
-          LexerError
+          LexerError,
+          LexerActionState
         >;
       }[];
     }[];
@@ -76,11 +103,16 @@ export class AdvancedBuilder<
     return res;
   }
 
-  build<AppendLexerKinds extends string, AppendLexerError>(
+  build<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     options: BuildOptions<
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >,
   ) {
     // if hydrate, just call super.build()
@@ -96,7 +128,8 @@ export class AdvancedBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >({
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     });
@@ -107,7 +140,8 @@ export class AdvancedBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[];
     this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
       // first, expand another rules in ctx.resolvers if exists
@@ -117,7 +151,8 @@ export class AdvancedBuilder<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >();
       ctx?.resolved.forEach((r) => {
         // for another rule, we don't need to log debug info or auto resolve R-S conflict

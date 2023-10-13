@@ -15,10 +15,11 @@ export class StateRepo<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   private ss: Map<
     string,
-    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+    State<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>
   >;
 
   constructor() {
@@ -28,13 +29,20 @@ export class StateRepo<
   get states() {
     return this.ss as ReadonlyMap<
       string,
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>
     >;
   }
 
   getKey(
     s: Pick<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      State<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "candidates"
     >,
   ): string {
@@ -43,7 +51,14 @@ export class StateRepo<
 
   get(
     s: Pick<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      State<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       "candidates"
     >,
   ) {
@@ -58,7 +73,14 @@ export class StateRepo<
    * Return `undefined` if the state already exists.
    */
   addEntry(
-    candidates: Candidate<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+    candidates: Candidate<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >[],
   ) {
     const raw = { candidates };
     const key = this.getKey(raw);
@@ -75,16 +97,31 @@ export class StateRepo<
    * If next state exist and not cached, then create and cached and return the new state.
    */
   addNext(
-    current: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    current: State<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
     grammar: Grammar<Kinds | LexerKinds>,
     NTClosures: ReadonlyNTClosures<
       ASTData,
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
-    cs: CandidateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+    cs: CandidateRepo<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
   ) {
     const directCandidates = current.candidates
       .filter((c) => c.current?.equalWithoutName(grammar)) // current grammar match the next node, name should be ignored since the next node's name is defined by its parent
@@ -107,7 +144,14 @@ export class StateRepo<
           });
           return p;
         },
-        [] as GrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>[],
+        [] as GrammarRule<
+          ASTData,
+          ErrorType,
+          Kinds,
+          LexerKinds,
+          LexerError,
+          LexerActionState
+        >[],
       ) // de-duplicated GrammarRule list
       .map(
         (gr) =>
@@ -132,7 +176,16 @@ export class StateRepo<
   }
 
   some(
-    f: (s: State<ASTData, ErrorType, Kinds, LexerKinds, LexerError>) => boolean,
+    f: (
+      s: State<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
+    ) => boolean,
   ) {
     for (const s of this.ss.values()) {
       if (f(s)) return true;
@@ -146,7 +199,8 @@ export class StateRepo<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
@@ -161,6 +215,7 @@ export class StateRepo<
     Kinds extends string,
     LexerKinds extends string,
     LexerError,
+    LexerActionState,
   >(
     data: ReturnType<
       StateRepo<
@@ -168,7 +223,8 @@ export class StateRepo<
         ErrorType,
         Kinds,
         LexerKinds,
-        LexerError
+        LexerError,
+        LexerActionState
       >["toSerializable"]
     >,
     cs: ReadonlyCandidateRepo<
@@ -176,7 +232,8 @@ export class StateRepo<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
@@ -185,10 +242,18 @@ export class StateRepo<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >();
     const callbacks = [] as ((
-      ss: StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      ss: StateRepo<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
     ) => void)[];
     for (const key in data) {
       const { s, restoreNextMap } = State.fromJSON(data[key], cs, repo);
@@ -207,7 +272,15 @@ export type ReadonlyStateRepo<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = Omit<
-  StateRepo<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  StateRepo<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
   "addEntry" | "addNext"
 >;

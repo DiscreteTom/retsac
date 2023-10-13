@@ -1,4 +1,4 @@
-import type { IStatelessLexer } from "../../../../lexer";
+import type { ILexerCore } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
@@ -43,12 +43,17 @@ export class TempGrammar {
     );
   }
 
-  toGrammar<Kinds extends string, LexerKinds extends string, LexerError>(
+  toGrammar<
+    Kinds extends string,
+    LexerKinds extends string,
+    LexerError,
+    LexerActionState,
+  >(
     repo: GrammarRepo<Kinds, LexerKinds>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: IStatelessLexer<LexerError, LexerKinds>,
+    lexer: ILexerCore<LexerError, LexerKinds, LexerActionState>,
     printAll: boolean,
     logger: Logger,
     isNT = true,
@@ -100,23 +105,59 @@ export class TempGrammarRule<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   readonly rule: readonly TempGrammar[];
   /**
    * The reduce target.
    */
   readonly NT: Kinds;
-  callback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rejecter?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  rollback?: Callback<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  commit?: Condition<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
+  callback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rejecter?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  rollback?: Callback<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
+  commit?: Condition<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
   traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
   readonly hydrationId: number;
   readonly strWithGrammarName: StringCache;
 
   constructor(
     data: Pick<
-      TempGrammarRule<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+      TempGrammarRule<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >,
       | "rule"
       | "NT"
       | "commit"

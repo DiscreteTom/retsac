@@ -15,9 +15,10 @@ export type BuildOptions<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = Partial<
   Pick<
-    IParser<never, never, Kinds, LexerKinds, never>,
+    IParser<never, never, Kinds, LexerKinds, never, LexerActionState>,
     "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
   >
 > & {
@@ -26,7 +27,7 @@ export type BuildOptions<
    * This is required for ELR parser.
    */
   entry: Kinds | readonly Kinds[];
-  lexer: ILexer<LexerError, LexerKinds>;
+  lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
   /**
    * Which format to generate resolvers.
    * If `undefined`, resolvers will not be generated.
@@ -97,6 +98,7 @@ export interface IParserBuilder<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   /**
    * Define grammar rules.
@@ -108,19 +110,32 @@ export interface IParserBuilder<
       ErrorType,
       Kinds | Append,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >[]
-  ): IParserBuilder<ASTData, ErrorType, Kinds | Append, LexerKinds, LexerError>;
+  ): IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds | Append,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >;
   /**
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
    */
   // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
-  build<AppendLexerKinds extends string, AppendLexerError>(
+  build<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
     options: BuildOptions<
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >,
   ): {
     parser: IParser<
@@ -128,7 +143,8 @@ export interface IParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds | AppendLexerKinds,
-      LexerError | AppendLexerError
+      LexerError | AppendLexerError,
+      LexerActionState | AppendLexerActionState
     >;
     /**
      * If you build the parser with {@link BuildOptions.serialize},
@@ -155,7 +171,8 @@ export interface IParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ): this;
   /**
@@ -169,7 +186,8 @@ export interface IParserBuilder<
       ErrorType,
       Kinds,
       LexerKinds,
-      LexerError
+      LexerError,
+      LexerActionState
     >,
   ): this;
   /**
@@ -180,6 +198,7 @@ export interface IParserBuilder<
     AppendLexerKinds extends string,
     AppendError,
     AppendLexerError,
+    AppendLexerActionState,
   >(
     f: BuilderDecorator<
       ASTData,
@@ -187,17 +206,20 @@ export interface IParserBuilder<
       Kinds,
       LexerKinds,
       LexerError,
+      LexerActionState,
       AppendKinds,
       AppendLexerKinds,
       AppendError,
-      AppendLexerError
+      AppendLexerError,
+      AppendLexerActionState
     >,
   ): IParserBuilder<
     ASTData,
     ErrorType | AppendError,
     Kinds | AppendKinds,
     LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError
+    LexerError | AppendLexerError,
+    LexerActionState | AppendLexerActionState
   >;
   /**
    * Append lexer's kinds to the parser kinds, and append lexer's error type to the parser lexer's error type.
@@ -205,14 +227,23 @@ export interface IParserBuilder<
    * This function will do nothing but set the generic type parameter of the parser builder in TypeScript.
    * So this function is only useful in TypeScript.
    */
-  useLexer<AppendLexerKinds extends string, AppendLexerError>(
-    lexer: IReadonlyLexer<AppendLexerError, AppendLexerKinds>,
+  useLexer<
+    AppendLexerKinds extends string,
+    AppendLexerError,
+    AppendLexerActionState,
+  >(
+    lexer: IReadonlyLexer<
+      AppendLexerError,
+      AppendLexerKinds,
+      AppendLexerActionState
+    >,
   ): IParserBuilder<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError
+    LexerError | AppendLexerError,
+    LexerActionState | AppendLexerActionState
   >;
   /**
    * Generate resolvers by grammar rules' priorities.
@@ -245,18 +276,28 @@ export type BuilderDecorator<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
   AppendKinds extends string,
   AppendLexerKinds extends string,
   AppendError,
   AppendLexerError,
+  AppendLexerActionState,
 > = (
-  pb: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
+  pb: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
 ) => IParserBuilder<
   ASTData,
   ErrorType | AppendError,
   Kinds | AppendKinds,
   LexerKinds | AppendLexerKinds,
-  LexerError | AppendLexerError
+  LexerError | AppendLexerError,
+  LexerActionState | AppendLexerActionState
 >;
 
 /**
@@ -272,6 +313,8 @@ export type SerializableParserData<
    */
   hash: number;
   data: {
-    dfa: ReturnType<DFA<never, never, Kinds, LexerKinds, never>["toJSON"]>;
+    dfa: ReturnType<
+      DFA<never, never, Kinds, LexerKinds, never, never>["toJSON"]
+    >;
   };
 };

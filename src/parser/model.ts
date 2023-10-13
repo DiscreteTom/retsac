@@ -27,6 +27,7 @@ export interface IParser<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
@@ -52,7 +53,7 @@ export interface IParser<
    * @default false
    */
   ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
-  readonly lexer: ILexer<LexerError, LexerKinds>;
+  readonly lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
   /**
    * Reset state.
    */

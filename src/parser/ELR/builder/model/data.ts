@@ -10,6 +10,7 @@ export type ParserBuilderData<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
+  LexerActionState,
 > = {
   defs: Definition<Kinds>;
   ctxBuilder?: DefinitionContextBuilder<
@@ -17,7 +18,8 @@ export type ParserBuilderData<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >;
   /**
    * If `true`, only resolve conflicts, don't create definition.

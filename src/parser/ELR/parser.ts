@@ -4,7 +4,7 @@ import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
 import type { DFA } from "./DFA";
-import type { ReLexState, RollbackState } from "./model";
+import type { ReActionState, RollbackState } from "./model";
 
 /**
  * ELR parser.
@@ -15,19 +15,36 @@ export class Parser<
   Kinds extends string,
   LexerKinds extends string,
   LexerError,
-> implements IParser<ASTData, ErrorType, Kinds, LexerKinds, LexerError>
+  LexerActionState,
+> implements
+    IParser<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >
 {
-  lexer: ILexer<LexerError, LexerKinds>;
-  readonly dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>;
-  private _buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-
-  private reLexStack: ReLexState<
+  lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+  readonly dfa: DFA<
     ASTData,
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
+  >;
+  private _buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+
+  private reLexStack: ReActionState<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
   >[];
   /**
    * There will only be one rollback stack for a parser.
@@ -40,7 +57,8 @@ export class Parser<
     ErrorType,
     Kinds,
     LexerKinds,
-    LexerError
+    LexerError,
+    LexerActionState
   >[];
 
   get buffer() {
@@ -57,8 +75,15 @@ export class Parser<
   ignoreEntryFollow: boolean;
 
   constructor(
-    dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-    lexer: ILexer<LexerError, LexerKinds>,
+    dfa: DFA<
+      ASTData,
+      ErrorType,
+      Kinds,
+      LexerKinds,
+      LexerError,
+      LexerActionState
+    >,
+    lexer: ILexer<LexerError, LexerKinds, LexerActionState>,
     autoCommit: boolean,
     ignoreEntryFollow: boolean,
     debug: boolean,
