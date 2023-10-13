@@ -21,11 +21,12 @@ export const { parser } = new ELR.ParserBuilder()
       `,
     },
     // callback will be called if the rule is accepted
-    ELR.callback(({ $, $$ }) => {
-      // use `$` to get the first matched token
-      fName = $("identifier")!.text!;
-      // use `$$` to get all matched tokens
-      returnType = $$("identifier")[1].text!;
-    }),
+    (d) =>
+      d.callback(({ $, $$ }) => {
+        // use `$` to get the first matched token
+        fName = $("identifier")!.text!;
+        // use `$$` to get all matched tokens
+        returnType = $$("identifier")[1].text!;
+      }),
   )
   .build({ lexer, entry: "fn_def" });

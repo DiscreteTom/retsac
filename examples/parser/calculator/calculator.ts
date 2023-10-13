@@ -14,33 +14,22 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.ParserBuilder<number>()
-  .define(
-    { exp: "number" },
-    ELR.reducer(({ matched }) => Number(matched[0].text)),
+  .define({ exp: "number" }, (d) =>
+    d.reducer(({ matched }) => Number(matched[0].text)),
   )
-  .define(
-    { exp: `'-' exp` },
-    ELR.reducer(({ values }) => -values[1]!),
+  .define({ exp: `'-' exp` }, (d) => d.reducer(({ values }) => -values[1]!))
+  .define({ exp: `'(' exp ')'` }, (d) => d.reducer(({ values }) => values[1]))
+  .define({ exp: `exp '+' exp` }, (d) =>
+    d.reducer(({ values }) => values[0]! + values[2]!),
   )
-  .define(
-    { exp: `'(' exp ')'` },
-    ELR.reducer(({ values }) => values[1]),
+  .define({ exp: `exp '-' exp` }, (d) =>
+    d.reducer(({ values }) => values[0]! - values[2]!),
   )
-  .define(
-    { exp: `exp '+' exp` },
-    ELR.reducer(({ values }) => values[0]! + values[2]!),
+  .define({ exp: `exp '*' exp` }, (d) =>
+    d.reducer(({ values }) => values[0]! * values[2]!),
   )
-  .define(
-    { exp: `exp '-' exp` },
-    ELR.reducer(({ values }) => values[0]! - values[2]!),
-  )
-  .define(
-    { exp: `exp '*' exp` },
-    ELR.reducer(({ values }) => values[0]! * values[2]!),
-  )
-  .define(
-    { exp: `exp '/' exp` },
-    ELR.reducer(({ values }) => values[0]! / values[2]!),
+  .define({ exp: `exp '/' exp` }, (d) =>
+    d.reducer(({ values }) => values[0]! / values[2]!),
   )
   .priority(
     { exp: `'-' exp` }, // highest priority

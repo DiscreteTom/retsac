@@ -11,32 +11,48 @@ function findUnescaped(s: string, target: string) {
   return false;
 }
 
-// template string depth for nested template string
-let tempStrDepth = 0;
-
 export const lexer = new Lexer.Builder()
+  .useState({ tempStrDepth: 0 })
   .ignore(Lexer.whitespaces())
-  .define({
-    tempStr: Lexer.stringLiteral("`", { multiline: true }).reject(
-      ({ content }) => findUnescaped(content, "${"), // reject if find '${` without escape
+  .define({ tempStr: Lexer.stringLiteral("`", { multiline: true }) }, (a) =>
+    a.reject(
+      ({ output }) => findUnescaped(output.content, "${"), // reject if find '${` without escape
     ),
-    tempStrLeft: Lexer.stringLiteral("`", {
-      close: "${",
-      multiline: true,
-    }).then(() => tempStrDepth++),
-    tempStrRight: Lexer.stringLiteral("}", { close: "`", multiline: true })
-      .reject(
-        ({ content }) =>
-          tempStrDepth == 0 || // not in template string
-          findUnescaped(content, "${"), // contains another '${'
-      )
-      .then(() => tempStrDepth--),
-    tempStrMiddle: Lexer.stringLiteral("}", {
-      close: "${",
-      multiline: true,
-    }).reject(() => tempStrDepth == 0), // reject if not in template string
+  )
+  .define(
+    {
+      tempStrLeft: Lexer.stringLiteral("`", {
+        close: "${",
+        multiline: true,
+      }),
+    },
+    (a) => a.then(({ input }) => input.state.tempStrDepth++),
+  )
+  .define(
+    {
+      tempStrRight: Lexer.stringLiteral("}", { close: "`", multiline: true }),
+    },
+    (a) =>
+      a
+        .reject(
+          ({ output, input }) =>
+            input.state.tempStrDepth == 0 || // not in template string
+            findUnescaped(output.content, "${"), // contains another '${'
+        )
+        .then(({ input }) => input.state.tempStrDepth--),
+  )
+  .define(
+    {
+      tempStrMiddle: Lexer.stringLiteral("}", {
+        close: "${",
+        multiline: true,
+      }),
+    },
+    (a) => a.reject(({ input }) => input.state.tempStrDepth == 0), // reject if not in template string
+  )
+  .define({
     exp: /\w+/,
-    simpleString: Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
+    simpleString: [Lexer.stringLiteral(`'`), Lexer.stringLiteral(`"`)],
   })
   .anonymous(Lexer.exact(..."+"))
   .build();

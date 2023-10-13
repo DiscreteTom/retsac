@@ -17,20 +17,18 @@ export const builder = new ELR.AdvancedBuilder()
   .define(
     { value: `string | number | true | false | null` },
     // for string use `eval` to process escaped characters like `\n`
-    ELR.traverser(({ children }) => eval(children[0].text!)),
+    (d) => d.traverser(({ children }) => eval(children[0].text!)),
   )
-  .define(
-    { value: `object | array` },
-    ELR.traverser(({ children }) => children[0].traverse()),
+  .define({ value: `object | array` }, (d) =>
+    d.traverser(({ children }) => children[0].traverse()),
   )
   .define(
     { array: `'[' (value (',' value)*)? ']'` },
     // use `$$` to select all children with the given kind
-    ELR.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse())),
+    (d) => d.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse())),
   )
-  .define(
-    { object: `'{' (object_item (',' object_item)*)? '}'` },
-    ELR.traverser(({ $$ }) => {
+  .define({ object: `'{' (object_item (',' object_item)*)? '}'` }, (d) =>
+    d.traverser(({ $$ }) => {
       // every object_item's traverse result is an object, we need to merge them
       const result: { [key: string]: unknown } = {};
       $$(`object_item`).forEach((item) => {
@@ -43,12 +41,13 @@ export const builder = new ELR.AdvancedBuilder()
     { object_item: `string ':' value` },
     // return an object
     // use `$` to select the first child with the given kind
-    ELR.traverser(({ $ }) => {
-      const result: { [key: string]: unknown } = {};
-      // remove the double quotes
-      result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
-      return result;
-    }),
+    (d) =>
+      d.traverser(({ $ }) => {
+        const result: { [key: string]: unknown } = {};
+        // remove the double quotes
+        result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
+        return result;
+      }),
   );
 
 export const entry = "value" as const;

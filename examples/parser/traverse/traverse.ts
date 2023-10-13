@@ -19,31 +19,29 @@ export const { parser } = new ELR.ParserBuilder<number>()
   .define({ stmts: `stmt` })
   // if a node has many children, the default traverser will traverse all children and return undefined.
   .define({ stmts: `stmts stmt` })
-  .define(
-    { stmt: `identifier '=' exp ';'` },
-    ELR.traverser(({ $ }) => {
+  .define({ stmt: `identifier '=' exp ';'` }, (d) =>
+    d.traverser(({ $ }) => {
       // store the value of the expression to the variable
       // remember to use `child.traverse()` instead of `child.data` to get the data
       varMap.set($(`identifier`)!.text!, $(`exp`)!.traverse()!);
     }),
   )
-  .define(
-    { exp: `exp '+' exp` },
-    ELR.traverser(
+  .define({ exp: `exp '+' exp` }, (d) =>
+    d.traverser(
       // remember to use `child.traverse()` instead of `child.data` to get the data
       ({ children }) => children[0].traverse()! + children[2].traverse()!,
     ),
   )
   .define(
     { exp: `number` },
-    ELR.traverser(({ children }) => Number(children[0].text!)),
+    (d) => d.traverser(({ children }) => Number(children[0].text!)),
     // reducer can still be used to set the data before traversing
     // ELR.reducer(({ matched }) => Number(matched[0].text))
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
+    (d) => d.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
   .resolveRS(
     { exp: `exp '+' exp` },
@@ -61,23 +59,24 @@ export const { parser: parser2 } = new ELR.ParserBuilder<number>()
         '}'
       `,
     },
-    ELR.traverser(({ $$, $ }) => {
-      // store the function name to the var map, with a random value to test
-      varMap.set($$(`identifier`)[0].text!, 123);
-      // store the parameter name to the var map, with a random value to test
-      varMap.set($$(`identifier`)[1].text!, 456);
-      // traverse the function body
-      $(`stmt`)!.traverse();
-    }),
+    (d) =>
+      d.traverser(({ $$, $ }) => {
+        // store the function name to the var map, with a random value to test
+        varMap.set($$(`identifier`)[0].text!, 123);
+        // store the parameter name to the var map, with a random value to test
+        varMap.set($$(`identifier`)[1].text!, 456);
+        // traverse the function body
+        $(`stmt`)!.traverse();
+      }),
   )
   .define(
     { stmt: `return exp` },
     // return expression value
-    ELR.traverser(({ children }) => children[1].traverse()),
+    (d) => d.traverser(({ children }) => children[1].traverse()),
   )
   .define(
     { exp: `identifier` },
     // get the value of the variable from the map
-    ELR.traverser(({ children }) => varMap.get(children[0].text!)!),
+    (d) => d.traverser(({ children }) => varMap.get(children[0].text!)!),
   )
   .build({ lexer, entry: "fn_def_stmt", checkAll: true });

@@ -37,16 +37,13 @@ test("2 in grammar rule context, accept", () => {
   // 2 resolvers in grammar rule context, the first one will be applied
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: true }),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: false }),
+    .define({ exp: `num` }, (d) =>
+      d
+        .callback(() => (result = 1))
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: true })
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: false }),
     )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .build({
       lexer: lexer.dryClone(),
@@ -61,16 +58,13 @@ test("2 in grammar rule context, accept", () => {
 test("2 in grammar rule context, reject", () => {
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: false }),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: true }),
+    .define({ exp: `num` }, (d) =>
+      d
+        .callback(() => (result = 1))
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: false })
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: true }),
     )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .build({
       lexer: lexer.dryClone(),
@@ -86,14 +80,8 @@ test("2 in builder, accept", () => {
   // 2 resolvers in builder, the first one will be applied
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-    )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num` }, (d) => d.callback(() => (result = 1)))
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
@@ -110,14 +98,8 @@ test("2 in builder, accept", () => {
 test("2 in builder, reject", () => {
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-    )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num` }, (d) => d.callback(() => (result = 1)))
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
@@ -135,15 +117,12 @@ test("1 in grammar rule context, 1 in builder, accept", () => {
   // 1 resolver in grammar rule context, 1 resolver in builder, the first one will be applied
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: true }),
+    .define({ exp: `num` }, (d) =>
+      d
+        .callback(() => (result = 1))
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: true }),
     )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: false })
     .build({
@@ -159,15 +138,12 @@ test("1 in grammar rule context, 1 in builder, accept", () => {
 test("1 in grammar rule context, 1 in builder, reject", () => {
   let result = 0;
   new ELR.ParserBuilder()
-    .define(
-      { exp: `num` },
-      ELR.callback(() => (result = 1)),
-      ELR.resolveRS({ exp: `num num` }, { next: `*`, accept: false }),
+    .define({ exp: `num` }, (d) =>
+      d
+        .callback(() => (result = 1))
+        .resolveRS({ exp: `num num` }, { next: `*`, accept: false }),
     )
-    .define(
-      { exp: `num num` },
-      ELR.callback(() => (result = 2)),
-    )
+    .define({ exp: `num num` }, (d) => d.callback(() => (result = 2)))
     .define({ exp: `exp num` })
     .resolveRS({ exp: `num` }, { exp: `num num` }, { next: `*`, accept: true })
     .build({

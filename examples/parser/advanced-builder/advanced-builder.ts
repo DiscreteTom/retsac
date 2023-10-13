@@ -25,7 +25,7 @@ export const builder = new ELR.AdvancedBuilder()
     `,
   })
   .define({ param: `identifier ':' identifier` })
-  .define({ stmt: `assign_stmt | ret_stmt` }, ELR.commit()) // commit to prevent re-lex, optimize performance
+  .define({ stmt: `assign_stmt | ret_stmt` }, (d) => d.commit()) // commit to prevent re-lex, optimize performance
   .define({ assign_stmt: `let identifier ':' identifier '=' exp ';'` })
   .define({ ret_stmt: `return exp ';'` })
   .define({ exp: `integer | identifier` })

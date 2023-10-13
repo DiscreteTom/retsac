@@ -11,8 +11,8 @@ export const lexer = new Lexer.Builder()
     string: Lexer.stringLiteral(`"`),
     number: Lexer.numericLiteral(),
     // you can customize your own error handling function using `check`
-    identifier: Lexer.Action.from(/\w+/).check(({ content }) =>
-      content.match(/\d/)
+    identifier: Lexer.Action.from(/\w+/).check(({ output }) =>
+      output.content.match(/\d/)
         ? "identifier should not starts with a number"
         : undefined,
     ),

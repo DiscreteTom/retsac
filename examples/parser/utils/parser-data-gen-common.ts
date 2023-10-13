@@ -9,10 +9,23 @@ function generateSerializable<
   LexerKinds extends string,
   AppendLexerKinds extends string,
   LexerError,
+  LexerActionState,
   AppendLexerError,
+  AppendLexerActionState,
 >(
-  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+  lexer: ILexer<
+    LexerError | AppendLexerError,
+    AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
+  >,
   entry: Kinds | readonly Kinds[],
 ) {
   const { serializable } = builder.build({ lexer, entry, serialize: true });
@@ -31,9 +44,22 @@ export function generateParserDataString<
   AppendLexerKinds extends string,
   LexerError,
   AppendLexerError,
+  LexerActionState,
+  AppendLexerActionState,
 >(
-  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+  lexer: ILexer<
+    LexerError | AppendLexerError,
+    AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
+  >,
   entry: Kinds | readonly Kinds[],
 ) {
   const serializable = generateSerializable(builder, lexer, entry);
@@ -48,9 +74,22 @@ export function generateParserDataFile<
   AppendLexerKinds extends string,
   LexerError,
   AppendLexerError,
+  LexerActionState,
+  AppendLexerActionState,
 >(
-  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+  lexer: ILexer<
+    LexerError | AppendLexerError,
+    AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
+  >,
   entry: Kinds | readonly Kinds[],
   path: string,
 ) {

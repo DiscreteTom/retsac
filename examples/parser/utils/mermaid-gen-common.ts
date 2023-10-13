@@ -10,9 +10,22 @@ export function generateMermaidString<
   AppendLexerKinds extends string,
   LexerError,
   AppendLexerError,
+  LexerActionState,
+  AppendLexerActionState,
 >(
-  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+  lexer: ILexer<
+    LexerError | AppendLexerError,
+    AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
+  >,
   entry: Kinds | readonly Kinds[],
 ) {
   const { mermaid } = builder.build({ lexer, entry, mermaid: true });
@@ -27,9 +40,22 @@ export function generateMermaidFile<
   AppendLexerKinds extends string,
   LexerError,
   AppendLexerError,
+  LexerActionState,
+  AppendLexerActionState,
 >(
-  builder: IParserBuilder<ASTData, ErrorType, Kinds, LexerKinds, LexerError>,
-  lexer: ILexer<AppendLexerError, AppendLexerKinds>,
+  builder: IParserBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+  lexer: ILexer<
+    LexerError | AppendLexerError,
+    AppendLexerKinds,
+    LexerActionState | AppendLexerActionState
+  >,
   entry: Kinds | readonly Kinds[],
   path: string,
 ) {

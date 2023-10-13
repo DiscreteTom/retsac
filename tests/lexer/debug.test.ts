@@ -94,7 +94,6 @@ test("lexer debug trimStart", () => {
     "[Lexer.trimStart] skip (never muted): hash",
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: string");
-  console.log(printer.mock.calls);
   expect(printer).toHaveBeenCalledWith(
     '[Lexer.trimStart] found unmuted number, 3 chars: "123"',
   );

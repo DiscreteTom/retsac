@@ -19,8 +19,8 @@ time ts-node examples/parser/calculator/mermaid-gen.ts
 time ts-node examples/parser/calculator/parser-data-gen.ts
 
 # example/parser/simple-ts-parser
-time ts-node examples/parser/simple-ts-parser/mermaid-gen.ts
-time ts-node examples/parser/simple-ts-parser/parser-data-gen.ts
+# time ts-node examples/parser/simple-ts-parser/mermaid-gen.ts
+# time ts-node examples/parser/simple-ts-parser/parser-data-gen.ts
 
 # disable echo
 set +x
