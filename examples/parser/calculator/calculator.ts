@@ -7,14 +7,13 @@ export const { cacheStr, cache } = loadCache(
 
 export const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
-  .define({
-    number: /[0-9]+(?:\.[0-9]+)?/,
-  })
-  .anonymous(Lexer.exact(..."+-*/()"))
+  .define({ number: /[0-9]+(?:\.[0-9]+)?/ })
+  .anonymous(Lexer.exact(..."+-*/()")) // operators
   .build();
 
 export const builder = new ELR.ParserBuilder<number>()
   .define({ exp: "number" }, (d) =>
+    // the result of the reducer will be stored in the node's value
     d.reducer(({ matched }) => Number(matched[0].text)),
   )
   .define({ exp: `'-' exp` }, (d) => d.reducer(({ values }) => -values[1]!))

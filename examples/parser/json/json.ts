@@ -38,14 +38,15 @@ export const builder = new ELR.AdvancedBuilder()
     }),
   )
   .define(
-    { object_item: `string ':' value` },
+    // use `@` to rename a grammar
+    { object_item: `string@key ':' value` },
     // return an object
-    // use `$` to select the first child with the given kind
     (d) =>
+      // use `$` to select the first child with the given kind
       d.traverser(({ $ }) => {
         const result: { [key: string]: unknown } = {};
-        // remove the double quotes
-        result[$(`string`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
+        // remove the double quotes in the key string
+        result[$(`key`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
         return result;
       }),
   );
