@@ -70,6 +70,10 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
        * @default "LexerCore.lex"
        */
       entity?: string;
+      /**
+       * @default false
+       */
+      peek?: boolean;
     }>,
   ): {
     /**

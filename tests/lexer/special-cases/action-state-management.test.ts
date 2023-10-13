@@ -41,4 +41,8 @@ test("lexer action state", () => {
   // dry clone
   const dryClone = clone.dryClone();
   expect(dryClone.core.state.value).toBe(1);
+
+  // peek won't change the state
+  expect(lexer.reset().lex({ input: "123", peek: true })).not.toBeNull();
+  expect(lexer.core.state.value).toBe(1);
 });

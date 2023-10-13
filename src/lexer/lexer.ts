@@ -193,10 +193,10 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
       debug: this.debug,
       logger: this.logger,
       entity,
+      peek,
     });
 
     // update state if not peek
-    // TODO: call callback if not peek?
     if (!peek) {
       this.state.update(
         res.digested,

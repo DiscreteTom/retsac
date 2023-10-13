@@ -27,6 +27,12 @@ export type ActionDecoratorContext<ErrorType, ActionState> = {
 export class Action<ErrorType = string, ActionState = never> {
   readonly exec: ActionExec<ErrorType, ActionState>;
   /**
+   * Callback should only be called if `peek` is `false`.
+   */
+  readonly callback?: (
+    ctx: ActionDecoratorContext<ErrorType, ActionState>,
+  ) => void;
+  /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
    * If `true`, this action's output could be muted.
@@ -41,9 +47,12 @@ export class Action<ErrorType = string, ActionState = never> {
    */
   constructor(
     exec: ActionExec<ErrorType, ActionState>,
-    options?: Partial<Pick<Action<ErrorType, ActionState>, "maybeMuted">>,
+    options?: Partial<
+      Pick<Action<ErrorType, ActionState>, "maybeMuted" | "callback">
+    >,
   ) {
     this.exec = exec;
+    this.callback = options?.callback;
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
@@ -162,7 +171,7 @@ export class Action<ErrorType = string, ActionState = never> {
           }
           return output;
         },
-        { maybeMuted: muted },
+        { maybeMuted: muted, callback: this.callback },
       );
     // else, muted is a function
     return new Action<ErrorType, ActionState>(
@@ -174,7 +183,7 @@ export class Action<ErrorType = string, ActionState = never> {
         }
         return output;
       },
-      { maybeMuted: true },
+      { maybeMuted: true, callback: this.callback },
     );
   }
 
@@ -184,35 +193,49 @@ export class Action<ErrorType = string, ActionState = never> {
    */
   check<NewErrorType>(
     condition: (
-      ctx: ActionDecoratorContext<ErrorType, ActionState>,
+      ctx: ActionDecoratorContext<NewErrorType, ActionState>,
     ) => NewErrorType | undefined,
   ): Action<NewErrorType, ActionState> {
-    return new Action<NewErrorType, ActionState>((input) => {
-      const output = this.exec(input);
-      if (output.accept) {
-        const converted =
-          output as unknown as AcceptedActionOutput<NewErrorType>;
-        converted.error = condition({ input, output });
-        return converted;
-      }
-      return output;
-    });
+    return new Action<NewErrorType, ActionState>(
+      (input) => {
+        const output = this.exec(input);
+        if (output.accept) {
+          const converted =
+            output as unknown as AcceptedActionOutput<NewErrorType>;
+          converted.error = condition({ input, output: converted });
+          return converted;
+        }
+        return output;
+      },
+      {
+        callback: this.callback as unknown as (
+          ctx: ActionDecoratorContext<NewErrorType, ActionState>,
+        ) => void | undefined,
+      },
+    );
   }
 
   /**
    * Set error if `accept` is `true`.
    */
   error<NewErrorType>(error: NewErrorType): Action<NewErrorType, ActionState> {
-    return new Action<NewErrorType, ActionState>((input) => {
-      const output = this.exec(input);
-      if (output.accept) {
-        const converted =
-          output as unknown as AcceptedActionOutput<NewErrorType>;
-        converted.error = error;
-        return converted;
-      }
-      return output;
-    });
+    return new Action<NewErrorType, ActionState>(
+      (input) => {
+        const output = this.exec(input);
+        if (output.accept) {
+          const converted =
+            output as unknown as AcceptedActionOutput<NewErrorType>;
+          converted.error = error;
+          return converted;
+        }
+        return output;
+      },
+      {
+        callback: this.callback as unknown as (
+          ctx: ActionDecoratorContext<NewErrorType, ActionState>,
+        ) => void | undefined,
+      },
+    );
   }
 
   /**
@@ -226,30 +249,33 @@ export class Action<ErrorType = string, ActionState = never> {
         ) => boolean) = true,
   ): Action<ErrorType, ActionState> {
     if (typeof rejecter === "boolean") {
-      if (rejecter) return new Action(() => rejectedActionOutput); // always reject
+      if (rejecter) return new Action(() => rejectedActionOutput); // always reject, don't need callback
       return this; // just return self, don't override the original output's accept
     }
-    return new Action<ErrorType, ActionState>((input) => {
-      const output = this.exec(input);
-      if (output.accept) {
-        if (rejecter({ input, output })) return rejectedActionOutput;
-        else return output;
-      }
-      return output;
-    });
+    return new Action<ErrorType, ActionState>(
+      (input) => {
+        const output = this.exec(input);
+        if (output.accept) {
+          if (rejecter({ input, output })) return rejectedActionOutput;
+          else return output;
+        }
+        return output;
+      },
+      { callback: this.callback },
+    );
   }
 
   /**
    * Call `f` if `accept` is `true`.
    */
-  // TODO: when peek, the callback should not be executed.
   then(
     f: (ctx: ActionDecoratorContext<ErrorType, ActionState>) => void,
   ): Action<ErrorType, ActionState> {
-    return new Action<ErrorType, ActionState>((input) => {
-      const output = this.exec(input);
-      if (output.accept) f({ input, output });
-      return output;
+    return new Action<ErrorType, ActionState>(this.exec, {
+      callback: (ctx) => {
+        this.callback?.(ctx);
+        f(ctx);
+      },
     });
   }
 
@@ -267,6 +293,10 @@ export class Action<ErrorType = string, ActionState = never> {
       },
       {
         maybeMuted: this.maybeMuted || other.maybeMuted,
+        callback: (ctx) => {
+          this.callback?.(ctx);
+          other.callback?.(ctx);
+        },
       },
     );
   }

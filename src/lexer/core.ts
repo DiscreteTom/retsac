@@ -73,6 +73,11 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
        * @default "StatelessLexer.lex"
        */
       entity?: string;
+      /**
+       * If `true`, the accepted action's callback will not be executed.
+       * @default false
+       */
+      peek?: boolean;
     }>,
   ): {
     /**
@@ -175,9 +180,14 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
         return { token: null, digested, rest, errors };
       }
 
-      // update state
+      // update lexer state
       digested += res.output.digested;
       rest = res.output.rest;
+
+      // if not peek, update action state
+      if (!(options?.peek ?? false)) {
+        res.def.action.callback?.({ output: res.output, input });
+      }
 
       if (res.output.muted) {
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
