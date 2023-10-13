@@ -1,4 +1,4 @@
-import type { ILexerCore } from "../../../lexer";
+import type { IReadonlyLexerCore } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
@@ -24,7 +24,7 @@ export class DFABuilder {
     LexerActionState,
   >(
     repo: GrammarRepo<Kinds, LexerKinds>,
-    lexer: ILexerCore<LexerError, LexerKinds, LexerActionState>,
+    lexer: IReadonlyLexerCore<LexerError, LexerKinds, LexerActionState>,
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
       ParserBuilderData<

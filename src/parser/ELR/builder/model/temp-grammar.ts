@@ -1,4 +1,4 @@
-import type { ILexerCore } from "../../../../lexer";
+import type { IReadonlyLexerCore } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
@@ -53,13 +53,13 @@ export class TempGrammar {
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: ILexerCore<LexerError, LexerKinds, LexerActionState>,
+    lexer: IReadonlyLexerCore<LexerError, LexerKinds, LexerActionState>,
     printAll: boolean,
     logger: Logger,
     isNT = true,
   ) {
     if (this.type == TempGrammarType.LITERAL) {
-      const { token } = lexer.lex(this.content);
+      const { token } = lexer.dryClone().lex(this.content);
       if (token == null) {
         // for un-lexable literal, throw error instead of using anonymous type
         // this is to prevent mis-writing literal grammar

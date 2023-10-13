@@ -31,7 +31,7 @@ import type {
   RR_ResolverOptions,
 } from "./model";
 import { DFA, DFABuilder } from "../DFA";
-import type { IReadonlyLexer, ILexerCore } from "../../../lexer";
+import type { IReadonlyLexer, IReadonlyLexerCore } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
 import { defaultLogger, type Logger } from "../../../logger";
@@ -191,7 +191,7 @@ export class ParserBuilder<
     AppendLexerActionState,
   >(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: ILexerCore<
+    lexer: IReadonlyLexerCore<
       LexerError | AppendLexerError,
       LexerKinds | AppendLexerKinds,
       LexerActionState | AppendLexerActionState
