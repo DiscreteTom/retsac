@@ -63,7 +63,7 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
        */
       logger?: Logger;
       /**
-       * @default "StatelessLexer.lex"
+       * @default "LexerCore.lex"
        */
       entity?: string;
     }>,
@@ -108,7 +108,7 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState> {
        */
       logger?: Logger;
       /**
-       * @default "StatelessLexer.lex"
+       * @default "LexerCore.lex"
        */
       entity?: string;
     }>,
@@ -164,7 +164,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
-  readonly stateless: ILexerCore<ErrorType, Kinds, ActionState>; // TODO: rename
+  readonly core: ILexerCore<ErrorType, Kinds, ActionState>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.

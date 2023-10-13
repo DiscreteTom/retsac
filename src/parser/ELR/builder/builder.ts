@@ -396,7 +396,7 @@ export class ParserBuilder<
       options.hydrate == undefined
         ? this.buildDFA(
             entryNTs,
-            lexer.stateless,
+            lexer.core,
             printAll,
             debug,
             logger,

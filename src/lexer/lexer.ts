@@ -11,14 +11,14 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
 {
   debug: boolean;
   logger: Logger;
-  readonly stateless: ILexerCore<ErrorType, Kinds, ActionState>;
+  readonly core: ILexerCore<ErrorType, Kinds, ActionState>;
   private state: LexerState<ErrorType, Kinds>;
 
   constructor(
-    stateless: ILexerCore<ErrorType, Kinds, ActionState>,
+    core: ILexerCore<ErrorType, Kinds, ActionState>,
     options?: LexerBuildOptions,
   ) {
-    this.stateless = stateless;
+    this.core = core;
     this.state = new LexerState(); // TODO: use interface?
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
@@ -45,7 +45,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
   }
 
   get defs() {
-    return this.stateless.defs;
+    return this.core.defs;
   }
 
   reset() {
@@ -57,18 +57,14 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds, ActionState>(
-      this.stateless.dryClone(),
-    );
+    const res = new Lexer<ErrorType, Kinds, ActionState>(this.core.dryClone());
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds, ActionState>(
-      this.stateless.clone(),
-    );
+    const res = new Lexer<ErrorType, Kinds, ActionState>(this.core.clone());
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     res.state = this.state.clone();
@@ -189,7 +185,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
       }
     }
 
-    const res = this.stateless.lex(this.buffer, {
+    const res = this.core.lex(this.buffer, {
       start: this.digested,
       rest: this.state.rest,
       expect,
@@ -241,7 +237,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
     const entity = "Lexer.trimStart";
 
     if (!this.trimmed) {
-      const res = this.stateless.trimStart(this.buffer, {
+      const res = this.core.trimStart(this.buffer, {
         start: this.digested,
         rest: this.state.rest,
         debug: this.debug,
@@ -273,7 +269,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
 
   getTokenKinds() {
     const res: Set<Kinds> = new Set();
-    this.stateless.defs.forEach((d) => res.add(d.kind));
+    this.core.defs.forEach((d) => res.add(d.kind));
     return res;
   }
 

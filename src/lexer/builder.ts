@@ -2,7 +2,7 @@ import type { ActionSource } from "./action";
 import { Action } from "./action";
 import { Lexer } from "./lexer";
 import type { ActionStateCloner, Definition, ILexer } from "./model";
-import { LexerCore } from "./stateless";
+import { LexerCore } from "./core";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<unknown, string, never>, "logger" | "debug">

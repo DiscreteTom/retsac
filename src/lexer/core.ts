@@ -2,8 +2,6 @@ import { defaultLogger, type Logger } from "../logger";
 import { ActionInput, type AcceptedActionOutput } from "./action";
 import type { ActionStateCloner, Definition, ILexerCore, Token } from "./model";
 
-// TODO: rename file
-
 /**
  * LexerCore only store ActionState, no LexerState.
  */
