@@ -3,7 +3,7 @@ import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
   Definition,
-  DefinitionContextBuilder,
+  DefinitionContextBuilderDecorator,
   DefinitionGroupWithAssociativity,
   RR_ResolverOptions,
   RS_ResolverOptions,
@@ -105,14 +105,14 @@ export interface IParserBuilder<
    */
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ...ctxBuilders: DefinitionContextBuilder<
+    decorator?: DefinitionContextBuilderDecorator<
       ASTData,
       ErrorType,
       Kinds | Append,
       LexerKinds,
       LexerError,
       LexerActionState
-    >[]
+    >,
   ): IParserBuilder<
     ASTData,
     ErrorType,

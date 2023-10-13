@@ -197,10 +197,14 @@ export class AdvancedBuilder<
         res.rs.forEach((r) => {
           toBeLoaded.push({
             defs: r.reducerRule,
-            ctxBuilder: DefinitionContextBuilder.resolveRS(
-              r.anotherRule,
-              r.options,
-            ),
+            ctxBuilder: new DefinitionContextBuilder<
+              ASTData,
+              ErrorType,
+              Kinds,
+              LexerKinds,
+              LexerError,
+              LexerActionState
+            >().resolveRS(r.anotherRule, r.options),
             resolveOnly: true,
             hydrationId, // the hydration id does not matter, since the generated resolvers are serializable
           });

@@ -249,259 +249,29 @@ export class DefinitionContextBuilder<
       traverser: this._traverser,
     };
   }
-
-  /**
-   * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-S conflict.
-   */
-  static resolveRS<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    another: Definition<Kinds>,
-    options: RS_ResolverOptions<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().resolveRS(another, options);
-  }
-  /**
-   * Create a new DefinitionContextBuilder with a rejecter, which will reject during the R-R conflict.
-   */
-  static resolveRR<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    another: Definition<Kinds>,
-    options: RR_ResolverOptions<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().resolveRR(another, options);
-  }
-  /** Create a new DefinitionContextBuilder with the new callback appended. */
-  static callback<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    f: Callback<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().callback(f);
-  }
-  /** Create a new DefinitionContextBuilder with the new rejecter appended. */
-  static rejecter<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    f: Condition<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().rejecter(f);
-  }
-  /** Create a new DefinitionContextBuilder with a reducer appended which can reduce data. */
-  static reducer<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    f: Reducer<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().reducer(f);
-  }
-  /** Create a new DefinitionContextBuilder with the new rollback function appended. */
-  static rollback<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    f: Callback<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().rollback(f);
-  }
-  /** Create a new DefinitionContextBuilder which will call `parser.commit` if the grammar rule is accepted. */
-  static commit<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    enable:
-      | boolean
-      | Condition<
-          ASTData,
-          ErrorType,
-          Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
-        > = true,
-  ) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().commit(enable);
-  }
-  /** Create a new DefinitionContextBuilder with the traverser set. */
-  static traverser<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(f: Traverser<ASTData, ErrorType, Kinds | LexerKinds>) {
-    return new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >().traverser(f);
-  }
-
-  /**
-   * Reduce multi DefinitionContextBuilder into one.
-   */
-  static reduce<
-    ASTData,
-    ErrorType,
-    Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
-    LexerActionState,
-  >(
-    builders: DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >[],
-  ) {
-    const res = new DefinitionContextBuilder<
-      ASTData,
-      ErrorType,
-      Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
-    >();
-    for (const b of builders) {
-      res.resolved.push(...b.resolved);
-      if (b._callback !== undefined) res.callback(b._callback);
-      if (b._rejecter !== undefined) res.rejecter(b._rejecter);
-      if (b._rollback !== undefined) res.rollback(b._rollback);
-      if (b._commit !== undefined) res.commit(b._commit);
-      if (b._traverser !== undefined) res.traverser(b._traverser);
-    }
-    return res;
-  }
 }
+
+export type DefinitionContextBuilderDecorator<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  LexerKinds extends string,
+  LexerError,
+  LexerActionState,
+> = (
+  ctxBuilder: DefinitionContextBuilder<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerKinds,
+    LexerError,
+    LexerActionState
+  >,
+) => DefinitionContextBuilder<
+  ASTData,
+  ErrorType,
+  Kinds,
+  LexerKinds,
+  LexerError,
+  LexerActionState
+>;

@@ -55,13 +55,13 @@
   - **_Breaking Change_**: `IParserBuilder.build` with `generateResolvers` won't print resolvers. The resolver string is stored in the result of `IParserBuilder.build`.
   - **_Breaking Change_**: use array to define resolver's next set. E.g. ``{ next: [`'+'`], accept: true }``
   - **_Breaking Change_**: remove `IParser.clone/dryClone`.
+  - **_Breaking Change_**: `IParserBuilder.define` now accept optional `DefinitionContextBuilderDecorator` to set the definition context.
   - Feat: typed parser.
     - Add `IParserBuilder.useLexer` to set lexer kinds and error types.
   - Feat: built-in support for conflict resolver. [#7](https://github.com/DiscreteTom/retsac/issues/7)
   - Feat: in `AdvancedBuilder` you can rename literals.
   - Feat: `children` in traverser is never `undefined`.
   - Feat: serialize parser. [#2](https://github.com/DiscreteTom/retsac/issues/2)
-  - Feat: `IParserBuilder.define` can accept multi `DefinitionContextBuilder` to optimize type inference.
   - Feat: add `BuildOptions.mermaid` for parser to generate mermaid graph.
   - Feat: add `BuildOptions/IParser.autoCommit` for parser to auto commit when parsing.
   - Fix: fix follow set calculation. This will also reduce the number of unresolved conflicts.

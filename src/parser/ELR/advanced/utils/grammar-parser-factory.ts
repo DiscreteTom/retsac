@@ -1,5 +1,5 @@
 import { Builder, whitespaces, stringLiteral, exact } from "../../../../lexer";
-import { ParserBuilder, traverser } from "../../builder";
+import { ParserBuilder } from "../../builder";
 import { applyResolvers } from "./resolvers";
 
 type Placeholder = string;
@@ -56,64 +56,68 @@ export function grammarParserFactory(placeholderPrefix: string) {
     .define(
       { gr: `grammar | literal` },
       // return the matched token text as a list
-      traverser(({ children }) => [children[0].text!]),
+      (d) => d.traverser(({ children }) => [children[0].text!]),
     )
     .define(
       { gr: `grammar rename | literal rename` },
       // just keep the format, but return as a list
-      traverser(({ children }) => [children[0].text! + children[1].text!]),
+      (d) =>
+        d.traverser(({ children }) => [children[0].text! + children[1].text!]),
     )
-    .define(
-      { gr: `'(' gr ')'` },
-      traverser(({ children }) => [...children[1].traverse()!]),
+    .define({ gr: `'(' gr ')'` }, (d) =>
+      d.traverser(({ children }) => [...children[1].traverse()!]),
     )
     .define(
       { gr: `gr '?'` },
       // append the possibility with empty string
-      traverser(({ children }) => [...children[0].traverse()!, ""]),
+      (d) => d.traverser(({ children }) => [...children[0].traverse()!, ""]),
     )
     .define(
       { gr: `gr '*'` },
       // expand to `gr+` and '', and use a placeholder to represent `gr+`
-      traverser(({ children }) => [
-        placeholderMap.add(
-          children[0].traverse()!.filter((s) => s.length != 0),
-        ),
-        "",
-      ]),
+      (d) =>
+        d.traverser(({ children }) => [
+          placeholderMap.add(
+            children[0].traverse()!.filter((s) => s.length != 0),
+          ),
+          "",
+        ]),
     )
     .define(
       { gr: `gr '+'` },
       // keep the `gr+`, we use a placeholder to represent it
-      traverser(({ children }) => [
-        placeholderMap.add(
-          children[0].traverse()!.filter((s) => s.length != 0),
-        ),
-      ]),
+      (d) =>
+        d.traverser(({ children }) => [
+          placeholderMap.add(
+            children[0].traverse()!.filter((s) => s.length != 0),
+          ),
+        ]),
     )
     .define(
       { gr: `gr '|' gr` },
       // merge the two possibility lists, deduplicate
-      traverser(({ children }) => [
-        ...new Set([...children[0].traverse()!, ...children[2].traverse()!]),
-      ]),
+      (d) =>
+        d.traverser(({ children }) => [
+          ...new Set([...children[0].traverse()!, ...children[2].traverse()!]),
+        ]),
     )
     .define(
       { gr: `gr gr` },
       // get cartesian product of the two possibility lists
-      traverser(({ children }) => {
-        const result = new Set<string>(); // use set to deduplicate
-        const grs1 = children[0].traverse()!;
-        const grs2 = children[1].traverse()!;
-        grs1.forEach((gr1) => {
-          grs2.forEach((gr2) => {
-            // separate the two grammar rules with a space
-            // trim the result in case one of the grammar rule is empty
-            result.add(`${gr1} ${gr2}`.trim());
+      (d) =>
+        d.traverser(({ children }) => {
+          const result = new Set<string>(); // use set to deduplicate
+          const grs1 = children[0].traverse()!;
+          const grs2 = children[1].traverse()!;
+          grs1.forEach((gr1) => {
+            grs2.forEach((gr2) => {
+              // separate the two grammar rules with a space
+              // trim the result in case one of the grammar rule is empty
+              result.add(`${gr1} ${gr2}`.trim());
+            });
           });
-        });
-        return [...result];
-      }),
+          return [...result];
+        }),
     )
     .use(applyResolvers);
   return { parserBuilder, lexer, placeholderMap };

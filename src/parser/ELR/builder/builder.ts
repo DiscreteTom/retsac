@@ -15,6 +15,7 @@ import {
   ResolverHydrationType,
 } from "../model";
 import { GrammarRuleNotFoundError, NoEntryNTError } from "./error";
+import type { DefinitionContextBuilderDecorator } from "./ctx-builder";
 import { DefinitionContextBuilder } from "./ctx-builder";
 import {
   DefinitionAssociativity,
@@ -143,14 +144,14 @@ export class ParserBuilder<
 
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
-    ...ctxBuilders: DefinitionContextBuilder<
+    decorator?: DefinitionContextBuilderDecorator<
       ASTData,
       ErrorType,
       Kinds | Append,
       LexerKinds,
       LexerError,
       LexerActionState
-    >[]
+    >,
   ): IParserBuilder<
     ASTData,
     ErrorType,
@@ -170,7 +171,7 @@ export class ParserBuilder<
       >[]
     ).push({
       defs,
-      ctxBuilder: DefinitionContextBuilder.reduce(ctxBuilders),
+      ctxBuilder: decorator?.(new DefinitionContextBuilder()),
       resolveOnly: false,
       hydrationId: this.data.length,
     });
@@ -567,7 +568,14 @@ export class ParserBuilder<
   ) {
     this.data.push({
       defs: reducerRule,
-      ctxBuilder: DefinitionContextBuilder.resolveRS(anotherRule, options),
+      ctxBuilder: new DefinitionContextBuilder<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >().resolveRS(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.data.length,
     });
@@ -589,7 +597,14 @@ export class ParserBuilder<
   ) {
     this.data.push({
       defs: reducerRule,
-      ctxBuilder: DefinitionContextBuilder.resolveRR(anotherRule, options),
+      ctxBuilder: new DefinitionContextBuilder<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerKinds,
+        LexerError,
+        LexerActionState
+      >().resolveRR(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.data.length,
     });
