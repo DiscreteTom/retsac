@@ -45,7 +45,8 @@ export interface IReadonlyLexerCore<
      * The whole input string.
      */
     buffer: string,
-    options?: Readonly<{
+    // readonly lex, must set peek to true
+    options: Readonly<{
       /**
        * From which char of the input string to start lexing.
        * @default 0
