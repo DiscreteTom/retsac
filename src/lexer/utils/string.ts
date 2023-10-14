@@ -28,9 +28,6 @@ export function stringLiteral<ErrorType = string, ActionState = never>(
     acceptUnclosed?: boolean;
     /** Default: `'unclosed string literal'` */
     unclosedError?: ErrorType;
-    decorator?: (
-      a: Action<ErrorType, ActionState>,
-    ) => Action<ErrorType, ActionState>;
   },
 ): Action<ErrorType, ActionState> {
   const close = options?.close ?? open;
