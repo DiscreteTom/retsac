@@ -6,6 +6,9 @@
 ![license](https://img.shields.io/github/license/DiscreteTom/retsac?style=flat-square)
 [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/DiscreteTom.vscode-retsac?label=VSCode%20extension&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=DiscreteTom.vscode-retsac)
 
+> **Warning**:
+> This project is still in early development stage, the API may change frequently.
+
 Text lexer and parser implemented in pure TypeScript with no external dependencies.
 
 This can be used to **fast prototype** your own programming language compiler/translator frontend, or parse your domain specific language.
