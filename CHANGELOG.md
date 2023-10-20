@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Next
+
+- Optimize package size.
+
 ## v0.12.0
 
 - **_Breaking Changes_**: rename `type` to `kind`.

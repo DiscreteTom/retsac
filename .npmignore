@@ -1,5 +1,5 @@
 .github
-example
+examples
 node_modules
 .gitignore
 .npmignore
@@ -9,8 +9,12 @@ docs
 tests
 .vscode
 .prettierrc
-example.tsconfig.json
-jest.config.js
+*.tsconfig.json
+tsconfig.json
+jest.config.ts
 README.src.md
 typedoc.json
 website
+.husky
+utils
+.eslintrc.json
