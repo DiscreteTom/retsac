@@ -46,7 +46,7 @@ export function stringLiteral<ErrorType = string, ActionState = never>(
           escape
             ? `(?:\\\\.|[^\\\\${multiline ? "" : "\\n"}])` // exclude `\n` if not multiline
             : `(?:.${multiline ? "|\\n" : ""})` // if multiline, accept `\n`
-        }*?)` +
+        }*?)` + // '*?' means non-greedy(lazy)
         // close quote
         `(?:${
           acceptUnclosed
