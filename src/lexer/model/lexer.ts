@@ -1,15 +1,13 @@
 import type { Logger } from "../../logger";
+import type { ActionStateCloner } from "../action";
 import type { Definition } from "./definition";
-import type { Token } from "./token";
-
-// TODO: move to action module?
-export type ActionStateCloner<ActionState> = (
-  ctx: Readonly<ActionState>,
-) => ActionState;
+import type { Token, TokenDataBinding } from "./token";
 
 export interface IReadonlyLexerCore<
+  Data,
   ErrorType,
   Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
   ActionState,
 > {
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
@@ -19,11 +17,11 @@ export interface IReadonlyLexerCore<
   /**
    * Clone a new lexer core with the same definitions and the initial state.
    */
-  dryClone(): ILexerCore<ErrorType, Kinds, ActionState>;
+  dryClone(): ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the current state.
    */
-  clone(): ILexerCore<ErrorType, Kinds, ActionState>;
+  clone(): ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>;
   lex(
     /**
      * The whole input string.
@@ -67,7 +65,7 @@ export interface IReadonlyLexerCore<
     /**
      * `null` if no actions can be accepted or all muted.
      */
-    token: Token<ErrorType, Kinds> | null;
+    token: Token<ErrorType, Kinds, Data, DataBindings> | null;
     /**
      * How many chars are digested during this lex.
      */
@@ -79,12 +77,23 @@ export interface IReadonlyLexerCore<
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<ErrorType, Kinds>[];
+    errors: Token<ErrorType, Kinds, Data, DataBindings>[];
   };
 }
 
-export interface ILexerCore<ErrorType, Kinds extends string, ActionState>
-  extends IReadonlyLexerCore<ErrorType, Kinds, ActionState> {
+export interface ILexerCore<
+  Data,
+  ErrorType,
+  Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
+  ActionState,
+> extends IReadonlyLexerCore<
+    Data,
+    ErrorType,
+    Kinds,
+    DataBindings,
+    ActionState
+  > {
   get state(): ActionState; // make the state mutable
   reset(): this;
   lex(
@@ -129,7 +138,7 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * `null` if no actions can be accepted or all muted.
      */
-    token: Token<ErrorType, Kinds> | null;
+    token: Token<ErrorType, Kinds, Data, DataBindings> | null;
     /**
      * How many chars are digested during this lex.
      */
@@ -141,7 +150,7 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<ErrorType, Kinds>[];
+    errors: Token<ErrorType, Kinds, Data, DataBindings>[];
   };
   trimStart(
     buffer: string,
@@ -182,14 +191,20 @@ export interface ILexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<ErrorType, Kinds>[];
+    errors: Token<ErrorType, Kinds, Data, DataBindings>[];
   };
 }
 
 /**
  * IReadonlyLexer's states won't be changed.
  */
-export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
+export interface IReadonlyLexer<
+  Data,
+  ErrorType,
+  Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
+  ActionState,
+> {
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
@@ -204,7 +219,9 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
    */
-  get errors(): readonly Readonly<Token<ErrorType, Kinds>>[];
+  get errors(): readonly Readonly<
+    Token<ErrorType, Kinds, Data, DataBindings>
+  >[];
   readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
   /**
    * The entire input string.
@@ -222,7 +239,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
-  readonly core: ILexerCore<ErrorType, Kinds, ActionState>;
+  readonly core: ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -230,7 +247,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
   clone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<ErrorType, Kinds, ActionState>;
+  }): ILexer<Data, ErrorType, Kinds, DataBindings, ActionState>;
   /**
    * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -238,7 +255,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
   dryClone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<ErrorType, Kinds, ActionState>;
+  }): ILexer<Data, ErrorType, Kinds, DataBindings, ActionState>;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
@@ -254,7 +271,7 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
       // readonly lex, must set peek to true
       peek: true;
     }>,
-  ): Token<ErrorType, Kinds> | null;
+  ): Token<ErrorType, Kinds, Data, DataBindings> | null;
   /**
    * Get the un-lexed string buffer.
    * The rest string might be very long, be care of using this method.
@@ -277,9 +294,14 @@ export interface IReadonlyLexer<ErrorType, Kinds extends string, ActionState> {
   hasErrors(): boolean;
 }
 
-export interface ILexer<ErrorType, Kinds extends string, ActionState>
-  extends IReadonlyLexer<ErrorType, Kinds, ActionState> {
-  get errors(): Readonly<Token<ErrorType, Kinds>>[]; // make the array mutable
+export interface ILexer<
+  Data,
+  ErrorType,
+  Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
+  ActionState,
+> extends IReadonlyLexer<Data, ErrorType, Kinds, DataBindings, ActionState> {
+  get errors(): Readonly<Token<ErrorType, Kinds, Data, DataBindings>>[]; // make the array mutable
   set debug(value: boolean);
   set logger(value: Logger);
   /**
@@ -321,8 +343,8 @@ export interface ILexer<ErrorType, Kinds extends string, ActionState>
        */
       peek?: boolean;
     }>,
-  ): Token<ErrorType, Kinds> | null;
-  lex(input?: string): Token<ErrorType, Kinds> | null;
+  ): Token<ErrorType, Kinds, Data, DataBindings> | null;
+  lex(input?: string): Token<ErrorType, Kinds, Data, DataBindings> | null;
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
@@ -333,6 +355,6 @@ export interface ILexer<ErrorType, Kinds extends string, ActionState>
   lexAll(options: {
     input?: string;
     stopOnError?: boolean;
-  }): Token<ErrorType, Kinds>[];
-  lexAll(input?: string): Token<ErrorType, Kinds>[];
+  }): Token<ErrorType, Kinds, Data, DataBindings>[];
+  lexAll(input?: string): Token<ErrorType, Kinds, Data, DataBindings>[];
 }
