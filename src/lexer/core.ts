@@ -196,11 +196,6 @@ export class LexerCore<
       digested += res.output.digested;
       rest = res.output.rest;
 
-      // if not peek, update action state
-      if (!peek) {
-        res.def.action.callback?.({ output: res.output, input });
-      }
-
       if (res.output.muted) {
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {

@@ -27,12 +27,6 @@ export type ActionDecoratorContext<Data, ErrorType, ActionState> = {
 export class Action<Data = never, ErrorType = string, ActionState = never> {
   readonly exec: ActionExec<Data, ErrorType, ActionState>;
   /**
-   * Callback should only be called if `peek` is `false`.
-   */
-  readonly callback?: (
-    ctx: ActionDecoratorContext<Data, ErrorType, ActionState>,
-  ) => void;
-  /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
    * If `true`, this action's output could be muted.
@@ -47,12 +41,9 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    */
   constructor(
     exec: ActionExec<Data, ErrorType, ActionState>,
-    options?: Partial<
-      Pick<Action<Data, ErrorType, ActionState>, "maybeMuted" | "callback">
-    >,
+    options?: Partial<Pick<Action<Data, ErrorType, ActionState>, "maybeMuted">>,
   ) {
     this.exec = exec;
-    this.callback = options?.callback;
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
@@ -175,7 +166,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
           }
           return output;
         },
-        { maybeMuted: muted, callback: this.callback },
+        { maybeMuted: muted },
       );
     // else, muted is a function
     return new Action<Data, ErrorType, ActionState>(
@@ -187,7 +178,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
         }
         return output;
       },
-      { maybeMuted: true, callback: this.callback },
+      { maybeMuted: true },
     );
   }
 
@@ -213,11 +204,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
         }
         return output;
       },
-      {
-        callback: this.callback as unknown as (
-          ctx: ActionDecoratorContext<Data, NewErrorType, ActionState>,
-        ) => void | undefined,
-      },
+      { maybeMuted: this.maybeMuted },
     );
   }
 
@@ -240,11 +227,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
         }
         return output;
       },
-      {
-        callback: this.callback as unknown as (
-          ctx: ActionDecoratorContext<Data, NewErrorType, ActionState>,
-        ) => void | undefined,
-      },
+      { maybeMuted: this.maybeMuted },
     );
   }
 
@@ -271,7 +254,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
         }
         return output;
       },
-      { callback: this.callback },
+      { maybeMuted: this.maybeMuted },
     );
   }
 
@@ -281,12 +264,15 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
   then(
     f: (ctx: ActionDecoratorContext<Data, ErrorType, ActionState>) => void,
   ): Action<Data, ErrorType, ActionState> {
-    return new Action<Data, ErrorType, ActionState>(this.exec, {
-      callback: (ctx) => {
-        this.callback?.(ctx);
-        f(ctx);
+    const exec = this.exec;
+    return new Action<Data, ErrorType, ActionState>(
+      (input) => {
+        const output = exec(input);
+        if (output.accept && !input.peek) f({ input, output });
+        return output;
       },
-    });
+      { maybeMuted: this.maybeMuted },
+    );
   }
 
   /**
@@ -303,13 +289,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
         if (output.accept) return output;
         return other.exec(input);
       },
-      {
-        maybeMuted: this.maybeMuted || other.maybeMuted,
-        callback: (ctx) => {
-          this.callback?.(ctx);
-          other.callback?.(ctx);
-        },
-      },
+      { maybeMuted: this.maybeMuted || other.maybeMuted },
     );
   }
 
