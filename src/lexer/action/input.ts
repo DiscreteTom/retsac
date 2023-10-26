@@ -1,21 +1,25 @@
 export class ActionInput<ActionState> {
-  /** The whole input string. */
+  /**
+   * The whole input string.
+   */
   readonly buffer: string;
-  /** From where to lex. */
+  /**
+   * From where to lex.
+   */
   readonly start: number;
   readonly state: ActionState;
   private _rest?: string;
 
   constructor(
-    data: Pick<ActionInput<ActionState>, "buffer" | "start" | "state"> &
+    props: Pick<ActionInput<ActionState>, "buffer" | "start" | "state"> &
       // maybe the rest is provided by the last accepted action's output
       // or is calculated by lexer.getRest
       Partial<Pick<ActionInput<ActionState>, "rest">>,
   ) {
-    this.buffer = data.buffer;
-    this.start = data.start;
-    this.state = data.state;
-    this._rest = data.rest;
+    this.buffer = props.buffer;
+    this.start = props.start;
+    this.state = props.state;
+    this._rest = props.rest;
   }
 
   /**
