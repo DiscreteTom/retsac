@@ -32,6 +32,7 @@ import { esc4regex } from "./common";
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
 export function numericLiteral<
+  Data = never,
   ErrorType = string,
   ActionState = never,
 >(options?: {
@@ -53,7 +54,7 @@ export function numericLiteral<
    * Default: `"invalid numeric literal"`
    */
   invalidError?: ErrorType;
-}): Action<ErrorType, ActionState> {
+}): Action<Data, ErrorType, ActionState> {
   const enableSeparator = !(options?.numericSeparator === false);
   const separator = esc4regex(String(options?.numericSeparator ?? "_")); // use String to handle `false`
   const boundary = options?.boundary ?? true;
@@ -62,7 +63,7 @@ export function numericLiteral<
     options?.invalidError ?? ("invalid numeric literal" as ErrorType);
 
   // ensure non-capture group to optimize performance
-  const valid = Action.from<ErrorType, ActionState>(
+  const valid = Action.from<Data, ErrorType, ActionState>(
     enableSeparator
       ? new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
@@ -77,7 +78,7 @@ export function numericLiteral<
           "i",
         ),
   );
-  const invalid = Action.from<ErrorType, ActionState>(
+  const invalid = Action.from<Data, ErrorType, ActionState>(
     /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
   ).check(() => invalidError);
 

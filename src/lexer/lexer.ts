@@ -1,21 +1,26 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import type { ILexer, ILexerCore, Token } from "./model";
+import type { ILexer, ILexerCore, Token, TokenDataBinding } from "./model";
 import { LexerState } from "./state";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
-export class Lexer<ErrorType, Kinds extends string, ActionState>
-  implements ILexer<ErrorType, Kinds, ActionState>
+export class Lexer<
+  Data,
+  ErrorType,
+  Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
+  ActionState,
+> implements ILexer<Data, ErrorType, Kinds, DataBindings, ActionState>
 {
   debug: boolean;
   logger: Logger;
-  readonly core: ILexerCore<ErrorType, Kinds, ActionState>;
-  private state: LexerState<ErrorType, Kinds>;
+  readonly core: ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>;
+  private state: LexerState<Data, ErrorType, Kinds, DataBindings>;
 
   constructor(
-    core: ILexerCore<ErrorType, Kinds, ActionState>,
+    core: ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>,
     options?: LexerBuildOptions,
   ) {
     this.core = core;
@@ -58,14 +63,18 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds, ActionState>(this.core.dryClone());
+    const res = new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
+      this.core.dryClone(),
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<ErrorType, Kinds, ActionState>(this.core.clone());
+    const res = new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
+      this.core.clone(),
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     res.state = this.state.clone();
@@ -158,7 +167,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
           }>;
           peek?: boolean;
         }> = "",
-  ): Token<ErrorType, Kinds> | null {
+  ): Token<ErrorType, Kinds, Data, DataBindings> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -211,7 +220,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = "",
-  ): Token<ErrorType, Kinds>[] {
+  ): Token<ErrorType, Kinds, Data, DataBindings>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -222,7 +231,7 @@ export class Lexer<ErrorType, Kinds extends string, ActionState>
     const stopOnError =
       typeof input === "string" ? false : input.stopOnError ?? false;
 
-    const result: Token<ErrorType, Kinds>[] = [];
+    const result: Token<ErrorType, Kinds, Data, DataBindings>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {

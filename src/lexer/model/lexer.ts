@@ -10,7 +10,9 @@ export interface IReadonlyLexerCore<
   DataBindings extends TokenDataBinding<Kinds, Data>,
   ActionState,
 > {
-  readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
+  readonly defs: readonly Readonly<
+    Definition<Data, ErrorType, Kinds, ActionState>
+  >[];
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
@@ -222,7 +224,9 @@ export interface IReadonlyLexer<
   get errors(): readonly Readonly<
     Token<ErrorType, Kinds, Data, DataBindings>
   >[];
-  readonly defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[];
+  readonly defs: readonly Readonly<
+    Definition<Data, ErrorType, Kinds, ActionState>
+  >[];
   /**
    * The entire input string.
    */

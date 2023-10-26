@@ -19,7 +19,7 @@ export function whitespaces<ErrorType = string, ActionState = never>() {
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
-export function fromTo<ErrorType = string, ActionState = never>(
+export function fromTo<Data = never, ErrorType = string, ActionState = never>(
   from: string | RegExp,
   to: string | RegExp,
   options: {
@@ -35,7 +35,7 @@ export function fromTo<ErrorType = string, ActionState = never>(
      */
     autoGlobal?: boolean;
   },
-): Action<ErrorType, ActionState> {
+): Action<Data, ErrorType, ActionState> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -129,6 +129,7 @@ export function comment<ErrorType = string, ActionState = never>(
 }
 
 export function regexLiteral<
+  Data = never,
   ErrorType = string,
   ActionState = never,
 >(options?: {
@@ -152,13 +153,15 @@ export function regexLiteral<
    * Default: `true`.
    */
   boundary?: boolean;
-}): Action<ErrorType, ActionState> {
+}): Action<Data, ErrorType, ActionState> {
   const action =
     options?.boundary ?? true
-      ? Action.from<ErrorType, ActionState>(
+      ? Action.from<Data, ErrorType, ActionState>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
         )
-      : Action.from<ErrorType, ActionState>(/\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/);
+      : Action.from<Data, ErrorType, ActionState>(
+          /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/,
+        );
 
   const err = options?.invalidError ?? ("invalid regex literal" as ErrorType);
 

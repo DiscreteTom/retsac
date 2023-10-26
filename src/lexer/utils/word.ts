@@ -3,9 +3,9 @@ import { Action } from "../action";
 /**
  * Match a list of strings exactly, ***NO LOOKAHEAD***.
  */
-export function exact<ErrorType = string, ActionState = never>(
+export function exact<Data = never, ErrorType = string, ActionState = never>(
   ...ss: readonly string[]
-): Action<ErrorType, ActionState> {
+): Action<Data, ErrorType, ActionState> {
   return Action.from((input) => {
     for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
@@ -15,9 +15,11 @@ export function exact<ErrorType = string, ActionState = never>(
 /**
  * Return a list of actions that match a list of strings exactly, ***NO LOOKAHEAD***.
  */
-export function exactArray<ErrorType = string, ActionState = never>(
-  ...ss: readonly string[]
-): Action<ErrorType, ActionState>[] {
+export function exactArray<
+  Data = never,
+  ErrorType = string,
+  ActionState = never,
+>(...ss: readonly string[]): Action<Data, ErrorType, ActionState>[] {
   return ss.map((s) => exact(s));
 }
 
@@ -25,29 +27,30 @@ export function exactArray<ErrorType = string, ActionState = never>(
  * Define kinds which name is the same as its literal value.
  */
 export function exactKind<
+  Data = never,
   ErrorType = string,
   Kinds extends string = never,
   ActionState = never,
 >(
   ...ss: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<ErrorType, ActionState>;
+  [kind in Kinds]: Action<Data, ErrorType, ActionState>;
 } {
-  const result: { [kind: string]: Action<ErrorType, ActionState> } = {};
+  const result: { [kind: string]: Action<Data, ErrorType, ActionState> } = {};
   for (const s of ss) {
     result[s] = exact(s);
   }
   return result as {
-    [kind in Kinds]: Action<ErrorType, ActionState>;
+    [kind in Kinds]: Action<Data, ErrorType, ActionState>;
   };
 }
 
 /**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function word<ErrorType = string, ActionState = never>(
+export function word<Data = never, ErrorType = string, ActionState = never>(
   ...words: readonly string[]
-): Action<ErrorType, ActionState> {
+): Action<Data, ErrorType, ActionState> {
   return Action.from((input) => {
     for (const word of words)
       if (
@@ -63,9 +66,11 @@ export function word<ErrorType = string, ActionState = never>(
 /**
  * Return a list of actions that match a list of words, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function wordArray<ErrorType = string, ActionState = never>(
-  ...words: readonly string[]
-): Action<ErrorType, ActionState>[] {
+export function wordArray<
+  Data = never,
+  ErrorType = string,
+  ActionState = never,
+>(...words: readonly string[]): Action<Data, ErrorType, ActionState>[] {
   return words.map((s) => word(s));
 }
 
@@ -73,19 +78,20 @@ export function wordArray<ErrorType = string, ActionState = never>(
  * Define kinds which name is the same as its literal value.
  */
 export function wordKind<
+  Data = never,
   ErrorType = string,
   Kinds extends string = never,
   ActionState = never,
 >(
   ...words: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<ErrorType, ActionState>;
+  [kind in Kinds]: Action<Data, ErrorType, ActionState>;
 } {
-  const result: { [kind: string]: Action<ErrorType, ActionState> } = {};
+  const result: { [kind: string]: Action<Data, ErrorType, ActionState> } = {};
   for (const w of words) {
     result[w] = word(w);
   }
   return result as {
-    [kind in Kinds]: Action<ErrorType, ActionState>;
+    [kind in Kinds]: Action<Data, ErrorType, ActionState>;
   };
 }

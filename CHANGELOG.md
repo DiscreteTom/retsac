@@ -1,7 +1,9 @@
 # CHANGELOG
 
-## Next
+## v0.13.0
 
+- Lexer
+  - **Breaking Change**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
 - Optimize package size.
 
 ## v0.12.0

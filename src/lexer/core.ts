@@ -1,18 +1,24 @@
 import { defaultLogger, type Logger } from "../logger";
+import type { ActionStateCloner } from "./action";
 import { ActionInput, type AcceptedActionOutput } from "./action";
-import type { ActionStateCloner, Definition, ILexerCore, Token } from "./model";
+import type { Definition, ILexerCore, Token, TokenDataBinding } from "./model";
 
 /**
  * LexerCore only store ActionState, no LexerState.
  */
-export class LexerCore<ErrorType, Kinds extends string, ActionState>
-  implements ILexerCore<ErrorType, Kinds, ActionState>
+export class LexerCore<
+  Data,
+  ErrorType,
+  Kinds extends string,
+  DataBindings extends TokenDataBinding<Kinds, Data>,
+  ActionState,
+> implements ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>
 {
   state: ActionState;
 
   constructor(
     readonly defs: readonly Readonly<
-      Definition<ErrorType, Kinds, ActionState>
+      Definition<Data, ErrorType, Kinds, ActionState>
     >[],
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
@@ -27,12 +33,16 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
   }
 
   dryClone() {
-    return new LexerCore(this.defs, this.initialState, this.stateCloner);
+    return new LexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>(
+      this.defs,
+      this.initialState,
+      this.stateCloner,
+    );
   }
 
   clone() {
     // clone the current state
-    return new LexerCore(
+    return new LexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>(
       this.defs,
       this.initialState,
       this.stateCloner,
@@ -83,7 +93,7 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * `null` if no actions can be accepted or all muted.
      */
-    token: Token<ErrorType, Kinds> | null;
+    token: Token<ErrorType, Kinds, Data, DataBindings> | null;
     /**
      * How many chars are digested during this lex.
      */
@@ -95,7 +105,7 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<ErrorType, Kinds>[];
+    errors: Token<ErrorType, Kinds, Data, DataBindings>[];
   } {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
@@ -117,7 +127,7 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     const start = options?.start ?? 0;
     let rest = options?.rest;
     let digested = 0;
-    const errors = [] as Token<ErrorType, Kinds>[];
+    const errors = [] as Token<ErrorType, Kinds, Data, DataBindings>[];
     while (true) {
       // first, ensure rest is not empty
       // since maybe some token is muted in the last iteration which cause the rest is empty
@@ -198,7 +208,13 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
         continue;
       } else {
         // not muted, emit token after collecting errors
-        const token = LexerCore.res2token(res.output, res.def);
+        const token = LexerCore.res2token<
+          Data,
+          ErrorType,
+          Kinds,
+          DataBindings,
+          ActionState
+        >(res.output, res.def);
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(token);
@@ -247,7 +263,7 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<ErrorType, Kinds>[];
+    errors: Token<ErrorType, Kinds, Data, DataBindings>[];
   } {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
@@ -256,7 +272,7 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     const start = options?.start ?? 0;
     let rest = options?.rest;
     let digested = 0;
-    const errors = [] as Token<ErrorType, Kinds>[];
+    const errors = [] as Token<ErrorType, Kinds, Data, DataBindings>[];
     while (true) {
       // first, ensure rest is not empty
       // since maybe some token is muted in the last iteration which cause the rest is empty
@@ -340,17 +356,17 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
    *
    * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
    */
-  static evaluateDefs<ErrorType, Kinds extends string, ActionState>(
+  static evaluateDefs<Data, ErrorType, Kinds extends string, ActionState>(
     input: ActionInput<ActionState>,
-    defs: readonly Readonly<Definition<ErrorType, Kinds, ActionState>>[],
+    defs: readonly Readonly<Definition<Data, ErrorType, Kinds, ActionState>>[],
     validator: {
-      pre: (def: Readonly<Definition<ErrorType, Kinds, ActionState>>) => {
+      pre: (def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>) => {
         accept: boolean;
         rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
       };
       post: (
-        def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
-        output: AcceptedActionOutput<ErrorType>,
+        def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>,
+        output: AcceptedActionOutput<Data, ErrorType>,
       ) => {
         accept: boolean;
         acceptMessageFormatter: (info: {
@@ -392,17 +408,17 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
    * Return the action's output if accepted and expected.
    * Return `undefined` if the definition is rejected or unexpected.
    */
-  static tryDefinition<ErrorType, Kinds extends string, ActionState>(
+  static tryDefinition<Data, ErrorType, Kinds extends string, ActionState>(
     input: ActionInput<ActionState>,
-    def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
+    def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>,
     validator: {
-      pre: (def: Readonly<Definition<ErrorType, Kinds, ActionState>>) => {
+      pre: (def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>) => {
         accept: boolean;
         rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
       };
       post: (
-        def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
-        output: AcceptedActionOutput<ErrorType>,
+        def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>,
+        output: AcceptedActionOutput<Data, ErrorType>,
       ) => {
         accept: boolean;
         acceptMessageFormatter: (info: {
@@ -479,15 +495,22 @@ export class LexerCore<ErrorType, Kinds extends string, ActionState>
     return;
   }
 
-  static res2token<ErrorType, Kinds extends string, ActionState>(
-    res: Readonly<AcceptedActionOutput<ErrorType>>,
-    def: Readonly<Definition<ErrorType, Kinds, ActionState>>,
-  ): Token<ErrorType, Kinds> {
+  static res2token<
+    Data,
+    ErrorType,
+    Kinds extends string,
+    DataBindings extends TokenDataBinding<Kinds, Data>,
+    ActionState,
+  >(
+    res: Readonly<AcceptedActionOutput<Data, ErrorType>>,
+    def: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>,
+  ): Token<ErrorType, Kinds, Data, DataBindings> {
     return {
       kind: def.kind,
       content: res.content,
       start: res.start,
       error: res.error,
-    };
+      data: res.data,
+    } as Token<ErrorType, Kinds, Data, DataBindings>;
   }
 }

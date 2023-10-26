@@ -1,22 +1,24 @@
-import type { ActionSource } from "./action";
+import type { ActionSource, ActionStateCloner } from "./action";
 import { Action } from "./action";
 import { Lexer } from "./lexer";
-import type { ActionStateCloner, Definition, ILexer } from "./model";
+import type { Definition, ILexer, TokenDataBinding } from "./model";
 import { LexerCore } from "./core";
 
 export type LexerBuildOptions = Partial<
-  Pick<ILexer<unknown, string, never>, "logger" | "debug">
+  Pick<ILexer<unknown, unknown, string, never, never>, "logger" | "debug">
 >;
 
 /**
  * Lexer builder.
  */
 export class Builder<
+  Data = never,
   ErrorType = string,
   Kinds extends string = never,
+  DataBindings extends TokenDataBinding<Kinds, Data> = never,
   ActionState = never,
 > {
-  private defs: Readonly<Definition<ErrorType, Kinds, ActionState>>[];
+  private defs: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
@@ -31,8 +33,14 @@ export class Builder<
   useState<NewActionState>(
     state: NewActionState,
     cloner?: ActionStateCloner<NewActionState>,
-  ): Builder<ErrorType, Kinds, NewActionState> {
-    const _this = this as unknown as Builder<ErrorType, Kinds, NewActionState>;
+  ): Builder<Data, ErrorType, Kinds, DataBindings, NewActionState> {
+    const _this = this as unknown as Builder<
+      Data,
+      ErrorType,
+      Kinds,
+      DataBindings,
+      NewActionState
+    >;
     _this.initialState = state;
     _this.stateCloner = cloner ?? ((state) => structuredClone(state));
     return _this;
@@ -44,23 +52,31 @@ export class Builder<
   define<Append extends string>(
     defs: {
       [kind in Append]:
-        | ActionSource<ErrorType, ActionState>
-        | ActionSource<ErrorType, ActionState>[];
+        | ActionSource<Data, ErrorType, ActionState>
+        | ActionSource<Data, ErrorType, ActionState>[];
     },
     decorator?: (
-      a: Action<ErrorType, ActionState>,
-    ) => Action<ErrorType, ActionState>,
-  ): Builder<ErrorType, Kinds | Append, ActionState> {
+      a: Action<Data, ErrorType, ActionState>,
+    ) => Action<Data, ErrorType, ActionState>,
+  ): Builder<Data, ErrorType, Kinds | Append, DataBindings, ActionState> {
     for (const kind in defs) {
       const raw = defs[kind] as
-        | ActionSource<ErrorType, ActionState>
-        | ActionSource<ErrorType, ActionState>[];
+        | ActionSource<Data, ErrorType, ActionState>
+        | ActionSource<Data, ErrorType, ActionState>[];
 
       // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        (this as Builder<ErrorType, Kinds | Append, ActionState>).defs.push({
+        (
+          this as Builder<
+            Data,
+            ErrorType,
+            Kinds | Append,
+            DataBindings,
+            ActionState
+          >
+        ).defs.push({
           kind,
           action:
             decorator !== undefined
@@ -75,14 +91,14 @@ export class Builder<
   /**
    * Define tokens with empty kind.
    */
-  anonymous(...actions: ActionSource<ErrorType, ActionState>[]) {
+  anonymous(...actions: ActionSource<Data, ErrorType, ActionState>[]) {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(...actions: ActionSource<ErrorType, ActionState>[]) {
+  ignore(...actions: ActionSource<Data, ErrorType, ActionState>[]) {
     return this.define({ "": actions.map((a) => Action.from(a).mute()) });
   }
 
@@ -94,8 +110,10 @@ export class Builder<
     return this.build().getTokenKinds();
   }
 
-  build(options?: LexerBuildOptions): Lexer<ErrorType, Kinds, ActionState> {
-    return new Lexer<ErrorType, Kinds, ActionState>(
+  build(
+    options?: LexerBuildOptions,
+  ): Lexer<Data, ErrorType, Kinds, DataBindings, ActionState> {
+    return new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
       new LexerCore(this.defs, this.initialState, this.stateCloner),
       options,
     );

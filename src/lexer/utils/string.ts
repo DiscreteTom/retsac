@@ -11,7 +11,11 @@ import { esc4regex } from "./common";
  *
  * Set `multiline: true` to allow multiline string literals.
  */
-export function stringLiteral<ErrorType = string, ActionState = never>(
+export function stringLiteral<
+  Data = never,
+  ErrorType = string,
+  ActionState = never,
+>(
   /** The open quote. */
   open: string,
   options?: {
@@ -29,7 +33,7 @@ export function stringLiteral<ErrorType = string, ActionState = never>(
     /** Default: `'unclosed string literal'` */
     unclosedError?: ErrorType;
   },
-): Action<ErrorType, ActionState> {
+): Action<Data, ErrorType, ActionState> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
@@ -37,7 +41,7 @@ export function stringLiteral<ErrorType = string, ActionState = never>(
   const unclosedError =
     options?.unclosedError ?? ("unclosed string literal" as ErrorType);
 
-  const action = Action.from<ErrorType, ActionState>(
+  const action = Action.from<Data, ErrorType, ActionState>(
     new RegExp(
       // open quote
       `(?:${esc4regex(open)})` +
