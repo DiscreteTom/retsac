@@ -128,6 +128,7 @@ export class LexerCore<
     let rest = options?.rest;
     let digested = 0;
     const errors = [] as Token<ErrorType, Kinds, Data, DataBindings>[];
+    const peek = options?.peek ?? false;
     while (true) {
       // first, ensure rest is not empty
       // since maybe some token is muted in the last iteration which cause the rest is empty
@@ -148,6 +149,7 @@ export class LexerCore<
         start: start + digested,
         state: this.state,
         rest,
+        peek,
       });
       // cache the result of `startsWith` to avoid duplicate calculation
       // since we need to check `startsWith` for every definition
@@ -195,7 +197,7 @@ export class LexerCore<
       rest = res.output.rest;
 
       // if not peek, update action state
-      if (!(options?.peek ?? false)) {
+      if (!peek) {
         res.def.action.callback?.({ output: res.output, input });
       }
 
@@ -292,6 +294,7 @@ export class LexerCore<
         start: start + digested,
         state: this.state,
         rest,
+        peek: false,
       });
 
       const res = LexerCore.evaluateDefs(

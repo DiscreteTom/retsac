@@ -7,11 +7,19 @@ export class ActionInput<ActionState> {
    * From where to lex.
    */
   readonly start: number;
+  /**
+   * Whether this evaluation is a peek.
+   * If `true`, you may not want to mutate the state.
+   */
+  readonly peek: boolean;
   readonly state: ActionState;
   private _rest?: string;
 
   constructor(
-    props: Pick<ActionInput<ActionState>, "buffer" | "start" | "state"> &
+    props: Pick<
+      ActionInput<ActionState>,
+      "buffer" | "start" | "state" | "peek"
+    > &
       // maybe the rest is provided by the last accepted action's output
       // or is calculated by lexer.getRest
       Partial<Pick<ActionInput<ActionState>, "rest">>,
@@ -19,6 +27,7 @@ export class ActionInput<ActionState> {
     this.buffer = props.buffer;
     this.start = props.start;
     this.state = props.state;
+    this.peek = props.peek;
     this._rest = props.rest;
   }
 

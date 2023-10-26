@@ -4,6 +4,7 @@
 
 - Lexer
   - **Breaking Change**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
+  - Feat: add `ActionInput.peek`.
 - Optimize package size.
 
 ## v0.12.0
