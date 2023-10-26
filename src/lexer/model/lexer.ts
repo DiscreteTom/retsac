@@ -1,24 +1,8 @@
-import type { Logger } from "../logger";
-import type { Action } from "./action";
+import type { Logger } from "../../logger";
+import type { Definition } from "./definition";
+import type { Token } from "./token";
 
-/** The output of a lexer. */
-export type Token<ErrorType, Kinds extends string> = {
-  /** User-defined token kind name. */
-  kind: Kinds;
-  /** Text content. */
-  content: string;
-  /** Start position of input string. */
-  start: number;
-  error?: ErrorType;
-};
-
-/** Apply `action` and try to yield a token with `kind`. */
-export type Definition<ErrorType, Kinds extends string, ActionState> = {
-  /** Target token kind. Empty string if anonymous. */
-  kind: Kinds;
-  action: Action<ErrorType, ActionState>;
-};
-
+// TODO: move to action module?
 export type ActionStateCloner<ActionState> = (
   ctx: Readonly<ActionState>,
 ) => ActionState;
