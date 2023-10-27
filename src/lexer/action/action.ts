@@ -29,8 +29,8 @@ export type ActionSource<Data, ErrorType, ActionState> =
   | SimpleActionExec<Data, ErrorType, ActionState>;
 
 export type AcceptedActionDecoratorContext<Data, ErrorType, ActionState> = {
-  input: Readonly<ActionInput<ActionState>>;
-  output: AcceptedActionOutput<Data, ErrorType>;
+  readonly input: Readonly<ActionInput<ActionState>>;
+  readonly output: AcceptedActionOutput<Data, ErrorType>;
 };
 
 export type AcceptedActionDecorator<Data, ErrorType, ActionState> = (
