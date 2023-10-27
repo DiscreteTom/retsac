@@ -1,7 +1,6 @@
 import type { AtLeastOneOf } from "../../type-helper";
 
 // This has to be a class, since we need to cache the `rest` of the output.
-// TODO: add input to output?
 export class AcceptedActionOutput<Data, ErrorType> {
   /**
    * This action can accept some input as a token.
