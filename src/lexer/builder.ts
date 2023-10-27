@@ -49,17 +49,31 @@ export class Builder<
   /**
    * Define token kinds.
    */
-  // TODO: add generic params about Data
-  define<Append extends string>(
+  // TODO: different kinds map different data?
+  define<AppendKinds extends string, AppendData>(
     defs: {
-      [kind in Append]:
-        | ActionSource<Data, ActionState, ErrorType>
-        | ActionSource<Data, ActionState, ErrorType>[];
+      [kind in AppendKinds]:
+        | ActionSource<
+            AppendData | never,
+            ActionState | never,
+            ErrorType | never
+          >
+        | ActionSource<
+            AppendData | never,
+            ActionState | never,
+            ErrorType | never
+          >[];
     },
     decorator?: (
       a: Action<Data, ActionState, ErrorType>,
     ) => Action<Data, ActionState, ErrorType>,
-  ): Builder<Kinds | Append, Data, DataBindings, ActionState, ErrorType> {
+  ): Builder<
+    Kinds | AppendKinds,
+    Data | AppendData,
+    DataBindings | TokenDataBinding<AppendKinds, AppendData>,
+    ActionState,
+    ErrorType
+  > {
     for (const kind in defs) {
       const raw = defs[kind] as
         | ActionSource<Data, ActionState, ErrorType>
@@ -71,7 +85,7 @@ export class Builder<
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
         (
           this as Builder<
-            Kinds | Append,
+            Kinds | AppendKinds,
             Data,
             DataBindings,
             ActionState,
@@ -87,7 +101,13 @@ export class Builder<
         });
       });
     }
-    return this;
+    return this as Builder<
+      Kinds | AppendKinds,
+      Data | AppendData,
+      DataBindings | TokenDataBinding<AppendKinds, AppendData>,
+      ActionState,
+      ErrorType
+    >;
   }
 
   select(
