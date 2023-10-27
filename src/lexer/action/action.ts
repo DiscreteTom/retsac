@@ -54,7 +54,6 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
   /**
    * If `true`, the action's output will never be muted.
    */
-  // TODO: apply this
   get neverMuted() {
     return !this.maybeMuted;
   }
