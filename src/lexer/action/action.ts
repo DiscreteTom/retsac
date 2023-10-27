@@ -37,8 +37,7 @@ export type AcceptedActionDecorator<Data, ActionState, ErrorType> = (
   ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
 ) => ActionOutput<Data, ErrorType>;
 
-// TODO: use unknown instead of never?
-export class Action<Data = never, ActionState = never, ErrorType = string> {
+export class Action<Data = never, ActionState = never, ErrorType = never> {
   readonly _exec: ActionExec<Data, ActionState, ErrorType>;
   readonly decorators: AcceptedActionDecorator<Data, ActionState, ErrorType>[];
   /**
@@ -87,8 +86,7 @@ export class Action<Data = never, ActionState = never, ErrorType = string> {
     return output;
   }
 
-  // TODO: set Data to undefined?
-  static simple<Data = never, ActionState = never, ErrorType = string>(
+  static simple<Data = never, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return new Action((input) => {
@@ -133,7 +131,7 @@ export class Action<Data = never, ActionState = never, ErrorType = string> {
     });
   }
 
-  static match<Data = never, ActionState = never, ErrorType = string>(
+  static match<Data = never, ActionState = never, ErrorType = never>(
     r: RegExp,
     options?: {
       /**
@@ -178,7 +176,7 @@ export class Action<Data = never, ActionState = never, ErrorType = string> {
     });
   }
 
-  static from<Data = never, ActionState = never, ErrorType = string>(
+  static from<Data = never, ActionState = never, ErrorType = never>(
     r: ActionSource<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp

@@ -91,7 +91,7 @@ export type ActionExecOutput<Data, ErrorType> =
 export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
   Pick<
     AcceptedActionOutput<Data, ErrorType>,
-    "muted" | "error" | "rest" | "digested" | "content" | "data" // TODO: maybe data is required?
+    "muted" | "error" | "rest" | "digested" | "content" | "data"
   >
 > &
   AtLeastOneOf<AcceptedActionOutput<Data, ErrorType>, "digested" | "content">;
