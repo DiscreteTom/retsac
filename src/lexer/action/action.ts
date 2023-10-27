@@ -242,6 +242,31 @@ export class Action<Data = never, ActionState = never, ErrorType = string> {
   }
 
   /**
+   * Set data if `accept` is `true`.
+   */
+  data<NewData>(
+    factory: (
+      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+    ) => NewData,
+  ): Action<NewData, ActionState, ErrorType> {
+    const _this = this as unknown as Action<NewData, ActionState, ErrorType>;
+    _this.decorators.push((ctx) => {
+      if (ctx.output.accept) {
+        ctx.output.data = factory(
+          ctx as unknown as AcceptedActionDecoratorContext<
+            Data,
+            ActionState,
+            ErrorType
+          >,
+        );
+        return ctx.output;
+      }
+      return ctx.output;
+    });
+    return _this;
+  }
+
+  /**
    * Set error if `accept` is `true`.
    */
   error<NewErrorType>(
