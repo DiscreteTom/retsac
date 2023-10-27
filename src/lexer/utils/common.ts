@@ -35,7 +35,7 @@ export function fromTo<Data = never, ErrorType = string, ActionState = never>(
      */
     autoGlobal?: boolean;
   },
-): Action<Data, ErrorType, ActionState> {
+): Action<Data, ActionState, ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -153,13 +153,13 @@ export function regexLiteral<
    * Default: `true`.
    */
   boundary?: boolean;
-}): Action<Data, ErrorType, ActionState> {
+}): Action<Data, ActionState, ErrorType> {
   const action =
     options?.boundary ?? true
-      ? Action.from<Data, ErrorType, ActionState>(
+      ? Action.from<Data, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
         )
-      : Action.from<Data, ErrorType, ActionState>(
+      : Action.from<Data, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/,
         );
 

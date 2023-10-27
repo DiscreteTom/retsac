@@ -33,7 +33,7 @@ export function stringLiteral<
     /** Default: `'unclosed string literal'` */
     unclosedError?: ErrorType;
   },
-): Action<Data, ErrorType, ActionState> {
+): Action<Data, ActionState, ErrorType> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
@@ -41,7 +41,7 @@ export function stringLiteral<
   const unclosedError =
     options?.unclosedError ?? ("unclosed string literal" as ErrorType);
 
-  const action = Action.from<Data, ErrorType, ActionState>(
+  const action = Action.from<Data, ActionState, ErrorType>(
     new RegExp(
       // open quote
       `(?:${esc4regex(open)})` +

@@ -4,6 +4,7 @@
 
 - Lexer
   - **Breaking Change**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
+  - **_Breaking Change_**: re-order generic parameters.
   - Feat: add `ActionInput.peek`.
 - Optimize package size.
 

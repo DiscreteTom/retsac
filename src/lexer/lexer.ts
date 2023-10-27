@@ -7,20 +7,20 @@ import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
 export class Lexer<
-  Data,
-  ErrorType,
   Kinds extends string,
+  Data,
   DataBindings extends TokenDataBinding<Kinds, Data>,
   ActionState,
-> implements ILexer<Data, ErrorType, Kinds, DataBindings, ActionState>
+  ErrorType,
+> implements ILexer<Kinds, Data, DataBindings, ActionState, ErrorType>
 {
   debug: boolean;
   logger: Logger;
-  readonly core: ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>;
-  private state: LexerState<Data, ErrorType, Kinds, DataBindings>;
+  readonly core: ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  private state: LexerState<Kinds, Data, DataBindings, ErrorType>;
 
   constructor(
-    core: ILexerCore<Data, ErrorType, Kinds, DataBindings, ActionState>,
+    core: ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>,
     options?: LexerBuildOptions,
   ) {
     this.core = core;
@@ -63,7 +63,7 @@ export class Lexer<
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
+    const res = new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
       this.core.dryClone(),
     );
     res.debug = options?.debug ?? this.debug;
@@ -72,7 +72,7 @@ export class Lexer<
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
+    const res = new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
       this.core.clone(),
     );
     res.debug = options?.debug ?? this.debug;
@@ -167,7 +167,7 @@ export class Lexer<
           }>;
           peek?: boolean;
         }> = "",
-  ): Token<ErrorType, Kinds, Data, DataBindings> | null {
+  ): Token<Kinds, Data, DataBindings, ErrorType> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -220,7 +220,7 @@ export class Lexer<
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = "",
-  ): Token<ErrorType, Kinds, Data, DataBindings>[] {
+  ): Token<Kinds, Data, DataBindings, ErrorType>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -231,7 +231,7 @@ export class Lexer<
     const stopOnError =
       typeof input === "string" ? false : input.stopOnError ?? false;
 
-    const result: Token<ErrorType, Kinds, Data, DataBindings>[] = [];
+    const result: Token<Kinds, Data, DataBindings, ErrorType>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {

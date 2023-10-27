@@ -15,13 +15,12 @@ export type TokenDataBinding<Kinds extends string, Data> = {
 /**
  * The output of a lexer.
  */
-// TODO: re-order generic types
 // TODO: helper type to extract token generic parameters
 export type Token<
-  ErrorType,
   Kinds extends string,
   Data,
   DataBindings extends TokenDataBinding<Kinds, Data>,
+  ErrorType,
 > = {
   /**
    * Token's text content.

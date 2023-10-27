@@ -5,7 +5,7 @@ import { Action } from "../action";
  */
 export function exact<Data = never, ErrorType = string, ActionState = never>(
   ...ss: readonly string[]
-): Action<Data, ErrorType, ActionState> {
+): Action<Data, ActionState, ErrorType> {
   return Action.from((input) => {
     for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
@@ -19,7 +19,7 @@ export function exactArray<
   Data = never,
   ErrorType = string,
   ActionState = never,
->(...ss: readonly string[]): Action<Data, ErrorType, ActionState>[] {
+>(...ss: readonly string[]): Action<Data, ActionState, ErrorType>[] {
   return ss.map((s) => exact(s));
 }
 
@@ -34,14 +34,14 @@ export function exactKind<
 >(
   ...ss: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<Data, ErrorType, ActionState>;
+  [kind in Kinds]: Action<Data, ActionState, ErrorType>;
 } {
-  const result: { [kind: string]: Action<Data, ErrorType, ActionState> } = {};
+  const result: { [kind: string]: Action<Data, ActionState, ErrorType> } = {};
   for (const s of ss) {
     result[s] = exact(s);
   }
   return result as {
-    [kind in Kinds]: Action<Data, ErrorType, ActionState>;
+    [kind in Kinds]: Action<Data, ActionState, ErrorType>;
   };
 }
 
@@ -50,7 +50,7 @@ export function exactKind<
  */
 export function word<Data = never, ErrorType = string, ActionState = never>(
   ...words: readonly string[]
-): Action<Data, ErrorType, ActionState> {
+): Action<Data, ActionState, ErrorType> {
   return Action.from((input) => {
     for (const word of words)
       if (
@@ -70,7 +70,7 @@ export function wordArray<
   Data = never,
   ErrorType = string,
   ActionState = never,
->(...words: readonly string[]): Action<Data, ErrorType, ActionState>[] {
+>(...words: readonly string[]): Action<Data, ActionState, ErrorType>[] {
   return words.map((s) => word(s));
 }
 
@@ -85,13 +85,13 @@ export function wordKind<
 >(
   ...words: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<Data, ErrorType, ActionState>;
+  [kind in Kinds]: Action<Data, ActionState, ErrorType>;
 } {
-  const result: { [kind: string]: Action<Data, ErrorType, ActionState> } = {};
+  const result: { [kind: string]: Action<Data, ActionState, ErrorType> } = {};
   for (const w of words) {
     result[w] = word(w);
   }
   return result as {
-    [kind in Kinds]: Action<Data, ErrorType, ActionState>;
+    [kind in Kinds]: Action<Data, ActionState, ErrorType>;
   };
 }

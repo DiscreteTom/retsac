@@ -1,16 +1,16 @@
 import type { Token, TokenDataBinding } from "./model";
 
 export class LexerState<
-  Data,
-  ErrorType,
   Kinds extends string,
+  Data,
   DataBindings extends TokenDataBinding<Kinds, Data>,
+  ErrorType,
 > {
   buffer: string;
   digested: number;
   lineChars: number[];
   trimmed: boolean;
-  errors: Readonly<Token<ErrorType, Kinds, Data, DataBindings>>[];
+  errors: Readonly<Token<Kinds, Data, DataBindings, ErrorType>>[];
   rest: string | undefined;
 
   constructor() {
@@ -52,7 +52,7 @@ export class LexerState<
   }
 
   clone() {
-    const state = new LexerState<Data, ErrorType, Kinds, DataBindings>();
+    const state = new LexerState<Kinds, Data, DataBindings, ErrorType>();
     state.buffer = this.buffer;
     state.digested = this.digested;
     state.lineChars = this.lineChars.slice();

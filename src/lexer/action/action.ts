@@ -8,7 +8,7 @@ import type {
 } from "./output";
 import { rejectedActionOutput, AcceptedActionOutput } from "./output";
 
-export type ActionExec<Data, ErrorType, ActionState> = (
+export type ActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
 ) => ActionExecOutput<Data, ErrorType>;
 
@@ -19,28 +19,28 @@ export type ActionExec<Data, ErrorType, ActionState> = (
  *
  * If return a SimpleAcceptedActionExecOutput, missing fields will be filled automatically.
  */
-export type SimpleActionExec<Data, ErrorType, ActionState> = (
+export type SimpleActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
 ) => number | string | SimpleAcceptedActionExecOutput<Data, ErrorType>;
 
-export type ActionSource<Data, ErrorType, ActionState> =
+export type ActionSource<Data, ActionState, ErrorType> =
   | RegExp
-  | Action<Data, ErrorType, ActionState>
-  | SimpleActionExec<Data, ErrorType, ActionState>;
+  | Action<Data, ActionState, ErrorType>
+  | SimpleActionExec<Data, ActionState, ErrorType>;
 
-export type AcceptedActionDecoratorContext<Data, ErrorType, ActionState> = {
+export type AcceptedActionDecoratorContext<Data, ActionState, ErrorType> = {
   readonly input: Readonly<ActionInput<ActionState>>;
   readonly output: AcceptedActionOutput<Data, ErrorType>;
 };
 
-export type AcceptedActionDecorator<Data, ErrorType, ActionState> = (
-  ctx: AcceptedActionDecoratorContext<Data, ErrorType, ActionState>,
+export type AcceptedActionDecorator<Data, ActionState, ErrorType> = (
+  ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
 ) => ActionOutput<Data, ErrorType>;
 
 // TODO: use unknown instead of never?
-export class Action<Data = never, ErrorType = string, ActionState = never> {
-  readonly _exec: ActionExec<Data, ErrorType, ActionState>;
-  readonly decorators: AcceptedActionDecorator<Data, ErrorType, ActionState>[];
+export class Action<Data = never, ActionState = never, ErrorType = string> {
+  readonly _exec: ActionExec<Data, ActionState, ErrorType>;
+  readonly decorators: AcceptedActionDecorator<Data, ActionState, ErrorType>[];
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -59,8 +59,8 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
   }
 
   constructor(
-    exec: ActionExec<Data, ErrorType, ActionState>,
-    options?: Partial<Pick<Action<Data, ErrorType, ActionState>, "maybeMuted">>,
+    exec: ActionExec<Data, ActionState, ErrorType>,
+    options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
   ) {
     this._exec = exec;
     this.decorators = [];
@@ -88,9 +88,9 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
   }
 
   // TODO: set Data to undefined?
-  static simple<Data = never, ErrorType = string, ActionState = never>(
-    f: SimpleActionExec<Data, ErrorType, ActionState>,
-  ): Action<Data, ErrorType, ActionState> {
+  static simple<Data = never, ActionState = never, ErrorType = string>(
+    f: SimpleActionExec<Data, ActionState, ErrorType>,
+  ): Action<Data, ActionState, ErrorType> {
     return new Action((input) => {
       const res = f(input);
       // if javascript support real function overload
@@ -133,7 +133,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
     });
   }
 
-  static match<Data = never, ErrorType = string, ActionState = never>(
+  static match<Data = never, ActionState = never, ErrorType = string>(
     r: RegExp,
     options?: {
       /**
@@ -147,7 +147,7 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
        */
       rejectCaret?: boolean;
     },
-  ): Action<Data, ErrorType, ActionState> {
+  ): Action<Data, ActionState, ErrorType> {
     if (options?.autoSticky ?? true) {
       if (!r.sticky && !r.global)
         // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
@@ -178,14 +178,14 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
     });
   }
 
-  static from<Data = never, ErrorType = string, ActionState = never>(
-    r: ActionSource<Data, ErrorType, ActionState>,
-  ): Action<Data, ErrorType, ActionState> {
+  static from<Data = never, ActionState = never, ErrorType = string>(
+    r: ActionSource<Data, ActionState, ErrorType>,
+  ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp
-      ? Action.match<Data, ErrorType, ActionState>(r)
+      ? Action.match<Data, ActionState, ErrorType>(r)
       : r instanceof Action
       ? r
-      : Action.simple<Data, ErrorType, ActionState>(r);
+      : Action.simple<Data, ActionState, ErrorType>(r);
   }
 
   /**
@@ -195,9 +195,9 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
     muted:
       | boolean
       | ((
-          ctx: AcceptedActionDecoratorContext<Data, ErrorType, ActionState>,
+          ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
         ) => boolean) = true,
-  ): Action<Data, ErrorType, ActionState> {
+  ): Action<Data, ActionState, ErrorType> {
     if (typeof muted === "boolean") {
       this.maybeMuted = muted;
       this.decorators.push((ctx) => {
@@ -221,17 +221,17 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    */
   check<NewErrorType>(
     condition: (
-      ctx: AcceptedActionDecoratorContext<Data, ErrorType, ActionState>,
+      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => NewErrorType | undefined,
-  ): Action<Data, NewErrorType, ActionState> {
-    const _this = this as unknown as Action<Data, NewErrorType, ActionState>;
+  ): Action<Data, ActionState, NewErrorType> {
+    const _this = this as unknown as Action<Data, ActionState, NewErrorType>;
     _this.decorators.push((ctx) => {
       if (ctx.output.accept) {
         ctx.output.error = condition(
           ctx as unknown as AcceptedActionDecoratorContext<
             Data,
-            ErrorType,
-            ActionState
+            ActionState,
+            ErrorType
           >,
         );
         return ctx.output;
@@ -246,8 +246,8 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    */
   error<NewErrorType>(
     error: NewErrorType,
-  ): Action<Data, NewErrorType, ActionState> {
-    const _this = this as unknown as Action<Data, NewErrorType, ActionState>;
+  ): Action<Data, ActionState, NewErrorType> {
+    const _this = this as unknown as Action<Data, ActionState, NewErrorType>;
     _this.decorators.push((ctx) => {
       if (ctx.output.accept) {
         ctx.output.error = error;
@@ -265,9 +265,9 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
     rejecter:
       | boolean
       | ((
-          ctx: AcceptedActionDecoratorContext<Data, ErrorType, ActionState>,
+          ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
         ) => boolean) = true,
-  ): Action<Data, ErrorType, ActionState> {
+  ): Action<Data, ActionState, ErrorType> {
     if (typeof rejecter === "boolean") {
       if (rejecter) return new Action(() => rejectedActionOutput); // always reject
       return this; // just return self, don't override the original output's accept
@@ -288,9 +288,9 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    */
   then(
     f: (
-      ctx: AcceptedActionDecoratorContext<Data, ErrorType, ActionState>,
+      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => void,
-  ): Action<Data, ErrorType, ActionState> {
+  ): Action<Data, ActionState, ErrorType> {
     this.decorators.push((ctx) => {
       if (ctx.output.accept && !ctx.input.peek) f(ctx);
       return ctx.output;
@@ -303,10 +303,10 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    * Sadly there is no operator overloading in typescript.
    */
   or(
-    a: ActionSource<Data, ErrorType, ActionState>,
-  ): Action<Data, ErrorType, ActionState> {
+    a: ActionSource<Data, ActionState, ErrorType>,
+  ): Action<Data, ActionState, ErrorType> {
     const other = Action.from(a);
-    return new Action<Data, ErrorType, ActionState>(
+    return new Action<Data, ActionState, ErrorType>(
       (input) => {
         const output = this._exec(input);
         if (output.accept) return output;
@@ -321,11 +321,11 @@ export class Action<Data = never, ErrorType = string, ActionState = never> {
    * This will reduce the lexer loop times to optimize the performance.
    */
   static reduce<Data = never, ErrorType = string, ActionState = never>(
-    ...actions: ActionSource<Data, ErrorType, ActionState>[]
-  ): Action<Data, ErrorType, ActionState> {
-    return Action.from<Data, ErrorType, ActionState>(
+    ...actions: ActionSource<Data, ActionState, ErrorType>[]
+  ): Action<Data, ActionState, ErrorType> {
+    return Action.from<Data, ActionState, ErrorType>(
       actions.reduce((a, b) =>
-        Action.from<Data, ErrorType, ActionState>(a).or(b),
+        Action.from<Data, ActionState, ErrorType>(a).or(b),
       ),
     );
   }

@@ -5,20 +5,20 @@ import type { Definition, ILexer, TokenDataBinding } from "./model";
 import { LexerCore } from "./core";
 
 export type LexerBuildOptions = Partial<
-  Pick<ILexer<unknown, unknown, string, never, never>, "logger" | "debug">
+  Pick<ILexer<never, never, never, never, never>, "logger" | "debug">
 >;
 
 /**
  * Lexer builder.
  */
 export class Builder<
-  Data = never,
-  ErrorType = string,
   Kinds extends string = never,
+  Data = never,
   DataBindings extends TokenDataBinding<Kinds, Data> = never,
   ActionState = never,
+  ErrorType = string,
 > {
-  private defs: Readonly<Definition<Data, ErrorType, Kinds, ActionState>>[];
+  private defs: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
@@ -33,13 +33,13 @@ export class Builder<
   useState<NewActionState>(
     state: NewActionState,
     cloner?: ActionStateCloner<NewActionState>,
-  ): Builder<Data, ErrorType, Kinds, DataBindings, NewActionState> {
+  ): Builder<Kinds, Data, DataBindings, NewActionState, ErrorType> {
     const _this = this as unknown as Builder<
-      Data,
-      ErrorType,
       Kinds,
+      Data,
       DataBindings,
-      NewActionState
+      NewActionState,
+      ErrorType
     >;
     _this.initialState = state;
     _this.stateCloner = cloner ?? ((state) => structuredClone(state));
@@ -52,17 +52,17 @@ export class Builder<
   define<Append extends string>(
     defs: {
       [kind in Append]:
-        | ActionSource<Data, ErrorType, ActionState>
-        | ActionSource<Data, ErrorType, ActionState>[];
+        | ActionSource<Data, ActionState, ErrorType>
+        | ActionSource<Data, ActionState, ErrorType>[];
     },
     decorator?: (
-      a: Action<Data, ErrorType, ActionState>,
-    ) => Action<Data, ErrorType, ActionState>,
-  ): Builder<Data, ErrorType, Kinds | Append, DataBindings, ActionState> {
+      a: Action<Data, ActionState, ErrorType>,
+    ) => Action<Data, ActionState, ErrorType>,
+  ): Builder<Kinds | Append, Data, DataBindings, ActionState, ErrorType> {
     for (const kind in defs) {
       const raw = defs[kind] as
-        | ActionSource<Data, ErrorType, ActionState>
-        | ActionSource<Data, ErrorType, ActionState>[];
+        | ActionSource<Data, ActionState, ErrorType>
+        | ActionSource<Data, ActionState, ErrorType>[];
 
       // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
       // because when we lex with expectation, we should evaluate actions one by one
@@ -70,11 +70,11 @@ export class Builder<
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
         (
           this as Builder<
-            Data,
-            ErrorType,
             Kinds | Append,
+            Data,
             DataBindings,
-            ActionState
+            ActionState,
+            ErrorType
           >
         ).defs.push({
           kind,
@@ -91,14 +91,14 @@ export class Builder<
   /**
    * Define tokens with empty kind.
    */
-  anonymous(...actions: ActionSource<Data, ErrorType, ActionState>[]) {
+  anonymous(...actions: ActionSource<Data, ActionState, ErrorType>[]) {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(...actions: ActionSource<Data, ErrorType, ActionState>[]) {
+  ignore(...actions: ActionSource<Data, ActionState, ErrorType>[]) {
     return this.define({ "": actions.map((a) => Action.from(a).mute()) });
   }
 
@@ -112,8 +112,8 @@ export class Builder<
 
   build(
     options?: LexerBuildOptions,
-  ): Lexer<Data, ErrorType, Kinds, DataBindings, ActionState> {
-    return new Lexer<Data, ErrorType, Kinds, DataBindings, ActionState>(
+  ): Lexer<Kinds, Data, DataBindings, ActionState, ErrorType> {
+    return new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
       new LexerCore(this.defs, this.initialState, this.stateCloner),
       options,
     );
