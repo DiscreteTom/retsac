@@ -1,5 +1,5 @@
-import type { ActionSource, ActionStateCloner } from "./action";
-import { Action } from "./action";
+import type { ActionStateCloner } from "./action";
+import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
 import type { Definition, ILexer, TokenDataBinding } from "./model";
 import { LexerCore } from "./core";
@@ -7,6 +7,13 @@ import { LexerCore } from "./core";
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never, never, never>, "logger" | "debug">
 >;
+
+export type ActionSource<Data, ActionState, ErrorType> =
+  | RegExp
+  | Action<Data, ActionState, ErrorType>
+  | ((
+      a: ActionBuilder<never, ActionState, ErrorType>,
+    ) => Action<Data, ActionState, ErrorType>);
 
 /**
  * Lexer builder.
@@ -64,77 +71,73 @@ export class Builder<
     >;
   }
 
+  static buildAction<Data, ActionState, ErrorType>(
+    src: ActionSource<Data, ActionState, ErrorType>,
+  ): Action<Data, ActionState, ErrorType> {
+    return src instanceof RegExp || src instanceof Action
+      ? Action.from(src)
+      : src(new ActionBuilder<never, ActionState, ErrorType>());
+  }
+
   /**
    * Define token kinds.
+   * @example
+   * builder.define({
+   *   number: /\d+/, // with regex
+   *   another: Action.from(/\d+/), // with action
+   *   chain: a => a.from(/\d+/).data(() => 123), // with action builder
+   * })
    */
   // TODO: different kinds map different data?
-  define<AppendKinds extends string, AppendData>(
-    defs: {
-      [kind in AppendKinds]:
-        | ActionSource<
-            AppendData | never,
-            ActionState | never,
-            ErrorType | never
-          >
-        | ActionSource<
-            AppendData | never,
-            ActionState | never,
-            ErrorType | never
-          >[];
-    },
-    decorator?: (
-      a: Action<Data, ActionState, ErrorType>,
-    ) => Action<Data, ActionState, ErrorType>,
-  ): Builder<
+  define<AppendKinds extends string, AppendData>(defs: {
+    [kind in AppendKinds]:
+      | ActionSource<AppendData, ActionState, ErrorType>
+      | ActionSource<AppendData, ActionState, ErrorType>[];
+  }): Builder<
     Kinds | AppendKinds,
     Data | AppendData,
-    DataBindings | TokenDataBinding<AppendKinds, AppendData>,
+    DataBindings | { kind: AppendKinds; data: AppendData },
     ActionState,
     ErrorType
   > {
+    const _this = this as Builder<
+      Kinds | AppendKinds,
+      Data | AppendData,
+      DataBindings | { kind: AppendKinds; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
     for (const kind in defs) {
       const raw = defs[kind] as
-        | ActionSource<Data, ActionState, ErrorType>
-        | ActionSource<Data, ActionState, ErrorType>[];
+        | ActionSource<AppendData, ActionState, ErrorType>
+        | ActionSource<AppendData, ActionState, ErrorType>[];
 
       // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        (
-          this as Builder<
-            Kinds | AppendKinds,
-            Data,
-            DataBindings,
+        _this.defs.push({
+          kinds: new Set([kind]),
+          action: Builder.buildAction(a) as Action<
+            Data | AppendData,
             ActionState,
             ErrorType
-          >
-        ).defs.push({
-          kinds: new Set([kind]),
-          action:
-            decorator !== undefined
-              ? decorator(Action.from(a))
-              : Action.from(a),
+          >,
           selector: () => kind,
         });
       });
     }
-    return this as Builder<
-      Kinds | AppendKinds,
-      Data | AppendData,
-      DataBindings | TokenDataBinding<AppendKinds, AppendData>,
-      ActionState,
-      ErrorType
-    >;
+    return _this;
   }
 
+  // TODO: fix generic type
   select(
     action: ActionSource<Data, ActionState, ErrorType>,
     props: { kinds: Kinds[]; selector: () => Kinds },
   ) {
     this.defs.push({
       kinds: new Set(props.kinds),
-      action: Action.from(action),
+      action: Builder.buildAction(action),
       selector: props.selector,
     });
   }
@@ -150,7 +153,9 @@ export class Builder<
    * Define muted anonymous actions.
    */
   ignore(...actions: ActionSource<Data, ActionState, ErrorType>[]) {
-    return this.define({ "": actions.map((a) => Action.from(a).mute()) });
+    return this.define({
+      "": actions.map((a) => Builder.buildAction(a).mute()),
+    });
   }
 
   /**

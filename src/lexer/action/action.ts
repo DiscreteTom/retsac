@@ -23,7 +23,7 @@ export type SimpleActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
 ) => number | string | SimpleAcceptedActionExecOutput<Data, ErrorType>;
 
-export type ActionSource<Data, ActionState, ErrorType> =
+export type IntoAction<Data, ActionState, ErrorType> =
   | RegExp
   | Action<Data, ActionState, ErrorType>
   | SimpleActionExec<Data, ActionState, ErrorType>;
@@ -177,7 +177,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   }
 
   static from<Data = never, ActionState = never, ErrorType = never>(
-    r: ActionSource<Data, ActionState, ErrorType>,
+    r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp
       ? Action.match<Data, ActionState, ErrorType>(r)
@@ -326,7 +326,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * Sadly there is no operator overloading in typescript.
    */
   or(
-    a: ActionSource<Data, ActionState, ErrorType>,
+    a: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     const other = Action.from(a);
     return new Action<Data, ActionState, ErrorType>(
@@ -344,7 +344,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * This will reduce the lexer loop times to optimize the performance.
    */
   static reduce<Data = never, ErrorType = string, ActionState = never>(
-    ...actions: ActionSource<Data, ActionState, ErrorType>[]
+    ...actions: IntoAction<Data, ActionState, ErrorType>[]
   ): Action<Data, ActionState, ErrorType> {
     return Action.from<Data, ActionState, ErrorType>(
       actions.reduce((a, b) =>
