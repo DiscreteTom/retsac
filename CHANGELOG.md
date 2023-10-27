@@ -7,6 +7,7 @@
     - Add `Action.data`.
   - **_Breaking Change_**: re-order generic parameters.
   - **_Breaking Change_**: make `Action`'s default `ErrorType` to `never`.
+  - Feat: add `Builder.useError` to set error type.
   - Feat: add `Builder.select` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
   - Feat: add `ActionInput.peek`.
 - Optimize package size.

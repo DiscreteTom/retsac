@@ -47,6 +47,24 @@ export class Builder<
   }
 
   /**
+   * Set error type.
+   * @example
+   * // provide type explicitly
+   * builder.useError<number>();
+   * // infer type from error value
+   * builder.useError(0);
+   */
+  useError<NewError>(_?: NewError) {
+    return this as unknown as Builder<
+      Kinds,
+      Data,
+      DataBindings,
+      ActionState,
+      NewError
+    >;
+  }
+
+  /**
    * Define token kinds.
    */
   // TODO: different kinds map different data?
