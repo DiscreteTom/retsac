@@ -3,8 +3,9 @@
 ## v0.13.0
 
 - Lexer
-  - **Breaking Change**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
+  - **_Breaking Change_**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
   - **_Breaking Change_**: re-order generic parameters.
+  - Feat: add `Builder.select` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
   - Feat: add `ActionInput.peek`.
 - Optimize package size.
 

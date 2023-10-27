@@ -164,17 +164,17 @@ export class LexerCore<
             accept:
               // muted actions must be executed
               def.action.maybeMuted ||
-              ((expect.kind === undefined || def.kind === expect.kind) && // def.kind match expectation
+              ((expect.kind === undefined || def.kinds.has(expect.kind)) && // def.kind match expectation
                 restMatchExpectation), // rest head match the text expectation
             rejectMessageFormatter: (info) =>
-              `skip (unexpected and never muted): ${info.kind}`,
+              `skip (unexpected and never muted): ${info.kinds}`,
           }),
           post: (def, output) => ({
             accept:
               // if muted, we don't need to check expectation
               output.muted ||
               // ensure expectation match
-              ((expect.kind === undefined || expect.kind === def.kind) &&
+              ((expect.kind === undefined || def.kinds.has(expect.kind)) &&
                 (expect.text === undefined || expect.text === output.content)),
             acceptMessageFormatter: (info) =>
               `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
@@ -200,18 +200,17 @@ export class LexerCore<
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.res2token(res.output, res.def));
+          errors.push(LexerCore.output2token(res.kind, res.output));
         }
         continue;
       } else {
         // not muted, emit token after collecting errors
-        const token = LexerCore.res2token<
+        const token = LexerCore.output2token<
           Kinds,
           Data,
           DataBindings,
-          ActionState,
           ErrorType
-        >(res.output, res.def);
+        >(res.kind, res.output);
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(token);
@@ -301,7 +300,7 @@ export class LexerCore<
             // if the action is never muted, we just reject it
             accept: def.action.maybeMuted,
             rejectMessageFormatter: (info) =>
-              `skip (never muted): ${info.kind}`,
+              `skip (never muted): ${info.kinds}`,
           }),
           post: () => ({
             accept: true,
@@ -332,14 +331,14 @@ export class LexerCore<
         rest = res.output.rest;
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.res2token(res.output, res.def));
+          errors.push(LexerCore.output2token(res.kind, res.output));
         }
         continue;
       } else {
         // not muted, don't update state, return after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.res2token(res.output, res.def));
+          errors.push(LexerCore.output2token(res.kind, res.output));
         }
         return { digested, rest, errors };
       }
@@ -360,7 +359,7 @@ export class LexerCore<
     validator: {
       pre: (def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>) => {
         accept: boolean;
-        rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
+        rejectMessageFormatter: (info: { kinds: string }) => string;
       };
       post: (
         def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
@@ -379,7 +378,7 @@ export class LexerCore<
     entity: string,
   ) {
     for (const def of defs) {
-      const output = LexerCore.tryDefinition(
+      const res = LexerCore.tryDefinition(
         input,
         def,
         validator,
@@ -387,8 +386,8 @@ export class LexerCore<
         logger,
         entity,
       );
-      if (output !== undefined) {
-        return { output, def };
+      if (res !== undefined) {
+        return { ...res, def };
       }
     }
 
@@ -412,7 +411,7 @@ export class LexerCore<
     validator: {
       pre: (def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>) => {
         accept: boolean;
-        rejectMessageFormatter: (info: { kind: string | Kinds }) => string;
+        rejectMessageFormatter: (info: { kinds: string }) => string;
       };
       post: (
         def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
@@ -434,7 +433,12 @@ export class LexerCore<
     if (!preCheckRes.accept) {
       // unexpected
       if (debug) {
-        const info = { kind: def.kind || "<anonymous>" };
+        const info = {
+          kinds:
+            def.kinds.size === 1 && def.kinds.has("" as Kinds)
+              ? "<anonymous>"
+              : JSON.stringify(def.kinds),
+        };
         logger.log({
           entity,
           message: preCheckRes.rejectMessageFormatter(info),
@@ -449,7 +453,7 @@ export class LexerCore<
     if (!output.accept) {
       // rejected
       if (debug) {
-        const info = { kind: def.kind || "<anonymous>" };
+        const info = { kind: def.kinds || "<anonymous>" };
         logger.log({
           entity,
           message: `reject: ${info.kind}`,
@@ -460,12 +464,13 @@ export class LexerCore<
     }
 
     // accepted, check expectation
+    const kind = def.selector({ input, output });
     const postCheckRes = validator.post(def, output);
     if (postCheckRes.accept) {
       // accepted, return
       if (debug) {
         const info = {
-          kind: def.kind || "<anonymous>",
+          kind: kind || "<anonymous>",
           muted: output.muted,
           content: output.content,
         };
@@ -475,13 +480,13 @@ export class LexerCore<
           info,
         });
       }
-      return output;
+      return { output, kind };
     }
 
     // accepted but unexpected and not muted, reject
     if (debug) {
       const info = {
-        kind: def.kind || "<anonymous>",
+        kind: def.kinds || "<anonymous>",
         content: output.content,
       };
       logger.log({
@@ -493,22 +498,21 @@ export class LexerCore<
     return;
   }
 
-  static res2token<
+  static output2token<
     Kinds extends string,
     Data,
     DataBindings extends TokenDataBinding<Kinds, Data>,
-    ActionState,
     ErrorType,
   >(
-    res: Readonly<AcceptedActionOutput<Data, ErrorType>>,
-    def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
+    kind: Kinds,
+    output: Readonly<AcceptedActionOutput<Data, ErrorType>>,
   ): Token<Kinds, Data, DataBindings, ErrorType> {
     return {
-      kind: def.kind,
-      content: res.content,
-      start: res.start,
-      error: res.error,
-      data: res.data,
+      kind,
+      content: output.content,
+      start: output.start,
+      error: output.error,
+      data: output.data,
     } as Token<Kinds, Data, DataBindings, ErrorType>;
   }
 }

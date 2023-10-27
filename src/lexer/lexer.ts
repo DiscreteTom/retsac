@@ -280,7 +280,7 @@ export class Lexer<
 
   getTokenKinds() {
     const res: Set<Kinds> = new Set();
-    this.core.defs.forEach((d) => res.add(d.kind));
+    this.core.defs.forEach((d) => d.kinds.forEach((k) => res.add(k)));
     return res;
   }
 

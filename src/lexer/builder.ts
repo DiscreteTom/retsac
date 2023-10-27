@@ -49,6 +49,7 @@ export class Builder<
   /**
    * Define token kinds.
    */
+  // TODO: add generic params about Data
   define<Append extends string>(
     defs: {
       [kind in Append]:
@@ -77,15 +78,27 @@ export class Builder<
             ErrorType
           >
         ).defs.push({
-          kind,
+          kinds: new Set([kind]),
           action:
             decorator !== undefined
               ? decorator(Action.from(a))
               : Action.from(a),
+          selector: () => kind,
         });
       });
     }
     return this;
+  }
+
+  select(
+    action: ActionSource<Data, ActionState, ErrorType>,
+    props: { kinds: Kinds[]; selector: () => Kinds },
+  ) {
+    this.defs.push({
+      kinds: new Set(props.kinds),
+      action: Action.from(action),
+      selector: props.selector,
+    });
   }
 
   /**

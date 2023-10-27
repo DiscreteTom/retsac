@@ -12,7 +12,7 @@ export interface IReadonlyLexerCore<
 > {
   readonly defs: readonly Readonly<
     Definition<Kinds, Data, ActionState, ErrorType>
-  >[];
+  >[]; // TODO: optimize perf with Map<Kinds, Def>?
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
