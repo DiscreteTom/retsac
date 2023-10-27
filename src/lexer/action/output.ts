@@ -1,6 +1,7 @@
 import type { AtLeastOneOf } from "../../type-helper";
 
-// This has to be a class, since we need to cache the `rest` of the input.
+// This has to be a class, since we need to cache the `rest` of the output.
+// TODO: add input to output?
 export class AcceptedActionOutput<Data, ErrorType> {
   /**
    * This action can accept some input as a token.
@@ -9,7 +10,7 @@ export class AcceptedActionOutput<Data, ErrorType> {
   /**
    *  The whole input string.
    */
-  buffer: string; // TODO: maybe Action should not return accepted action output?
+  buffer: string;
   /**
    * Index of the first char of this token in the whole input string.
    */
@@ -76,11 +77,19 @@ export type ActionOutput<Data, ErrorType> =
   | typeof rejectedActionOutput
   | AcceptedActionOutput<Data, ErrorType>;
 
-/**
- * The simple version of `AcceptedActionOutput`.
- * Users can use this type to create an action output.
- */
-export type SimpleAcceptedActionOutput<Data, ErrorType> = Partial<
+// omit `buffer` and `start`.
+export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
+  AcceptedActionOutput<Data, ErrorType>,
+  "accept" | "muted" | "digested" | "error" | "content" | "data"
+> &
+  Partial<Pick<AcceptedActionOutput<Data, ErrorType>, "rest">>;
+
+export type ActionExecOutput<Data, ErrorType> =
+  | typeof rejectedActionOutput
+  | AcceptedActionExecOutput<Data, ErrorType>;
+
+// user must provide `content` or `digested`.
+export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
   Pick<
     AcceptedActionOutput<Data, ErrorType>,
     "muted" | "error" | "rest" | "digested" | "content" | "data" // TODO: maybe data is required?
