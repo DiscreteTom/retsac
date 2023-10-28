@@ -27,7 +27,7 @@ export class Builder<
   Data = never,
   DataBindings extends TokenDataBinding<Kinds, Data> = never,
   ActionState = never,
-  ErrorType = string,
+  ErrorType = never,
 > {
   private defs: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[];
   private initialState: Readonly<ActionState>;

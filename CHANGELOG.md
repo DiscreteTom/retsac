@@ -6,7 +6,7 @@
   - **_Breaking Change_**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
     - Add `Action.data`.
   - **_Breaking Change_**: re-order generic parameters.
-  - **_Breaking Change_**: make `Action`'s default `ErrorType` to `never`.
+  - **_Breaking Change_**: make `Action/Builder`'s default `ErrorType` to `never`.
   - **_Breaking Change_**: `Builder.define/ignore/anonymous` will accept functions as `ActionBuilder` instead of `SimpleActionExec`.
   - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
   - Feat: add `ActionInput.peek`.
