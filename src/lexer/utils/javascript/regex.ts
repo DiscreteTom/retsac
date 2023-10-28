@@ -13,7 +13,7 @@ export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
    * This option is only effective when `options.validate` is `true`.
    *
    * If `true`, reject if the regex is invalid.
-   * If `false`, set `{ invalid: true }` in the `token.data` if the regex is invalid.
+   * If `false`, set `{ invalid: true }` in the `output.data` if the regex is invalid.
    * @default true
    */
   rejectOnInvalid?: boolean;

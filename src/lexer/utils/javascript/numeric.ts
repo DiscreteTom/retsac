@@ -45,7 +45,7 @@ export function numericLiteral<
    */
   boundary?: boolean;
   /**
-   * If `true`, common invalid numeric literals will also be accepted and marked in token.data with `{ invalid: true }`.
+   * If `true`, common invalid numeric literals will also be accepted and marked in `output.data` with `{ invalid: true }`.
    * @default true
    */
   acceptInvalid?: boolean;
