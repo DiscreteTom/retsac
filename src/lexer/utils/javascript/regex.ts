@@ -24,14 +24,15 @@ export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
    */
   boundary?: boolean;
 }): Action<{ invalid: boolean }, ActionState, ErrorType> {
-  const action =
+  const action = (
     options?.boundary ?? true
-      ? Action.from<{ invalid: boolean }, ActionState, ErrorType>(
+      ? Action.from<never, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
         )
-      : Action.from<{ invalid: boolean }, ActionState, ErrorType>(
+      : Action.from<never, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/,
-        );
+        )
+  ).data(() => ({ invalid: false }));
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
