@@ -1,5 +1,5 @@
-import { Action } from "../action";
-import { esc4regex } from "./common";
+import { Action } from "../../action";
+import { esc4regex } from "../common";
 
 /**
  * Match the literal representations of numbers in JavaScript code.
@@ -32,38 +32,30 @@ import { esc4regex } from "./common";
  *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
  */
 export function numericLiteral<
-  Data = never,
-  ErrorType = string,
   ActionState = never,
+  ErrorType = never,
 >(options?: {
   /**
-   * Default: `_`.
+   * @default '_'
    */
   numericSeparator?: string | false;
   /**
    * If `true`, the numeric literal must have a boundary at the end (non inclusive).
-   * Default: `true`.
+   * @default true
    */
   boundary?: boolean;
   /**
-   * If `true`, common invalid numeric literals will also be accepted and marked with `options.invalidError`.
-   * Default: `true`.
+   * If `true`, common invalid numeric literals will also be accepted and marked in token.data with `{ invalid: true }`.
+   * @default true
    */
   acceptInvalid?: boolean;
-  /**
-   * Default: `"invalid numeric literal"`
-   */
-  invalidError?: ErrorType;
-}): Action<Data, ActionState, ErrorType> {
+}): Action<{ invalid: boolean }, ActionState, ErrorType> {
   const enableSeparator = !(options?.numericSeparator === false);
   const separator = esc4regex(String(options?.numericSeparator ?? "_")); // use String to handle `false`
   const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
-  const invalidError =
-    options?.invalidError ?? ("invalid numeric literal" as ErrorType);
 
-  // ensure non-capture group to optimize performance
-  const valid = Action.from<Data, ActionState, ErrorType>(
+  const valid = Action.from<never, ActionState, ErrorType>(
     enableSeparator
       ? new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
@@ -77,10 +69,11 @@ export function numericLiteral<
           }`,
           "i",
         ),
-  );
-  const invalid = Action.from<Data, ActionState, ErrorType>(
+  ).data(() => ({ invalid: false }));
+
+  const invalid = Action.from<{ invalid: boolean }, ActionState, ErrorType>(
     /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
-  ).check(() => invalidError);
+  ).data(() => ({ invalid: true }));
 
   if (acceptInvalid) {
     return Action.reduce(valid, invalid);

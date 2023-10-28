@@ -17,7 +17,7 @@
   - Feat: add `Lexer.javascript`.
     - Add `evalString`. [#30](https://github.com/DiscreteTom/retsac/issues/30)
     - Add `comment`.
-    - **_Breaking Change_**: move `regexLiteral` into `Lexer.javascript`.
+    - **_Breaking Change_**: move `regexLiteral/numericLiteral` into `Lexer.javascript`.
   - Perf: accelerate expectational lexing by using `Map` to select expected definitions.
 - Optimize package size.
 
