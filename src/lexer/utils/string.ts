@@ -22,17 +22,26 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
     /** @default true */
     escape?: boolean;
     /**
-     * If true, unclosed string(`\n` or EOF for single line string, and EOF for multiline string)
+     * If `true`, unclosed string(`\n` or EOF for single line string, and EOF for multiline string)
      * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
      * @default true
      */
     acceptUnclosed?: boolean;
+    /**
+     * If `true`, the string literal can be continued by `\` at the end of each line(`\\\n`),
+     * even if `multiline` is `false`.
+     *
+     * This option is effective even `options.escape` is `false`.
+     * @default true
+     */
+    lineContinuation?: boolean;
   },
 ): Action<{ unclosed: boolean }, ActionState, ErrorType> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
+  const lineContinuation = options?.lineContinuation ?? true;
 
   const action = Action.from<never, ActionState, ErrorType>(
     new RegExp(
@@ -41,8 +50,12 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
         // content, non-greedy
         `(?:${
           escape
-            ? `(?:\\\\.|[^\\\\${multiline ? "" : "\\n"}])` // exclude `\n` if not multiline
-            : `(?:.${multiline ? "|\\n" : ""})` // if multiline, accept `\n`
+            ? `(?:${lineContinuation ? "\\\\\\n|" : ""}\\\\.|[^\\\\${
+                multiline ? "" : "\\n"
+              }])` // exclude `\n` if not multiline
+            : `(?:${lineContinuation ? "\\\\\\n|" : ""}.${
+                multiline ? "|\\n" : ""
+              })` // if multiline, accept `\n`
         }*?)` + // '*?' means non-greedy(lazy)
         // close quote
         `(?:${
