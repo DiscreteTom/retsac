@@ -13,6 +13,7 @@
   - Feat: add `Builder.useError` to set error type.
   - Feat: add `Builder.branch` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
     - Add `Action.kinds`, `ActionWithKinds` and `SelectedAction`.
+  - Perf: accelerate expectational lexing by using `Map` to select expected definitions.
 - Optimize package size.
 
 ## v0.12.0

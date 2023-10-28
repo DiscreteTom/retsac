@@ -20,6 +20,10 @@ export class LexerCore<
     readonly defs: readonly Readonly<
       Definition<Kinds, Data, ActionState, ErrorType>
     >[],
+    readonly defMap: ReadonlyMap<
+      Kinds,
+      Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
+    >,
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
     state?: ActionState,
@@ -35,6 +39,7 @@ export class LexerCore<
   dryClone() {
     return new LexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>(
       this.defs,
+      this.defMap,
       this.initialState,
       this.stateCloner,
     );
@@ -44,6 +49,7 @@ export class LexerCore<
     // clone the current state
     return new LexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>(
       this.defs,
+      this.defMap,
       this.initialState,
       this.stateCloner,
       this.stateCloner(this.state),
@@ -158,7 +164,9 @@ export class LexerCore<
         input.buffer.startsWith(expect.text, input.start);
       const res = LexerCore.evaluateDefs(
         input,
-        this.defs,
+        expect.kind === undefined
+          ? this.defs
+          : this.defMap.get(expect.kind) ?? [],
         {
           pre: (def) => ({
             accept:

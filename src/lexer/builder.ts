@@ -205,8 +205,19 @@ export class Builder<
   build(
     options?: LexerBuildOptions,
   ): Lexer<Kinds, Data, DataBindings, ActionState, ErrorType> {
+    const defMap = new Map<
+      Kinds,
+      Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
+    >();
+    this.defs.forEach((def) => {
+      def.kinds.forEach((kind) => {
+        const arr = defMap.get(kind);
+        if (arr !== undefined) arr.push(def);
+        else defMap.set(kind, [def]);
+      });
+    });
     return new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
-      new LexerCore(this.defs, this.initialState, this.stateCloner),
+      new LexerCore(this.defs, defMap, this.initialState, this.stateCloner),
       options,
     );
   }

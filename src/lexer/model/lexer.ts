@@ -12,7 +12,14 @@ export interface IReadonlyLexerCore<
 > {
   readonly defs: readonly Readonly<
     Definition<Kinds, Data, ActionState, ErrorType>
-  >[]; // TODO: optimize perf with Map<Kinds, Def>?
+  >[];
+  /**
+   * Used to accelerate expectational lexing by getting the definition by the expected kind.
+   */
+  readonly defMap: ReadonlyMap<
+    Kinds,
+    Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
+  >;
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
