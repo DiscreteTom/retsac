@@ -11,7 +11,8 @@
   - Feat: add `ActionInput.peek`.
   - Feat: add `ActionBuilder` for chaining action decorators.
   - Feat: add `Builder.useError` to set error type.
-  - Feat: add `Builder.select` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
+  - Feat: add `Builder.branch` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
+    - Add `Action.kinds`, `ActionWithKinds` and `SelectedAction`.
 - Optimize package size.
 
 ## v0.12.0

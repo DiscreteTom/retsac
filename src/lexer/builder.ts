@@ -6,6 +6,7 @@ import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
 import type { Definition, ILexer, TokenDataBinding } from "./model";
 import { LexerCore } from "./core";
+import type { SelectedAction } from "./action/select";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never, never, never>, "logger" | "debug">
@@ -133,14 +134,15 @@ export class Builder<
     return _this;
   }
 
-  select<AppendKinds extends string, AppendData>(
-    action: ActionSource<AppendData, ActionState, ErrorType>,
-    props: {
-      kinds: AppendKinds[];
-      selector: (
-        ctx: AcceptedActionDecoratorContext<AppendData, ActionState, ErrorType>,
-      ) => AppendKinds;
-    },
+  /**
+   * Define an action which can yield multiple kinds.
+   * @example
+   * builder.branch(a => a.from(...).kinds(...).select(...))
+   */
+  branch<AppendKinds extends string, AppendData>(
+    builder: (
+      a: ActionBuilder<never, ActionState, ErrorType>,
+    ) => SelectedAction<AppendKinds, AppendData, ActionState, ErrorType>,
   ): Builder<
     Kinds | AppendKinds,
     Data | AppendData,
@@ -155,14 +157,17 @@ export class Builder<
       ActionState,
       ErrorType
     >;
+    const selected = builder(
+      new ActionBuilder<never, ActionState, ErrorType>(),
+    );
     _this.defs.push({
-      kinds: new Set(props.kinds),
-      action: Builder.buildAction(action) as Action<
+      kinds: new Set(selected.kinds),
+      action: selected.action as Action<
         Data | AppendData,
         ActionState,
         ErrorType
       >,
-      selector: props.selector as (
+      selector: selected.selector as (
         ctx: AcceptedActionDecoratorContext<
           Data | AppendData,
           ActionState,
