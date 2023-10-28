@@ -15,7 +15,6 @@ export type TokenDataBinding<Kinds extends string, Data> = {
 /**
  * The output of a lexer.
  */
-// TODO: helper type to extract token generic parameters
 export type Token<
   Kinds extends string,
   Data,
