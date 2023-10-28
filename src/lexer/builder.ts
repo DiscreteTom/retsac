@@ -6,7 +6,7 @@ import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
 import type { Definition, ILexer, TokenDataBinding } from "./model";
 import { LexerCore } from "./core";
-import type { SelectedAction } from "./action/select";
+import type { SelectedAction } from "./action";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never, never, never>, "logger" | "debug">
