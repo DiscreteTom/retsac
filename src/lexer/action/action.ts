@@ -344,7 +344,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * Reduce actions to one action. Actions will be executed in order.
    * This will reduce the lexer loop times to optimize the performance.
    */
-  static reduce<Data = never, ErrorType = string, ActionState = never>(
+  static reduce<Data = never, ActionState = never, ErrorType = never>(
     ...actions: IntoAction<Data, ActionState, ErrorType>[]
   ): Action<Data, ActionState, ErrorType> {
     return Action.from<Data, ActionState, ErrorType>(
