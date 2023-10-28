@@ -1,4 +1,7 @@
-import type { ActionStateCloner } from "./action";
+import type {
+  AcceptedActionDecoratorContext,
+  ActionStateCloner,
+} from "./action";
 import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
 import type { Definition, ILexer, TokenDataBinding } from "./model";
@@ -130,16 +133,44 @@ export class Builder<
     return _this;
   }
 
-  // TODO: fix generic type
-  select(
-    action: ActionSource<Data, ActionState, ErrorType>,
-    props: { kinds: Kinds[]; selector: () => Kinds },
-  ) {
-    this.defs.push({
+  select<AppendKinds extends string, AppendData>(
+    action: ActionSource<AppendData, ActionState, ErrorType>,
+    props: {
+      kinds: AppendKinds[];
+      selector: (
+        ctx: AcceptedActionDecoratorContext<AppendData, ActionState, ErrorType>,
+      ) => AppendKinds;
+    },
+  ): Builder<
+    Kinds | AppendKinds,
+    Data | AppendData,
+    DataBindings | { kind: AppendKinds; data: AppendData },
+    ActionState,
+    ErrorType
+  > {
+    const _this = this as unknown as Builder<
+      Kinds | AppendKinds,
+      Data | AppendData,
+      DataBindings | { kind: AppendKinds; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
+    _this.defs.push({
       kinds: new Set(props.kinds),
-      action: Builder.buildAction(action),
-      selector: props.selector,
+      action: Builder.buildAction(action) as Action<
+        Data | AppendData,
+        ActionState,
+        ErrorType
+      >,
+      selector: props.selector as (
+        ctx: AcceptedActionDecoratorContext<
+          Data | AppendData,
+          ActionState,
+          ErrorType
+        >,
+      ) => Kinds | AppendKinds,
     });
+    return _this;
   }
 
   /**
