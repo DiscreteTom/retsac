@@ -1,9 +1,12 @@
+import type { Action } from "../action";
+import { comment as commonComment } from "./common";
+
 /**
  * Evaluate a JavaScript string literal just like `eval`.
  * Caller should make sure the string is well-quoted and well-ended.
  * Interpolation is not supported.
  */
-export function evalJavaScriptString(quoted: string) {
+export function evalString(quoted: string) {
   const unquoted = quoted.slice(1, -1);
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#literals
@@ -47,5 +50,15 @@ export function evalJavaScriptString(quoted: string) {
         }
       }
     },
+  );
+}
+
+export function comment<
+  Data = never,
+  ActionState = never,
+  ErrorType = never,
+>(): Action<Data, ActionState, ErrorType> {
+  return commonComment<Data, ActionState, ErrorType>("//").or(
+    commonComment("/*", "*/"),
   );
 }
