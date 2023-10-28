@@ -11,37 +11,30 @@ import { esc4regex } from "./common";
  *
  * Set `multiline: true` to allow multiline string literals.
  */
-export function stringLiteral<
-  Data = never,
-  ErrorType = string,
-  ActionState = never,
->(
+export function stringLiteral<ActionState = never, ErrorType = never>(
   /** The open quote. */
   open: string,
   options?: {
     /** The close quote. Equals to the open quote by default. */
     close?: string;
-    /** Default: false. */
+    /** @default false */
     multiline?: boolean;
-    /** Default: true. */
+    /** @default true */
     escape?: boolean;
     /**
-     * If true (by default), unclosed string(`\n` or EOF for single line string, and EOF for multiline string)
-     * will also be accepted and marked as `options.unclosedError`.
+     * If true, unclosed string(`\n` or EOF for single line string, and EOF for multiline string)
+     * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
+     * @default true
      */
     acceptUnclosed?: boolean;
-    /** Default: `'unclosed string literal'` */
-    unclosedError?: ErrorType;
   },
-): Action<Data, ActionState, ErrorType> {
+): Action<{ unclosed: boolean }, ActionState, ErrorType> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
-  const unclosedError =
-    options?.unclosedError ?? ("unclosed string literal" as ErrorType);
 
-  const action = Action.from<Data, ActionState, ErrorType>(
+  const action = Action.from<never, ActionState, ErrorType>(
     new RegExp(
       // open quote
       `(?:${esc4regex(open)})` +
@@ -62,12 +55,13 @@ export function stringLiteral<
       // if we set the `m` flag, the `$` will match the end of each line, instead of the end of the whole string literal
       // multiline ? "m" : undefined
     ),
-  );
+  ).data(() => ({ unclosed: false }));
 
+  // set unclosed
   if (acceptUnclosed) {
-    return action.check(({ output }) =>
-      output.content.endsWith(close) ? undefined : unclosedError,
-    );
+    return action.data(({ output }) => ({
+      unclosed: output.content.split(/\\./).at(-1) !== close,
+    }));
   }
 
   // else, not accept unclosed
