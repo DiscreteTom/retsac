@@ -3,7 +3,7 @@ import { Action } from "../action";
 /**
  * Match a list of strings exactly, ***NO LOOKAHEAD***.
  */
-export function exact<Data = never, ErrorType = string, ActionState = never>(
+export function exact<Data = never, ActionState = never, ErrorType = never>(
   ...ss: readonly string[]
 ): Action<Data, ActionState, ErrorType> {
   return Action.from((input) => {
@@ -17,8 +17,8 @@ export function exact<Data = never, ErrorType = string, ActionState = never>(
  */
 export function exactArray<
   Data = never,
-  ErrorType = string,
   ActionState = never,
+  ErrorType = never,
 >(...ss: readonly string[]): Action<Data, ActionState, ErrorType>[] {
   return ss.map((s) => exact(s));
 }
@@ -27,10 +27,10 @@ export function exactArray<
  * Define kinds which name is the same as its literal value.
  */
 export function exactKind<
-  Data = never,
-  ErrorType = string,
   Kinds extends string = never,
+  Data = never,
   ActionState = never,
+  ErrorType = never,
 >(
   ...ss: readonly Kinds[]
 ): {
@@ -48,7 +48,7 @@ export function exactKind<
 /**
  * Match a list of word, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function word<Data = never, ErrorType = string, ActionState = never>(
+export function word<Data = never, ActionState = never, ErrorType = never>(
   ...words: readonly string[]
 ): Action<Data, ActionState, ErrorType> {
   return Action.from((input) => {
@@ -66,11 +66,9 @@ export function word<Data = never, ErrorType = string, ActionState = never>(
 /**
  * Return a list of actions that match a list of words, lookahead one char to ensure there is a word boundary or end of input.
  */
-export function wordArray<
-  Data = never,
-  ErrorType = string,
-  ActionState = never,
->(...words: readonly string[]): Action<Data, ActionState, ErrorType>[] {
+export function wordArray<Data = never, ActionState = never, ErrorType = never>(
+  ...words: readonly string[]
+): Action<Data, ActionState, ErrorType>[] {
   return words.map((s) => word(s));
 }
 
@@ -78,10 +76,10 @@ export function wordArray<
  * Define kinds which name is the same as its literal value.
  */
 export function wordKind<
-  Data = never,
-  ErrorType = string,
   Kinds extends string = never,
+  Data = never,
   ActionState = never,
+  ErrorType = never,
 >(
   ...words: readonly Kinds[]
 ): {
