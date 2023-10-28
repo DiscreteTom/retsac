@@ -1,15 +1,10 @@
-import type { ActionSource } from "../../src/lexer";
-import {
-  Action,
-  AcceptedActionOutput,
-  ActionInput,
-  CaretNotAllowedError,
-} from "../../src/lexer";
+import type { IntoAction, AcceptedActionOutput } from "../../src/lexer";
+import { Action, ActionInput, CaretNotAllowedError } from "../../src/lexer";
 
-function expectAccept<E>(
+function expectAccept<D, E>(
   buffer: string,
-  src: ActionSource<E, never>,
-  override?: Partial<AcceptedActionOutput<E>>,
+  src: IntoAction<D, never, E>,
+  override?: Partial<AcceptedActionOutput<D, E>>,
 ) {
   const action = Action.from(src);
 
@@ -19,8 +14,9 @@ function expectAccept<E>(
     start: 0,
     rest: buffer,
     state: undefined as never,
+    peek: false,
   });
-  let output = action.exec(input) as AcceptedActionOutput<E>;
+  let output = action.exec(input) as AcceptedActionOutput<D, E>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
@@ -29,6 +25,7 @@ function expectAccept<E>(
   expect(output.rest).toBe(override?.rest ?? "");
   expect(output.error).toBe(override?.error ?? undefined);
   expect(output.muted).toBe(override?.muted ?? false);
+  expect(output.data).toBe(override?.data ?? undefined);
 
   // additional test for #6
   // set start to 1 to verify that action's output's digest is not affected
@@ -37,8 +34,9 @@ function expectAccept<E>(
     buffer: newBuffer,
     start: 1,
     state: undefined as never,
+    peek: false,
   });
-  output = action.exec(input) as AcceptedActionOutput<E>;
+  output = action.exec(input) as AcceptedActionOutput<never, E>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(" " + (override?.buffer ?? buffer));
   expect(output.start).toBe((override?.start ?? 0) + 1);
@@ -49,12 +47,13 @@ function expectAccept<E>(
   expect(output.muted).toBe(override?.muted ?? false);
 }
 
-function expectReject<E>(buffer: string, src: ActionSource<E, never>) {
+function expectReject<E>(buffer: string, src: IntoAction<never, never, E>) {
   const action = Action.from(src);
   const input = new ActionInput({
     buffer,
     start: 0,
     state: undefined as never,
+    peek: false,
   });
   const output = action.exec(input);
   expect(output.accept).toBe(false);
@@ -99,16 +98,13 @@ describe("Lexer action constructor", () => {
     const buffer = "   ";
     expectAccept(
       buffer,
-      new Action(
-        ({ rest, buffer, start }) =>
-          new AcceptedActionOutput({
-            digested: rest.length,
-            content: rest,
-            buffer,
-            start,
-            muted: false,
-          }),
-      ),
+      new Action(({ rest }) => ({
+        accept: true,
+        data: undefined as never,
+        digested: rest.length,
+        content: rest,
+        muted: false,
+      })),
     );
   });
 });
@@ -160,7 +156,7 @@ describe("Action decorator", () => {
     expectAccept(
       buffer,
       Action.from(/\s*/).check(({ output }) =>
-        output.content == buffer ? errMsg : undefined,
+        output.content == buffer ? (errMsg as string) : undefined,
       ),
       { error: errMsg },
     );
@@ -196,6 +192,15 @@ describe("Action decorator", () => {
     // if already rejected, do nothing
     expectReject(buffer, Action.from(/123/).reject());
   });
+
+  test("set data", () => {
+    const buffer = "123";
+    expectAccept(
+      buffer,
+      Action.from(/123/).data(() => "data"),
+      { data: "data" },
+    );
+  });
 });
 
 describe("sticky regex related", () => {
@@ -206,8 +211,9 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
+      peek: false,
     });
-    const output = action.exec(input) as AcceptedActionOutput<string>;
+    const output = action.exec(input) as AcceptedActionOutput<never, string>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -225,8 +231,9 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
+      peek: false,
     });
-    const output = action.exec(input) as AcceptedActionOutput<string>;
+    const output = action.exec(input) as AcceptedActionOutput<never, string>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -244,8 +251,9 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
+      peek: false,
     });
-    const output = action.exec(input) as AcceptedActionOutput<string>;
+    const output = action.exec(input) as AcceptedActionOutput<never, string>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -264,5 +272,58 @@ describe("sticky regex related", () => {
     expect(() => Action.match(/^123/, { rejectCaret: false })).not.toThrow(
       CaretNotAllowedError,
     );
+  });
+});
+
+describe("peek & then", () => {
+  test("update action state in Action.then when accept", () => {
+    const state = {
+      value: 0,
+    };
+    Action.from<never, { value: number }>(/123/)
+      .then(({ input }) => (input.state.value = 1))
+      .exec(
+        new ActionInput({
+          buffer: "123", // accept
+          start: 0,
+          state,
+          peek: false,
+        }),
+      );
+    expect(state.value).toBe(1);
+  });
+
+  test("don't update state when reject", () => {
+    const state = {
+      value: 0,
+    };
+    Action.from<never, { value: number }>(/123/)
+      .then(({ input }) => (input.state.value = 1))
+      .exec(
+        new ActionInput({
+          buffer: "12", // reject
+          start: 0,
+          state,
+          peek: false,
+        }),
+      );
+    expect(state.value).toBe(0);
+  });
+
+  test("peek won't update action state", () => {
+    const state = {
+      value: 0,
+    };
+    Action.from<never, { value: number }>(/123/)
+      .then(({ input }) => (input.state.value = 1))
+      .exec(
+        new ActionInput({
+          buffer: "123",
+          start: 0,
+          state,
+          peek: true,
+        }),
+      );
+    expect(state.value).toBe(0);
   });
 });
