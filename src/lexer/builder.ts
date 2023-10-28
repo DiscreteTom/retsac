@@ -16,7 +16,7 @@ export type ActionSource<Data, ActionState, ErrorType> =
   | RegExp
   | Action<Data, ActionState, ErrorType>
   | ((
-      a: ActionBuilder<never, ActionState, ErrorType>,
+      a: ActionBuilder<ActionState, ErrorType>,
     ) => Action<Data, ActionState, ErrorType>);
 
 /**
@@ -80,7 +80,7 @@ export class Builder<
   ): Action<Data, ActionState, ErrorType> {
     return src instanceof RegExp || src instanceof Action
       ? Action.from(src)
-      : src(new ActionBuilder<never, ActionState, ErrorType>());
+      : src(new ActionBuilder<ActionState, ErrorType>());
   }
 
   /**
@@ -141,7 +141,7 @@ export class Builder<
    */
   branch<AppendKinds extends string, AppendData>(
     builder: (
-      a: ActionBuilder<never, ActionState, ErrorType>,
+      a: ActionBuilder<ActionState, ErrorType>,
     ) => SelectedAction<AppendKinds, AppendData, ActionState, ErrorType>,
   ): Builder<
     Kinds | AppendKinds,
@@ -157,9 +157,7 @@ export class Builder<
       ActionState,
       ErrorType
     >;
-    const selected = builder(
-      new ActionBuilder<never, ActionState, ErrorType>(),
-    );
+    const selected = builder(new ActionBuilder<ActionState, ErrorType>());
     _this.defs.push({
       kinds: new Set(selected.kinds),
       action: selected.action as Action<
