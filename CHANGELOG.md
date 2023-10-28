@@ -8,6 +8,7 @@
   - **_Breaking Change_**: re-order generic parameters.
   - **_Breaking Change_**: make `Action`'s default `ErrorType` to `never`.
   - **_Breaking Change_**: `Builder.define/ignore/anonymous` will accept functions as `ActionBuilder` instead of `SimpleActionExec`.
+  - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
   - Feat: add `ActionInput.peek`.
   - Feat: add `ActionBuilder` for chaining action decorators.
   - Feat: add `Builder.useError` to set error type.

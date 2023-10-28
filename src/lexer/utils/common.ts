@@ -12,26 +12,30 @@ export function esc4regex(str: string) {
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export function whitespaces<ErrorType = string, ActionState = never>() {
-  return Action.from<ErrorType, ActionState>(/\s+/);
+export function whitespaces<
+  Data = never,
+  ActionState = never,
+  ErrorType = never,
+>(): Action<Data, ActionState, ErrorType> {
+  return Action.from<Data, ActionState, ErrorType>(/\s+/);
 }
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
-export function fromTo<Data = never, ErrorType = string, ActionState = never>(
+export function fromTo<Data = never, ActionState = never, ErrorType = never>(
   from: string | RegExp,
   to: string | RegExp,
   options: {
     acceptEof: boolean;
     /**
      * Auto add the `sticky` flag to the `from` regex if `g` and `y` is not set.
-     * Default: `true`.
+     * @default true
      */
     autoSticky?: boolean;
     /**
      * Auto add the `global` flag to the `to` regex if `g` and `y` is not set.
-     * Default: `true`.
+     * @default true
      */
     autoGlobal?: boolean;
   },
@@ -106,14 +110,11 @@ export function fromTo<Data = never, ErrorType = string, ActionState = never>(
 /**
  * Match from the `start` to the `end`, accept EOF by default.
  *
- * E.g.
- *
- * ```ts
+ * @example
  * comment('//'); // single line comment
- * comment('/*', '*' + '/'); // multiline comment
- * ```
+ * comment('<!--', '-->'); // multiline comment
  */
-export function comment<ErrorType = string, ActionState = never>(
+export function comment<Data = never, ActionState = never, ErrorType = never>(
   start: string | RegExp,
   /** Default: `\n` */
   end: string | RegExp = "\n",
@@ -121,49 +122,43 @@ export function comment<ErrorType = string, ActionState = never>(
     /** Default: `true`. */
     acceptEof?: boolean;
   },
-) {
-  return fromTo<ErrorType, ActionState>(start, end, {
+): Action<Data, ActionState, ErrorType> {
+  return fromTo<Data, ActionState, ErrorType>(start, end, {
     ...options,
     acceptEof: options?.acceptEof ?? true,
   });
 }
 
-export function regexLiteral<
-  Data = never,
-  ErrorType = string,
-  ActionState = never,
->(options?: {
+// TODO: move to javascript.ts
+export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
   /**
-   * Default: `true`.
+   * If `true`, the action may reject invalid regex literal. See `options.rejectOnInvalid`.
+   * @default true
    */
   validate?: boolean;
   /**
-   * If `true`, reject if the regex is invalid and `validate` is `true`.
-   * If `false`, set `invalidError` if the regex is invalid and `validate` is `true`.
-   * Default: `true`.
+   * This option is only effective when `options.validate` is `true`.
+   *
+   * If `true`, reject if the regex is invalid.
+   * If `false`, set `{invalid: true}` in the `token.data` if the regex is invalid.
+   * @default true
    */
   rejectOnInvalid?: boolean;
   /**
-   * Default: `"invalid regex literal"`.
-   */
-  invalidError?: ErrorType;
-  /**
    * Ensure there is a boundary after the regex.
    * This prevent to match something like `/a/g1`.
-   * Default: `true`.
+   * @default true
    */
   boundary?: boolean;
-}): Action<Data, ActionState, ErrorType> {
+}): Action<{ invalid: boolean }, ActionState, ErrorType> {
   const action =
     options?.boundary ?? true
-      ? Action.from<Data, ActionState, ErrorType>(
+      ? Action.from<{ invalid: boolean }, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
         )
-      : Action.from<Data, ActionState, ErrorType>(
+      : Action.from<{ invalid: boolean }, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/,
         );
-
-  const err = options?.invalidError ?? ("invalid regex literal" as ErrorType);
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
@@ -177,14 +172,14 @@ export function regexLiteral<
       });
     }
 
-    // else, set error on invalid
-    return action.check(({ output }) => {
+    // else, set token.data on invalid
+    return action.data(({ output }) => {
       try {
         new RegExp(output.content);
       } catch (e) {
-        return err;
+        return { invalid: true };
       }
-      return undefined;
+      return { invalid: false };
     });
   }
 
