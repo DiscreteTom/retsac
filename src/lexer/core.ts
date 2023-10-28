@@ -80,7 +80,7 @@ export class LexerCore<
        */
       logger?: Logger;
       /**
-       * @default "StatelessLexer.lex"
+       * @default "LexerCore.lex"
        */
       entity?: string;
       /**
@@ -110,7 +110,7 @@ export class LexerCore<
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
     const expect = options?.expect ?? {};
-    const entity = options?.entity ?? "StatelessLexer.lex";
+    const entity = options?.entity ?? "LexerCore.lex";
 
     // debug output
     if (debug) {
@@ -243,7 +243,7 @@ export class LexerCore<
        */
       logger?: Logger;
       /**
-       * @default "StatelessLexer.lex"
+       * @default "LexerCore.lex"
        */
       entity?: string;
     }>,
@@ -263,7 +263,7 @@ export class LexerCore<
   } {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
-    const entity = options?.entity ?? "StatelessLexer.trimStart";
+    const entity = options?.entity ?? "LexerCore.trimStart";
 
     const start = options?.start ?? 0;
     let rest = options?.rest;
