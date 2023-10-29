@@ -377,7 +377,7 @@ test("lexer utils numericLiteral", () => {
 });
 
 test("lexer utils regexLiteral", () => {
-  const lexer1 = new Lexer.Builder<string>()
+  const lexer1 = new Lexer.Builder()
     .define({ regex: Lexer.javascript.regexLiteral() })
     .build();
 
@@ -397,7 +397,7 @@ test("lexer utils regexLiteral", () => {
   expect(lexer1.reset().lex("/a/abc")).toBe(null);
 
   // accept invalid
-  const lexer3 = new Lexer.Builder<string>()
+  const lexer3 = new Lexer.Builder()
     .define({
       regex: Lexer.javascript.regexLiteral({ rejectOnInvalid: false }),
     })
@@ -407,13 +407,13 @@ test("lexer utils regexLiteral", () => {
   expect(lexer3.reset().lex("/a/")?.data.invalid).toBe(false);
 
   // don't ensure boundary
-  const lexer4 = new Lexer.Builder<string>()
+  const lexer4 = new Lexer.Builder()
     .define({ regex: Lexer.javascript.regexLiteral({ boundary: false }) })
     .build();
   expect(lexer4.reset().lex("/a/abc")?.content).toBe("/a/");
 
   // don't validate
-  const lexer5 = new Lexer.Builder<string>()
+  const lexer5 = new Lexer.Builder()
     .define({ regex: Lexer.javascript.regexLiteral({ validate: false }) })
     .build();
   expect(lexer5.reset().lex("/++/")?.content).toBe("/++/");

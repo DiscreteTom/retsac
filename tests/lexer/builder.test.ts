@@ -50,3 +50,11 @@ test("builder define using array", () => {
   expect(lexer.reset().lex(`"abc"`)?.kind).toBe("string");
   expect(lexer.reset().lex("`abc`")?.kind).toBe("string");
 });
+
+const token = new Lexer.Builder()
+  .define({ string: Lexer.stringLiteral("`") })
+  .define({ number: Lexer.javascript.numericLiteral() })
+  .build()
+  .lex("123")!;
+
+if (token.kind == "number") console.log(token.data);

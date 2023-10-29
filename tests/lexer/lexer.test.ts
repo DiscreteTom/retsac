@@ -92,7 +92,7 @@ test("number", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<"number", never, never, string>);
+    } as Token<{ kind: "number"; data: never }, never>);
   });
 });
 
@@ -109,7 +109,7 @@ test("anonymous", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<"", never, never, string>);
+    } as Token<{ kind: ""; data: never }, never>);
   });
 });
 
