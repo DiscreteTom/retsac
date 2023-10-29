@@ -37,3 +37,5 @@ export type ExtractKinds<DataBindings extends GeneralTokenDataBinding> =
 
 export type ExtractData<DataBindings extends GeneralTokenDataBinding> =
   DataBindings["data"];
+
+export type GeneralToken = Token<GeneralTokenDataBinding, unknown>;

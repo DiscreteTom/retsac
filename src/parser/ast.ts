@@ -1,4 +1,4 @@
-import type { Token, TokenDataBinding } from "../lexer";
+import type { ExtractKinds, GeneralToken } from "../lexer";
 import {
   type ASTNodeFirstMatchChildSelector,
   type ASTNodeChildrenSelector,
@@ -46,12 +46,17 @@ export type ASTObj = {
 
 // ASTNode's AllKinds should be Parser's kinds union with Lexer's kinds
 // TODO: re-order type params
-export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
+export class ASTNode<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  TokenType extends GeneralToken,
+> {
   /**
    * T's or NT's kind name.
    * If the T is anonymous, the value is an empty string.
    */
-  readonly kind: AllKinds;
+  readonly kind: Kinds | ExtractKinds<TokenType>;
   /**
    * Start position of the whole input string.
    * Same as the first token's start position.
@@ -64,12 +69,12 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<ASTData, ErrorType, AllKinds>[];
+  children?: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[];
   /**
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<ASTData, ErrorType, AllKinds>;
+  parent?: ASTNode<ASTData, ErrorType, Kinds, TokenType>;
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -77,19 +82,28 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   data?: ASTData;
   error?: ErrorType;
   /**
+   * If this is a T, this field is set.
+   */
+  token?: TokenType;
+  /**
    * Select the first matched child node by the name.
    */
-  readonly $: ASTNodeFirstMatchChildSelector<ASTData, ErrorType, AllKinds>;
+  readonly $: ASTNodeFirstMatchChildSelector<
+    ASTData,
+    ErrorType,
+    Kinds,
+    TokenType
+  >;
   /**
    * Select children nodes by the name.
    */
-  readonly $$: ASTNodeChildrenSelector<ASTData, ErrorType, AllKinds>;
+  readonly $$: ASTNodeChildrenSelector<ASTData, ErrorType, Kinds, TokenType>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    * Make this private to prevent users from using it by mistake.
    */
-  private traverser: Traverser<ASTData, ErrorType, AllKinds>;
+  private traverser: Traverser<ASTData, ErrorType, Kinds, TokenType>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
@@ -110,17 +124,20 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
 
   constructor(
     p: Pick<
-      ASTNode<ASTData, ErrorType, AllKinds>,
+      ASTNode<ASTData, ErrorType, Kinds, TokenType>,
       "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
-      traverser?: Traverser<ASTData, ErrorType, AllKinds>;
-      selector?: ASTNodeSelector<ASTData, ErrorType, AllKinds>;
+      traverser?: Traverser<ASTData, ErrorType, Kinds, TokenType>;
+      selector?: ASTNodeSelector<ASTData, ErrorType, Kinds, TokenType>;
       firstMatchSelector?: ASTNodeFirstMatchSelector<
         ASTData,
         ErrorType,
-        AllKinds
+        Kinds,
+        TokenType
       >;
-    } & Partial<Pick<ASTNode<ASTData, ErrorType, AllKinds>, "name">>,
+    } & Partial<
+        Pick<ASTNode<ASTData, ErrorType, Kinds, TokenType>, "name" | "token">
+      >,
   ) {
     this._name = p.name ?? p.kind;
     this.kind = p.kind;
@@ -130,6 +147,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
     this.parent = p.parent;
     this.data = p.data;
     this.error = p.error;
+    this.token = p.token;
     this.traverser = p.traverser ?? defaultTraverser;
     const selector = p.selector ?? defaultASTNodeSelector;
     const firstMatchSelector =
@@ -151,14 +169,17 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
     );
   }
 
-  static from<ASTData, ErrorType, AllKinds extends string>(
-    t: Readonly<Token<TokenDataBinding<AllKinds, unknown>, AllKinds>>,
-  ) {
-    return new ASTNode<ASTData, ErrorType, AllKinds>({
+  static from<
+    ASTData,
+    ErrorType,
+    Kinds extends string,
+    TokenType extends GeneralToken,
+  >(t: Readonly<TokenType>) {
+    return new ASTNode<ASTData, ErrorType, Kinds, TokenType>({
       kind: t.kind,
       start: t.start,
       text: t.content,
-      // TODO: set lexer data into ast node?
+      token: t,
     });
   }
 
@@ -210,7 +231,10 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
    * This value will be changed if you change the name of this node.
    */
   static getStrWithName(
-    data: Pick<ASTNode<unknown, unknown, string>, "kind" | "name" | "text">,
+    data: Pick<
+      ASTNode<unknown, unknown, string, GeneralToken>,
+      "kind" | "name" | "text"
+    >,
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
@@ -223,7 +247,10 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
    * Format: `kind: text`.
    */
   static getStrWithoutName(
-    data: Pick<ASTNode<unknown, unknown, string>, "kind" | "text">,
+    data: Pick<
+      ASTNode<unknown, unknown, string, GeneralToken>,
+      "kind" | "text"
+    >,
   ) {
     return (
       `${data.kind == "" ? "<anonymous>" : data.kind}` +
@@ -252,7 +279,7 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(
-      this as Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0], // children is not undefined
+      this as Parameters<Traverser<ASTData, ErrorType, Kinds, TokenType>>[0], // children is not undefined
     );
     this.data =
       res ??

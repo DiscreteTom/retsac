@@ -2,10 +2,10 @@
 
 ## v0.13.0
 
+- **_Breaking Change_**: re-order and simplify generic parameters.
 - Lexer
   - **_Breaking Change_**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
     - Add `Action.data`.
-  - **_Breaking Change_**: re-order generic parameters.
   - **_Breaking Change_**: make `Action/Builder`'s default `ErrorType` to `never`.
   - **_Breaking Change_**: `Builder.define/ignore/anonymous` will accept functions as `ActionBuilder` instead of `SimpleActionExec`.
   - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
@@ -20,6 +20,8 @@
     - **_Breaking Change_**: move `regexLiteral/numericLiteral` into `Lexer.javascript`.
   - Feat: add option `lineContinuation` for `Lexer.stringLiteral`.
   - Perf: accelerate expectational lexing by using `Map` to select expected definitions.
+- Parser
+  - **_Breaking Change_**: add `ASTNode.token`.
 - Optimize package size.
 
 ## v0.12.0
