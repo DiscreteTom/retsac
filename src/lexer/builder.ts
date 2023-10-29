@@ -29,6 +29,17 @@ export class Builder<
   ActionState = never,
   ErrorType = never,
 > {
+  // TODO: different kinds map different data?
+  // private defs: Readonly<
+  //   {
+  //     [K in Kinds]: Definition<
+  //       K,
+  //       (DataBindings & { kind: K })["data"],
+  //       ActionState,
+  //       ErrorType
+  //     >;
+  //   }[Kinds]
+  // >[];
   private defs: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
