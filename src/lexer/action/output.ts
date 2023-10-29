@@ -72,8 +72,10 @@ export class AcceptedActionOutput<Data, ErrorType> {
 
 export const rejectedActionOutput = Object.freeze({ accept: false });
 
+export type RejectedActionOutput = typeof rejectedActionOutput;
+
 export type ActionOutput<Data, ErrorType> =
-  | typeof rejectedActionOutput
+  | RejectedActionOutput
   | AcceptedActionOutput<Data, ErrorType>;
 
 // omit `buffer` and `start`.
