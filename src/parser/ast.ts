@@ -74,7 +74,7 @@ export class ASTNode<
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<ASTData, ErrorType, Kinds, TokenType>;
+  parent?: ASTNode<ASTData, ErrorType, Kinds, never>; // parent doesn't have token
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
