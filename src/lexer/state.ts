@@ -10,7 +10,7 @@ export class LexerState<
   digested: number;
   lineChars: number[];
   trimmed: boolean;
-  errors: Readonly<Token<Kinds, Data, DataBindings, ErrorType>>[];
+  errors: Readonly<Token<DataBindings, ErrorType>>[];
   rest: string | undefined;
 
   constructor() {

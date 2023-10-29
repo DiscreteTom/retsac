@@ -15,12 +15,7 @@ export type TokenDataBinding<Kinds extends string, Data> = {
 /**
  * The output of a lexer.
  */
-export type Token<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
-  ErrorType,
-> = {
+export type Token<DataBindings, ErrorType> = {
   /**
    * Token's text content.
    */

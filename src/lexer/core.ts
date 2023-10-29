@@ -99,7 +99,7 @@ export class LexerCore<
     /**
      * `null` if no actions can be accepted or all muted.
      */
-    token: Token<Kinds, Data, DataBindings, ErrorType> | null;
+    token: Token<DataBindings, ErrorType> | null;
     /**
      * How many chars are digested during this lex.
      */
@@ -111,7 +111,7 @@ export class LexerCore<
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<Kinds, Data, DataBindings, ErrorType>[];
+    errors: Token<DataBindings, ErrorType>[];
   } {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
@@ -133,7 +133,7 @@ export class LexerCore<
     const start = options?.start ?? 0;
     let rest = options?.rest;
     let digested = 0;
-    const errors = [] as Token<Kinds, Data, DataBindings, ErrorType>[];
+    const errors = [] as Token<DataBindings, ErrorType>[];
     const peek = options?.peek ?? false;
     while (true) {
       // first, ensure rest is not empty
@@ -267,7 +267,7 @@ export class LexerCore<
     /**
      * Accumulated errors during this lex.
      */
-    errors: Token<Kinds, Data, DataBindings, ErrorType>[];
+    errors: Token<DataBindings, ErrorType>[];
   } {
     const debug = options?.debug ?? false;
     const logger = options?.logger ?? defaultLogger;
@@ -276,7 +276,7 @@ export class LexerCore<
     const start = options?.start ?? 0;
     let rest = options?.rest;
     let digested = 0;
-    const errors = [] as Token<Kinds, Data, DataBindings, ErrorType>[];
+    const errors = [] as Token<DataBindings, ErrorType>[];
     while (true) {
       // first, ensure rest is not empty
       // since maybe some token is muted in the last iteration which cause the rest is empty
@@ -514,13 +514,13 @@ export class LexerCore<
   >(
     kind: Kinds,
     output: Readonly<AcceptedActionOutput<Data, ErrorType>>,
-  ): Token<Kinds, Data, DataBindings, ErrorType> {
+  ): Token<DataBindings, ErrorType> {
     return {
       kind,
       content: output.content,
       start: output.start,
       error: output.error,
       data: output.data,
-    } as Token<Kinds, Data, DataBindings, ErrorType>;
+    } as Token<DataBindings, ErrorType>;
   }
 }

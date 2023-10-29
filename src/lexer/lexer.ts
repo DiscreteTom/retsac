@@ -167,7 +167,7 @@ export class Lexer<
           }>;
           peek?: boolean;
         }> = "",
-  ): Token<Kinds, Data, DataBindings, ErrorType> | null {
+  ): Token<DataBindings, ErrorType> | null {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -220,7 +220,7 @@ export class Lexer<
 
   lexAll(
     input: string | { input?: string; stopOnError?: boolean } = "",
-  ): Token<Kinds, Data, DataBindings, ErrorType>[] {
+  ): Token<DataBindings, ErrorType>[] {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -231,7 +231,7 @@ export class Lexer<
     const stopOnError =
       typeof input === "string" ? false : input.stopOnError ?? false;
 
-    const result: Token<Kinds, Data, DataBindings, ErrorType>[] = [];
+    const result: Token<DataBindings, ErrorType>[] = [];
     while (true) {
       const res = this.lex();
       if (res != null) {
