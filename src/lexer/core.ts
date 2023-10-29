@@ -1,29 +1,32 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { ActionStateCloner } from "./action";
 import { ActionInput, type AcceptedActionOutput } from "./action";
-import type { Definition, ILexerCore, Token, TokenDataBinding } from "./model";
+import type {
+  Definition,
+  ExtractDefinitionMap,
+  ExtractAllDefinitions,
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  ILexerCore,
+  Token,
+  ExtractDefinition,
+  ExtractData,
+} from "./model";
 
 /**
  * LexerCore only store ActionState, no LexerState.
  */
 export class LexerCore<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> implements ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>
+> implements ILexerCore<DataBindings, ActionState, ErrorType>
 {
   state: ActionState;
 
   constructor(
-    readonly defs: readonly Readonly<
-      Definition<Kinds, Data, ActionState, ErrorType>
-    >[],
-    readonly defMap: ReadonlyMap<
-      Kinds,
-      Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
-    >,
+    readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>,
+    readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>,
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
     state?: ActionState,
@@ -37,7 +40,7 @@ export class LexerCore<
   }
 
   dryClone() {
-    return new LexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>(
+    return new LexerCore<DataBindings, ActionState, ErrorType>(
       this.defs,
       this.defMap,
       this.initialState,
@@ -47,7 +50,7 @@ export class LexerCore<
 
   clone() {
     // clone the current state
-    return new LexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>(
+    return new LexerCore<DataBindings, ActionState, ErrorType>(
       this.defs,
       this.defMap,
       this.initialState,
@@ -74,7 +77,7 @@ export class LexerCore<
        */
       rest?: string;
       expect?: Readonly<{
-        kind?: Kinds;
+        kind?: ExtractKinds<DataBindings>;
         text?: string;
       }>;
       /**
@@ -213,12 +216,10 @@ export class LexerCore<
         continue;
       } else {
         // not muted, emit token after collecting errors
-        const token = LexerCore.output2token<
-          Kinds,
-          Data,
-          DataBindings,
-          ErrorType
-        >(res.kind, res.output);
+        const token = LexerCore.output2token<DataBindings, ErrorType>(
+          res.kind,
+          res.output,
+        );
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(token);
@@ -361,21 +362,27 @@ export class LexerCore<
    *
    * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
    */
-  static evaluateDefs<Kinds extends string, Data, ActionState, ErrorType>(
+  static evaluateDefs<
+    DataBindings extends GeneralTokenDataBinding,
+    ActionState,
+    ErrorType,
+  >(
     input: ActionInput<ActionState>,
-    defs: readonly Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[],
+    defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>,
     validator: {
-      pre: (def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>) => {
+      pre: (
+        def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
+      ) => {
         accept: boolean;
         rejectMessageFormatter: (info: { kinds: string }) => string;
       };
       post: (
-        def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
-        output: AcceptedActionOutput<Data, ErrorType>,
+        def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
+        output: AcceptedActionOutput<ExtractData<DataBindings>, ErrorType>,
       ) => {
         accept: boolean;
         acceptMessageFormatter: (info: {
-          kind: string | Kinds;
+          kind: string | ExtractKinds<DataBindings>;
           muted: boolean;
           content: string;
         }) => string;
@@ -506,14 +513,11 @@ export class LexerCore<
     return;
   }
 
-  static output2token<
-    Kinds extends string,
-    Data,
-    DataBindings extends TokenDataBinding<Kinds, Data>,
-    ErrorType,
-  >(
-    kind: Kinds,
-    output: Readonly<AcceptedActionOutput<Data, ErrorType>>,
+  static output2token<DataBindings extends GeneralTokenDataBinding, ErrorType>(
+    kind: ExtractKinds<DataBindings>,
+    output: Readonly<
+      AcceptedActionOutput<ExtractData<DataBindings>, ErrorType>
+    >,
   ): Token<DataBindings, ErrorType> {
     return {
       kind,

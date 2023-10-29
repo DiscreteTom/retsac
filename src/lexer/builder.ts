@@ -1,15 +1,19 @@
-import type {
-  AcceptedActionDecoratorContext,
-  ActionStateCloner,
-} from "./action";
+import type { ActionStateCloner } from "./action";
 import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
-import type { Definition, ILexer, TokenDataBinding } from "./model";
+import type {
+  Definition,
+  ExtractData,
+  ExtractDefinition,
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  ILexer,
+} from "./model";
 import { LexerCore } from "./core";
 import type { SelectedAction } from "./action";
 
 export type LexerBuildOptions = Partial<
-  Pick<ILexer<never, never, never, never, never>, "logger" | "debug">
+  Pick<ILexer<never, never, never>, "logger" | "debug">
 >;
 
 export type ActionSource<Data, ActionState, ErrorType> =
@@ -23,24 +27,13 @@ export type ActionSource<Data, ActionState, ErrorType> =
  * Lexer builder.
  */
 export class Builder<
-  Kinds extends string = never,
-  Data = never,
-  DataBindings extends TokenDataBinding<Kinds, Data> = never,
+  DataBindings extends GeneralTokenDataBinding = never,
   ActionState = never,
   ErrorType = never,
 > {
-  // TODO: different kinds map different data?
-  // private defs: Readonly<
-  //   {
-  //     [K in Kinds]: Definition<
-  //       K,
-  //       (DataBindings & { kind: K })["data"],
-  //       ActionState,
-  //       ErrorType
-  //     >;
-  //   }[Kinds]
-  // >[];
-  private defs: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[];
+  private defs: Readonly<
+    ExtractDefinition<DataBindings, ActionState, ErrorType>
+  >[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
@@ -55,10 +48,8 @@ export class Builder<
   useState<NewActionState>(
     state: NewActionState,
     cloner?: ActionStateCloner<NewActionState>,
-  ): Builder<Kinds, Data, DataBindings, NewActionState, ErrorType> {
+  ): Builder<DataBindings, NewActionState, ErrorType> {
     const _this = this as unknown as Builder<
-      Kinds,
-      Data,
       DataBindings,
       NewActionState,
       ErrorType
@@ -77,13 +68,7 @@ export class Builder<
    * builder.useError(0);
    */
   useError<NewError>(_?: NewError) {
-    return this as unknown as Builder<
-      Kinds,
-      Data,
-      DataBindings,
-      ActionState,
-      NewError
-    >;
+    return this as unknown as Builder<DataBindings, ActionState, NewError>;
   }
 
   static buildAction<Data, ActionState, ErrorType>(
@@ -109,15 +94,11 @@ export class Builder<
       | ActionSource<AppendData, ActionState, ErrorType>
       | ActionSource<AppendData, ActionState, ErrorType>[];
   }): Builder<
-    Kinds | AppendKinds,
-    Data | AppendData,
     DataBindings | { kind: AppendKinds; data: AppendData },
     ActionState,
     ErrorType
   > {
     const _this = this as Builder<
-      Kinds | AppendKinds,
-      Data | AppendData,
       DataBindings | { kind: AppendKinds; data: AppendData },
       ActionState,
       ErrorType
@@ -132,14 +113,11 @@ export class Builder<
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
         _this.defs.push({
-          kinds: new Set([kind]),
-          action: Builder.buildAction(a) as Action<
-            Data | AppendData,
-            ActionState,
-            ErrorType
-          >,
-          selector: () => kind,
-        });
+          kinds: new Set([kind as AppendKinds]),
+          action: Builder.buildAction(a),
+          selector: () => kind as AppendKinds,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any); // TODO: fix type
       });
     }
     return _this;
@@ -155,15 +133,11 @@ export class Builder<
       a: ActionBuilder<ActionState, ErrorType>,
     ) => SelectedAction<AppendKinds, AppendData, ActionState, ErrorType>,
   ): Builder<
-    Kinds | AppendKinds,
-    Data | AppendData,
     DataBindings | { kind: AppendKinds; data: AppendData },
     ActionState,
     ErrorType
   > {
     const _this = this as unknown as Builder<
-      Kinds | AppendKinds,
-      Data | AppendData,
       DataBindings | { kind: AppendKinds; data: AppendData },
       ActionState,
       ErrorType
@@ -171,33 +145,36 @@ export class Builder<
     const selected = builder(new ActionBuilder<ActionState, ErrorType>());
     _this.defs.push({
       kinds: new Set(selected.kinds),
-      action: selected.action as Action<
-        Data | AppendData,
-        ActionState,
-        ErrorType
-      >,
-      selector: selected.selector as (
-        ctx: AcceptedActionDecoratorContext<
-          Data | AppendData,
-          ActionState,
-          ErrorType
-        >,
-      ) => Kinds | AppendKinds,
-    });
+      action: selected.action,
+      selector: selected.selector,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any); // TODO: fix type
     return _this;
   }
 
   /**
    * Define tokens with empty kind.
    */
-  anonymous(...actions: ActionSource<Data, ActionState, ErrorType>[]) {
+  anonymous(
+    ...actions: ActionSource<
+      ExtractData<DataBindings>,
+      ActionState,
+      ErrorType
+    >[]
+  ) {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(...actions: ActionSource<Data, ActionState, ErrorType>[]) {
+  ignore(
+    ...actions: ActionSource<
+      ExtractData<DataBindings>,
+      ActionState,
+      ErrorType
+    >[]
+  ) {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
     });
@@ -206,17 +183,24 @@ export class Builder<
   /**
    * Get all defined token kinds.
    */
-  getTokenKinds(): Set<Kinds> {
+  getTokenKinds(): Set<ExtractKinds<DataBindings>> {
     // `this.build` is lightweight, so we don't cache the result
     return this.build().getTokenKinds();
   }
 
   build(
     options?: LexerBuildOptions,
-  ): Lexer<Kinds, Data, DataBindings, ActionState, ErrorType> {
+  ): Lexer<DataBindings, ActionState, ErrorType> {
     const defMap = new Map<
-      Kinds,
-      Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
+      ExtractKinds<DataBindings>,
+      Readonly<
+        Definition<
+          ExtractKinds<DataBindings>,
+          ExtractData<DataBindings>,
+          ActionState,
+          ErrorType
+        >
+      >[]
     >();
     this.defs.forEach((def) => {
       def.kinds.forEach((kind) => {
@@ -225,7 +209,7 @@ export class Builder<
         else defMap.set(kind, [def]);
       });
     });
-    return new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
+    return new Lexer<DataBindings, ActionState, ErrorType>(
       new LexerCore(this.defs, defMap, this.initialState, this.stateCloner),
       options,
     );

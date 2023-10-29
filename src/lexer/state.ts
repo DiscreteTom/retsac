@@ -1,9 +1,7 @@
-import type { Token, TokenDataBinding } from "./model";
+import type { GeneralTokenDataBinding, Token } from "./model";
 
 export class LexerState<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ErrorType,
 > {
   buffer: string;
@@ -52,7 +50,7 @@ export class LexerState<
   }
 
   clone() {
-    const state = new LexerState<Kinds, Data, DataBindings, ErrorType>();
+    const state = new LexerState<DataBindings, ErrorType>();
     state.buffer = this.buffer;
     state.digested = this.digested;
     state.lineChars = this.lineChars.slice();

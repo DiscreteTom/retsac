@@ -1,26 +1,30 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import type { ILexer, ILexerCore, Token, TokenDataBinding } from "./model";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  ILexer,
+  ILexerCore,
+  Token,
+} from "./model";
 import { LexerState } from "./state";
 import { esc4regex } from "./utils";
 
 /** Extract tokens from the input string. */
 export class Lexer<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> implements ILexer<Kinds, Data, DataBindings, ActionState, ErrorType>
+> implements ILexer<DataBindings, ActionState, ErrorType>
 {
   debug: boolean;
   logger: Logger;
-  readonly core: ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>;
-  private state: LexerState<Kinds, Data, DataBindings, ErrorType>;
+  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
+  private state: LexerState<DataBindings, ErrorType>;
 
   constructor(
-    core: ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>,
+    core: ILexerCore<DataBindings, ActionState, ErrorType>,
     options?: LexerBuildOptions,
   ) {
     this.core = core;
@@ -53,6 +57,10 @@ export class Lexer<
     return this.core.defs;
   }
 
+  get defMap() {
+    return this.core.defMap;
+  }
+
   reset() {
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });
@@ -63,7 +71,7 @@ export class Lexer<
   }
 
   dryClone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
+    const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.core.dryClone(),
     );
     res.debug = options?.debug ?? this.debug;
@@ -72,7 +80,7 @@ export class Lexer<
   }
 
   clone(options?: { debug?: boolean; logger?: Logger }) {
-    const res = new Lexer<Kinds, Data, DataBindings, ActionState, ErrorType>(
+    const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.core.clone(),
     );
     res.debug = options?.debug ?? this.debug;
@@ -162,7 +170,7 @@ export class Lexer<
       | Readonly<{
           input?: string;
           expect?: Readonly<{
-            kind?: Kinds;
+            kind?: ExtractKinds<DataBindings>;
             text?: string;
           }>;
           peek?: boolean;
@@ -279,7 +287,7 @@ export class Lexer<
   }
 
   getTokenKinds() {
-    const res: Set<Kinds> = new Set();
+    const res: Set<ExtractKinds<DataBindings>> = new Set();
     this.core.defs.forEach((d) => d.kinds.forEach((k) => res.add(k)));
     return res;
   }

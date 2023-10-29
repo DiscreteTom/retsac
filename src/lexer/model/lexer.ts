@@ -1,36 +1,74 @@
 import type { Logger } from "../../logger";
 import type { ActionStateCloner } from "../action";
 import type { Definition } from "./definition";
-import type { Token, TokenDataBinding } from "./token";
+import type {
+  ExtractData,
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  Token,
+} from "./token";
+
+export type ExtractDefinition<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = {
+  [Kind in ExtractKinds<DataBindings>]: Definition<
+    Kind,
+    ExtractData<DataBindings & { kind: Kind }>,
+    ActionState,
+    ErrorType
+  >;
+}[ExtractKinds<DataBindings>];
+
+export type ExtractAllDefinitions<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = readonly Readonly<
+  ExtractDefinition<DataBindings, ActionState, ErrorType>
+>[];
+
+export type ExtractDefinitionMap<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = {
+  [Kind in ExtractKinds<DataBindings>]: ReadonlyMap<
+    Kind,
+    ExtractAllDefinitions<DataBindings, ActionState, ErrorType>
+    // actually the value type should be:
+    // Definition<
+    //   Kind,
+    //   ExtractData<DataBindings & { kind: Kind }>,
+    //   ActionState,
+    //   ErrorType
+    // >[]
+    // but we don't need that accuracy here
+  >;
+}[ExtractKinds<DataBindings>];
 
 export interface IReadonlyLexerCore<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
 > {
-  readonly defs: readonly Readonly<
-    Definition<Kinds, Data, ActionState, ErrorType>
-  >[];
+  readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>;
   /**
    * Used to accelerate expectational lexing by getting the definition by the expected kind.
    */
-  readonly defMap: ReadonlyMap<
-    Kinds,
-    Readonly<Definition<Kinds, Data, ActionState, ErrorType>>[]
-  >;
+  readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>;
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the initial state.
    */
-  dryClone(): ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  dryClone(): ILexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer core with the same definitions and the current state.
    */
-  clone(): ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  clone(): ILexerCore<DataBindings, ActionState, ErrorType>;
   lex(
     /**
      * The whole input string.
@@ -50,7 +88,7 @@ export interface IReadonlyLexerCore<
        */
       rest?: string;
       expect?: Readonly<{
-        kind?: Kinds;
+        kind?: ExtractKinds<DataBindings>;
         text?: string;
       }>;
       /**
@@ -91,18 +129,10 @@ export interface IReadonlyLexerCore<
 }
 
 export interface ILexerCore<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> extends IReadonlyLexerCore<
-    Kinds,
-    Data,
-    DataBindings,
-    ActionState,
-    ErrorType
-  > {
+> extends IReadonlyLexerCore<DataBindings, ActionState, ErrorType> {
   get state(): ActionState; // make the state mutable
   reset(): this;
   lex(
@@ -123,7 +153,7 @@ export interface ILexerCore<
        */
       rest?: string;
       expect?: Readonly<{
-        kind?: Kinds;
+        kind?: ExtractKinds<DataBindings>;
         text?: string;
       }>;
       /**
@@ -208,9 +238,7 @@ export interface ILexerCore<
  * IReadonlyLexer's states won't be changed.
  */
 export interface IReadonlyLexer<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
 > {
@@ -229,9 +257,12 @@ export interface IReadonlyLexer<
    * You can clear the errors by setting it's length to 0.
    */
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
-  readonly defs: readonly Readonly<
-    Definition<Kinds, Data, ActionState, ErrorType>
-  >[];
+  // TODO: simplify by ref to ILexerCore
+  readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>;
+  /**
+   * Used to accelerate expectational lexing by getting the definition by the expected kind.
+   */
+  readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>;
   /**
    * The entire input string.
    */
@@ -248,7 +279,7 @@ export interface IReadonlyLexer<
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
-  readonly core: ILexerCore<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -256,7 +287,7 @@ export interface IReadonlyLexer<
   clone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  }): ILexer<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -264,7 +295,7 @@ export interface IReadonlyLexer<
   dryClone(options?: {
     debug?: boolean;
     logger?: Logger;
-  }): ILexer<Kinds, Data, DataBindings, ActionState, ErrorType>;
+  }): ILexer<DataBindings, ActionState, ErrorType>;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
@@ -274,7 +305,7 @@ export interface IReadonlyLexer<
     options: Readonly<{
       input?: string;
       expect?: Readonly<{
-        kind?: Kinds;
+        kind?: ExtractKinds<DataBindings>;
         text?: string;
       }>;
       // readonly lex, must set peek to true
@@ -294,7 +325,7 @@ export interface IReadonlyLexer<
   /**
    * Get all defined token kinds.
    */
-  getTokenKinds(): Set<Kinds>;
+  getTokenKinds(): Set<ExtractKinds<DataBindings>>;
   /**
    * Get line number (starts from 1) and column number (starts from 1)
    * from the index (starts from 0) of the input string.
@@ -304,12 +335,10 @@ export interface IReadonlyLexer<
 }
 
 export interface ILexer<
-  Kinds extends string,
-  Data,
-  DataBindings extends TokenDataBinding<Kinds, Data>,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> extends IReadonlyLexer<Kinds, Data, DataBindings, ActionState, ErrorType> {
+> extends IReadonlyLexer<DataBindings, ActionState, ErrorType> {
   get errors(): Readonly<Token<DataBindings, ErrorType>>[]; // make the array mutable
   set debug(value: boolean);
   set logger(value: Logger);
@@ -343,7 +372,7 @@ export interface ILexer<
     options: Readonly<{
       input?: string;
       expect?: Readonly<{
-        kind?: Kinds;
+        kind?: ExtractKinds<DataBindings>;
         text?: string;
       }>;
       /**

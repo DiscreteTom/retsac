@@ -12,10 +12,12 @@ export type TokenDataBinding<Kinds extends string, Data> = {
   data: Data;
 };
 
+export type GeneralTokenDataBinding = TokenDataBinding<string, unknown>;
+
 /**
  * The output of a lexer.
  */
-export type Token<DataBindings, ErrorType> = {
+export type Token<DataBindings extends GeneralTokenDataBinding, ErrorType> = {
   /**
    * Token's text content.
    */
@@ -29,3 +31,9 @@ export type Token<DataBindings, ErrorType> = {
    */
   error?: ErrorType;
 } & DataBindings;
+
+export type ExtractKinds<DataBindings extends GeneralTokenDataBinding> =
+  DataBindings["kind"];
+
+export type ExtractData<DataBindings extends GeneralTokenDataBinding> =
+  DataBindings["data"];
