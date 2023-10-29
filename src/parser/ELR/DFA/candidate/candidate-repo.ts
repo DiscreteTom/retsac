@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type {
   GrammarRepo,
   GrammarRule,
@@ -12,9 +13,9 @@ export class CandidateRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   /**
    * Candidates. {@link Candidate.strWithGrammarName} => {@link Candidate}
@@ -25,9 +26,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >;
 
@@ -41,9 +42,9 @@ export class CandidateRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       "gr" | "digested"
     >,
@@ -59,9 +60,9 @@ export class CandidateRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       "gr" | "digested"
     >,
@@ -78,9 +79,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ) {
     return this.get({ gr, digested: 0 });
@@ -94,9 +95,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ) {
     const raw = { gr, digested: 0 };
@@ -107,9 +108,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >({
       ...raw,
       strWithGrammarName: key,
@@ -126,9 +127,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ) {
     const raw = { gr: c.gr, digested: c.digested + 1 };
@@ -140,9 +141,9 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >({
       ...raw,
       strWithGrammarName: key,
@@ -156,20 +157,20 @@ export class CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
     const res = [] as ReturnType<
       Candidate<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["toSerializable"]
     >[];
     this.cs.forEach((c) => res.push(c.toSerializable(grs, this, repo)));
@@ -180,63 +181,63 @@ export class CandidateRepo<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     data: ReturnType<
       CandidateRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["toSerializable"]
     >,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ): ReadonlyCandidateRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   > {
     const callbacks = [] as ((
       cs: CandidateRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
     ) => void)[];
     const res = new CandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >();
     data.forEach((d) => {
       const { c, restoreNextMap } = Candidate.fromJSON<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >(d, grs, repo);
       callbacks.push(restoreNextMap);
       res.cs.set(c.strWithGrammarName, c);
@@ -251,17 +252,17 @@ export type ReadonlyCandidateRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = Omit<
   CandidateRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   "addNext" | "addInitial"
 >;

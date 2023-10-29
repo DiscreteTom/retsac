@@ -58,7 +58,7 @@ export class Grammar<AllKinds extends string> {
   /**
    * This is used when calculate all DFA state.
    */
-  readonly mockNode: Cache<Readonly<ASTNode<never, never, AllKinds>>>;
+  readonly mockNode: Cache<Readonly<ASTNode<never, never, AllKinds, never>>>;
 
   /**
    * Only {@link GrammarRepo} should use this constructor.

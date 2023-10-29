@@ -1,4 +1,8 @@
-import type { IReadonlyLexerCore } from "../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  IReadonlyLexerCore,
+} from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ParserBuilderData } from "../builder";
 import type { GrammarRepo } from "../model";
@@ -19,21 +23,21 @@ export class DFABuilder {
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
-    repo: GrammarRepo<Kinds, LexerKinds>,
-    lexer: IReadonlyLexerCore<LexerError, LexerKinds, LexerActionState>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    lexer: IReadonlyLexerCore<LexerDataBindings, LexerActionState, LexerError>,
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
       ParserBuilderData<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >
     >[],
     printAll: boolean,
@@ -71,9 +75,9 @@ export class DFABuilder {
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
@@ -94,9 +98,9 @@ export class DFABuilder {
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 

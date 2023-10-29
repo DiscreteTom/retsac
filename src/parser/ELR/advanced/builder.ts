@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding } from "../../../lexer";
 import { defaultLogger, type Logger } from "../../../logger";
 import type {
   Definition,
@@ -15,7 +16,7 @@ export class AdvancedBuilder<
     ASTData,
     ErrorType = unknown,
     Kinds extends string = never,
-    LexerKinds extends string = never,
+    LexerDataBindings extends GeneralTokenDataBinding = never,
     LexerError = never,
     LexerActionState = never,
   >
@@ -23,7 +24,7 @@ export class AdvancedBuilder<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
+    LexerDataBindings,
     LexerError,
     LexerActionState
   >
@@ -32,14 +33,14 @@ export class AdvancedBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >
 {
   private readonly expander: GrammarExpander<
     Kinds,
-    LexerKinds,
+    LexerDataBindings,
     LexerError,
     LexerActionState
   >;
@@ -55,7 +56,7 @@ export class AdvancedBuilder<
     super({ cascadeQueryPrefix: prefix });
     this.expander = new GrammarExpander<
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >({
@@ -81,7 +82,7 @@ export class AdvancedBuilder<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
+          LexerDataBindings,
           LexerError,
           LexerActionState
         >;
@@ -104,13 +105,13 @@ export class AdvancedBuilder<
   }
 
   build<
-    AppendLexerKinds extends string,
+    AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendLexerError,
     AppendLexerActionState,
   >(
     options: BuildOptions<
       Kinds,
-      LexerKinds | AppendLexerKinds,
+      LexerDataBindings | AppendLexerDataBindings,
       LexerError | AppendLexerError,
       LexerActionState | AppendLexerActionState
     >,
@@ -127,7 +128,7 @@ export class AdvancedBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >({
@@ -139,7 +140,7 @@ export class AdvancedBuilder<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >[];
@@ -150,7 +151,7 @@ export class AdvancedBuilder<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
+        LexerDataBindings,
         LexerError,
         LexerActionState
       >();
@@ -201,7 +202,7 @@ export class AdvancedBuilder<
               ASTData,
               ErrorType,
               Kinds,
-              LexerKinds,
+              LexerDataBindings,
               LexerError,
               LexerActionState
             >().resolveRS(r.anotherRule, r.options),

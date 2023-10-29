@@ -1,4 +1,5 @@
 import * as Lexer from "../../../../lexer";
+import type { GeneralTokenDataBinding } from "../../../../lexer";
 import {
   EmptyLiteralError,
   EmptyRuleError,
@@ -14,6 +15,8 @@ const ruleLexer = new Lexer.Builder()
     rename: /@\w+/,
     grammar: /\w+/,
     or: Lexer.exact("|"),
+  })
+  .define({
     literal: [Lexer.stringLiteral(`"`), Lexer.stringLiteral(`'`)],
   })
   .build();
@@ -25,9 +28,9 @@ export function defToTempGRs<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   defs: Definition<Kinds>,
   hydrationId: number = 0,
@@ -35,18 +38,18 @@ export function defToTempGRs<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ) {
   const result: TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[] = [];
 
   // parse rules
@@ -92,9 +95,9 @@ export function defToTempGRs<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >({
           NT,
           rule: tokens.map((t) => {

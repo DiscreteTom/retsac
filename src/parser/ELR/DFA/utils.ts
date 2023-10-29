@@ -1,4 +1,10 @@
-import type { ILexer, IReadonlyLexer } from "../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  ILexer,
+  IReadonlyLexer,
+  Token,
+} from "../../../lexer";
 import type { StringOrLiteral } from "../../../type-helper";
 import type {
   ASTNodeSelector,
@@ -30,26 +36,26 @@ export function getAllNTClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   NTs: ReadonlySet<Kinds>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ): ReadonlyNTClosures<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 > {
   const result = new Map<
     Kinds,
@@ -57,9 +63,9 @@ export function getAllNTClosure<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[]
   >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
@@ -76,26 +82,26 @@ export function getNTClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   NT: Kinds,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ): GrammarRule<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 >[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT == NT),
@@ -112,33 +118,33 @@ export function getGrammarRulesClosure<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   rules: readonly GrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[],
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ): GrammarRule<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 >[] {
   const result = [...rules];
 
@@ -168,15 +174,32 @@ export function getGrammarRulesClosure<
 export function cascadeASTNodeSelectorFactory<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerError,
 >(
   cascadeQueryPrefix: string | undefined,
-): ASTNodeSelector<ASTData, ErrorType, AllKinds> {
+): ASTNodeSelector<
+  ASTData,
+  ErrorType,
+  Kinds,
+  Token<LexerDataBindings, LexerError>
+> {
   return (
-    name: StringOrLiteral<AllKinds>,
-    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+    name: StringOrLiteral<Kinds | ExtractKinds<LexerDataBindings>>,
+    nodes: readonly ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[],
   ) => {
-    const result: ASTNode<ASTData, ErrorType, AllKinds>[] = [];
+    const result: ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[] = [];
     nodes.forEach((n) => {
       if (n.name === name) result.push(n);
 
@@ -193,13 +216,25 @@ export function cascadeASTNodeSelectorFactory<
 export function cascadeASTNodeFirstMatchSelectorFactory<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerError,
 >(
   cascadeQueryPrefix: string | undefined,
-): ASTNodeFirstMatchSelector<ASTData, ErrorType, AllKinds> {
+): ASTNodeFirstMatchSelector<
+  ASTData,
+  ErrorType,
+  Kinds,
+  Token<LexerDataBindings, LexerError>
+> {
   return (
-    name: StringOrLiteral<AllKinds>,
-    nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+    name: StringOrLiteral<Kinds | ExtractKinds<LexerDataBindings>>,
+    nodes: readonly ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[],
   ) => {
     for (const n of nodes) {
       if (n.name === name) return n;
@@ -226,16 +261,21 @@ export function lexGrammar<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
-  g: Grammar<LexerKinds>,
-  lexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>,
+  g: Grammar<ExtractKinds<LexerDataBindings>>,
+  lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerError>,
 ):
   | {
-      node: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>;
-      lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+      node: ASTNode<
+        ASTData,
+        ErrorType,
+        Kinds,
+        Token<LexerDataBindings, LexerError>
+      >;
+      lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
     }
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
@@ -252,7 +292,12 @@ export function lexGrammar<
   return token == null
     ? undefined
     : {
-        node: ASTNode.from<ASTData, ErrorType, Kinds | LexerKinds>(token),
+        node: ASTNode.from<
+          ASTData,
+          ErrorType,
+          Kinds,
+          Token<LexerDataBindings, LexerError>
+        >(token),
         lexer: mutableLexer,
       };
 }
@@ -264,42 +309,42 @@ export function calculateAllStates<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
-  repo: GrammarRepo<Kinds, LexerKinds>,
+  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   allStates: StateRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   NTClosures: ReadonlyNTClosures<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   cs: CandidateRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ) {
   // collect all grammars in grammar rules.
@@ -310,7 +355,7 @@ export function calculateAllStates<
   // and the `parser.parse` will throw StateCacheMissError.
   // if we do convert entry-only NTs into ASTNodes,
   // the `parser.parse` will just reject the input without throwing StateCacheMissError.
-  const gs = new GrammarSet<Kinds, LexerKinds>();
+  const gs = new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>();
   allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
@@ -339,18 +384,18 @@ export function processDefinitions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   data: readonly Readonly<
     ParserBuilderData<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >[],
 ): {
@@ -358,9 +403,9 @@ export function processDefinitions<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
   NTs: ReadonlySet<Kinds>;
   resolvedTemps: readonly Readonly<
@@ -368,9 +413,9 @@ export function processDefinitions<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >[];
 } {
@@ -378,18 +423,18 @@ export function processDefinitions<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[] = [];
   const NTs: Set<Kinds> = new Set();
   const resolvedTemps = [] as ResolvedTempConflict<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
 
   data.forEach((d) => {
@@ -409,9 +454,9 @@ export function processDefinitions<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
@@ -429,9 +474,9 @@ export function processDefinitions<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
@@ -492,10 +537,10 @@ export function serializable2map<K extends string, V, R>(
  * This is used for debugging.
  */
 export function prettierLexerRest<
-  LexerError,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
->(lexer: IReadonlyLexer<LexerError, LexerKinds, LexerActionState>) {
+  LexerError,
+>(lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerError>) {
   const showLength = 30;
   return `${JSON.stringify(
     lexer.buffer.slice(lexer.digested, lexer.digested + showLength),
@@ -513,21 +558,24 @@ export function buildFirstSets<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   NTs: ReadonlySet<Kinds>,
   NTClosures: ReadonlyNTClosures<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ) {
-  const firstSets = new Map<Kinds, GrammarSet<Kinds, LexerKinds>>();
+  const firstSets = new Map<
+    Kinds,
+    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
+  >();
 
   NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
   NTClosures.forEach((grs, NT) => {
@@ -537,7 +585,7 @@ export function buildFirstSets<
     grs.forEach((gr) => gs!.add(gr.rule[0]));
   });
 
-  return firstSets as ReadonlyFirstSets<Kinds, LexerKinds>;
+  return firstSets as ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>;
 }
 
 /**
@@ -547,24 +595,24 @@ export function buildFollowSets<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   NTs: ReadonlySet<Kinds>,
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
-  firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
+  firstSets: ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>,
 ) {
   const followSets = new Map<
-    Kinds | LexerKinds,
-    GrammarSet<Kinds, LexerKinds>
+    Kinds | ExtractKinds<LexerDataBindings>,
+    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
   >();
 
   NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
@@ -605,5 +653,8 @@ export function buildFollowSets<
     if (!changed) break;
   }
 
-  return followSets as ReadonlyFollowSets<Kinds, LexerKinds>;
+  return followSets as ReadonlyFollowSets<
+    Kinds,
+    ExtractKinds<LexerDataBindings>
+  >;
 }

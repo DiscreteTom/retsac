@@ -4,6 +4,7 @@ import type { GrammarRule, GrammarSet } from "./grammar";
 import type { ParserBuilder } from "../builder";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { DefinitionContextBuilder } from "../builder";
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../lexer";
 
 export enum ConflictType {
   REDUCE_SHIFT,
@@ -14,9 +15,9 @@ export interface Conflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   type: ConflictType;
   /**
@@ -27,15 +28,15 @@ export interface Conflict<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >;
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: GrammarSet<Kinds, LexerKinds>;
+  next: GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>;
   /**
    * Is this a conflict if there is no next input?
    */
@@ -70,11 +71,18 @@ export type ResolvedConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = Pick<
-  Conflict<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>,
+  Conflict<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  >,
   "type" | "anotherRule" | "handleEnd"
 > & {
   /**
@@ -85,9 +93,9 @@ export type ResolvedConflict<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["next"]
     | "*";
 } & (
@@ -103,9 +111,9 @@ export type ResolvedConflict<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >;
         /**
          * If the accepter is not a boolean, we need this hydration ID to restore the accepter.

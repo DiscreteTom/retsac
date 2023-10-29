@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding, Token } from "../../lexer";
 import type { ASTNode } from "../ast";
 import type { State } from "./DFA";
 
@@ -16,15 +17,24 @@ export class StateCacheMissError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > extends ELR_RuntimeError {
   constructor(
     public state: Readonly<
-      State<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>
+      State<
+        ASTData,
+        ErrorType,
+        Kinds,
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
+      >
     >,
-    public node: Readonly<ASTNode<ASTData, ErrorType, Kinds | LexerKinds>>,
+    public node: Readonly<
+      ASTNode<ASTData, ErrorType, Kinds, Token<LexerDataBindings, LexerError>>
+    >,
   ) {
     super(
       "STATE_CACHE_MISS",

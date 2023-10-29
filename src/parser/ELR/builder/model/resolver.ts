@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { AtLeastOneOf, QuotedString } from "../../../../type-helper";
 import type { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import type { Definition } from "./definition";
@@ -7,9 +8,9 @@ export type BaseResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = {
   /**
    * @default: true
@@ -20,9 +21,9 @@ export type BaseResolverOptions<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >;
   // TODO: is the following feature needed?
   // /**
@@ -44,20 +45,20 @@ export type RR_ResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = BaseResolverOptions<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 > &
   AtLeastOneOf<
     {
-      next: "*" | (Kinds | LexerKinds | QuotedString)[];
+      next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
       handleEnd: boolean;
     },
     "next" | "handleEnd"
@@ -67,27 +68,27 @@ export type RS_ResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = BaseResolverOptions<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 > & {
-  next: "*" | (Kinds | LexerKinds | QuotedString)[];
+  next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
 };
 
 export type ConflictTypeAndResolverOptions<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = (
   | {
       type: ConflictType.REDUCE_REDUCE;
@@ -95,9 +96,9 @@ export type ConflictTypeAndResolverOptions<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >;
     }
   | {
@@ -106,9 +107,9 @@ export type ConflictTypeAndResolverOptions<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >;
     }
 ) &
@@ -116,52 +117,52 @@ export type ConflictTypeAndResolverOptions<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
 
 export type ResolvedTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = {
   reducerRule: TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   anotherRule: TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 >;
 
 export type ResolvedPartialTempConflict<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = {
   anotherRule: Definition<Kinds>;
   hydrationId: Readonly<ResolverHydrationId>;
@@ -169,7 +170,7 @@ export type ResolvedPartialTempConflict<
   ASTData,
   ErrorType,
   Kinds,
-  LexerKinds,
-  LexerError,
-  LexerActionState
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 >;

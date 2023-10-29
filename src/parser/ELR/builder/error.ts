@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../lexer";
 import type { Conflict, Grammar, GrammarRule } from "../model";
 import { ConflictType } from "../model";
 import type { TempGrammarRule } from "./model";
@@ -34,7 +35,7 @@ export class GrammarRuleNotFoundError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > extends ELR_BuilderError {
@@ -43,7 +44,7 @@ export class GrammarRuleNotFoundError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
@@ -75,7 +76,7 @@ export class ConflictError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > extends ELR_BuilderError {
@@ -84,7 +85,7 @@ export class ConflictError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
@@ -92,7 +93,7 @@ export class ConflictError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
@@ -181,7 +182,7 @@ export class TooManyEndHandlerError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > extends ELR_BuilderError {
@@ -190,7 +191,7 @@ export class TooManyEndHandlerError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
@@ -207,7 +208,7 @@ export class NoSuchConflictError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > extends ELR_BuilderError {
@@ -216,7 +217,7 @@ export class NoSuchConflictError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
@@ -224,12 +225,12 @@ export class NoSuchConflictError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,
     public conflictType: ConflictType,
-    public next: Grammar<Kinds | LexerKinds>[],
+    public next: Grammar<Kinds | ExtractKinds<LexerDataBindings>>[],
     public handleEnd: boolean,
   ) {
     super(
@@ -270,7 +271,7 @@ export class RollbackDefinedWhileNotEnabledError<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > extends ELR_BuilderError {
@@ -279,7 +280,7 @@ export class RollbackDefinedWhileNotEnabledError<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
+      LexerDataBindings,
       LexerError,
       LexerActionState
     >,

@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { IParser } from "../../../model";
 import type { Definition, RS_ResolverOptions } from "../../builder";
@@ -8,9 +9,9 @@ import { data } from "./serialized-grammar-parser-data";
 
 export class GrammarExpander<
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
@@ -18,8 +19,25 @@ export class GrammarExpander<
     string[],
     unknown,
     "gr",
-    "" | "grammar" | "literal" | "rename",
-    string,
+    | {
+        kind: "";
+        data: never;
+      }
+    | {
+        kind: "grammar" | "rename";
+        data: unknown;
+      }
+    | {
+        kind: "literal";
+        data: {
+          unclosed: boolean;
+        };
+      }
+    | {
+        kind: "";
+        data: unknown;
+      },
+    never,
     never
   >;
   readonly placeholderPrefix: string;
@@ -62,9 +80,9 @@ export class GrammarExpander<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >;
       }[],
     };
@@ -156,9 +174,9 @@ export class GrammarExpander<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >;
       }[],
     };

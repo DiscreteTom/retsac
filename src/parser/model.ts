@@ -1,12 +1,22 @@
-import type { ILexer } from "../lexer";
+import type {
+  GeneralToken,
+  GeneralTokenDataBinding,
+  ILexer,
+  Token,
+} from "../lexer";
 import type { Logger } from "../logger";
 import type { ParserOutput } from "./output";
 import type { ASTNode } from "./ast";
 
 /**
- * The `input` will be fed to the lexer.
+ * If `input` is provided, it will be fed to the lexer.
  */
-export type ParseExec<ASTData, ErrorType, AllKinds extends string> = (
+export type ParseExec<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  TokenType extends GeneralToken,
+> = (
   input?:
     | string
     | {
@@ -15,19 +25,19 @@ export type ParseExec<ASTData, ErrorType, AllKinds extends string> = (
          * Stop parsing when the first error is generated.
          * Be ware, this might cause inconsistent buffer state.
          *
-         * Default: `false`.
+         * @default false
          */
         stopOnError?: boolean;
       },
-) => ParserOutput<ASTData, ErrorType, AllKinds>;
+) => ParserOutput<ASTData, ErrorType, Kinds, TokenType>;
 
 export interface IParser<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
@@ -53,7 +63,7 @@ export interface IParser<
    * @default false
    */
   ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
-  readonly lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+  readonly lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
   /**
    * Reset state.
    */
@@ -66,7 +76,12 @@ export interface IParser<
    * Try to yield an entry NT.
    * Stop when the first entry NT is reduced and follow match(or reach EOF).
    */
-  readonly parse: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
+  readonly parse: ParseExec<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >;
   /**
    * Try to reduce till the parser can't accept more.
    * This is useful if your entry NT can be further reduced.
@@ -74,19 +89,36 @@ export interface IParser<
    * The result may be a ***partial*** accepted result,
    * because the result will be accepted if at least one parse is successful.
    */
-  readonly parseAll: ParseExec<ASTData, ErrorType, Kinds | LexerKinds>;
+  readonly parseAll: ParseExec<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >;
   /**
    * Accumulated error AST nodes.
    */
-  readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  readonly errors: ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
   hasErrors(): boolean;
   /**
    * Current AST nodes.
    */
-  get buffer(): readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  get buffer(): readonly ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
   /**
    * Take the first N AST nodes.
    * This action will commit the parser.
    */
-  take(n?: number): ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  take(
+    n?: number,
+  ): ASTNode<ASTData, ErrorType, Kinds, Token<LexerDataBindings, LexerError>>[];
 }

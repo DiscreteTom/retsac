@@ -1,4 +1,9 @@
-import type { IReadonlyLexerCore } from "../../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  IReadonlyLexerCore,
+  Token,
+} from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
 import { StringCache } from "../../../cache";
@@ -45,15 +50,15 @@ export class TempGrammar {
 
   toGrammar<
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: IReadonlyLexerCore<LexerError, LexerKinds, LexerActionState>,
+    lexer: IReadonlyLexerCore<LexerDataBindings, LexerActionState, LexerError>,
     printAll: boolean,
     logger: Logger,
     isNT = true,
@@ -69,16 +74,16 @@ export class TempGrammar {
       }
       return repo.Literal(
         this.content,
-        token?.kind ?? ("" as LexerKinds), // this null check is for printAll
+        token?.kind ?? ("" as ExtractKinds<LexerDataBindings>), // this null check is for printAll
         this.name,
-      ) as Grammar<Kinds | LexerKinds>;
+      ) as Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
     }
 
     return (
       isNT
         ? repo.NT(this.content as Kinds, this.name)
-        : repo.T(this.content as LexerKinds, this.name)
-    ) as Grammar<Kinds | LexerKinds>;
+        : repo.T(this.content as ExtractKinds<LexerDataBindings>, this.name)
+    ) as Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
   }
 
   /**
@@ -103,9 +108,9 @@ export class TempGrammarRule<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   readonly rule: readonly TempGrammar[];
   /**
@@ -116,35 +121,40 @@ export class TempGrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   rejecter?: Condition<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   rollback?: Callback<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   commit?: Condition<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
-  traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
+  traverser?: Traverser<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >;
   readonly hydrationId: number;
   readonly strWithGrammarName: StringCache;
 
@@ -154,9 +164,9 @@ export class TempGrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       | "rule"
       | "NT"

@@ -1,3 +1,4 @@
+import type { GeneralToken } from "../lexer";
 import type { ASTNode } from "./ast";
 
 export type ParserErrorType = "INVALID_TRAVERSE";
@@ -15,8 +16,9 @@ export class InvalidTraverseError<
   ASTData,
   ErrorType,
   Kinds extends string,
+  TokenType extends GeneralToken,
 > extends ParserError {
-  constructor(public node: ASTNode<ASTData, ErrorType, Kinds>) {
+  constructor(public node: ASTNode<ASTData, ErrorType, Kinds, TokenType>) {
     super(
       "INVALID_TRAVERSE",
       `Traversing a T is invalid. Consider defining a traverser for it's parent. Current: \`${node}\`, parent: \`${node.parent}\`.`,

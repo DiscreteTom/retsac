@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { DFA } from "../../DFA";
 import type {
@@ -19,19 +20,19 @@ function getEndSet<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
-  repo: GrammarRepo<Kinds, LexerKinds>,
+  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
 ) {
   const result = new GrammarSet<Kinds, never>(); // never means no lexer kinds
@@ -67,9 +68,9 @@ function getUserUnresolvedConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   type: ConflictType,
   reducerRule: Readonly<
@@ -77,9 +78,9 @@ function getUserUnresolvedConflicts<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >,
   anotherRule: Readonly<
@@ -87,12 +88,12 @@ function getUserUnresolvedConflicts<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >,
-  next: GrammarSet<Kinds, LexerKinds>,
+  next: GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>,
   checkHandleEnd: boolean,
   debug: boolean,
   logger: Logger,
@@ -105,7 +106,7 @@ function getUserUnresolvedConflicts<
 
   // collect resolved next & calculate unresolved next
   const resolvedNext = [] as {
-    grammar: Grammar<Kinds | LexerKinds>;
+    grammar: Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
     /**
      * If `undefined`, the accepter is a function.
      */
@@ -130,7 +131,7 @@ function getUserUnresolvedConflicts<
       );
   });
   const unresolvedNext = resolveAll
-    ? new GrammarSet<Kinds, LexerKinds>()
+    ? new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>()
     : next.filter(
         (n) => !resolvedNext.some((rn) => n.equalWithoutName(rn.grammar)),
       );
@@ -231,21 +232,28 @@ export function appendConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
-  repo: GrammarRepo<Kinds, LexerKinds>,
+  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
-  dfa: DFA<ASTData, ErrorType, Kinds, LexerKinds, LexerError, LexerActionState>,
+  dfa: DFA<
+    ASTData,
+    ErrorType,
+    Kinds,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  >,
   debug: boolean,
   logger: Logger,
 ) {
@@ -366,7 +374,9 @@ export function appendConflicts<
                 type: ConflictType.REDUCE_SHIFT,
                 anotherRule: another.gr,
                 handleEnd: false,
-                next: new GrammarSet<Kinds, LexerKinds>([another.current!]),
+                next: new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>([
+                  another.current!,
+                ]),
                 resolvers: [],
               });
           }
@@ -426,17 +436,17 @@ export function getUnresolvedConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   debug: boolean,
   logger: Logger,
@@ -446,17 +456,17 @@ export function getUnresolvedConflicts<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     Conflict<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[]
   >();
 
@@ -478,9 +488,9 @@ export function getUnresolvedConflicts<
             ASTData,
             ErrorType,
             Kinds,
-            LexerKinds,
-            LexerError,
-            LexerActionState
+            LexerDataBindings,
+            LexerActionState,
+            LexerError
           > = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
@@ -506,9 +516,9 @@ export function getUnresolvedConflicts<
             ASTData,
             ErrorType,
             Kinds,
-            LexerKinds,
-            LexerError,
-            LexerActionState
+            LexerDataBindings,
+            LexerActionState,
+            LexerError
           > = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,

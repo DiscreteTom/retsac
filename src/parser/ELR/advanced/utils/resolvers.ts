@@ -1,10 +1,11 @@
+import type { GeneralTokenDataBinding } from "../../../../lexer";
 import type { IParserBuilder } from "../../model";
 
 export function applyResolvers<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 >(
@@ -12,7 +13,7 @@ export function applyResolvers<
     ASTData,
     ErrorType,
     "gr" | Kinds,
-    LexerKinds,
+    LexerDataBindings,
     LexerError,
     LexerActionState
   >,

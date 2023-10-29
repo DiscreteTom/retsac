@@ -34,7 +34,7 @@ export class GrammarSet<Kinds extends string, LexerKinds extends string> {
   has(
     g:
       | Readonly<Grammar<Kinds | LexerKinds>>
-      | Readonly<ASTNode<never, never, never>>,
+      | Readonly<ASTNode<never, never, never, never>>,
   ) {
     return this.gs.has(g.strWithoutName.value); // Grammar & ASTNode has the same string format
   }

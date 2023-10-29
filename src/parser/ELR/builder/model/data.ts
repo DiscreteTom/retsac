@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding } from "../../../../lexer";
 import type { DefinitionContextBuilder } from "../ctx-builder";
 import type { Definition } from "./definition";
 
@@ -8,7 +9,7 @@ export type ParserBuilderData<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
 > = {
@@ -17,7 +18,7 @@ export type ParserBuilderData<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
+    LexerDataBindings,
     LexerError,
     LexerActionState
   >;

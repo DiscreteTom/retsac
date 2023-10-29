@@ -1,4 +1,4 @@
-import type { ILexer } from "../../lexer";
+import type { GeneralTokenDataBinding, ILexer, Token } from "../../lexer";
 import type { Logger } from "../../logger";
 import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
@@ -13,38 +13,48 @@ export class Parser<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > implements
     IParser<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
 {
-  lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+  lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
   readonly dfa: DFA<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
-  private _buffer: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  readonly errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  private _buffer: ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
+  readonly errors: ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
 
   private reLexStack: ReActionState<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
   /**
    * There will only be one rollback stack for a parser.
@@ -56,16 +66,17 @@ export class Parser<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
 
   get buffer() {
     return this._buffer as readonly ASTNode<
       ASTData,
       ErrorType,
-      Kinds | LexerKinds
+      Kinds,
+      Token<LexerDataBindings, LexerError>
     >[];
   }
 
@@ -79,11 +90,11 @@ export class Parser<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
-    lexer: ILexer<LexerError, LexerKinds, LexerActionState>,
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>,
     autoCommit: boolean,
     ignoreEntryFollow: boolean,
     debug: boolean,
@@ -132,7 +143,12 @@ export class Parser<
 
   parse(
     input?: string | { input?: string; stopOnError?: boolean },
-  ): ParserOutput<ASTData, ErrorType, Kinds | LexerKinds> {
+  ): ParserOutput<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  > {
     // feed input if provided
     if (typeof input === "string") {
       this.feed(input);
@@ -175,10 +191,25 @@ export class Parser<
 
   parseAll(
     input: string | { input?: string; stopOnError?: boolean } = "",
-  ): ParserOutput<ASTData, ErrorType, Kinds | LexerKinds> {
-    let buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] = [];
+  ): ParserOutput<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  > {
+    let buffer: readonly ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[] = [];
     /** Aggregate results if the parser can accept more. */
-    const errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[] = [];
+    const errors: ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[] = [];
     /** If the parser has accepted at least once. */
     let accepted = false;
 

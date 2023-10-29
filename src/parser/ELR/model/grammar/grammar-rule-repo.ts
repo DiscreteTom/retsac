@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { TempGrammarRule } from "../../builder";
 import type { GrammarRepo } from "./grammar-repo";
 import { GrammarRule } from "./grammar-rule";
@@ -11,9 +12,9 @@ export class ReadonlyGrammarRuleRepo<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   /**
    * {@link GrammarRule.strWithGrammarName} => grammar rule
@@ -24,9 +25,9 @@ export class ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >;
 
@@ -35,9 +36,9 @@ export class ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
   ) {
     const map = new Map();
@@ -50,9 +51,9 @@ export class ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ): string {
     return gr.strWithGrammarName.value;
@@ -63,9 +64,9 @@ export class ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ) {
     return this.grammarRules.get(gr.strWithGrammarName.value);
@@ -81,9 +82,9 @@ export class ReadonlyGrammarRuleRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
     ) => R,
   ) {
@@ -98,9 +99,9 @@ export class ReadonlyGrammarRuleRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
     ) => boolean,
   ) {
@@ -108,9 +109,9 @@ export class ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[];
     this.grammarRules.forEach((gr) => {
       if (callback(gr)) res.push(gr);
@@ -119,15 +120,15 @@ export class ReadonlyGrammarRuleRepo<
   }
 
   toSerializable(
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ): ReturnType<
     GrammarRule<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >["toSerializable"]
   >[] {
     return this.map((gr) => gr.toSerializable(repo, this));
@@ -137,48 +138,48 @@ export class ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     data: ReturnType<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["toSerializable"]
     >[],
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
     const callbacks = [] as ((
       grs: ReadonlyGrammarRuleRepo<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
     ) => void)[];
     const res = new ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >(
       data.map((d) => {
         const { gr, restoreConflicts } = GrammarRule.fromJSON<
           ASTData,
           ErrorType,
           Kinds,
-          LexerKinds,
-          LexerError,
-          LexerActionState
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
         >(d, repo);
         callbacks.push(restoreConflicts);
         return gr;

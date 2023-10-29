@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralTokenDataBinding } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ReadonlyFollowSets } from "../DFA";
 import type { Conflict, GrammarRule, ReadonlyGrammarRuleRepo } from "../model";
@@ -21,9 +22,9 @@ export function checkSymbols<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
@@ -33,9 +34,9 @@ export function checkSymbols<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   printAll: boolean,
   logger: Logger,
@@ -97,20 +98,20 @@ export function checkConflicts<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
-  followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
+  followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
   unresolved: ReadonlyMap<
     Readonly<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >
     >,
     readonly Readonly<
@@ -118,9 +119,9 @@ export function checkConflicts<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >
     >[]
   >,
@@ -128,9 +129,9 @@ export function checkConflicts<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   printAll: boolean,
   logger: Logger,
@@ -220,17 +221,17 @@ export function checkRollbacks<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 >(
   grs: ReadonlyGrammarRuleRepo<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   printAll: boolean,
   logger: Logger,

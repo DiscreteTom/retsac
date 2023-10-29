@@ -42,6 +42,8 @@ export function grammarParserFactory(placeholderPrefix: string) {
     .define({
       rename: /@\w+/,
       grammar: /\w+/,
+    })
+    .define({
       literal: [stringLiteral(`"`), stringLiteral(`'`)],
     })
     .anonymous(exact(...`|+*()?`))

@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding } from "../../../lexer";
 import type { GrammarRule, GrammarSet } from "../model";
 
 /**
@@ -20,17 +21,17 @@ export type ReadonlyNTClosures<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = ReadonlyMap<
   Kinds,
   GrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[]
 >;

@@ -1,4 +1,4 @@
-import type { ILexer } from "../../../lexer";
+import type { GeneralTokenDataBinding, ILexer, Token } from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type { State } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
@@ -7,9 +7,9 @@ export type ParsingState<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = {
   /**
    * Current state is `states.at(-1)`.
@@ -18,11 +18,16 @@ export type ParsingState<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
-  buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
+  buffer: readonly ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
   /**
    * ASTNode buffer index.
    */
@@ -30,25 +35,30 @@ export type ParsingState<
   /**
    * Newly collected errors in that parsing process.
    */
-  errors: ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[];
-  lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+  errors: ASTNode<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >[];
+  lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
 };
 
 export type ReActionState<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = Readonly<
   ParsingState<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >
 > & {
   readonly rollbackStackLength: number;
@@ -58,24 +68,24 @@ export type RollbackState<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > = {
   readonly rollback?: Callback<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   readonly context: GrammarRuleContext<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
 };

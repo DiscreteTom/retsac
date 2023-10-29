@@ -1,4 +1,7 @@
-import type { IReadonlyLexer } from "../../../../lexer";
+import type {
+  GeneralTokenDataBinding,
+  IReadonlyLexer,
+} from "../../../../lexer";
 import type { DFA } from "../../DFA";
 import type { SerializableParserData } from "../../model";
 import { hashStringToNum } from "../../utils";
@@ -8,35 +11,35 @@ export function calculateHash<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  AppendLexerKinds extends string,
-  AppendLexerError,
+  LexerError,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   AppendLexerActionState,
+  AppendLexerError,
 >(
   data: readonly Readonly<
     ParserBuilderData<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >[],
   entryNTs: ReadonlySet<Kinds>,
   lexer: IReadonlyLexer<
-    LexerError | AppendLexerError,
-    LexerKinds | AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings | AppendLexerDataBindings,
+    LexerActionState | AppendLexerActionState,
+    LexerError | AppendLexerError
   >,
   cascadeQueryPrefix: string | undefined,
 ) {
   return hashStringToNum(
     JSON.stringify({
       // ensure lexer kinds are not changed
-      lexerKinds: [...lexer.getTokenKinds()],
+      LexerDataBindings: [...lexer.getTokenKinds()],
       // ensure grammar rules & resolvers are not changed
       data: data.map((d) => ({
         defs: d.defs,
@@ -56,39 +59,39 @@ export function buildSerializable<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  AppendLexerKinds extends string,
-  AppendLexerError,
+  LexerError,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   AppendLexerActionState,
+  AppendLexerError,
 >(
   data: readonly Readonly<
     ParserBuilderData<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >
   >[],
   dfa: DFA<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds | AppendLexerKinds,
-    LexerError | AppendLexerError,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings | AppendLexerDataBindings,
+    LexerActionState | AppendLexerActionState,
+    LexerError | AppendLexerError
   >,
   entryNTs: ReadonlySet<Kinds>,
   lexer: IReadonlyLexer<
-    LexerError | AppendLexerError,
-    LexerKinds | AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings | AppendLexerDataBindings,
+    LexerActionState | AppendLexerActionState,
+    LexerError | AppendLexerError
   >,
   cascadeQueryPrefix: string | undefined,
-): SerializableParserData<Kinds, LexerKinds | AppendLexerKinds> {
+): SerializableParserData<Kinds, LexerDataBindings | AppendLexerDataBindings> {
   return {
     hash: calculateHash(data, entryNTs, lexer, cascadeQueryPrefix),
     data: { dfa: dfa.toJSON() },

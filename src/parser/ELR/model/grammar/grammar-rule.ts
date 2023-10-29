@@ -13,16 +13,21 @@ import type { ReadonlyGrammarRuleRepo } from "./grammar-rule-repo";
 import { GrammarSet } from "./grammar-set";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ParserBuilder } from "../../builder";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  Token,
+} from "../../../../lexer";
 
 export class GrammarRule<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
-  readonly rule: readonly Grammar<Kinds | LexerKinds>[];
+  readonly rule: readonly Grammar<Kinds | ExtractKinds<LexerDataBindings>>[];
   /**
    * The reduce target's kind name.
    */
@@ -36,9 +41,9 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   > & {
     /**
      * Related resolvers.
@@ -47,9 +52,9 @@ export class GrammarRule<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[];
   })[];
   /**
@@ -61,43 +66,48 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >[];
   callback?: Callback<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   rejecter?: Condition<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   rollback?: Callback<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   commit?: Condition<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
-  traverser?: Traverser<ASTData, ErrorType, Kinds | LexerKinds>;
+  traverser?: Traverser<
+    ASTData,
+    ErrorType,
+    Kinds,
+    Token<LexerDataBindings, LexerError>
+  >;
 
   /**
    * @see {@link GrammarRule.toString}
@@ -122,9 +132,9 @@ export class GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       | "rule"
       | "NT"
@@ -170,18 +180,18 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     gr: Pick<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       "NT" | "rule"
     >,
@@ -198,18 +208,18 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     gr: Pick<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       "NT" | "rule"
     >,
@@ -220,14 +230,14 @@ export class GrammarRule<
   }
 
   toSerializable(
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     grs: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
   ): {
     // TODO: omit this return type definition
@@ -284,29 +294,29 @@ export class GrammarRule<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     data: ReturnType<
       GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["toSerializable"]
     >,
-    repo: GrammarRepo<Kinds, LexerKinds>,
+    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
     const gr = new GrammarRule<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >({
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
@@ -322,9 +332,9 @@ export class GrammarRule<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
     ) => {
       gr.resolved.push(
@@ -337,7 +347,7 @@ export class GrammarRule<
                 next:
                   r.next == "*"
                     ? ("*" as const)
-                    : new GrammarSet<Kinds, LexerKinds>(
+                    : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
                         r.next.map((g) => repo.getByString(g)!),
                       ),
                 accepter: r.accepter!,
@@ -350,7 +360,7 @@ export class GrammarRule<
                 next:
                   r.next == "*"
                     ? ("*" as const)
-                    : new GrammarSet<Kinds, LexerKinds>(
+                    : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
                         r.next.map((g) => repo.getByString(g)!),
                       ),
                 // accepter will be restored when hydrate if hydration id is provided.
@@ -363,7 +373,7 @@ export class GrammarRule<
         ...data.conflicts.map((c) => ({
           type: c.type,
           anotherRule: grs.getByString(c.anotherRule)!,
-          next: new GrammarSet<Kinds, LexerKinds>(
+          next: new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
             c.next.map((g) => repo.getByString(g)!),
           ),
           handleEnd: c.handleEnd,

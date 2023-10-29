@@ -1,4 +1,9 @@
-import type { ILexer } from "../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  ILexer,
+  Token,
+} from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
@@ -28,55 +33,61 @@ export class DFA<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  LexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
+  LexerError,
 > {
   constructor(
     readonly grammarRules: ReadonlyGrammarRuleRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     private readonly entryNTs: ReadonlySet<Kinds>,
     private readonly entryState: State<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     private readonly NTClosures: ReadonlyNTClosures<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
-    public readonly firstSets: ReadonlyFirstSets<Kinds, LexerKinds>,
-    public readonly followSets: ReadonlyFollowSets<Kinds, LexerKinds>,
+    public readonly firstSets: ReadonlyFirstSets<
+      Kinds,
+      ExtractKinds<LexerDataBindings>
+    >,
+    public readonly followSets: ReadonlyFollowSets<
+      Kinds,
+      ExtractKinds<LexerDataBindings>
+    >,
     private readonly candidates: ReadonlyCandidateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     readonly states: ReadonlyStateRepo<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
-    readonly grammars: GrammarRepo<Kinds, LexerKinds>,
+    readonly grammars: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     readonly NTs: ReadonlySet<Kinds>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
@@ -87,23 +98,28 @@ export class DFA<
    * Try to yield an entry NT.
    */
   parse(
-    buffer: readonly ASTNode<ASTData, ErrorType, Kinds | LexerKinds>[],
-    lexer: ILexer<LexerError, LexerKinds, LexerActionState>,
+    buffer: readonly ASTNode<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >[],
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>,
     reLexStack: ReActionState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -111,8 +127,13 @@ export class DFA<
     debug: boolean,
     logger: Logger,
   ): {
-    output: ParserOutput<ASTData, ErrorType, Kinds | LexerKinds>;
-    lexer: ILexer<LexerError, LexerKinds, LexerActionState>;
+    output: ParserOutput<
+      ASTData,
+      ErrorType,
+      Kinds,
+      Token<LexerDataBindings, LexerError>
+    >;
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
   } {
     return this._parse(
       {
@@ -142,25 +163,25 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     reLexStack: ReActionState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     debug: boolean,
     logger: Logger,
@@ -207,25 +228,25 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     reLexStack: ReActionState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -311,25 +332,25 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     reLexStack: ReActionState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     debug: boolean,
     logger: Logger,
@@ -420,25 +441,25 @@ export class DFA<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >,
     reLexStack: ReActionState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     rollbackStack: RollbackState<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[],
     ignoreEntryFollow: boolean,
     debug: boolean,
@@ -526,18 +547,18 @@ export class DFA<
     ASTData,
     ErrorType,
     Kinds extends string,
-    LexerKinds extends string,
-    LexerError,
+    LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
+    LexerError,
   >(
     data: ReturnType<
       DFA<
         ASTData,
         ErrorType,
         Kinds,
-        LexerKinds,
-        LexerError,
-        LexerActionState
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >["toJSON"]
     >,
     options: {
@@ -548,30 +569,33 @@ export class DFA<
     },
   ) {
     const NTs = new Set(data.NTs);
-    const grammars = GrammarRepo.fromJSON<Kinds, LexerKinds>(data.grammars);
+    const grammars = GrammarRepo.fromJSON<
+      Kinds,
+      ExtractKinds<LexerDataBindings>
+    >(data.grammars);
     const grs = ReadonlyGrammarRuleRepo.fromJSON<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
       ASTData,
       ErrorType,
       Kinds,
-      LexerKinds,
-      LexerError,
-      LexerActionState
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >(data.candidates, grs, grammars);
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFirstSets<Kinds, LexerKinds>;
+    ) as ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>;
     const followSets = serializable2map(data.followSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFollowSets<Kinds, LexerKinds>;
+    ) as ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>;
     const NTClosures = serializable2map(data.NTClosures, (v) =>
       v.map((s) => grs.getByString(s)!),
     );
