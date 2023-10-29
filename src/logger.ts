@@ -56,6 +56,7 @@ export class Logger {
  * Format the log data into human readable format
  * and print it to the console.
  */
+// TODO: use a factory function instead of a global variable
 export const defaultLogger = new Logger();
 /**
  * Format the log data into one-line-JSON format
