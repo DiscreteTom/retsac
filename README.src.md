@@ -9,7 +9,7 @@
 > **Warning**:
 > This project is still in early development stage, the API may change frequently.
 
-Text lexer and parser implemented in pure TypeScript with no external dependencies.
+Text lexer and parser. Compiler frontend framework.
 
 This can be used to **fast prototype** your own programming language compiler/translator frontend, or parse your domain specific language.
 
