@@ -1,3 +1,4 @@
+import type { GeneralToken } from "../lexer";
 import type { ASTNode } from "./ast";
 
 /**
@@ -5,19 +6,31 @@ import type { ASTNode } from "./ast";
  * The result of the traverser is stored in the ASTNode's data field.
  * Traverser should never be called in a leaf node (no children).
  */
-
-export type Traverser<ASTData, ErrorType, AllKinds extends string> = (
-  self: ASTNode<ASTData, ErrorType, AllKinds> & {
-    // children is not undefined
-    children: NonNullable<ASTNode<ASTData, ErrorType, AllKinds>["children"]>;
+// TODO: why never be called in a leaf node?
+export type Traverser<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  TokenType extends GeneralToken,
+> = (
+  self: ASTNode<ASTData, ErrorType, Kinds, TokenType> & {
+    // ensure children is not undefined
+    children: NonNullable<
+      ASTNode<ASTData, ErrorType, Kinds, TokenType>["children"]
+    >;
   },
 ) => ASTData | undefined | void;
 
 /**
  * The default traverser.
  */
-export function defaultTraverser<ASTData, ErrorType, AllKinds extends string>(
-  self: Parameters<Traverser<ASTData, ErrorType, AllKinds>>[0],
+export function defaultTraverser<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  TokenType extends GeneralToken,
+>(
+  self: Parameters<Traverser<ASTData, ErrorType, Kinds, TokenType>>[0],
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length == 1)

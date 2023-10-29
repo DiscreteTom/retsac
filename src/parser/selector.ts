@@ -1,3 +1,4 @@
+import type { ExtractKinds, GeneralToken } from "../lexer";
 import type { StringOrLiteral } from "../type-helper";
 import type { ASTNode } from "./ast";
 
@@ -7,10 +8,11 @@ import type { ASTNode } from "./ast";
 export type ASTNodeChildrenSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  TokenType extends GeneralToken,
 > = (
-  name: StringOrLiteral<AllKinds>,
-) => ASTNode<ASTData, ErrorType, AllKinds>[];
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+) => ASTNode<ASTData, ErrorType, Kinds, TokenType>[];
 
 /**
  * Select the first matched child node by the name.
@@ -18,18 +20,24 @@ export type ASTNodeChildrenSelector<
 export type ASTNodeFirstMatchChildSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  TokenType extends GeneralToken,
 > = (
-  name: StringOrLiteral<AllKinds>,
-) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+) => ASTNode<ASTData, ErrorType, Kinds, TokenType> | undefined;
 
 /**
  * Select from the given nodes by the name.
  */
-export type ASTNodeSelector<ASTData, ErrorType, AllKinds extends string> = (
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
-) => ASTNode<ASTData, ErrorType, AllKinds>[];
+export type ASTNodeSelector<
+  ASTData,
+  ErrorType,
+  Kinds extends string,
+  TokenType extends GeneralToken,
+> = (
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+  nodes: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[],
+) => ASTNode<ASTData, ErrorType, Kinds, TokenType>[];
 
 /**
  * Select the first matched node from the given nodes by the name.
@@ -37,19 +45,21 @@ export type ASTNodeSelector<ASTData, ErrorType, AllKinds extends string> = (
 export type ASTNodeFirstMatchSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  TokenType extends GeneralToken,
 > = (
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
-) => ASTNode<ASTData, ErrorType, AllKinds> | undefined;
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+  nodes: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[],
+) => ASTNode<ASTData, ErrorType, Kinds, TokenType> | undefined;
 
 export function defaultASTNodeSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  TokenType extends GeneralToken,
 >(
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+  nodes: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[],
 ) {
   return nodes.filter((n) => n.name === name);
 }
@@ -57,10 +67,11 @@ export function defaultASTNodeSelector<
 export function defaultASTNodeFirstMatchSelector<
   ASTData,
   ErrorType,
-  AllKinds extends string,
+  Kinds extends string,
+  TokenType extends GeneralToken,
 >(
-  name: StringOrLiteral<AllKinds>,
-  nodes: readonly ASTNode<ASTData, ErrorType, AllKinds>[],
+  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
+  nodes: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[],
 ) {
-  return nodes.find((c) => c.name == name);
+  return nodes.find((c) => c.name == name); // TODO: use strict equal
 }
