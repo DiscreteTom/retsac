@@ -1,4 +1,4 @@
-import type { Token } from "../lexer";
+import type { Token, TokenDataBinding } from "../lexer";
 import {
   type ASTNodeFirstMatchChildSelector,
   type ASTNodeChildrenSelector,
@@ -45,6 +45,7 @@ export type ASTObj = {
 };
 
 // ASTNode's AllKinds should be Parser's kinds union with Lexer's kinds
+// TODO: re-order type params
 export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   /**
    * T's or NT's kind name.
@@ -151,12 +152,13 @@ export class ASTNode<ASTData, ErrorType, AllKinds extends string> {
   }
 
   static from<ASTData, ErrorType, AllKinds extends string>(
-    t: Readonly<Token<unknown, AllKinds>>,
+    t: Readonly<Token<TokenDataBinding<AllKinds, unknown>, AllKinds>>,
   ) {
     return new ASTNode<ASTData, ErrorType, AllKinds>({
       kind: t.kind,
       start: t.start,
       text: t.content,
+      // TODO: set lexer data into ast node?
     });
   }
 
