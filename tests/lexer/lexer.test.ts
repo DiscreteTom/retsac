@@ -3,6 +3,7 @@ import type { Token } from "../../src/lexer";
 import { Action, InvalidLengthForTakeError } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
+  .useError<string>()
   .ignore(Lexer.whitespaces())
   .define({
     number: /[0-9]+/,
@@ -91,7 +92,7 @@ test("number", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<string, "number">);
+    } as Token<"number", never, never, string>);
   });
 });
 
@@ -108,7 +109,7 @@ test("anonymous", () => {
       content: str,
       start: 0,
       error: undefined,
-    } as Token<string, "">);
+    } as Token<"", never, never, string>);
   });
 });
 

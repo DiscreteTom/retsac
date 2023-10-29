@@ -3,11 +3,12 @@ import { Lexer } from "../../../src";
 test("lexer action state", () => {
   const lexer = new Lexer.Builder()
     .useState({ value: 1 })
-    .define({ number: /\d+/ }, (a) =>
-      a.then(({ output, input }) => {
-        input.state.value += Number(output.content);
-      }),
-    )
+    .define({
+      number: (a) =>
+        a.from(/\d+/).then(({ output, input }) => {
+          input.state.value += Number(output.content);
+        }),
+    })
     .build();
 
   // ensure initial value

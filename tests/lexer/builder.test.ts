@@ -2,6 +2,7 @@ import { Lexer } from "../../src";
 import { Action } from "../../src/lexer";
 
 const builder = new Lexer.Builder()
+  .useError<string>()
   .ignore(Lexer.whitespaces())
   .define({
     number: /[0-9]+/,
@@ -38,7 +39,8 @@ test("builder define using array", () => {
   const lexer = new Lexer.Builder()
     .define({
       string: [
-        Lexer.stringLiteral(`'`).or(Lexer.stringLiteral(`"`)),
+        Lexer.stringLiteral(`'`),
+        Lexer.stringLiteral(`"`),
         Lexer.stringLiteral("`", { multiline: true }),
       ],
     })

@@ -130,7 +130,6 @@ test("lexer utils stringLiteral", () => {
         .or(stringLiteral(`"`, { escape: false }))
         .or(stringLiteral("`", { multiline: true }))
         .or(stringLiteral("a", { close: "b" }))
-        .or(stringLiteral("c", { unclosedError: "my error" }))
         .or(stringLiteral("d", { acceptUnclosed: false }))
         .or(stringLiteral("e", { multiline: true, escape: false }))
         .or(
@@ -156,23 +155,21 @@ test("lexer utils stringLiteral", () => {
   // reject multiline but accept unclosed by default
   let token1 = lexer.reset().lex(`'123\n123'`);
   expect(token1?.content).toBe(`'123\n`);
-  expect(token1?.error).toBe("unclosed string literal");
+  expect(token1?.data.unclosed).toBe(true);
   // accept unclosed by default
   let token2 = lexer.reset().lex(`'123`);
   expect(token2?.content).toBe(`'123`);
-  expect(token2?.error).toBe("unclosed string literal");
+  expect(token2?.data.unclosed).toBe(true);
   // disable escaped
   expect(lexer.reset().lex(`"123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`"123\\""`)?.content).toBe(`"123\\"`);
-  expect(lexer.reset().lex(`"123\n"`)?.error).toBe(`unclosed string literal`);
-  expect(lexer.reset().lex(`"123`)?.error).toBe(`unclosed string literal`);
+  expect(lexer.reset().lex(`"123\n"`)?.data.unclosed).toBe(true);
+  expect(lexer.reset().lex(`"123`)?.data.unclosed).toBe(true);
   // enable multiline
   expect(lexer.reset().lex("`123`")?.content).toBe("`123`");
   expect(lexer.reset().lex("`123\n123`")?.content).toBe("`123\n123`");
   // customize border
   expect(lexer.reset().lex("a123b")?.content).toBe("a123b");
-  // accept unclosed, customize error
-  expect(lexer.reset().lex("c123")?.error).toBe("my error");
   // reject unclosed
   expect(lexer.reset().lex("d123")).toBe(null);
   expect(lexer.reset().lex("d123\nd")).toBe(null);
@@ -192,18 +189,17 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex(`  '123\\''`)?.content).toBe(`'123\\''`);
   token1 = lexer.reset().lex(`  '123\n123'`);
   expect(token1?.content).toBe(`'123\n`);
-  expect(token1?.error).toBe("unclosed string literal");
+  expect(token1?.data.unclosed).toBe(true);
   token2 = lexer.reset().lex(`  '123`);
   expect(token2?.content).toBe(`'123`);
-  expect(token2?.error).toBe("unclosed string literal");
+  expect(token2?.data.unclosed).toBe(true);
   expect(lexer.reset().lex(`  "123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`  "123\\""`)?.content).toBe(`"123\\"`);
-  expect(lexer.reset().lex(`  "123\n"`)?.error).toBe(`unclosed string literal`);
-  expect(lexer.reset().lex(`  "123`)?.error).toBe(`unclosed string literal`);
+  expect(lexer.reset().lex(`  "123\n"`)?.data.unclosed).toBe(true);
+  expect(lexer.reset().lex(`  "123`)?.data.unclosed).toBe(true);
   expect(lexer.reset().lex("  `123`")?.content).toBe("`123`");
   expect(lexer.reset().lex("  `123\n123`")?.content).toBe("`123\n123`");
   expect(lexer.reset().lex("  a123b")?.content).toBe("a123b");
-  expect(lexer.reset().lex("  c123")?.error).toBe("my error");
   expect(lexer.reset().lex("  d123")).toBe(null);
   expect(lexer.reset().lex("  d123\nd")).toBe(null);
   expect(lexer.reset().lex("  e123\ne")?.content).toBe("e123\ne");
@@ -280,7 +276,7 @@ test("lexer utils comment", () => {
 test("lexer utils numericLiteral", () => {
   const lexer = new Lexer.Builder()
     .ignore(whitespaces())
-    .define({ number: Lexer.numericLiteral() })
+    .define({ number: Lexer.javascript.numericLiteral() })
     .build();
 
   // valid
@@ -311,19 +307,19 @@ test("lexer utils numericLiteral", () => {
   expect(lexer.reset().lex(`  1e6_000`)?.content).toBe(`1e6_000`);
 
   // invalid
-  expect(lexer.reset().lex(`0o79`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`0xyz`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`1.2.`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`1..2`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`1e1e1`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`1e`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`0o79`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`0xyz`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`1.2.`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`1..2`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`1e1e1`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`1e`)?.data.invalid).toBe(true);
   // additional test for #6
-  expect(lexer.reset().lex(`  0o79`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`  0xyz`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`  1.2.`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`  1..2`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`  1e1e1`)?.error).toBe("invalid numeric literal");
-  expect(lexer.reset().lex(`  1e`)?.error).toBe("invalid numeric literal");
+  expect(lexer.reset().lex(`  0o79`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  0xyz`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1.2.`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1..2`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1e1e1`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1e`)?.data.invalid).toBe(true);
 
   // boundary
   expect(lexer.reset().lex(`123abc`)).toBe(null); // no boundary
@@ -337,8 +333,8 @@ test("lexer utils numericLiteral", () => {
     .ignore(whitespaces())
     .define({
       number: [
-        Lexer.numericLiteral({ numericSeparator: "-" }),
-        Lexer.numericLiteral({ numericSeparator: false }),
+        Lexer.javascript.numericLiteral({ numericSeparator: "-" }),
+        Lexer.javascript.numericLiteral({ numericSeparator: false }),
       ],
     })
     .build();
@@ -351,7 +347,7 @@ test("lexer utils numericLiteral", () => {
   // disable boundary check
   const lexer3 = new Lexer.Builder()
     .ignore(whitespaces())
-    .define({ number: Lexer.numericLiteral({ boundary: false }) })
+    .define({ number: Lexer.javascript.numericLiteral({ boundary: false }) })
     .build();
   expect(lexer3.reset().lex(`123abc`)?.content).toBe(`123`); // ignore boundary
   // additional test for #6
@@ -360,25 +356,18 @@ test("lexer utils numericLiteral", () => {
   // reject invalid
   const lexer4 = new Lexer.Builder()
     .ignore(whitespaces())
-    .define({ number: Lexer.numericLiteral({ acceptInvalid: false }) })
+    .define({
+      number: Lexer.javascript.numericLiteral({ acceptInvalid: false }),
+    })
     .build();
   expect(lexer4.reset().lex(`0o79`)).toBe(null);
   // additional test for #6
   expect(lexer4.reset().lex(`  0o79`)).toBe(null);
 
-  // custom invalid error
-  const lexer5 = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({ number: Lexer.numericLiteral({ invalidError: "my error" }) })
-    .build();
-  expect(lexer5.reset().lex(`0o79`)?.error).toBe("my error");
-  // additional test for #6
-  expect(lexer5.reset().lex(` 0o79`)?.error).toBe("my error");
-
   const lexer6 = new Lexer.Builder()
     .ignore(whitespaces())
     .define({
-      number: Lexer.numericLiteral({
+      number: Lexer.javascript.numericLiteral({
         numericSeparator: false,
         boundary: false,
       }),
@@ -389,7 +378,7 @@ test("lexer utils numericLiteral", () => {
 
 test("lexer utils regexLiteral", () => {
   const lexer1 = new Lexer.Builder<string>()
-    .define({ regex: Lexer.regexLiteral() })
+    .define({ regex: Lexer.javascript.regexLiteral() })
     .build();
 
   // simple
@@ -410,34 +399,25 @@ test("lexer utils regexLiteral", () => {
   // accept invalid
   const lexer3 = new Lexer.Builder<string>()
     .define({
-      regex: Lexer.regexLiteral({ rejectOnInvalid: false }),
+      regex: Lexer.javascript.regexLiteral({ rejectOnInvalid: false }),
     })
     .build();
   expect(lexer3.reset().lex("/++/")?.content).toBe("/++/");
-  expect(lexer3.reset().lex("/++/")?.error).toBe("invalid regex literal");
-  expect(lexer3.reset().lex("/a/")?.error).toBe(undefined);
-
-  // custom error
-  const lexer2 = new Lexer.Builder<string>()
-    .define({
-      regex: Lexer.regexLiteral({
-        rejectOnInvalid: false,
-        invalidError: "my error",
-      }),
-    })
-    .build();
-  expect(lexer2.reset().lex("/++/")?.error).toBe("my error");
+  expect(lexer3.reset().lex("/++/")?.data.invalid).toBe(true);
+  expect(lexer3.reset().lex("/a/")?.data.invalid).toBe(false);
 
   // don't ensure boundary
   const lexer4 = new Lexer.Builder<string>()
-    .define({ regex: Lexer.regexLiteral({ boundary: false }) })
+    .define({ regex: Lexer.javascript.regexLiteral({ boundary: false }) })
     .build();
   expect(lexer4.reset().lex("/a/abc")?.content).toBe("/a/");
 
   // don't validate
   const lexer5 = new Lexer.Builder<string>()
-    .define({ regex: Lexer.regexLiteral({ validate: false }) })
+    .define({ regex: Lexer.javascript.regexLiteral({ validate: false }) })
     .build();
   expect(lexer5.reset().lex("/++/")?.content).toBe("/++/");
-  expect(lexer5.reset().lex("/++/")?.error).toBe(undefined);
+  expect(lexer5.reset().lex("/++/")?.data.invalid).toBe(false);
 });
+
+// TODO: stringLiteral lineContinuation

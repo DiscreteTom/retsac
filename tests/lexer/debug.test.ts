@@ -7,9 +7,13 @@ test("lexer debug lex", () => {
     .ignore(Lexer.whitespaces())
     .anonymous(Lexer.exact(..."+-*/()"))
     .define({
+      string: (a) => a.from(Lexer.stringLiteral(`'`)).mute(() => false), // set maybe-mute, but do not mute
+    })
+    .define({
+      number: Lexer.javascript.numericLiteral(),
+    })
+    .define({
       hash: /#/,
-      string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
-      number: Lexer.numericLiteral(),
     })
     .build({ debug: true, logger });
 
@@ -71,9 +75,13 @@ test("lexer debug trimStart", () => {
     .anonymous(Lexer.exact("!"))
     .anonymous(Lexer.exact(..."+-*/()").mute(() => false)) // set maybe-mute, but do not mute
     .define({
-      hash: /#/,
       string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
-      number: Lexer.numericLiteral().mute(() => false), // set maybe-mute, but do not mute
+    })
+    .define({
+      number: Lexer.javascript.numericLiteral().mute(() => false), // set maybe-mute, but do not mute
+    })
+    .define({
+      hash: /#/,
     })
     .build({ debug: true, logger });
 
