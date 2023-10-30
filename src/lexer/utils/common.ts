@@ -12,18 +12,18 @@ export function esc4regex(str: string) {
 /**
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
-export function whitespaces<
-  Data = never,
-  ActionState = never,
-  ErrorType = never,
->(): Action<Data, ActionState, ErrorType> {
-  return Action.from<Data, ActionState, ErrorType>(/\s+/);
+export function whitespaces<ActionState = never, ErrorType = never>(): Action<
+  never,
+  ActionState,
+  ErrorType
+> {
+  return Action.from<never, ActionState, ErrorType>(/\s+/);
 }
 
 /**
  * Match `from`, then find `to`. If `acceptEof` is `true`, accept buffer even `to` is not found.
  */
-export function fromTo<Data = never, ActionState = never, ErrorType = never>(
+export function fromTo<ActionState = never, ErrorType = never>(
   from: string | RegExp,
   to: string | RegExp,
   options: {
@@ -39,7 +39,7 @@ export function fromTo<Data = never, ActionState = never, ErrorType = never>(
      */
     autoGlobal?: boolean;
   },
-): Action<Data, ActionState, ErrorType> {
+): Action<never, ActionState, ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (
     from instanceof RegExp &&
@@ -114,7 +114,7 @@ export function fromTo<Data = never, ActionState = never, ErrorType = never>(
  * comment('//'); // single line comment
  * comment('<!--', '-->'); // multiline comment
  */
-export function comment<Data = never, ActionState = never, ErrorType = never>(
+export function comment<ActionState = never, ErrorType = never>(
   start: string | RegExp,
   /** Default: `\n` */
   end: string | RegExp = "\n",
@@ -122,8 +122,8 @@ export function comment<Data = never, ActionState = never, ErrorType = never>(
     /** Default: `true`. */
     acceptEof?: boolean;
   },
-): Action<Data, ActionState, ErrorType> {
-  return fromTo<Data, ActionState, ErrorType>(start, end, {
+): Action<never, ActionState, ErrorType> {
+  return fromTo<ActionState, ErrorType>(start, end, {
     ...options,
     acceptEof: options?.acceptEof ?? true,
   });
