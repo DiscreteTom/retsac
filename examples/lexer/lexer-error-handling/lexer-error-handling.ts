@@ -5,17 +5,25 @@ import { Lexer } from "../../../src";
  */
 
 export const lexer = new Lexer.Builder()
+  .useError<string>() // set error type
   .define({
     // built-in utils will check unclosed strings and invalid numbers
     // and accept the input with error
     string: Lexer.stringLiteral(`"`),
-    number: Lexer.numericLiteral(),
+  })
+  .define({
+    number: Lexer.javascript.numericLiteral(),
+  })
+  .define({
     // you can customize your own error handling function using `check`
-    identifier: Lexer.Action.from(/\w+/).check(({ output }) =>
-      output.content.match(/\d/)
-        ? "identifier should not starts with a number"
-        : undefined,
-    ),
+    identifier: (a) =>
+      a
+        .from(/\w+/)
+        .check(({ output }) =>
+          output.content.match(/\d/)
+            ? ("identifier should not starts with a number" as string)
+            : undefined,
+        ),
   })
   // if you are **not working with parser**, you can define a fallback rule
   // to accept one character at a time.
