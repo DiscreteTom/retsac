@@ -82,6 +82,23 @@ describe("Lexer action constructor", () => {
       rest: "",
       muted: false,
     }));
+    // ensure data is undefined by default
+    expectAccept(
+      buffer,
+      ({ rest }) => ({
+        content: rest,
+      }),
+      { data: undefined },
+    );
+    // ensure data can be set correctly
+    expectAccept(
+      buffer,
+      ({ rest }) => ({
+        content: rest,
+        data: 123,
+      }),
+      { data: 123 },
+    );
   });
 
   test("from regex", () => {
