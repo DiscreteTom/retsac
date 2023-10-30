@@ -9,6 +9,7 @@
   - **_Breaking Change_**: make `Action/Builder`'s default `ErrorType` to `never`.
   - **_Breaking Change_**: `Builder.define/ignore/anonymous` will accept functions as `ActionBuilder` instead of `SimpleActionExec`.
   - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
+  - **_Breaking Change_**: remove `Action.or/reduce`.
   - Feat: add `ActionInput.peek`.
   - Feat: add `ActionBuilder` for chaining action decorators.
   - Feat: add `Builder.useError` to set error type.
@@ -19,6 +20,7 @@
     - Add `comment`.
     - **_Breaking Change_**: move `regexLiteral/numericLiteral` into `Lexer.javascript`.
   - Feat: add option `lineContinuation` for `Lexer.stringLiteral`.
+  - Feat: `Action.match` will set output data to `RegExpExecArray`.
   - Perf: accelerate expectational lexing by using `Map` to select expected definitions.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.

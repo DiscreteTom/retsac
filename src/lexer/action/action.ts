@@ -103,7 +103,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           digested: res,
           content: input.buffer.slice(input.start, input.start + res),
           data: undefined as never,
-        } as AcceptedActionExecOutput<Data, ErrorType>;
+        } as AcceptedActionExecOutput<never, ErrorType>;
       }
       if (typeof res == "string") {
         if (res.length <= 0) return rejectedActionOutput;
@@ -113,7 +113,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           digested: res.length,
           content: res,
           data: undefined as never,
-        } as AcceptedActionExecOutput<Data, ErrorType>;
+        } as AcceptedActionExecOutput<never, ErrorType>;
       }
       // else, res is SimpleAcceptedActionOutput
       res.digested ??= res.content!.length; // if digested is undefined, content must be defined
@@ -132,7 +132,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     });
   }
 
-  static match<Data = never, ActionState = never, ErrorType = never>(
+  static match<ActionState = never, ErrorType = never>(
     r: RegExp,
     options?: {
       /**
@@ -146,7 +146,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
        */
       rejectCaret?: boolean;
     },
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<RegExpExecArray, ActionState, ErrorType> {
     if (options?.autoSticky ?? true) {
       if (!r.sticky && !r.global)
         // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
@@ -171,8 +171,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           buffer: input.buffer,
           start: input.start,
           content: res[0], // reuse the regex result
-          data: undefined as never,
-        } as AcceptedActionExecOutput<Data, ErrorType>;
+          data: res,
+        };
       return rejectedActionOutput;
     });
   }
@@ -181,7 +181,9 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp
-      ? Action.match<Data, ActionState, ErrorType>(r)
+      ? (Action.match<ActionState, ErrorType>(
+          r,
+        ).clearData() as unknown as Action<Data, ActionState, ErrorType>)
       : r instanceof Action
       ? r
       : Action.simple<Data, ActionState, ErrorType>(r);
@@ -266,6 +268,13 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   }
 
   /**
+   * Set data to `undefined` if `accept` is `true`.
+   */
+  clearData(): Action<never, ActionState, ErrorType> {
+    return this.data(() => undefined as never);
+  }
+
+  /**
    * Set error if `accept` is `true`.
    */
   error<NewErrorType>(
@@ -320,38 +329,6 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       return ctx.output;
     });
     return this;
-  }
-
-  /**
-   * Execute the new action if current action can't accept input.
-   * Sadly there is no operator overloading in typescript.
-   */
-  or(
-    a: IntoAction<Data, ActionState, ErrorType>,
-  ): Action<Data, ActionState, ErrorType> {
-    const other = Action.from(a);
-    return new Action<Data, ActionState, ErrorType>(
-      (input) => {
-        const output = this._exec(input);
-        if (output.accept) return output;
-        return other._exec(input);
-      },
-      { maybeMuted: this.maybeMuted || other.maybeMuted },
-    );
-  }
-
-  /**
-   * Reduce actions to one action. Actions will be executed in order.
-   * This will reduce the lexer loop times to optimize the performance.
-   */
-  static reduce<Data = never, ActionState = never, ErrorType = never>(
-    ...actions: IntoAction<Data, ActionState, ErrorType>[]
-  ): Action<Data, ActionState, ErrorType> {
-    return Action.from<Data, ActionState, ErrorType>(
-      actions.reduce((a, b) =>
-        Action.from<Data, ActionState, ErrorType>(a).or(b),
-      ),
-    );
   }
 
   /**
