@@ -57,10 +57,6 @@ export class Lexer<
     return this.core.defs;
   }
 
-  get defMap() {
-    return this.core.defMap;
-  }
-
   reset() {
     if (this.debug) {
       this.logger.log({ entity: "Lexer.reset" });

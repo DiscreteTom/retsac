@@ -29,35 +29,12 @@ export type ExtractAllDefinitions<
   ExtractDefinition<DataBindings, ActionState, ErrorType>
 >[];
 
-export type ExtractDefinitionMap<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> = {
-  [Kind in ExtractKinds<DataBindings>]: ReadonlyMap<
-    Kind,
-    ExtractAllDefinitions<DataBindings, ActionState, ErrorType>
-    // actually the value type should be:
-    // Definition<
-    //   Kind,
-    //   ExtractData<DataBindings & { kind: Kind }>,
-    //   ActionState,
-    //   ErrorType
-    // >[]
-    // but we don't need that accuracy here
-  >;
-}[ExtractKinds<DataBindings>];
-
 export interface IReadonlyLexerCore<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
 > {
   readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>;
-  /**
-   * Used to accelerate expectational lexing by getting the definition by the expected kind.
-   */
-  readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>;
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
@@ -259,10 +236,6 @@ export interface IReadonlyLexer<
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
   // TODO: simplify by ref to ILexerCore
   readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>;
-  /**
-   * Used to accelerate expectational lexing by getting the definition by the expected kind.
-   */
-  readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>;
   /**
    * The entire input string.
    */

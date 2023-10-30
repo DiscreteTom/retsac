@@ -3,7 +3,6 @@ import type { ActionStateCloner } from "./action";
 import { ActionInput, type AcceptedActionOutput } from "./action";
 import type {
   Definition,
-  ExtractDefinitionMap,
   ExtractAllDefinitions,
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -26,7 +25,6 @@ export class LexerCore<
 
   constructor(
     readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>,
-    readonly defMap: ExtractDefinitionMap<DataBindings, ActionState, ErrorType>,
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
     state?: ActionState,
@@ -42,7 +40,6 @@ export class LexerCore<
   dryClone() {
     return new LexerCore<DataBindings, ActionState, ErrorType>(
       this.defs,
-      this.defMap,
       this.initialState,
       this.stateCloner,
     );
@@ -52,7 +49,6 @@ export class LexerCore<
     // clone the current state
     return new LexerCore<DataBindings, ActionState, ErrorType>(
       this.defs,
-      this.defMap,
       this.initialState,
       this.stateCloner,
       this.stateCloner(this.state),
@@ -167,9 +163,9 @@ export class LexerCore<
         input.buffer.startsWith(expect.text, input.start);
       const res = LexerCore.evaluateDefs(
         input,
-        expect.kind === undefined
-          ? this.defs
-          : this.defMap.get(expect.kind) ?? [],
+        // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
+        // because some token may be muted, and we need to check the rest of the input
+        this.defs,
         {
           pre: (def) => ({
             accept:

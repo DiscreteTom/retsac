@@ -21,7 +21,6 @@
     - **_Breaking Change_**: move `regexLiteral/numericLiteral` into `Lexer.javascript`.
   - Feat: add option `lineContinuation` for `Lexer.stringLiteral`.
   - Feat: `Action.match` will set output data to `RegExpExecArray`.
-  - Perf: accelerate expectational lexing by using `Map` to select expected definitions.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.
 - Optimize package size.

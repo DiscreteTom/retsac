@@ -2,8 +2,6 @@ import type { ActionStateCloner } from "./action";
 import { Action, ActionBuilder } from "./action";
 import { Lexer } from "./lexer";
 import type {
-  Definition,
-  ExtractData,
   ExtractDefinition,
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -191,26 +189,8 @@ export class Builder<
   build(
     options?: LexerBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
-    const defMap = new Map<
-      ExtractKinds<DataBindings>,
-      Readonly<
-        Definition<
-          ExtractKinds<DataBindings>,
-          ExtractData<DataBindings>,
-          ActionState,
-          ErrorType
-        >
-      >[]
-    >();
-    this.defs.forEach((def) => {
-      def.kinds.forEach((kind) => {
-        const arr = defMap.get(kind);
-        if (arr !== undefined) arr.push(def);
-        else defMap.set(kind, [def]);
-      });
-    });
     return new Lexer<DataBindings, ActionState, ErrorType>(
-      new LexerCore(this.defs, defMap, this.initialState, this.stateCloner),
+      new LexerCore(this.defs, this.initialState, this.stateCloner),
       options,
     );
   }
