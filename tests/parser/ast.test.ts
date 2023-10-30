@@ -1,7 +1,13 @@
+import type { GeneralToken } from "../../src/lexer";
 import { ASTNode } from "../../src/parser";
 
 test("from token", () => {
-  const node = ASTNode.from({ content: "123", kind: "num", start: 0 });
+  const node = ASTNode.from({
+    content: "123",
+    kind: "num",
+    start: 0,
+    data: undefined,
+  });
   expect(node.kind).toBe("num");
   expect(node.start).toBe(0);
   expect(node.text).toBe("123");
@@ -12,7 +18,12 @@ test("from token", () => {
 });
 
 test("to obj", () => {
-  const node1 = ASTNode.from({ content: "123", kind: "num", start: 0 });
+  const node1 = ASTNode.from({
+    content: "123",
+    kind: "num",
+    start: 0,
+    data: undefined,
+  });
   const obj1 = node1.toJSON();
 
   expect(obj1).toEqual({
@@ -26,7 +37,7 @@ test("to obj", () => {
   const node2 = new ASTNode({
     kind: "exp",
     start: 0,
-    children: [node1 as ASTNode<unknown, unknown, "exp" | "num">],
+    children: [node1],
   });
   const obj2 = node2.toJSON();
 
@@ -49,12 +60,24 @@ test("to obj", () => {
 
 test("to string", () => {
   expect(
-    ASTNode.from({ start: 0, kind: "num", content: "123" }).toString(),
+    ASTNode.from({
+      start: 0,
+      kind: "num",
+      content: "123",
+      data: undefined,
+    }).toString(),
   ).toBe(
     'ASTNode({ kind: "num", start: 0, text: "123", data: undefined, error: undefined })',
   );
 
-  expect(ASTNode.from({ start: 0, kind: "", content: "+" }).toString()).toBe(
+  expect(
+    ASTNode.from({
+      start: 0,
+      kind: "",
+      content: "+",
+      data: undefined,
+    }).toString(),
+  ).toBe(
     'ASTNode({ kind: "", start: 0, text: "+", data: undefined, error: undefined })',
   );
 });
@@ -64,18 +87,18 @@ test("to tree string", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "",
         start: 4,
         text: "+",
         name: "plus",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "num",
         start: 5,
         text: "123",
@@ -93,18 +116,18 @@ test("query selector", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "",
         start: 4,
         text: "+",
         name: "plus",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "">({
+      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
         kind: "num",
         start: 5,
         text: "123",
