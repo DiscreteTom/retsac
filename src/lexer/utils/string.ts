@@ -73,7 +73,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   // set unclosed
   if (acceptUnclosed) {
     return action.data(({ output }) => ({
-      unclosed: output.content.split(/\\./).at(-1) !== close,
+      unclosed: !output.content.split(/\\./).at(-1)!.endsWith(close),
     }));
   }
 
