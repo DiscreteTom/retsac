@@ -155,26 +155,26 @@ export class Builder<
   /**
    * Define tokens with empty kind.
    */
-  anonymous(
-    ...actions: ActionSource<
-      ExtractData<DataBindings>,
-      ActionState,
-      ErrorType
-    >[]
-  ) {
+  anonymous<AppendData>(
+    ...actions: ActionSource<AppendData, ActionState, ErrorType>[]
+  ): Builder<
+    DataBindings | { kind: ""; data: AppendData },
+    ActionState,
+    ErrorType
+  > {
     return this.define({ "": actions });
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore(
-    ...actions: ActionSource<
-      ExtractData<DataBindings>,
-      ActionState,
-      ErrorType
-    >[]
-  ) {
+  ignore<AppendData>(
+    ...actions: ActionSource<AppendData, ActionState, ErrorType>[]
+  ): Builder<
+    DataBindings | { kind: ""; data: AppendData },
+    ActionState,
+    ErrorType
+  > {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
     });
