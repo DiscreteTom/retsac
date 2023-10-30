@@ -9,7 +9,7 @@ export class ActionBuilder<ActionState, ErrorType> {
    */
   new<Data>(
     ...props: ConstructorParameters<typeof Action<Data, ActionState, ErrorType>>
-  ): Action<Data, ActionState, ErrorType> {
+  ) {
     return new Action<Data, ActionState, ErrorType>(...props);
   }
 
@@ -18,17 +18,15 @@ export class ActionBuilder<ActionState, ErrorType> {
    */
   simple<Data>(
     ...props: Parameters<typeof Action.simple<Data, ActionState, ErrorType>>
-  ): Action<Data, ActionState, ErrorType> {
+  ) {
     return Action.simple<Data, ActionState, ErrorType>(...props);
   }
 
   /**
    * @alias {@link Action.match}
    */
-  match<Data>(
-    ...props: Parameters<typeof Action.match<Data, ActionState, ErrorType>>
-  ): Action<Data, ActionState, ErrorType> {
-    return Action.match<Data, ActionState, ErrorType>(...props);
+  match(...props: Parameters<typeof Action.match<ActionState, ErrorType>>) {
+    return Action.match<ActionState, ErrorType>(...props);
   }
 
   /**
@@ -36,7 +34,7 @@ export class ActionBuilder<ActionState, ErrorType> {
    */
   from<Data>(
     ...props: Parameters<typeof Action.from<Data, ActionState, ErrorType>>
-  ): Action<Data, ActionState, ErrorType> {
+  ) {
     return Action.from<Data, ActionState, ErrorType>(...props);
   }
 }
