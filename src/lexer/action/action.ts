@@ -127,7 +127,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           res.content ??
           input.buffer.slice(input.start, input.start + res.digested),
         rest: res.rest,
-        data: undefined as never,
+        data: res.data,
       } as AcceptedActionExecOutput<Data, ErrorType>;
     });
   }
