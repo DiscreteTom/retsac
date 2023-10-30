@@ -89,7 +89,10 @@ export type ActionExecOutput<Data, ErrorType> =
   | typeof rejectedActionOutput
   | AcceptedActionExecOutput<Data, ErrorType>;
 
-// user must provide `content` or `digested`.
+/**
+ * Make unnecessary fields optional.
+ * One of `content` or `digested` must be provided.
+ */
 export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
   Pick<
     AcceptedActionOutput<Data, ErrorType>,
