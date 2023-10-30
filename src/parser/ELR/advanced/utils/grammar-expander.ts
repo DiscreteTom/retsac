@@ -25,7 +25,7 @@ export class GrammarExpander<
       }
     | {
         kind: "grammar" | "rename";
-        data: unknown;
+        data: never;
       }
     | {
         kind: "literal";
@@ -35,7 +35,7 @@ export class GrammarExpander<
       }
     | {
         kind: "";
-        data: unknown;
+        data: never;
       },
     never,
     never
