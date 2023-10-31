@@ -5,7 +5,9 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
+  ILexerCloneOptions,
   ILexerCore,
+  ILexerLexOptions,
   Token,
 } from "./model";
 import { LexerState } from "./state";
@@ -62,7 +64,7 @@ export class Lexer<
     return this;
   }
 
-  dryClone(options?: { debug?: boolean; logger?: Logger }) {
+  dryClone(options?: ILexerCloneOptions) {
     const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.core.dryClone(),
     );
@@ -71,7 +73,7 @@ export class Lexer<
     return res;
   }
 
-  clone(options?: { debug?: boolean; logger?: Logger }) {
+  clone(options?: ILexerCloneOptions) {
     const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.core.clone(),
     );
@@ -157,16 +159,7 @@ export class Lexer<
   }
 
   lex(
-    input:
-      | string
-      | Readonly<{
-          input?: string;
-          expect?: Readonly<{
-            kind?: ExtractKinds<DataBindings>;
-            text?: string;
-          }>;
-          peek?: boolean;
-        }> = "",
+    input: string | Readonly<ILexerLexOptions<DataBindings>> = "",
   ): Token<DataBindings, ErrorType> | null {
     // feed input if provided
     if (typeof input === "string") {

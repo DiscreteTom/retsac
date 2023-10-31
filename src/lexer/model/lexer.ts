@@ -1,7 +1,20 @@
 import type { Logger } from "../../logger";
-import type { ILexerCore } from "./core";
+import type { ILexerCore, ILexerCoreLexOptions } from "./core";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
+
+export type ILexerLexOptions<DataBindings extends GeneralTokenDataBinding> = {
+  /**
+   * The input string to be append to the buffer.
+   * @default undefined
+   */
+  input?: string;
+} & Partial<Pick<ILexerCoreLexOptions<DataBindings>, "expect" | "peek">>;
+
+export type ILexerCloneOptions = {
+  debug?: boolean;
+  logger?: Logger;
+};
 
 /**
  * IReadonlyLexer's states won't be changed.
@@ -14,17 +27,16 @@ export interface IReadonlyLexer<
   readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
-   * Default: `false`.
+   * @default false
    */
   get debug(): boolean;
   /**
    * The logger used when `debug` is `true`.
-   * Default: `defaultLogger`.
+   * @default defaultLogger
    */
   get logger(): Logger;
   /**
    * Currently accumulated errors.
-   * You can clear the errors by setting it's length to 0.
    */
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
   /**
@@ -44,36 +56,26 @@ export interface IReadonlyLexer<
    */
   get trimmed(): boolean;
   /**
-   * Clone a new lexer with the same definitions and current state.
-   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
-   */
-  clone(options?: {
-    debug?: boolean;
-    logger?: Logger;
-  }): ILexer<DataBindings, ActionState, ErrorType>;
-  /**
    * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(options?: {
-    debug?: boolean;
-    logger?: Logger;
-  }): ILexer<DataBindings, ActionState, ErrorType>;
+  dryClone(
+    options?: ILexerCloneOptions,
+  ): ILexer<DataBindings, ActionState, ErrorType>;
+  /**
+   * Clone a new lexer with the same definitions and current state.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
+   */
+  clone(
+    options?: ILexerCloneOptions,
+  ): ILexer<DataBindings, ActionState, ErrorType>;
   /**
    * Try to retrieve a token. If nothing match, return `null`.
    *
    * You can provide `expect` to limit the token kind/content to be accepted.
    */
   lex(
-    options: Readonly<{
-      input?: string;
-      expect?: Readonly<{
-        kind?: ExtractKinds<DataBindings>;
-        text?: string;
-      }>;
-      // readonly lex, must set peek to true
-      peek: true;
-    }>,
+    options: Readonly<ILexerLexOptions<DataBindings>> & { peek: true },
   ): Token<DataBindings, ErrorType> | null;
   /**
    * Get the un-lexed string buffer.
@@ -102,6 +104,10 @@ export interface ILexer<
   ActionState,
   ErrorType,
 > extends IReadonlyLexer<DataBindings, ActionState, ErrorType> {
+  /**
+   * Currently accumulated errors.
+   * You can clear the errors by setting it's length to 0.
+   */
   get errors(): Readonly<Token<DataBindings, ErrorType>>[]; // make the array mutable
   set debug(value: boolean);
   set logger(value: Logger);
@@ -109,7 +115,9 @@ export interface ILexer<
    * Reset the lexer's state, only keep the definitions.
    */
   reset(): this;
-  /** Append buffer with input. */
+  /**
+   * Append buffer with input.
+   */
   feed(input: string): this;
   /**
    * Take `n` chars from the rest of buffer and update state.
@@ -132,18 +140,7 @@ export interface ILexer<
     },
   ): string;
   lex(
-    options: Readonly<{
-      input?: string;
-      expect?: Readonly<{
-        kind?: ExtractKinds<DataBindings>;
-        text?: string;
-      }>;
-      /**
-       * If `true`, the lexer will not update its state.
-       * Default: `false`.
-       */
-      peek?: boolean;
-    }>,
+    options: Readonly<ILexerLexOptions<DataBindings>>,
   ): Token<DataBindings, ErrorType> | null;
   lex(input?: string): Token<DataBindings, ErrorType> | null;
   /**
