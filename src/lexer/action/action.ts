@@ -333,9 +333,9 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   /**
    * Set kinds for this action. This is used if your action can yield multiple kinds.
    * @example
-   * builder.branch(a => a.from(...).kinds(...).select(...))
+   * builder.select(a => a.from(...).kinds(...).map(...))
    */
-  kinds<Kinds extends string>(kinds: Kinds[]) {
+  kinds<Kinds extends string>(...kinds: Kinds[]) {
     return new ActionWithKinds(kinds, this);
   }
 

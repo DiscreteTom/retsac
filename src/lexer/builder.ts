@@ -124,9 +124,9 @@ export class Builder<
   /**
    * Define an action which can yield multiple kinds.
    * @example
-   * builder.branch(a => a.from(...).kinds(...).select(...))
+   * builder.select(a => a.from(...).kinds(...).map(...))
    */
-  branch<AppendKinds extends string, AppendData>(
+  select<AppendKinds extends string, AppendData>(
     builder: (
       a: ActionBuilder<ActionState, ErrorType>,
     ) => SelectedAction<AppendKinds, AppendData, ActionState, ErrorType>,

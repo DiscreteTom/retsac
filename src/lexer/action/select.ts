@@ -11,7 +11,7 @@ export class ActionWithKinds<
     public readonly action: Action<Data, ActionState, ErrorType>,
   ) {}
 
-  select(
+  map(
     selector: (
       ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => Kinds,
