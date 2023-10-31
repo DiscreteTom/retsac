@@ -201,7 +201,7 @@ export class LexerCore<
 
       // update lexer state
       digested += res.output.digested;
-      rest = res.output.rest;
+      rest = res.output._rest;
 
       if (res.output.muted) {
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
@@ -333,7 +333,7 @@ export class LexerCore<
         // accept but muted
         // re-loop all definitions after update states
         digested += res.output.digested;
-        rest = res.output.rest;
+        rest = res.output._rest;
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(LexerCore.output2token(res.kind, res.output));
