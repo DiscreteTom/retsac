@@ -105,9 +105,9 @@ export class TempGrammar {
  * Grammar rule, but can't distinguish N or NT.
  */
 export class TempGrammarRule<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -118,41 +118,41 @@ export class TempGrammarRule<
    */
   readonly NT: Kinds;
   callback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rejecter?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rollback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   commit?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   traverser?: Traverser<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
   readonly hydrationId: number;
@@ -161,9 +161,9 @@ export class TempGrammarRule<
   constructor(
     data: Pick<
       TempGrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError

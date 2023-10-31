@@ -35,17 +35,17 @@ import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
  * State for ELR parsers.
  */
 export class State<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > {
   readonly candidates: readonly Candidate<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -61,9 +61,9 @@ export class State<
   private readonly nextMap: Map<
     Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
     State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -72,9 +72,9 @@ export class State<
 
   constructor(
     candidates: Candidate<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -89,37 +89,37 @@ export class State<
   generateNext(
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     next: Readonly<
-      ASTNode<never, never, Kinds | ExtractKinds<LexerDataBindings>, never>
+      ASTNode<Kinds | ExtractKinds<LexerDataBindings>, never, never, never>
     >,
     NTClosures: ReadonlyNTClosures<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     allStates: StateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     cs: CandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
   ): {
     state: State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -154,13 +154,13 @@ export class State<
   getNext(
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     next: Readonly<
-      ASTNode<ASTData, ErrorType, Kinds, Token<LexerDataBindings, LexerError>>
+      ASTNode<Kinds, ASTData, ErrorType, Token<LexerDataBindings, LexerError>>
     >,
   ): {
     state: State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -193,9 +193,9 @@ export class State<
   contains(
     gr: Readonly<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -221,18 +221,18 @@ export class State<
    * The result is sorted by candidate string, so that the same state will have the same string representation.
    */
   static getString<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     data: Pick<
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -256,9 +256,9 @@ export class State<
     logger: Logger,
   ): {
     node: ASTNode<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       Token<LexerDataBindings, LexerError>
     >;
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
@@ -267,9 +267,9 @@ export class State<
     const done = new Map<
       string,
       ASTNode<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         Token<LexerDataBindings, LexerError>
       > | null // don't use undefined, use null
     >();
@@ -311,9 +311,9 @@ export class State<
 
         // lex candidate.current
         const r = lexGrammar<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
@@ -354,9 +354,9 @@ export class State<
    */
   tryReduce(
     buffer: readonly ASTNode<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       Token<LexerDataBindings, LexerError>
     >[],
     entryNTs: ReadonlySet<string>,
@@ -369,24 +369,24 @@ export class State<
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         Token<LexerDataBindings, LexerError>
       > & {
         context: GrammarRuleContext<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
         >;
         commit: boolean;
         rollback?: Callback<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
@@ -429,17 +429,17 @@ export class State<
 
   toSerializable(
     cs: ReadonlyCandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     ss: ReadonlyStateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -458,27 +458,27 @@ export class State<
   }
 
   static fromJSON<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     data: ReturnType<
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
       >["toSerializable"]
     >,
     cs: ReadonlyCandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -493,9 +493,9 @@ export class State<
     // restore nextMap after the whole state repo is filled.
     const restoreNextMap = (
       ss: StateRepo<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError

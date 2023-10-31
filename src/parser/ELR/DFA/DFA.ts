@@ -30,35 +30,35 @@ import {
  * DFA for ELR parsers. Stateless.
  */
 export class DFA<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > {
   constructor(
     readonly grammarRules: ReadonlyGrammarRuleRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     private readonly entryNTs: ReadonlySet<Kinds>,
     private readonly entryState: State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     private readonly NTClosures: ReadonlyNTClosures<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -72,17 +72,17 @@ export class DFA<
       ExtractKinds<LexerDataBindings>
     >,
     private readonly candidates: ReadonlyCandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     readonly states: ReadonlyStateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -99,24 +99,24 @@ export class DFA<
    */
   parse(
     buffer: readonly ASTNode<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       Token<LexerDataBindings, LexerError>
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>,
     reLexStack: ReActionState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >[],
     rollbackStack: RollbackState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -128,9 +128,9 @@ export class DFA<
     logger: Logger,
   ): {
     output: ParserOutput<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       Token<LexerDataBindings, LexerError>
     >;
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
@@ -160,25 +160,25 @@ export class DFA<
    */
   private _reLex(
     parsingState: ParsingState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     reLexStack: ReActionState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >[],
     rollbackStack: RollbackState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -225,25 +225,25 @@ export class DFA<
 
   private _parse(
     parsingState: ParsingState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     reLexStack: ReActionState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >[],
     rollbackStack: RollbackState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -329,25 +329,25 @@ export class DFA<
    */
   private tryLex(
     parsingState: ParsingState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     reLexStack: ReActionState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >[],
     rollbackStack: RollbackState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -438,25 +438,25 @@ export class DFA<
 
   private tryReduce(
     parsingState: ParsingState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     reLexStack: ReActionState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >[],
     rollbackStack: RollbackState<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -544,18 +544,18 @@ export class DFA<
   }
 
   static fromJSON<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     data: ReturnType<
       DFA<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -574,17 +574,17 @@ export class DFA<
       ExtractKinds<LexerDataBindings>
     >(data.grammars);
     const grs = ReadonlyGrammarRuleRepo.fromJSON<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError

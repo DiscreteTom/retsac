@@ -25,6 +25,7 @@
   - Feat: `Action.match` will set output data to `RegExpExecArray`.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.
+  - Feat: add `IParserBuilder.useData`.
 - Optimize package size.
 
 ## v0.12.0

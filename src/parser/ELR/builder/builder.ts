@@ -58,26 +58,26 @@ import { buildSerializable, calculateHash } from "./utils/serialize";
  * When build, it's recommended to set `checkAll` to `true` in development environment.
  */
 export class ParserBuilder<
-  ASTData,
-  ErrorType = unknown,
   Kinds extends string = never,
+  ASTData = never,
+  ErrorType = unknown,
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
   LexerError = never,
 > implements
     IParserBuilder<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >
 {
   protected readonly data: ParserBuilderData<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -109,28 +109,48 @@ export class ParserBuilder<
       AppendLexerError
     >,
   ): IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings | AppendLexerDataBindings,
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError
   > {
     return this as IParserBuilder<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings | AppendLexerDataBindings,
       LexerActionState | AppendLexerActionState,
       LexerError | AppendLexerError
     >;
   }
 
+  useData<NewData>(
+    _?: NewData,
+  ): IParserBuilder<
+    Kinds,
+    NewData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  > {
+    return this as unknown as IParserBuilder<
+      Kinds,
+      NewData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
+    >;
+  }
+
   load(
     data: readonly ParserBuilderData<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -138,9 +158,9 @@ export class ParserBuilder<
   ) {
     this.data.push(...data);
     return this as IParserBuilder<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -150,26 +170,26 @@ export class ParserBuilder<
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
     decorator?: DefinitionContextBuilderDecorator<
+      Kinds | Append,
       ASTData,
       ErrorType,
-      Kinds | Append,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
   ): IParserBuilder<
+    Kinds | Append,
     ASTData,
     ErrorType,
-    Kinds | Append,
     LexerDataBindings,
     LexerActionState,
     LexerError
   > {
     (
       this.data as ParserBuilderData<
+        Kinds | Append,
         ASTData,
         ErrorType,
-        Kinds | Append,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -181,9 +201,9 @@ export class ParserBuilder<
       hydrationId: this.data.length,
     });
     return this as IParserBuilder<
+      Kinds | Append,
       ASTData,
       ErrorType,
-      Kinds | Append,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -230,9 +250,9 @@ export class ParserBuilder<
       NTs,
       resolvedTemps,
     } = DFABuilder.prepare<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings | AppendLexerDataBindings,
       LexerActionState | AppendLexerActionState,
       LexerError | AppendLexerError
@@ -241,9 +261,9 @@ export class ParserBuilder<
       lexer,
       entryNTs,
       this.data as ParserBuilderData<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings | AppendLexerDataBindings,
         LexerActionState | AppendLexerActionState,
         LexerError | AppendLexerError
@@ -319,9 +339,9 @@ export class ParserBuilder<
 
       const accepter = r.options.accept ?? true;
       const resolved: ResolvedConflict<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings | AppendLexerDataBindings,
         LexerActionState | AppendLexerActionState,
         LexerError | AppendLexerError
@@ -506,17 +526,17 @@ export class ParserBuilder<
   >(
     unresolved: Map<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings | AppendLexerDataBindings,
         LexerActionState | AppendLexerActionState,
         LexerError | AppendLexerError
       >,
       Conflict<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings | AppendLexerDataBindings,
         LexerActionState | AppendLexerActionState,
         LexerError | AppendLexerError
@@ -575,9 +595,9 @@ export class ParserBuilder<
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
     options: RS_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -586,9 +606,9 @@ export class ParserBuilder<
     this.data.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -604,9 +624,9 @@ export class ParserBuilder<
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
     options: RR_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -615,9 +635,9 @@ export class ParserBuilder<
     this.data.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -631,28 +651,28 @@ export class ParserBuilder<
 
   use<
     AppendKinds extends string,
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendError,
+    AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendLexerActionState,
     AppendLexerError,
   >(
     f: BuilderDecorator<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError,
       AppendKinds,
-      AppendLexerDataBindings,
       AppendError,
+      AppendLexerDataBindings,
       AppendLexerActionState,
       AppendLexerError
     >,
   ): IParserBuilder<
+    Kinds | AppendKinds,
     ASTData,
     ErrorType | AppendError,
-    Kinds | AppendKinds,
     LexerDataBindings | AppendLexerDataBindings,
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError
@@ -770,9 +790,9 @@ export class ParserBuilder<
     options: Parameters<typeof DFA.fromJSON>[1],
   ) {
     const dfa = DFA.fromJSON<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings | AppendLexerDataBindings,
       LexerActionState | AppendLexerActionState,
       LexerError | AppendLexerError
@@ -780,9 +800,9 @@ export class ParserBuilder<
     const ctxs = this.data.map(
       (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings | AppendLexerDataBindings,
       LexerActionState | AppendLexerActionState,
       LexerError | AppendLexerError
@@ -803,9 +823,9 @@ export class ParserBuilder<
               ? ctxs[r.hydrationId.index].resolved[0].accept // resolvers in builder mode only have one resolver
               : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
           ) as Condition<
+            Kinds,
             ASTData,
             ErrorType,
-            Kinds,
             LexerDataBindings | AppendLexerDataBindings,
             LexerActionState | AppendLexerActionState,
             LexerError | AppendLexerError

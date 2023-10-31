@@ -13,36 +13,36 @@ import { InvalidPlaceholderFollowError } from "./error";
 import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
-    ASTData,
-    ErrorType = unknown,
     Kinds extends string = never,
+    ASTData = never,
+    ErrorType = never,
     LexerDataBindings extends GeneralTokenDataBinding = never,
-    LexerError = never,
     LexerActionState = never,
+    LexerError = never,
   >
   extends ParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
-    LexerError,
-    LexerActionState
+    LexerActionState,
+    LexerError
   >
   implements
     IParserBuilder<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
-      LexerError,
-      LexerActionState
+      LexerActionState,
+      LexerError
     >
 {
   private readonly expander: GrammarExpander<
     Kinds,
     LexerDataBindings,
-    LexerError,
-    LexerActionState
+    LexerActionState,
+    LexerError
   >;
 
   constructor(options?: {
@@ -57,8 +57,8 @@ export class AdvancedBuilder<
     this.expander = new GrammarExpander<
       Kinds,
       LexerDataBindings,
-      LexerError,
-      LexerActionState
+      LexerActionState,
+      LexerError
     >({
       placeholderPrefix: prefix,
     });
@@ -79,12 +79,12 @@ export class AdvancedBuilder<
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
         options: RS_ResolverOptions<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
-          LexerError,
-          LexerActionState
+          LexerActionState,
+          LexerError
         >;
       }[];
     }[];
@@ -106,14 +106,14 @@ export class AdvancedBuilder<
 
   build<
     AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerError,
     AppendLexerActionState,
+    AppendLexerError,
   >(
     options: BuildOptions<
       Kinds,
       LexerDataBindings | AppendLexerDataBindings,
-      LexerError | AppendLexerError,
-      LexerActionState | AppendLexerActionState
+      LexerActionState | AppendLexerActionState,
+      LexerError | AppendLexerError
     >,
   ) {
     // if hydrate, just call super.build()
@@ -125,35 +125,35 @@ export class AdvancedBuilder<
 
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
-      LexerError,
-      LexerActionState
+      LexerActionState,
+      LexerError
     >({
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     });
 
     // expand definitions in data
     const toBeLoaded = [] as ParserBuilderData<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
-      LexerError,
-      LexerActionState
+      LexerActionState,
+      LexerError
     >[];
     this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
       // first, expand another rules in ctx.resolvers if exists
       const ctx = ctxBuilder?.build();
       const expandedCtxBuilder = new DefinitionContextBuilder<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
-        LexerError,
-        LexerActionState
+        LexerActionState,
+        LexerError
       >();
       ctx?.resolved.forEach((r) => {
         // for another rule, we don't need to log debug info or auto resolve R-S conflict
@@ -199,12 +199,12 @@ export class AdvancedBuilder<
           toBeLoaded.push({
             defs: r.reducerRule,
             ctxBuilder: new DefinitionContextBuilder<
+              Kinds,
               ASTData,
               ErrorType,
-              Kinds,
               LexerDataBindings,
-              LexerError,
-              LexerActionState
+              LexerActionState,
+              LexerError
             >().resolveRS(r.anotherRule, r.options),
             resolveOnly: true,
             hydrationId, // the hydration id does not matter, since the generated resolvers are serializable

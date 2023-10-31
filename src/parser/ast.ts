@@ -44,12 +44,10 @@ export type ASTObj = {
   children: ASTObj[];
 };
 
-// ASTNode's AllKinds should be Parser's kinds union with Lexer's kinds
-// TODO: re-order type params
 export class ASTNode<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   TokenType extends GeneralToken,
 > {
   /**
@@ -69,12 +67,12 @@ export class ASTNode<
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<ASTData, ErrorType, Kinds, TokenType>[];
+  children?: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[];
   /**
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<ASTData, ErrorType, Kinds, TokenType>; // parent doesn't have token
+  parent?: ASTNode<Kinds, ASTData, ErrorType, TokenType>; // parent doesn't have token
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -89,21 +87,21 @@ export class ASTNode<
    * Select the first matched child node by the name.
    */
   readonly $: ASTNodeFirstMatchChildSelector<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     TokenType
   >;
   /**
    * Select children nodes by the name.
    */
-  readonly $$: ASTNodeChildrenSelector<ASTData, ErrorType, Kinds, TokenType>;
+  readonly $$: ASTNodeChildrenSelector<Kinds, ASTData, ErrorType, TokenType>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    * Make this private to prevent users from using it by mistake.
    */
-  private traverser: Traverser<ASTData, ErrorType, Kinds, TokenType>;
+  private traverser: Traverser<Kinds, ASTData, ErrorType, TokenType>;
   /**
    * `name` is set by parent node, so it should NOT be readonly, but can only be set privately.
    */
@@ -124,19 +122,19 @@ export class ASTNode<
 
   constructor(
     p: Pick<
-      ASTNode<ASTData, ErrorType, Kinds, TokenType>,
+      ASTNode<Kinds, ASTData, ErrorType, TokenType>,
       "kind" | "start" | "text" | "children" | "parent" | "data" | "error"
     > & {
-      traverser?: Traverser<ASTData, ErrorType, Kinds, TokenType>;
-      selector?: ASTNodeSelector<ASTData, ErrorType, Kinds, TokenType>;
+      traverser?: Traverser<Kinds, ASTData, ErrorType, TokenType>;
+      selector?: ASTNodeSelector<Kinds, ASTData, ErrorType, TokenType>;
       firstMatchSelector?: ASTNodeFirstMatchSelector<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         TokenType
       >;
     } & Partial<
-        Pick<ASTNode<ASTData, ErrorType, Kinds, TokenType>, "name" | "token">
+        Pick<ASTNode<Kinds, ASTData, ErrorType, TokenType>, "name" | "token">
       >,
   ) {
     this._name = p.name ?? p.kind;
@@ -170,12 +168,12 @@ export class ASTNode<
   }
 
   static from<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     TokenType extends GeneralToken,
   >(t: Readonly<TokenType>) {
-    return new ASTNode<ASTData, ErrorType, Kinds, TokenType>({
+    return new ASTNode<Kinds, ASTData, ErrorType, TokenType>({
       kind: t.kind,
       start: t.start,
       text: t.content,
@@ -232,7 +230,7 @@ export class ASTNode<
    */
   static getStrWithName(
     data: Pick<
-      ASTNode<unknown, unknown, string, GeneralToken>,
+      ASTNode<string, unknown, unknown, GeneralToken>,
       "kind" | "name" | "text"
     >,
   ) {
@@ -248,7 +246,7 @@ export class ASTNode<
    */
   static getStrWithoutName(
     data: Pick<
-      ASTNode<unknown, unknown, string, GeneralToken>,
+      ASTNode<string, unknown, unknown, GeneralToken>,
       "kind" | "text"
     >,
   ) {
@@ -279,7 +277,7 @@ export class ASTNode<
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(
-      this as Parameters<Traverser<ASTData, ErrorType, Kinds, TokenType>>[0], // children is not undefined
+      this as Parameters<Traverser<Kinds, ASTData, ErrorType, TokenType>>[0], // children is not undefined
     );
     this.data =
       res ??

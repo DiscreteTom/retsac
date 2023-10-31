@@ -97,9 +97,9 @@ export type BuildOptions<
 };
 
 export interface IParserBuilder<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -110,17 +110,17 @@ export interface IParserBuilder<
   define<Append extends string>(
     defs: Definition<Kinds | Append>,
     decorator?: DefinitionContextBuilderDecorator<
+      Kinds | Append,
       ASTData,
       ErrorType,
-      Kinds | Append,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
   ): IParserBuilder<
+    Kinds | Append,
     ASTData,
     ErrorType,
-    Kinds | Append,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -143,9 +143,9 @@ export interface IParserBuilder<
     >,
   ): {
     parser: IParser<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings | AppendLexerDataBindings,
       LexerActionState | AppendLexerActionState,
       LexerError | AppendLexerError
@@ -171,9 +171,9 @@ export interface IParserBuilder<
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
     options: RS_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -186,9 +186,9 @@ export interface IParserBuilder<
     reducerRule: Definition<Kinds>,
     anotherRule: Definition<Kinds>,
     options: RR_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -199,28 +199,28 @@ export interface IParserBuilder<
    */
   use<
     AppendKinds extends string,
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendError,
+    AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendLexerActionState,
     AppendLexerError,
   >(
     f: BuilderDecorator<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError,
       AppendKinds,
-      AppendLexerDataBindings,
       AppendError,
+      AppendLexerDataBindings,
       AppendLexerActionState,
       AppendLexerError
     >,
   ): IParserBuilder<
+    Kinds | AppendKinds,
     ASTData,
     ErrorType | AppendError,
-    Kinds | AppendKinds,
     LexerDataBindings | AppendLexerDataBindings,
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError
@@ -242,12 +242,22 @@ export interface IParserBuilder<
       AppendLexerError
     >,
   ): IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings | AppendLexerDataBindings,
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError
+  >;
+  useData<NewData>(
+    data?: NewData,
+  ): IParserBuilder<
+    Kinds,
+    NewData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >;
   /**
    * Generate resolvers by grammar rules' priorities.
@@ -274,31 +284,32 @@ export interface IParserBuilder<
   ): this;
 }
 
+// TODO: newData
 export type BuilderDecorator<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
   AppendKinds extends string,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
   AppendError,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   AppendLexerActionState,
   AppendLexerError,
 > = (
   pb: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
 ) => IParserBuilder<
+  Kinds | AppendKinds,
   ASTData,
   ErrorType | AppendError,
-  Kinds | AppendKinds,
   LexerDataBindings | AppendLexerDataBindings,
   LexerActionState | AppendLexerActionState,
   LexerError | AppendLexerError
@@ -318,7 +329,7 @@ export type SerializableParserData<
   hash: number;
   data: {
     dfa: ReturnType<
-      DFA<never, never, Kinds, LexerDataBindings, never, never>["toJSON"]
+      DFA<Kinds, never, never, LexerDataBindings, never, never>["toJSON"]
     >;
   };
 };

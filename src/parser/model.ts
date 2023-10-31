@@ -12,9 +12,9 @@ import type { ASTNode } from "./ast";
  * If `input` is provided, it will be fed to the lexer.
  */
 export type ParseExec<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   TokenType extends GeneralToken,
 > = (
   input?:
@@ -29,12 +29,12 @@ export type ParseExec<
          */
         stopOnError?: boolean;
       },
-) => ParserOutput<ASTData, ErrorType, Kinds, TokenType>;
+) => ParserOutput<Kinds, ASTData, ErrorType, TokenType>;
 
 export interface IParser<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -77,9 +77,9 @@ export interface IParser<
    * Stop when the first entry NT is reduced and follow match(or reach EOF).
    */
   readonly parse: ParseExec<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
   /**
@@ -90,18 +90,18 @@ export interface IParser<
    * because the result will be accepted if at least one parse is successful.
    */
   readonly parseAll: ParseExec<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
   /**
    * Accumulated error AST nodes.
    */
   readonly errors: ASTNode<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >[];
   hasErrors(): boolean;
@@ -109,9 +109,9 @@ export interface IParser<
    * Current AST nodes.
    */
   get buffer(): readonly ASTNode<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >[];
   /**
@@ -120,5 +120,5 @@ export interface IParser<
    */
   take(
     n?: number,
-  ): ASTNode<ASTData, ErrorType, Kinds, Token<LexerDataBindings, LexerError>>[];
+  ): ASTNode<Kinds, ASTData, ErrorType, Token<LexerDataBindings, LexerError>>[];
 }

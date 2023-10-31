@@ -12,9 +12,9 @@ export enum ConflictType {
 }
 
 export interface Conflict<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -25,9 +25,9 @@ export interface Conflict<
    */
   anotherRule: Readonly<
     GrammarRule<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -68,17 +68,17 @@ export type ResolverHydrationId = {
 };
 
 export type ResolvedConflict<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > = Pick<
   Conflict<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -90,9 +90,9 @@ export type ResolvedConflict<
    */
   next:
     | Conflict<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -108,9 +108,9 @@ export type ResolvedConflict<
       }
     | {
         accepter: Condition<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError

@@ -20,9 +20,9 @@ import type {
 } from "../../../../lexer";
 
 export class GrammarRule<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -38,9 +38,9 @@ export class GrammarRule<
    * This will be evaluated during the parsing process.
    */
   readonly conflicts: (Conflict<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -49,9 +49,9 @@ export class GrammarRule<
      * Related resolvers.
      */
     resolvers: ResolvedConflict<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -63,49 +63,49 @@ export class GrammarRule<
    * This will be evaluated by candidate during parsing.
    */
   readonly resolved: ResolvedConflict<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >[];
   callback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rejecter?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rollback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   commit?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   traverser?: Traverser<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
 
@@ -129,9 +129,9 @@ export class GrammarRule<
   constructor(
     p: Pick<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -177,18 +177,18 @@ export class GrammarRule<
    * Return ``{ NT: `grammar rules with name` }``.
    */
   static getStrWithGrammarName<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     gr: Pick<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -205,18 +205,18 @@ export class GrammarRule<
    * Return ``{ NT: `grammar rules without name` }``.
    */
   static getStrWithoutGrammarName<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     gr: Pick<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -232,9 +232,9 @@ export class GrammarRule<
   toSerializable(
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     grs: ReadonlyGrammarRuleRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -291,18 +291,18 @@ export class GrammarRule<
   }
 
   static fromJSON<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     data: ReturnType<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -311,9 +311,9 @@ export class GrammarRule<
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
     const gr = new GrammarRule<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -329,9 +329,9 @@ export class GrammarRule<
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
       grs: ReadonlyGrammarRuleRepo<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError

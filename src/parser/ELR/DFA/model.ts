@@ -18,18 +18,18 @@ export type ReadonlyFollowSets<
 > = ReadonlyMap<Kinds | LexerKinds, GrammarSet<Kinds, LexerKinds>>;
 
 export type ReadonlyNTClosures<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > = ReadonlyMap<
   Kinds,
   GrammarRule<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError

@@ -20,9 +20,9 @@ import {
 
 export class DFABuilder {
   static prepare<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
@@ -32,9 +32,9 @@ export class DFABuilder {
     entryNTs: ReadonlySet<Kinds>,
     data: readonly Readonly<
       ParserBuilderData<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -72,9 +72,9 @@ export class DFABuilder {
 
     // init all initial candidates, initial candidate is candidate with digested=0
     const cs = new CandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -95,9 +95,9 @@ export class DFABuilder {
 
     // init all states
     const allStates = new StateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError

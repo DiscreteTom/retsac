@@ -25,57 +25,57 @@ export type Definition<Kinds extends string> = {
 };
 
 export interface DefinitionContext<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > {
   resolved: ResolvedPartialTempConflict<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >[];
   callback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rejecter?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   rollback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   commit?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   traverser?: Traverser<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
   // TODO: reParse?: boolean;

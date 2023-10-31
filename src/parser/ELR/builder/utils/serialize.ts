@@ -8,9 +8,9 @@ import { hashStringToNum } from "../../utils";
 import type { ParserBuilderData } from "../model";
 
 export function calculateHash<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -20,9 +20,9 @@ export function calculateHash<
 >(
   data: readonly Readonly<
     ParserBuilderData<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -56,9 +56,9 @@ export function calculateHash<
 }
 
 export function buildSerializable<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -68,18 +68,18 @@ export function buildSerializable<
 >(
   data: readonly Readonly<
     ParserBuilderData<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >
   >[],
   dfa: DFA<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings | AppendLexerDataBindings,
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError

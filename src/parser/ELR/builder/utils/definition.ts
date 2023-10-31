@@ -25,9 +25,9 @@ const ruleLexer = new Lexer.Builder()
  * Definition to TempGrammarRules.
  */
 export function defToTempGRs<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -35,18 +35,18 @@ export function defToTempGRs<
   defs: Definition<Kinds>,
   hydrationId: number = 0,
   ctx?: DefinitionContext<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
 ) {
   const result: TempGrammarRule<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -92,9 +92,9 @@ export function defToTempGRs<
 
       result.push(
         new TempGrammarRule<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError

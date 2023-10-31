@@ -11,9 +11,9 @@ import { stringMap2serializable } from "../utils";
  * Store all states.
  */
 export class StateRepo<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -21,9 +21,9 @@ export class StateRepo<
   private ss: Map<
     string,
     State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -38,9 +38,9 @@ export class StateRepo<
     return this.ss as ReadonlyMap<
       string,
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -51,9 +51,9 @@ export class StateRepo<
   getKey(
     s: Pick<
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -67,9 +67,9 @@ export class StateRepo<
   get(
     s: Pick<
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -89,9 +89,9 @@ export class StateRepo<
    */
   addEntry(
     candidates: Candidate<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -113,26 +113,26 @@ export class StateRepo<
    */
   addNext(
     current: State<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     grammar: Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     cs: CandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -160,9 +160,9 @@ export class StateRepo<
           return p;
         },
         [] as GrammarRule<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
@@ -193,9 +193,9 @@ export class StateRepo<
   some(
     f: (
       s: State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -210,9 +210,9 @@ export class StateRepo<
 
   toSerializable(
     cs: ReadonlyCandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -225,27 +225,27 @@ export class StateRepo<
   }
 
   static fromJSON<
+    Kinds extends string,
     ASTData,
     ErrorType,
-    Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerError,
   >(
     data: ReturnType<
       StateRepo<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
       >["toSerializable"]
     >,
     cs: ReadonlyCandidateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -253,18 +253,18 @@ export class StateRepo<
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
     const ss = new StateRepo<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >();
     const callbacks = [] as ((
       ss: StateRepo<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -282,17 +282,17 @@ export class StateRepo<
 }
 
 export type ReadonlyStateRepo<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > = Omit<
   StateRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError

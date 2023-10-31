@@ -17,9 +17,9 @@ import { TooManyEndHandlerError } from "../error";
  * These grammars will be used to check end of input.
  */
 function getEndSet<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -27,9 +27,9 @@ function getEndSet<
   repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -65,9 +65,9 @@ function getEndSet<
  * Return conflicts that user didn't resolve.
  */
 function getUserUnresolvedConflicts<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -75,9 +75,9 @@ function getUserUnresolvedConflicts<
   type: ConflictType,
   reducerRule: Readonly<
     GrammarRule<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -85,9 +85,9 @@ function getUserUnresolvedConflicts<
   >,
   anotherRule: Readonly<
     GrammarRule<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -229,9 +229,9 @@ function getUserUnresolvedConflicts<
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
 export function appendConflicts<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -239,17 +239,17 @@ export function appendConflicts<
   repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
   dfa: DFA<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -433,17 +433,17 @@ export function appendConflicts<
  * since the user may resolve part of the conflicts.
  */
 export function getUnresolvedConflicts<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 >(
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -453,17 +453,17 @@ export function getUnresolvedConflicts<
 ) {
   const result = new Map<
     GrammarRule<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
     >,
     Conflict<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -485,9 +485,9 @@ export function getUnresolvedConflicts<
 
         if (res.next.grammars.size > 0) {
           const conflict: Conflict<
+            Kinds,
             ASTData,
             ErrorType,
-            Kinds,
             LexerDataBindings,
             LexerActionState,
             LexerError
@@ -513,9 +513,9 @@ export function getUnresolvedConflicts<
         );
         if (res.next.grammars.size > 0 || res.end) {
           const conflict: Conflict<
+            Kinds,
             ASTData,
             ErrorType,
-            Kinds,
             LexerDataBindings,
             LexerActionState,
             LexerError

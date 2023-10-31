@@ -11,57 +11,57 @@ import type {
 } from "./model";
 
 export class DefinitionContextBuilder<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > {
   private resolved: ResolvedPartialTempConflict<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >[];
   private _callback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   private _rejecter?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   private _rollback?: Callback<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   private _commit?: Condition<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >;
   private _traverser?: Traverser<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     Token<LexerDataBindings, LexerError>
   >;
 
@@ -74,9 +74,9 @@ export class DefinitionContextBuilder<
    */
   callback(
     f: Callback<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -99,9 +99,9 @@ export class DefinitionContextBuilder<
    */
   rejecter(
     f: Condition<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -123,9 +123,9 @@ export class DefinitionContextBuilder<
    */
   reducer(
     f: Reducer<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -139,9 +139,9 @@ export class DefinitionContextBuilder<
    */
   rollback(
     f: Callback<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -164,9 +164,9 @@ export class DefinitionContextBuilder<
    */
   traverser(
     f: Traverser<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       Token<LexerDataBindings, LexerError>
     >,
   ) {
@@ -181,9 +181,9 @@ export class DefinitionContextBuilder<
     enable:
       | boolean
       | Condition<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
@@ -199,9 +199,9 @@ export class DefinitionContextBuilder<
   resolveRS(
     another: Definition<Kinds>,
     options: RS_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -225,9 +225,9 @@ export class DefinitionContextBuilder<
   resolveRR(
     another: Definition<Kinds>,
     options: RR_ResolverOptions<
+      Kinds,
       ASTData,
       ErrorType,
-      Kinds,
       LexerDataBindings,
       LexerActionState,
       LexerError
@@ -246,9 +246,9 @@ export class DefinitionContextBuilder<
   }
 
   build(): DefinitionContext<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -265,25 +265,25 @@ export class DefinitionContextBuilder<
 }
 
 export type DefinitionContextBuilderDecorator<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 > = (
   ctxBuilder: DefinitionContextBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
 ) => DefinitionContextBuilder<
+  Kinds,
   ASTData,
   ErrorType,
-  Kinds,
   LexerDataBindings,
   LexerActionState,
   LexerError

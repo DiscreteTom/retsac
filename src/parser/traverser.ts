@@ -8,15 +8,15 @@ import type { ASTNode } from "./ast";
  */
 // TODO: why never be called in a leaf node?
 export type Traverser<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   TokenType extends GeneralToken,
 > = (
-  self: ASTNode<ASTData, ErrorType, Kinds, TokenType> & {
+  self: ASTNode<Kinds, ASTData, ErrorType, TokenType> & {
     // ensure children is not undefined
     children: NonNullable<
-      ASTNode<ASTData, ErrorType, Kinds, TokenType>["children"]
+      ASTNode<Kinds, ASTData, ErrorType, TokenType>["children"]
     >;
   },
 ) => ASTData | undefined | void;
@@ -25,12 +25,12 @@ export type Traverser<
  * The default traverser.
  */
 export function defaultTraverser<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   TokenType extends GeneralToken,
 >(
-  self: Parameters<Traverser<ASTData, ErrorType, Kinds, TokenType>>[0],
+  self: Parameters<Traverser<Kinds, ASTData, ErrorType, TokenType>>[0],
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length == 1)

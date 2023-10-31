@@ -2,20 +2,20 @@ import type { GeneralTokenDataBinding } from "../../../../lexer";
 import type { IParserBuilder } from "../../model";
 
 export function applyResolvers<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
   LexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    "gr" | Kinds,
     ASTData,
     ErrorType,
-    "gr" | Kinds,
     LexerDataBindings,
-    LexerError,
-    LexerActionState
+    LexerActionState,
+    LexerError
   >,
 ) {
   return builder.priority(

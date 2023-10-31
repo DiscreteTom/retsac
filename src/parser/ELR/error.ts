@@ -14,9 +14,9 @@ export class ELR_RuntimeError extends Error {
 }
 
 export class StateCacheMissError<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -24,16 +24,16 @@ export class StateCacheMissError<
   constructor(
     public state: Readonly<
       State<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
       >
     >,
     public node: Readonly<
-      ASTNode<ASTData, ErrorType, Kinds, Token<LexerDataBindings, LexerError>>
+      ASTNode<Kinds, ASTData, ErrorType, Token<LexerDataBindings, LexerError>>
     >,
   ) {
     super(

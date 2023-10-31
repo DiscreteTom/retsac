@@ -16,9 +16,9 @@ export class GrammarExpander<
   readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
   private readonly parser: IParser<
+    "gr",
     string[],
     unknown,
-    "gr",
     | {
         kind: "";
         data: never;
@@ -77,9 +77,9 @@ export class GrammarExpander<
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
         options: RS_ResolverOptions<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError
@@ -171,9 +171,9 @@ export class GrammarExpander<
         reducerRule: Definition<Kinds>;
         anotherRule: Definition<Kinds>;
         options: RS_ResolverOptions<
+          Kinds,
           ASTData,
           ErrorType,
-          Kinds,
           LexerDataBindings,
           LexerActionState,
           LexerError

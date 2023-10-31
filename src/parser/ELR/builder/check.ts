@@ -19,9 +19,9 @@ import {
  * @throws if `printAll` is false and there is any error.
  */
 export function checkSymbols<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -31,9 +31,9 @@ export function checkSymbols<
   Ts: ReadonlySet<string>,
   // grammar rule repo is already readonly
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -95,9 +95,9 @@ export function checkSymbols<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkConflicts<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
@@ -106,9 +106,9 @@ export function checkConflicts<
   unresolved: ReadonlyMap<
     Readonly<
       GrammarRule<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -116,9 +116,9 @@ export function checkConflicts<
     >,
     readonly Readonly<
       Conflict<
+        Kinds,
         ASTData,
         ErrorType,
-        Kinds,
         LexerDataBindings,
         LexerActionState,
         LexerError
@@ -126,9 +126,9 @@ export function checkConflicts<
     >[]
   >,
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
@@ -218,17 +218,17 @@ export function checkConflicts<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkRollbacks<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
 >(
   grs: ReadonlyGrammarRuleRepo<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
