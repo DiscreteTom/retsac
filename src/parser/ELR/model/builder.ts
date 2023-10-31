@@ -284,7 +284,8 @@ export interface IParserBuilder<
   ): this;
 }
 
-// TODO: newData
+// TODO: newData?
+// TODO: implement builder as a state machine?
 export type BuilderDecorator<
   Kinds extends string,
   ASTData,
