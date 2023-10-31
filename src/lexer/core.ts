@@ -10,6 +10,10 @@ import type {
   Token,
   ExtractDefinition,
   ExtractData,
+  ILexerCoreLexOptions,
+  ILexerCoreLexOutput,
+  ILexerCoreTrimStartOptions,
+  ILexerCoreTrimStartOutput,
 } from "./model";
 
 /**
@@ -56,66 +60,25 @@ export class LexerCore<
   }
 
   lex(
-    /**
-     * The whole input string.
-     */
     buffer: string,
-    options?: Readonly<{
-      /**
-       * From which char of the input string to start lexing.
-       * @default 0
-       */
-      start?: number;
-      /**
-       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
-       * This is to optimize the performance if some actions need to get the rest of the input.
-       * @default undefined
-       */
-      rest?: string;
-      expect?: Readonly<{
-        kind?: ExtractKinds<DataBindings>;
-        text?: string;
-      }>;
-      /**
-       * @default false
-       */
-      debug?: boolean;
-      /**
-       * @default defaultLogger
-       */
-      logger?: Logger;
-      /**
-       * @default "LexerCore.lex"
-       */
-      entity?: string;
-      /**
-       * If `true`, the accepted action's callback will not be executed.
-       * @default false
-       */
-      peek?: boolean;
-    }>,
-  ): {
-    /**
-     * `null` if no actions can be accepted or all muted.
-     */
-    token: Token<DataBindings, ErrorType> | null;
-    /**
-     * How many chars are digested during this lex.
-     */
-    digested: number;
-    /**
-     * Not `undefined` if the last action's output contains a rest.
-     */
-    rest: string | undefined;
-    /**
-     * Accumulated errors during this lex.
-     */
-    errors: Token<DataBindings, ErrorType>[];
-  } {
-    const debug = options?.debug ?? false;
-    const logger = options?.logger ?? defaultLogger;
-    const expect = options?.expect ?? {};
-    const entity = options?.entity ?? "LexerCore.lex";
+    options?: Readonly<Partial<ILexerCoreLexOptions<DataBindings>>>,
+  ): ILexerCoreLexOutput<DataBindings, ErrorType> {
+    return this._lex(buffer, {
+      start: options?.start ?? 0,
+      rest: options?.rest,
+      debug: options?.debug ?? false,
+      logger: options?.logger ?? defaultLogger,
+      entity: options?.entity ?? "LexerCore.lex",
+      expect: options?.expect ?? {},
+      peek: options?.peek ?? false,
+    });
+  }
+
+  _lex(
+    buffer: string,
+    options: Readonly<ILexerCoreLexOptions<DataBindings>>,
+  ): ILexerCoreLexOutput<DataBindings, ErrorType> {
+    const { debug, logger, entity, expect, start, rest, peek } = options;
 
     // debug output
     if (debug) {
@@ -129,11 +92,9 @@ export class LexerCore<
       }
     }
 
-    const start = options?.start ?? 0;
-    let rest = options?.rest;
+    let currentRest = rest;
     let digested = 0;
     const errors = [] as Token<DataBindings, ErrorType>[];
-    const peek = options?.peek ?? false;
     while (true) {
       // first, ensure rest is not empty
       // since maybe some token is muted in the last iteration which cause the rest is empty
@@ -144,7 +105,7 @@ export class LexerCore<
             message: "no rest",
           });
         }
-        return { token: null, digested, rest, errors };
+        return { token: null, digested, rest: currentRest, errors };
       }
 
       // all defs will reuse this action input to reuse lazy values
@@ -153,7 +114,7 @@ export class LexerCore<
         buffer,
         start: start + digested,
         state: this.state,
-        rest,
+        rest: currentRest,
         peek,
       });
       // cache the result of `startsWith` to avoid duplicate calculation
@@ -196,12 +157,12 @@ export class LexerCore<
 
       if (res === undefined) {
         // all definition checked, no accept or muted
-        return { token: null, digested, rest, errors };
+        return { token: null, digested, rest: currentRest, errors };
       }
 
       // update lexer state
       digested += res.output.digested;
-      rest = res.output._rest;
+      currentRest = res.output._rest;
 
       if (res.output.muted) {
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
@@ -220,58 +181,31 @@ export class LexerCore<
           // collect errors
           errors.push(token);
         }
-        return { token, digested, rest, errors };
+        return { token, digested, rest: currentRest, errors };
       }
     }
   }
 
   trimStart(
     buffer: string,
-    options?: Readonly<{
-      /**
-       * From which char of the input string to start lexing.
-       * @default 0
-       */
-      start?: number;
-      /**
-       * If NOT `undefined`, the value should be `input.slice(options.offset)`.
-       * This is to optimize the performance if some actions need to get the rest of the input.
-       * @default undefined
-       */
-      rest?: string;
-      /**
-       * @default false
-       */
-      debug?: boolean;
-      /**
-       * @default defaultLogger
-       */
-      logger?: Logger;
-      /**
-       * @default "LexerCore.lex"
-       */
-      entity?: string;
-    }>,
-  ): {
-    /**
-     * How many chars are digested during this lex.
-     */
-    digested: number;
-    /**
-     * Not `undefined` if the last action's output contains a rest.
-     */
-    rest: string | undefined;
-    /**
-     * Accumulated errors during this lex.
-     */
-    errors: Token<DataBindings, ErrorType>[];
-  } {
-    const debug = options?.debug ?? false;
-    const logger = options?.logger ?? defaultLogger;
-    const entity = options?.entity ?? "LexerCore.trimStart";
+    options?: Readonly<Partial<ILexerCoreTrimStartOptions>>,
+  ): ILexerCoreTrimStartOutput<DataBindings, ErrorType> {
+    return this._trimStart(buffer, {
+      debug: options?.debug ?? false,
+      entity: options?.entity ?? "LexerCore.trimStart",
+      logger: options?.logger ?? defaultLogger,
+      rest: options?.rest,
+      start: options?.start ?? 0,
+    });
+  }
 
-    const start = options?.start ?? 0;
-    let rest = options?.rest;
+  _trimStart(
+    buffer: string,
+    options: Readonly<ILexerCoreTrimStartOptions>,
+  ): ILexerCoreTrimStartOutput<DataBindings, ErrorType> {
+    const { debug, logger, rest, start, entity } = options;
+
+    let currentRest = rest;
     let digested = 0;
     const errors = [] as Token<DataBindings, ErrorType>[];
     while (true) {
@@ -284,7 +218,7 @@ export class LexerCore<
             message: "no rest",
           });
         }
-        return { digested, rest, errors };
+        return { digested, rest: currentRest, errors };
       }
 
       // all defs will reuse this input to reuse lazy values
@@ -292,7 +226,7 @@ export class LexerCore<
         buffer,
         start: start + digested,
         state: this.state,
-        rest,
+        rest: currentRest,
         peek: false,
       });
 
@@ -326,14 +260,14 @@ export class LexerCore<
 
       if (res === undefined) {
         // all definition checked, no accept
-        return { digested, rest, errors };
+        return { digested, rest: currentRest, errors };
       }
 
       if (res.output.muted) {
         // accept but muted
         // re-loop all definitions after update states
         digested += res.output.digested;
-        rest = res.output._rest;
+        currentRest = res.output._rest;
         if (res.output.error !== undefined) {
           // collect errors
           errors.push(LexerCore.output2token(res.kind, res.output));
@@ -345,7 +279,7 @@ export class LexerCore<
           // collect errors
           errors.push(LexerCore.output2token(res.kind, res.output));
         }
-        return { digested, rest, errors };
+        return { digested, rest: currentRest, errors };
       }
     }
   }
