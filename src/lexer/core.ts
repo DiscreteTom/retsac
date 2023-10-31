@@ -464,10 +464,12 @@ export class LexerCore<
     if (!output.accept) {
       // rejected
       if (debug) {
-        const info = { kind: def.kinds || "<anonymous>" };
+        const info = {
+          kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
+        };
         logger.log({
           entity,
-          message: `reject: ${info.kind}`,
+          message: `reject: ${info.kinds.join(", ")}`,
           info,
         });
       }
@@ -497,12 +499,14 @@ export class LexerCore<
     // accepted but unexpected and not muted, reject
     if (debug) {
       const info = {
-        kind: def.kinds || "<anonymous>",
+        kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
         content: output.content,
       };
       logger.log({
         entity,
-        message: `unexpected ${info.kind}: ${JSON.stringify(info.content)}`,
+        message: `unexpected ${info.kinds.join(", ")}: ${JSON.stringify(
+          info.content,
+        )}`,
         info,
       });
     }
