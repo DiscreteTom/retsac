@@ -49,7 +49,7 @@ export function numericLiteral<
    * @default true
    */
   acceptInvalid?: boolean;
-}): Action<{ invalid: boolean }, ActionState, ErrorType>[] {
+}): Action<{ invalid: boolean }, ActionState, ErrorType> {
   const enableSeparator = !(options?.numericSeparator === false);
   const separator = esc4regex(String(options?.numericSeparator ?? "_")); // use String to handle `false`
   const boundary = options?.boundary ?? true;
@@ -76,9 +76,9 @@ export function numericLiteral<
   ).data(() => ({ invalid: true }));
 
   if (acceptInvalid) {
-    return [valid, invalid];
+    return valid.or(invalid);
   } else {
     // only accept valid numbers
-    return [valid];
+    return valid;
   }
 }

@@ -34,13 +34,18 @@ export type AcceptedActionDecoratorContext<Data, ActionState, ErrorType> = {
   readonly output: AcceptedActionOutput<Data, ErrorType>;
 };
 
-export type AcceptedActionDecorator<Data, ActionState, ErrorType> = (
+export type AcceptedActionDecorator<
+  Data,
+  ActionState,
+  ErrorType,
+  NewData,
+  NewErrorType,
+> = (
   ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
-) => ActionOutput<Data, ErrorType>;
+) => ActionExecOutput<NewData, NewErrorType>;
 
 export class Action<Data = never, ActionState = never, ErrorType = never> {
   readonly _exec: ActionExec<Data, ActionState, ErrorType>;
-  readonly decorators: AcceptedActionDecorator<Data, ActionState, ErrorType>[];
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -63,7 +68,6 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
   ) {
     this._exec = exec;
-    this.decorators = [];
     this.maybeMuted = options?.maybeMuted ?? false;
   }
 
@@ -71,20 +75,37 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     const execOutput = this._exec(input);
     if (!execOutput.accept) return execOutput;
 
-    let output = new AcceptedActionOutput({
-      buffer: input.buffer,
-      start: input.start,
-      ...execOutput,
-    });
+    return AcceptedActionOutput.from(input, execOutput);
+  }
 
-    // apply decorators
-    for (const d of this.decorators) {
-      const o = d({ input, output });
-      // if rejected, return the rejected output immediately
-      if (!o.accept) return o;
-      output = o;
-    }
-    return output;
+  /**
+   * Apply a decorator to this action.
+   */
+  apply<NewData, NewErrorType>(
+    decorator: AcceptedActionDecorator<
+      Data,
+      ActionState,
+      ErrorType,
+      NewData,
+      NewErrorType
+    >,
+    optionsOverload?: Partial<
+      Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
+    >,
+  ) {
+    return new Action<NewData, ActionState, NewErrorType>(
+      (input) => {
+        const output = this.exec(input);
+        if (!output.accept) return output;
+        return decorator({
+          input,
+          output,
+        });
+      },
+      {
+        maybeMuted: optionsOverload?.maybeMuted ?? this.maybeMuted,
+      },
+    );
   }
 
   static simple<Data = never, ActionState = never, ErrorType = never>(
@@ -126,8 +147,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         content:
           res.content ??
           input.buffer.slice(input.start, input.start + res.digested),
-        rest: res.rest,
         data: res.data,
+        _rest: res._rest,
       } as AcceptedActionExecOutput<Data, ErrorType>;
     });
   }
@@ -181,7 +202,11 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp
-      ? (Action.match<ActionState, ErrorType>(
+      ? // Action.match will set Data to RegExpExecArray so we need to clean it.
+        // The result should be Action<never, ActionState, ErrorType>
+        // but only when r is SimpleActionExec the Data will take effect
+        // so its ok to cast the result to Action<Data, ActionState, ErrorType>
+        (Action.match<ActionState, ErrorType>(
           r,
         ).clearData() as unknown as Action<Data, ActionState, ErrorType>)
       : r instanceof Action
@@ -200,20 +225,22 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         ) => boolean) = true,
   ): Action<Data, ActionState, ErrorType> {
     if (typeof muted === "boolean") {
-      this.maybeMuted = muted;
-      this.decorators.push((ctx) => {
-        if (ctx.output.accept) ctx.output.muted = muted;
-        return ctx.output;
-      });
-      return this;
+      return this.apply(
+        (ctx) => {
+          ctx.output.muted = muted;
+          return ctx.output;
+        },
+        { maybeMuted: muted },
+      );
     }
     // else, muted is a function
-    this.decorators.push((ctx) => {
-      if (ctx.output.accept) ctx.output.muted = muted(ctx);
-      return ctx.output;
-    });
-    this.maybeMuted = true;
-    return this;
+    return this.apply(
+      (ctx) => {
+        ctx.output.muted = muted(ctx);
+        return ctx.output;
+      },
+      { maybeMuted: true },
+    );
   }
 
   /**
@@ -225,21 +252,21 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => NewErrorType | undefined,
   ): Action<Data, ActionState, NewErrorType> {
-    const _this = this as unknown as Action<Data, ActionState, NewErrorType>;
-    _this.decorators.push((ctx) => {
-      if (ctx.output.accept) {
-        ctx.output.error = condition(
-          ctx as unknown as AcceptedActionDecoratorContext<
-            Data,
-            ActionState,
-            ErrorType
-          >,
-        );
-        return ctx.output;
-      }
-      return ctx.output;
+    return this.apply((ctx) => {
+      return {
+        ...ctx.output.toExecOutput(),
+        error: condition(ctx),
+      };
     });
-    return _this;
+  }
+
+  /**
+   * Set error if `accept` is `true`.
+   */
+  error<NewErrorType>(
+    error: NewErrorType,
+  ): Action<Data, ActionState, NewErrorType> {
+    return this.check(() => error);
   }
 
   /**
@@ -250,21 +277,12 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => NewData,
   ): Action<NewData, ActionState, ErrorType> {
-    const _this = this as unknown as Action<NewData, ActionState, ErrorType>;
-    _this.decorators.push((ctx) => {
-      if (ctx.output.accept) {
-        ctx.output.data = factory(
-          ctx as unknown as AcceptedActionDecoratorContext<
-            Data,
-            ActionState,
-            ErrorType
-          >,
-        );
-        return ctx.output;
-      }
-      return ctx.output;
+    return this.apply((ctx) => {
+      return {
+        ...ctx.output.toExecOutput(),
+        data: factory(ctx),
+      };
     });
-    return _this;
   }
 
   /**
@@ -272,23 +290,6 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    */
   clearData(): Action<never, ActionState, ErrorType> {
     return this.data(() => undefined as never);
-  }
-
-  /**
-   * Set error if `accept` is `true`.
-   */
-  error<NewErrorType>(
-    error: NewErrorType,
-  ): Action<Data, ActionState, NewErrorType> {
-    const _this = this as unknown as Action<Data, ActionState, NewErrorType>;
-    _this.decorators.push((ctx) => {
-      if (ctx.output.accept) {
-        ctx.output.error = error;
-        return ctx.output;
-      }
-      return ctx.output;
-    });
-    return _this;
   }
 
   /**
@@ -302,18 +303,17 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         ) => boolean) = true,
   ): Action<Data, ActionState, ErrorType> {
     if (typeof rejecter === "boolean") {
-      if (rejecter) return new Action(() => rejectedActionOutput); // always reject
-      return this; // just return self, don't override the original output's accept
+      // always reject
+      // ignore maybeMuted since muted is only used when accept is true
+      if (rejecter) return new Action(() => rejectedActionOutput);
+      // else, always accept, just return self, don't override the original output's accept
+      return this;
     }
     // else, rejecter is a function
-    this.decorators.push((ctx) => {
-      if (ctx.output.accept) {
-        if (rejecter(ctx)) return rejectedActionOutput;
-        else return ctx.output;
-      }
+    return this.apply((ctx) => {
+      if (rejecter(ctx)) return rejectedActionOutput;
       return ctx.output;
     });
-    return this;
   }
 
   /**
@@ -324,11 +324,10 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
     ) => void,
   ): Action<Data, ActionState, ErrorType> {
-    this.decorators.push((ctx) => {
-      if (ctx.output.accept && !ctx.input.peek) f(ctx);
+    return this.apply((ctx) => {
+      if (!ctx.input.peek) f(ctx);
       return ctx.output;
     });
-    return this;
   }
 
   /**
@@ -338,5 +337,37 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    */
   kinds<Kinds extends string>(kinds: Kinds[]) {
     return new ActionWithKinds(kinds, this);
+  }
+
+  /**
+   * Execute the new action if current action can't accept input.
+   */
+  or<NewData, NewErrorType>(
+    a: IntoAction<NewData, ActionState, NewErrorType>,
+  ): Action<Data | NewData, ActionState, ErrorType | NewErrorType> {
+    const other = Action.from(a);
+    const _exec = this._exec;
+    return new Action<Data | NewData, ActionState, ErrorType | NewErrorType>(
+      (input) => {
+        const output = _exec(input);
+        if (output.accept) return output;
+        return other._exec(input);
+      },
+      { maybeMuted: this.maybeMuted || other.maybeMuted },
+    );
+  }
+
+  /**
+   * Reduce actions to one action. Actions will be executed in order.
+   * This will reduce the lexer loop times to optimize the performance.
+   */
+  static reduce<Data = never, ActionState = never, ErrorType = never>(
+    ...actions: IntoAction<Data, ActionState, ErrorType>[]
+  ): Action<Data, ActionState, ErrorType> {
+    return Action.from<Data, ActionState, ErrorType>(
+      actions.reduce((a, b) =>
+        Action.from<Data, ActionState, ErrorType>(a).or(b),
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import type { AtLeastOneOf } from "../../type-helper";
+import type { ActionInput } from "./input";
 
 // This has to be a class, since we need to cache the `rest` of the output.
 export class AcceptedActionOutput<Data, ErrorType> {
@@ -44,9 +45,15 @@ export class AcceptedActionOutput<Data, ErrorType> {
   constructor(
     props: Pick<
       AcceptedActionOutput<Data, ErrorType>,
-      "buffer" | "start" | "muted" | "digested" | "error" | "content" | "data"
-    > &
-      Partial<Pick<AcceptedActionOutput<Data, ErrorType>, "rest">>,
+      | "buffer"
+      | "start"
+      | "muted"
+      | "digested"
+      | "error"
+      | "content"
+      | "data"
+      | "_rest"
+    >,
   ) {
     this.accept = true;
     this.buffer = props.buffer;
@@ -56,7 +63,41 @@ export class AcceptedActionOutput<Data, ErrorType> {
     this.error = props.error;
     this.content = props.content;
     this.data = props.data;
-    this._rest = props.rest;
+    this._rest = props._rest;
+  }
+
+  static from<Data, ActionState, ErrorType>(
+    input: ActionInput<ActionState>,
+    output: AcceptedActionExecOutput<Data, ErrorType>,
+  ) {
+    return new AcceptedActionOutput<Data, ErrorType>({
+      buffer: input.buffer,
+      start: input.start,
+      muted: output.muted,
+      digested: output.digested,
+      error: output.error,
+      content: output.content,
+      data: output.data,
+      _rest: output._rest,
+    });
+  }
+
+  /**
+   * Convert to a simple object instead of an instance of `AcceptedActionOutput`.
+   *
+   * `rest` is not included in the return value,
+   * so its safe to expand the return value.
+   */
+  toExecOutput(): AcceptedActionExecOutput<Data, ErrorType> {
+    return {
+      accept: this.accept,
+      muted: this.muted,
+      digested: this.digested,
+      error: this.error,
+      content: this.content,
+      data: this.data,
+      _rest: this._rest,
+    };
   }
 
   /**
@@ -78,12 +119,13 @@ export type ActionOutput<Data, ErrorType> =
   | RejectedActionOutput
   | AcceptedActionOutput<Data, ErrorType>;
 
-// omit `buffer` and `start`.
+/**
+ * AcceptedActionOutput without `buffer`, `start` and `rest`.
+ */
 export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
   AcceptedActionOutput<Data, ErrorType>,
-  "accept" | "muted" | "digested" | "error" | "content" | "data"
-> &
-  Partial<Pick<AcceptedActionOutput<Data, ErrorType>, "rest">>;
+  "accept" | "muted" | "digested" | "error" | "content" | "data" | "_rest"
+>;
 
 export type ActionExecOutput<Data, ErrorType> =
   | typeof rejectedActionOutput
@@ -96,7 +138,7 @@ export type ActionExecOutput<Data, ErrorType> =
 export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
   Pick<
     AcceptedActionOutput<Data, ErrorType>,
-    "muted" | "error" | "rest" | "digested" | "content" | "data"
+    "muted" | "error" | "digested" | "content" | "data" | "_rest"
   >
 > &
   AtLeastOneOf<AcceptedActionOutput<Data, ErrorType>, "digested" | "content">;
