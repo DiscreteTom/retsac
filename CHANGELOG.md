@@ -3,6 +3,7 @@
 ## v0.13.0
 
 - **_Breaking Change_**: re-order and simplify generic parameters.
+- **_Breaking Change_**: remove `jsonLogger`, use `jsonLoggerFactory` instead.
 - Lexer
   - **_Breaking Change_**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
     - Add `Action.data`.
