@@ -128,6 +128,7 @@ export class LexerCore<
         // because some token may be muted, and we need to check the rest of the input
         this.defs,
         {
+          // TODO: don't use callback functions
           pre: (def) => ({
             accept:
               // muted actions must be executed
