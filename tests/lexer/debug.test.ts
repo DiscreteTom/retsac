@@ -1,5 +1,6 @@
 import { Lexer, Logger, jsonLogger } from "../../src";
 
+// TODO: refactor this file, split test cases in different functions
 test("lexer debug lex", () => {
   const printer = jest.fn();
   const logger = new Logger({ printer });
@@ -37,6 +38,7 @@ test("lexer debug lex", () => {
     '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"}}',
   );
   expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: <anonymous>");
+  lexer.reset().lex({ input: "!", expect: { kind: "number" } });
   expect(printer).toHaveBeenCalledWith(
     "[Lexer.lex] skip (unexpected and never muted): hash",
   );
@@ -49,6 +51,11 @@ test("lexer debug lex", () => {
   expect(printer).toHaveBeenCalledWith(
     '[Lexer.lex] accept kind number, 5 chars: "12345"',
   );
+  expect(
+    lexer
+      .reset()
+      .lex({ input: `'123'`, expect: { kind: "string", text: "'111'" } }),
+  ).toBe(null); // unexpected
   expect(printer).toHaveBeenCalledWith(
     `[Lexer.lex] unexpected string: "'123'"`,
   );
@@ -98,6 +105,7 @@ test("lexer debug trimStart", () => {
   expect(printer).toHaveBeenCalledWith(
     "[Lexer.trimStart] skip (never muted): <anonymous>",
   );
+  lexer.reset().trimStart("!");
   expect(printer).toHaveBeenCalledWith(
     "[Lexer.trimStart] skip (never muted): hash",
   );
