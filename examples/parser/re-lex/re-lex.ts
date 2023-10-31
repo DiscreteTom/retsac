@@ -6,7 +6,7 @@ export const result = {
 
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces())
-  .define({ num: Lexer.numericLiteral() })
+  .define({ num: Lexer.javascript.numericLiteral() })
   .anonymous(...Lexer.exactArray("-", "--"))
   .build();
 

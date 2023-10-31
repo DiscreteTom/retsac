@@ -6,7 +6,7 @@ test("re-lex with expectation", () => {
 
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
-    .define({ num: Lexer.numericLiteral() })
+    .define({ num: Lexer.javascript.numericLiteral() })
     .anonymous(...Lexer.exactArray("-", "--"))
     .build({
       // debug: true,
@@ -35,7 +35,7 @@ test("re-lex with expectation", () => {
 test("disable re-lex", () => {
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
-    .define({ num: Lexer.numericLiteral() })
+    .define({ num: Lexer.javascript.numericLiteral() })
     .anonymous(...Lexer.exactArray("-", "--"))
     .build({
       // debug: true,

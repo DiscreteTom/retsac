@@ -9,10 +9,16 @@ export const lexer = new Lexer.Builder()
   .define({
     // built-in utils will check unclosed strings and invalid numbers
     // and accept the input with error
-    string: Lexer.stringLiteral(`"`),
+    string: Lexer.stringLiteral(`"`).check(({ output }) =>
+      output.data.unclosed ? ("unclosed string literal" as string) : undefined,
+    ),
   })
   .define({
-    number: Lexer.javascript.numericLiteral(),
+    number: Lexer.javascript
+      .numericLiteral()
+      .check(({ output }) =>
+        output.data.invalid ? ("invalid numeric literal" as string) : undefined,
+      ),
   })
   .define({
     // you can customize your own error handling function using `check`

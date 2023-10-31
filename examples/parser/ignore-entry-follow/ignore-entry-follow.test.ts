@@ -11,7 +11,7 @@ test("calculator", () => {
     .build({
       lexer: new Lexer.Builder()
         .ignore(Lexer.whitespaces())
-        .define({ number: Lexer.numericLiteral() })
+        .define({ number: Lexer.javascript.numericLiteral() })
         .anonymous(Lexer.exact(..."+-"))
         .build(),
       entry: "exp",

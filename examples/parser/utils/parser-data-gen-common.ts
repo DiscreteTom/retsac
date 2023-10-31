@@ -1,13 +1,13 @@
 import { readFileSync, writeFileSync } from "fs";
 import type { IParserBuilder } from "../../../src/parser/ELR";
-import type { ILexer } from "../../../src/lexer";
+import type { GeneralTokenDataBinding, ILexer } from "../../../src/lexer";
 
 function generateSerializable<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  AppendLexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   LexerActionState,
   AppendLexerError,
@@ -17,13 +17,13 @@ function generateSerializable<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
+    LexerDataBindings,
     LexerError,
     LexerActionState
   >,
   lexer: ILexer<
+    AppendLexerDataBindings,
     LexerError | AppendLexerError,
-    AppendLexerKinds,
     LexerActionState | AppendLexerActionState
   >,
   entry: Kinds | readonly Kinds[],
@@ -40,8 +40,8 @@ export function generateParserDataString<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  AppendLexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   AppendLexerError,
   LexerActionState,
@@ -51,14 +51,14 @@ export function generateParserDataString<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   lexer: ILexer<
-    LexerError | AppendLexerError,
-    AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings | AppendLexerDataBindings,
+    LexerActionState | AppendLexerActionState,
+    LexerError | AppendLexerError
   >,
   entry: Kinds | readonly Kinds[],
 ) {
@@ -70,8 +70,8 @@ export function generateParserDataFile<
   ASTData,
   ErrorType,
   Kinds extends string,
-  LexerKinds extends string,
-  AppendLexerKinds extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  AppendLexerDataBindings extends GeneralTokenDataBinding,
   LexerError,
   AppendLexerError,
   LexerActionState,
@@ -81,14 +81,14 @@ export function generateParserDataFile<
     ASTData,
     ErrorType,
     Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   lexer: ILexer<
-    LexerError | AppendLexerError,
-    AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings | AppendLexerDataBindings,
+    LexerActionState | AppendLexerActionState,
+    LexerError | AppendLexerError
   >,
   entry: Kinds | readonly Kinds[],
   path: string,
