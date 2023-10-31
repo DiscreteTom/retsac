@@ -270,7 +270,10 @@ describe("sticky regex related", () => {
       state: undefined as never,
       peek: false,
     });
-    const output = action.exec(input) as AcceptedActionOutput<never, string>;
+    const output = action.exec(input) as AcceptedActionOutput<
+      RegExpExecArray,
+      never
+    >;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);

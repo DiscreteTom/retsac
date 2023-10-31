@@ -333,8 +333,8 @@ test.only("lexer utils numericLiteral", () => {
     .ignore(whitespaces())
     .define({
       number: [
-        ...Lexer.javascript.numericLiteral({ numericSeparator: "-" }),
-        ...Lexer.javascript.numericLiteral({ numericSeparator: false }),
+        Lexer.javascript.numericLiteral({ numericSeparator: "-" }),
+        Lexer.javascript.numericLiteral({ numericSeparator: false }),
       ],
     })
     .build();
