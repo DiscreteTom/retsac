@@ -199,7 +199,7 @@ export class Lexer<
       }
     }
 
-    const res = this.core.lex(this.buffer, {
+    const res = this.core._lex(this.buffer, {
       start: this.digested,
       rest: this.state.rest,
       expect,
@@ -252,7 +252,7 @@ export class Lexer<
     const entity = "Lexer.trimStart";
 
     if (!this.trimmed) {
-      const res = this.core.trimStart(this.buffer, {
+      const res = this.core._trimStart(this.buffer, {
         start: this.digested,
         rest: this.state.rest,
         debug: this.debug,
