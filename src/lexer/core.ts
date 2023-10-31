@@ -370,7 +370,9 @@ export class LexerCore<
         def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
       ) => {
         accept: boolean;
-        rejectMessageFormatter: (info: { kinds: string }) => string;
+        rejectMessageFormatter: (info: {
+          kinds: (string | ExtractKinds<DataBindings>)[];
+        }) => string;
       };
       post: (
         def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
@@ -422,7 +424,7 @@ export class LexerCore<
     validator: {
       pre: (def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>) => {
         accept: boolean;
-        rejectMessageFormatter: (info: { kinds: string }) => string;
+        rejectMessageFormatter: (info: { kinds: (string | Kinds)[] }) => string;
       };
       post: (
         def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
@@ -445,10 +447,7 @@ export class LexerCore<
       // unexpected
       if (debug) {
         const info = {
-          kinds:
-            def.kinds.size === 1 && def.kinds.has("" as Kinds)
-              ? "<anonymous>"
-              : JSON.stringify(def.kinds),
+          kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
         };
         logger.log({
           entity,
