@@ -10,6 +10,7 @@
   - **_Breaking Change_**: `Builder.define/ignore/anonymous` will accept functions as `ActionBuilder` instead of `SimpleActionExec`.
   - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
   - **_Breaking Change_**: all actions should have the same data type in one `Builder.define`.
+  - **_Breaking Change_**: remove `ILexer.defs`, use `ILexer.core.defs` instead.
   - Feat: add `ActionInput.peek`.
   - Feat: add `ActionBuilder` for chaining action decorators.
   - Feat: add `Builder.useError` to set error type.

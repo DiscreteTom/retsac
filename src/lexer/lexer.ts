@@ -28,7 +28,7 @@ export class Lexer<
     options?: LexerBuildOptions,
   ) {
     this.core = core;
-    this.state = new LexerState(); // TODO: use interface?
+    this.state = new LexerState();
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
   }
@@ -51,10 +51,6 @@ export class Lexer<
 
   get errors() {
     return this.state.errors;
-  }
-
-  get defs() {
-    return this.core.defs;
   }
 
   reset() {

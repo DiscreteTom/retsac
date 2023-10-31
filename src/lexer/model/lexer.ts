@@ -1,6 +1,6 @@
 import type { Logger } from "../../logger";
 import type { ILexerCore } from "./core";
-import type { ExtractAllDefinitions, ExtractKinds } from "./extractor";
+import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
 /**
@@ -11,6 +11,7 @@ export interface IReadonlyLexer<
   ActionState,
   ErrorType,
 > {
+  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * Default: `false`.
@@ -26,8 +27,6 @@ export interface IReadonlyLexer<
    * You can clear the errors by setting it's length to 0.
    */
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
-  // TODO: simplify by ref to ILexerCore
-  readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>;
   /**
    * The entire input string.
    */
@@ -44,7 +43,6 @@ export interface IReadonlyLexer<
    * `true` if the lexer is trimStart-ed.
    */
   get trimmed(): boolean;
-  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
