@@ -32,10 +32,4 @@ export type Token<DataBindings extends GeneralTokenDataBinding, ErrorType> = {
   error?: ErrorType;
 } & DataBindings;
 
-export type ExtractKinds<DataBindings extends GeneralTokenDataBinding> =
-  DataBindings["kind"];
-
-export type ExtractData<DataBindings extends GeneralTokenDataBinding> =
-  DataBindings["data"];
-
 export type GeneralToken = Token<GeneralTokenDataBinding, unknown>;

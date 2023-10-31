@@ -1,33 +1,7 @@
 import type { Logger } from "../../logger";
 import type { ActionStateCloner } from "../action";
-import type { Definition } from "./definition";
-import type {
-  ExtractData,
-  ExtractKinds,
-  GeneralTokenDataBinding,
-  Token,
-} from "./token";
-
-export type ExtractDefinition<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> = {
-  [Kind in ExtractKinds<DataBindings>]: Definition<
-    Kind,
-    ExtractData<DataBindings & { kind: Kind }>,
-    ActionState,
-    ErrorType
-  >;
-}[ExtractKinds<DataBindings>];
-
-export type ExtractAllDefinitions<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> = readonly Readonly<
-  ExtractDefinition<DataBindings, ActionState, ErrorType>
->[];
+import type { ExtractAllDefinitions, ExtractKinds } from "./extractor";
+import type { GeneralTokenDataBinding, Token } from "./token";
 
 export interface IReadonlyLexerCore<
   DataBindings extends GeneralTokenDataBinding,
