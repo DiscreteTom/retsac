@@ -41,8 +41,7 @@ export class InvalidPlaceholderFollowError<
         .map((g) => g.grammarStrWithoutName.value)
         .join(
           ", ",
-          // TODO: implement reParse
-        )}. You can modify your grammar rule or use reParse to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.`,
+        )}. You can modify your grammar rule to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.`,
     );
     Object.setPrototypeOf(this, InvalidPlaceholderFollowError.prototype);
   }
