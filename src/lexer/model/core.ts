@@ -17,9 +17,16 @@ export type ILexerCoreLexOptions<DataBindings extends GeneralTokenDataBinding> =
      */
     rest: string | undefined;
     /**
-     * @default {}
+     * Ensure the output token is the expected kind and/or text.
+     *
+     * If `expect.kind` is provided, actions with different kinds will be ignored.
+     *
+     * If `expect.text` is provided, output with different text will be rejected.
+     *
+     * Muted actions will still be executed and their output will not be emitted.
+     * @default
+     * { kind: undefined, text: undefined }
      */
-    // TODO: better comment
     expect: Readonly<{
       kind?: ExtractKinds<DataBindings>;
       text?: string;
