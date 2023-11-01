@@ -3,3 +3,4 @@ export * as Parser from "./parser";
 export * from "./logger";
 export * from "./type-helper";
 export { ELR } from "./parser";
+export * from "./cache";

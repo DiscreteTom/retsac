@@ -6,7 +6,7 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
-import { StringCache } from "../../../cache";
+import { StringCache } from "../../../../cache";
 import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 

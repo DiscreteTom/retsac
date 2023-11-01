@@ -7,7 +7,7 @@ import {
   defaultASTNodeSelector,
   defaultASTNodeFirstMatchSelector,
 } from "./selector";
-import { StringCache } from "./cache";
+import { StringCache } from "../cache";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";

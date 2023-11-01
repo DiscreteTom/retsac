@@ -1,5 +1,5 @@
 import type { Traverser } from "../../../traverser";
-import { StringCache } from "../../../cache";
+import { StringCache } from "../../../../cache";
 import type {
   Conflict,
   ConflictType,

@@ -1,5 +1,5 @@
 import { ASTNode } from "../../../ast";
-import { StringCache, Cache } from "../../../cache";
+import { StringCache, Cache } from "../../../../cache";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { GrammarRepo } from "./grammar-repo";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
