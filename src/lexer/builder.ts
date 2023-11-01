@@ -1,5 +1,5 @@
 import type { ActionStateCloner } from "./action";
-import { Action, ActionBuilder } from "./action";
+import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
 import type {
   ExtractDefinition,
@@ -37,7 +37,7 @@ export class Builder<
 
   constructor() {
     this.defs = [];
-    this.stateCloner = (state) => structuredClone(state);
+    this.stateCloner = defaultActionStateCloner;
   }
 
   /**
@@ -45,6 +45,9 @@ export class Builder<
    */
   useState<NewActionState>(
     state: NewActionState,
+    /**
+     * @default defaultActionStateCloner
+     */
     cloner?: ActionStateCloner<NewActionState>,
   ): Builder<DataBindings, NewActionState, ErrorType> {
     const _this = this as unknown as Builder<
@@ -53,7 +56,7 @@ export class Builder<
       ErrorType
     >;
     _this.initialState = state;
-    _this.stateCloner = cloner ?? ((state) => structuredClone(state));
+    _this.stateCloner = cloner ?? defaultActionStateCloner;
     return _this;
   }
 
