@@ -7,7 +7,7 @@ import {
   defaultASTNodeSelector,
   defaultASTNodeFirstMatchSelector,
 } from "./selector";
-import { StringCache } from "../cache";
+import { LazyString } from "../cache";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";
@@ -110,15 +110,15 @@ export class ASTNode<
   /**
    * @see {@link ASTNode.toString}
    */
-  readonly str: StringCache;
+  readonly str: LazyString;
   /**
    * @see {@link ASTNode.getStrWithName}
    */
-  readonly strWithName: StringCache;
+  readonly strWithName: LazyString;
   /**
    * @see {@link ASTNode.getStrWithoutName}
    */
-  readonly strWithoutName: StringCache;
+  readonly strWithoutName: LazyString;
 
   constructor(
     p: Pick<
@@ -153,7 +153,7 @@ export class ASTNode<
     this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
     this.$$ = (name: string) => selector(name, this.children ?? []);
 
-    this.str = new StringCache(
+    this.str = new LazyString(
       () =>
         `ASTNode({ kind: "${this.kind}", start: ${
           this.start
@@ -161,10 +161,8 @@ export class ASTNode<
           this.data,
         )}, error: ${JSON.stringify(this.error)} })`,
     );
-    this.strWithName = new StringCache(() => ASTNode.getStrWithName(this));
-    this.strWithoutName = new StringCache(() =>
-      ASTNode.getStrWithoutName(this),
-    );
+    this.strWithName = new LazyString(() => ASTNode.getStrWithName(this));
+    this.strWithoutName = new LazyString(() => ASTNode.getStrWithoutName(this));
   }
 
   static from<

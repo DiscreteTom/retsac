@@ -1,5 +1,5 @@
 import type { Traverser } from "../../../traverser";
-import { StringCache } from "../../../../cache";
+import { LazyString } from "../../../../cache";
 import type {
   Conflict,
   ConflictType,
@@ -112,15 +112,15 @@ export class GrammarRule<
   /**
    * @see {@link GrammarRule.toString}
    */
-  readonly str: StringCache;
+  readonly str: LazyString;
   /**
    * @see {@link GrammarRule.getStrWithGrammarName}
    */
-  readonly strWithGrammarName: StringCache;
+  readonly strWithGrammarName: LazyString;
   /**
    * @see {@link GrammarRule.getStrWithoutGrammarName}
    */
-  readonly strWithoutGrammarName: StringCache;
+  readonly strWithoutGrammarName: LazyString;
   /**
    * The index of {@link ParserBuilder.data}
    */
@@ -156,11 +156,11 @@ export class GrammarRule<
     this.conflicts = [];
     this.resolved = [];
 
-    this.str = new StringCache(() => this.strWithGrammarName.value);
-    this.strWithGrammarName = new StringCache(() =>
+    this.str = new LazyString(() => this.strWithGrammarName.value);
+    this.strWithGrammarName = new LazyString(() =>
       GrammarRule.getStrWithGrammarName(this),
     );
-    this.strWithoutGrammarName = new StringCache(() =>
+    this.strWithoutGrammarName = new LazyString(() =>
       GrammarRule.getStrWithoutGrammarName(this),
     );
     this.hydrationId = p.hydrationId;

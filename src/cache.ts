@@ -1,27 +1,44 @@
-export class Cache<ValueType> {
-  private _value?: ValueType;
-  readonly factory: () => ValueType;
+/**
+ * Only calculate the value when it's needed.
+ */
+export class Lazy<Value> {
+  private _value?: Value;
+  readonly factory: () => Value;
 
-  constructor(factory: () => ValueType, value?: ValueType) {
+  constructor(factory: () => Value, value?: Value) {
     this.factory = factory;
     this._value = value;
   }
 
+  /**
+   * If the value is not calculated yet (is `undefined`), calculate it and cache it.
+   */
   get value() {
-    return this._value ?? (this._value = this.factory());
+    return this._value === undefined
+      ? (this._value = this.factory())
+      : this._value;
   }
 
-  set value(value: ValueType) {
+  set value(value: Value) {
     this._value = value;
   }
 
+  /**
+   * Get the raw value without calculating it.
+   */
+  get raw() {
+    return this._value;
+  }
+
+  /**
+   * Reset the cached value to `undefined`.
+   */
   reset() {
     this._value = undefined;
   }
 }
 
-export class StringCache extends Cache<string> {
-  constructor(factory: () => string, value?: string) {
-    super(factory, value);
-  }
-}
+/**
+ * Only calculate the string when it's needed.
+ */
+export class LazyString extends Lazy<string> {}

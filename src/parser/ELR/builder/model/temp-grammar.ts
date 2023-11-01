@@ -6,7 +6,7 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
-import { StringCache } from "../../../../cache";
+import { LazyString } from "../../../../cache";
 import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 
@@ -36,14 +36,14 @@ export class TempGrammar {
    */
   readonly name?: string;
 
-  readonly strWithGrammarName: StringCache;
+  readonly strWithGrammarName: LazyString;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     this.type = p.type;
     this.content = p.content;
     this.name = p.name;
 
-    this.strWithGrammarName = new StringCache(() =>
+    this.strWithGrammarName = new LazyString(() =>
       this.toGrammarStringWithName(),
     );
   }
@@ -156,7 +156,7 @@ export class TempGrammarRule<
     Token<LexerDataBindings, LexerError>
   >;
   readonly hydrationId: number;
-  readonly strWithGrammarName: StringCache;
+  readonly strWithGrammarName: LazyString;
 
   constructor(
     data: Pick<
@@ -187,7 +187,7 @@ export class TempGrammarRule<
     this.traverser = data.traverser;
     this.hydrationId = data.hydrationId;
 
-    this.strWithGrammarName = new StringCache(() =>
+    this.strWithGrammarName = new LazyString(() =>
       this.toStringWithGrammarName(),
     );
   }

@@ -1,5 +1,5 @@
 import { ASTNode } from "../../../ast";
-import { StringCache, Cache } from "../../../../cache";
+import { LazyString, Lazy } from "../../../../cache";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { GrammarRepo } from "./grammar-repo";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,15 +38,15 @@ export class Grammar<AllKinds extends string> {
   /**
    * @see {@link Grammar.toString}
    */
-  readonly str: StringCache;
+  readonly str: LazyString;
   /**
    * @see {@link ASTNode.strWithName}
    */
-  readonly strWithName: StringCache;
+  readonly strWithName: LazyString;
   /**
    * @see {@link ASTNode.strWithoutName}
    */
-  readonly strWithoutName: StringCache;
+  readonly strWithoutName: LazyString;
   /**
    * @see {@link Grammar.getGrammarStrWithName}
    */
@@ -54,11 +54,11 @@ export class Grammar<AllKinds extends string> {
   /**
    * @see {@link Grammar.getGrammarStrWithoutName}
    */
-  readonly grammarStrWithoutName: StringCache;
+  readonly grammarStrWithoutName: LazyString;
   /**
    * This is used when calculate all DFA state.
    */
-  readonly mockNode: Cache<Readonly<ASTNode<AllKinds, never, never, never>>>;
+  readonly mockNode: Lazy<Readonly<ASTNode<AllKinds, never, never, never>>>;
 
   /**
    * Only {@link GrammarRepo} should use this constructor.
@@ -76,21 +76,19 @@ export class Grammar<AllKinds extends string> {
     this.name = p.name;
     this.text = p.text;
 
-    this.str = new StringCache(
+    this.str = new LazyString(
       () =>
         `Grammar({ type: "${GrammarType[this.type]}", kind: "${
           this.kind
         }", name: "${this.name}", text: ${JSON.stringify(this.text)} })`, // quote text, escape literal
     );
-    this.strWithName = new StringCache(() => ASTNode.getStrWithName(this));
-    this.strWithoutName = new StringCache(() =>
-      ASTNode.getStrWithoutName(this),
-    );
+    this.strWithName = new LazyString(() => ASTNode.getStrWithName(this));
+    this.strWithoutName = new LazyString(() => ASTNode.getStrWithoutName(this));
     this.grammarStrWithName = p.grammarStrWithName;
-    this.grammarStrWithoutName = new StringCache(() =>
+    this.grammarStrWithoutName = new LazyString(() =>
       Grammar.getGrammarStrWithoutName(this),
     );
-    this.mockNode = new Cache(
+    this.mockNode = new Lazy(
       () =>
         new ASTNode({
           kind: this.kind,
