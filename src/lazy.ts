@@ -38,7 +38,13 @@ export class Lazy<Value> {
   }
 }
 
+export type ReadonlyLazy<Value> = {
+  readonly [K in "value" | "raw"]: Lazy<Value>[K];
+};
+
 /**
  * Only calculate the string when it's needed.
  */
 export class LazyString extends Lazy<string> {}
+
+export type ReadonlyLazyString = ReadonlyLazy<string>;
