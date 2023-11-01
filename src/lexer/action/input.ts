@@ -16,7 +16,7 @@ export class ActionInput<ActionState> {
    */
   readonly peek: boolean;
   /**
-   * The rest of the input, lazy and cached.
+   * The rest of the input before the action is executed, lazy and cached.
    */
   readonly rest?: ReadonlyLazyString;
   readonly state: ActionState;
