@@ -1,6 +1,5 @@
-/**
- * This has to be a class, since we need to cache the `rest` of the input.
- */
+import { LazyString, type ReadonlyLazyString } from "../../lazy";
+
 export class ActionInput<ActionState> {
   /**
    * The whole input string.
@@ -13,38 +12,25 @@ export class ActionInput<ActionState> {
   /**
    * Whether this evaluation is a peek.
    * If `true`, you may NOT want to mutate the action state.
+   * @default false
    */
   readonly peek: boolean;
-  readonly state: ActionState;
   /**
-   * The rest of the input.
-   *
-   * Since the rest may be a long string, we don't calculate it
-   * unless it's needed by the action, or provided by the last accepted action's output,
-   * or user called `lexer.getRest` before the action is executed.
-   *
-   * This should only be set by the constructor or the `rest` getter.
+   * The rest of the input, lazy and cached.
    */
-  _rest?: string;
+  readonly rest?: ReadonlyLazyString;
+  readonly state: ActionState;
 
   constructor(
     props: Pick<
       ActionInput<ActionState>,
-      "buffer" | "start" | "state" | "peek" | "_rest"
-    >,
+      "buffer" | "start" | "peek" | "state"
+    > & { rest: string | undefined },
   ) {
     this.buffer = props.buffer;
     this.start = props.start;
-    this.state = props.state;
     this.peek = props.peek;
-    this._rest = props._rest;
-  }
-
-  /**
-   * The rest of the input, equals to `input.slice(start)`.
-   * This is lazy and cached.
-   */
-  get rest() {
-    return this._rest ?? (this._rest = this.buffer.slice(this.start));
+    this.state = props.state;
+    this.rest = new LazyString(() => this.buffer.slice(this.start), props.rest);
   }
 }
