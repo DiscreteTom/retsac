@@ -1,5 +1,5 @@
 import type { ActionInput } from "../action";
-import { Action } from "../action";
+import { Action, makeRegexAutoGlobal, makeRegexAutoSticky } from "../action";
 
 /**
  * Escape regex special characters.
@@ -41,20 +41,10 @@ export function fromTo<ActionState = never, ErrorType = never>(
   },
 ): Action<never, ActionState, ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
-  if (
-    from instanceof RegExp &&
-    (options.autoSticky ?? true) &&
-    !from.sticky &&
-    !from.global
-  )
-    from = new RegExp(from.source, from.flags + "y");
-  if (
-    to instanceof RegExp &&
-    (options.autoGlobal ?? true) &&
-    !to.sticky &&
-    !to.global
-  )
-    to = new RegExp(to.source, to.flags + "g");
+  if (from instanceof RegExp && (options.autoSticky ?? true))
+    from = makeRegexAutoSticky(from);
+  if (to instanceof RegExp && (options.autoGlobal ?? true))
+    to = makeRegexAutoGlobal(to);
 
   /** Return how many chars are digested, return 0 for reject. */
   const checkFrom =

@@ -134,7 +134,7 @@ export interface ILexer<
     options?: {
       /**
        * Auto add the `global` flag to the regex if `g` and 'y' is not set.
-       * Default: `true`.
+       * @default true
        */
       autoGlobal?: boolean;
     },

@@ -1,4 +1,3 @@
-import { CaretNotAllowedError } from "../error";
 import type { ActionInput } from "./input";
 import type {
   SimpleAcceptedActionExecOutput,
@@ -8,6 +7,7 @@ import type {
 } from "./output";
 import { rejectedActionOutput, AcceptedActionOutput } from "./output";
 import { ActionWithKinds } from "./select";
+import { checkRegexNotStartsWithCaret, makeRegexAutoSticky } from "./utils";
 
 export type ActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
@@ -128,27 +128,18 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     options?: {
       /**
        * Auto add the sticky flag to the regex if `g` and `y` is not set.
-       * Default: `true`.
+       * @default true
        */
       autoSticky?: boolean;
       /**
        * Reject if the regex starts with `^`.
-       * Default: `true`.
+       * @default true
        */
       rejectCaret?: boolean;
     },
   ): Action<RegExpExecArray, ActionState, ErrorType> {
-    if (options?.autoSticky ?? true) {
-      if (!r.sticky && !r.global)
-        // make sure r has the flag 'y/g' so we can use `r.lastIndex` to reset state.
-        r = new RegExp(r.source, r.flags + "y");
-    }
-    if (options?.rejectCaret ?? true) {
-      if (r.source.startsWith("^"))
-        // for most cases this is a mistake
-        // since when 'r' and 'g' is set, '^' will cause the regex to always fail when 'r.lastIndex' is not 0
-        throw new CaretNotAllowedError();
-    }
+    if (options?.autoSticky ?? true) r = makeRegexAutoSticky(r);
+    if (options?.rejectCaret ?? true) checkRegexNotStartsWithCaret(r);
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`
     return new Action((input) => {

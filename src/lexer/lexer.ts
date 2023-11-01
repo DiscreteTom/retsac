@@ -1,4 +1,5 @@
 import { defaultLogger, type Logger } from "../logger";
+import { makeRegexAutoGlobal } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import type {
@@ -125,8 +126,7 @@ export class Lexer<
   ) {
     let regex =
       typeof pattern === "string" ? new RegExp(esc4regex(pattern)) : pattern;
-    if ((options?.autoGlobal ?? true) && !regex.global && !regex.sticky)
-      regex = new RegExp(regex.source, regex.flags + "g");
+    if (options?.autoGlobal ?? true) regex = makeRegexAutoGlobal(regex);
 
     regex.lastIndex = this.digested;
     const res = regex.exec(this.buffer);
