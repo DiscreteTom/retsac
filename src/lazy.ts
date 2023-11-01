@@ -11,7 +11,7 @@ export class Lazy<Value> {
   }
 
   /**
-   * If the value is not calculated yet (is `undefined`), calculate it and cache it.
+   * If the value is not calculated yet (the raw value is `undefined`), calculate it and cache it.
    */
   get value() {
     return this._value === undefined
