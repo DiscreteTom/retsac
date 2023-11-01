@@ -5,7 +5,7 @@
 - **_Breaking Change_**: re-order and simplify generic parameters.
 - **_Breaking Change_**: remove `jsonLogger`, use `jsonLoggerFactory` instead.
 - Lexer
-  - **_Breaking Change_**: apply `LazyString` in `ActionInput/AcceptedActionOutput`.
+  - **_Breaking Change_**: apply `LazyString` in `ActionInput/AcceptedActionOutput.rest`.
   - **_Breaking Change_**: customizable token data. [#29](https://github.com/DiscreteTom/retsac/issues/29)
     - Add `Action.data`.
   - **_Breaking Change_**: make `Action/Builder`'s default `ErrorType` to `never`.

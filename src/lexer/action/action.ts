@@ -78,36 +78,6 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     return AcceptedActionOutput.from(input, execOutput);
   }
 
-  /**
-   * Apply a decorator to this action.
-   */
-  apply<NewData, NewErrorType>(
-    decorator: AcceptedActionDecorator<
-      Data,
-      ActionState,
-      ErrorType,
-      NewData,
-      NewErrorType
-    >,
-    optionsOverload?: Partial<
-      Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
-    >,
-  ) {
-    return new Action<NewData, ActionState, NewErrorType>(
-      (input) => {
-        const output = this.exec(input);
-        if (!output.accept) return output;
-        return decorator({
-          input,
-          output,
-        });
-      },
-      {
-        maybeMuted: optionsOverload?.maybeMuted ?? this.maybeMuted,
-      },
-    );
-  }
-
   static simple<Data = never, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
@@ -123,7 +93,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           muted: false,
           digested: res,
           content: input.buffer.slice(input.start, input.start + res),
-          data: undefined as never,
+          data: undefined,
         } as AcceptedActionExecOutput<never, ErrorType>;
       }
       if (typeof res == "string") {
@@ -133,7 +103,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           muted: false,
           digested: res.length,
           content: res,
-          data: undefined as never,
+          data: undefined,
         } as AcceptedActionExecOutput<never, ErrorType>;
       }
       // else, res is SimpleAcceptedActionOutput
@@ -148,7 +118,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           res.content ??
           input.buffer.slice(input.start, input.start + res.digested),
         data: res.data,
-        _rest: res._rest,
+        rest: res.rest,
       } as AcceptedActionExecOutput<Data, ErrorType>;
     });
   }
@@ -215,6 +185,36 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   }
 
   /**
+   * Apply a decorator to this action.
+   */
+  apply<NewData, NewErrorType>(
+    decorator: AcceptedActionDecorator<
+      Data,
+      ActionState,
+      ErrorType,
+      NewData,
+      NewErrorType
+    >,
+    optionsOverload?: Partial<
+      Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
+    >,
+  ) {
+    return new Action<NewData, ActionState, NewErrorType>(
+      (input) => {
+        const output = this.exec(input);
+        if (!output.accept) return output;
+        return decorator({
+          input,
+          output,
+        });
+      },
+      {
+        maybeMuted: optionsOverload?.maybeMuted ?? this.maybeMuted,
+      },
+    );
+  }
+
+  /**
    * Mute action if `accept` is `true` and `muted` is/returned `true`.
    */
   mute(
@@ -228,7 +228,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       return this.apply(
         (ctx) => {
           ctx.output.muted = muted;
-          return ctx.output;
+          return ctx.output.toExecOutput();
         },
         { maybeMuted: muted },
       );
@@ -237,7 +237,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     return this.apply(
       (ctx) => {
         ctx.output.muted = muted(ctx);
-        return ctx.output;
+        return ctx.output.toExecOutput();
       },
       { maybeMuted: true },
     );
@@ -312,7 +312,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     // else, rejecter is a function
     return this.apply((ctx) => {
       if (rejecter(ctx)) return rejectedActionOutput;
-      return ctx.output;
+      return ctx.output.toExecOutput();
     });
   }
 
@@ -326,7 +326,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   ): Action<Data, ActionState, ErrorType> {
     return this.apply((ctx) => {
       if (!ctx.input.peek) f(ctx);
-      return ctx.output;
+      return ctx.output.toExecOutput();
     });
   }
 

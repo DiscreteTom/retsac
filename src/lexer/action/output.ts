@@ -1,7 +1,7 @@
+import { LazyString, type ReadonlyLazyString } from "../../lazy";
 import type { AtLeastOneOf } from "../../type-helper";
 import type { ActionInput } from "./input";
 
-// This has to be a class, since we need to cache the `rest` of the output.
 export class AcceptedActionOutput<Data, ErrorType> {
   /**
    * This action can accept some input as a token.
@@ -10,50 +10,44 @@ export class AcceptedActionOutput<Data, ErrorType> {
   /**
    *  The whole input string.
    */
-  buffer: string;
+  readonly buffer: string;
   /**
    * Index of the first char of this token in the whole input string.
    */
-  start: number;
-  /**
-   * Don't emit token, continue lex.
-   */
-  muted: boolean;
+  readonly start: number;
   /**
    * How many chars are accepted by this action.
    */
   digested: number;
-  /**
-   * Accept, but set an error to mark this token.
-   */
-  error?: ErrorType;
   /**
    * The content of the token, equals to `input.slice(start, start + digested)`.
    * This is not lazy since we need this to calculate `lexer.lineChars`.
    */
   content: string;
   /**
+   * Don't emit token, continue lex.
+   */
+  muted: boolean;
+  /**
    * User-defined data stored in this token.
    */
   data: Data;
   /**
-   * The raw rest. If your action can yield the rest of the input, you should set this field.
+   * If not `undefined`, this means the action is accepted
+   * with `token.error` set.
    * @default undefined
    */
-  _rest?: string;
+  error?: ErrorType;
+  /**
+   * The rest of the input after the action is executed, lazy and cached.
+   */
+  readonly rest: ReadonlyLazyString;
 
   constructor(
     props: Pick<
       AcceptedActionOutput<Data, ErrorType>,
-      | "buffer"
-      | "start"
-      | "muted"
-      | "digested"
-      | "error"
-      | "content"
-      | "data"
-      | "_rest"
-    >,
+      "buffer" | "start" | "muted" | "digested" | "error" | "content" | "data"
+    > & { rest: string | undefined },
   ) {
     this.accept = true;
     this.buffer = props.buffer;
@@ -63,7 +57,10 @@ export class AcceptedActionOutput<Data, ErrorType> {
     this.error = props.error;
     this.content = props.content;
     this.data = props.data;
-    this._rest = props._rest;
+    this.rest = new LazyString(
+      () => this.buffer.slice(this.start + this.digested),
+      props.rest,
+    );
   }
 
   static from<Data, ActionState, ErrorType>(
@@ -78,17 +75,13 @@ export class AcceptedActionOutput<Data, ErrorType> {
       error: output.error,
       content: output.content,
       data: output.data,
-      _rest: output._rest,
+      rest: output.rest,
     });
   }
 
-  /**
-   * Convert to a simple object instead of an instance of `AcceptedActionOutput`.
-   *
-   * `rest` is not included in the return value,
-   * so its safe to expand the return value.
-   */
-  toExecOutput(): AcceptedActionExecOutput<Data, ErrorType> {
+  toExecOutput(
+    overloads?: Partial<AcceptedActionExecOutput<Data, ErrorType>>,
+  ): AcceptedActionExecOutput<Data, ErrorType> {
     return {
       accept: this.accept,
       muted: this.muted,
@@ -96,18 +89,9 @@ export class AcceptedActionOutput<Data, ErrorType> {
       error: this.error,
       content: this.content,
       data: this.data,
-      _rest: this._rest,
+      rest: this.rest.raw,
+      ...overloads,
     };
-  }
-
-  /**
-   * The rest of the input, equals to `input.slice(start + digested)`.
-   * This is lazy and cached.
-   */
-  get rest() {
-    return (
-      this._rest ?? (this._rest = this.buffer.slice(this.start + this.digested))
-    );
   }
 }
 
@@ -120,12 +104,19 @@ export type ActionOutput<Data, ErrorType> =
   | AcceptedActionOutput<Data, ErrorType>;
 
 /**
- * AcceptedActionOutput without `buffer`, `start` and `rest`.
+ * ActionExec's output. No `buffer` and `start` fields.
  */
 export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
   AcceptedActionOutput<Data, ErrorType>,
-  "accept" | "muted" | "digested" | "error" | "content" | "data" | "_rest"
->;
+  "accept" | "content" | "data" | "digested" | "error" | "muted"
+> & {
+  /**
+   * The rest of the input after the action is executed.
+   * If your action can yield the rest unintentionally, you could set this field.
+   * @default undefined
+   */
+  rest?: string;
+};
 
 export type ActionExecOutput<Data, ErrorType> =
   | typeof rejectedActionOutput
@@ -137,8 +128,8 @@ export type ActionExecOutput<Data, ErrorType> =
  */
 export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
   Pick<
-    AcceptedActionOutput<Data, ErrorType>,
-    "muted" | "error" | "digested" | "content" | "data" | "_rest"
+    AcceptedActionExecOutput<Data, ErrorType>,
+    "muted" | "error" | "digested" | "content" | "data" | "rest"
   >
 > &
   AtLeastOneOf<AcceptedActionOutput<Data, ErrorType>, "digested" | "content">;
