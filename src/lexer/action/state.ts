@@ -1,3 +1,6 @@
+/**
+ * Clone action state in a proper way.
+ */
 export type ActionStateCloner<ActionState> = (
   ctx: Readonly<ActionState>,
 ) => ActionState;
