@@ -114,8 +114,8 @@ export class LexerCore<
         buffer,
         start: start + digested,
         state: this.state,
-        rest: currentRest,
         peek,
+        _rest: currentRest,
       });
       // cache the result of `startsWith` to avoid duplicate calculation
       // since we need to check `startsWith` for every definition
@@ -227,8 +227,8 @@ export class LexerCore<
         buffer,
         start: start + digested,
         state: this.state,
-        rest: currentRest,
         peek: false,
+        _rest: currentRest,
       });
 
       const res = LexerCore.evaluateDefs(

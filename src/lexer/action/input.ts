@@ -1,4 +1,6 @@
-// This has to be a class, since we need to cache the `rest` of the input.
+/**
+ * This has to be a class, since we need to cache the `rest` of the input.
+ */
 export class ActionInput<ActionState> {
   /**
    * The whole input string.
@@ -10,26 +12,32 @@ export class ActionInput<ActionState> {
   readonly start: number;
   /**
    * Whether this evaluation is a peek.
-   * If `true`, you may not want to mutate the state.
+   * If `true`, you may NOT want to mutate the action state.
    */
   readonly peek: boolean;
   readonly state: ActionState;
-  private _rest?: string;
+  /**
+   * The rest of the input.
+   *
+   * Since the rest may be a long string, we don't calculate it
+   * unless it's needed by the action, or provided by the last accepted action's output,
+   * or user called `lexer.getRest` before the action is executed.
+   *
+   * This should only be set by the constructor or the `rest` getter.
+   */
+  _rest?: string;
 
   constructor(
     props: Pick<
       ActionInput<ActionState>,
-      "buffer" | "start" | "state" | "peek"
-    > &
-      // maybe the rest is provided by the last accepted action's output
-      // or is calculated by lexer.getRest
-      Partial<Pick<ActionInput<ActionState>, "rest">>,
+      "buffer" | "start" | "state" | "peek" | "_rest"
+    >,
   ) {
     this.buffer = props.buffer;
     this.start = props.start;
     this.state = props.state;
     this.peek = props.peek;
-    this._rest = props.rest;
+    this._rest = props._rest;
   }
 
   /**
