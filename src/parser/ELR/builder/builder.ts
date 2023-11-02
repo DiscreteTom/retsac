@@ -129,19 +129,25 @@ export class ParserBuilder<
     return _this;
   }
 
-  useData<NewData>(
-    _?: NewData,
+  useData<
+    NewASTData extends [Kinds] extends [never]
+      ? [ASTData] extends [never]
+        ? unknown
+        : never
+      : never,
+  >(
+    _data?: NewASTData,
   ): IParserBuilder<
     Kinds,
-    NewData,
+    NewASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
     LexerError
   > {
-    return this as unknown as IParserBuilder<
+    return this as unknown as ParserBuilder<
       Kinds,
-      NewData,
+      NewASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,

@@ -127,6 +127,27 @@ export interface IParserBuilder<
     NewLexerError
   >;
   /**
+   * Set the `ASTNode.data` type.
+   *
+   * This function can only be called once and must be called before defining any grammar rules.
+   */
+  useData<
+    NewASTData extends [Kinds] extends [never]
+      ? [ASTData] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
+        ? unknown // NewData can be any type
+        : never // ASTData already set, prevent modification
+      : never, // prevent setting ASTData after Kinds is defined
+  >(
+    data?: NewASTData,
+  ): IParserBuilder<
+    Kinds,
+    NewASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  >;
+  /**
    * Define grammar rules.
    */
   define<Append extends string>(
@@ -164,6 +185,7 @@ export interface IParserBuilder<
       LexerError | AppendLexerError
     >,
   ): {
+    // TODO: ensure lexer is set before build
     parser: IParser<
       Kinds,
       ASTData,
@@ -248,16 +270,6 @@ export interface IParserBuilder<
     LexerError | AppendLexerError
   >;
 
-  useData<NewData>(
-    data?: NewData,
-  ): IParserBuilder<
-    Kinds,
-    NewData,
-    ErrorType,
-    LexerDataBindings,
-    LexerActionState,
-    LexerError
-  >;
   /**
    * Generate resolvers by grammar rules' priorities.
    * Grammar rules with higher priority will always be accepted first.
