@@ -14,11 +14,9 @@ import type { Parser } from "../parser";
 export type BuildOptions<
   Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerActionState,
-  LexerError,
 > = Partial<
   Pick<
-    IParser<never, never, Kinds, LexerDataBindings, LexerActionState, never>,
+    IParser<string, never, never, GeneralTokenDataBinding, never, never>,
     "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
   >
 > & {
@@ -27,8 +25,6 @@ export type BuildOptions<
    * This is required for ELR parser.
    */
   entry: Kinds | readonly Kinds[];
-  // TODO: remove lexer
-  lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
   /**
    * Which format to generate resolvers.
    * If `undefined`, resolvers will not be generated.
@@ -169,46 +165,6 @@ export interface IParserBuilder<
     LexerError
   >;
   /**
-   * Generate the {@link Parser ELR Parser}.
-   * This won't modify the builder, so you can call this multiple times.
-   */
-  // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
-  build<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    options: BuildOptions<
-      Kinds,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
-    >,
-  ): {
-    // TODO: ensure lexer is set before build
-    parser: IParser<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
-    >;
-    /**
-     * If you build the parser with {@link BuildOptions.serialize},
-     * this will be set to the serializable object.
-     */
-    serializable?: Readonly<
-      SerializableParserData<Kinds, LexerDataBindings | AppendLexerDataBindings>
-    >;
-    mermaid?: string;
-    /**
-     * If you build the parser with {@link BuildOptions.generateResolvers},
-     * this will be set to the generated resolver string.
-     */
-    resolvers?: string;
-  };
-  /**
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
@@ -238,38 +194,38 @@ export interface IParserBuilder<
       LexerError
     >,
   ): this;
-  /**
-   * Apply a function to this builder.
-   */
-  use<
-    AppendKinds extends string,
-    AppendError,
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    f: BuilderDecorator<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerError,
-      AppendKinds,
-      AppendError,
-      AppendLexerDataBindings,
-      AppendLexerActionState,
-      AppendLexerError
-    >,
-  ): IParserBuilder<
-    Kinds | AppendKinds,
-    ASTData,
-    ErrorType | AppendError,
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >;
-
+  // TODO
+  // /**
+  //  * Apply a function to this builder.
+  //  */
+  // use<
+  //   AppendKinds extends string,
+  //   AppendError,
+  //   AppendLexerDataBindings extends GeneralTokenDataBinding,
+  //   AppendLexerActionState,
+  //   AppendLexerError,
+  // >(
+  //   f: BuilderDecorator<
+  //     Kinds,
+  //     ASTData,
+  //     ErrorType,
+  //     LexerDataBindings,
+  //     LexerActionState,
+  //     LexerError,
+  //     AppendKinds,
+  //     AppendError,
+  //     AppendLexerDataBindings,
+  //     AppendLexerActionState,
+  //     AppendLexerError
+  //   >,
+  // ): IParserBuilder<
+  //   Kinds | AppendKinds,
+  //   ASTData,
+  //   ErrorType | AppendError,
+  //   LexerDataBindings | AppendLexerDataBindings,
+  //   LexerActionState | AppendLexerActionState,
+  //   LexerError | AppendLexerError
+  // >;
   /**
    * Generate resolvers by grammar rules' priorities.
    * Grammar rules with higher priority will always be accepted first.
@@ -293,6 +249,35 @@ export interface IParserBuilder<
       | DefinitionGroupWithAssociativity<Kinds>
     )[]
   ): this;
+  /**
+   * Generate the {@link Parser ELR Parser}.
+   * This won't modify the builder, so you can call this multiple times.
+   */
+  // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
+  build(options: BuildOptions<Kinds, LexerDataBindings>): {
+    // TODO: extract type
+    parser: [LexerDataBindings] extends [never]
+      ? never // if no lexer, no parser
+      : IParser<
+          Kinds,
+          ASTData,
+          ErrorType,
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
+        >;
+    /**
+     * If you build the parser with {@link BuildOptions.serialize},
+     * this will be set to the serializable object.
+     */
+    serializable?: Readonly<SerializableParserData<Kinds, LexerDataBindings>>;
+    mermaid?: string;
+    /**
+     * If you build the parser with {@link BuildOptions.generateResolvers},
+     * this will be set to the generated resolver string.
+     */
+    resolvers?: string;
+  };
 }
 
 // TODO: newData?

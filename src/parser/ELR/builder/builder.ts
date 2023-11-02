@@ -1,6 +1,5 @@
 import type {
   GrammarRule,
-  BuilderDecorator,
   BuildOptions,
   IParserBuilder,
   Conflict,
@@ -49,6 +48,7 @@ import {
   checkSymbols,
 } from "./check";
 import { buildSerializable, calculateHash } from "./utils/serialize";
+import type { IParser } from "../../model";
 
 /**
  * Builder for ELR parsers.
@@ -410,124 +410,6 @@ export class ParserBuilder<
     };
   }
 
-  build<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    options: BuildOptions<
-      Kinds,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
-    >,
-  ) {
-    const debug = options.debug ?? false;
-    const logger = options.logger ?? defaultLogger;
-    const printAll = options.printAll ?? false;
-    const rollback = options.rollback ?? false;
-    const reLex = options.reLex ?? true;
-    const autoCommit = options.autoCommit ?? false;
-    const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
-    const lexer = options.lexer;
-
-    const entryNTs = new Set(
-      options.entry instanceof Array ? options.entry : [options.entry],
-    ) as ReadonlySet<Kinds>;
-
-    // hydrate or build dfa
-    const { dfa, NTs, grs } =
-      options.hydrate == undefined
-        ? this.buildDFA(
-            entryNTs,
-            lexer.core,
-            printAll,
-            debug,
-            logger,
-            rollback,
-            reLex,
-          )
-        : this.restoreAndHydrate<
-            AppendLexerDataBindings,
-            AppendLexerActionState,
-            AppendLexerError
-          >(options.hydrate, {
-            debug,
-            logger,
-            rollback,
-            reLex,
-          });
-
-    // check symbols first
-    if (options.checkAll || options.checkSymbols)
-      checkSymbols(entryNTs, NTs, lexer.getTokenKinds(), grs, printAll, logger);
-
-    // deal with conflicts
-    let resolvers: string | undefined = undefined;
-    if (
-      options.checkAll ||
-      options.checkConflicts ||
-      options.generateResolvers
-    ) {
-      // resolved conflicts are already stored in grs in this.buildDFA
-      const unresolved = getUnresolvedConflicts(grs, debug, logger);
-
-      if (options.generateResolvers !== undefined)
-        resolvers = this.generateResolvers(
-          unresolved,
-          options.generateResolvers,
-        );
-
-      if (options.checkAll || options.checkConflicts)
-        checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
-    }
-
-    // ensure no rollback if rollback is not enabled
-    if ((options.checkAll || options.checkRollback) && !rollback)
-      checkRollbacks(grs, printAll, logger);
-
-    // check hydrate hash
-    if (
-      (options.checkAll || options.checkHydrate) &&
-      options.hydrate !== undefined
-    )
-      checkHydrateHash(
-        calculateHash(this.data, entryNTs, lexer, this.cascadeQueryPrefix) !==
-          options.hydrate.hash,
-        printAll,
-        logger,
-      );
-
-    return {
-      parser: new Parser(
-        dfa,
-        lexer,
-        autoCommit,
-        ignoreEntryFollow,
-        debug,
-        logger,
-      ),
-      serializable:
-        options.serialize ?? false
-          ? ((options.hydrate ??
-              buildSerializable(
-                this.data,
-                dfa,
-                entryNTs,
-                lexer,
-                this.cascadeQueryPrefix,
-              )) as Readonly<
-              SerializableParserData<
-                Kinds,
-                LexerDataBindings | AppendLexerDataBindings
-              >
-            >)
-          : undefined,
-      mermaid: options.mermaid ?? false ? dfa.toMermaid() : undefined,
-      resolvers,
-    };
-  }
-
   private generateResolvers<
     AppendLexerDataBindings extends GeneralTokenDataBinding,
     AppendLexerActionState,
@@ -658,36 +540,37 @@ export class ParserBuilder<
     return this;
   }
 
-  use<
-    AppendKinds extends string,
-    AppendError,
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    f: BuilderDecorator<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerError,
-      AppendKinds,
-      AppendError,
-      AppendLexerDataBindings,
-      AppendLexerActionState,
-      AppendLexerError
-    >,
-  ): IParserBuilder<
-    Kinds | AppendKinds,
-    ASTData,
-    ErrorType | AppendError,
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  > {
-    return f(this);
-  }
+  // TODO
+  // use<
+  //   AppendKinds extends string,
+  //   AppendError,
+  //   AppendLexerDataBindings extends GeneralTokenDataBinding,
+  //   AppendLexerActionState,
+  //   AppendLexerError,
+  // >(
+  //   f: BuilderDecorator<
+  //     Kinds,
+  //     ASTData,
+  //     ErrorType,
+  //     LexerDataBindings,
+  //     LexerActionState,
+  //     LexerError,
+  //     AppendKinds,
+  //     AppendError,
+  //     AppendLexerDataBindings,
+  //     AppendLexerActionState,
+  //     AppendLexerError
+  //   >,
+  // ): IParserBuilder<
+  //   Kinds | AppendKinds,
+  //   ASTData,
+  //   ErrorType | AppendError,
+  //   LexerDataBindings | AppendLexerDataBindings,
+  //   LexerActionState | AppendLexerActionState,
+  //   LexerError | AppendLexerError
+  // > {
+  //   return f(this);
+  // }
 
   priority(
     ...groups: (
@@ -787,24 +670,17 @@ export class ParserBuilder<
     return this;
   }
 
-  private restoreAndHydrate<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    data: SerializableParserData<
-      Kinds,
-      LexerDataBindings | AppendLexerDataBindings
-    >,
+  private restoreAndHydrate(
+    data: SerializableParserData<Kinds, LexerDataBindings>,
     options: Parameters<typeof DFA.fromJSON>[1],
   ) {
     const dfa = DFA.fromJSON<
       Kinds,
       ASTData,
       ErrorType,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >(data.data.dfa, options);
     const ctxs = this.data.map(
       (d) => d.ctxBuilder?.build(),
@@ -812,9 +688,9 @@ export class ParserBuilder<
       Kinds,
       ASTData,
       ErrorType,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >[];
 
     // hydrate grammar rules with user defined functions & resolvers
@@ -835,14 +711,121 @@ export class ParserBuilder<
             Kinds,
             ASTData,
             ErrorType,
-            LexerDataBindings | AppendLexerDataBindings,
-            LexerActionState | AppendLexerActionState,
-            LexerError | AppendLexerError
+            LexerDataBindings,
+            LexerActionState,
+            LexerError
           >;
         }
       });
     });
 
     return { dfa, NTs: dfa.NTs as ReadonlySet<Kinds>, grs: dfa.grammarRules };
+  }
+
+  build(options: BuildOptions<Kinds, LexerDataBindings>) {
+    const debug = options.debug ?? false;
+    const logger = options.logger ?? defaultLogger;
+    const printAll = options.printAll ?? false;
+    const rollback = options.rollback ?? false;
+    const reLex = options.reLex ?? true;
+    const autoCommit = options.autoCommit ?? false;
+    const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
+    const lexer = this.lexer.clone(); // prevent modify the builder
+
+    const entryNTs = new Set(
+      options.entry instanceof Array ? options.entry : [options.entry],
+    ) as ReadonlySet<Kinds>;
+
+    // hydrate or build dfa
+    const { dfa, NTs, grs } =
+      options.hydrate == undefined
+        ? this.buildDFA(
+            entryNTs,
+            lexer.core,
+            printAll,
+            debug,
+            logger,
+            rollback,
+            reLex,
+          )
+        : this.restoreAndHydrate(options.hydrate, {
+            debug,
+            logger,
+            rollback,
+            reLex,
+          });
+
+    // check symbols first
+    if (options.checkAll || options.checkSymbols)
+      checkSymbols(entryNTs, NTs, lexer.getTokenKinds(), grs, printAll, logger);
+
+    // deal with conflicts
+    let resolvers: string | undefined = undefined;
+    if (
+      options.checkAll ||
+      options.checkConflicts ||
+      options.generateResolvers
+    ) {
+      // resolved conflicts are already stored in grs in this.buildDFA
+      const unresolved = getUnresolvedConflicts(grs, debug, logger);
+
+      if (options.generateResolvers !== undefined)
+        resolvers = this.generateResolvers(
+          unresolved,
+          options.generateResolvers,
+        );
+
+      if (options.checkAll || options.checkConflicts)
+        checkConflicts(dfa.followSets, unresolved, grs, printAll, logger);
+    }
+
+    // ensure no rollback if rollback is not enabled
+    if ((options.checkAll || options.checkRollback) && !rollback)
+      checkRollbacks(grs, printAll, logger);
+
+    // check hydrate hash
+    if (
+      (options.checkAll || options.checkHydrate) &&
+      options.hydrate !== undefined
+    )
+      checkHydrateHash(
+        calculateHash(this.data, entryNTs, lexer, this.cascadeQueryPrefix) !==
+          options.hydrate.hash,
+        printAll,
+        logger,
+      );
+
+    return {
+      parser: new Parser(
+        dfa,
+        lexer,
+        autoCommit,
+        ignoreEntryFollow,
+        debug,
+        logger,
+      ) as unknown as [LexerDataBindings] extends [never]
+        ? never // if no lexer, no parser
+        : IParser<
+            Kinds,
+            ASTData,
+            ErrorType,
+            LexerDataBindings,
+            LexerActionState,
+            LexerError
+          >,
+      serializable:
+        options.serialize ?? false
+          ? ((options.hydrate ??
+              buildSerializable(
+                this.data,
+                dfa,
+                entryNTs,
+                lexer,
+                this.cascadeQueryPrefix,
+              )) as Readonly<SerializableParserData<Kinds, LexerDataBindings>>)
+          : undefined,
+      mermaid: options.mermaid ?? false ? dfa.toMermaid() : undefined,
+      resolvers,
+    };
   }
 }
