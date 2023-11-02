@@ -32,6 +32,7 @@
   - **_Breaking Change_**: rename `IParserBuilder.useLexer/useData` to `IParserBuilder.lexer/data`.
     - **_Breaking Change_**: `IParserBuilder.lexer` must be called and only can be called once to set the lexer, instead of setting the lexer in `IParserBuilder.build`.
     - **_Breaking Change_**: `IParserBuilder.data` can only be called once.
+    - **_Breaking Change_**: rewrite `BuilderDecorator` and `IParserBuilder.use`, restrict the modification only to the `Kinds`.
   - Feat: add `IParserBuilder.useData`.
 - Optimize package size.
 

@@ -202,38 +202,6 @@ export interface IParserBuilder<
       LexerError
     >,
   ): this;
-  // TODO
-  // /**
-  //  * Apply a function to this builder.
-  //  */
-  // use<
-  //   AppendKinds extends string,
-  //   AppendError,
-  //   AppendLexerDataBindings extends GeneralTokenDataBinding,
-  //   AppendLexerActionState,
-  //   AppendLexerError,
-  // >(
-  //   f: BuilderDecorator<
-  //     Kinds,
-  //     ASTData,
-  //     ErrorType,
-  //     LexerDataBindings,
-  //     LexerActionState,
-  //     LexerError,
-  //     AppendKinds,
-  //     AppendError,
-  //     AppendLexerDataBindings,
-  //     AppendLexerActionState,
-  //     AppendLexerError
-  //   >,
-  // ): IParserBuilder<
-  //   Kinds | AppendKinds,
-  //   ASTData,
-  //   ErrorType | AppendError,
-  //   LexerDataBindings | AppendLexerDataBindings,
-  //   LexerActionState | AppendLexerActionState,
-  //   LexerError | AppendLexerError
-  // >;
   /**
    * Generate resolvers by grammar rules' priorities.
    * Grammar rules with higher priority will always be accepted first.
@@ -257,6 +225,27 @@ export interface IParserBuilder<
       | DefinitionGroupWithAssociativity<Kinds>
     )[]
   ): this;
+  /**
+   * Apply a function to this builder.
+   */
+  use<AppendKinds extends string>(
+    f: BuilderDecorator<
+      Kinds,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerError,
+      AppendKinds
+    >,
+  ): IParserBuilder<
+    Kinds | AppendKinds,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  >;
   /**
    * Generate the {@link Parser ELR Parser}.
    * This won't modify the builder, so you can call this multiple times.
@@ -288,8 +277,6 @@ export interface IParserBuilder<
   };
 }
 
-// TODO: newData?
-// TODO: implement builder as a state machine?
 export type BuilderDecorator<
   Kinds extends string,
   ASTData,
@@ -298,10 +285,6 @@ export type BuilderDecorator<
   LexerActionState,
   LexerError,
   AppendKinds extends string,
-  AppendError,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerActionState,
-  AppendLexerError,
 > = (
   pb: IParserBuilder<
     Kinds,
@@ -314,10 +297,10 @@ export type BuilderDecorator<
 ) => IParserBuilder<
   Kinds | AppendKinds,
   ASTData,
-  ErrorType | AppendError,
-  LexerDataBindings | AppendLexerDataBindings,
-  LexerActionState | AppendLexerActionState,
-  LexerError | AppendLexerError
+  ErrorType,
+  LexerDataBindings,
+  LexerActionState,
+  LexerError
 >;
 
 /**

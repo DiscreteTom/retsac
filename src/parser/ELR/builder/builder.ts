@@ -6,6 +6,7 @@ import type {
   SerializableParserData,
   Condition,
   ResolvedConflict,
+  BuilderDecorator,
 } from "../model";
 import {
   ConflictType,
@@ -541,37 +542,26 @@ export class ParserBuilder<
     return this;
   }
 
-  // TODO
-  // use<
-  //   AppendKinds extends string,
-  //   AppendError,
-  //   AppendLexerDataBindings extends GeneralTokenDataBinding,
-  //   AppendLexerActionState,
-  //   AppendLexerError,
-  // >(
-  //   f: BuilderDecorator<
-  //     Kinds,
-  //     ASTData,
-  //     ErrorType,
-  //     LexerDataBindings,
-  //     LexerActionState,
-  //     LexerError,
-  //     AppendKinds,
-  //     AppendError,
-  //     AppendLexerDataBindings,
-  //     AppendLexerActionState,
-  //     AppendLexerError
-  //   >,
-  // ): IParserBuilder<
-  //   Kinds | AppendKinds,
-  //   ASTData,
-  //   ErrorType | AppendError,
-  //   LexerDataBindings | AppendLexerDataBindings,
-  //   LexerActionState | AppendLexerActionState,
-  //   LexerError | AppendLexerError
-  // > {
-  //   return f(this);
-  // }
+  use<AppendKinds extends string>(
+    f: BuilderDecorator<
+      Kinds,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerError,
+      AppendKinds
+    >,
+  ): IParserBuilder<
+    Kinds | AppendKinds,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  > {
+    return f(this);
+  }
 
   priority(
     ...groups: (
