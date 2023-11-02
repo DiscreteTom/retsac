@@ -50,11 +50,11 @@ export class LexerCore<
   }
 
   clone() {
-    // clone the current state
     return new LexerCore<DataBindings, ActionState, ErrorType>(
       this.defs,
       this.initialState,
       this.stateCloner,
+      // clone the current state
       this.stateCloner(this.state),
     );
   }
