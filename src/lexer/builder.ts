@@ -42,8 +42,23 @@ export class Builder<
 
   /**
    * Set initial action state.
+   *
+   * This function can only be called once and must be called before defining any action.
+   * @example
+   * // use structuredClone as default cloner
+   * builder.useState({ count: 0 })
+   * // custom cloner
+   * builder.useState({ count: 0 }, state => ({ ...state }))
    */
-  useState<NewActionState>(
+  useState<
+    // make sure this function can only be called once
+    // and must be called before defining any action
+    NewActionState extends [DataBindings] extends [never]
+      ? [ActionState] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
+        ? unknown // NewActionState can be any type
+        : never // ActionState already set, prevent modification
+      : never, // prevent setting ActionState after DataBindings is defined
+  >(
     state: NewActionState,
     /**
      * @default defaultActionStateCloner
@@ -62,13 +77,23 @@ export class Builder<
 
   /**
    * Set error type.
+   *
+   * This function can only be called once and must be called before defining any action.
    * @example
    * // provide type explicitly
    * builder.useError<number>();
    * // infer type from error value
    * builder.useError(0);
    */
-  useError<NewError>(_?: NewError) {
+  useError<
+    // make sure this function can only be called once
+    // and must be called before defining any action
+    NewError extends [DataBindings] extends [never]
+      ? [ErrorType] extends [never]
+        ? unknown // NewError can be any type
+        : never // ErrorType already set, prevent modification
+      : never, // prevent setting ErrorType after DataBindings is defined
+  >(_?: NewError) {
     return this as unknown as Builder<DataBindings, ActionState, NewError>;
   }
 
