@@ -42,10 +42,13 @@ export type AcceptedActionDecorator<
   NewErrorType,
 > = (
   ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
-) => ActionExecOutput<NewData, NewErrorType>;
+) => ActionOutput<NewData, NewErrorType>;
 
 export class Action<Data = never, ActionState = never, ErrorType = never> {
-  readonly _exec: ActionExec<Data, ActionState, ErrorType>;
+  // TODO: better name?
+  exec: (
+    input: Readonly<ActionInput<ActionState>>,
+  ) => ActionOutput<Data, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -67,15 +70,12 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     exec: ActionExec<Data, ActionState, ErrorType>,
     options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
   ) {
-    this._exec = exec;
+    this.exec = (input) => {
+      const output = exec(input);
+      if (output.accept) return AcceptedActionOutput.from(input, output);
+      return rejectedActionOutput;
+    };
     this.maybeMuted = options?.maybeMuted ?? false;
-  }
-
-  exec(input: ActionInput<ActionState>): ActionOutput<Data, ErrorType> {
-    const execOutput = this._exec(input);
-    if (!execOutput.accept) return execOutput;
-
-    return AcceptedActionOutput.from(input, execOutput);
   }
 
   static simple<Data = never, ActionState = never, ErrorType = never>(
@@ -186,23 +186,24 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       NewData,
       NewErrorType
     >,
-    optionsOverload?: Partial<
+    optionsOverride?: Partial<
       Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
     >,
   ) {
-    return new Action<NewData, ActionState, NewErrorType>(
-      (input) => {
-        const output = this.exec(input);
-        if (!output.accept) return output;
+    const exec = this.exec;
+    const _this = this as unknown as Action<NewData, ActionState, NewErrorType>;
+    _this.exec = (input) => {
+      const output = exec(input);
+      if (output.accept) {
         return decorator({
           input,
           output,
         });
-      },
-      {
-        maybeMuted: optionsOverload?.maybeMuted ?? this.maybeMuted,
-      },
-    );
+      }
+      return output;
+    };
+    _this.maybeMuted = optionsOverride?.maybeMuted ?? _this.maybeMuted;
+    return _this;
   }
 
   /**
@@ -216,22 +217,17 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         ) => boolean) = true,
   ): Action<Data, ActionState, ErrorType> {
     if (typeof muted === "boolean") {
-      return this.apply(
-        (ctx) => {
-          ctx.output.muted = muted;
-          return ctx.output.toExecOutput();
-        },
-        { maybeMuted: muted },
-      );
-    }
-    // else, muted is a function
-    return this.apply(
-      (ctx) => {
+      return this.apply((ctx) => {
+        ctx.output.muted = muted;
+        return ctx.output;
+      });
+    } else {
+      // muted is a function
+      return this.apply((ctx) => {
         ctx.output.muted = muted(ctx);
-        return ctx.output.toExecOutput();
-      },
-      { maybeMuted: true },
-    );
+        return ctx.output;
+      });
+    }
   }
 
   /**
@@ -244,10 +240,12 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     ) => NewErrorType | undefined,
   ): Action<Data, ActionState, NewErrorType> {
     return this.apply((ctx) => {
-      return {
-        ...ctx.output.toExecOutput(),
-        error: condition(ctx),
-      };
+      const output = ctx.output as unknown as AcceptedActionOutput<
+        Data,
+        NewErrorType
+      >;
+      output.error = condition(ctx);
+      return output;
     });
   }
 
@@ -269,10 +267,12 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     ) => NewData,
   ): Action<NewData, ActionState, ErrorType> {
     return this.apply((ctx) => {
-      return {
-        ...ctx.output.toExecOutput(),
-        data: factory(ctx),
-      };
+      const output = ctx.output as unknown as AcceptedActionOutput<
+        NewData,
+        ErrorType
+      >;
+      output.data = factory(ctx);
+      return output;
     });
   }
 
@@ -303,7 +303,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     // else, rejecter is a function
     return this.apply((ctx) => {
       if (rejecter(ctx)) return rejectedActionOutput;
-      return ctx.output.toExecOutput();
+      return ctx.output;
     });
   }
 
@@ -317,7 +317,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   ): Action<Data, ActionState, ErrorType> {
     return this.apply((ctx) => {
       if (!ctx.input.peek) f(ctx);
-      return ctx.output.toExecOutput();
+      return ctx.output;
     });
   }
 
@@ -336,16 +336,21 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   or<NewData, NewErrorType>(
     a: IntoAction<NewData, ActionState, NewErrorType>,
   ): Action<Data | NewData, ActionState, ErrorType | NewErrorType> {
+    const exec = this.exec;
     const other = Action.from(a);
-    const _exec = this._exec;
-    return new Action<Data | NewData, ActionState, ErrorType | NewErrorType>(
-      (input) => {
-        const output = _exec(input);
-        if (output.accept) return output;
-        return other._exec(input);
-      },
-      { maybeMuted: this.maybeMuted || other.maybeMuted },
-    );
+    const otherExec = other.exec;
+    const _this = this as unknown as Action<
+      Data | NewData,
+      ActionState,
+      ErrorType | NewErrorType
+    >;
+    _this.exec = (input) => {
+      const output = exec(input);
+      if (output.accept) return output;
+      return otherExec(input);
+    };
+    _this.maybeMuted ||= other.maybeMuted;
+    return _this;
   }
 
   /**

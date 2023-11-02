@@ -78,21 +78,6 @@ export class AcceptedActionOutput<Data, ErrorType> {
       rest: output.rest,
     });
   }
-
-  toExecOutput(
-    overloads?: Partial<AcceptedActionExecOutput<Data, ErrorType>>,
-  ): AcceptedActionExecOutput<Data, ErrorType> {
-    return {
-      accept: this.accept,
-      muted: this.muted,
-      digested: this.digested,
-      error: this.error,
-      content: this.content,
-      data: this.data,
-      rest: this.rest.raw,
-      ...overloads,
-    };
-  }
 }
 
 export const rejectedActionOutput = Object.freeze({ accept: false });
