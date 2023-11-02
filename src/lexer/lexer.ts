@@ -24,7 +24,7 @@ export class Lexer<
   debug: boolean;
   logger: Logger;
   readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
-  private state: LexerState<DataBindings, ErrorType>;
+  private state: Readonly<LexerState<DataBindings, ErrorType>>;
 
   constructor(
     core: ILexerCore<DataBindings, ActionState, ErrorType>,
@@ -114,7 +114,7 @@ export class Lexer<
       }
     } else throw new InvalidLengthForTakeError(n);
 
-    this.state.update(n, content, undefined);
+    this.state.take(n, content, undefined);
     return content;
   }
 
@@ -154,7 +154,7 @@ export class Lexer<
         info,
       });
     }
-    this.state.update(content.length, content, undefined);
+    this.state.take(content.length, content, undefined);
     return content;
   }
 
@@ -200,8 +200,10 @@ export class Lexer<
 
     // update state if not peek
     if (!peek) {
-      this.state.update(
+      this.state.take(
         res.digested,
+        // DON'T use `res.token.content` as the content!
+        // because there may be many muted tokens not emitted
         this.buffer.slice(this.digested, this.digested + res.digested),
         res.rest,
       );
@@ -249,22 +251,20 @@ export class Lexer<
         entity,
       });
       // update state
-      this.state.update(
+      this.state.take(
         res.digested,
         this.buffer.slice(this.digested, this.digested + res.digested),
         res.rest,
       );
       this.errors.push(...res.errors);
-      this.state.trimmed = true;
+      this.state.setTrimmed();
     }
 
     return this;
   }
 
   getRest() {
-    return (
-      this.state.rest ?? (this.state.rest = this.buffer.slice(this.digested))
-    );
+    return this.state.getRest();
   }
 
   hasRest() {

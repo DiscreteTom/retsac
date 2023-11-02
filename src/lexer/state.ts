@@ -24,6 +24,9 @@ export class LexerState<
     this.rest = undefined;
   }
 
+  /**
+   * Append new input to the end of the buffer and update related states.
+   */
   feed(input: string) {
     if (input.length == 0) return;
     this.buffer += input;
@@ -31,10 +34,16 @@ export class LexerState<
     this.rest = undefined; // clear cache
   }
 
-  update(digested: number, content: string, rest: string | undefined) {
-    if (digested == 0) return;
+  /**
+   * Take `n` chars from the buffer and update related states.
+   * The caller should ensure the `n` is valid, and provide the content.
+   *
+   * If the caller can get the rest unintentionally, it can be passed to the `rest` parameter.
+   */
+  take(n: number, content: string, rest: string | undefined) {
+    if (n == 0) return;
 
-    this.digested += digested;
+    this.digested += n;
     this.trimmed = this.digested == this.buffer.length; // if all chars are digested, no need to trim
     this.rest = rest;
 
@@ -58,5 +67,13 @@ export class LexerState<
     state.errors = this.errors.slice();
     state.rest = this.rest;
     return state;
+  }
+
+  setTrimmed() {
+    this.trimmed = true;
+  }
+
+  getRest() {
+    return this.rest ?? (this.rest = this.buffer.slice(this.digested));
   }
 }
