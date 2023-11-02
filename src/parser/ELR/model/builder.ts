@@ -1,8 +1,4 @@
-import type {
-  GeneralTokenDataBinding,
-  ILexer,
-  IReadonlyLexer,
-} from "../../../lexer";
+import type { GeneralTokenDataBinding, ILexer } from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -31,6 +27,7 @@ export type BuildOptions<
    * This is required for ELR parser.
    */
   entry: Kinds | readonly Kinds[];
+  // TODO: remove lexer
   lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
   /**
    * Which format to generate resolvers.
@@ -104,6 +101,31 @@ export interface IParserBuilder<
   LexerActionState,
   LexerError,
 > {
+  /**
+   * Set the lexer.
+   *
+   * This function must and can only be called once and must be called before defining any grammar rules.
+   */
+  useLexer<
+    // make sure this function can only be called once
+    // and must be called before defining any grammar rules
+    NewLexerDataBindings extends [Kinds] extends [never]
+      ? [LexerDataBindings] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
+        ? GeneralTokenDataBinding // NewLexerDataBindings should extends GeneralTokenDataBinding
+        : never // LexerDataBindings already set, prevent modification
+      : never, // prevent setting LexerDataBindings after Kinds is defined
+    NewLexerActionState,
+    NewLexerError,
+  >(
+    lexer: ILexer<NewLexerDataBindings, NewLexerActionState, NewLexerError>,
+  ): IParserBuilder<
+    Kinds,
+    ASTData,
+    ErrorType,
+    NewLexerDataBindings,
+    NewLexerActionState,
+    NewLexerError
+  >;
   /**
    * Define grammar rules.
    */
@@ -225,30 +247,7 @@ export interface IParserBuilder<
     LexerActionState | AppendLexerActionState,
     LexerError | AppendLexerError
   >;
-  /**
-   * Append lexer's kinds to the parser kinds, and append lexer's error type to the parser lexer's error type.
-   *
-   * This function will do nothing but set the generic type parameter of the parser builder in TypeScript.
-   * So this function is only useful in TypeScript.
-   */
-  useLexer<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    lexer: IReadonlyLexer<
-      AppendLexerDataBindings,
-      AppendLexerActionState,
-      AppendLexerError
-    >,
-  ): IParserBuilder<
-    Kinds,
-    ASTData,
-    ErrorType,
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >;
+
   useData<NewData>(
     data?: NewData,
   ): IParserBuilder<

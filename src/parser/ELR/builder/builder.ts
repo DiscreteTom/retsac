@@ -34,7 +34,7 @@ import { DFA, DFABuilder } from "../DFA";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyLexer,
+  ILexer,
   IReadonlyLexerCore,
 } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
@@ -87,6 +87,7 @@ export class ParserBuilder<
    * You can also customize this.
    */
   protected readonly cascadeQueryPrefix?: string;
+  private lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
 
   constructor(options?: {
     /**
@@ -99,31 +100,33 @@ export class ParserBuilder<
   }
 
   useLexer<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
+    NewLexerDataBindings extends [Kinds] extends [never]
+      ? [LexerDataBindings] extends [never]
+        ? GeneralTokenDataBinding
+        : never
+      : never,
+    NewLexerActionState,
+    NewLexerError,
   >(
-    _lexer: IReadonlyLexer<
-      AppendLexerDataBindings,
-      AppendLexerActionState,
-      AppendLexerError
-    >,
+    lexer: ILexer<NewLexerDataBindings, NewLexerActionState, NewLexerError>,
   ): IParserBuilder<
     Kinds,
     ASTData,
     ErrorType,
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
+    NewLexerDataBindings,
+    NewLexerActionState,
+    NewLexerError
   > {
-    return this as IParserBuilder<
+    const _this = this as unknown as ParserBuilder<
       Kinds,
       ASTData,
       ErrorType,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
+      NewLexerDataBindings,
+      NewLexerActionState,
+      NewLexerError
     >;
+    _this.lexer = lexer;
+    return _this;
   }
 
   useData<NewData>(
