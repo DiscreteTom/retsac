@@ -89,6 +89,37 @@ export type BuildOptions<
   mermaid?: boolean;
 };
 
+export type BuildOutput<
+  LexerDataBindings extends GeneralTokenDataBinding,
+  Kinds extends string,
+  ASTData,
+  ErrorType,
+  LexerActionState,
+  LexerError,
+> = {
+  parser: [LexerDataBindings] extends [never]
+    ? never // if no lexer, no parser
+    : IParser<
+        Kinds,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
+      >;
+  /**
+   * If you build the parser with {@link BuildOptions.serialize},
+   * this will be set to the serializable object.
+   */
+  serializable?: Readonly<SerializableParserData<Kinds, LexerDataBindings>>;
+  mermaid?: string;
+  /**
+   * If you build the parser with {@link BuildOptions.generateResolvers},
+   * this will be set to the generated resolver string.
+   */
+  resolvers?: string;
+};
+
 export interface IParserBuilder<
   Kinds extends string,
   ASTData,
@@ -251,30 +282,16 @@ export interface IParserBuilder<
    * This won't modify the builder, so you can call this multiple times.
    */
   // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
-  build(options: BuildOptions<Kinds, LexerDataBindings>): {
-    // TODO: extract type
-    parser: [LexerDataBindings] extends [never]
-      ? never // if no lexer, no parser
-      : IParser<
-          Kinds,
-          ASTData,
-          ErrorType,
-          LexerDataBindings,
-          LexerActionState,
-          LexerError
-        >;
-    /**
-     * If you build the parser with {@link BuildOptions.serialize},
-     * this will be set to the serializable object.
-     */
-    serializable?: Readonly<SerializableParserData<Kinds, LexerDataBindings>>;
-    mermaid?: string;
-    /**
-     * If you build the parser with {@link BuildOptions.generateResolvers},
-     * this will be set to the generated resolver string.
-     */
-    resolvers?: string;
-  };
+  build(
+    options: BuildOptions<Kinds, LexerDataBindings>,
+  ): BuildOutput<
+    LexerDataBindings,
+    Kinds,
+    ASTData,
+    ErrorType,
+    LexerActionState,
+    LexerError
+  >;
 }
 
 export type BuilderDecorator<
