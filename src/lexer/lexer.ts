@@ -14,7 +14,9 @@ import type {
 import { LexerState } from "./state";
 import { esc4regex } from "./utils";
 
-/** Extract tokens from the input string. */
+/**
+ * Extract tokens from the input string.
+ */
 export class Lexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
