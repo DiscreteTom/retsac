@@ -18,7 +18,7 @@ export class GrammarExpander<
   private readonly parser: IParser<
     "gr",
     string[],
-    unknown,
+    never,
     | {
         kind: "";
         data: never;

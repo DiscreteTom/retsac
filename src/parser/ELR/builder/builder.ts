@@ -60,7 +60,7 @@ import { buildSerializable, calculateHash } from "./utils/serialize";
 export class ParserBuilder<
   Kinds extends string = never,
   ASTData = never,
-  ErrorType = unknown,
+  ErrorType = never,
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
   LexerError = never,
