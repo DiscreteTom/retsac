@@ -1,4 +1,4 @@
-import type { AcceptedActionDecoratorContext, Action } from "../action";
+import type { Action, ActionKindSelector } from "../action";
 
 /**
  * Apply `action` and try to yield a token with `kind`.
@@ -10,8 +10,6 @@ export type Definition<Kinds extends string, Data, ActionState, ErrorType> = {
    * Empty string if anonymous.
    */
   kinds: ReadonlySet<Kinds>;
-  action: Action<Data, ActionState, ErrorType>;
-  selector: (
-    ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
-  ) => Kinds;
+  action: Readonly<Action<Data, ActionState, ErrorType>>;
+  selector: ActionKindSelector<Data, ActionState, ErrorType, Kinds>;
 };
