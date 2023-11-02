@@ -207,7 +207,8 @@ export class Builder<
   }
 
   /**
-   * Get all defined token kinds.
+   * Get all defined token kinds. This will build the lexer.
+   * @alias {@link Lexer.getTokenKinds}
    */
   getTokenKinds(): Set<ExtractKinds<DataBindings>> {
     // `this.build` is lightweight, so we don't cache the result
