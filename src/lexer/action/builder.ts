@@ -7,7 +7,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action Action's constructor}
    */
-  new<Data>(
+  new<Data = never>(
     ...props: ConstructorParameters<typeof Action<Data, ActionState, ErrorType>>
   ) {
     return new Action<Data, ActionState, ErrorType>(...props);
@@ -16,7 +16,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.simple}
    */
-  simple<Data>(
+  simple<Data = never>(
     ...props: Parameters<typeof Action.simple<Data, ActionState, ErrorType>>
   ) {
     return Action.simple<Data, ActionState, ErrorType>(...props);
@@ -32,7 +32,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.from}
    */
-  from<Data>(
+  from<Data = never>(
     ...props: Parameters<typeof Action.from<Data, ActionState, ErrorType>>
   ) {
     return Action.from<Data, ActionState, ErrorType>(...props);
