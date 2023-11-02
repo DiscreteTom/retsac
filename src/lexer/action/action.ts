@@ -35,6 +35,9 @@ export type SimpleActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
 ) => number | string | SimpleAcceptedActionExecOutput<Data, ErrorType>;
 
+/**
+ * These types can be transformed into an `Action` by {@link Action.from}.
+ */
 export type IntoAction<Data, ActionState, ErrorType> =
   | RegExp
   | Action<Data, ActionState, ErrorType>
