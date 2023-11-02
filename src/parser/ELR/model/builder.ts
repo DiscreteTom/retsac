@@ -101,8 +101,11 @@ export interface IParserBuilder<
    * Set the lexer.
    *
    * This function must and can only be called once and must be called before defining any grammar rules.
+   * @example
+   * const lexer = new Lexer.Builder().build();
+   * new ELR.ParserBuilder().lexer(lexer).define(...).build({...});
    */
-  useLexer<
+  lexer<
     // make sure this function can only be called once
     // and must be called before defining any grammar rules
     NewLexerDataBindings extends [Kinds] extends [never]
@@ -126,8 +129,13 @@ export interface IParserBuilder<
    * Set the `ASTNode.data` type.
    *
    * This function can only be called once and must be called before defining any grammar rules.
+   * @example
+   * // provide type explicitly
+   * builder.data<number>();
+   * // infer type from a value
+   * builder.data({ a: 1 });
    */
-  useData<
+  data<
     NewASTData extends [Kinds] extends [never]
       ? [ASTData] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
         ? unknown // NewData can be any type

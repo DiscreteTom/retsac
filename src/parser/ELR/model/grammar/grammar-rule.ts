@@ -122,7 +122,7 @@ export class GrammarRule<
    */
   readonly strWithoutGrammarName: LazyString;
   /**
-   * The index of {@link ParserBuilder.data}
+   * The index of {@link ParserBuilder.builderData}
    */
   readonly hydrationId: number;
 

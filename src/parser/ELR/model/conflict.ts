@@ -58,7 +58,7 @@ export type ResolverHydrationId = {
   type: ResolverHydrationType;
   /**
    * If {@link ResolverHydrationId.type type} is {@link ResolverHydrationType.BUILDER BUILDER},
-   * this is the index of the {@link ParserBuilder.data data} in the builder,
+   * this is the index of the {@link ParserBuilder.builderData data} in the builder,
    * and the resolver should be the first element of the resolvers array.
    *
    * If {@link ResolverHydrationId.type type} is {@link ResolverHydrationType.CONTEXT CONTEXT},

@@ -29,8 +29,9 @@
     - Add `Action.dryMatch`.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.
-  - **_Breaking Change_**: `IParserBuilder.useLexer` must be called and only can be called once to set the lexer, instead of setting the lexer in `IParserBuilder.build`.
-  - **_Breaking Change_**: `IParserBuilder.useData` can only be called once.
+  - **_Breaking Change_**: rename `IParserBuilder.useLexer/useData` to `IParserBuilder.lexer/data`.
+    - **_Breaking Change_**: `IParserBuilder.lexer` must be called and only can be called once to set the lexer, instead of setting the lexer in `IParserBuilder.build`.
+    - **_Breaking Change_**: `IParserBuilder.data` can only be called once.
   - Feat: add `IParserBuilder.useData`.
 - Optimize package size.
 

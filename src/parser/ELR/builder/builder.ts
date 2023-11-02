@@ -79,7 +79,7 @@ export class ParserBuilder<
    * You can also customize this.
    */
   protected readonly cascadeQueryPrefix?: string;
-  protected readonly data: ParserBuilderData<
+  protected readonly builderData: ParserBuilderData<
     Kinds,
     ASTData,
     ErrorType,
@@ -87,7 +87,7 @@ export class ParserBuilder<
     LexerActionState,
     LexerError
   >[];
-  private lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
+  private _lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
 
   constructor(options?: {
     /**
@@ -96,11 +96,11 @@ export class ParserBuilder<
      */
     cascadeQueryPrefix?: string;
   }) {
-    this.data = [];
+    this.builderData = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
-  useLexer<
+  lexer<
     NewLexerDataBindings extends [Kinds] extends [never]
       ? [LexerDataBindings] extends [never]
         ? GeneralTokenDataBinding
@@ -126,11 +126,11 @@ export class ParserBuilder<
       NewLexerActionState,
       NewLexerError
     >;
-    _this.lexer = lexer;
+    _this._lexer = lexer;
     return _this;
   }
 
-  useData<
+  data<
     NewASTData extends [Kinds] extends [never]
       ? [ASTData] extends [never]
         ? unknown
@@ -166,7 +166,7 @@ export class ParserBuilder<
       LexerError
     >[],
   ) {
-    this.data.push(...data);
+    this.builderData.push(...data);
     return this as IParserBuilder<
       Kinds,
       ASTData,
@@ -196,7 +196,7 @@ export class ParserBuilder<
     LexerError
   > {
     (
-      this.data as ParserBuilderData<
+      this.builderData as ParserBuilderData<
         Kinds | Append,
         ASTData,
         ErrorType,
@@ -208,7 +208,7 @@ export class ParserBuilder<
       defs,
       ctxBuilder: decorator?.(new DefinitionContextBuilder()),
       resolveOnly: false,
-      hydrationId: this.data.length,
+      hydrationId: this.builderData.length,
     });
     return this as IParserBuilder<
       Kinds | Append,
@@ -270,7 +270,7 @@ export class ParserBuilder<
       repo,
       lexer,
       entryNTs,
-      this.data as ParserBuilderData<
+      this.builderData as ParserBuilderData<
         Kinds,
         ASTData,
         ErrorType,
@@ -495,7 +495,7 @@ export class ParserBuilder<
       LexerError
     >,
   ) {
-    this.data.push({
+    this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
         Kinds,
@@ -506,7 +506,7 @@ export class ParserBuilder<
         LexerError
       >().resolveRS(anotherRule, options),
       resolveOnly: true,
-      hydrationId: this.data.length,
+      hydrationId: this.builderData.length,
     });
 
     return this;
@@ -524,7 +524,7 @@ export class ParserBuilder<
       LexerError
     >,
   ) {
-    this.data.push({
+    this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
         Kinds,
@@ -535,7 +535,7 @@ export class ParserBuilder<
         LexerError
       >().resolveRR(anotherRule, options),
       resolveOnly: true,
-      hydrationId: this.data.length,
+      hydrationId: this.builderData.length,
     });
 
     return this;
@@ -683,7 +683,7 @@ export class ParserBuilder<
       LexerActionState,
       LexerError
     >(data.data.dfa, options);
-    const ctxs = this.data.map(
+    const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<
       Kinds,
@@ -731,7 +731,7 @@ export class ParserBuilder<
     const reLex = options.reLex ?? true;
     const autoCommit = options.autoCommit ?? false;
     const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
-    const lexer = this.lexer.clone(); // prevent modify the builder
+    const lexer = this._lexer.clone(); // prevent modify the builder
 
     const entryNTs = new Set(
       options.entry instanceof Array ? options.entry : [options.entry],
@@ -790,8 +790,12 @@ export class ParserBuilder<
       options.hydrate !== undefined
     )
       checkHydrateHash(
-        calculateHash(this.data, entryNTs, lexer, this.cascadeQueryPrefix) !==
-          options.hydrate.hash,
+        calculateHash(
+          this.builderData,
+          entryNTs,
+          lexer,
+          this.cascadeQueryPrefix,
+        ) !== options.hydrate.hash,
         printAll,
         logger,
       );
@@ -818,7 +822,7 @@ export class ParserBuilder<
         options.serialize ?? false
           ? ((options.hydrate ??
               buildSerializable(
-                this.data,
+                this.builderData,
                 dfa,
                 entryNTs,
                 lexer,
