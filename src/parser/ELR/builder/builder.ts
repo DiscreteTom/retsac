@@ -53,7 +53,7 @@ import type { IParser } from "../../model";
 /**
  * Builder for ELR parsers.
  *
- * Use `entry` to set entry NTs, use `define` to define grammar rules, use `build` to get parser.
+ * Use `useLexer` to set the lexer, use `define` to define grammar rules, use `build` to get parser.
  *
  * When build, it's recommended to set `checkAll` to `true` in development environment.
  */
@@ -74,6 +74,11 @@ export class ParserBuilder<
       LexerError
     >
 {
+  /**
+   * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
+   * You can also customize this.
+   */
+  protected readonly cascadeQueryPrefix?: string;
   protected readonly data: ParserBuilderData<
     Kinds,
     ASTData,
@@ -81,12 +86,7 @@ export class ParserBuilder<
     LexerDataBindings,
     LexerActionState,
     LexerError
-  >[] = [];
-  /**
-   * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
-   * You can also customize this.
-   */
-  protected readonly cascadeQueryPrefix?: string;
+  >[];
   private lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
 
   constructor(options?: {
@@ -96,6 +96,7 @@ export class ParserBuilder<
      */
     cascadeQueryPrefix?: string;
   }) {
+    this.data = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
   }
 
