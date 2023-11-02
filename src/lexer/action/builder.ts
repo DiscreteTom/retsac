@@ -46,4 +46,13 @@ export class ActionBuilder<ActionState, ErrorType> {
   ) {
     return Action.from<Data, ActionState, ErrorType>(...props);
   }
+
+  /**
+   * @alias {@link Action.reduce}
+   */
+  reduce<Data = never>(
+    ...props: Parameters<typeof Action.reduce<Data, ActionState, ErrorType>>
+  ) {
+    return Action.reduce<Data, ActionState, ErrorType>(...props);
+  }
 }
