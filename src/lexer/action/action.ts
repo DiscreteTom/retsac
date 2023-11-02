@@ -18,7 +18,7 @@ export type ActionExec<Data, ActionState, ErrorType> = (
 
 /**
  * Wrapped action execution function.
- * The `buffer` and `start` will be set in the output by the action.
+ * The `AcceptedActionOutput.buffer/start` will be set by the action.
  */
 export type WrappedActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
@@ -56,7 +56,7 @@ export type AcceptedActionDecorator<
 ) => ActionOutput<NewData, NewErrorType>;
 
 export class Action<Data = never, ActionState = never, ErrorType = never> {
-  exec: WrappedActionExec<Data, ActionState, ErrorType>;
+  readonly wrapped: WrappedActionExec<Data, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -74,22 +74,49 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     return !this.maybeMuted;
   }
 
-  constructor(
-    exec: ActionExec<Data, ActionState, ErrorType>,
-    options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
+  /**
+   * Make constructor private to prevent user from creating action directly,
+   * because we don't want the user to construct the ActionOutput directly.
+   *
+   * We have to make sure the `AcceptedActionOutput.buffer/start` is the same
+   * with `ActionInput.buffer/start`.
+   *
+   * So for most cases, use {@link Action.exec} is recommended.
+   * It will set `AcceptedActionOutput.buffer/start` automatically.
+   */
+  private constructor(
+    wrapped: WrappedActionExec<Data, ActionState, ErrorType>,
+    maybeMuted: boolean,
   ) {
-    this.exec = (input) => {
-      const output = exec(input);
-      if (output.accept) return AcceptedActionOutput.from(input, output);
-      return rejectedActionOutput;
-    };
-    this.maybeMuted = options?.maybeMuted ?? false;
+    this.wrapped = wrapped;
+    this.maybeMuted = maybeMuted;
   }
 
+  /**
+   * Create an `Action` from `ActionExec`.
+   * This should be treat as the public constructor of `Action`.
+   */
+  static exec<Data = never, ActionState = never, ErrorType = never>(
+    exec: ActionExec<Data, ActionState, ErrorType>,
+    options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
+  ): Action<Data, ActionState, ErrorType> {
+    return new Action(
+      (input) => {
+        const output = exec(input);
+        if (output.accept) return AcceptedActionOutput.from(input, output);
+        return rejectedActionOutput;
+      },
+      options?.maybeMuted ?? false,
+    );
+  }
+
+  /**
+   * Create an `Action` from `SimpleActionExec`.
+   */
   static simple<Data = never, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
-    return new Action((input) => {
+    return Action.exec((input) => {
       const res = f(input);
       // if javascript support real function overload
       // we can move this type check out of the action's exec
@@ -131,6 +158,11 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     });
   }
 
+  /**
+   * Create an `Action` from `RegExp`.
+   * Set `token.data` to `RegExpExecArray`.
+   * If you don't want to set `token.data`, use {@link Action.dryMatch} instead.
+   */
   static match<ActionState = never, ErrorType = never>(
     r: RegExp,
     options?: {
@@ -150,7 +182,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     if (options?.rejectCaret ?? true) checkRegexNotStartsWithCaret(r);
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`
-    return new Action((input) => {
+    return Action.exec((input) => {
       r.lastIndex = input.start;
       const res = r.exec(input.buffer);
       if (res && res.index != -1)
@@ -167,12 +199,19 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     });
   }
 
+  /**
+   * Create an `Action` from `RegExp` without setting `token.data`.
+   * If you want to set `token.data`, use {@link Action.match} instead.
+   */
   static dryMatch<ActionState = never, ErrorType = never>(
     ...props: Parameters<typeof Action.match<ActionState, ErrorType>>
   ) {
     return Action.match<ActionState, ErrorType>(...props).clearData();
   }
 
+  /**
+   * Create an `Action` from `RegExp/Action/SimpleActionExec`.
+   */
   static from<Data = never, ActionState = never, ErrorType = never>(
     r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
@@ -193,6 +232,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Apply a decorator to this action.
+   * Return a new action.
    */
   apply<NewData, NewErrorType>(
     decorator: AcceptedActionDecorator<
@@ -205,25 +245,26 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     optionsOverride?: Partial<
       Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
     >,
-  ) {
-    const exec = this.exec;
-    const _this = this as unknown as Action<NewData, ActionState, NewErrorType>;
-    _this.exec = (input) => {
-      const output = exec(input);
-      if (output.accept) {
-        return decorator({
-          input,
-          output,
-        });
-      }
-      return output;
-    };
-    _this.maybeMuted = optionsOverride?.maybeMuted ?? _this.maybeMuted;
-    return _this;
+  ): Action<NewData, ActionState, NewErrorType> {
+    const wrapped = this.wrapped;
+    return new Action(
+      (input) => {
+        const output = wrapped(input);
+        if (output.accept) {
+          return decorator({
+            input,
+            output,
+          });
+        }
+        return output;
+      },
+      optionsOverride?.maybeMuted ?? this.maybeMuted,
+    );
   }
 
   /**
    * Mute action if `accept` is `true` and `muted` is/returned `true`.
+   * Return a new action.
    */
   mute(
     muted:
@@ -249,6 +290,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   /**
    * Check the output if `accept` is `true`.
    * `condition` should return error, `undefined` means no error.
+   * Return a new action.
    */
   check<NewErrorType>(
     condition: (
@@ -256,6 +298,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     ) => NewErrorType | undefined,
   ): Action<Data, ActionState, NewErrorType> {
     return this.apply((ctx) => {
+      // in javascript, type casting should be faster than creating a new object
+      // so we don't create a new AcceptedActionOutput, just cast and modify it
       const output = ctx.output as unknown as AcceptedActionOutput<
         Data,
         NewErrorType
@@ -267,6 +311,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Set error if `accept` is `true`.
+   * Return a new action.
    */
   error<NewErrorType>(
     error: NewErrorType,
@@ -276,6 +321,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Set data if `accept` is `true`.
+   * Return a new action.
    */
   data<NewData>(
     factory: (
@@ -283,6 +329,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     ) => NewData,
   ): Action<NewData, ActionState, ErrorType> {
     return this.apply((ctx) => {
+      // in javascript, type casting should be faster than creating a new object
+      // so we don't create a new AcceptedActionOutput, just cast and modify it
       const output = ctx.output as unknown as AcceptedActionOutput<
         NewData,
         ErrorType
@@ -294,6 +342,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Set data to `undefined` if `accept` is `true`.
+   * Return a new action.
    */
   clearData(): Action<never, ActionState, ErrorType> {
     return this.data(() => undefined as never);
@@ -301,6 +350,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Reject if `accept` is `true` and `rejecter` is/returns `true`.
+   * Return a new action.
    */
   reject(
     rejecter:
@@ -312,7 +362,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     if (typeof rejecter === "boolean") {
       // always reject
       // ignore maybeMuted since muted is only used when accept is true
-      if (rejecter) return new Action(() => rejectedActionOutput);
+      if (rejecter) return new Action(() => rejectedActionOutput, false);
       // else, always accept, just return self, don't override the original output's accept
       return this;
     }
@@ -325,6 +375,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
 
   /**
    * Call `f` if `accept` is `true` and `peek` is `false`.
+   * You can modify the action state in `f`.
+   * Return a new action.
    */
   then(
     f: (
@@ -338,48 +390,39 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   }
 
   /**
+   * Execute the new action if current action can't accept input.
+   * Return a new action.
+   */
+  or(
+    a: IntoAction<Data, ActionState, ErrorType>,
+  ): Action<Data, ActionState, ErrorType> {
+    const wrapped = this.wrapped;
+    const other = Action.from(a);
+    const otherWrapped = other.wrapped;
+    return new Action((input) => {
+      const output = wrapped(input);
+      if (output.accept) return output;
+      return otherWrapped(input);
+    }, this.maybeMuted || other.maybeMuted);
+  }
+
+  /**
+   * Reduce actions to one action. Actions will be executed in order.
+   * This will reduce the lexer loop times to optimize the performance.
+   * Return a new action.
+   */
+  static reduce<Data = never, ActionState = never, ErrorType = never>(
+    ...actions: IntoAction<Data, ActionState, ErrorType>[]
+  ): Action<Data, ActionState, ErrorType> {
+    return actions.map((a) => Action.from(a)).reduce((a, b) => a.or(b));
+  }
+
+  /**
    * Set kinds for this action. This is used if your action can yield multiple kinds.
    * @example
    * builder.select(a => a.from(...).kinds(...).map(...))
    */
   kinds<Kinds extends string>(...kinds: Kinds[]) {
     return new ActionWithKinds(kinds, this);
-  }
-
-  /**
-   * Execute the new action if current action can't accept input.
-   */
-  or<NewData, NewErrorType>(
-    a: IntoAction<NewData, ActionState, NewErrorType>,
-  ): Action<Data | NewData, ActionState, ErrorType | NewErrorType> {
-    const exec = this.exec;
-    const other = Action.from(a);
-    const otherExec = other.exec;
-    const _this = this as unknown as Action<
-      Data | NewData,
-      ActionState,
-      ErrorType | NewErrorType
-    >;
-    _this.exec = (input) => {
-      const output = exec(input);
-      if (output.accept) return output;
-      return otherExec(input);
-    };
-    _this.maybeMuted ||= other.maybeMuted;
-    return _this;
-  }
-
-  /**
-   * Reduce actions to one action. Actions will be executed in order.
-   * This will reduce the lexer loop times to optimize the performance.
-   */
-  static reduce<Data = never, ActionState = never, ErrorType = never>(
-    ...actions: IntoAction<Data, ActionState, ErrorType>[]
-  ): Action<Data, ActionState, ErrorType> {
-    return Action.from<Data, ActionState, ErrorType>(
-      actions.reduce((a, b) =>
-        Action.from<Data, ActionState, ErrorType>(a).or(b),
-      ),
-    );
   }
 }
