@@ -167,6 +167,12 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     });
   }
 
+  static dryMatch<ActionState = never, ErrorType = never>(
+    ...props: Parameters<typeof Action.match<ActionState, ErrorType>>
+  ) {
+    return Action.match<ActionState, ErrorType>(...props).clearData();
+  }
+
   static from<Data = never, ActionState = never, ErrorType = never>(
     r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
@@ -175,9 +181,11 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         // The result should be Action<never, ActionState, ErrorType>
         // but only when r is SimpleActionExec the Data will take effect
         // so its ok to cast the result to Action<Data, ActionState, ErrorType>
-        (Action.match<ActionState, ErrorType>(
-          r,
-        ).clearData() as unknown as Action<Data, ActionState, ErrorType>)
+        (Action.dryMatch<ActionState, ErrorType>(r) as unknown as Action<
+          Data,
+          ActionState,
+          ErrorType
+        >)
       : r instanceof Action
       ? r
       : Action.simple<Data, ActionState, ErrorType>(r);

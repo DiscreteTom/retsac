@@ -24,6 +24,7 @@
     - **_Breaking Change_**: move `regexLiteral/numericLiteral` into `Lexer.javascript`.
   - Feat: add option `lineContinuation` for `Lexer.stringLiteral`.
   - Feat: `Action.match` will set output data to `RegExpExecArray`.
+    - Add `Action.dryMatch`.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.
   - Feat: add `IParserBuilder.useData`.
