@@ -5,12 +5,12 @@ import { Action } from "./action";
  */
 export class ActionBuilder<ActionState, ErrorType> {
   /**
-   * @alias {@link Action Action's constructor}
+   * @alias {@link Action.exec}
    */
-  new<Data = never>(
-    ...props: ConstructorParameters<typeof Action<Data, ActionState, ErrorType>>
+  exec<Data = never>(
+    ...props: Parameters<typeof Action.exec<Data, ActionState, ErrorType>>
   ) {
-    return new Action<Data, ActionState, ErrorType>(...props);
+    return Action.exec<Data, ActionState, ErrorType>(...props);
   }
 
   /**
