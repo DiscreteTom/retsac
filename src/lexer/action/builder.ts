@@ -30,6 +30,15 @@ export class ActionBuilder<ActionState, ErrorType> {
   }
 
   /**
+   * @alias {@link Action.dryMatch}
+   */
+  dryMatch(
+    ...props: Parameters<typeof Action.dryMatch<ActionState, ErrorType>>
+  ) {
+    return Action.dryMatch<ActionState, ErrorType>(...props);
+  }
+
+  /**
    * @alias {@link Action.from}
    */
   from<Data = never>(
