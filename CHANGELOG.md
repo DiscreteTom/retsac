@@ -14,9 +14,10 @@
   - **_Breaking Change_**: utils will set token data when the value is invalid, instead of setting token error.
   - **_Breaking Change_**: all actions should have the same data type in one `Builder.define`.
   - **_Breaking Change_**: remove `ILexer.defs`, use `ILexer.core.defs` instead.
+  - **_Breaking Change_**: rename `Builder.useState` to `Builder.state`.
   - Feat: add `ActionInput.peek`.
   - Feat: add `ActionBuilder` for chaining action decorators.
-  - Feat: add `Builder.useError` to set error type.
+  - Feat: add `Builder.error` to set error type.
   - Feat: add `Builder.select` to allow an action to map multiple token kinds. [#28](https://github.com/DiscreteTom/retsac/issues/28)
     - Add `Action.kinds`, `ActionWithKinds` and `SelectedAction`.
   - Feat: add `Lexer.javascript`.

@@ -46,11 +46,11 @@ export class Builder<
    * This function can only be called once and must be called before defining any action.
    * @example
    * // use structuredClone as default cloner
-   * builder.useState({ count: 0 })
+   * builder.state({ count: 0 })
    * // custom cloner
-   * builder.useState({ count: 0 }, state => ({ ...state }))
+   * builder.state({ count: 0 }, state => ({ ...state }))
    */
-  useState<
+  state<
     // make sure this function can only be called once
     // and must be called before defining any action
     NewActionState extends [DataBindings] extends [never]
@@ -81,11 +81,11 @@ export class Builder<
    * This function can only be called once and must be called before defining any action.
    * @example
    * // provide type explicitly
-   * builder.useError<number>();
+   * builder.error<number>();
    * // infer type from error value
-   * builder.useError(0);
+   * builder.error(0);
    */
-  useError<
+  error<
     // make sure this function can only be called once
     // and must be called before defining any action
     NewError extends [DataBindings] extends [never]
