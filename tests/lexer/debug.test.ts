@@ -1,4 +1,4 @@
-import { Lexer, Logger, jsonLogger } from "../../src";
+import { Lexer, Logger, jsonLoggerFactory } from "../../src";
 
 // TODO: refactor this file, split test cases in different functions
 test("lexer debug lex", () => {
@@ -120,6 +120,7 @@ test("lexer debug trimStart", () => {
 });
 
 test("lexer clone with debug", () => {
+  const jsonLogger = jsonLoggerFactory();
   const printer = jest.fn();
   const logger = new Logger({ printer });
   const lexer = new Lexer.Builder().build({ debug: true, logger });

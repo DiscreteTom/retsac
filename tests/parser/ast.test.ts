@@ -87,18 +87,18 @@ test("to tree string", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "",
         start: 4,
         text: "+",
         name: "plus",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "num",
         start: 5,
         text: "123",
@@ -116,18 +116,18 @@ test("query selector", () => {
     kind: "exp",
     start: 0,
     children: [
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "num",
         start: 0,
         text: "123",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "",
         start: 4,
         text: "+",
         name: "plus",
       }),
-      new ASTNode<unknown, unknown, "exp" | "num" | "", GeneralToken>({
+      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
         kind: "num",
         start: 5,
         text: "123",

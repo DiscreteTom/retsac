@@ -13,7 +13,8 @@ const lexer = new Lexer.Builder()
 /** name => value */
 export const varMap = new Map<string, number>();
 
-export const { parser } = new ELR.ParserBuilder<number>()
+export const { parser } = new ELR.ParserBuilder()
+  .useData<number>()
   // if a node has only one child, the default traverser will return the child's data.
   // if the child's data is undefined, the child's traverser will be called to get the data.
   .define({ stmts: `stmt` })
@@ -50,7 +51,8 @@ export const { parser } = new ELR.ParserBuilder<number>()
   )
   .build({ lexer, entry: "stmts", checkAll: true });
 
-export const { parser: parser2 } = new ELR.ParserBuilder<number>()
+export const { parser: parser2 } = new ELR.ParserBuilder()
+  .useData<number>()
   .define(
     {
       fn_def_stmt: `
