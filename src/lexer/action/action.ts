@@ -9,9 +9,20 @@ import { rejectedActionOutput, AcceptedActionOutput } from "./output";
 import { ActionWithKinds } from "./select";
 import { checkRegexNotStartsWithCaret, makeRegexAutoSticky } from "./utils";
 
+/**
+ * User defined action execution function.
+ */
 export type ActionExec<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
 ) => ActionExecOutput<Data, ErrorType>;
+
+/**
+ * Wrapped action execution function.
+ * The `buffer` and `start` will be set in the output by the action.
+ */
+export type WrappedActionExec<Data, ActionState, ErrorType> = (
+  input: Readonly<ActionInput<ActionState>>,
+) => ActionOutput<Data, ErrorType>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
@@ -45,10 +56,7 @@ export type AcceptedActionDecorator<
 ) => ActionOutput<NewData, NewErrorType>;
 
 export class Action<Data = never, ActionState = never, ErrorType = never> {
-  // TODO: better name?
-  exec: (
-    input: Readonly<ActionInput<ActionState>>,
-  ) => ActionOutput<Data, ErrorType>;
+  exec: WrappedActionExec<Data, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
