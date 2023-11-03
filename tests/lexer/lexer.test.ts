@@ -3,7 +3,7 @@ import type { Token } from "../../src/lexer";
 import { Action, InvalidLengthForTakeError } from "../../src/lexer";
 
 const lexer = new Lexer.Builder()
-  .useError<string>()
+  .error<string>()
   .ignore(Lexer.whitespaces())
   .define({
     number: /[0-9]+/,

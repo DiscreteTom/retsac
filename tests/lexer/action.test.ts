@@ -16,7 +16,7 @@ function expectAccept<D, E>(
     state: undefined as never,
     peek: false,
   });
-  let output = action.exec(input) as AcceptedActionOutput<D, E>;
+  let output = action.wrapped(input) as AcceptedActionOutput<D, E>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
@@ -35,8 +35,9 @@ function expectAccept<D, E>(
     start: 1,
     state: undefined as never,
     peek: false,
+    rest: undefined,
   });
-  output = action.exec(input) as AcceptedActionOutput<never, E>;
+  output = action.wrapped(input) as AcceptedActionOutput<never, E>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(" " + (override?.buffer ?? buffer));
   expect(output.start).toBe((override?.start ?? 0) + 1);
@@ -54,21 +55,22 @@ function expectReject<E>(buffer: string, src: IntoAction<never, never, E>) {
     start: 0,
     state: undefined as never,
     peek: false,
+    rest: undefined,
   });
-  const output = action.exec(input);
+  const output = action.wrapped(input);
   expect(output.accept).toBe(false);
 }
 
 describe("Lexer action constructor", () => {
   test("from simple", () => {
     const buffer = "123";
-    expectAccept(buffer, ({ rest }) => rest); // return string, accept
+    expectAccept(buffer, ({ rest }) => rest.value); // return string, accept
     expectReject(buffer, () => ""); // return string, reject
     expectAccept(buffer, ({ buffer, start }) => buffer.length - start); // return number, accept
     expectReject(buffer, () => 0); // return number, reject
     // simple accepted output
     expectAccept(buffer, ({ rest }) => ({
-      content: rest,
+      content: rest.value,
     }));
     expectReject(buffer, () => ({ content: "" }));
     expectAccept(buffer, ({ buffer, start }) => ({
@@ -76,8 +78,8 @@ describe("Lexer action constructor", () => {
     }));
     expectReject(buffer, () => ({ digested: 0 }));
     expectAccept(buffer, ({ rest }) => ({
-      digested: rest.length,
-      content: rest,
+      digested: rest.value.length,
+      content: rest.value,
       error: undefined,
       rest: "",
       muted: false,
@@ -86,7 +88,7 @@ describe("Lexer action constructor", () => {
     expectAccept(
       buffer,
       ({ rest }) => ({
-        content: rest,
+        content: rest.value,
       }),
       { data: undefined },
     );
@@ -94,7 +96,7 @@ describe("Lexer action constructor", () => {
     expectAccept(
       buffer,
       ({ rest }) => ({
-        content: rest,
+        content: rest.value,
         data: 123,
       }),
       { data: 123 },
@@ -111,15 +113,15 @@ describe("Lexer action constructor", () => {
     expectAccept(buffer, Action.from(/\s*/));
   });
 
-  test("action constructor", () => {
+  test("action exec", () => {
     const buffer = "   ";
     expectAccept(
       buffer,
-      new Action(({ rest }) => ({
+      Action.exec(({ rest }) => ({
         accept: true,
         data: undefined as never,
-        digested: rest.length,
-        content: rest,
+        digested: rest.value.length,
+        content: rest.value,
         muted: false,
       })),
     );
@@ -139,14 +141,14 @@ describe("Action decorator", () => {
     // muted with a function
     expectAccept(
       buffer,
-      Action.from(/\s*/).mute(({ output }) => output.content == buffer),
+      Action.from(/\s*/).mute(({ output }) => output.content === buffer),
       { muted: true },
     );
 
     // not muted with a function
     expectAccept(
       buffer,
-      Action.from(/\s*/).mute(({ output }) => output.content != buffer),
+      Action.from(/\s*/).mute(({ output }) => output.content !== buffer),
     );
 
     // not matched
@@ -159,21 +161,21 @@ describe("Action decorator", () => {
     expectAccept(
       buffer,
       Action.from(/\s*/).check(({ output }) =>
-        output.content == buffer ? undefined : errMsg,
+        output.content === buffer ? undefined : errMsg,
       ),
     );
 
     expectReject(
       buffer,
       Action.from(/123/).check(({ output }) =>
-        output.content == buffer ? undefined : errMsg,
+        output.content === buffer ? undefined : errMsg,
       ),
     );
 
     expectAccept(
       buffer,
       Action.from(/\s*/).check(({ output }) =>
-        output.content == buffer ? (errMsg as string) : undefined,
+        output.content === buffer ? (errMsg as string) : undefined,
       ),
       { error: errMsg },
     );
@@ -196,7 +198,7 @@ describe("Action decorator", () => {
     // reject with a function
     expectReject(
       buffer,
-      Action.from(/\s*/).reject(({ output }) => output.content == buffer),
+      Action.from(/\s*/).reject(({ output }) => output.content === buffer),
     );
 
     // directly reject
@@ -229,8 +231,9 @@ describe("sticky regex related", () => {
       start: 3,
       state: undefined as never,
       peek: false,
+      rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<never, string>;
+    const output = action.wrapped(input) as AcceptedActionOutput<never, string>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -249,8 +252,9 @@ describe("sticky regex related", () => {
       start: 3,
       state: undefined as never,
       peek: false,
+      rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<never, string>;
+    const output = action.wrapped(input) as AcceptedActionOutput<never, string>;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -269,8 +273,9 @@ describe("sticky regex related", () => {
       start: 3,
       state: undefined as never,
       peek: false,
+      rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<
+    const output = action.wrapped(input) as AcceptedActionOutput<
       RegExpExecArray,
       never
     >;
@@ -302,12 +307,13 @@ describe("peek & then", () => {
     };
     Action.from<never, { value: number }>(/123/)
       .then(({ input }) => (input.state.value = 1))
-      .exec(
+      .wrapped(
         new ActionInput({
           buffer: "123", // accept
           start: 0,
           state,
           peek: false,
+          rest: undefined,
         }),
       );
     expect(state.value).toBe(1);
@@ -319,12 +325,13 @@ describe("peek & then", () => {
     };
     Action.from<never, { value: number }>(/123/)
       .then(({ input }) => (input.state.value = 1))
-      .exec(
+      .wrapped(
         new ActionInput({
           buffer: "12", // reject
           start: 0,
           state,
           peek: false,
+          rest: undefined,
         }),
       );
     expect(state.value).toBe(0);
@@ -336,12 +343,13 @@ describe("peek & then", () => {
     };
     Action.from<never, { value: number }>(/123/)
       .then(({ input }) => (input.state.value = 1))
-      .exec(
+      .wrapped(
         new ActionInput({
           buffer: "123",
           start: 0,
           state,
           peek: true,
+          rest: undefined,
         }),
       );
     expect(state.value).toBe(0);

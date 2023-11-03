@@ -2,7 +2,7 @@ import { Lexer } from "../../../src";
 
 test("lexer action state", () => {
   const lexer = new Lexer.Builder()
-    .useState({ value: 1 })
+    .state({ value: 1 })
     .define({
       number: (a) =>
         a.from(/\d+/).then(({ output, input }) => {
