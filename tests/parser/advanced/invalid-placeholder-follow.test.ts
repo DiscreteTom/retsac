@@ -48,9 +48,9 @@ test("complex", () => {
     });
 
   expect(printer).toHaveBeenCalledWith(
-    "[AdvancedBuilder] Placeholder rule { __0 := `b` } has invalid follow: b. You can modify your grammar rule or use reParse to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.",
+    "[AdvancedBuilder] Placeholder rule { __0 := `b` } has invalid follow: b. You can modify your grammar rule to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.",
   );
   expect(printer).toHaveBeenCalledWith(
-    "[AdvancedBuilder] Placeholder rule { __1 := `a __0` } has invalid follow: a. You can modify your grammar rule or use reParse to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.",
+    "[AdvancedBuilder] Placeholder rule { __1 := `a __0` } has invalid follow: a. You can modify your grammar rule to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.",
   );
 });
