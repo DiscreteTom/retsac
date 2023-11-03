@@ -22,8 +22,8 @@ export class ActionWithKinds<
   ErrorType,
 > {
   constructor(
-    public readonly kinds: readonly Kinds[],
-    public readonly action: Action<Data, ActionState, ErrorType>,
+    private readonly kinds: readonly Kinds[],
+    private readonly action: Action<Data, ActionState, ErrorType>,
   ) {}
 
   /**
