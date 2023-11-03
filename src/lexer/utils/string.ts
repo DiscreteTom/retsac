@@ -38,7 +38,16 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
      */
     lineContinuation?: boolean;
   },
-): Action<{ unclosed: boolean }, ActionState, ErrorType> {
+): Action<
+  {
+    /**
+     * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
+     */
+    unclosed: boolean;
+  },
+  ActionState,
+  ErrorType
+> {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
   const escape = options?.escape ?? true;
