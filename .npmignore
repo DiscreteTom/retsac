@@ -16,5 +16,5 @@ README.src.md
 typedoc.json
 website
 .husky
-utils
+/utils
 .eslintrc.json

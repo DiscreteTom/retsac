@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.13.1
+
+- Fix: include utils.
+
 ## v0.13.0
 
 - **_Breaking Change_**: re-order and simplify generic parameters.
