@@ -1,5 +1,9 @@
 import type { Logger } from "../../logger";
-import type { ILexerCore, ILexerCoreLexOptions } from "./core";
+import type {
+  ILexerCore,
+  ILexerCoreLexOptions,
+  IReadonlyLexerCore,
+} from "./core";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
@@ -24,7 +28,7 @@ export interface IReadonlyLexer<
   ActionState,
   ErrorType,
 > {
-  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
+  readonly core: IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
    * @default false
@@ -104,6 +108,7 @@ export interface ILexer<
   ActionState,
   ErrorType,
 > extends IReadonlyLexer<DataBindings, ActionState, ErrorType> {
+  readonly core: ILexerCore<DataBindings, ActionState, ErrorType>; // make core mutable
   /**
    * Currently accumulated errors.
    * You can clear the errors by setting it's length to 0.
