@@ -19,10 +19,6 @@ export class Lazy<Value> {
       : this._value;
   }
 
-  set value(value: Value) {
-    this._value = value;
-  }
-
   /**
    * Get the raw value without calculating it.
    */
@@ -38,9 +34,7 @@ export class Lazy<Value> {
   }
 }
 
-export type ReadonlyLazy<Value> = {
-  readonly [K in "value" | "raw"]: Lazy<Value>[K];
-};
+export type ReadonlyLazy<Value> = Pick<Lazy<Value>, "value" | "raw">;
 
 /**
  * Only calculate the string when it's needed.

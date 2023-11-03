@@ -144,7 +144,12 @@ export class GrammarRule<
       | "commit"
       | "traverser"
       | "hydrationId"
-    >,
+    > & {
+      // restored from JSON
+      str?: string;
+      strWithGrammarName?: string;
+      strWithoutGrammarName?: string;
+    },
   ) {
     this.rule = p.rule;
     this.NT = p.NT;
@@ -156,12 +161,14 @@ export class GrammarRule<
     this.conflicts = [];
     this.resolved = [];
 
-    this.str = new LazyString(() => this.strWithGrammarName.value);
-    this.strWithGrammarName = new LazyString(() =>
-      GrammarRule.getStrWithGrammarName(this),
+    this.str = new LazyString(() => this.strWithGrammarName.value, p.str);
+    this.strWithGrammarName = new LazyString(
+      () => GrammarRule.getStrWithGrammarName(this),
+      p.strWithGrammarName,
     );
-    this.strWithoutGrammarName = new LazyString(() =>
-      GrammarRule.getStrWithoutGrammarName(this),
+    this.strWithoutGrammarName = new LazyString(
+      () => GrammarRule.getStrWithoutGrammarName(this),
+      p.strWithoutGrammarName,
     );
     this.hydrationId = p.hydrationId;
   }
@@ -321,10 +328,10 @@ export class GrammarRule<
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
       hydrationId: data.hydrationId,
+      str: data.str,
+      strWithGrammarName: data.strWithGrammarName,
+      strWithoutGrammarName: data.strWithoutGrammarName,
     });
-    gr.str.value = data.str;
-    gr.strWithGrammarName.value = data.strWithGrammarName;
-    gr.strWithoutGrammarName.value = data.strWithoutGrammarName;
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
