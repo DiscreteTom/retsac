@@ -21,7 +21,7 @@
     "lint:all": "eslint src/ examples/ tests/ utils/",
     "lint:fix": "eslint --fix src/",
     "lint:fix:all": "eslint --fix src/ examples/ tests/ utils/",
-    "prepublishOnly": "yarn format:check:all && yarn lint:all && yarn test && yarn clean && yarn build && yarn build:readme",
+    "prepublishOnly": "yarn format:check:all && yarn lint:all && yarn test:coverage && yarn clean && yarn build && yarn build:readme",
     "prepare": "husky install"
   },
   "dependencies": {},
