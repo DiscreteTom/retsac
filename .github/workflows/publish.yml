@@ -16,33 +16,6 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Run Tests
-        run: yarn test:coverage
-
-      # - name: Fetch existing docs
-      #   uses: actions/checkout@v3
-      #   with:
-      #     ref: gh-pages
-      #     clean: false
-      #     path: gh-pages
-
-      # - name: Move existing docs
-      #   run: |
-      #     mv gh-pages/docs ./docs
-      #     rm -rf gh-pages
-
-      # - name: Build Doc & Check Generated README
-      #   run: |
-      #     pushd docs
-      #     rm -rf dev
-      #     rm -rf stable
-      #     ls | grep -E '^v[0-9]+\.[0-9]+@?$' | xargs rm -rf --
-      #     popd
-      #     mv README.md README.md.bk
-      #     yarn build:doc
-      #     diff README.md README.md.bk
-      #     rm README.md.bk
-
       - name: Check Generated README
         run: |
           mv README.md README.md.bk
@@ -50,18 +23,10 @@ jobs:
           diff README.md README.md.bk
           rm README.md.bk
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-      - run: yarn build
-
+      # prepublish will check code format, lint code, run tests, generage coverage report, build dists, and build readme
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
 
-      # - name: GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_branch: gh-pages
-      #     publish_dir: website/build
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
