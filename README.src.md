@@ -6,7 +6,7 @@
 ![license](https://img.shields.io/github/license/DiscreteTom/retsac?style=flat-square)
 [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/DiscreteTom.vscode-retsac?label=VSCode%20extension&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=DiscreteTom.vscode-retsac)
 
-> **Warning**:
+> **Warning**
 > This project is still in early development stage, the API may change frequently.
 
 Text lexer and parser. Compiler frontend framework.
@@ -55,7 +55,7 @@ All conflicts are auto resolved.
 
 <details open>
 <summary>Click to Expand</summary>
-<include path="./examples/parser/json/json.ts" from="6" to="52" />
+<include path="./examples/parser/json/json.ts" from="6" to="54" />
 </details>
 
 ### [Calculator](https://github.com/DiscreteTom/retsac/blob/main/examples/parser/calculator/calculator.ts)
@@ -66,7 +66,7 @@ There are conflicts introduced by those grammar rules, we use the high-level res
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./examples/parser/calculator/calculator.ts" from="8" to="37" />
+<include path="./examples/parser/calculator/calculator.ts" from="8" to="39" />
 </details>
 
 ### [Function Definition](https://github.com/DiscreteTom/retsac/blob/main/examples/parser/advanced-builder/advanced-builder.ts)
@@ -75,7 +75,7 @@ This example shows you how to define a simple `fn_def` grammar rule if you want 
 
 <details>
 <summary>Click to Expand</summary>
-<include path="./examples/parser/advanced-builder/advanced-builder.ts" from="8" to="33" />
+<include path="./examples/parser/advanced-builder/advanced-builder.ts" from="8" to="34" />
 </details>
 
 ## Contribute

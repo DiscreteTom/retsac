@@ -6,12 +6,12 @@
 ![license](https://img.shields.io/github/license/DiscreteTom/retsac?style=flat-square)
 [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/DiscreteTom.vscode-retsac?label=VSCode%20extension&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=DiscreteTom.vscode-retsac)
 
-> **Warning**:
+> **Warning**
 > This project is still in early development stage, the API may change frequently.
 
 Text lexer and parser. Compiler frontend framework.
 
-This can be used to **fast prototype** your own programming language compiler/translator frontend, or parse your domain specific language.
+This can be used to **_fast prototype_** your own programming language compiler/translator frontend, or parse your domain specific language.
 
 ## Installation
 
@@ -56,7 +56,7 @@ All conflicts are auto resolved.
 <details open><summary>Click to Expand</summary>
 
 ```ts
-export const lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
   .define({
     string: Lexer.stringLiteral(`"`), // double quote string literal
@@ -67,6 +67,8 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.AdvancedBuilder()
+  .lexer(lexer)
+  .data<unknown>()
   .define(
     { value: `string | number | true | false | null` },
     // for string use `eval` to process escaped characters like `\n`
@@ -116,13 +118,15 @@ There are conflicts introduced by those grammar rules, we use the high-level res
 <details><summary>Click to Expand</summary>
 
 ```ts
-export const lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
   .define({ number: /[0-9]+(?:\.[0-9]+)?/ })
   .anonymous(Lexer.exact(..."+-*/()")) // operators
   .build();
 
-export const builder = new ELR.ParserBuilder<number>()
+export const builder = new ELR.ParserBuilder()
+  .data<number>()
+  .lexer(lexer)
   .define({ exp: "number" }, (d) =>
     // the result of the reducer will be stored in the node's value
     d.reducer(({ matched }) => Number(matched[0].text)),
@@ -157,7 +161,7 @@ This example shows you how to define a simple `fn_def` grammar rule if you want 
 <details><summary>Click to Expand</summary>
 
 ```ts
-export const lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank chars
   .define(Lexer.wordKind("pub", "fn", "return", "let")) // keywords
   .define({
@@ -168,6 +172,7 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.AdvancedBuilder()
+  .lexer(lexer)
   .define({
     // use `@` to rename a node
     fn_def: `
