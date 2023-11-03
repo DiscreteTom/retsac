@@ -5,15 +5,17 @@ test("calculator", () => {
   // for most cases, we want the input string to be reduced into one single root ASTNode
   // for example, below is a simplified calculator grammar, and the entry is `exp`
   const { parser } = new ELR.AdvancedBuilder()
-    .define({ exp: "number" })
-    .define({ exp: `exp '+' exp` })
-    .priority({ exp: `exp '+' exp` }) // make it left associative
-    .build({
-      lexer: new Lexer.Builder()
+    .lexer(
+      new Lexer.Builder()
         .ignore(Lexer.whitespaces())
         .define({ number: Lexer.javascript.numericLiteral() })
         .anonymous(Lexer.exact(..."+-"))
         .build(),
+    )
+    .define({ exp: "number" })
+    .define({ exp: `exp '+' exp` })
+    .priority({ exp: `exp '+' exp` }) // make it left associative
+    .build({
       entry: "exp",
     });
 
@@ -51,14 +53,16 @@ test("programming language", () => {
   // for example, function definition statements.
   // here is a simplified grammar for function definition statements
   const { parser } = new ELR.AdvancedBuilder()
-    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
-    .build({
-      lexer: new Lexer.Builder()
+    .lexer(
+      new Lexer.Builder()
         .ignore(Lexer.whitespaces())
         .define(Lexer.wordKind("fn"))
         .define({ identifier: /\w+/ })
         .anonymous(Lexer.exact(..."();"))
         .build(),
+    )
+    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
+    .build({
       entry: "fn_def_stmt",
     });
 
@@ -85,17 +89,19 @@ test("programming language", () => {
 
   // a work around is to define a new entry, which accept multiple top-level statements
   const { parser: newParser } = new ELR.AdvancedBuilder()
-    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
-    // `+` means one or more
-    // don't use `*` since we don't allow empty grammar rule
-    .define({ entry: `fn_def_stmt+` })
-    .build({
-      lexer: new Lexer.Builder()
+    .lexer(
+      new Lexer.Builder()
         .ignore(Lexer.whitespaces())
         .define(Lexer.wordKind("fn"))
         .define({ identifier: /\w+/ })
         .anonymous(Lexer.exact(..."();"))
         .build(),
+    )
+    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
+    // `+` means one or more
+    // don't use `*` since we don't allow empty grammar rule
+    .define({ entry: `fn_def_stmt+` })
+    .build({
       entry: "entry", // use the new entry
     });
 
@@ -122,14 +128,16 @@ test("with ignoreEntryFollow", () => {
 
   // introducing `ignoreEntryFollow`
   const { parser } = new ELR.AdvancedBuilder()
-    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
-    .build({
-      lexer: new Lexer.Builder()
+    .lexer(
+      new Lexer.Builder()
         .ignore(Lexer.whitespaces())
         .define(Lexer.wordKind("fn"))
         .define({ identifier: /\w+/ })
         .anonymous(Lexer.exact(..."();"))
         .build(),
+    )
+    .define({ fn_def_stmt: `fn identifier '(' ')' ';'` })
+    .build({
       entry: "fn_def_stmt",
       ignoreEntryFollow: true, // set this to `true`
     });
@@ -162,13 +170,17 @@ test("abuse", () => {
 
   // consider the following parser, which will accept `a` or `a b`
   // first we don't enable `ignoreEntryFollow`
-  let { parser } = new ELR.AdvancedBuilder().define({ entry: `a b?` }).build({
-    lexer: new Lexer.Builder()
-      .ignore(Lexer.whitespaces())
-      .define(Lexer.exactKind(..."ab"))
-      .build(),
-    entry: "entry",
-  });
+  let { parser } = new ELR.AdvancedBuilder()
+    .lexer(
+      new Lexer.Builder()
+        .ignore(Lexer.whitespaces())
+        .define(Lexer.exactKind(..."ab"))
+        .build(),
+    )
+    .define({ entry: `a b?` })
+    .build({
+      entry: "entry",
+    });
 
   // when we parsing `a b`, the parser first evaluate { entry: `a` } and found next `b`
   // but `b` is not in `entry`'s follow set, so the parser rejects to accept { entry: `a` }
@@ -178,14 +190,18 @@ test("abuse", () => {
   expect(parser.lexer.getRest()).toBe("");
 
   // however, if we enable `ignoreEntryFollow`
-  parser = new ELR.AdvancedBuilder().define({ entry: `a b?` }).build({
-    lexer: new Lexer.Builder()
-      .ignore(Lexer.whitespaces())
-      .define(Lexer.exactKind(..."ab"))
-      .build(),
-    entry: "entry",
-    ignoreEntryFollow: true,
-  }).parser;
+  parser = new ELR.AdvancedBuilder()
+    .lexer(
+      new Lexer.Builder()
+        .ignore(Lexer.whitespaces())
+        .define(Lexer.exactKind(..."ab"))
+        .build(),
+    )
+    .define({ entry: `a b?` })
+    .build({
+      entry: "entry",
+      ignoreEntryFollow: true,
+    }).parser;
 
   // the parser will accept { entry: `a` } immediately without checking the follow set
   // thus the `b` will never be parsed

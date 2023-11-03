@@ -11,6 +11,7 @@ const lexer = new Lexer.Builder()
   .build();
 
 export const { parser } = new ELR.AdvancedBuilder()
+  .lexer(lexer)
   .define(
     // the first rule will be tried first
     { exp: `num '-'` },
@@ -24,7 +25,6 @@ export const { parser } = new ELR.AdvancedBuilder()
   // IMPORTANT: set `rollback` to `true` to enable rollback functions
   // otherwise, rollback functions will not be called to improve performance
   .build({
-    lexer,
     entry: "exp",
     checkAll: true,
     rollback: true,

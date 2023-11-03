@@ -13,6 +13,7 @@ export let fName = "";
 export let returnType = "";
 
 export const { parser } = new ELR.ParserBuilder()
+  .lexer(lexer)
   .define(
     {
       fn_def: `
@@ -29,4 +30,4 @@ export const { parser } = new ELR.ParserBuilder()
         returnType = $$("identifier")[1].text!;
       }),
   )
-  .build({ lexer, entry: "fn_def" });
+  .build({ entry: "fn_def" });

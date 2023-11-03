@@ -7,6 +7,7 @@ const lexer = new Lexer.Builder()
   .build();
 
 export const { parser } = new ELR.AdvancedBuilder()
+  .lexer(lexer)
   .define(
     // the first rule will be tried first
     { exp: `num '-'` },
@@ -15,7 +16,6 @@ export const { parser } = new ELR.AdvancedBuilder()
   .define({ exp: `exp '-'` })
   .define({ exp: `num '--' num` })
   .build({
-    lexer,
     entry: "exp",
     checkAll: true,
     // debug: true,

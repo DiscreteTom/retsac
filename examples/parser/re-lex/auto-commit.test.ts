@@ -8,9 +8,9 @@ test("auto commit", () => {
     .build();
 
   const { parser } = new ELR.AdvancedBuilder()
+    .lexer(lexer)
     .define({ exp: `num ('-' '-' | '--') num` })
     .build({
-      lexer,
       entry: "exp",
     });
 

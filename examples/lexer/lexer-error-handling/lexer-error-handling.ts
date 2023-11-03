@@ -5,7 +5,7 @@ import { Lexer } from "../../../src";
  */
 
 export const lexer = new Lexer.Builder()
-  .useError<string>() // set error type
+  .error<string>() // set error type
   .define({
     // built-in utils will check unclosed strings and invalid numbers
     // and accept the input with error
