@@ -277,16 +277,24 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
         ) => boolean) = true,
   ): Action<Data, ActionState, ErrorType> {
     if (typeof muted === "boolean") {
-      return this.apply((ctx) => {
-        ctx.output.muted = muted;
-        return ctx.output;
-      });
+      return this.apply(
+        (ctx) => {
+          ctx.output.muted = muted;
+          return ctx.output;
+        },
+        { maybeMuted: muted },
+      );
     } else {
       // muted is a function
-      return this.apply((ctx) => {
-        ctx.output.muted = muted(ctx);
-        return ctx.output;
-      });
+      return this.apply(
+        (ctx) => {
+          ctx.output.muted = muted(ctx);
+          return ctx.output;
+        },
+        // if muted is a function, we can't know whether the output will be muted
+        // so we set maybeMuted to true
+        { maybeMuted: true },
+      );
     }
   }
 
