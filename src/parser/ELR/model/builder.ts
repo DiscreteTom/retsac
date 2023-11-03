@@ -14,80 +14,82 @@ import type { Parser } from "../parser";
 export type BuildOptions<
   Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-> = Partial<
-  Pick<
-    IParser<string, never, never, GeneralTokenDataBinding, never, never>,
-    "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
-  >
-> & {
-  /**
-   * Declare top-level NT's.
-   * This is required for ELR parser.
-   */
-  entry: Kinds | readonly Kinds[];
-  /**
-   * Which format to generate resolvers.
-   * If `undefined`, resolvers will not be generated.
-   *
-   * @default undefined
-   */
-  generateResolvers?: "builder" | "context";
-  /**
-   * If `true`, print all errors instead of throwing errors during the build process.
-   * @default false
-   */
-  printAll?: boolean;
-  /**
-   * @default false
-   */
-  checkSymbols?: boolean;
-  /**
-   * @default false
-   */
-  checkConflicts?: boolean;
-  /**
-   * Short for {@link BuildOptions.checkSymbols} `&&` {@link BuildOptions.checkConflicts} `&&` {@link BuildOptions.checkRollback} `&&` {@link BuildOptions.checkHydrate}.
-   * @default false
-   */
-  checkAll?: boolean;
-  /**
-   * If `true`, {@link DefinitionContextBuilder.rollback} will be effective.
-   * @default false to optimize performance.
-   */
-  rollback?: boolean;
-  /**
-   * If `true`, check if you defined rollback actions but {@link BuildOptions.rollback} is `false`.
-   * @default false
-   */
-  checkRollback?: boolean;
-  /**
-   * If `true`, the parser will try to re-lex the input.
-   * @default true
-   */
-  reLex?: boolean;
-  /**
-   * If `true` and the build is successful, {@link IParserBuilder.build} will return a serializable object.
-   * If the {@link BuildOptions.hydrate} is set, the serializable will be set to that directly
-   * instead of generating a new one.
-   * @default false
-   */
-  serialize?: boolean;
-  /**
-   * If `true`, the parser will check the hash of the serialized parser data before hydrate.
-   * @default false
-   */
-  checkHydrate?: boolean;
-  /**
-   * If provided and valid, the parser will be hydrated from this data.
-   * The value is always checked to make sure it's valid.
-   */
-  hydrate?: SerializableParserData<Kinds, LexerDataBindings>;
-  /**
-   * If `true` and the build is successful, {@link IParserBuilder.build} will return a mermaid graph.
-   * @default false
-   */
-  mermaid?: boolean;
-};
+> = [LexerDataBindings] extends [never]
+  ? never // no lexer, prevent build
+  : Partial<
+      Pick<
+        IParser<string, never, never, GeneralTokenDataBinding, never, never>,
+        "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
+      >
+    > & {
+      /**
+       * Declare top-level NT's.
+       * This is required for ELR parser.
+       */
+      entry: Kinds | readonly Kinds[];
+      /**
+       * Which format to generate resolvers.
+       * If `undefined`, resolvers will not be generated.
+       *
+       * @default undefined
+       */
+      generateResolvers?: "builder" | "context";
+      /**
+       * If `true`, print all errors instead of throwing errors during the build process.
+       * @default false
+       */
+      printAll?: boolean;
+      /**
+       * @default false
+       */
+      checkSymbols?: boolean;
+      /**
+       * @default false
+       */
+      checkConflicts?: boolean;
+      /**
+       * Short for {@link BuildOptions.checkSymbols} `&&` {@link BuildOptions.checkConflicts} `&&` {@link BuildOptions.checkRollback} `&&` {@link BuildOptions.checkHydrate}.
+       * @default false
+       */
+      checkAll?: boolean;
+      /**
+       * If `true`, {@link DefinitionContextBuilder.rollback} will be effective.
+       * @default false to optimize performance.
+       */
+      rollback?: boolean;
+      /**
+       * If `true`, check if you defined rollback actions but {@link BuildOptions.rollback} is `false`.
+       * @default false
+       */
+      checkRollback?: boolean;
+      /**
+       * If `true`, the parser will try to re-lex the input.
+       * @default true
+       */
+      reLex?: boolean;
+      /**
+       * If `true` and the build is successful, {@link IParserBuilder.build} will return a serializable object.
+       * If the {@link BuildOptions.hydrate} is set, the serializable will be set to that directly
+       * instead of generating a new one.
+       * @default false
+       */
+      serialize?: boolean;
+      /**
+       * If `true`, the parser will check the hash of the serialized parser data before hydrate.
+       * @default false
+       */
+      checkHydrate?: boolean;
+      /**
+       * If provided and valid, the parser will be hydrated from this data.
+       * The value is always checked to make sure it's valid.
+       */
+      hydrate?: SerializableParserData<Kinds, LexerDataBindings>;
+      /**
+       * If `true` and the build is successful, {@link IParserBuilder.build} will return a mermaid graph.
+       * @default false
+       */
+      mermaid?: boolean;
+    };
 
 export type BuildOutput<
   LexerDataBindings extends GeneralTokenDataBinding,
