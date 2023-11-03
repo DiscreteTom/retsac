@@ -96,10 +96,24 @@ export interface IReadonlyLexer<
    */
   getTokenKinds(): Set<ExtractKinds<DataBindings>>;
   /**
-   * Get line number (starts from 1) and column number (starts from 1)
-   * from the index (starts from 0) of the input string.
+   * Get 1-based line number and 1-based column number
+   * from the 0-based index of the whole input string.
    */
-  getPos(index: number): { line: number; column: number };
+  getPos(
+    /**
+     * 0-based index of the whole input string.
+     */
+    index: number,
+  ): {
+    /**
+     * 1-based line number.
+     */
+    line: number;
+    /**
+     * 1-based column number.
+     */
+    column: number;
+  };
   hasErrors(): boolean;
 }
 
