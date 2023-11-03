@@ -220,17 +220,9 @@ export class ParserBuilder<
     >;
   }
 
-  private buildDFA<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
+  private buildDFA(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: IReadonlyLexerCore<
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
-    >,
+    lexer: IReadonlyLexerCore<LexerDataBindings, LexerActionState, LexerError>,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
@@ -243,10 +235,7 @@ export class ParserBuilder<
       else throw e;
     }
 
-    const repo = new GrammarRepo<
-      Kinds,
-      ExtractKinds<LexerDataBindings | AppendLexerDataBindings>
-    >();
+    const repo = new GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>();
 
     // build the DFA
     const {
@@ -263,9 +252,9 @@ export class ParserBuilder<
       Kinds,
       ASTData,
       ErrorType,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
+      LexerDataBindings,
+      LexerActionState,
+      LexerError
     >(
       repo,
       lexer,
@@ -274,9 +263,9 @@ export class ParserBuilder<
         Kinds,
         ASTData,
         ErrorType,
-        LexerDataBindings | AppendLexerDataBindings,
-        LexerActionState | AppendLexerActionState,
-        LexerError | AppendLexerError
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >[],
       printAll,
       logger,
@@ -322,14 +311,8 @@ export class ParserBuilder<
         r.options.next == "*"
           ? ("*" as const)
           : r.options.next == undefined
-          ? new GrammarSet<
-              Kinds,
-              ExtractKinds<LexerDataBindings | AppendLexerDataBindings>
-            >()
-          : new GrammarSet<
-              Kinds,
-              ExtractKinds<LexerDataBindings | AppendLexerDataBindings>
-            >(
+          ? new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>()
+          : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
               r.options.next.map((n) =>
                 new TempGrammar({
                   type:
@@ -340,9 +323,9 @@ export class ParserBuilder<
                     n.startsWith('"') || n.startsWith("'") ? n.slice(1, -1) : n,
                 }).toGrammar<
                   Kinds,
-                  LexerDataBindings | AppendLexerDataBindings,
-                  LexerActionState | AppendLexerActionState,
-                  LexerError | AppendLexerError
+                  LexerDataBindings,
+                  LexerActionState,
+                  LexerError
                 >(repo, lexer, printAll, logger, NTs.has(n as Kinds)),
               ),
             );
@@ -352,9 +335,9 @@ export class ParserBuilder<
         Kinds,
         ASTData,
         ErrorType,
-        LexerDataBindings | AppendLexerDataBindings,
-        LexerActionState | AppendLexerActionState,
-        LexerError | AppendLexerError
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       > =
         typeof accepter == "boolean"
           ? {
@@ -411,27 +394,23 @@ export class ParserBuilder<
     };
   }
 
-  private generateResolvers<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
+  private generateResolvers(
     unresolved: Map<
       GrammarRule<
         Kinds,
         ASTData,
         ErrorType,
-        LexerDataBindings | AppendLexerDataBindings,
-        LexerActionState | AppendLexerActionState,
-        LexerError | AppendLexerError
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >,
       Conflict<
         Kinds,
         ASTData,
         ErrorType,
-        LexerDataBindings | AppendLexerDataBindings,
-        LexerActionState | AppendLexerActionState,
-        LexerError | AppendLexerError
+        LexerDataBindings,
+        LexerActionState,
+        LexerError
       >[]
     >,
     style: "builder" | "context",

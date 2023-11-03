@@ -14,9 +14,6 @@ export function calculateHash<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerActionState,
-  AppendLexerError,
 >(
   data: readonly Readonly<
     ParserBuilderData<
@@ -29,11 +26,7 @@ export function calculateHash<
     >
   >[],
   entryNTs: ReadonlySet<Kinds>,
-  lexer: IReadonlyLexer<
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >,
+  lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerError>,
   cascadeQueryPrefix: string | undefined,
 ) {
   return hashStringToNum(
@@ -62,9 +55,6 @@ export function buildSerializable<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerActionState,
-  AppendLexerError,
 >(
   data: readonly Readonly<
     ParserBuilderData<
@@ -80,18 +70,14 @@ export function buildSerializable<
     Kinds,
     ASTData,
     ErrorType,
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   entryNTs: ReadonlySet<Kinds>,
-  lexer: IReadonlyLexer<
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >,
+  lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerError>,
   cascadeQueryPrefix: string | undefined,
-): SerializableParserData<Kinds, LexerDataBindings | AppendLexerDataBindings> {
+): SerializableParserData<Kinds, LexerDataBindings> {
   return {
     hash: calculateHash(data, entryNTs, lexer, cascadeQueryPrefix),
     data: { dfa: dfa.toJSON() },
