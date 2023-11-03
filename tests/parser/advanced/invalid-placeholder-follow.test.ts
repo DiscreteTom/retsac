@@ -4,14 +4,16 @@ import { InvalidPlaceholderFollowError } from "../../../src/parser/ELR/advanced/
 test("simple", () => {
   try {
     new ELR.AdvancedBuilder()
+      .lexer(
+        new Lexer.Builder()
+          .anonymous(Lexer.whitespaces())
+          .define(Lexer.exactKind(..."abc"))
+          .build(),
+      )
       .define({
         entry: `a+ a`,
       })
       .build({
-        lexer: new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.exactKind(..."abc"))
-          .build(),
         entry: "entry",
         checkAll: true,
       });
@@ -29,14 +31,16 @@ test("complex", () => {
   const printer = jest.fn();
   const logger = new Logger({ printer });
   new ELR.AdvancedBuilder()
+    .lexer(
+      new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.exactKind(..."abc"))
+        .build(),
+    )
     .define({
       entry: `(a b+)+ (a|b)`,
     })
     .build({
-      lexer: new Lexer.Builder()
-        .anonymous(Lexer.whitespaces())
-        .define(Lexer.exactKind(..."abc"))
-        .build(),
       entry: "entry",
       checkAll: true,
       printAll: true,

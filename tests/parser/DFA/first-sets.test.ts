@@ -2,6 +2,7 @@ import { ELR, Lexer } from "../../../src";
 
 test("build first sets", () => {
   const { serializable } = new ELR.ParserBuilder()
+    .lexer(new Lexer.Builder().define(Lexer.wordKind("a", "b", "d")).build())
     .define({
       entry: `C A`,
       A: `a C`,
@@ -10,7 +11,6 @@ test("build first sets", () => {
       D: `d`,
     })
     .build({
-      lexer: new Lexer.Builder().define(Lexer.wordKind(..."abd")).build(),
       entry: "entry",
       serialize: true,
     });

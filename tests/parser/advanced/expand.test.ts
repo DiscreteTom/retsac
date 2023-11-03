@@ -9,8 +9,8 @@ function assertExpandedEqual(
   possibilities: string[],
   p2g: { [placeholder: string]: string[] },
 ) {
-  const { parserBuilder, lexer, placeholderMap } = grammarParserFactory("__");
-  const { parser } = parserBuilder.build({ lexer, entry, hydrate: data });
+  const { parserBuilder, placeholderMap } = grammarParserFactory("__");
+  const { parser } = parserBuilder.build({ entry, hydrate: data });
   const res = parser.reset().parseAll(str);
 
   // ensure the parser accepts the input

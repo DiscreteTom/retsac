@@ -6,7 +6,7 @@ test("same parser has the same hash", () => {
     .anonymous(Lexer.whitespaces())
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
-  const builder = new ELR.ParserBuilder().define({
+  const builder = new ELR.ParserBuilder().lexer(lexer).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
@@ -14,7 +14,6 @@ test("same parser has the same hash", () => {
   });
   const entry = "entry" as const;
   const options = {
-    lexer,
     entry,
     serialize: true,
   };
@@ -26,13 +25,11 @@ test("same parser has the same hash", () => {
 
   // ensure build is successful
   const data = builder.build({
-    lexer,
     entry,
     serialize: true,
   }).serializable;
   expect(() => {
     builder.build({
-      lexer,
       entry,
       hydrate: data,
       checkHydrate: true,
@@ -41,32 +38,44 @@ test("same parser has the same hash", () => {
 });
 
 test("change lexer kinds", () => {
-  const builder = new ELR.ParserBuilder().define({
-    entry: `A | B | C`,
-    A: `a`,
-    B: `a`,
-    C: `a`,
-  });
+  const builder = new ELR.ParserBuilder()
+    .lexer(
+      new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefgh"))
+        .build(),
+    )
+    .define({
+      entry: `A | B | C`,
+      A: `a`,
+      B: `a`,
+      C: `a`,
+    });
   const entry = "entry" as const;
   const data = builder.build({
-    lexer: new Lexer.Builder()
-      .anonymous(Lexer.whitespaces())
-      .define(Lexer.wordKind(..."abcdefgh"))
-      .build(),
     entry,
     serialize: true,
   }).serializable;
 
   expect(() => {
-    builder.build({
-      lexer: new Lexer.Builder()
-        .anonymous(Lexer.whitespaces())
-        .define(Lexer.wordKind(..."abcdefg")) // lexer kinds changed
-        .build(),
-      entry,
-      hydrate: data,
-      checkHydrate: true,
-    });
+    new ELR.ParserBuilder()
+      .lexer(
+        new Lexer.Builder()
+          .anonymous(Lexer.whitespaces())
+          .define(Lexer.wordKind(..."abcdefg")) // lexer kinds changed
+          .build(),
+      )
+      .define({
+        entry: `A | B | C`,
+        A: `a`,
+        B: `a`,
+        C: `a`,
+      })
+      .build({
+        entry,
+        hydrate: data,
+        checkHydrate: true,
+      });
   }).toThrow(HydrateHashMismatchError);
 });
 
@@ -75,21 +84,19 @@ test("change entry kinds", () => {
     .anonymous(Lexer.whitespaces())
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
-  const builder = new ELR.ParserBuilder().define({
+  const builder = new ELR.ParserBuilder().lexer(lexer).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
     C: `a`,
   });
   const data = builder.build({
-    lexer,
     entry: ["entry", "A"],
     serialize: true,
   }).serializable;
 
   expect(() => {
     builder.build({
-      lexer,
       entry: "entry", // entry kinds changed
       hydrate: data,
       checkHydrate: true,
@@ -103,14 +110,13 @@ test("change grammar rules", () => {
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
   const entry = "entry" as const;
-  const builder = new ELR.ParserBuilder().define({
+  const builder = new ELR.ParserBuilder().lexer(lexer).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
     C: `a`,
   });
   const data = builder.build({
-    lexer,
     entry,
     serialize: true,
   }).serializable;
@@ -119,7 +125,6 @@ test("change grammar rules", () => {
     builder
       .define({ entry: `A A` }) // grammar rules changed
       .build({
-        lexer,
         entry,
         hydrate: data,
         checkHydrate: true,
@@ -133,14 +138,13 @@ test("new resolvers", () => {
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
   const entry = "entry" as const;
-  const builder = new ELR.ParserBuilder().define({
+  const builder = new ELR.ParserBuilder().lexer(lexer).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
     C: `a`,
   });
   const data = builder.build({
-    lexer,
     entry,
     serialize: true,
   }).serializable;
@@ -149,7 +153,6 @@ test("new resolvers", () => {
     builder
       .resolveRR({ A: `a` }, { B: `a` }, { handleEnd: true, accept: true }) // new resolver
       .build({
-        lexer,
         entry,
         hydrate: data,
         checkHydrate: true,
@@ -164,6 +167,7 @@ test("change resolver fields", () => {
     .build();
   const entry = "entry" as const;
   const builder = new ELR.ParserBuilder()
+    .lexer(lexer)
     .define({
       entry: `A | B | C`,
       A: `a`,
@@ -172,13 +176,13 @@ test("change resolver fields", () => {
     })
     .resolveRR({ A: `a` }, { B: `a` }, { handleEnd: true, accept: true });
   const data = builder.build({
-    lexer,
     entry,
     serialize: true,
   }).serializable;
 
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(lexer)
       .define({
         entry: `A | B | C`,
         A: `a`,
@@ -187,7 +191,6 @@ test("change resolver fields", () => {
       })
       .resolveRR({ A: `a` }, { B: `a` }, { handleEnd: true, accept: false }) // resolver fields changed
       .build({
-        lexer,
         entry,
         hydrate: data,
         checkHydrate: true,

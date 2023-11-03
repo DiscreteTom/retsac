@@ -4,12 +4,12 @@ test("Use '*' as next in RS conflict", () => {
   // not resolved
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         test: `a b | a b c`,
         test2: `test c`,
       })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test", "test2"],
         checkConflicts: true,
       });
@@ -17,13 +17,13 @@ test("Use '*' as next in RS conflict", () => {
   // resolved
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         test: `a b | a b c`,
         test2: `test c`,
       })
       .resolveRS({ test: `a b` }, { test: `a b c` }, { next: `*` })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test", "test2"],
         checkConflicts: true,
       });
@@ -32,12 +32,12 @@ test("Use '*' as next in RS conflict", () => {
   // advanced builder should auto generate resolvers using '*' as the next
   expect(() => {
     new ELR.AdvancedBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         test: `a b c?`,
         test2: `test c`,
       })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test", "test2"],
         checkConflicts: true,
       });
@@ -48,12 +48,12 @@ test("Use '*' as next in RR conflict", () => {
   // not resolved
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: "entry",
         checkConflicts: true,
       });
@@ -61,6 +61,7 @@ test("Use '*' as next in RR conflict", () => {
   // resolved
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         entry: `a test d | test d`,
         test: `a b c | b c`,
@@ -71,7 +72,6 @@ test("Use '*' as next in RR conflict", () => {
         { next: `*`, handleEnd: true },
       )
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test"],
         checkConflicts: true,
       });
@@ -80,12 +80,12 @@ test("Use '*' as next in RR conflict", () => {
   // advanced builder should auto generate resolvers using '*'
   expect(() => {
     new ELR.AdvancedBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         entry: `a test d | test d`,
         test: `a b c | b c`,
       })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test"],
         checkConflicts: true,
       });

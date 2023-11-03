@@ -5,11 +5,15 @@ test.each([`a b c?`, `a b c*`, `a b c+`, `a? b c d?`])(
   (gr) => {
     expect(() => {
       new ELR.AdvancedBuilder()
+        .lexer(
+          new Lexer.Builder()
+            .define(Lexer.exactKind("a", "b", "c", "d"))
+            .build(),
+        )
         .define({
           test: gr,
         })
         .build({
-          lexer: new Lexer.Builder().build(),
           entry: "test",
           checkConflicts: true,
         });

@@ -32,25 +32,29 @@ function expectRSConflict<Kinds extends string>(
   defs: Definition<Kinds | "entry">,
   conflicts: { reducerNT: Kinds; anotherNT: Kinds }[],
 ) {
-  const { serializable } = new ELR.ParserBuilder().define(defs).build({
-    lexer: new Lexer.Builder()
-      .anonymous(Lexer.whitespaces())
-      .define(Lexer.wordKind(..."abcdefg"))
-      .build(),
-    entry: "entry",
-    serialize: true,
-    // don't check all, store conflicts in grammar rules
-    // and access conflicts using serializable
-    // checkAll: true,
-  });
+  const { serializable } = new ELR.ParserBuilder()
+    .lexer(
+      new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    )
+    .define(defs)
+    .build({
+      entry: "entry",
+      serialize: true,
+      // don't check all, store conflicts in grammar rules
+      // and access conflicts using serializable
+      // checkAll: true,
+    });
 
   conflicts.forEach((c) => {
     expect(
       serializable!.data.dfa.grammarRules
-        .find((rule) => rule.NT == c.reducerNT)!
+        .find((rule) => rule.NT === c.reducerNT)!
         .conflicts.find(
           (cc) =>
-            cc.type == ELR.ConflictType.REDUCE_SHIFT &&
+            cc.type === ELR.ConflictType.REDUCE_SHIFT &&
             cc.anotherRule.startsWith(`{ ${c.anotherNT}`),
         ),
     ).not.toBeUndefined();

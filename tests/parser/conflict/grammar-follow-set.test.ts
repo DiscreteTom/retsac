@@ -3,6 +3,7 @@ import { ELR, Lexer } from "../../../src";
 test("Terminator's follow sets are needed", () => {
   expect(() => {
     new ELR.ParserBuilder()
+      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
       .define({
         // when we calculate follow set, the terminator's follow set is needed as well.
         // in the following example, the follow set of `b` is needed, and the value is [`c`]
@@ -12,7 +13,6 @@ test("Terminator's follow sets are needed", () => {
         test2: `test c`,
       })
       .build({
-        lexer: new Lexer.Builder().build(),
         entry: ["test", "test2"],
         checkConflicts: true,
       });

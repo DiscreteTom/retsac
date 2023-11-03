@@ -14,9 +14,9 @@ test("re-lex with expectation", () => {
     });
 
   const { parser } = new ELR.AdvancedBuilder()
+    .lexer(lexer)
     .define({ exp: `num ('-' | '--') num` })
     .build({
-      lexer,
       entry: "exp",
       debug: true,
       logger,
@@ -43,9 +43,9 @@ test("disable re-lex", () => {
     });
 
   const { parser } = new ELR.AdvancedBuilder()
+    .lexer(lexer)
     .define({ exp: `num ('-' | '--') num` })
     .build({
-      lexer,
       entry: "exp",
       reLex: false,
       // debug: true,

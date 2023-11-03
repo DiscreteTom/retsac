@@ -2,6 +2,7 @@ import { ELR, Lexer } from "../../../src";
 
 test("build follow sets", () => {
   const { serializable } = new ELR.ParserBuilder()
+    .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "d")).build())
     .define({
       entry: `C A`,
       A: `a C`,
@@ -10,7 +11,6 @@ test("build follow sets", () => {
       D: `d`,
     })
     .build({
-      lexer: new Lexer.Builder().define(Lexer.exactKind("a", "b", "d")).build(),
       entry: "entry",
       serialize: true,
     });
