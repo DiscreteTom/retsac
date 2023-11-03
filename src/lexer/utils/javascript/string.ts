@@ -10,7 +10,7 @@ export function evalString(quoted: string) {
   // IMPORTANT! all escaped chars should be searched simultaneously!
   // e.g. you should NOT use `unquoted.replace(/\\\\/g, "\\").replace(/\\'/g, "'")...`
   return unquoted.replace(
-    /(\\0|\\'|\\"|\\n|\\\\|\\r|\\v|\\t|\\b|\\f|\\\n|\\`|\\x(?:[0-9a-fA-F]{2})|\\u(?:[0-9a-fA-F]{4}))/g,
+    /(\\0|\\'|\\"|\\n|\\\\|\\r|\\v|\\t|\\b|\\f|\\\n|\\`|\\x(?:[0-9a-fA-F]{2})|\\u(?:[0-9a-fA-F]{4})|\\u\{(?:[0-9a-fA-F]{1,6})\})/g,
     (match) => {
       switch (match) {
         case `\\0`:
@@ -40,6 +40,8 @@ export function evalString(quoted: string) {
         default: {
           if (match.startsWith("\\x")) {
             return String.fromCharCode(parseInt(match.slice(2), 16));
+          } else if (match.startsWith("\\u{")) {
+            return String.fromCodePoint(parseInt(match.slice(3, -1), 16));
           } else {
             // match.startsWith("\\u")
             return String.fromCharCode(parseInt(match.slice(2), 16));
