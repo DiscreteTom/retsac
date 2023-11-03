@@ -31,6 +31,8 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
      * If `true`, the string literal can be continued by `\` at the end of each line(`\\\n`),
      * even if `multiline` is `false`.
      *
+     * The returned content will contains the `\\\n`, you have to process it by yourself.
+     *
      * This option is effective even `options.escape` is `false`.
      * @default true
      */
