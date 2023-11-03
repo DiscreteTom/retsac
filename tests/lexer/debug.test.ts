@@ -1,7 +1,6 @@
 import { Lexer, Logger, jsonLoggerFactory } from "../../src";
 
-// TODO: refactor this file, split test cases in different functions
-test("lexer debug lex", () => {
+function prepare() {
   const printer = jest.fn();
   const logger = new Logger({ printer });
   const lexer = new Lexer.Builder()
@@ -17,106 +16,136 @@ test("lexer debug lex", () => {
       hash: /#/,
     })
     .build({ debug: true, logger });
+  return { printer, lexer };
+}
 
+test("reset", () => {
+  const { printer, lexer } = prepare();
   lexer.reset();
   expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
-
-  expect(lexer.lex()).toBe(null); // no rest
-  expect(printer).toHaveBeenCalledWith("[Lexer.lex] no rest");
-
-  lexer.feed("0123");
-  expect(printer).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
-
-  expect(lexer.take(1)).toBe("0");
-  expect(printer).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
-
-  expect(
-    lexer.lex({ input: "45", expect: { kind: "number", text: "12345" } })
-      ?.content,
-  ).toBe("12345");
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"}}',
-  );
-  expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: <anonymous>");
-  lexer.reset().lex({ input: "!", expect: { kind: "number" } });
-  expect(printer).toHaveBeenCalledWith(
-    "[Lexer.lex] skip (unexpected and never muted): hash",
-  );
-  expect(printer).toHaveBeenCalledWith(
-    "[Lexer.lex] skip (unexpected and never muted): <anonymous>",
-  );
-  expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: string");
-  expect(lexer.lex({ input: `'123'`, expect: { kind: "number" } })).toBe(null); // unexpected
-
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] accept kind number, 5 chars: "12345"',
-  );
-  expect(
-    lexer
-      .reset()
-      .lex({ input: `'123'`, expect: { kind: "string", text: "'111'" } }),
-  ).toBe(null); // unexpected
-  expect(printer).toHaveBeenCalledWith(
-    `[Lexer.lex] unexpected string: "'123'"`,
-  );
-
-  lexer.reset().lex("+");
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] accept kind <anonymous>, 1 chars: "+"',
-  );
-  lexer.reset().lex(" ");
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.lex] accept kind <anonymous>(muted), 1 chars: " "',
-  );
-
-  // peek
-  lexer.reset().lex({ input: "123", expect: { kind: "number" }, peek: true });
-  expect(printer).toHaveBeenCalledWith("[Lexer.lex] peek");
 });
 
-test("lexer debug trimStart", () => {
-  const printer = jest.fn();
-  const logger = new Logger({ printer });
-  const lexer = new Lexer.Builder()
-    .ignore(Lexer.whitespaces())
-    .anonymous(Lexer.exact("!"))
-    .anonymous(Lexer.exact(..."+-*/()").mute(() => false)) // set maybe-mute, but do not mute
-    .define({
-      string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
-    })
-    .define({
-      number: Lexer.javascript.numericLiteral().mute(() => false), // set maybe-mute, but do not mute
-    })
-    .define({
-      hash: /#/,
-    })
-    .build({ debug: true, logger });
+test("feed", () => {
+  const { printer, lexer } = prepare();
+  lexer.feed("0123");
+  expect(printer).toHaveBeenCalledWith("[Lexer.feed] 4 chars");
+});
 
-  // generate logs
-  lexer.reset();
-  lexer.trimStart(" 123");
+test("take", () => {
+  const { printer, lexer } = prepare();
+  expect(lexer.feed("0123").take(1)).toBe("0");
+  expect(printer).toHaveBeenCalledWith('[Lexer.take] 1 chars: "0"');
+});
 
-  // check logs
-  expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] trim <anonymous>, 1 chars: " "',
-  );
-  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: <anonymous>");
-  expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (never muted): <anonymous>",
-  );
-  lexer.reset().trimStart("!");
-  expect(printer).toHaveBeenCalledWith(
-    "[Lexer.trimStart] skip (never muted): hash",
-  );
-  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] reject: string");
-  expect(printer).toHaveBeenCalledWith(
-    '[Lexer.trimStart] found unmuted number, 3 chars: "123"',
-  );
+describe("debug lex", () => {
+  test("no rest", () => {
+    const { printer, lexer } = prepare();
+    expect(lexer.lex()).toBe(null); // no rest
+    expect(printer).toHaveBeenCalledWith("[Lexer.lex] no rest");
+  });
 
-  lexer.reset().trimStart("$"); // no accept
+  describe("expectation", () => {
+    test("case 1", () => {
+      const { printer, lexer } = prepare();
+      expect(
+        lexer.lex({ input: "12345", expect: { kind: "number", text: "12345" } })
+          ?.content,
+      ).toBe("12345");
+      expect(printer).toHaveBeenCalledWith(
+        '[Lexer.lex] options: {"expect":{"kind":"number","text":"12345"}}',
+      );
+      expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: <anonymous>");
+    });
 
-  expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
+    test("case 2", () => {
+      const { printer, lexer } = prepare();
+      lexer.reset().lex({ input: "!", expect: { kind: "number" } });
+      expect(printer).toHaveBeenCalledWith(
+        "[Lexer.lex] skip (unexpected and never muted): hash",
+      );
+      expect(printer).toHaveBeenCalledWith(
+        "[Lexer.lex] skip (unexpected and never muted): <anonymous>",
+      );
+      expect(printer).toHaveBeenCalledWith("[Lexer.lex] reject: string");
+    });
+  });
+
+  test("unexpected", () => {
+    const { printer, lexer } = prepare();
+    expect(
+      lexer
+        .reset()
+        .lex({ input: `'123'`, expect: { kind: "string", text: "'111'" } }),
+    ).toBe(null); // unexpected
+    expect(printer).toHaveBeenCalledWith(
+      `[Lexer.lex] unexpected string: "'123'"`,
+    );
+  });
+
+  test("peek", () => {
+    const { printer, lexer } = prepare();
+    lexer.reset().lex({ input: "123", expect: { kind: "number" }, peek: true });
+    expect(printer).toHaveBeenCalledWith("[Lexer.lex] peek");
+  });
+
+  test("accept", () => {
+    const { printer, lexer } = prepare();
+    lexer.reset().lex("+");
+    expect(printer).toHaveBeenCalledWith(
+      '[Lexer.lex] accept kind <anonymous>, 1 chars: "+"',
+    );
+    lexer.reset().lex(" ");
+    expect(printer).toHaveBeenCalledWith(
+      '[Lexer.lex] accept kind <anonymous>(muted), 1 chars: " "',
+    );
+  });
+});
+
+describe("debug trimStart", () => {
+  function prepare() {
+    const printer = jest.fn();
+    const logger = new Logger({ printer });
+    const lexer = new Lexer.Builder()
+      .ignore(Lexer.whitespaces())
+      .anonymous(Lexer.exact("!"))
+      .anonymous(Lexer.exact(..."+-*/()").mute(() => false)) // set maybe-mute, but do not mute
+      .define({
+        string: Lexer.stringLiteral(`'`).mute(() => false), // set maybe-mute, but do not mute
+      })
+      .define({
+        number: Lexer.javascript.numericLiteral().mute(() => false), // set maybe-mute, but do not mute
+      })
+      .define({
+        hash: /#/,
+      })
+      .build({ debug: true, logger });
+    return { printer, lexer };
+  }
+
+  test("trim successfully stopped", () => {
+    const { printer, lexer } = prepare();
+    lexer.reset();
+    lexer.trimStart(" 123");
+    expect(printer).toHaveBeenCalledWith("[Lexer.reset]");
+    expect(printer).toHaveBeenCalledWith(
+      '[Lexer.trimStart] trim <anonymous>, 1 chars: " "',
+    );
+    expect(printer).toHaveBeenCalledWith(
+      "[Lexer.trimStart] reject: <anonymous>",
+    );
+    expect(printer).toHaveBeenCalledWith(
+      "[Lexer.trimStart] skip (never muted): <anonymous>",
+    );
+    expect(printer).toHaveBeenCalledWith(
+      '[Lexer.trimStart] found unmuted number, 3 chars: "123"',
+    );
+  });
+
+  test("no accept", () => {
+    const { printer, lexer } = prepare();
+    lexer.reset().trimStart("$"); // no accept
+    expect(printer).toHaveBeenCalledWith("[Lexer.trimStart] no accept");
+  });
 });
 
 test("lexer clone with debug", () => {
