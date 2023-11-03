@@ -10,9 +10,8 @@ export type ParserBuilderData<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  // TODO: re-order
-  LexerErrorType,
   LexerActionState,
+  LexerErrorType,
 > = {
   defs: Definition<Kinds>;
   ctxBuilder?: DefinitionContextBuilder<
@@ -20,8 +19,8 @@ export type ParserBuilderData<
     ASTData,
     ErrorType,
     LexerDataBindings,
-    LexerErrorType,
-    LexerActionState
+    LexerActionState,
+    LexerErrorType
   >;
   /**
    * If `true`, only resolve conflicts, don't create definition.
