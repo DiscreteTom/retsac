@@ -1,6 +1,6 @@
 import { Lexer } from "../../../src";
 
-test("lexer utils numericLiteral", () => {
+test("lexer utils javascript.numericLiteral", () => {
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
     .define({ number: Lexer.javascript.numericLiteral() })
@@ -103,7 +103,7 @@ test("lexer utils numericLiteral", () => {
   expect(lexer6.reset().lex("123a")?.content).toBe("123");
 });
 
-test("lexer utils regexLiteral", () => {
+test("lexer utils javascript.regexLiteral", () => {
   const lexer1 = new Lexer.Builder()
     .define({ regex: Lexer.javascript.regexLiteral() })
     .build();
@@ -145,4 +145,53 @@ test("lexer utils regexLiteral", () => {
     .build();
   expect(lexer5.reset().lex("/++/")?.content).toBe("/++/");
   expect(lexer5.reset().lex("/++/")?.data.invalid).toBe(false);
+});
+
+test("javascript comment", () => {
+  const lexer = new Lexer.Builder()
+    .define({
+      comment: Lexer.javascript.comment(),
+    })
+    .build();
+
+  // single line
+  expect(lexer.reset().lex("// abc\n")?.content).toBe("// abc\n");
+  expect(lexer.reset().lex("// abc\n// def")?.content).toBe("// abc\n");
+
+  // multi line
+  expect(lexer.reset().lex("/* abc */")?.content).toBe("/* abc */");
+  expect(lexer.reset().lex("/* abc\n*/")?.content).toBe("/* abc\n*/");
+  expect(lexer.reset().lex("/* abc\n*/\n")?.content).toBe("/* abc\n*/");
+
+  // unclosed
+  expect(lexer.reset().lex("// abc")?.content).toBe("// abc");
+  expect(lexer.reset().lex("/* abc")?.content).toBe("/* abc");
+});
+
+test("javascript evalString", () => {
+  expect(Lexer.javascript.evalString(`"abc"`)).toBe(`abc`);
+  expect(Lexer.javascript.evalString(`"abc\\0"`)).toBe(`abc\0`);
+  expect(Lexer.javascript.evalString(`"abc\\'def"`)).toBe(`abc'def`);
+  expect(Lexer.javascript.evalString(`"abc\\"def"`)).toBe(`abc"def`);
+  expect(Lexer.javascript.evalString(`"abc\\ndef"`)).toBe(`abc\ndef`);
+  expect(Lexer.javascript.evalString(`"abc\\\\def"`)).toBe(`abc\\def`);
+  expect(Lexer.javascript.evalString(`"abc\\rdef"`)).toBe(`abc\rdef`);
+  expect(Lexer.javascript.evalString(`"abc\\vdef"`)).toBe(`abc\vdef`);
+  expect(Lexer.javascript.evalString(`"abc\\tdef"`)).toBe(`abc\tdef`);
+  expect(Lexer.javascript.evalString(`"abc\\bdef"`)).toBe(`abc\bdef`);
+  expect(Lexer.javascript.evalString(`"abc\\fdef"`)).toBe(`abc\fdef`);
+  expect(Lexer.javascript.evalString(`"abc\\\ndef"`)).toBe(`abcdef`);
+  expect(Lexer.javascript.evalString(`"abc\\\`def"`)).toBe(`abc\`def`);
+  expect(Lexer.javascript.evalString(`"abc\\x41def"`)).toBe(`abc\x41def`);
+  expect(Lexer.javascript.evalString(`"abc\\u1234def"`)).toBe(`abc\u1234def`);
+  expect(Lexer.javascript.evalString(`"abc\\u{2F804}def"`)).toBe(
+    `abc\u{2F804}def`,
+  );
+
+  // all in one
+  expect(
+    Lexer.javascript.evalString(
+      `"\\0\\'\\"\\n\\\\\\r\\v\\t\\b\\f\\\n\\\`\\x41\\u1234\\u{2F804}"`,
+    ),
+  ).toBe(`\0'"\n\\\r\v\t\b\f\`\x41\u1234\u{2F804}`);
 });
