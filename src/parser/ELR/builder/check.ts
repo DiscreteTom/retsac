@@ -44,7 +44,7 @@ export function checkSymbols<
   // all grammar symbols should have its definition, either in NTs or Ts
   grs.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
-      if (g.text == undefined) {
+      if (g.text === undefined) {
         // N/NT
         if (!Ts.has(g.kind) && !NTs.has(g.kind)) {
           const e = new UnknownGrammarError(g.kind);
@@ -78,8 +78,8 @@ export function checkSymbols<
   // lexer = lexer.dryClone();
   // grs.grammarRules.forEach((gr) => {
   //   gr.rule.forEach((grammar) => {
-  //     if (grammar.text != undefined) {
-  //       if (lexer.reset().lex(grammar.text!) == null) {
+  //     if (grammar.text !== undefined) {
+  //       if (lexer.reset().lex(grammar.text!) === null) {
   //         const e = new InvalidLiteralError(grammar.text!);
   //         if (printAll) logger.log({ entity: "Parser", message: e.message });
   //         else throw e;
@@ -151,7 +151,7 @@ export function checkConflicts<
   // ensure all next grammars in resolved rules indeed in the follow set of the reducer rule's NT
   grs.grammarRules.forEach((reducerRule) => {
     reducerRule.resolved.forEach((g) => {
-      if (g.next == "*") return;
+      if (g.next === "*") return;
       g.next.grammars.forEach((n) => {
         if (!followSets.get(reducerRule.NT)!.has(n)) {
           const e = new NextGrammarNotFoundError(n, reducerRule.NT);
@@ -166,13 +166,13 @@ export function checkConflicts<
   grs.grammarRules.forEach((reducerRule) => {
     reducerRule.resolved.forEach((c) => {
       // check next
-      if (c.next != "*")
+      if (c.next !== "*")
         c.next.grammars.forEach((n) => {
           if (
             !reducerRule.conflicts.some(
               (conflict) =>
-                c.anotherRule == conflict.anotherRule &&
-                c.type == conflict.type &&
+                c.anotherRule === conflict.anotherRule &&
+                c.type === conflict.type &&
                 conflict.next.some((nn) => n.equalWithoutName(nn)), // don't use `==` here since we don't want to compare grammar name
             )
           ) {
@@ -189,12 +189,12 @@ export function checkConflicts<
         });
       // check handleEnd
       if (
-        c.next != "*" &&
+        c.next !== "*" &&
         c.handleEnd &&
         reducerRule.conflicts.some(
           (conflict) =>
-            c.anotherRule == conflict.anotherRule &&
-            c.type == conflict.type &&
+            c.anotherRule === conflict.anotherRule &&
+            c.type === conflict.type &&
             conflict.handleEnd,
         )
       ) {

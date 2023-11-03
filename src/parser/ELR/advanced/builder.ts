@@ -149,7 +149,7 @@ export class AdvancedBuilder<
           // for another rule, we don't need to log debug info or auto resolve R-S conflict
           this.expand(r.anotherRule, false, logger, false).forEach((res) => {
             res.defs.forEach((d) => {
-              if (r.type == ConflictType.REDUCE_SHIFT) {
+              if (r.type === ConflictType.REDUCE_SHIFT) {
                 expandedCtxBuilder.resolveRS(d, r.options);
               } else {
                 expandedCtxBuilder.resolveRR(d, r.options);

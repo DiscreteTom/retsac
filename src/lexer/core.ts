@@ -382,7 +382,9 @@ export class LexerCore<
       // unexpected
       if (debug) {
         const info = {
-          kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
+          kinds: [...def.kinds].map((k) =>
+            k.length === 0 ? "<anonymous>" : k,
+          ),
         };
         logger.log({
           entity,
@@ -399,7 +401,9 @@ export class LexerCore<
       // rejected
       if (debug) {
         const info = {
-          kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
+          kinds: [...def.kinds].map((k) =>
+            k.length === 0 ? "<anonymous>" : k,
+          ),
         };
         logger.log({
           entity,
@@ -433,7 +437,7 @@ export class LexerCore<
     // accepted but unexpected and not muted, reject
     if (debug) {
       const info = {
-        kinds: [...def.kinds].map((k) => (k.length == 0 ? "<anonymous>" : k)),
+        kinds: [...def.kinds].map((k) => (k.length === 0 ? "<anonymous>" : k)),
         content: output.content,
       };
       logger.log({

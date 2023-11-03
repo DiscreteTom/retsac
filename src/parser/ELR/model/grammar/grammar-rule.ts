@@ -279,7 +279,7 @@ export class GrammarRule<
         anotherRule: grs.getKey(r.anotherRule),
         handleEnd: r.handleEnd,
         next:
-          r.next == "*" ? ("*" as const) : r.next.map((g) => repo.getKey(g)),
+          r.next === "*" ? ("*" as const) : r.next.map((g) => repo.getKey(g)),
         accepter: r.hydrationId === undefined ? r.accepter : undefined,
         hydrationId: r.hydrationId === undefined ? undefined : r.hydrationId,
       })),
@@ -339,13 +339,13 @@ export class GrammarRule<
     ) => {
       gr.resolved.push(
         ...data.resolved.map((r) =>
-          r.hydrationId == undefined
+          r.hydrationId === undefined
             ? {
                 type: r.type,
                 anotherRule: grs.getByString(r.anotherRule)!,
                 handleEnd: r.handleEnd,
                 next:
-                  r.next == "*"
+                  r.next === "*"
                     ? ("*" as const)
                     : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
                         r.next.map((g) => repo.getByString(g)!),
@@ -358,7 +358,7 @@ export class GrammarRule<
                 anotherRule: grs.getByString(r.anotherRule)!,
                 handleEnd: r.handleEnd,
                 next:
-                  r.next == "*"
+                  r.next === "*"
                     ? ("*" as const)
                     : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
                         r.next.map((g) => repo.getByString(g)!),

@@ -100,7 +100,7 @@ export class ConflictError<
   ) {
     super(
       "CONFLICT",
-      c.type == ConflictType.REDUCE_SHIFT
+      c.type === ConflictType.REDUCE_SHIFT
         ? `Unresolved R-S conflict: ${reducerRule.toString()} vs ${c.anotherRule.toString()}, next: \`${c.next
             .map((g) => g.toString())
             .join(" ")}\``
@@ -236,7 +236,7 @@ export class NoSuchConflictError<
     super(
       "NO_SUCH_CONFLICT",
       `No such ${
-        conflictType == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+        conflictType === ConflictType.REDUCE_SHIFT ? "RS" : "RR"
       } conflict: ${reducerRule.toString()} | ${anotherRule.toString()}` +
         (next.length > 0
           ? ` next: ${next.map((n) => n.toString()).join(",")}`

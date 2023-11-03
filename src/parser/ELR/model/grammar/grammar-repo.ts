@@ -47,7 +47,7 @@ export class GrammarRepo<Kinds extends string, LexerKinds extends string> {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.T(kind); // ensure the unnamed grammar is created
+    if (name !== undefined) this.T(kind); // ensure the unnamed grammar is created
 
     return g as Grammar<LexerKinds>;
   }
@@ -69,7 +69,7 @@ export class GrammarRepo<Kinds extends string, LexerKinds extends string> {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.NT(kind); // ensure the unnamed grammar is created
+    if (name !== undefined) this.NT(kind); // ensure the unnamed grammar is created
 
     return g as Grammar<Kinds>;
   }
@@ -92,7 +92,7 @@ export class GrammarRepo<Kinds extends string, LexerKinds extends string> {
     });
     this.gs.set(str, g);
 
-    if (name != undefined) this.Literal(text, kind); // ensure the unnamed grammar is created
+    if (name !== undefined) this.Literal(text, kind); // ensure the unnamed grammar is created
 
     return g as Grammar<LexerKinds>;
   }

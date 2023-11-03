@@ -82,7 +82,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
       (d) =>
         d.traverser(({ children }) => [
           placeholderMap.add(
-            children[0].traverse()!.filter((s) => s.length != 0),
+            children[0].traverse()!.filter((s) => s.length !== 0),
           ),
           "",
         ]),
@@ -93,7 +93,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
       (d) =>
         d.traverser(({ children }) => [
           placeholderMap.add(
-            children[0].traverse()!.filter((s) => s.length != 0),
+            children[0].traverse()!.filter((s) => s.length !== 0),
           ),
         ]),
     )

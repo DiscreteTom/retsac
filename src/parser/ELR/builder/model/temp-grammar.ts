@@ -63,9 +63,9 @@ export class TempGrammar {
     logger: Logger,
     isNT = true,
   ) {
-    if (this.type == TempGrammarType.LITERAL) {
+    if (this.type === TempGrammarType.LITERAL) {
       const { token } = lexer.dryClone().lex(this.content);
-      if (token == null) {
+      if (token === null) {
         // for un-lexable literal, throw error instead of using anonymous type
         // this is to prevent mis-writing literal grammar
         const e = new InvalidLiteralError(this.content);
@@ -91,11 +91,11 @@ export class TempGrammar {
    * The output format should be the same as `Grammar.toStringWithName`.
    */
   private toGrammarStringWithName() {
-    return this.type == TempGrammarType.LITERAL
+    return this.type === TempGrammarType.LITERAL
       ? JSON.stringify(this.content) +
-          (this.name == undefined ? "" : "@" + this.name)
+          (this.name === undefined ? "" : "@" + this.name)
       : this.content +
-          (this.name == undefined || this.name == this.content
+          (this.name === undefined || this.name === this.content
             ? ""
             : "@" + this.name);
   }

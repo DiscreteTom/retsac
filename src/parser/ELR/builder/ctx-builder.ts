@@ -84,7 +84,7 @@ export class DefinitionContextBuilder<
   ) {
     const _callback = this._callback;
     this._callback =
-      _callback == undefined
+      _callback === undefined
         ? f
         : (ctx) => {
             _callback(ctx);
@@ -109,7 +109,7 @@ export class DefinitionContextBuilder<
   ) {
     const _rejecter = this._rejecter;
     this._rejecter =
-      _rejecter == undefined
+      _rejecter === undefined
         ? f
         : (ctx) => {
             return _rejecter(ctx) || f(ctx);
@@ -149,7 +149,7 @@ export class DefinitionContextBuilder<
   ) {
     const _rollback = this._rollback;
     this._rollback =
-      _rollback == undefined
+      _rollback === undefined
         ? f
         : (ctx) => {
             _rollback(ctx);

@@ -52,7 +52,7 @@ export function word<ActionState = never, ErrorType = never>(
     for (const word of words)
       if (
         input.buffer.startsWith(word, input.start) &&
-        (input.buffer.length == word.length + input.start || // end of input
+        (input.buffer.length === word.length + input.start || // end of input
           /^\W/.test(input.buffer[input.start + word.length])) // next char is word boundary
       )
         return word;

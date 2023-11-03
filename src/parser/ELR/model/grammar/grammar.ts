@@ -105,8 +105,8 @@ export class Grammar<AllKinds extends string> {
    */
   equalWithoutName(g: Readonly<Grammar<AllKinds>>) {
     return (
-      this == g || // same object
-      (this.type == g.type && this.kind == g.kind && this.text == g.text)
+      this === g || // same object
+      (this.type === g.type && this.kind === g.kind && this.text === g.text)
     );
   }
 
@@ -126,7 +126,7 @@ export class Grammar<AllKinds extends string> {
   ): string {
     // when current is literal, in Grammar.match we will check the kind and text
     // so we need to use both kind and text to calculate cache key
-    if (data.text != undefined) {
+    if (data.text !== undefined) {
       return `${data.kind}:${data.text}`;
     }
 
@@ -142,9 +142,9 @@ export class Grammar<AllKinds extends string> {
     data: Pick<Grammar<string>, "kind" | "name" | "text">,
   ) {
     return (
-      (data.text != undefined
+      (data.text !== undefined
         ? JSON.stringify(data.text) // quote text, escape literal
-        : data.kind) + (data.name == data.kind ? "" : "@" + data.name)
+        : data.kind) + (data.name === data.kind ? "" : "@" + data.name)
     );
   }
 
@@ -154,7 +154,7 @@ export class Grammar<AllKinds extends string> {
   static getGrammarStrWithoutName(
     data: Pick<Grammar<string>, "kind" | "text">,
   ) {
-    return data.text != undefined
+    return data.text !== undefined
       ? JSON.stringify(data.text) // quote text, escape literal
       : data.kind;
   }

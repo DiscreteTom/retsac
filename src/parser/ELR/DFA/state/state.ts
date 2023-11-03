@@ -277,7 +277,7 @@ export class State<
     return this.candidates
       .map((c) => {
         // if already all digested, or the current grammar is not a T, skip
-        if (c.current == undefined || c.current.type !== GrammarType.T) return;
+        if (c.current === undefined || c.current.type !== GrammarType.T) return;
 
         // if current grammar is already lexed, skip
         // we don't need to check name here since ASTNode's name is set later
@@ -322,7 +322,7 @@ export class State<
         done.set(c.current.grammarStrWithoutName.value, r?.node ?? null);
 
         if (debug) {
-          if (r != undefined) {
+          if (r !== undefined) {
             const info = {
               candidate: c.toString(),
               got: r.node.strWithoutName.value,
@@ -451,7 +451,7 @@ export class State<
       nextMap: map2serializable(
         this.nextMap,
         (g) => repo.getKey(g),
-        (s) => (s == null ? null : ss.getKey(s)),
+        (s) => (s === null ? null : ss.getKey(s)),
       ),
       str: this.str,
     };
@@ -503,7 +503,7 @@ export class State<
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next == null) s.nextMap.set(repo.getByString(key)!, null);
+        if (next === null) s.nextMap.set(repo.getByString(key)!, null);
         else s.nextMap.set(repo.getByString(key)!, ss.getByString(next)!);
       }
     };
@@ -528,7 +528,7 @@ export class State<
             key.grammarStrWithoutName.value,
           )}`,
         );
-      // else, next == null, don't draw this transition since the graph will grow too large
+      // else, next === null, don't draw this transition since the graph will grow too large
     });
     return res.join("\n");
   }

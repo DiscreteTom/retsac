@@ -45,7 +45,7 @@ function getEndSet<
     grs.grammarRules.forEach((gr) => {
       if (result.has(repo.NT(gr.NT))) {
         // current NT is in result, so we need to check the last grammar of its rule
-        if (gr.rule.at(-1)!.type == GrammarType.NT) {
+        if (gr.rule.at(-1)!.type === GrammarType.NT) {
           // last grammar is a NT, so we need to check it in result
           const last = repo.NT(gr.rule.at(-1)!.kind as Kinds);
           if (!result.has(last)) {
@@ -101,7 +101,7 @@ function getUserUnresolvedConflicts<
   const related = reducerRule.resolved.filter(
     // we don't need to check reducerRule here
     // since the resolved conflicts are in the reducer rule's GrammarRule.resolved
-    (r) => r.type == type && r.anotherRule == anotherRule,
+    (r) => r.type === type && r.anotherRule === anotherRule,
   );
 
   // collect resolved next & calculate unresolved next
@@ -118,15 +118,15 @@ function getUserUnresolvedConflicts<
    */
   let acceptAll: boolean | undefined = undefined;
   related.forEach((r) => {
-    if (r.next == "*") {
+    if (r.next === "*") {
       resolveAll = true;
       resolvedNext.length = 0; // clear
-      acceptAll = typeof r.accepter == "boolean" ? r.accepter : undefined;
+      acceptAll = typeof r.accepter === "boolean" ? r.accepter : undefined;
     } else if (!resolveAll)
       r.next.grammars.forEach((n) =>
         resolvedNext.push({
           grammar: n,
-          accepter: typeof r.accepter == "boolean" ? r.accepter : undefined,
+          accepter: typeof r.accepter === "boolean" ? r.accepter : undefined,
         }),
       );
   });
@@ -142,8 +142,8 @@ function getUserUnresolvedConflicts<
         reducerRule: reducerRule.toString(),
         anotherRule: anotherRule.toString(),
         next: "*",
-        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
-        accepter: acceptAll == undefined ? "[function]" : acceptAll,
+        type: type === ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        accepter: acceptAll === undefined ? "[function]" : acceptAll,
       };
       logger.log({
         entity: "Parser",
@@ -155,10 +155,10 @@ function getUserUnresolvedConflicts<
       const info = {
         reducerRule: reducerRule.toString(),
         anotherRule: anotherRule.toString(),
-        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        type: type === ConflictType.REDUCE_SHIFT ? "RS" : "RR",
         next: resolvedNext.map((g) => ({
           grammar: g.grammar.toString(),
-          accepter: g.accepter == undefined ? "[function]" : g.accepter,
+          accepter: g.accepter === undefined ? "[function]" : g.accepter,
         })),
       };
       logger.log({
@@ -175,7 +175,7 @@ function getUserUnresolvedConflicts<
       const info = {
         reducerRule: reducerRule.toString(),
         anotherRule: anotherRule.toString(),
-        type: type == ConflictType.REDUCE_SHIFT ? "RS" : "RR",
+        type: type === ConflictType.REDUCE_SHIFT ? "RS" : "RR",
         next: unresolvedNext.map((g) => g.toString()),
       };
       logger.log({
@@ -196,7 +196,7 @@ function getUserUnresolvedConflicts<
   }
   let unresolvedEnd = checkHandleEnd;
   if (checkHandleEnd) {
-    if (endHandlers.length == 1) {
+    if (endHandlers.length === 1) {
       unresolvedEnd = !endHandlers[0].handleEnd;
     } else {
       // user didn't handle end of input
@@ -274,8 +274,8 @@ export function appendConflicts<
         if (
           reducer.gr.conflicts.some(
             (c) =>
-              c.type == ConflictType.REDUCE_REDUCE &&
-              c.anotherRule == another.gr,
+              c.type === ConflictType.REDUCE_REDUCE &&
+              c.anotherRule === another.gr,
             // we don't need to check next & handleEnd
           )
         )
@@ -297,7 +297,7 @@ export function appendConflicts<
             reducerRule: reducer.gr.toString(),
             anotherRule: another.gr.toString(),
           };
-          if (followOverlap.grammars.size == 0) {
+          if (followOverlap.grammars.size === 0) {
             logger.log({
               entity: "Parser",
               message: `auto resolve RR (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
@@ -313,7 +313,7 @@ export function appendConflicts<
           }
         }
 
-        if (followOverlap.grammars.size != 0 || handleEnd) {
+        if (followOverlap.grammars.size !== 0 || handleEnd) {
           reducer.gr.conflicts.push({
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: another.gr,
@@ -336,15 +336,15 @@ export function appendConflicts<
     const anothers = state.candidates.filter(
       (c) =>
         c.canDigestMore() &&
-        // if digested == 0, this candidate has indirect RS conflict with reducer, skip it.
+        // if digested === 0, this candidate has indirect RS conflict with reducer, skip it.
         // we only want direct RS conflict
-        c.digested != 0,
+        c.digested !== 0,
     );
     reducers.forEach((reducer) => {
       anothers.forEach((another) => {
         // if there is no overlap between reducer's NT's follow and another's next
         // then there is no RS conflict
-        if (another.current!.type == GrammarType.T) {
+        if (another.current!.type === GrammarType.T) {
           if (!dfa.followSets.get(reducer.gr.NT)!.has(another.current!)) {
             // no overlap, no RS conflict
             if (debug) {
@@ -364,8 +364,8 @@ export function appendConflicts<
               // deduplicate
               !reducer.gr.conflicts.some(
                 (c) =>
-                  c.type == ConflictType.REDUCE_SHIFT &&
-                  c.anotherRule == another.gr &&
+                  c.type === ConflictType.REDUCE_SHIFT &&
+                  c.anotherRule === another.gr &&
                   c.next.has(another.current!),
                 // we don't need to check handleEnd for RS conflict
               )
@@ -393,8 +393,8 @@ export function appendConflicts<
               (g) =>
                 !reducer.gr.conflicts.some(
                   (c) =>
-                    c.type == ConflictType.REDUCE_SHIFT &&
-                    c.anotherRule == another.gr &&
+                    c.type === ConflictType.REDUCE_SHIFT &&
+                    c.anotherRule === another.gr &&
                     c.next.has(g),
                 ),
             );
@@ -412,7 +412,7 @@ export function appendConflicts<
                 reducerRule: reducer.gr.toString(),
                 anotherRule: another.gr.toString(),
               };
-              if (overlap.grammars.size == 0) {
+              if (overlap.grammars.size === 0) {
                 logger.log({
                   entity: "Parser",
                   message: `auto resolve RS (no follow overlap): ${info.reducerRule} vs ${info.anotherRule}`,
@@ -472,7 +472,7 @@ export function getUnresolvedConflicts<
 
   grs.grammarRules.forEach((reducerRule) => {
     reducerRule.conflicts.forEach((c) => {
-      if (c.type == ConflictType.REDUCE_SHIFT) {
+      if (c.type === ConflictType.REDUCE_SHIFT) {
         const res = getUserUnresolvedConflicts(
           ConflictType.REDUCE_SHIFT,
           reducerRule,

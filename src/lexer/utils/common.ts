@@ -52,7 +52,7 @@ export function fromTo<ActionState = never, ErrorType = never>(
       ? (input: ActionInput<ActionState>) => {
           (from as RegExp).lastIndex = input.start;
           const res = (from as RegExp).exec(input.buffer);
-          if (!res || res.index == -1) return 0;
+          if (!res || res.index === -1) return 0;
           return res[0].length;
         }
       : (input: ActionInput<ActionState>) => {
@@ -65,7 +65,7 @@ export function fromTo<ActionState = never, ErrorType = never>(
       ? (input: ActionInput<ActionState>, fromDigested: number) => {
           (to as RegExp).lastIndex = input.start + fromDigested;
           const res = (to as RegExp).exec(input.buffer);
-          if (res && res.index != -1)
+          if (res && res.index !== -1)
             return res.index + res[0].length - input.start;
           return 0;
         }
@@ -74,18 +74,18 @@ export function fromTo<ActionState = never, ErrorType = never>(
             to as string,
             input.start + fromDigested,
           );
-          if (index != -1) return index + (to as string).length - input.start;
+          if (index !== -1) return index + (to as string).length - input.start;
           return 0;
         };
 
   return Action.from((input) => {
     const fromDigested = checkFrom(input);
-    if (fromDigested == 0) return 0;
+    if (fromDigested === 0) return 0;
 
     const totalDigested = checkTo(input, fromDigested);
 
     // construct result
-    if (totalDigested == 0)
+    if (totalDigested === 0)
       // 'to' not found
       return options.acceptEof
         ? // accept whole rest buffer

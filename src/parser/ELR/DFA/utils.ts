@@ -104,7 +104,7 @@ export function getNTClosure<
   LexerError
 >[] {
   return getGrammarRulesClosure(
-    allGrammarRules.filter((gr) => gr.NT == NT),
+    allGrammarRules.filter((gr) => gr.NT === NT),
     allGrammarRules,
   );
 }
@@ -151,9 +151,9 @@ export function getGrammarRulesClosure<
   while (true) {
     let changed = false;
     result.forEach((gr) => {
-      if (gr.rule[0].type == GrammarType.NT) {
+      if (gr.rule[0].type === GrammarType.NT) {
         allGrammarRules
-          .filter((gr2) => gr2.NT == gr.rule[0].kind)
+          .filter((gr2) => gr2.NT === gr.rule[0].kind)
           .forEach((gr) => {
             if (result.includes(gr)) return;
             changed = true;
@@ -289,7 +289,7 @@ export function lexGrammar<
     },
   });
 
-  return token == null
+  return token === null
     ? undefined
     : {
         node: ASTNode.from<
@@ -449,7 +449,7 @@ export function processDefinitions<
     });
 
     ctx?.resolved?.forEach((r) => {
-      if (r.type == ConflictType.REDUCE_REDUCE) {
+      if (r.type === ConflictType.REDUCE_REDUCE) {
         defToTempGRs<
           Kinds,
           ASTData,
@@ -629,7 +629,7 @@ export function buildFollowSets<
         const gs = followSets.get(g.kind)!;
         gs.add(rule[i + 1]);
         // if next grammar is also NT, merge with its first set
-        if (rule[i + 1].type == GrammarType.NT)
+        if (rule[i + 1].type === GrammarType.NT)
           firstSets
             .get(rule[i + 1].kind as Kinds)!
             .grammars.forEach((g) => gs.add(g));

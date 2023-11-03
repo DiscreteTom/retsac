@@ -33,7 +33,7 @@ export function defaultTraverser<
   self: Parameters<Traverser<Kinds, ASTData, ErrorType, TokenType>>[0],
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
-  if (self.children.length == 1)
+  if (self.children.length === 1)
     return self.children[0].data ?? self.children[0].traverse();
   // if there are multiple children, traverse all, don't return anything
   self.children.forEach((c) => c.traverse());

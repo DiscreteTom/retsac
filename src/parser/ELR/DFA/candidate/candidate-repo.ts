@@ -135,7 +135,7 @@ export class CandidateRepo<
     const raw = { gr: c.gr, digested: c.digested + 1 };
     const key = this.getKey(raw);
     const cache = this.cs.get(key);
-    if (cache != undefined) return cache;
+    if (cache !== undefined) return cache;
 
     const next = new Candidate<
       Kinds,

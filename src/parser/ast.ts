@@ -201,9 +201,9 @@ export class ASTNode<
 
     // don't use `this.toStringWithName` here
     // since this output will always have ': '
-    const kind = this.kind == "" ? "<anonymous>" : this.kind;
+    const kind = this.kind === "" ? "<anonymous>" : this.kind;
     let res = `${indent}${
-      this.kind == this.name ? kind : `${kind}@${this.name}`
+      this.kind === this.name ? kind : `${kind}@${this.name}`
     }: `;
     if (this.text) res += JSON.stringify(this.text); // quote the text
     res += "\n";
@@ -233,9 +233,9 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.name == data.kind ? "" : `@${data.name}`}` +
-      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
+      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.name === data.kind ? "" : `@${data.name}`}` +
+      `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
 
@@ -249,8 +249,8 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind == "" ? "<anonymous>" : data.kind}` +
-      `${data.text == undefined ? "" : `: ${JSON.stringify(data.text)}`}`
+      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
 

@@ -124,7 +124,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       // if javascript support real function overload
       // we can move this type check out of the action's exec
       // to optimize performance
-      if (typeof res == "number") {
+      if (typeof res === "number") {
         if (res <= 0) return rejectedActionOutput;
         return {
           accept: true,
@@ -134,7 +134,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           data: undefined,
         } as AcceptedActionExecOutput<never, ErrorType>;
       }
-      if (typeof res == "string") {
+      if (typeof res === "string") {
         if (res.length <= 0) return rejectedActionOutput;
         return {
           accept: true,
@@ -188,7 +188,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     return Action.exec((input) => {
       r.lastIndex = input.start;
       const res = r.exec(input.buffer);
-      if (res && res.index != -1)
+      if (res && res.index !== -1)
         return {
           accept: true,
           muted: false,

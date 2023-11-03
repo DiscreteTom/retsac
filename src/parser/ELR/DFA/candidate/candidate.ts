@@ -149,7 +149,7 @@ export class Candidate<
     LexerActionState,
     LexerError
   > | null {
-    if (this.current == undefined) return null;
+    if (this.current === undefined) return null;
 
     // try to get from cache
     const cache = this.nextMap.get(this.current);
@@ -219,8 +219,8 @@ export class Candidate<
     digested: number;
   }) {
     return (
-      this == other || // same object
-      (this.gr == other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
+      this === other || // same object
+      (this.gr === other.gr && // grammar rules are only created when build DFA, no temp grammar rules, so we can use object equality here
         this.digested === other.digested)
     );
   }
@@ -305,7 +305,7 @@ export class Candidate<
     // check follow for LR(1) with the rest input string
     // important! make sure lexer can still lex something not muted
     // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-    const nextTokenExists = lexer.lex({ peek: true }) != null; // TODO: ensure lexer is already trimmed to optimize perf? new type: IReadonlyTrimmedLexer?
+    const nextTokenExists = lexer.lex({ peek: true }) !== null; // TODO: ensure lexer is already trimmed to optimize perf? new type: IReadonlyTrimmedLexer?
     if (nextTokenExists) {
       if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
         // entry NT, no need to check follow set if `ignoreEntryFollow` is set
@@ -324,7 +324,7 @@ export class Candidate<
                 kind: g.kind as ExtractKinds<LexerDataBindings>,
                 text: g.text,
               },
-            }) != null
+            }) !== null
           ) {
             // found valid follow, continue
             mismatch = false;
@@ -358,7 +358,7 @@ export class Candidate<
     // check conflicts
     for (const c of this.gr.conflicts) {
       // check EOF for RR conflict
-      if (c.type == ConflictType.REDUCE_REDUCE) {
+      if (c.type === ConflictType.REDUCE_REDUCE) {
         // if reach end of input
         if (!nextTokenExists) {
           // if the end needs to be handled
@@ -367,8 +367,8 @@ export class Candidate<
             const r = this.gr.resolved.find(
               // use find instead of filter here since there can only be one end handler
               (r) =>
-                r.type == ConflictType.REDUCE_REDUCE &&
-                r.anotherRule == c.anotherRule &&
+                r.type === ConflictType.REDUCE_REDUCE &&
+                r.anotherRule === c.anotherRule &&
                 r.handleEnd,
             )!;
             // if not accepted, reject
@@ -414,10 +414,10 @@ export class Candidate<
             text: g.text,
           },
         });
-        if (token == null) continue; // next not match, check next next
+        if (token === null) continue; // next not match, check next next
         for (const r of c.resolvers) {
           // find related resolver by the next
-          if (r.next == "*" || r.next.has(g)) {
+          if (r.next === "*" || r.next.has(g)) {
             // resolver's next match, check accepter
             if (
               !(r.accepter instanceof Function
@@ -439,7 +439,7 @@ export class Candidate<
           const info = {
             reducerRule: this.gr.toString(),
             anotherRule: c.anotherRule.toString(),
-            type: c.type == ConflictType.REDUCE_REDUCE ? "RR" : "RS",
+            type: c.type === ConflictType.REDUCE_REDUCE ? "RR" : "RS",
             next: next!.grammarStrWithoutName.value,
           };
           logger.log({
@@ -532,7 +532,7 @@ export class Candidate<
       nextMap: map2serializable(
         this.nextMap,
         (g) => repo.getKey(g),
-        (c) => (c == null ? null : cs.getKey(c)),
+        (c) => (c === null ? null : cs.getKey(c)),
       ),
       str: this.str,
       strWithGrammarName: this.strWithGrammarName,
@@ -594,7 +594,7 @@ export class Candidate<
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next == null) c.nextMap.set(repo.getByString(key)!, null);
+        if (next === null) c.nextMap.set(repo.getByString(key)!, null);
         else c.nextMap.set(repo.getByString(key)!, cs.getByString(next)!);
       }
     };

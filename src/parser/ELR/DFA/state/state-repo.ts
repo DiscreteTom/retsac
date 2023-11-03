@@ -146,7 +146,7 @@ export class StateRepo<
       .reduce((p, c) => {
         if (
           c.canDigestMore() &&
-          c.current!.type == GrammarType.NT &&
+          c.current!.type === GrammarType.NT &&
           !p.includes(c.current!.kind as Kinds)
         )
           p.push(c.current!.kind as Kinds);
@@ -176,7 +176,7 @@ export class StateRepo<
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
     // no next states
-    if (nextCandidates.length == 0) return { state: null, changed: false };
+    if (nextCandidates.length === 0) return { state: null, changed: false };
 
     // check cache
     const raw = { candidates: nextCandidates };

@@ -296,7 +296,7 @@ export class DFA<
       // if a top-level NT is reduced to the head of the buffer, should return
       if (
         this.entryNTs.has(parsingState.buffer[0].kind as Kinds) &&
-        parsingState.index == 0
+        parsingState.index === 0
       )
         return {
           output: {
@@ -360,7 +360,7 @@ export class DFA<
       .at(-1)!
       .tryLex(parsingState.lexer, debug, logger);
     // if no more ASTNode can be lexed
-    if (res.length == 0) {
+    if (res.length === 0) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
         if (debug) {
@@ -469,7 +469,7 @@ export class DFA<
     const nextStateResult = parsingState.stateStack
       .at(-1)!
       .getNext(this.grammars, parsingState.buffer[parsingState.index]);
-    if (nextStateResult.state == null) {
+    if (nextStateResult.state === null) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
         this._reLex(parsingState, reLexStack, rollbackStack, debug, logger);

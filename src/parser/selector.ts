@@ -73,5 +73,5 @@ export function defaultASTNodeFirstMatchSelector<
   name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
   nodes: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[],
 ) {
-  return nodes.find((c) => c.name == name); // TODO: use strict equal
+  return nodes.find((c) => c.name === name);
 }

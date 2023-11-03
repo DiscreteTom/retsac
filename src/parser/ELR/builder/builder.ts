@@ -229,7 +229,7 @@ export class ParserBuilder<
     rollback: boolean,
     reLex: boolean,
   ) {
-    if (entryNTs.size == 0) {
+    if (entryNTs.size === 0) {
       const e = new NoEntryNTError();
       if (printAll) logger.log({ entity: "Parser", message: e.message });
       else throw e;
@@ -308,9 +308,9 @@ export class ParserBuilder<
       }
 
       const next =
-        r.options.next == "*"
+        r.options.next === "*"
           ? ("*" as const)
-          : r.options.next == undefined
+          : r.options.next === undefined
           ? new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>()
           : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
               r.options.next.map((n) =>
@@ -339,13 +339,13 @@ export class ParserBuilder<
         LexerActionState,
         LexerError
       > =
-        typeof accepter == "boolean"
+        typeof accepter === "boolean"
           ? {
               anotherRule,
               type: r.type,
               next,
               handleEnd:
-                r.type == ConflictType.REDUCE_REDUCE
+                r.type === ConflictType.REDUCE_REDUCE
                   ? r.options.handleEnd ?? false
                   : false,
               accepter,
@@ -356,7 +356,7 @@ export class ParserBuilder<
               type: r.type,
               next,
               handleEnd:
-                r.type == ConflictType.REDUCE_REDUCE
+                r.type === ConflictType.REDUCE_REDUCE
                   ? r.options.handleEnd ?? false
                   : false,
               accepter,
@@ -374,10 +374,10 @@ export class ParserBuilder<
       reducerRule.conflicts.forEach((c) => {
         reducerRule.resolved.forEach((resolved) => {
           if (
-            c.type == resolved.type &&
-            c.anotherRule == resolved.anotherRule &&
+            c.type === resolved.type &&
+            c.anotherRule === resolved.anotherRule &&
             // next match or both handle end
-            (resolved.next == "*" ||
+            (resolved.next === "*" ||
               c.next.overlap(resolved.next).grammars.size > 0 ||
               (c.handleEnd && resolved.handleEnd))
           ) {
@@ -415,13 +415,13 @@ export class ParserBuilder<
     >,
     style: "builder" | "context",
   ) {
-    if (style == "builder") {
+    if (style === "builder") {
       const res = [] as string[];
       unresolved.forEach((v, reducerRule) => {
         const txt = v
           .map(
             (c) =>
-              `.resolve${c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
+              `.resolve${c.type === ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
                 reducerRule.strWithGrammarName.value
               }, ${c.anotherRule.strWithGrammarName.value}, { ${
                 c.next.grammars.size > 0
@@ -445,7 +445,7 @@ export class ParserBuilder<
             .map(
               (c) =>
                 `ELR.resolve${
-                  c.type == ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+                  c.type === ConflictType.REDUCE_SHIFT ? "RS" : "RR"
                 }(${c.anotherRule.strWithGrammarName.value}, { ${
                   c.next.grammars.size > 0
                     ? `next: \`${c.next
@@ -609,27 +609,27 @@ export class ParserBuilder<
 
       defs.forEach((d1) => {
         defs.forEach((d2) => {
-          // even d1 == d2, we still need to resolve them
+          // even d1 === d2, we still need to resolve them
           // e.g. { exp: `exp '+' exp` } need to resolve RS conflicts with it self.
           this.resolveRS(d1, d2, {
             next: `*`,
-            accept: associativity == DefinitionAssociativity.LeftToRight,
+            accept: associativity === DefinitionAssociativity.LeftToRight,
           });
 
-          // the following conflicts are only valid if d1 != d2
-          if (d1 != d2) {
+          // the following conflicts are only valid if d1 !== d2
+          if (d1 !== d2) {
             this.resolveRR(d1, d2, {
               next: `*`,
-              accept: associativity == DefinitionAssociativity.LeftToRight,
+              accept: associativity === DefinitionAssociativity.LeftToRight,
               handleEnd: true,
             });
             this.resolveRS(d2, d1, {
               next: `*`,
-              accept: associativity == DefinitionAssociativity.LeftToRight,
+              accept: associativity === DefinitionAssociativity.LeftToRight,
             });
             this.resolveRR(d2, d1, {
               next: `*`,
-              accept: associativity == DefinitionAssociativity.LeftToRight,
+              accept: associativity === DefinitionAssociativity.LeftToRight,
               handleEnd: true,
             });
           }
@@ -673,7 +673,7 @@ export class ParserBuilder<
       gr.resolved.forEach((r) => {
         if (r.hydrationId !== undefined) {
           r.accepter = (
-            r.hydrationId.type == ResolverHydrationType.BUILDER
+            r.hydrationId.type === ResolverHydrationType.BUILDER
               ? ctxs[r.hydrationId.index].resolved[0].accept // resolvers in builder mode only have one resolver
               : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
           ) as Condition<
@@ -707,7 +707,7 @@ export class ParserBuilder<
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
-      options.hydrate == undefined
+      options.hydrate === undefined
         ? this.buildDFA(
             entryNTs,
             lexer.core,

@@ -118,7 +118,7 @@ export class GrammarExpander<
     if (resolve)
       expanded.forEach((reducerRule, i) => {
         expanded.forEach((anotherRule, j) => {
-          if (i == j) return;
+          if (i === j) return;
 
           // every 2 rules will generate a resolver
           // this should ensure all RS conflicts are resolved
@@ -151,7 +151,8 @@ export class GrammarExpander<
 
   private allParsed() {
     return (
-      !this.parser.lexer.trimStart().hasRest() && this.parser.buffer.length == 1
+      !this.parser.lexer.trimStart().hasRest() &&
+      this.parser.buffer.length === 1
     );
   }
 

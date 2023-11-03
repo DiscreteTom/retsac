@@ -87,7 +87,7 @@ export class Lexer<
   }
 
   feed(input: string) {
-    if (input.length == 0) return this;
+    if (input.length === 0) return this;
     if (this.debug) {
       const info = { length: input.length };
       this.logger.log({
@@ -133,7 +133,7 @@ export class Lexer<
     regex.lastIndex = this.digested;
     const res = regex.exec(this.buffer);
 
-    if (!res || res.index == -1) {
+    if (!res || res.index === -1) {
       if (this.debug) {
         const info = { regex };
         this.logger.log({
@@ -231,7 +231,7 @@ export class Lexer<
     const result: Token<DataBindings, ErrorType>[] = [];
     while (true) {
       const res = this.lex();
-      if (res != null) {
+      if (res !== null) {
         result.push(res);
         if (stopOnError && res.error) break;
       } else break;
@@ -294,6 +294,6 @@ export class Lexer<
   }
 
   hasErrors() {
-    return this.errors.length != 0;
+    return this.errors.length !== 0;
   }
 }

@@ -64,8 +64,8 @@ export function defToTempGRs<
       .reset()
       .lexAll(defStr)
       .forEach((t) => {
-        if (t.kind == "or") rules.push([]); // new grammar rule
-        else if (t.kind == "rename") {
+        if (t.kind === "or") rules.push([]); // new grammar rule
+        else if (t.kind === "rename") {
           const token = rules.at(-1)?.at(-1);
           if (!token) throw new NoRenameTargetError(def!, t.content);
           token.name = t.content.slice(1); // remove `@`
@@ -76,16 +76,17 @@ export function defToTempGRs<
 
     if (ruleLexer.hasRest())
       throw new TokenizeGrammarRuleFailedError(defStr, ruleLexer.getRest());
-    if (rules.length == 1 && rules[0].length == 0) throw new EmptyRuleError(NT);
+    if (rules.length === 1 && rules[0].length === 0)
+      throw new EmptyRuleError(NT);
 
     rules.forEach((tokens) => {
       const ruleStr = tokens.map((t) => t.content).join(" ");
 
-      if (tokens.length == 0) throw new EmptyRuleError(NT);
+      if (tokens.length === 0) throw new EmptyRuleError(NT);
 
       if (
         !tokens
-          .filter((t) => t.kind == "literal")
+          .filter((t) => t.kind === "literal")
           .every((t) => t.content.length > 2)
       )
         throw new EmptyLiteralError(NT, ruleStr);
@@ -101,7 +102,7 @@ export function defToTempGRs<
         >({
           NT,
           rule: tokens.map((t) => {
-            if (t.kind == "grammar")
+            if (t.kind === "grammar")
               return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
                 content: t.content.split("@")[0],
