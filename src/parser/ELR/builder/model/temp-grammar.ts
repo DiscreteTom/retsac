@@ -6,7 +6,8 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
-import { LazyString } from "../../../../lazy";
+import type { LazyString } from "../../../../lazy";
+import { Lazy } from "../../../../lazy";
 import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 
@@ -43,9 +44,7 @@ export class TempGrammar {
     this.content = p.content;
     this.name = p.name;
 
-    this.strWithGrammarName = new LazyString(() =>
-      this.toGrammarStringWithName(),
-    );
+    this.strWithGrammarName = new Lazy(() => this.toGrammarStringWithName());
   }
 
   toGrammar<
@@ -191,9 +190,7 @@ export class TempGrammarRule<
     this.traverser = data.traverser;
     this.hydrationId = data.hydrationId;
 
-    this.strWithGrammarName = new LazyString(() =>
-      this.toStringWithGrammarName(),
-    );
+    this.strWithGrammarName = new Lazy(() => this.toStringWithGrammarName());
   }
 
   /**

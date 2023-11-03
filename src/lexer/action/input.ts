@@ -1,4 +1,4 @@
-import { LazyString, type ReadonlyLazyString } from "../../lazy";
+import { Lazy, type ReadonlyLazyString } from "../../lazy";
 
 export class ActionInput<ActionState> {
   /**
@@ -31,6 +31,6 @@ export class ActionInput<ActionState> {
     this.start = props.start;
     this.peek = props.peek;
     this.state = props.state;
-    this.rest = new LazyString(() => this.buffer.slice(this.start), props.rest);
+    this.rest = new Lazy(() => this.buffer.slice(this.start), props.rest);
   }
 }

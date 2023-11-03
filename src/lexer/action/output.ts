@@ -1,4 +1,4 @@
-import { LazyString, type ReadonlyLazyString } from "../../lazy";
+import { Lazy, type ReadonlyLazyString } from "../../lazy";
 import type { AtLeastOneOf } from "../../type-helper";
 import type { ActionInput } from "./input";
 
@@ -57,7 +57,7 @@ export class AcceptedActionOutput<Data, ErrorType> {
     this.error = props.error;
     this.content = props.content;
     this.data = props.data;
-    this.rest = new LazyString(
+    this.rest = new Lazy(
       () => this.buffer.slice(this.start + this.digested),
       props.rest,
     );

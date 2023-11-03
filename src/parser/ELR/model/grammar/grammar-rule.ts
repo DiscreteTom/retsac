@@ -1,5 +1,5 @@
 import type { Traverser } from "../../../traverser";
-import { LazyString } from "../../../../lazy";
+import { Lazy, type LazyString } from "../../../../lazy";
 import type {
   Conflict,
   ConflictType,
@@ -161,12 +161,12 @@ export class GrammarRule<
     this.conflicts = [];
     this.resolved = [];
 
-    this.str = new LazyString(() => this.strWithGrammarName.value, p.str);
-    this.strWithGrammarName = new LazyString(
+    this.str = new Lazy(() => this.strWithGrammarName.value, p.str);
+    this.strWithGrammarName = new Lazy(
       () => GrammarRule.getStrWithGrammarName(this),
       p.strWithGrammarName,
     );
-    this.strWithoutGrammarName = new LazyString(
+    this.strWithoutGrammarName = new Lazy(
       () => GrammarRule.getStrWithoutGrammarName(this),
       p.strWithoutGrammarName,
     );

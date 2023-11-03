@@ -7,7 +7,8 @@ import {
   defaultASTNodeSelector,
   defaultASTNodeFirstMatchSelector,
 } from "./selector";
-import { LazyString } from "../lazy";
+import type { LazyString } from "../lazy";
+import { Lazy } from "../lazy";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";
@@ -153,7 +154,7 @@ export class ASTNode<
     this.$ = (name: string) => firstMatchSelector(name, this.children ?? []);
     this.$$ = (name: string) => selector(name, this.children ?? []);
 
-    this.str = new LazyString(
+    this.str = new Lazy(
       () =>
         `ASTNode({ kind: "${this.kind}", start: ${
           this.start
@@ -161,8 +162,8 @@ export class ASTNode<
           this.data,
         )}, error: ${JSON.stringify(this.error)} })`,
     );
-    this.strWithName = new LazyString(() => ASTNode.getStrWithName(this));
-    this.strWithoutName = new LazyString(() => ASTNode.getStrWithoutName(this));
+    this.strWithName = new Lazy(() => ASTNode.getStrWithName(this));
+    this.strWithoutName = new Lazy(() => ASTNode.getStrWithoutName(this));
   }
 
   static from<

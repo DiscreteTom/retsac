@@ -36,9 +36,5 @@ export class Lazy<Value> {
 
 export type ReadonlyLazy<Value> = Pick<Lazy<Value>, "value" | "raw">;
 
-/**
- * Only calculate the string when it's needed.
- */
-export class LazyString extends Lazy<string> {}
-
+export type LazyString = Lazy<string>;
 export type ReadonlyLazyString = ReadonlyLazy<string>;

@@ -1,5 +1,6 @@
 import { ASTNode } from "../../../ast";
-import { LazyString, Lazy } from "../../../../lazy";
+import type { LazyString } from "../../../../lazy";
+import { Lazy } from "../../../../lazy";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { GrammarRepo } from "./grammar-repo";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -82,23 +83,23 @@ export class Grammar<AllKinds extends string> {
     this.name = p.name;
     this.text = p.text;
 
-    this.str = new LazyString(
+    this.str = new Lazy(
       () =>
         `Grammar({ type: "${GrammarType[this.type]}", kind: "${
           this.kind
         }", name: "${this.name}", text: ${JSON.stringify(this.text)} })`, // quote text, escape literal
       p.str,
     );
-    this.strWithName = new LazyString(
+    this.strWithName = new Lazy(
       () => ASTNode.getStrWithName(this),
       p.strWithName,
     );
-    this.strWithoutName = new LazyString(
+    this.strWithoutName = new Lazy(
       () => ASTNode.getStrWithoutName(this),
       p.strWithoutName,
     );
     this.grammarStrWithName = p.grammarStrWithName;
-    this.grammarStrWithoutName = new LazyString(
+    this.grammarStrWithoutName = new Lazy(
       () => Grammar.getGrammarStrWithoutName(this),
       p.grammarStrWithoutName,
     );
