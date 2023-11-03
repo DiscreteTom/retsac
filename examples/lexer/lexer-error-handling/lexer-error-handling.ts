@@ -1,19 +1,22 @@
 import { Lexer } from "../../../src";
 
 /**
- * This example shows how to handle errors without stopping the parsing process.
+ * This example shows how to handle errors without stopping the lexing process.
  */
 
 export const lexer = new Lexer.Builder()
   .error<string>() // set error type
   .define({
-    // built-in utils will check unclosed strings and invalid numbers
-    // and accept the input with error
+    // built-in utils will check common errors and flag it in output.data
+    // you can set error by checking output.data
     string: Lexer.stringLiteral(`"`).check(({ output }) =>
       output.data.unclosed ? ("unclosed string literal" as string) : undefined,
     ),
   })
   .define({
+    // different utils may have different output.data type
+    // and you can only have on type of data in one `define` call
+    // so we define number in another `define` call
     number: Lexer.javascript
       .numericLiteral()
       .check(({ output }) =>
