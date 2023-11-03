@@ -23,6 +23,14 @@ export type ActionSource<Data, ActionState, ErrorType> =
 
 /**
  * Lexer builder.
+ * @example
+ * const lexer = new Lexer.Builder()
+ *   .error<string>() // set error type
+ *   .state({ count: 0 }) // set action state
+ *   .define(...) // define token kinds and actions
+ *   .anonymous(...) // define actions with no kinds
+ *   .ignore(...) // define muted anonymous actions
+ *   .build(); // build lexer
  */
 export class Builder<
   DataBindings extends GeneralTokenDataBinding = never,
