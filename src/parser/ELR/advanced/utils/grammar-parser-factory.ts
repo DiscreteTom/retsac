@@ -56,6 +56,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
   // the data `string[]` represent all the expanded possibilities of the grammar rule
   const parserBuilder = new ParserBuilder()
     .data<string[]>()
+    .lexer(lexer)
     .define(
       { gr: `grammar | literal` },
       // return the matched token text as a list
@@ -123,7 +124,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
         }),
     )
     .use(applyResolvers);
-  return { parserBuilder, lexer, placeholderMap };
+  return { parserBuilder, placeholderMap };
 }
 
 export const entry = "gr" as const;

@@ -45,13 +45,12 @@ export class GrammarExpander<
   constructor(options: { placeholderPrefix: string }) {
     this.placeholderPrefix = options.placeholderPrefix;
 
-    const { parserBuilder, lexer, placeholderMap } = grammarParserFactory(
+    const { parserBuilder, placeholderMap } = grammarParserFactory(
       this.placeholderPrefix,
     );
 
     this.placeholderMap = placeholderMap;
     this.parser = parserBuilder.build({
-      lexer,
       entry,
       hydrate: data,
       // for debug
