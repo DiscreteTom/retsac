@@ -1,23 +1,14 @@
 import { Lexer } from "../../../src";
-import {
-  exact,
-  exactKind,
-  fromTo,
-  stringLiteral,
-  whitespaces,
-  word,
-  wordKind,
-} from "../../../src/lexer";
 
 test("lexer utils fromTo", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
+    .ignore(Lexer.whitespaces())
     .define({
-      a: fromTo("a", "b", { acceptEof: false }),
-      c: fromTo("c", "d", { acceptEof: true }),
-      e: fromTo(/e/, /f/, { acceptEof: false }),
-      g: fromTo(/g/y, "h", { acceptEof: true, autoSticky: false }),
-      i: fromTo("i", /j/g, { acceptEof: true, autoGlobal: false }),
+      a: Lexer.fromTo("a", "b", { acceptEof: false }),
+      c: Lexer.fromTo("c", "d", { acceptEof: true }),
+      e: Lexer.fromTo(/e/, /f/, { acceptEof: false }),
+      g: Lexer.fromTo(/g/y, "h", { acceptEof: true, autoSticky: false }),
+      i: Lexer.fromTo("i", /j/g, { acceptEof: true, autoGlobal: false }),
     })
     .build();
   expect(lexer.reset().lex("ab")?.content).toBe("ab");
@@ -44,9 +35,9 @@ test("lexer utils fromTo", () => {
 
 test("lexer utils exact", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
+    .ignore(Lexer.whitespaces())
     .define({
-      a: exact("123"),
+      a: Lexer.exact("123"),
     })
     .build();
   expect(lexer.reset().lex("1")?.content).toBe(undefined);
@@ -72,8 +63,8 @@ test("lexer utils exactArray", () => {
 
 test("lexer utils exactKind", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define(exactKind("123"))
+    .ignore(Lexer.whitespaces())
+    .define(Lexer.exactKind("123"))
     .build();
 
   expect(lexer.reset().lex("123")?.kind).toBe("123");
@@ -82,9 +73,9 @@ test("lexer utils exactKind", () => {
 
 test("lexer utils word", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
+    .ignore(Lexer.whitespaces())
     .define({
-      a: word("123"),
+      a: Lexer.word("123"),
     })
     .build();
   expect(lexer.reset().lex("1")?.content).toBe(undefined);
@@ -114,8 +105,8 @@ test("lexer utils wordArray", () => {
 
 test("lexer utils wordKind", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define(wordKind("123"))
+    .ignore(Lexer.whitespaces())
+    .define(Lexer.wordKind("123"))
     .build();
 
   expect(lexer.reset().lex("123")?.kind).toBe("123");
@@ -124,25 +115,25 @@ test("lexer utils wordKind", () => {
 
 test("lexer utils stringLiteral", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
+    .ignore(Lexer.whitespaces())
     .define({
       string: [
-        stringLiteral(`'`),
-        stringLiteral(`"`, { escape: false }),
-        stringLiteral("`", { multiline: true }),
-        stringLiteral("a", { close: "b" }),
-        stringLiteral("d", { acceptUnclosed: false }),
-        stringLiteral("e", { multiline: true, escape: false }),
-        stringLiteral("f", {
+        Lexer.stringLiteral(`'`),
+        Lexer.stringLiteral(`"`, { escape: false }),
+        Lexer.stringLiteral("`", { multiline: true }),
+        Lexer.stringLiteral("a", { close: "b" }),
+        Lexer.stringLiteral("d", { acceptUnclosed: false }),
+        Lexer.stringLiteral("e", { multiline: true, escape: false }),
+        Lexer.stringLiteral("f", {
           multiline: true,
           escape: false,
           acceptUnclosed: false,
         }),
-        stringLiteral("g", {
+        Lexer.stringLiteral("g", {
           escape: false,
           acceptUnclosed: false,
         }),
-        stringLiteral("h", { lineContinuation: false }),
+        Lexer.stringLiteral("h", { lineContinuation: false }),
       ],
     })
     .build();
@@ -213,9 +204,9 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("  g123g")).not.toBe(null);
 });
 
-test("lexer utils whitespaces()", () => {
+test("lexer utils Lexer.whitespaces()", () => {
   const lexer = new Lexer.Builder()
-    .ignore(word("ignore"))
+    .ignore(Lexer.word("ignore"))
     .define({ ws: Lexer.whitespaces() })
     .build();
 
@@ -241,7 +232,7 @@ test("lexer utils whitespaces()", () => {
 
 test("lexer utils comment", () => {
   const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
+    .ignore(Lexer.whitespaces())
     .define({
       comment: [
         Lexer.comment("//"),
@@ -275,151 +266,4 @@ test("lexer utils comment", () => {
   );
   expect(lexer.reset().lex(`  # 123\n123`)?.content).toBe(`# 123\n`);
   expect(lexer.reset().lex(`  # 123`)).toBe(null);
-});
-
-test("lexer utils numericLiteral", () => {
-  const lexer = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({ number: Lexer.javascript.numericLiteral() })
-    .build();
-
-  // valid
-  expect(lexer.reset().lex(`42`)?.content).toBe(`42`);
-  expect(lexer.reset().lex(`3.1415`)?.content).toBe(`3.1415`);
-  expect(lexer.reset().lex(`1.5e10`)?.content).toBe(`1.5e10`);
-  expect(lexer.reset().lex(`0.123e-4`)?.content).toBe(`0.123e-4`);
-  expect(lexer.reset().lex(`0x2a`)?.content).toBe(`0x2a`);
-  expect(lexer.reset().lex(`0xFF`)?.content).toBe(`0xFF`);
-  expect(lexer.reset().lex(`0o755`)?.content).toBe(`0o755`);
-  expect(lexer.reset().lex(`1_000_000`)?.content).toBe(`1_000_000`);
-  expect(lexer.reset().lex(`1_000_000.000_001`)?.content).toBe(
-    `1_000_000.000_001`,
-  );
-  expect(lexer.reset().lex(`1e6_000`)?.content).toBe(`1e6_000`);
-  // additional test for #6
-  expect(lexer.reset().lex(`  42`)?.content).toBe(`42`);
-  expect(lexer.reset().lex(`  3.1415`)?.content).toBe(`3.1415`);
-  expect(lexer.reset().lex(`  1.5e10`)?.content).toBe(`1.5e10`);
-  expect(lexer.reset().lex(`  0.123e-4`)?.content).toBe(`0.123e-4`);
-  expect(lexer.reset().lex(`  0x2a`)?.content).toBe(`0x2a`);
-  expect(lexer.reset().lex(`  0xFF`)?.content).toBe(`0xFF`);
-  expect(lexer.reset().lex(`  0o755`)?.content).toBe(`0o755`);
-  expect(lexer.reset().lex(`  1_000_000`)?.content).toBe(`1_000_000`);
-  expect(lexer.reset().lex(`  1_000_000.000_001`)?.content).toBe(
-    `1_000_000.000_001`,
-  );
-  expect(lexer.reset().lex(`  1e6_000`)?.content).toBe(`1e6_000`);
-
-  // invalid
-  expect(lexer.reset().lex(`0o79`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`0xyz`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1.2.`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1..2`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1e1e1`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1e`)?.data.invalid).toBe(true);
-  // additional test for #6
-  expect(lexer.reset().lex(`  0o79`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  0xyz`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1.2.`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1..2`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1e1e1`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1e`)?.data.invalid).toBe(true);
-
-  // boundary
-  expect(lexer.reset().lex(`123abc`)).toBe(null); // no boundary
-  expect(lexer.reset().lex(`123 abc`)).not.toBe(null); // boundary
-  // additional test for #6
-  expect(lexer.reset().lex(`  123abc`)).toBe(null); // no boundary
-  expect(lexer.reset().lex(`  123 abc`)).not.toBe(null); // boundary
-
-  // disable/custom numericSeparator
-  const lexer2 = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({
-      number: [
-        Lexer.javascript.numericLiteral({ numericSeparator: "-" }),
-        Lexer.javascript.numericLiteral({ numericSeparator: false }),
-      ],
-    })
-    .build();
-  expect(lexer2.reset().lex(`1_000_000`)).toBe(null);
-  expect(lexer2.reset().lex(`1-000-000`)?.content).toBe(`1-000-000`);
-  // additional test for #6
-  expect(lexer2.reset().lex(`  1_000_000`)).toBe(null);
-  expect(lexer2.reset().lex(`  1-000-000`)?.content).toBe(`1-000-000`);
-
-  // disable boundary check
-  const lexer3 = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({ number: Lexer.javascript.numericLiteral({ boundary: false }) })
-    .build();
-  expect(lexer3.reset().lex(`123abc`)?.content).toBe(`123`); // ignore boundary
-  // additional test for #6
-  expect(lexer3.reset().lex(`  123abc`)?.content).toBe(`123`); // ignore boundary
-
-  // reject invalid
-  const lexer4 = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({
-      number: Lexer.javascript.numericLiteral({ acceptInvalid: false }),
-    })
-    .build();
-  expect(lexer4.reset().lex(`0o79`)).toBe(null);
-  // additional test for #6
-  expect(lexer4.reset().lex(`  0o79`)).toBe(null);
-
-  const lexer6 = new Lexer.Builder()
-    .ignore(whitespaces())
-    .define({
-      number: Lexer.javascript.numericLiteral({
-        numericSeparator: false,
-        boundary: false,
-      }),
-    })
-    .build();
-  expect(lexer6.reset().lex("123a")?.content).toBe("123");
-});
-
-test("lexer utils regexLiteral", () => {
-  const lexer1 = new Lexer.Builder()
-    .define({ regex: Lexer.javascript.regexLiteral() })
-    .build();
-
-  // simple
-  expect(lexer1.reset().lex("/a/")?.content).toBe("/a/");
-  // complex
-  expect(
-    lexer1.reset().lex("/\\/(?:[^\\/\\\\]|\\\\.)+\\/(?:[gimuy]*)(?=\\W|$)/")
-      ?.content,
-  ).toBe("/\\/(?:[^\\/\\\\]|\\\\.)+\\/(?:[gimuy]*)(?=\\W|$)/");
-  // with flags
-  expect(lexer1.reset().lex("/a/g")?.content).toBe("/a/g");
-  // reject invalid
-  expect(lexer1.reset().lex("/++/")).toBe(null);
-  expect(lexer1.reset().lex("/++/")).toBe(null);
-  // ensure boundary
-  expect(lexer1.reset().lex("/a/abc")).toBe(null);
-
-  // accept invalid
-  const lexer3 = new Lexer.Builder()
-    .define({
-      regex: Lexer.javascript.regexLiteral({ rejectOnInvalid: false }),
-    })
-    .build();
-  expect(lexer3.reset().lex("/++/")?.content).toBe("/++/");
-  expect(lexer3.reset().lex("/++/")?.data.invalid).toBe(true);
-  expect(lexer3.reset().lex("/a/")?.data.invalid).toBe(false);
-
-  // don't ensure boundary
-  const lexer4 = new Lexer.Builder()
-    .define({ regex: Lexer.javascript.regexLiteral({ boundary: false }) })
-    .build();
-  expect(lexer4.reset().lex("/a/abc")?.content).toBe("/a/");
-
-  // don't validate
-  const lexer5 = new Lexer.Builder()
-    .define({ regex: Lexer.javascript.regexLiteral({ validate: false }) })
-    .build();
-  expect(lexer5.reset().lex("/++/")?.content).toBe("/++/");
-  expect(lexer5.reset().lex("/++/")?.data.invalid).toBe(false);
 });
