@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
-import type { IParserBuilder } from "../../../src/parser/ELR";
+import type { BuildOptions, IParserBuilder } from "../../../src/parser/ELR";
 import type { GeneralTokenDataBinding } from "../../../src/lexer";
 
 export function generateMermaidString<
@@ -20,7 +20,10 @@ export function generateMermaidString<
   >,
   entry: Kinds | readonly Kinds[],
 ) {
-  const { mermaid } = builder.build({ entry, mermaid: true });
+  const { mermaid } = builder.build({ entry, mermaid: true } as BuildOptions<
+    Kinds,
+    LexerDataBindings
+  >);
   return mermaid!;
 }
 

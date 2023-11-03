@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
-import type { IParserBuilder } from "../../../src/parser/ELR";
+import type { BuildOptions, IParserBuilder } from "../../../src/parser/ELR";
 import type { GeneralTokenDataBinding } from "../../../src/lexer";
 
 function generateSerializable<
@@ -20,7 +20,10 @@ function generateSerializable<
   >,
   entry: Kinds | readonly Kinds[],
 ) {
-  const { serializable } = builder.build({ entry, serialize: true });
+  const { serializable } = builder.build({
+    entry,
+    serialize: true,
+  } as BuildOptions<Kinds, LexerDataBindings>);
   return serializable;
 }
 
