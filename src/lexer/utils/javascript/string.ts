@@ -10,7 +10,7 @@ export function evalString(quoted: string) {
   // IMPORTANT! all escaped chars should be searched simultaneously!
   // e.g. you should NOT use `unquoted.replace(/\\\\/g, "\\").replace(/\\'/g, "'")...`
   return unquoted.replace(
-    /(\\0|\\'|\\"|\\n|\\\\|\\r|\\v|\\t|\\b|\\f|\\\n|\\`|\\x([0-9a-fA-F]{2})|\\u([0-9a-fA-F]{4}))/g,
+    /(\\0|\\'|\\"|\\n|\\\\|\\r|\\v|\\t|\\b|\\f|\\\n|\\`|\\x(?:[0-9a-fA-F]{2})|\\u(?:[0-9a-fA-F]{4}))/g,
     (match) => {
       switch (match) {
         case `\\0`:
