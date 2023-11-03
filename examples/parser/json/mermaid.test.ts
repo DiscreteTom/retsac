@@ -5,7 +5,8 @@ import {
 } from "../utils/mermaid-gen-common";
 
 test("serialize", () => {
-  expect(generateMermaidString(builder, entry)).toBe(
-    loadMermaidString("./examples/parser/json/dfa.mmd"),
-  );
+  expect(
+    generateMermaidString(builder, entry) ===
+      loadMermaidString("./examples/parser/json/dfa.mmd"),
+  ).toBe(true);
 });
