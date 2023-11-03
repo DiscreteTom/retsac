@@ -15,7 +15,7 @@ export class CandidateRepo<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   /**
    * Candidates. {@link Candidate.strWithGrammarName} => {@link Candidate}
@@ -28,7 +28,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >
   >;
 
@@ -44,7 +44,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       "gr" | "digested"
     >,
@@ -62,7 +62,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       "gr" | "digested"
     >,
@@ -81,7 +81,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     return this.get({ gr, digested: 0 });
@@ -97,7 +97,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     const raw = { gr, digested: 0 };
@@ -110,7 +110,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >({
       ...raw,
       strWithGrammarName: key,
@@ -129,7 +129,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     const raw = { gr: c.gr, digested: c.digested + 1 };
@@ -143,7 +143,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >({
       ...raw,
       strWithGrammarName: key,
@@ -159,7 +159,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ) {
@@ -170,7 +170,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >["toSerializable"]
     >[];
     this.cs.forEach((c) => res.push(c.toSerializable(grs, this, repo)));
@@ -183,7 +183,7 @@ export class CandidateRepo<
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
-    LexerError,
+    LexerErrorType,
   >(
     data: ReturnType<
       CandidateRepo<
@@ -192,7 +192,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >["toSerializable"]
     >,
     grs: ReadonlyGrammarRuleRepo<
@@ -201,7 +201,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
   ): ReadonlyCandidateRepo<
@@ -210,7 +210,7 @@ export class CandidateRepo<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > {
     const callbacks = [] as ((
       cs: CandidateRepo<
@@ -219,7 +219,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
     ) => void)[];
     const res = new CandidateRepo<
@@ -228,7 +228,7 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >();
     data.forEach((d) => {
       const { c, restoreNextMap } = Candidate.fromJSON<
@@ -237,7 +237,7 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >(d, grs, repo);
       callbacks.push(restoreNextMap);
       res.cs.set(c.strWithGrammarName, c);
@@ -254,7 +254,7 @@ export type ReadonlyCandidateRepo<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = Omit<
   CandidateRepo<
     Kinds,
@@ -262,7 +262,7 @@ export type ReadonlyCandidateRepo<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
   "addNext" | "addInitial"
 >;

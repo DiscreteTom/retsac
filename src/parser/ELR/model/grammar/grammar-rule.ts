@@ -25,7 +25,7 @@ export class GrammarRule<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   readonly rule: readonly Grammar<Kinds | ExtractKinds<LexerDataBindings>>[];
   /**
@@ -43,7 +43,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > & {
     /**
      * Related resolvers.
@@ -54,7 +54,7 @@ export class GrammarRule<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >[];
   })[];
   /**
@@ -68,7 +68,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >[];
   callback?: Callback<
     Kinds,
@@ -76,7 +76,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rejecter?: Condition<
     Kinds,
@@ -84,7 +84,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rollback?: Callback<
     Kinds,
@@ -92,7 +92,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   commit?: Condition<
     Kinds,
@@ -100,13 +100,13 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   traverser?: Traverser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
 
   /**
@@ -134,7 +134,7 @@ export class GrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       | "rule"
       | "NT"
@@ -182,7 +182,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
-    LexerError,
+    LexerErrorType,
   >(
     gr: Pick<
       GrammarRule<
@@ -191,7 +191,7 @@ export class GrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       "NT" | "rule"
     >,
@@ -210,7 +210,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
-    LexerError,
+    LexerErrorType,
   >(
     gr: Pick<
       GrammarRule<
@@ -219,7 +219,7 @@ export class GrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       "NT" | "rule"
     >,
@@ -237,7 +237,7 @@ export class GrammarRule<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ): {
     // TODO: omit this return type definition
@@ -296,7 +296,7 @@ export class GrammarRule<
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
-    LexerError,
+    LexerErrorType,
   >(
     data: ReturnType<
       GrammarRule<
@@ -305,7 +305,7 @@ export class GrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >["toSerializable"]
     >,
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
@@ -316,7 +316,7 @@ export class GrammarRule<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >({
       rule: data.rule.map((r) => repo.getByString(r)!),
       NT: data.NT as Kinds,
@@ -334,7 +334,7 @@ export class GrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
     ) => {
       gr.resolved.push(

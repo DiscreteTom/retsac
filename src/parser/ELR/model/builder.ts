@@ -97,7 +97,7 @@ export type BuildOutput<
   ASTData,
   ErrorType,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = {
   parser: [LexerDataBindings] extends [never]
     ? never // if no lexer, no parser
@@ -107,7 +107,7 @@ export type BuildOutput<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >;
   /**
    * If you build the parser with {@link BuildOptions.serialize},
@@ -128,7 +128,7 @@ export interface IParserBuilder<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   /**
    * Set the lexer. The lexer won't be modified.
@@ -148,12 +148,12 @@ export interface IParserBuilder<
         : never // LexerDataBindings already set, prevent modification
       : never, // prevent setting LexerDataBindings after Kinds is defined
     NewLexerActionState,
-    NewLexerError,
+    NewLexerErrorType,
   >(
     lexer: IReadonlyLexer<
       NewLexerDataBindings,
       NewLexerActionState,
-      NewLexerError
+      NewLexerErrorType
     >,
   ): IParserBuilder<
     Kinds,
@@ -161,7 +161,7 @@ export interface IParserBuilder<
     ErrorType,
     NewLexerDataBindings,
     NewLexerActionState,
-    NewLexerError
+    NewLexerErrorType
   >;
   /**
    * Set the `ASTNode.data` type.
@@ -187,7 +187,7 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   /**
    * Define grammar rules.
@@ -200,7 +200,7 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ): IParserBuilder<
     Kinds | Append,
@@ -208,7 +208,7 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   /**
    * Resolve a reduce-shift conflict.
@@ -222,7 +222,7 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ): this;
   /**
@@ -237,7 +237,7 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ): this;
   /**
@@ -273,7 +273,7 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError,
+      LexerErrorType,
       AppendKinds
     >,
   ): IParserBuilder<
@@ -282,7 +282,7 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   /**
    * Generate the {@link Parser ELR Parser}.
@@ -297,7 +297,7 @@ export interface IParserBuilder<
     ASTData,
     ErrorType,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
 }
 
@@ -307,7 +307,7 @@ export type BuilderDecorator<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
   AppendKinds extends string,
 > = (
   pb: IParserBuilder<
@@ -316,7 +316,7 @@ export type BuilderDecorator<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) => IParserBuilder<
   Kinds | AppendKinds,
@@ -324,7 +324,7 @@ export type BuilderDecorator<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 >;
 
 /**

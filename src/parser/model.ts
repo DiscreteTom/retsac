@@ -37,7 +37,7 @@ export interface IParser<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
@@ -63,7 +63,7 @@ export interface IParser<
    * @default false
    */
   ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
-  readonly lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
+  readonly lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   /**
    * Reset state.
    */
@@ -80,7 +80,7 @@ export interface IParser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   /**
    * Try to reduce till the parser can't accept more.
@@ -93,7 +93,7 @@ export interface IParser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   /**
    * Accumulated error AST nodes.
@@ -102,7 +102,7 @@ export interface IParser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[];
   hasErrors(): boolean;
   /**
@@ -112,7 +112,7 @@ export interface IParser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[];
   /**
    * Take the first N AST nodes.
@@ -120,5 +120,10 @@ export interface IParser<
    */
   take(
     n?: number,
-  ): ASTNode<Kinds, ASTData, ErrorType, Token<LexerDataBindings, LexerError>>[];
+  ): ASTNode<
+    Kinds,
+    ASTData,
+    ErrorType,
+    Token<LexerDataBindings, LexerErrorType>
+  >[];
 }

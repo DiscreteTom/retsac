@@ -16,7 +16,7 @@ export class DefinitionContextBuilder<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   private resolved: ResolvedPartialTempConflict<
     Kinds,
@@ -24,7 +24,7 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >[];
   private _callback?: Callback<
     Kinds,
@@ -32,7 +32,7 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   private _rejecter?: Condition<
     Kinds,
@@ -40,7 +40,7 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   private _rollback?: Callback<
     Kinds,
@@ -48,7 +48,7 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   private _commit?: Condition<
     Kinds,
@@ -56,13 +56,13 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   private _traverser?: Traverser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
 
   constructor() {
@@ -79,7 +79,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     const _callback = this._callback;
@@ -104,7 +104,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     const _rejecter = this._rejecter;
@@ -128,7 +128,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     return this.callback((context) => (context.data = f(context)));
@@ -144,7 +144,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     const _rollback = this._rollback;
@@ -167,7 +167,7 @@ export class DefinitionContextBuilder<
       Kinds,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerError>
+      Token<LexerDataBindings, LexerErrorType>
     >,
   ) {
     this._traverser = f;
@@ -186,7 +186,7 @@ export class DefinitionContextBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         > = true,
   ) {
     this._commit = typeof enable === "boolean" ? () => enable : enable;
@@ -204,7 +204,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     this.resolved.push({
@@ -230,7 +230,7 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     this.resolved.push({
@@ -251,7 +251,7 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > {
     return {
       resolved: this.resolved,
@@ -270,7 +270,7 @@ export type DefinitionContextBuilderDecorator<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = (
   ctxBuilder: DefinitionContextBuilder<
     Kinds,
@@ -278,7 +278,7 @@ export type DefinitionContextBuilderDecorator<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) => DefinitionContextBuilder<
   Kinds,
@@ -286,5 +286,5 @@ export type DefinitionContextBuilderDecorator<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 >;

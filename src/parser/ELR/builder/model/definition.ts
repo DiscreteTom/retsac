@@ -30,7 +30,7 @@ export interface DefinitionContext<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   resolved: ResolvedPartialTempConflict<
     Kinds,
@@ -38,7 +38,7 @@ export interface DefinitionContext<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >[];
   callback?: Callback<
     Kinds,
@@ -46,7 +46,7 @@ export interface DefinitionContext<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rejecter?: Condition<
     Kinds,
@@ -54,7 +54,7 @@ export interface DefinitionContext<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rollback?: Callback<
     Kinds,
@@ -62,7 +62,7 @@ export interface DefinitionContext<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   commit?: Condition<
     Kinds,
@@ -70,13 +70,13 @@ export interface DefinitionContext<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   traverser?: Traverser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   // TODO: reParse?: boolean;
 }

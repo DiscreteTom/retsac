@@ -20,13 +20,13 @@ export class GrammarRuleContext<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   readonly matched: readonly ASTNode<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[];
   /**
    * The AST nodes before the current grammar rule.
@@ -36,7 +36,7 @@ export class GrammarRuleContext<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[] {
     return this._before ?? (this._before = this.beforeFactory());
   }
@@ -51,7 +51,7 @@ export class GrammarRuleContext<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   /**
    * Find AST nodes by the name.
@@ -60,7 +60,7 @@ export class GrammarRuleContext<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   /**
    * Current lexer state.
@@ -69,7 +69,7 @@ export class GrammarRuleContext<
   readonly lexer: IReadonlyLexer<
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   /**
    * Data of the result AST node.
@@ -91,13 +91,13 @@ export class GrammarRuleContext<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[];
   private _before?: readonly ASTNode<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >[];
   private _values?: readonly (ASTData | undefined)[];
 
@@ -109,7 +109,7 @@ export class GrammarRuleContext<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       "matched" | "lexer"
     > & {
@@ -117,19 +117,19 @@ export class GrammarRuleContext<
         Kinds,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerError>
+        Token<LexerDataBindings, LexerErrorType>
       >[];
       selector: ASTNodeSelector<
         Kinds,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerError>
+        Token<LexerDataBindings, LexerErrorType>
       >;
       firstMatchSelector: ASTNodeFirstMatchSelector<
         Kinds,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerError>
+        Token<LexerDataBindings, LexerErrorType>
       >;
     },
   ) {
@@ -152,7 +152,7 @@ export type Callback<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = (
   context: GrammarRuleContext<
     Kinds,
@@ -160,7 +160,7 @@ export type Callback<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) => void;
 
@@ -170,7 +170,7 @@ export type Condition<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = (
   context: GrammarRuleContext<
     Kinds,
@@ -178,7 +178,7 @@ export type Condition<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) => boolean;
 
@@ -191,7 +191,7 @@ export type Reducer<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = (
   context: GrammarRuleContext<
     Kinds,
@@ -199,6 +199,6 @@ export type Reducer<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) => ASTData | undefined;

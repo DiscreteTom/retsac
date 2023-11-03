@@ -18,7 +18,7 @@ export class AdvancedBuilder<
     ErrorType = never,
     LexerDataBindings extends GeneralTokenDataBinding = never,
     LexerActionState = never,
-    LexerError = never,
+    LexerErrorType = never,
   >
   extends ParserBuilder<
     Kinds,
@@ -26,7 +26,7 @@ export class AdvancedBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >
   implements
     IParserBuilder<
@@ -35,14 +35,14 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >
 {
   private readonly expander: GrammarExpander<
     Kinds,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
 
   constructor(options?: {
@@ -58,7 +58,7 @@ export class AdvancedBuilder<
       Kinds,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >({
       placeholderPrefix: prefix,
     });
@@ -84,7 +84,7 @@ export class AdvancedBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         >;
       }[];
     }[];
@@ -119,7 +119,7 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >({
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     });
@@ -131,7 +131,7 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >[];
     this.builderData.forEach(
       ({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
@@ -143,7 +143,7 @@ export class AdvancedBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         >();
         ctx?.resolved.forEach((r) => {
           // for another rule, we don't need to log debug info or auto resolve R-S conflict
@@ -194,7 +194,7 @@ export class AdvancedBuilder<
                 ErrorType,
                 LexerDataBindings,
                 LexerActionState,
-                LexerError
+                LexerErrorType
               >().resolveRS(r.anotherRule, r.options),
               resolveOnly: true,
               hydrationId, // the hydration id does not matter, since the generated resolvers are serializable

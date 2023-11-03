@@ -52,13 +52,17 @@ export class TempGrammar {
     Kinds extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
-    LexerError,
+    LexerErrorType,
   >(
     repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: IReadonlyLexerCore<LexerDataBindings, LexerActionState, LexerError>,
+    lexer: IReadonlyLexerCore<
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType
+    >,
     printAll: boolean,
     logger: Logger,
     isNT = true,
@@ -110,7 +114,7 @@ export class TempGrammarRule<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   readonly rule: readonly TempGrammar[];
   /**
@@ -123,7 +127,7 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rejecter?: Condition<
     Kinds,
@@ -131,7 +135,7 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   rollback?: Callback<
     Kinds,
@@ -139,7 +143,7 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   commit?: Condition<
     Kinds,
@@ -147,13 +151,13 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   traverser?: Traverser<
     Kinds,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerError>
+    Token<LexerDataBindings, LexerErrorType>
   >;
   readonly hydrationId: number;
   readonly strWithGrammarName: LazyString;
@@ -166,7 +170,7 @@ export class TempGrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       | "rule"
       | "NT"

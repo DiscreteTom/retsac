@@ -11,7 +11,7 @@ export class GrammarExpander<
   Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
@@ -81,7 +81,7 @@ export class GrammarExpander<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         >;
       }[],
     };
@@ -176,7 +176,7 @@ export class GrammarExpander<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         >;
       }[],
     };

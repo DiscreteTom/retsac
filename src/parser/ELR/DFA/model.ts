@@ -23,7 +23,7 @@ export type ReadonlyNTClosures<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = ReadonlyMap<
   Kinds,
   GrammarRule<
@@ -32,6 +32,6 @@ export type ReadonlyNTClosures<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >[]
 >;

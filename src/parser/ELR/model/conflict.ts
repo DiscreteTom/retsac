@@ -17,7 +17,7 @@ export interface Conflict<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > {
   type: ConflictType;
   /**
@@ -30,7 +30,7 @@ export interface Conflict<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >
   >;
   /**
@@ -73,7 +73,7 @@ export type ResolvedConflict<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = Pick<
   Conflict<
     Kinds,
@@ -81,7 +81,7 @@ export type ResolvedConflict<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
   "type" | "anotherRule" | "handleEnd"
 > & {
@@ -95,7 +95,7 @@ export type ResolvedConflict<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >["next"]
     | "*";
 } & (
@@ -113,7 +113,7 @@ export type ResolvedConflict<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerError
+          LexerErrorType
         >;
         /**
          * If the accepter is not a boolean, we need this hydration ID to restore the accepter.

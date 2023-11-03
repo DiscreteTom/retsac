@@ -36,7 +36,8 @@ export class GrammarRuleNotFoundError<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > extends ELR_BuilderError {
   constructor(
@@ -45,7 +46,7 @@ export class GrammarRuleNotFoundError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
   ) {
@@ -77,7 +78,8 @@ export class ConflictError<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > extends ELR_BuilderError {
   constructor(
@@ -86,7 +88,7 @@ export class ConflictError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
     public c: Conflict<
@@ -94,7 +96,7 @@ export class ConflictError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
   ) {
@@ -183,7 +185,8 @@ export class TooManyEndHandlerError<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > extends ELR_BuilderError {
   constructor(
@@ -192,7 +195,7 @@ export class TooManyEndHandlerError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
   ) {
@@ -209,7 +212,8 @@ export class NoSuchConflictError<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > extends ELR_BuilderError {
   constructor(
@@ -218,7 +222,7 @@ export class NoSuchConflictError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
     public anotherRule: GrammarRule<
@@ -226,7 +230,7 @@ export class NoSuchConflictError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
     public conflictType: ConflictType,
@@ -272,7 +276,8 @@ export class RollbackDefinedWhileNotEnabledError<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > extends ELR_BuilderError {
   constructor(
@@ -281,7 +286,7 @@ export class RollbackDefinedWhileNotEnabledError<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerError,
+      LexerErrorType,
       LexerActionState
     >,
   ) {

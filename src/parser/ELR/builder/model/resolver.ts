@@ -10,7 +10,7 @@ export type BaseResolverOptions<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = {
   /**
    * @default: true
@@ -23,7 +23,7 @@ export type BaseResolverOptions<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >;
   // TODO: is the following feature needed?
   // /**
@@ -47,14 +47,14 @@ export type RR_ResolverOptions<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = BaseResolverOptions<
   Kinds,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 > &
   AtLeastOneOf<
     {
@@ -70,14 +70,14 @@ export type RS_ResolverOptions<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = BaseResolverOptions<
   Kinds,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 > & {
   next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
 };
@@ -88,7 +88,7 @@ export type ConflictTypeAndResolverOptions<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = (
   | {
       type: ConflictType.REDUCE_REDUCE;
@@ -98,7 +98,7 @@ export type ConflictTypeAndResolverOptions<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >;
     }
   | {
@@ -109,7 +109,7 @@ export type ConflictTypeAndResolverOptions<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >;
     }
 ) &
@@ -119,7 +119,7 @@ export type ConflictTypeAndResolverOptions<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
 
 export type ResolvedTempConflict<
@@ -128,7 +128,7 @@ export type ResolvedTempConflict<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = {
   reducerRule: TempGrammarRule<
     Kinds,
@@ -136,7 +136,7 @@ export type ResolvedTempConflict<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   anotherRule: TempGrammarRule<
     Kinds,
@@ -144,7 +144,7 @@ export type ResolvedTempConflict<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
@@ -153,7 +153,7 @@ export type ResolvedTempConflict<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 >;
 
 export type ResolvedPartialTempConflict<
@@ -162,7 +162,7 @@ export type ResolvedPartialTempConflict<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 > = {
   anotherRule: Definition<Kinds>;
   hydrationId: Readonly<ResolverHydrationId>;
@@ -172,5 +172,5 @@ export type ResolvedPartialTempConflict<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerError
+  LexerErrorType
 >;

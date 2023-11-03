@@ -10,7 +10,8 @@ export type ParserBuilderData<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
+  // TODO: re-order
+  LexerErrorType,
   LexerActionState,
 > = {
   defs: Definition<Kinds>;
@@ -19,7 +20,7 @@ export type ParserBuilderData<
     ASTData,
     ErrorType,
     LexerDataBindings,
-    LexerError,
+    LexerErrorType,
     LexerActionState
   >;
   /**

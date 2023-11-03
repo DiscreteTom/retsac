@@ -63,7 +63,7 @@ export class ParserBuilder<
   ErrorType = never,
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
-  LexerError = never,
+  LexerErrorType = never,
 > implements
     IParserBuilder<
       Kinds,
@@ -71,7 +71,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >
 {
   /**
@@ -85,7 +85,7 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >[];
   /**
    * The lexer should be readonly. When build the parser, the lexer will be cloned into a mutable lexer.
@@ -93,7 +93,7 @@ export class ParserBuilder<
   protected _lexer: IReadonlyLexer<
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >;
 
   constructor(options?: {
@@ -114,12 +114,12 @@ export class ParserBuilder<
         : never
       : never,
     NewLexerActionState,
-    NewLexerError,
+    NewLexerErrorType,
   >(
     lexer: IReadonlyLexer<
       NewLexerDataBindings,
       NewLexerActionState,
-      NewLexerError
+      NewLexerErrorType
     >,
   ): IParserBuilder<
     Kinds,
@@ -127,7 +127,7 @@ export class ParserBuilder<
     ErrorType,
     NewLexerDataBindings,
     NewLexerActionState,
-    NewLexerError
+    NewLexerErrorType
   > {
     const _this = this as unknown as ParserBuilder<
       Kinds,
@@ -135,7 +135,7 @@ export class ParserBuilder<
       ErrorType,
       NewLexerDataBindings,
       NewLexerActionState,
-      NewLexerError
+      NewLexerErrorType
     >;
     _this._lexer = lexer;
     return _this;
@@ -155,7 +155,7 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > {
     return this as unknown as ParserBuilder<
       Kinds,
@@ -163,7 +163,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >;
   }
 
@@ -174,7 +174,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >[],
   ) {
     this.builderData.push(...data);
@@ -184,7 +184,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >;
   }
 
@@ -196,7 +196,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ): IParserBuilder<
     Kinds | Append,
@@ -204,7 +204,7 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > {
     (
       this.builderData as ParserBuilderData<
@@ -213,7 +213,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >[]
     ).push({
       defs,
@@ -227,13 +227,17 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >;
   }
 
   private buildDFA(
     entryNTs: ReadonlySet<Kinds>,
-    lexer: IReadonlyLexerCore<LexerDataBindings, LexerActionState, LexerError>,
+    lexer: IReadonlyLexerCore<
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType
+    >,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
@@ -265,7 +269,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >(
       repo,
       lexer,
@@ -276,7 +280,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >[],
       printAll,
       logger,
@@ -336,7 +340,7 @@ export class ParserBuilder<
                   Kinds,
                   LexerDataBindings,
                   LexerActionState,
-                  LexerError
+                  LexerErrorType
                 >(repo, lexer, printAll, logger, NTs.has(n as Kinds)),
               ),
             );
@@ -348,7 +352,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       > =
         typeof accepter === "boolean"
           ? {
@@ -413,7 +417,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >,
       Conflict<
         Kinds,
@@ -421,7 +425,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >[]
     >,
     style: "builder" | "context",
@@ -482,7 +486,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     this.builderData.push({
@@ -493,7 +497,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >().resolveRS(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.builderData.length,
@@ -511,7 +515,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >,
   ) {
     this.builderData.push({
@@ -522,7 +526,7 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerError
+        LexerErrorType
       >().resolveRR(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.builderData.length,
@@ -538,7 +542,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError,
+      LexerErrorType,
       AppendKinds
     >,
   ): IParserBuilder<
@@ -547,7 +551,7 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   > {
     return f(this);
   }
@@ -660,7 +664,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >(data.data.dfa, options);
     const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
@@ -670,7 +674,7 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerError
+      LexerErrorType
     >[];
 
     // hydrate grammar rules with user defined functions & resolvers
@@ -693,7 +697,7 @@ export class ParserBuilder<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerError
+            LexerErrorType
           >;
         }
       });
@@ -795,7 +799,7 @@ export class ParserBuilder<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerError
+            LexerErrorType
           >,
       serializable:
         options.serialize ?? false

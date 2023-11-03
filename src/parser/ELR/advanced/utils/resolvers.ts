@@ -7,7 +7,7 @@ export function applyResolvers<
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  LexerError,
+  LexerErrorType,
 >(
   builder: IParserBuilder<
     "gr" | Kinds,
@@ -15,7 +15,7 @@ export function applyResolvers<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerErrorType
   >,
 ) {
   return builder.priority(
