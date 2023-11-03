@@ -113,16 +113,17 @@ export class AdvancedBuilder<
     const logger = options.logger ?? defaultLogger;
 
     // generate a new parser builder to prevent side effects
-    const builder = new ParserBuilder<
+    const builder = new ParserBuilder({
+      cascadeQueryPrefix: this.cascadeQueryPrefix,
+    }).lexer(this._lexer) as unknown as // TODO: better typing?
+    ParserBuilder<
       Kinds,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
-    >({
-      cascadeQueryPrefix: this.cascadeQueryPrefix,
-    });
+    >;
 
     // expand definitions in data
     const toBeLoaded = [] as ParserBuilderData<
