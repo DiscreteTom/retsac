@@ -11,7 +11,7 @@
 
 Text lexer and parser. Compiler frontend framework.
 
-This can be used to **fast prototype** your own programming language compiler/translator frontend, or parse your domain specific language.
+This can be used to **_fast prototype_** your own programming language compiler/translator frontend, or parse your domain specific language.
 
 ## Installation
 
