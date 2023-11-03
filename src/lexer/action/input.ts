@@ -18,7 +18,7 @@ export class ActionInput<ActionState> {
   /**
    * The rest of the input before the action is executed, lazy and cached.
    */
-  readonly rest?: ReadonlyLazyString;
+  readonly rest: ReadonlyLazyString;
   readonly state: ActionState;
 
   constructor(
