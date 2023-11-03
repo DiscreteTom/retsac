@@ -2,22 +2,25 @@ import { Lexer } from "../../src";
 import type { Token } from "../../src/lexer";
 import { Action, InvalidLengthForTakeError } from "../../src/lexer";
 
-const lexer = new Lexer.Builder()
-  .error<string>()
-  .ignore(Lexer.whitespaces())
-  .define({
-    number: /[0-9]+/,
-  })
-  .anonymous(Lexer.exact(..."+-*/()"))
-  .define({
-    someErr: Action.from(/error/).check(() => "some error"),
-    mutedErr: Action.from(/muted-error/)
-      .check(() => "muted error")
-      .mute(),
-  })
-  .build();
+function buildLexer() {
+  return new Lexer.Builder()
+    .error<string>()
+    .ignore(Lexer.whitespaces())
+    .define({
+      number: /[0-9]+/,
+    })
+    .anonymous(Lexer.exact(..."+-*/()"))
+    .define({
+      someErr: Action.from(/error/).check(() => "some error"),
+      mutedErr: Action.from(/muted-error/)
+        .check(() => "muted error")
+        .mute(),
+    })
+    .build();
+}
 
 test("lexer basic functions", () => {
+  const lexer = buildLexer();
   expect(lexer.getRest()).toBe("");
   expect(lexer.feed("123").getRest()).toBe("123");
   expect(lexer.feed("123").hasRest()).toBe(true);
@@ -29,6 +32,7 @@ test("lexer basic functions", () => {
 });
 
 test("lex with peek", () => {
+  const lexer = buildLexer();
   // peek does not consume input
   lexer.reset().feed("123").lex({ peek: true });
   expect(lexer.getRest()).toBe("123");
@@ -52,6 +56,7 @@ test("lex with peek", () => {
 });
 
 test("trimStart", () => {
+  const lexer = buildLexer();
   // trim start
   expect(lexer.reset().trimStart("   123").getRest()).toBe("123");
   // trim start with no input
@@ -65,6 +70,7 @@ test("trimStart", () => {
 });
 
 test("lexer take", () => {
+  const lexer = buildLexer();
   expect(lexer.reset().feed("123").take(3)).toBe("123");
   expect(lexer.getRest()).toBe("");
   expect(lexer.digested).toBe(3);
@@ -77,6 +83,7 @@ test("lexer take", () => {
 });
 
 test("lexer takeUntil", () => {
+  const lexer = buildLexer();
   expect(lexer.reset().feed("123").takeUntil("3")).toBe("123");
   expect(lexer.reset().feed("123").takeUntil(/3/)).toBe("123");
   expect(lexer.reset().feed("123").takeUntil(/4/)).toBe("");
@@ -87,6 +94,7 @@ test("lexer takeUntil", () => {
 
 test("number", () => {
   ["1", "123", "0123", "01230"].forEach((str) => {
+    const lexer = buildLexer();
     expect(lexer.reset().lex(str)).toEqual({
       kind: "number",
       content: str,
@@ -98,12 +106,14 @@ test("number", () => {
 
 test("ignore", () => {
   [" ", "\n", "\r", " \n\r \n\r"].forEach((str) => {
+    const lexer = buildLexer();
     expect(lexer.reset().lex(str)).toBe(null);
   });
 });
 
 test("anonymous", () => {
   ["+", "-", "*", "/"].forEach((str) => {
+    const lexer = buildLexer();
     expect(lexer.reset().lex(str)).toEqual({
       kind: "",
       content: str,
@@ -114,6 +124,7 @@ test("anonymous", () => {
 });
 
 test("lexAll", () => {
+  const lexer = buildLexer();
   expect(
     lexer
       .reset()
@@ -123,6 +134,7 @@ test("lexAll", () => {
 });
 
 test("lexAll with error", () => {
+  const lexer = buildLexer();
   // stop on error
   let tokens = lexer.reset().lexAll({ input: "error 123", stopOnError: true });
   expect(tokens.map((token) => token.content)).toEqual(["error"]);
@@ -135,6 +147,7 @@ test("lexAll with error", () => {
 });
 
 test("reset lexer", () => {
+  const lexer = buildLexer();
   lexer.lexAll("error 123");
   lexer.reset();
   expect(lexer.hasRest()).toBe(false);
@@ -143,6 +156,7 @@ test("reset lexer", () => {
 });
 
 test("getLineChars & getPos", () => {
+  const lexer = buildLexer();
   lexer.reset().feed("123\n12345\n1234567").lexAll();
   expect(lexer.lineChars).toEqual([4, 6, 7]);
   expect(lexer.getPos(0)).toEqual({ line: 1, column: 1 });
@@ -154,6 +168,7 @@ test("getLineChars & getPos", () => {
 });
 
 test("clone & dryClone", () => {
+  const lexer = buildLexer();
   // give lexer some state
   lexer.reset().lex("\n  1\n123");
 
@@ -173,6 +188,7 @@ test("clone & dryClone", () => {
 });
 
 test("expectation", () => {
+  const lexer = buildLexer();
   // no expectation
   expect(
     lexer.reset().lex({
