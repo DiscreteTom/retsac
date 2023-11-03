@@ -1,10 +1,10 @@
-import type { IntoAction, AcceptedActionOutput } from "../../src/lexer";
-import { Action, ActionInput, CaretNotAllowedError } from "../../src/lexer";
+import type { IntoAction, AcceptedActionOutput } from "../../../src/lexer";
+import { Action, ActionInput, CaretNotAllowedError } from "../../../src/lexer";
 
-function expectAccept<D, E>(
+function expectAccept<Data, ErrorType>(
   buffer: string,
-  src: IntoAction<D, never, E>,
-  override?: Partial<AcceptedActionOutput<D, E>>,
+  src: IntoAction<Data, never, ErrorType>,
+  override?: Partial<AcceptedActionOutput<Data, ErrorType>>,
 ) {
   const action = Action.from(src);
 
@@ -16,7 +16,7 @@ function expectAccept<D, E>(
     state: undefined as never,
     peek: false,
   });
-  let output = action.wrapped(input) as AcceptedActionOutput<D, E>;
+  let output = action.wrapped(input) as AcceptedActionOutput<Data, ErrorType>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
@@ -37,7 +37,7 @@ function expectAccept<D, E>(
     peek: false,
     rest: undefined,
   });
-  output = action.wrapped(input) as AcceptedActionOutput<never, E>;
+  output = action.wrapped(input) as AcceptedActionOutput<never, ErrorType>;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(" " + (override?.buffer ?? buffer));
   expect(output.start).toBe((override?.start ?? 0) + 1);
