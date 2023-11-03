@@ -14,6 +14,7 @@ import type {
   ILexerCoreLexOutput,
   ILexerCoreTrimStartOptions,
   ILexerCoreTrimStartOutput,
+  IReadonlyLexerCore,
 } from "./model";
 
 /**
@@ -34,6 +35,10 @@ export class LexerCore<
     state?: ActionState,
   ) {
     this.state = state ?? stateCloner(initialState);
+  }
+
+  get readonly() {
+    return this as IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   }
 
   reset() {

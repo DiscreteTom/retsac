@@ -9,6 +9,7 @@ import type {
   ILexerCloneOptions,
   ILexerCore,
   ILexerLexOptions,
+  IReadonlyLexer,
   Token,
 } from "./model";
 import { LexerState } from "./state";
@@ -56,6 +57,10 @@ export class Lexer<
 
   get errors() {
     return this.state.errors;
+  }
+
+  get readonly() {
+    return this as IReadonlyLexer<DataBindings, ActionState, ErrorType>;
   }
 
   reset() {

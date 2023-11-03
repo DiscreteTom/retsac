@@ -27,6 +27,7 @@
   - Feat: add option `lineContinuation` for `Lexer.stringLiteral`.
   - Feat: `Action.match` will set output data to `RegExpExecArray`.
     - Add `Action.dryMatch`.
+  - Feat: add `ILexer/ILexerCore.readonly`.
 - Parser
   - **_Breaking Change_**: add `ASTNode.token`.
   - **_Breaking Change_**: rename `IParserBuilder.useLexer/useData` to `IParserBuilder.lexer/data`.

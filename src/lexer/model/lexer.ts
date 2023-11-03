@@ -108,6 +108,10 @@ export interface ILexer<
   ActionState,
   ErrorType,
 > extends IReadonlyLexer<DataBindings, ActionState, ErrorType> {
+  /**
+   * Return this as a readonly lexer.
+   */
+  get readonly(): IReadonlyLexer<DataBindings, ActionState, ErrorType>;
   readonly core: ILexerCore<DataBindings, ActionState, ErrorType>; // make core mutable
   /**
    * Currently accumulated errors.
