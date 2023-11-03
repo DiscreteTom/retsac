@@ -3,7 +3,7 @@
  */
 export class Lazy<Value> {
   private _value?: Value;
-  readonly factory: () => Value;
+  private factory: () => Value;
 
   constructor(factory: () => Value, value?: Value) {
     this.factory = factory;
