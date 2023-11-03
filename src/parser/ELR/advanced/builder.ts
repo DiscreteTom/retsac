@@ -115,8 +115,8 @@ export class AdvancedBuilder<
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder({
       cascadeQueryPrefix: this.cascadeQueryPrefix,
-    }).lexer(this._lexer) as unknown as // TODO: better typing?
-    ParserBuilder<
+    }).lexer(this._lexer) as unknown as ParserBuilder<
+      // TODO: better typing?
       Kinds,
       ASTData,
       ErrorType,
