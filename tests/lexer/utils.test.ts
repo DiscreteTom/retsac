@@ -142,6 +142,7 @@ test("lexer utils stringLiteral", () => {
           escape: false,
           acceptUnclosed: false,
         }),
+        stringLiteral("h", { lineContinuation: false }),
       ],
     })
     .build();
@@ -181,6 +182,9 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex("g123")).toBe(null);
   expect(lexer.reset().lex("g123\ng")).toBe(null);
   expect(lexer.reset().lex("g123g")).not.toBe(null);
+  // line continuation
+  expect(lexer.reset().lex("'123\\\n456'")?.content).toBe("'123\\\n456'");
+  expect(lexer.reset().lex("h123\\\n456")).toBe(null);
 
   // additional test for #6
   expect(lexer.reset().lex(`  '123'`)?.content).toBe(`'123'`);
@@ -419,5 +423,3 @@ test("lexer utils regexLiteral", () => {
   expect(lexer5.reset().lex("/++/")?.content).toBe("/++/");
   expect(lexer5.reset().lex("/++/")?.data.invalid).toBe(false);
 });
-
-// TODO: stringLiteral lineContinuation
