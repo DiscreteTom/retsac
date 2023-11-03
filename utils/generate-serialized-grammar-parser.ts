@@ -9,9 +9,8 @@ import util from "node:util";
 // Usage: ts-node utils/generate-serialized-grammar-parser.ts
 
 // use these to generate serialized grammar parser
-const { lexer, parserBuilder } = grammarParserFactory("__");
+const { parserBuilder } = grammarParserFactory("__");
 const { serializable } = parserBuilder.build({
-  lexer,
   entry,
   checkAll: true,
   serialize: true,
@@ -24,10 +23,24 @@ const content = [
   "",
   `import type { SerializableParserData } from "../../model";`,
   "",
-  `export const data: SerializableParserData<"gr", "" | "rename" | "grammar" | "literal"> = ${util.inspect(
-    serializable,
-    { depth: Infinity },
-  )};`,
+  `export const data: SerializableParserData<"gr", {
+    kind: "";
+    data: never;
+} | {
+    kind: "rename" | "grammar";
+    data: never;
+} | {
+    kind: "literal";
+    data: {
+        unclosed: boolean;
+    };
+} | {
+    kind: "";
+    data: never;
+}> = ${util.inspect(serializable, {
+    // depth should be infinity, set it to a limited number in case of circular references
+    depth: 10,
+  })};`,
 ].join("\n");
 
 prettier.format(content, { parser: "typescript" }).then((content) => {
