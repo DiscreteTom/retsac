@@ -34,7 +34,7 @@ import { DFA, DFABuilder } from "../DFA";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexer,
+  IReadonlyLexer,
   IReadonlyLexerCore,
 } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
@@ -87,7 +87,14 @@ export class ParserBuilder<
     LexerActionState,
     LexerError
   >[];
-  protected _lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
+  /**
+   * The lexer should be readonly. When build the parser, the lexer will be cloned into a mutable lexer.
+   */
+  protected _lexer: IReadonlyLexer<
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
+  >;
 
   constructor(options?: {
     /**
@@ -109,7 +116,11 @@ export class ParserBuilder<
     NewLexerActionState,
     NewLexerError,
   >(
-    lexer: ILexer<NewLexerDataBindings, NewLexerActionState, NewLexerError>,
+    lexer: IReadonlyLexer<
+      NewLexerDataBindings,
+      NewLexerActionState,
+      NewLexerError
+    >,
   ): IParserBuilder<
     Kinds,
     ASTData,

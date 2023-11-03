@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, ILexer } from "../../../lexer";
+import type { GeneralTokenDataBinding, IReadonlyLexer } from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -129,7 +129,8 @@ export interface IParserBuilder<
   LexerError,
 > {
   /**
-   * Set the lexer.
+   * Set the lexer. The lexer won't be modified.
+   * When build the parser, the lexer will be cloned to make sure the builder is not modified.
    *
    * This function must and can only be called once and must be called before defining any grammar rules.
    * @example
@@ -147,7 +148,11 @@ export interface IParserBuilder<
     NewLexerActionState,
     NewLexerError,
   >(
-    lexer: ILexer<NewLexerDataBindings, NewLexerActionState, NewLexerError>,
+    lexer: IReadonlyLexer<
+      NewLexerDataBindings,
+      NewLexerActionState,
+      NewLexerError
+    >,
   ): IParserBuilder<
     Kinds,
     ASTData,
