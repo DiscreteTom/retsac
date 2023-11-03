@@ -1,4 +1,4 @@
-import { Lexer } from "../../src";
+import { Lexer } from "../../../src";
 import {
   exact,
   exactKind,
@@ -7,7 +7,7 @@ import {
   whitespaces,
   word,
   wordKind,
-} from "../../src/lexer";
+} from "../../../src/lexer";
 
 test("lexer utils fromTo", () => {
   const lexer = new Lexer.Builder()
