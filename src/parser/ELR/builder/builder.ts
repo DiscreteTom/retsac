@@ -49,7 +49,6 @@ import {
   checkSymbols,
 } from "./check";
 import { buildSerializable, calculateHash } from "./utils/serialize";
-import type { IParser } from "../../model";
 
 /**
  * Builder for ELR parsers.
@@ -88,7 +87,7 @@ export class ParserBuilder<
     LexerActionState,
     LexerError
   >[];
-  private _lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
+  protected _lexer: ILexer<LexerDataBindings, LexerActionState, LexerError>;
 
   constructor(options?: {
     /**
@@ -800,7 +799,7 @@ export class ParserBuilder<
         logger,
       ) as unknown as [LexerDataBindings] extends [never]
         ? never // if no lexer, no parser
-        : IParser<
+        : Parser<
             Kinds,
             ASTData,
             ErrorType,

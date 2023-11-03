@@ -104,18 +104,7 @@ export class AdvancedBuilder<
     return res;
   }
 
-  build<
-    AppendLexerDataBindings extends GeneralTokenDataBinding,
-    AppendLexerActionState,
-    AppendLexerError,
-  >(
-    options: BuildOptions<
-      Kinds,
-      LexerDataBindings | AppendLexerDataBindings,
-      LexerActionState | AppendLexerActionState,
-      LexerError | AppendLexerError
-    >,
-  ) {
+  build(options: BuildOptions<Kinds, LexerDataBindings>) {
     // if hydrate, just call super.build()
     // since all data needed for build is in super.data & serialized data
     if (options.hydrate !== undefined) return super.build(options);
@@ -144,74 +133,76 @@ export class AdvancedBuilder<
       LexerActionState,
       LexerError
     >[];
-    this.data.forEach(({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
-      // first, expand another rules in ctx.resolvers if exists
-      const ctx = ctxBuilder?.build();
-      const expandedCtxBuilder = new DefinitionContextBuilder<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerError
-      >();
-      ctx?.resolved.forEach((r) => {
-        // for another rule, we don't need to log debug info or auto resolve R-S conflict
-        this.expand(r.anotherRule, false, logger, false).forEach((res) => {
-          res.defs.forEach((d) => {
-            if (r.type == ConflictType.REDUCE_SHIFT) {
-              expandedCtxBuilder.resolveRS(d, r.options);
-            } else {
-              expandedCtxBuilder.resolveRR(d, r.options);
-            }
+    this.builderData.forEach(
+      ({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
+        // first, expand another rules in ctx.resolvers if exists
+        const ctx = ctxBuilder?.build();
+        const expandedCtxBuilder = new DefinitionContextBuilder<
+          Kinds,
+          ASTData,
+          ErrorType,
+          LexerDataBindings,
+          LexerActionState,
+          LexerError
+        >();
+        ctx?.resolved.forEach((r) => {
+          // for another rule, we don't need to log debug info or auto resolve R-S conflict
+          this.expand(r.anotherRule, false, logger, false).forEach((res) => {
+            res.defs.forEach((d) => {
+              if (r.type == ConflictType.REDUCE_SHIFT) {
+                expandedCtxBuilder.resolveRS(d, r.options);
+              } else {
+                expandedCtxBuilder.resolveRR(d, r.options);
+              }
+            });
           });
         });
-      });
-      // assign other ctx builder fields
-      if (ctx?.callback !== undefined)
-        expandedCtxBuilder.callback(ctx.callback);
-      if (ctx?.rejecter !== undefined)
-        expandedCtxBuilder.rejecter(ctx.rejecter);
-      if (ctx?.rollback !== undefined)
-        expandedCtxBuilder.rollback(ctx.rollback);
-      if (ctx?.commit !== undefined) expandedCtxBuilder.commit(ctx.commit);
-      if (ctx?.traverser !== undefined)
-        expandedCtxBuilder.traverser(ctx.traverser);
+        // assign other ctx builder fields
+        if (ctx?.callback !== undefined)
+          expandedCtxBuilder.callback(ctx.callback);
+        if (ctx?.rejecter !== undefined)
+          expandedCtxBuilder.rejecter(ctx.rejecter);
+        if (ctx?.rollback !== undefined)
+          expandedCtxBuilder.rollback(ctx.rollback);
+        if (ctx?.commit !== undefined) expandedCtxBuilder.commit(ctx.commit);
+        if (ctx?.traverser !== undefined)
+          expandedCtxBuilder.traverser(ctx.traverser);
 
-      // now we can expand definitions
-      this.expand(
-        defs,
-        resolveOnly ? false : debug,
-        logger,
-        // don't auto resolve R-S conflict if this data is resolve only
-        !resolveOnly,
-      ).forEach((res) => {
-        res.defs.forEach((def) => {
-          toBeLoaded.push({
-            defs: def,
-            ctxBuilder: expandedCtxBuilder,
-            resolveOnly,
-            hydrationId,
+        // now we can expand definitions
+        this.expand(
+          defs,
+          resolveOnly ? false : debug,
+          logger,
+          // don't auto resolve R-S conflict if this data is resolve only
+          !resolveOnly,
+        ).forEach((res) => {
+          res.defs.forEach((def) => {
+            toBeLoaded.push({
+              defs: def,
+              ctxBuilder: expandedCtxBuilder,
+              resolveOnly,
+              hydrationId,
+            });
+          });
+          // append generated rs resolver
+          res.rs.forEach((r) => {
+            toBeLoaded.push({
+              defs: r.reducerRule,
+              ctxBuilder: new DefinitionContextBuilder<
+                Kinds,
+                ASTData,
+                ErrorType,
+                LexerDataBindings,
+                LexerActionState,
+                LexerError
+              >().resolveRS(r.anotherRule, r.options),
+              resolveOnly: true,
+              hydrationId, // the hydration id does not matter, since the generated resolvers are serializable
+            });
           });
         });
-        // append generated rs resolver
-        res.rs.forEach((r) => {
-          toBeLoaded.push({
-            defs: r.reducerRule,
-            ctxBuilder: new DefinitionContextBuilder<
-              Kinds,
-              ASTData,
-              ErrorType,
-              LexerDataBindings,
-              LexerActionState,
-              LexerError
-            >().resolveRS(r.anotherRule, r.options),
-            resolveOnly: true,
-            hydrationId, // the hydration id does not matter, since the generated resolvers are serializable
-          });
-        });
-      });
-    });
+      },
+    );
     builder.load(toBeLoaded);
 
     // generate placeholder grammar rules
@@ -234,12 +225,12 @@ export class AdvancedBuilder<
     // because when hydrate, we directly use this to hydrate, instead of the new created builder
     if (options.serialize) {
       res.serializable = buildSerializable(
-        this.data,
+        this.builderData,
         res.parser.dfa,
         new Set(
           options.entry instanceof Array ? options.entry : [options.entry],
         ),
-        options.lexer,
+        this._lexer,
         this.cascadeQueryPrefix,
       );
     }
