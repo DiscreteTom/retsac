@@ -1,7 +1,6 @@
-import { builder, lexer, entry, cache } from "./advanced-builder";
+import { builder, entry, cache } from "./advanced-builder";
 
 const { parser } = builder.build({
-  lexer,
   entry,
   // use the cached data to speed up
   // this is recommended in production

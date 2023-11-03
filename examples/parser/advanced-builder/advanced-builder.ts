@@ -5,7 +5,7 @@ export const { cacheStr, cache } = loadCache(
   "./examples/parser/advanced-builder/dfa.json",
 );
 
-export const lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank chars
   .define(Lexer.wordKind("pub", "fn", "return", "let")) // keywords
   .define({
@@ -16,6 +16,7 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.AdvancedBuilder()
+  .lexer(lexer)
   .define({
     // use `@` to rename a node
     fn_def: `

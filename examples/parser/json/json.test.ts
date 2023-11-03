@@ -1,7 +1,6 @@
-import { builder, lexer, entry, cache } from "./json";
+import { builder, entry, cache } from "./json";
 
 const { parser } = builder.build({
-  lexer,
   entry,
   // use the cached data to speed up
   // this is recommended in production
@@ -13,7 +12,7 @@ const { parser } = builder.build({
 function getResult(input: string) {
   const res = parser.reset().parse(input);
   if (!res.accept) throw new Error("rejected");
-  if (res.buffer.length != 1) throw new Error("unfinished reduction");
+  if (res.buffer.length !== 1) throw new Error("unfinished reduction");
   return res.buffer[0].traverse();
 }
 

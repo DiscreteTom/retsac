@@ -1,7 +1,6 @@
-import { builder, lexer, entry, cache } from "./calculator";
+import { builder, entry, cache } from "./calculator";
 
 const { parser } = builder.build({
-  lexer,
   entry,
   // use the cached data to speed up
   // this is recommended in production
@@ -12,7 +11,7 @@ const { parser } = builder.build({
 
 function getResult(input: string) {
   const res = parser.reset().parseAll(input);
-  if (!res.accept || res.buffer.length != 1)
+  if (!res.accept || res.buffer.length !== 1)
     throw new Error(
       `Reduce failed for input "${input}". Result: ${parser.buffer}`,
     );

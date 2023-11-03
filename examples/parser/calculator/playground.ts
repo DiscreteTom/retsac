@@ -1,8 +1,7 @@
 import * as readline from "readline";
-import { builder, lexer, cache, entry } from "./calculator";
+import { builder, cache, entry } from "./calculator";
 
 const { parser } = builder.build({
-  lexer,
   entry,
   hydrate: cache,
 });
@@ -18,7 +17,7 @@ const rl = readline.createInterface({
 
 rl.on("line", function (line) {
   const res = parser.parseAll(line + "\n");
-  if (res.accept && res.buffer.length == 1) {
+  if (res.accept && res.buffer.length === 1) {
     console.log(res.buffer[0].data);
     parser.reset();
   }

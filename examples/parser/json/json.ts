@@ -3,7 +3,7 @@ import { loadCache } from "../utils/parser-data-gen-common";
 
 export const { cacheStr, cache } = loadCache("./examples/parser/json/dfa.json");
 
-export const lexer = new Lexer.Builder()
+const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
   .define({
     string: Lexer.stringLiteral(`"`), // double quote string literal
@@ -14,6 +14,8 @@ export const lexer = new Lexer.Builder()
   .build();
 
 export const builder = new ELR.AdvancedBuilder()
+  .lexer(lexer)
+  .data<unknown>()
   .define(
     { value: `string | number | true | false | null` },
     // for string use `eval` to process escaped characters like `\n`

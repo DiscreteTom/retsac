@@ -1,65 +1,49 @@
 import { readFileSync, writeFileSync } from "fs";
 import type { IParserBuilder } from "../../../src/parser/ELR";
-import type { ILexer } from "../../../src/lexer";
+import type { GeneralTokenDataBinding } from "../../../src/lexer";
 
 export function generateMermaidString<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
-  LexerKinds extends string,
-  AppendLexerKinds extends string,
-  LexerError,
-  AppendLexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  AppendLexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
-  >,
-  lexer: ILexer<
-    LexerError | AppendLexerError,
-    AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   entry: Kinds | readonly Kinds[],
 ) {
-  const { mermaid } = builder.build({ lexer, entry, mermaid: true });
+  const { mermaid } = builder.build({ entry, mermaid: true });
   return mermaid!;
 }
 
 export function generateMermaidFile<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
-  LexerKinds extends string,
-  AppendLexerKinds extends string,
-  LexerError,
-  AppendLexerError,
+  LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
-  AppendLexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
-    LexerKinds,
-    LexerError,
-    LexerActionState
-  >,
-  lexer: ILexer<
-    LexerError | AppendLexerError,
-    AppendLexerKinds,
-    LexerActionState | AppendLexerActionState
+    LexerDataBindings,
+    LexerActionState,
+    LexerError
   >,
   entry: Kinds | readonly Kinds[],
   path: string,
 ) {
-  writeFileSync(path, generateMermaidString(builder, lexer, entry));
+  writeFileSync(path, generateMermaidString(builder, entry));
 }
 
 export function loadMermaidString(path: string) {

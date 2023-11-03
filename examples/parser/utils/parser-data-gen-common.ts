@@ -1,34 +1,26 @@
 import { readFileSync, writeFileSync } from "fs";
 import type { IParserBuilder } from "../../../src/parser/ELR";
-import type { GeneralTokenDataBinding, ILexer } from "../../../src/lexer";
+import type { GeneralTokenDataBinding } from "../../../src/lexer";
 
 function generateSerializable<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
   LexerActionState,
-  AppendLexerError,
-  AppendLexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
-    LexerError,
-    LexerActionState
-  >,
-  lexer: ILexer<
-    AppendLexerDataBindings,
-    LexerError | AppendLexerError,
-    LexerActionState | AppendLexerActionState
+    LexerActionState,
+    LexerError
   >,
   entry: Kinds | readonly Kinds[],
 ) {
-  const { serializable } = builder.build({ lexer, entry, serialize: true });
+  const { serializable } = builder.build({ entry, serialize: true });
   return serializable;
 }
 
@@ -37,63 +29,47 @@ function stringify(serializable: unknown) {
 }
 
 export function generateParserDataString<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
-  AppendLexerError,
   LexerActionState,
-  AppendLexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
-  lexer: ILexer<
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >,
   entry: Kinds | readonly Kinds[],
 ) {
-  const serializable = generateSerializable(builder, lexer, entry);
+  const serializable = generateSerializable(builder, entry);
   return stringify(serializable);
 }
 
 export function generateParserDataFile<
+  Kinds extends string,
   ASTData,
   ErrorType,
-  Kinds extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
-  AppendLexerDataBindings extends GeneralTokenDataBinding,
-  LexerError,
-  AppendLexerError,
   LexerActionState,
-  AppendLexerActionState,
+  LexerError,
 >(
   builder: IParserBuilder<
+    Kinds,
     ASTData,
     ErrorType,
-    Kinds,
     LexerDataBindings,
     LexerActionState,
     LexerError
   >,
-  lexer: ILexer<
-    LexerDataBindings | AppendLexerDataBindings,
-    LexerActionState | AppendLexerActionState,
-    LexerError | AppendLexerError
-  >,
   entry: Kinds | readonly Kinds[],
   path: string,
 ) {
-  const dfaStr = generateParserDataString(builder, lexer, entry);
+  const dfaStr = generateParserDataString(builder, entry);
 
   writeFileSync(path, dfaStr);
 }
