@@ -395,7 +395,7 @@ export class LexerCore<
       return;
     }
 
-    const output = def.action.wrapped(input);
+    const output = def.action.exec(input);
 
     if (!output.accept) {
       // rejected

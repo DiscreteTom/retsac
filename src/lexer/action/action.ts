@@ -59,7 +59,7 @@ export type AcceptedActionDecorator<
 ) => ActionOutput<NewData, NewErrorType>;
 
 export class Action<Data = never, ActionState = never, ErrorType = never> {
-  readonly wrapped: WrappedActionExec<Data, ActionState, ErrorType>;
+  readonly exec: WrappedActionExec<Data, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -91,7 +91,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
     wrapped: WrappedActionExec<Data, ActionState, ErrorType>,
     maybeMuted: boolean,
   ) {
-    this.wrapped = wrapped;
+    this.exec = wrapped;
     this.maybeMuted = maybeMuted;
   }
 
@@ -249,7 +249,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
       Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
     >,
   ): Action<NewData, ActionState, NewErrorType> {
-    const wrapped = this.wrapped;
+    const wrapped = this.exec;
     return new Action(
       (input) => {
         const output = wrapped(input);
@@ -399,9 +399,9 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   or(
     a: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
-    const wrapped = this.wrapped;
+    const wrapped = this.exec;
     const other = Action.from(a);
-    const otherWrapped = other.wrapped;
+    const otherWrapped = other.exec;
     return new Action((input) => {
       const output = wrapped(input);
       if (output.accept) return output;
