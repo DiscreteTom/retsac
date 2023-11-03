@@ -26,7 +26,7 @@ export const data: SerializableParserData<
       data: never;
     }
 > = {
-  hash: 85414650,
+  hash: 554900317,
   data: {
     dfa: {
       NTs: ["gr"],

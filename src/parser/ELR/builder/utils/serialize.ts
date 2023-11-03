@@ -32,7 +32,7 @@ export function calculateHash<
   return hashStringToNum(
     JSON.stringify({
       // ensure lexer kinds are not changed
-      LexerDataBindings: [...lexer.getTokenKinds()],
+      lexerKinds: [...lexer.getTokenKinds()],
       // ensure grammar rules & resolvers are not changed
       data: data.map((d) => ({
         defs: d.defs,
