@@ -123,7 +123,7 @@ export class Builder<
    * })
    */
   // TODO: different kinds map different data?
-  define<AppendKinds extends string, AppendData = never>(defs: {
+  define<AppendKinds extends string, AppendData = undefined>(defs: {
     [kind in AppendKinds]:
       | ActionSource<AppendData, ActionState, ErrorType>
       | ActionSource<AppendData, ActionState, ErrorType>[];

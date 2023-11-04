@@ -7,7 +7,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.exec}
    */
-  exec<Data = never>(
+  exec<Data = undefined>(
     ...props: Parameters<typeof Action.exec<Data, ActionState, ErrorType>>
   ) {
     return Action.exec<Data, ActionState, ErrorType>(...props);
@@ -16,7 +16,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.simple}
    */
-  simple<Data = never>(
+  simple<Data = undefined>(
     ...props: Parameters<typeof Action.simple<Data, ActionState, ErrorType>>
   ) {
     return Action.simple<Data, ActionState, ErrorType>(...props);
@@ -41,7 +41,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.from}
    */
-  from<Data = never>(
+  from<Data = undefined>(
     ...props: Parameters<typeof Action.from<Data, ActionState, ErrorType>>
   ) {
     return Action.from<Data, ActionState, ErrorType>(...props);
@@ -50,7 +50,7 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.reduce}
    */
-  reduce<Data = never>(
+  reduce<Data = undefined>(
     ...props: Parameters<typeof Action.reduce<Data, ActionState, ErrorType>>
   ) {
     return Action.reduce<Data, ActionState, ErrorType>(...props);

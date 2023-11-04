@@ -9,11 +9,11 @@ export const data: SerializableParserData<
   "gr",
   | {
       kind: "";
-      data: never;
+      data: undefined;
     }
   | {
       kind: "rename" | "grammar";
-      data: never;
+      data: undefined;
     }
   | {
       kind: "literal";
@@ -23,7 +23,7 @@ export const data: SerializableParserData<
     }
   | {
       kind: "";
-      data: never;
+      data: undefined;
     }
 > = {
   hash: 554900317,

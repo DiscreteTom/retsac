@@ -34,19 +34,19 @@ test("lexer utils javascript.numericLiteral", () => {
   expect(lexer.reset().lex(`  1e6_000`)?.content).toBe(`1e6_000`);
 
   // invalid
-  expect(lexer.reset().lex(`0o79`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`0xyz`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1.2.`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1..2`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1e1e1`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`1e`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`0o79`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`0xyz`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`1.2.`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`1..2`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`1e1e1`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`1e`)?.data!.invalid).toBe(true);
   // additional test for #6
-  expect(lexer.reset().lex(`  0o79`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  0xyz`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1.2.`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1..2`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1e1e1`)?.data.invalid).toBe(true);
-  expect(lexer.reset().lex(`  1e`)?.data.invalid).toBe(true);
+  expect(lexer.reset().lex(`  0o79`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`  0xyz`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1.2.`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1..2`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1e1e1`)?.data!.invalid).toBe(true);
+  expect(lexer.reset().lex(`  1e`)?.data!.invalid).toBe(true);
 
   // boundary
   expect(lexer.reset().lex(`123abc`)).toBe(null); // no boundary

@@ -54,7 +54,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   const acceptUnclosed = options?.acceptUnclosed ?? true;
   const lineContinuation = options?.lineContinuation ?? true;
 
-  const action = Action.from<never, ActionState, ErrorType>(
+  const action = Action.from<undefined, ActionState, ErrorType>(
     new RegExp(
       // open quote
       `(?:${esc4regex(open)})` +

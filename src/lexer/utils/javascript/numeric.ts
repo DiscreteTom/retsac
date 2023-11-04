@@ -64,7 +64,7 @@ export function numericLiteral<
   const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
 
-  const valid = Action.from<never, ActionState, ErrorType>(
+  const valid = Action.from<undefined, ActionState, ErrorType>(
     enableSeparator
       ? new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${

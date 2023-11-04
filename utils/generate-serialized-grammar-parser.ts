@@ -25,10 +25,10 @@ const content = [
   "",
   `export const data: SerializableParserData<"gr", {
     kind: "";
-    data: never;
+    data: undefined;
 } | {
     kind: "rename" | "grammar";
-    data: never;
+    data: undefined;
 } | {
     kind: "literal";
     data: {
@@ -36,7 +36,7 @@ const content = [
     };
 } | {
     kind: "";
-    data: never;
+    data: undefined;
 }> = ${util.inspect(serializable, {
     // depth should be infinity, set it to a limited number in case of circular references
     depth: 10,

@@ -58,7 +58,7 @@ export type AcceptedActionDecorator<
   ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
 ) => ActionOutput<NewData, NewErrorType>;
 
-export class Action<Data = never, ActionState = never, ErrorType = never> {
+export class Action<Data = undefined, ActionState = never, ErrorType = never> {
   readonly exec: WrappedActionExec<Data, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
@@ -99,7 +99,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * Create an `Action` from `ActionExec`.
    * This should be treat as the public constructor of `Action`.
    */
-  static exec<Data = never, ActionState = never, ErrorType = never>(
+  static exec<Data = undefined, ActionState = never, ErrorType = never>(
     exec: ActionExec<Data, ActionState, ErrorType>,
     options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
   ): Action<Data, ActionState, ErrorType> {
@@ -116,7 +116,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   /**
    * Create an `Action` from `SimpleActionExec`.
    */
-  static simple<Data = never, ActionState = never, ErrorType = never>(
+  static simple<Data = undefined, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return Action.exec((input) => {
@@ -132,7 +132,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           digested: res,
           content: input.buffer.slice(input.start, input.start + res),
           data: undefined,
-        } as AcceptedActionExecOutput<never, ErrorType>;
+        } as AcceptedActionExecOutput<Data, ErrorType>;
       }
       if (typeof res === "string") {
         if (res.length <= 0) return rejectedActionOutput;
@@ -142,7 +142,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
           digested: res.length,
           content: res,
           data: undefined,
-        } as AcceptedActionExecOutput<never, ErrorType>;
+        } as AcceptedActionExecOutput<Data, ErrorType>;
       }
       // else, res is SimpleAcceptedActionOutput
       res.digested ??= res.content!.length; // if digested is undefined, content must be defined
@@ -215,7 +215,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
   /**
    * Create an `Action` from `RegExp/Action/SimpleActionExec`.
    */
-  static from<Data = never, ActionState = never, ErrorType = never>(
+  static from<Data = undefined, ActionState = never, ErrorType = never>(
     r: IntoAction<Data, ActionState, ErrorType>,
   ): Action<Data, ActionState, ErrorType> {
     return r instanceof RegExp
@@ -355,8 +355,8 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * Set data to `undefined` if `accept` is `true`.
    * Return a new action.
    */
-  clearData(): Action<never, ActionState, ErrorType> {
-    return this.data(() => undefined as never);
+  clearData(): Action<undefined, ActionState, ErrorType> {
+    return this.data(() => undefined);
   }
 
   /**
@@ -422,7 +422,7 @@ export class Action<Data = never, ActionState = never, ErrorType = never> {
    * This will reduce the lexer loop times to optimize the performance.
    * Return a new action.
    */
-  static reduce<Data = never, ActionState = never, ErrorType = never>(
+  static reduce<Data = undefined, ActionState = never, ErrorType = never>(
     ...actions: IntoAction<Data, ActionState, ErrorType>[]
   ): Action<Data, ActionState, ErrorType> {
     return actions.map((a) => Action.from(a)).reduce((a, b) => a.or(b));

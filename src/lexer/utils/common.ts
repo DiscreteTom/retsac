@@ -13,11 +13,11 @@ export function esc4regex(str: string) {
  * Use regex `\s+` instead of `\s` to reduce token emitted, to accelerate the lexing process.
  */
 export function whitespaces<ActionState = never, ErrorType = never>(): Action<
-  never,
+  undefined,
   ActionState,
   ErrorType
 > {
-  return Action.from<never, ActionState, ErrorType>(/\s+/);
+  return Action.from<undefined, ActionState, ErrorType>(/\s+/);
 }
 
 /**
@@ -39,7 +39,7 @@ export function fromTo<ActionState = never, ErrorType = never>(
      */
     autoGlobal?: boolean;
   },
-): Action<never, ActionState, ErrorType> {
+): Action<undefined, ActionState, ErrorType> {
   // make sure regex has the flag 'y/g' so we can use `regex.lastIndex` to reset state.
   if (from instanceof RegExp && (options.autoSticky ?? true))
     from = makeRegexAutoSticky(from);
@@ -112,7 +112,7 @@ export function comment<ActionState = never, ErrorType = never>(
     /** Default: `true`. */
     acceptEof?: boolean;
   },
-): Action<never, ActionState, ErrorType> {
+): Action<undefined, ActionState, ErrorType> {
   return fromTo<ActionState, ErrorType>(start, end, {
     ...options,
     acceptEof: options?.acceptEof ?? true,
