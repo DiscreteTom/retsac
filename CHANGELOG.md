@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.13.2
+
+- Lexer
+  - Fix: unclosed single line string literal should not include the tail `\n`. [#32](https://github.com/DiscreteTom/retsac/issues/32)
+
 ## v0.13.1
 
 - Fix: include utils.

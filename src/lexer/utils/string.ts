@@ -72,7 +72,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
         `(?:${
           acceptUnclosed
             ? // if accept unclosed, accept '$'(EOF) or '\n'(if not multiline)
-              `(?:${esc4regex(close)})|$${multiline ? "" : "|\\n"}`
+              `(?:${esc4regex(close)})|$${multiline ? "" : "|(?=\\n)"}`
             : esc4regex(close)
         })`,
       // DON'T set the `m` flag, because we want to match the whole string literal when `multiline` is true

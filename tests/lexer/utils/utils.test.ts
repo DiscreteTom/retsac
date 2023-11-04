@@ -144,7 +144,7 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex(`'123\\''`)?.content).toBe(`'123\\''`);
   // reject multiline but accept unclosed by default
   let token1 = lexer.reset().lex(`'123\n123'`);
-  expect(token1?.content).toBe(`'123\n`);
+  expect(token1?.content).toBe(`'123`);
   expect(token1?.data.unclosed).toBe(true);
   // accept unclosed by default
   let token2 = lexer.reset().lex(`'123`);
@@ -176,12 +176,16 @@ test("lexer utils stringLiteral", () => {
   // line continuation
   expect(lexer.reset().lex("'123\\\n456'")?.content).toBe("'123\\\n456'");
   expect(lexer.reset().lex("h123\\\n456")).toBe(null);
+  // #32, unclosed single line string with `\n` as the tail shouldn't contains `\n`
+  expect(lexer.reset().lex("'123\n")?.content).toBe("'123");
+  // #32, unclosed multiline string with `\n` as the tail should contains `\n`
+  expect(lexer.reset().lex("`123\n")?.content).toBe("`123\n");
 
   // additional test for #6
   expect(lexer.reset().lex(`  '123'`)?.content).toBe(`'123'`);
   expect(lexer.reset().lex(`  '123\\''`)?.content).toBe(`'123\\''`);
   token1 = lexer.reset().lex(`  '123\n123'`);
-  expect(token1?.content).toBe(`'123\n`);
+  expect(token1?.content).toBe(`'123`);
   expect(token1?.data.unclosed).toBe(true);
   token2 = lexer.reset().lex(`  '123`);
   expect(token2?.content).toBe(`'123`);
