@@ -7,7 +7,7 @@ describe("lexer error handling", () => {
     expect(token1!.error).toBeUndefined();
 
     const token2 = lexer.reset().lex(`"123\n123`);
-    expect(token2!.content).toBe(`"123\n`);
+    expect(token2!.content).toBe(`"123`);
     expect(token2!.error).toBe("unclosed string literal");
 
     const token3 = lexer.reset().lex(`"123`);
