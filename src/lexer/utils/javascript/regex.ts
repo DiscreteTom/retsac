@@ -23,13 +23,17 @@ export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
    * @default true
    */
   boundary?: boolean;
-}): Action<{ invalid: boolean }, ActionState, ErrorType> {
+}): Action<
+  { kind: never; data: { invalid: boolean } },
+  ActionState,
+  ErrorType
+> {
   const action = (
     options?.boundary ?? true
-      ? Action.from<undefined, ActionState, ErrorType>(
+      ? Action.from<never, undefined, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)(?=\W|$)/,
         )
-      : Action.from<undefined, ActionState, ErrorType>(
+      : Action.from<never, undefined, ActionState, ErrorType>(
           /\/(?:[^/\\]|\\.)+\/(?:[gimuy]*)/,
         )
   ).data(() => ({ invalid: false }));

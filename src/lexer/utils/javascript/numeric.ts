@@ -51,10 +51,13 @@ export function numericLiteral<
   acceptInvalid?: boolean;
 }): Action<
   {
-    /**
-     * If `true`, the numeric literal is invalid.
-     */
-    invalid: boolean;
+    kind: never;
+    data: {
+      /**
+       * If `true`, the numeric literal is invalid.
+       */
+      invalid: boolean;
+    };
   },
   ActionState,
   ErrorType
@@ -64,7 +67,7 @@ export function numericLiteral<
   const boundary = options?.boundary ?? true;
   const acceptInvalid = options?.acceptInvalid ?? true;
 
-  const valid = Action.from<undefined, ActionState, ErrorType>(
+  const valid = Action.from<never, undefined, ActionState, ErrorType>(
     enableSeparator
       ? new RegExp(
           `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
@@ -80,7 +83,12 @@ export function numericLiteral<
         ),
   ).data(() => ({ invalid: false }));
 
-  const invalid = Action.from<{ invalid: boolean }, ActionState, ErrorType>(
+  const invalid = Action.from<
+    never,
+    { invalid: boolean },
+    ActionState,
+    ErrorType
+  >(
     /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
   ).data(() => ({ invalid: true }));
 

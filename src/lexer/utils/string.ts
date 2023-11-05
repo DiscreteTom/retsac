@@ -40,10 +40,13 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   },
 ): Action<
   {
-    /**
-     * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
-     */
-    unclosed: boolean;
+    kind: never;
+    data: {
+      /**
+       * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
+       */
+      unclosed: boolean;
+    };
   },
   ActionState,
   ErrorType
@@ -54,7 +57,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   const acceptUnclosed = options?.acceptUnclosed ?? true;
   const lineContinuation = options?.lineContinuation ?? true;
 
-  const action = Action.from<undefined, ActionState, ErrorType>(
+  const action = Action.from<never, undefined, ActionState, ErrorType>(
     new RegExp(
       // open quote
       `(?:${esc4regex(open)})` +

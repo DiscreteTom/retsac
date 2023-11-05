@@ -5,7 +5,7 @@ import { Action } from "../action";
  */
 export function exact<ActionState = never, ErrorType = never>(
   ...ss: readonly string[]
-): Action<undefined, ActionState, ErrorType> {
+): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.from((input) => {
     for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
     return 0;
@@ -17,7 +17,7 @@ export function exact<ActionState = never, ErrorType = never>(
  */
 export function exactArray<ActionState = never, ErrorType = never>(
   ...ss: readonly string[]
-): Action<undefined, ActionState, ErrorType>[] {
+): Action<{ kind: never; data: undefined }, ActionState, ErrorType>[] {
   return ss.map((s) => exact(s));
 }
 
@@ -31,15 +31,28 @@ export function exactKind<
 >(
   ...ss: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<undefined, ActionState, ErrorType>;
+  [kind in Kinds]: Action<
+    { kind: never; data: undefined },
+    ActionState,
+    ErrorType
+  >;
 } {
-  const result: { [kind: string]: Action<undefined, ActionState, ErrorType> } =
-    {};
+  const result: {
+    [kind: string]: Action<
+      { kind: never; data: undefined },
+      ActionState,
+      ErrorType
+    >;
+  } = {};
   for (const s of ss) {
     result[s] = exact(s);
   }
   return result as {
-    [kind in Kinds]: Action<undefined, ActionState, ErrorType>;
+    [kind in Kinds]: Action<
+      { kind: never; data: undefined },
+      ActionState,
+      ErrorType
+    >;
   };
 }
 
@@ -48,7 +61,7 @@ export function exactKind<
  */
 export function word<ActionState = never, ErrorType = never>(
   ...words: readonly string[]
-): Action<undefined, ActionState, ErrorType> {
+): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.from((input) => {
     for (const word of words)
       if (
@@ -66,7 +79,7 @@ export function word<ActionState = never, ErrorType = never>(
  */
 export function wordArray<ActionState = never, ErrorType = never>(
   ...words: readonly string[]
-): Action<undefined, ActionState, ErrorType>[] {
+): Action<{ kind: never; data: undefined }, ActionState, ErrorType>[] {
   return words.map((s) => word(s));
 }
 
@@ -80,14 +93,27 @@ export function wordKind<
 >(
   ...words: readonly Kinds[]
 ): {
-  [kind in Kinds]: Action<undefined, ActionState, ErrorType>;
+  [kind in Kinds]: Action<
+    { kind: never; data: undefined },
+    ActionState,
+    ErrorType
+  >;
 } {
-  const result: { [kind: string]: Action<undefined, ActionState, ErrorType> } =
-    {};
+  const result: {
+    [kind: string]: Action<
+      { kind: never; data: undefined },
+      ActionState,
+      ErrorType
+    >;
+  } = {};
   for (const w of words) {
     result[w] = word(w);
   }
   return result as {
-    [kind in Kinds]: Action<undefined, ActionState, ErrorType>;
+    [kind in Kinds]: Action<
+      { kind: never; data: undefined },
+      ActionState,
+      ErrorType
+    >;
   };
 }
