@@ -8,6 +8,7 @@ export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
 >;
 
+// TODO: rename
 export type ActionSource<Data, ActionState, ErrorType> =
   | RegExp
   | Action<{ kind: never; data: Data }, ActionState, ErrorType>
@@ -107,7 +108,41 @@ export class Builder<
   }
 
   /**
-   * Define token kinds.
+   * Define actions with kinds set.
+   *
+   * For most cases you should use {@link Builder.define} instead.
+   * @example
+   * // action with single kind
+   * builder.append(a => a.from(...).bind('kind'))
+   * // action with multiple kinds
+   * builder.append(a => a.from(...).kinds(...).map(...))
+   */
+  append<AppendKinds extends string, AppendData>(
+    ...builder: ((a: ActionBuilder<ActionState, ErrorType>) => Action<
+      // TODO: prevent AppendKinds to be never?
+      // but we accept builder as a list, if one of the builders is never, we can't detect it
+      { kind: AppendKinds; data: AppendData },
+      ActionState,
+      ErrorType
+    >)[]
+  ): Builder<
+    DataBindings | { kind: AppendKinds; data: AppendData },
+    ActionState,
+    ErrorType
+  > {
+    const _this = this as unknown as Builder<
+      DataBindings | { kind: AppendKinds; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
+    builder.forEach((build) =>
+      _this.defs.push(build(new ActionBuilder<ActionState, ErrorType>())),
+    );
+    return _this;
+  }
+
+  /**
+   * Define actions with no kinds set.
    * @example
    * builder.define({
    *   number: /\d+/, // with regex
@@ -142,35 +177,6 @@ export class Builder<
         _this.defs.push(Builder.buildAction(a).bind(kind));
       });
     }
-    return _this;
-  }
-
-  /**
-   * Define an action which can yield multiple kinds.
-   * @example
-   * builder.select(a => a.from(...).kinds(...).map(...))
-   */
-  // TODO: rename to builder.append?
-  select<AppendKinds extends string, AppendData>(
-    builder: (
-      a: ActionBuilder<ActionState, ErrorType>,
-    ) => Action<
-      { kind: AppendKinds; data: AppendData },
-      ActionState,
-      ErrorType
-    >,
-  ): Builder<
-    DataBindings | { kind: AppendKinds; data: AppendData },
-    ActionState,
-    ErrorType
-  > {
-    const _this = this as unknown as Builder<
-      DataBindings | { kind: AppendKinds; data: AppendData },
-      ActionState,
-      ErrorType
-    >;
-    const a = builder(new ActionBuilder<ActionState, ErrorType>());
-    _this.defs.push(a);
     return _this;
   }
 

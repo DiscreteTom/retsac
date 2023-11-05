@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## v0.13.2
+## v0.14.0
 
 - Lexer
+  - **_Breaking Change_**: remove `Builder.select`, use `Builder.append` instead.
   - Fix: unclosed single line string literal should not include the tail `\n`. [#32](https://github.com/DiscreteTom/retsac/issues/32)
   - Fix: default `token.data` type should be `undefined` instead of `never`. [#33](https://github.com/DiscreteTom/retsac/issues/33)
 
