@@ -14,6 +14,34 @@ import type {
   IReadonlyLexerCore,
 } from "./model";
 
+export type Validator<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = {
+  pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
+    accept: boolean;
+    rejectMessageFormatter: (info: {
+      kinds: (string | ExtractKinds<DataBindings>)[];
+    }) => string;
+  };
+  post: (
+    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
+    output: AcceptedActionOutput<
+      ExtractKinds<DataBindings>,
+      ExtractData<DataBindings>,
+      ErrorType
+    >,
+  ) => {
+    accept: boolean;
+    acceptMessageFormatter: (info: {
+      kind: string | ExtractKinds<DataBindings>;
+      muted: boolean;
+      content: string;
+    }) => string;
+  };
+};
+
 /**
  * LexerCore only store ActionState, no LexerState.
  */
@@ -308,30 +336,7 @@ export class LexerCore<
   >(
     input: ActionInput<ActionState>,
     actions: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
-    validator: {
-      // TODO: extract type
-      pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
-        accept: boolean;
-        rejectMessageFormatter: (info: {
-          kinds: (string | ExtractKinds<DataBindings>)[];
-        }) => string;
-      };
-      post: (
-        action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
-        output: AcceptedActionOutput<
-          ExtractKinds<DataBindings>,
-          ExtractData<DataBindings>,
-          ErrorType
-        >,
-      ) => {
-        accept: boolean;
-        acceptMessageFormatter: (info: {
-          kind: string | ExtractKinds<DataBindings>;
-          muted: boolean;
-          content: string;
-        }) => string;
-      };
-    },
+    validator: Validator<DataBindings, ActionState, ErrorType>,
     debug: boolean,
     logger: Logger,
     entity: string,
@@ -371,29 +376,7 @@ export class LexerCore<
   >(
     input: ActionInput<ActionState>,
     action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
-    validator: {
-      pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
-        accept: boolean;
-        rejectMessageFormatter: (info: {
-          kinds: (string | ExtractKinds<DataBindings>)[];
-        }) => string;
-      };
-      post: (
-        action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
-        output: AcceptedActionOutput<
-          ExtractKinds<DataBindings>,
-          ExtractData<DataBindings>,
-          ErrorType
-        >,
-      ) => {
-        accept: boolean;
-        acceptMessageFormatter: (info: {
-          kind: string | ExtractKinds<DataBindings>;
-          muted: boolean;
-          content: string;
-        }) => string;
-      };
-    },
+    validator: Validator<DataBindings, ActionState, ErrorType>,
     debug: boolean,
     logger: Logger,
     entity: string,
