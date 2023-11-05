@@ -1,3 +1,8 @@
+import type {
+  ExtractData,
+  ExtractKinds,
+  GeneralTokenDataBinding,
+} from "../model";
 import type { ActionInput } from "./input";
 import type {
   SimpleAcceptedActionExecOutput,
@@ -6,7 +11,7 @@ import type {
   AcceptedActionExecOutput,
 } from "./output";
 import { rejectedActionOutput, AcceptedActionOutput } from "./output";
-import { ActionWithKinds } from "./select";
+import { MultiKindsAction } from "./select";
 import { checkRegexNotStartsWithCaret, makeRegexAutoSticky } from "./utils";
 
 /**
@@ -20,9 +25,13 @@ export type ActionExec<Data, ActionState, ErrorType> = (
  * Wrapped action execution function.
  * The `AcceptedActionOutput.buffer/start` will be set by the action.
  */
-export type WrappedActionExec<Data, ActionState, ErrorType> = (
+export type WrappedActionExec<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = (
   input: Readonly<ActionInput<ActionState>>,
-) => ActionOutput<Data, ErrorType>;
+) => ActionOutput<DataBindings, ErrorType>;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
@@ -38,28 +47,42 @@ export type SimpleActionExec<Data, ActionState, ErrorType> = (
 /**
  * These types can be transformed into an `Action` by {@link Action.from}.
  */
-export type IntoAction<Data, ActionState, ErrorType> =
+export type IntoAction<Kinds extends string, Data, ActionState, ErrorType> =
   | RegExp
-  | Action<Data, ActionState, ErrorType>
+  | Action<{ kind: Kinds; data: Data }, ActionState, ErrorType>
   | SimpleActionExec<Data, ActionState, ErrorType>;
 
-export type AcceptedActionDecoratorContext<Data, ActionState, ErrorType> = {
+export type AcceptedActionDecoratorContext<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = {
   readonly input: Readonly<ActionInput<ActionState>>;
-  readonly output: AcceptedActionOutput<Data, ErrorType>;
+  readonly output: AcceptedActionOutput<
+    ExtractKinds<DataBindings>,
+    ExtractData<DataBindings>,
+    ErrorType
+  >;
 };
 
 export type AcceptedActionDecorator<
-  Data,
+  DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-  NewData,
+  NewDataBindings extends GeneralTokenDataBinding,
   NewErrorType,
 > = (
-  ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
-) => ActionOutput<NewData, NewErrorType>;
+  ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
+) => ActionOutput<NewDataBindings, NewErrorType>;
 
-export class Action<Data = undefined, ActionState = never, ErrorType = never> {
-  readonly exec: WrappedActionExec<Data, ActionState, ErrorType>;
+export class Action<
+  DataBindings extends GeneralTokenDataBinding = never,
+  ActionState = never,
+  ErrorType = never,
+> {
+  // TODO: add comment
+  readonly possibleKinds: Set<ExtractKinds<DataBindings>>;
+  readonly exec: WrappedActionExec<DataBindings, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -88,11 +111,12 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * It will set `AcceptedActionOutput.buffer/start` automatically.
    */
   private constructor(
-    wrapped: WrappedActionExec<Data, ActionState, ErrorType>,
+    wrapped: WrappedActionExec<DataBindings, ActionState, ErrorType>,
     maybeMuted: boolean,
   ) {
     this.exec = wrapped;
     this.maybeMuted = maybeMuted;
+    this.possibleKinds = new Set();
   }
 
   /**
@@ -101,8 +125,10 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   static exec<Data = undefined, ActionState = never, ErrorType = never>(
     exec: ActionExec<Data, ActionState, ErrorType>,
-    options?: Partial<Pick<Action<Data, ActionState, ErrorType>, "maybeMuted">>,
-  ): Action<Data, ActionState, ErrorType> {
+    options?: Partial<
+      Pick<Action<never, ActionState, ErrorType>, "maybeMuted">
+    >,
+  ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
     return new Action(
       (input) => {
         const output = exec(input);
@@ -118,7 +144,7 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   static simple<Data = undefined, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
     return Action.exec((input) => {
       const res = f(input);
       // if javascript support real function overload
@@ -180,7 +206,7 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
        */
       rejectCaret?: boolean;
     },
-  ): Action<RegExpExecArray, ActionState, ErrorType> {
+  ): Action<{ kind: never; data: RegExpExecArray }, ActionState, ErrorType> {
     if (options?.autoSticky ?? true) r = makeRegexAutoSticky(r);
     if (options?.rejectCaret ?? true) checkRegexNotStartsWithCaret(r);
 
@@ -215,16 +241,21 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
   /**
    * Create an `Action` from `RegExp/Action/SimpleActionExec`.
    */
-  static from<Data = undefined, ActionState = never, ErrorType = never>(
-    r: IntoAction<Data, ActionState, ErrorType>,
-  ): Action<Data, ActionState, ErrorType> {
+  static from<
+    Kinds extends string = never,
+    Data = undefined,
+    ActionState = never,
+    ErrorType = never,
+  >(
+    r: IntoAction<Kinds, Data, ActionState, ErrorType>,
+  ): Action<{ kind: Kinds; data: Data }, ActionState, ErrorType> {
     return r instanceof RegExp
       ? // Action.match will set Data to RegExpExecArray so we need to clean it.
         // The result should be Action<never, ActionState, ErrorType>
         // but only when r is SimpleActionExec the Data will take effect
         // so its ok to cast the result to Action<Data, ActionState, ErrorType>
         (Action.dryMatch<ActionState, ErrorType>(r) as unknown as Action<
-          Data,
+          { kind: Kinds; data: Data },
           ActionState,
           ErrorType
         >)
@@ -237,18 +268,18 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * Apply a decorator to this action.
    * Return a new action.
    */
-  apply<NewData, NewErrorType>(
+  apply<NewDataBindings extends GeneralTokenDataBinding, NewErrorType>(
     decorator: AcceptedActionDecorator<
-      Data,
+      DataBindings,
       ActionState,
       ErrorType,
-      NewData,
+      NewDataBindings,
       NewErrorType
     >,
     optionsOverride?: Partial<
-      Pick<Action<NewData, ActionState, NewErrorType>, "maybeMuted">
+      Pick<Action<DataBindings, ActionState, NewErrorType>, "maybeMuted">
     >,
-  ): Action<NewData, ActionState, NewErrorType> {
+  ): Action<NewDataBindings, ActionState, NewErrorType> {
     const wrapped = this.exec;
     return new Action(
       (input) => {
@@ -273,9 +304,13 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
     muted:
       | boolean
       | ((
-          ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+          ctx: AcceptedActionDecoratorContext<
+            DataBindings,
+            ActionState,
+            ErrorType
+          >,
         ) => boolean) = true,
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<DataBindings, ActionState, ErrorType> {
     if (typeof muted === "boolean") {
       return this.apply(
         (ctx) => {
@@ -305,14 +340,15 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   check<NewErrorType>(
     condition: (
-      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+      ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
     ) => NewErrorType | undefined,
-  ): Action<Data, ActionState, NewErrorType> {
+  ): Action<DataBindings, ActionState, NewErrorType> {
     return this.apply((ctx) => {
       // in javascript, type casting should be faster than creating a new object
       // so we don't create a new AcceptedActionOutput, just cast and modify it
       const output = ctx.output as unknown as AcceptedActionOutput<
-        Data,
+        ExtractKinds<DataBindings>,
+        ExtractData<DataBindings>,
         NewErrorType
       >;
       output.error = condition(ctx);
@@ -326,7 +362,7 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   error<NewErrorType>(
     error: NewErrorType,
-  ): Action<Data, ActionState, NewErrorType> {
+  ): Action<DataBindings, ActionState, NewErrorType> {
     return this.check(() => error);
   }
 
@@ -336,13 +372,21 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   data<NewData>(
     factory: (
-      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+      ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
     ) => NewData,
-  ): Action<NewData, ActionState, ErrorType> {
-    return this.apply((ctx) => {
+  ): Action<
+    { kind: ExtractKinds<DataBindings>; data: NewData },
+    ActionState,
+    ErrorType
+  > {
+    return this.apply<
+      { kind: ExtractKinds<DataBindings>; data: NewData },
+      ErrorType
+    >((ctx) => {
       // in javascript, type casting should be faster than creating a new object
       // so we don't create a new AcceptedActionOutput, just cast and modify it
       const output = ctx.output as unknown as AcceptedActionOutput<
+        ExtractKinds<DataBindings>,
         NewData,
         ErrorType
       >;
@@ -355,7 +399,11 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * Set data to `undefined` if `accept` is `true`.
    * Return a new action.
    */
-  clearData(): Action<undefined, ActionState, ErrorType> {
+  clearData(): Action<
+    { kind: ExtractKinds<DataBindings>; data: undefined },
+    ActionState,
+    ErrorType
+  > {
     return this.data(() => undefined);
   }
 
@@ -367,9 +415,13 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
     rejecter:
       | boolean
       | ((
-          ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+          ctx: AcceptedActionDecoratorContext<
+            DataBindings,
+            ActionState,
+            ErrorType
+          >,
         ) => boolean) = true,
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<DataBindings, ActionState, ErrorType> {
     if (typeof rejecter === "boolean") {
       // always reject
       // ignore maybeMuted since muted is only used when accept is true
@@ -391,9 +443,9 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    */
   then(
     f: (
-      ctx: AcceptedActionDecoratorContext<Data, ActionState, ErrorType>,
+      ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
     ) => void,
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<DataBindings, ActionState, ErrorType> {
     return this.apply((ctx) => {
       if (!ctx.input.peek) f(ctx);
       return ctx.output;
@@ -405,8 +457,13 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * Return a new action.
    */
   or(
-    a: IntoAction<Data, ActionState, ErrorType>,
-  ): Action<Data, ActionState, ErrorType> {
+    a: IntoAction<
+      ExtractKinds<DataBindings>,
+      ExtractData<DataBindings>,
+      ActionState,
+      ErrorType
+    >,
+  ): Action<DataBindings, ActionState, ErrorType> {
     const wrapped = this.exec;
     const other = Action.from(a);
     const otherWrapped = other.exec;
@@ -422,10 +479,25 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * This will reduce the lexer loop times to optimize the performance.
    * Return a new action.
    */
-  static reduce<Data = undefined, ActionState = never, ErrorType = never>(
-    ...actions: IntoAction<Data, ActionState, ErrorType>[]
-  ): Action<Data, ActionState, ErrorType> {
-    return actions.map((a) => Action.from(a)).reduce((a, b) => a.or(b));
+  static reduce<
+    DataBindings extends GeneralTokenDataBinding = never,
+    ActionState = never,
+    ErrorType = never,
+  >(
+    ...actions: IntoAction<
+      ExtractKinds<DataBindings>,
+      ExtractData<DataBindings>,
+      ActionState,
+      ErrorType
+    >[]
+  ): Action<DataBindings, ActionState, ErrorType> {
+    return (
+      actions.map((a) => Action.from(a)) as Action<
+        DataBindings,
+        ActionState,
+        ErrorType
+      >[]
+    ).reduce((a, b) => a.or(b));
   }
 
   /**
@@ -433,7 +505,62 @@ export class Action<Data = undefined, ActionState = never, ErrorType = never> {
    * @example
    * builder.select(a => a.from(...).kinds(...).map(...))
    */
-  kinds<Kinds extends string>(...kinds: Kinds[]) {
-    return new ActionWithKinds(kinds, this);
+  kinds<NewKinds extends string>(
+    ...kinds: NewKinds[]
+  ): MultiKindsAction<
+    {
+      kind: NewKinds;
+      data: DataBindings extends never
+        ? undefined // ensure default data is undefined instead of never, #33
+        : ExtractData<DataBindings>;
+    },
+    ActionState,
+    ErrorType
+  > {
+    const _this = this as unknown as Action<
+      {
+        kind: NewKinds;
+        data: DataBindings extends never
+          ? undefined
+          : ExtractData<DataBindings>;
+      },
+      ActionState,
+      ErrorType
+    >;
+    _this.possibleKinds.clear();
+    kinds.forEach((kind) => _this.possibleKinds.add(kind));
+    return new MultiKindsAction(_this);
+  }
+
+  /**
+   * Set the kind and the data binding for this action.
+   * Use this if your action can only yield one kind.
+   */
+  bind<NewKinds extends string>(
+    s: NewKinds,
+  ): Action<
+    {
+      kind: NewKinds;
+      data: DataBindings extends never
+        ? undefined // ensure default data is undefined instead of never, #33
+        : ExtractData<DataBindings>;
+    },
+    ActionState,
+    ErrorType
+  > {
+    const _this = this as unknown as Action<
+      {
+        kind: NewKinds;
+        data: DataBindings extends never
+          ? undefined
+          : ExtractData<DataBindings>;
+      },
+      ActionState,
+      ErrorType
+    >;
+    _this.kinds(s).map(() => s);
+    return _this;
   }
 }
+
+// TODO: ReadonlyAction

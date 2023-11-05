@@ -1,14 +1,11 @@
 import { defaultLogger, type Logger } from "../logger";
-import type { ActionStateCloner } from "./action";
+import type { Action, ActionStateCloner } from "./action";
 import { ActionInput, type AcceptedActionOutput } from "./action";
 import type {
-  Definition,
-  ExtractAllDefinitions,
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexerCore,
   Token,
-  ExtractDefinition,
   ExtractData,
   ILexerCoreLexOptions,
   ILexerCoreLexOutput,
@@ -29,7 +26,9 @@ export class LexerCore<
   state: ActionState;
 
   constructor(
-    readonly defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>,
+    readonly defs: readonly Readonly<
+      Action<DataBindings, ActionState, ErrorType>
+    >[],
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
     state?: ActionState,
@@ -137,8 +136,9 @@ export class LexerCore<
           pre: (def) => ({
             accept:
               // muted actions must be executed
-              def.action.maybeMuted ||
-              ((expect.kind === undefined || def.kinds.has(expect.kind)) && // def.kind match expectation
+              def.maybeMuted ||
+              ((expect.kind === undefined ||
+                def.possibleKinds.has(expect.kind)) && // def.kind match expectation
                 restMatchExpectation), // rest head match the text expectation
             rejectMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
@@ -148,7 +148,8 @@ export class LexerCore<
               // if muted, we don't need to check expectation
               output.muted ||
               // ensure expectation match
-              ((expect.kind === undefined || def.kinds.has(expect.kind)) &&
+              ((expect.kind === undefined ||
+                def.possibleKinds.has(expect.kind)) &&
                 (expect.text === undefined || expect.text === output.content)),
             acceptMessageFormatter: (info) =>
               `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
@@ -243,7 +244,7 @@ export class LexerCore<
           pre: (def) => ({
             // if the action may be muted, we can't skip it
             // if the action is never muted, we just reject it
-            accept: def.action.maybeMuted,
+            accept: def.maybeMuted,
             rejectMessageFormatter: (info) =>
               `skip (never muted): ${info.kinds}`,
           }),
@@ -304,19 +305,22 @@ export class LexerCore<
     ErrorType,
   >(
     input: ActionInput<ActionState>,
-    defs: ExtractAllDefinitions<DataBindings, ActionState, ErrorType>,
+    defs: readonly Readonly<Action<DataBindings, ActionState, ErrorType>>[],
     validator: {
-      pre: (
-        def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
-      ) => {
+      // TODO: extract type
+      pre: (def: Readonly<Action<DataBindings, ActionState, ErrorType>>) => {
         accept: boolean;
         rejectMessageFormatter: (info: {
           kinds: (string | ExtractKinds<DataBindings>)[];
         }) => string;
       };
       post: (
-        def: Readonly<ExtractDefinition<DataBindings, ActionState, ErrorType>>,
-        output: AcceptedActionOutput<ExtractData<DataBindings>, ErrorType>,
+        def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
+        output: AcceptedActionOutput<
+          ExtractKinds<DataBindings>,
+          ExtractData<DataBindings>,
+          ErrorType
+        >,
       ) => {
         accept: boolean;
         acceptMessageFormatter: (info: {
@@ -358,21 +362,31 @@ export class LexerCore<
    * Return the action's output if accepted and expected.
    * Return `undefined` if the definition is rejected or unexpected.
    */
-  static tryDefinition<Kinds extends string, Data, ActionState, ErrorType>(
+  static tryDefinition<
+    DataBindings extends GeneralTokenDataBinding,
+    ActionState,
+    ErrorType,
+  >(
     input: ActionInput<ActionState>,
-    def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
+    def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
     validator: {
-      pre: (def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>) => {
+      pre: (def: Readonly<Action<DataBindings, ActionState, ErrorType>>) => {
         accept: boolean;
-        rejectMessageFormatter: (info: { kinds: (string | Kinds)[] }) => string;
+        rejectMessageFormatter: (info: {
+          kinds: (string | ExtractKinds<DataBindings>)[];
+        }) => string;
       };
       post: (
-        def: Readonly<Definition<Kinds, Data, ActionState, ErrorType>>,
-        output: AcceptedActionOutput<Data, ErrorType>,
+        def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
+        output: AcceptedActionOutput<
+          ExtractKinds<DataBindings>,
+          ExtractData<DataBindings>,
+          ErrorType
+        >,
       ) => {
         accept: boolean;
         acceptMessageFormatter: (info: {
-          kind: string | Kinds;
+          kind: string | ExtractKinds<DataBindings>;
           muted: boolean;
           content: string;
         }) => string;
@@ -387,7 +401,7 @@ export class LexerCore<
       // unexpected
       if (debug) {
         const info = {
-          kinds: [...def.kinds].map((k) =>
+          kinds: [...def.possibleKinds].map((k) =>
             k.length === 0 ? "<anonymous>" : k,
           ),
         };
@@ -400,13 +414,13 @@ export class LexerCore<
       return;
     }
 
-    const output = def.action.exec(input);
+    const output = def.exec(input);
 
     if (!output.accept) {
       // rejected
       if (debug) {
         const info = {
-          kinds: [...def.kinds].map((k) =>
+          kinds: [...def.possibleKinds].map((k) =>
             k.length === 0 ? "<anonymous>" : k,
           ),
         };
@@ -420,7 +434,7 @@ export class LexerCore<
     }
 
     // accepted, check expectation
-    const kind = def.selector({ input, output });
+    const kind = output.kind;
     const postCheckRes = validator.post(def, output);
     if (postCheckRes.accept) {
       // accepted, return
@@ -442,7 +456,9 @@ export class LexerCore<
     // accepted but unexpected and not muted, reject
     if (debug) {
       const info = {
-        kinds: [...def.kinds].map((k) => (k.length === 0 ? "<anonymous>" : k)),
+        kinds: [...def.possibleKinds].map((k) =>
+          k.length === 0 ? "<anonymous>" : k,
+        ),
         content: output.content,
       };
       logger.log({
@@ -459,7 +475,11 @@ export class LexerCore<
   static output2token<DataBindings extends GeneralTokenDataBinding, ErrorType>(
     kind: ExtractKinds<DataBindings>,
     output: Readonly<
-      AcceptedActionOutput<ExtractData<DataBindings>, ErrorType>
+      AcceptedActionOutput<
+        ExtractKinds<DataBindings>,
+        ExtractData<DataBindings>,
+        ErrorType
+      >
     >,
   ): Token<DataBindings, ErrorType> {
     return {

@@ -1,3 +1,4 @@
+import type { GeneralTokenDataBinding } from "../model";
 import { Action } from "./action";
 
 /**
@@ -41,18 +42,22 @@ export class ActionBuilder<ActionState, ErrorType> {
   /**
    * @alias {@link Action.from}
    */
-  from<Data = undefined>(
-    ...props: Parameters<typeof Action.from<Data, ActionState, ErrorType>>
+  from<Kinds extends string = never, Data = undefined>(
+    ...props: Parameters<
+      typeof Action.from<Kinds, Data, ActionState, ErrorType>
+    >
   ) {
-    return Action.from<Data, ActionState, ErrorType>(...props);
+    return Action.from<Kinds, Data, ActionState, ErrorType>(...props);
   }
 
   /**
    * @alias {@link Action.reduce}
    */
-  reduce<Data = undefined>(
-    ...props: Parameters<typeof Action.reduce<Data, ActionState, ErrorType>>
+  reduce<DataBindings extends GeneralTokenDataBinding = never>(
+    ...props: Parameters<
+      typeof Action.reduce<DataBindings, ActionState, ErrorType>
+    >
   ) {
-    return Action.reduce<Data, ActionState, ErrorType>(...props);
+    return Action.reduce<DataBindings, ActionState, ErrorType>(...props);
   }
 }

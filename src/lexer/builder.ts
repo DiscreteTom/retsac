@@ -1,14 +1,8 @@
 import type { ActionStateCloner } from "./action";
 import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
-import type {
-  ExtractDefinition,
-  ExtractKinds,
-  GeneralTokenDataBinding,
-  ILexer,
-} from "./model";
+import type { ExtractKinds, GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
-import type { SelectedAction } from "./action";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
@@ -16,10 +10,10 @@ export type LexerBuildOptions = Partial<
 
 export type ActionSource<Data, ActionState, ErrorType> =
   | RegExp
-  | Action<Data, ActionState, ErrorType>
+  | Action<{ kind: never; data: Data }, ActionState, ErrorType>
   | ((
       a: ActionBuilder<ActionState, ErrorType>,
-    ) => Action<Data, ActionState, ErrorType>);
+    ) => Action<{ kind: never; data: Data }, ActionState, ErrorType>);
 
 /**
  * Lexer builder.
@@ -37,9 +31,8 @@ export class Builder<
   ActionState = never,
   ErrorType = never,
 > {
-  private defs: Readonly<
-    ExtractDefinition<DataBindings, ActionState, ErrorType>
-  >[];
+  // TODO: rename
+  private defs: Action<DataBindings, ActionState, ErrorType>[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
@@ -107,7 +100,7 @@ export class Builder<
 
   static buildAction<Data, ActionState, ErrorType>(
     src: ActionSource<Data, ActionState, ErrorType>,
-  ): Action<Data, ActionState, ErrorType> {
+  ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
     return src instanceof RegExp || src instanceof Action
       ? Action.from(src)
       : src(new ActionBuilder<ActionState, ErrorType>());
@@ -146,12 +139,7 @@ export class Builder<
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        _this.defs.push({
-          kinds: new Set([kind as AppendKinds]),
-          action: Builder.buildAction(a),
-          selector: () => kind as AppendKinds,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any); // TODO: fix type
+        _this.defs.push(Builder.buildAction(a).bind(kind));
       });
     }
     return _this;
@@ -162,10 +150,15 @@ export class Builder<
    * @example
    * builder.select(a => a.from(...).kinds(...).map(...))
    */
+  // TODO: rename to builder.append?
   select<AppendKinds extends string, AppendData>(
     builder: (
       a: ActionBuilder<ActionState, ErrorType>,
-    ) => SelectedAction<AppendKinds, AppendData, ActionState, ErrorType>,
+    ) => Action<
+      { kind: AppendKinds; data: AppendData },
+      ActionState,
+      ErrorType
+    >,
   ): Builder<
     DataBindings | { kind: AppendKinds; data: AppendData },
     ActionState,
@@ -176,13 +169,8 @@ export class Builder<
       ActionState,
       ErrorType
     >;
-    const selected = builder(new ActionBuilder<ActionState, ErrorType>());
-    _this.defs.push({
-      kinds: new Set(selected.kinds),
-      action: selected.action,
-      selector: selected.selector,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any); // TODO: fix type
+    const a = builder(new ActionBuilder<ActionState, ErrorType>());
+    _this.defs.push(a);
     return _this;
   }
 

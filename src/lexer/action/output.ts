@@ -1,8 +1,15 @@
 import { Lazy, type ReadonlyLazyString } from "../../lazy";
 import type { AtLeastOneOf } from "../../type-helper";
+import type {
+  ExtractData,
+  ExtractKinds,
+  GeneralTokenDataBinding,
+} from "../model";
 import type { ActionInput } from "./input";
 
-export class AcceptedActionOutput<Data, ErrorType> {
+// don't use data bindings as the type parameter
+// since we need these info to do type inference for `Action.exec/simple`.
+export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   /**
    * This action can accept some input as a token.
    */
@@ -15,6 +22,10 @@ export class AcceptedActionOutput<Data, ErrorType> {
    * Index of the first char of this token in the whole input string.
    */
   readonly start: number;
+  /**
+   * User-defined token kind name.
+   */
+  kind: Kinds; // TODO: make this readonly?
   /**
    * How many chars are accepted by this action.
    */
@@ -45,7 +56,7 @@ export class AcceptedActionOutput<Data, ErrorType> {
 
   constructor(
     props: Pick<
-      AcceptedActionOutput<Data, ErrorType>,
+      AcceptedActionOutput<Kinds, Data, ErrorType>,
       "buffer" | "start" | "muted" | "digested" | "error" | "content" | "data"
     > & { rest: string | undefined },
   ) {
@@ -63,11 +74,12 @@ export class AcceptedActionOutput<Data, ErrorType> {
     );
   }
 
+  // TODO: add comments
   static from<Data, ActionState, ErrorType>(
     input: ActionInput<ActionState>,
     output: AcceptedActionExecOutput<Data, ErrorType>,
   ) {
-    return new AcceptedActionOutput<Data, ErrorType>({
+    return new AcceptedActionOutput<never, Data, ErrorType>({
       buffer: input.buffer,
       start: input.start,
       muted: output.muted,
@@ -84,15 +96,23 @@ export const rejectedActionOutput = Object.freeze({ accept: false });
 
 export type RejectedActionOutput = typeof rejectedActionOutput;
 
-export type ActionOutput<Data, ErrorType> =
+export type ActionOutput<
+  DataBindings extends GeneralTokenDataBinding,
+  ErrorType,
+> =
   | RejectedActionOutput
-  | AcceptedActionOutput<Data, ErrorType>;
+  | AcceptedActionOutput<
+      ExtractKinds<DataBindings>,
+      ExtractData<DataBindings>,
+      ErrorType
+    >;
 
 /**
  * ActionExec's output. No `buffer` and `start` fields.
  */
+// `kind` should be `never` if we use `Action.exec` to create the action.
 export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
-  AcceptedActionOutput<Data, ErrorType>,
+  AcceptedActionOutput<never, Data, ErrorType>,
   "accept" | "content" | "data" | "digested" | "error" | "muted"
 > & {
   /**
@@ -117,4 +137,7 @@ export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
     "muted" | "error" | "digested" | "content" | "data" | "rest"
   >
 > &
-  AtLeastOneOf<AcceptedActionOutput<Data, ErrorType>, "digested" | "content">;
+  AtLeastOneOf<
+    AcceptedActionOutput<never, never, never>,
+    "digested" | "content"
+  >;
