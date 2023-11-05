@@ -74,7 +74,9 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     );
   }
 
-  // TODO: add comments
+  /**
+   * Get `buffer/start` from the `input` and construct the output from the exec output.
+   */
   static from<Data, ActionState, ErrorType>(
     input: ActionInput<ActionState>,
     output: AcceptedActionExecOutput<Data, ErrorType>,
