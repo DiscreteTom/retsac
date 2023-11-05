@@ -15,6 +15,34 @@ export type IntoNoKindAction<Data, ActionState, ErrorType> =
       a: ActionBuilder<ActionState, ErrorType>,
     ) => Action<{ kind: never; data: Data }, ActionState, ErrorType>);
 
+export type ExtractNewDataBindings<
+  AppendKinds extends string,
+  Mapper extends Record<
+    AppendKinds,
+    | IntoNoKindAction<unknown, ActionState, ErrorType>
+    | IntoNoKindAction<unknown, ActionState, ErrorType>[]
+  >,
+  ActionState,
+  ErrorType,
+> = {
+  [K in Extract<keyof Mapper, string>]: {
+    kind: K;
+    data: Mapper[K] extends Array<infer T>
+      ? ExtractBindingData<T, ActionState, ErrorType>
+      : ExtractBindingData<Mapper[K], ActionState, ErrorType>;
+  };
+}[Extract<keyof Mapper, string>];
+
+export type ExtractBindingData<T, ActionState, ErrorType> = T extends RegExp
+  ? undefined
+  : T extends Action<infer Binding, unknown, unknown>
+  ? Binding["data"]
+  : T extends (
+      a: ActionBuilder<ActionState, ErrorType>,
+    ) => Action<infer Binding, ActionState, ErrorType>
+  ? Binding["data"]
+  : undefined;
+
 /**
  * Lexer builder.
  * @example
@@ -153,30 +181,38 @@ export class Builder<
    * })
    */
   // TODO: different kinds map different data?
-  define<AppendKinds extends string, AppendData = undefined>(defs: {
-    [kind in AppendKinds]:
-      | IntoNoKindAction<AppendData, ActionState, ErrorType>
-      | IntoNoKindAction<AppendData, ActionState, ErrorType>[];
-  }): Builder<
-    DataBindings | { kind: AppendKinds; data: AppendData },
+  define<
+    AppendKinds extends string,
+    Mapper extends Record<
+      AppendKinds,
+      | IntoNoKindAction<unknown, ActionState, ErrorType>
+      | IntoNoKindAction<unknown, ActionState, ErrorType>[]
+    >,
+  >(
+    mapper: Mapper,
+  ): Builder<
+    | DataBindings
+    | ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>,
     ActionState,
     ErrorType
   > {
     const _this = this as Builder<
-      DataBindings | { kind: AppendKinds; data: AppendData },
+      | DataBindings
+      | ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>,
       ActionState,
       ErrorType
     >;
-    for (const kind in defs) {
-      const raw = defs[kind] as
-        | IntoNoKindAction<AppendData, ActionState, ErrorType>
-        | IntoNoKindAction<AppendData, ActionState, ErrorType>[];
+    for (const kind in mapper) {
+      const raw = mapper[kind] as
+        | IntoNoKindAction<unknown, ActionState, ErrorType>
+        | IntoNoKindAction<unknown, ActionState, ErrorType>[];
 
       // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        _this.actions.push(Builder.buildAction(a).bind(kind));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _this.actions.push(Builder.buildAction(a).bind(kind) as any); // TODO: fix type
       });
     }
     return _this;
@@ -192,7 +228,11 @@ export class Builder<
     ActionState,
     ErrorType
   > {
-    return this.define({ "": actions });
+    return this.define({ "": actions }) as unknown as Builder<
+      DataBindings | { kind: ""; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
@@ -207,7 +247,11 @@ export class Builder<
   > {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
-    });
+    }) as unknown as Builder<
+      DataBindings | { kind: ""; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
