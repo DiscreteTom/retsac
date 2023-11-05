@@ -80,8 +80,11 @@ export class Action<
   ActionState = never,
   ErrorType = never,
 > {
-  // TODO: add comment
-  readonly possibleKinds: Set<ExtractKinds<DataBindings>>;
+  /**
+   * The possible kinds this action can yield.
+   * This should only be modified by {@link Action.kinds}.
+   */
+  readonly possibleKinds: ReadonlySet<ExtractKinds<DataBindings>>;
   readonly exec: WrappedActionExec<DataBindings, ActionState, ErrorType>;
   /**
    * This flag is to indicate whether this action's output might be muted.
@@ -527,8 +530,9 @@ export class Action<
       ActionState,
       ErrorType
     >;
-    _this.possibleKinds.clear();
-    kinds.forEach((kind) => _this.possibleKinds.add(kind));
+    const possibleKinds = _this.possibleKinds as Set<NewKinds>; // make mutable
+    possibleKinds.clear();
+    kinds.forEach((kind) => possibleKinds.add(kind));
     return new MultiKindsAction(_this);
   }
 
