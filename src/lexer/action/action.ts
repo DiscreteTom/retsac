@@ -371,6 +371,7 @@ export class Action<
 
   /**
    * Set data if `accept` is `true`.
+   * This is used when your action can only yield one kind.
    * Return a new action.
    */
   data<NewData>(
@@ -564,6 +565,59 @@ export class Action<
     >;
     _this.kinds(s).map(() => s);
     return _this;
+  }
+
+  /**
+   * Map different kinds to different data.
+   * This is used when your action can yield multiple kinds.
+   * Return a new action.
+   * @example
+   * Action.from(...).kinds('a', 'b').map(...).mapData({
+   *   a: ...,
+   *   b: ...,
+   * })
+   */
+  mapData<
+    Mapper extends Record<
+      ExtractKinds<DataBindings>,
+      (
+        ctx: AcceptedActionDecoratorContext<
+          DataBindings,
+          ActionState,
+          ErrorType
+        >,
+      ) => unknown
+    >,
+  >(
+    mapper: Mapper,
+  ): Action<
+    {
+      [K in Extract<keyof Mapper, string>]: {
+        kind: K;
+        data: ReturnType<Mapper[K]>;
+      };
+    }[Extract<keyof Mapper, string>],
+    ActionState,
+    ErrorType
+  > {
+    return this.apply((ctx) => {
+      const output = ctx.output as unknown as AcceptedActionOutput<
+        ExtractKinds<DataBindings>,
+        ExtractData<DataBindings>,
+        ErrorType
+      >;
+      output.data = mapper[output.kind](ctx);
+      return output;
+    }) as unknown as Action<
+      {
+        [K in Extract<keyof Mapper, string>]: {
+          kind: K;
+          data: ReturnType<Mapper[K]>;
+        };
+      }[Extract<keyof Mapper, string>],
+      ActionState,
+      ErrorType
+    >;
   }
 }
 
