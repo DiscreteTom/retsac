@@ -117,7 +117,7 @@ export class Builder<
    * // action with single kind
    * builder.append(a => a.from(...).bind('kind'))
    * // action with multiple kinds
-   * builder.append(a => a.from(...).kinds(...).map(...))
+   * builder.append(a => a.from(...).kinds(...).select(...))
    */
   append<AppendKinds extends string, AppendData>(
     ...builder: ((a: ActionBuilder<ActionState, ErrorType>) => Action<

@@ -4,6 +4,7 @@
 
 - Lexer
   - **_Breaking Change_**: remove `Builder.select`, use `Builder.append` instead.
+  - **_Breaking Change_**: rename `Action.map` to `Action.select`, add `Action.map` to map data.
   - Feat: add `Action.mapData`. [#34](https://github.com/DiscreteTom/retsac/issues/34)
   - Fix: unclosed single line string literal should not include the tail `\n`. [#32](https://github.com/DiscreteTom/retsac/issues/32)
   - Fix: default `token.data` type should be `undefined` instead of `never`. [#33](https://github.com/DiscreteTom/retsac/issues/33)

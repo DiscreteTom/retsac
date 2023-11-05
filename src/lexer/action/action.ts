@@ -507,7 +507,7 @@ export class Action<
   /**
    * Set kinds for this action. This is used if your action can yield multiple kinds.
    * @example
-   * builder.select(a => a.from(...).kinds(...).map(...))
+   * builder.select(a => a.from(...).kinds(...).select(...))
    */
   kinds<NewKinds extends string>(
     ...kinds: NewKinds[]
@@ -563,7 +563,7 @@ export class Action<
       ActionState,
       ErrorType
     >;
-    _this.kinds(s).map(() => s);
+    _this.kinds(s).select(() => s);
     return _this;
   }
 
@@ -572,12 +572,12 @@ export class Action<
    * This is used when your action can yield multiple kinds.
    * Return a new action.
    * @example
-   * Action.from(...).kinds('a', 'b').map(...).mapData({
+   * Action.from(...).kinds('a', 'b').select(...).map({
    *   a: ...,
    *   b: ...,
    * })
    */
-  mapData<
+  map<
     Mapper extends Record<
       ExtractKinds<DataBindings>,
       (

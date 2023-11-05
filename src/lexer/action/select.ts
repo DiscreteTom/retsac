@@ -28,7 +28,7 @@ export class MultiKindsAction<
   /**
    * Define a selector to select a kind from action's kinds by action's input/output.
    */
-  map(selector: ActionKindSelector<DataBindings, ActionState, ErrorType>) {
+  select(selector: ActionKindSelector<DataBindings, ActionState, ErrorType>) {
     return this.action.apply((ctx) => {
       // make it mutable temporarily
       (ctx.output as { kind: ExtractKinds<DataBindings> }).kind = selector(ctx);
