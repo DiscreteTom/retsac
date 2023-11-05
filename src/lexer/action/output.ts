@@ -25,7 +25,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   /**
    * User-defined token kind name.
    */
-  kind: Kinds; // TODO: make this readonly?
+  readonly kind: Kinds;
   /**
    * How many chars are accepted by this action.
    */
