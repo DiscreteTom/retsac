@@ -94,7 +94,7 @@ export interface IReadonlyLexerCore<
   ActionState,
   ErrorType,
 > {
-  readonly defs: readonly ReadonlyAction<
+  readonly actions: readonly ReadonlyAction<
     DataBindings,
     ActionState,
     ErrorType

@@ -280,7 +280,9 @@ export class Lexer<
 
   getTokenKinds() {
     const res: Set<ExtractKinds<DataBindings>> = new Set();
-    this.core.defs.forEach((d) => d.possibleKinds.forEach((k) => res.add(k)));
+    this.core.actions.forEach((d) =>
+      d.possibleKinds.forEach((k) => res.add(k)),
+    );
     return res;
   }
 

@@ -26,7 +26,7 @@ export class LexerCore<
   state: ActionState;
 
   constructor(
-    readonly defs: readonly ReadonlyAction<
+    readonly actions: readonly ReadonlyAction<
       DataBindings,
       ActionState,
       ErrorType
@@ -49,7 +49,7 @@ export class LexerCore<
 
   dryClone() {
     return new LexerCore<DataBindings, ActionState, ErrorType>(
-      this.defs,
+      this.actions,
       this.initialState,
       this.stateCloner,
     );
@@ -57,7 +57,7 @@ export class LexerCore<
 
   clone() {
     return new LexerCore<DataBindings, ActionState, ErrorType>(
-      this.defs,
+      this.actions,
       this.initialState,
       this.stateCloner,
       // clone the current state
@@ -132,7 +132,7 @@ export class LexerCore<
         input,
         // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
         // because some token may be muted, and we need to check the rest of the input
-        this.defs,
+        this.actions,
         {
           // TODO: don't use callback functions
           pre: (def) => ({
@@ -241,7 +241,7 @@ export class LexerCore<
 
       const res = LexerCore.evaluateDefs(
         input,
-        this.defs,
+        this.actions,
         {
           pre: (def) => ({
             // if the action may be muted, we can't skip it
@@ -307,17 +307,17 @@ export class LexerCore<
     ErrorType,
   >(
     input: ActionInput<ActionState>,
-    defs: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
+    actions: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
     validator: {
       // TODO: extract type
-      pre: (def: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
+      pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
         accept: boolean;
         rejectMessageFormatter: (info: {
           kinds: (string | ExtractKinds<DataBindings>)[];
         }) => string;
       };
       post: (
-        def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
+        action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
         output: AcceptedActionOutput<
           ExtractKinds<DataBindings>,
           ExtractData<DataBindings>,
@@ -336,17 +336,17 @@ export class LexerCore<
     logger: Logger,
     entity: string,
   ) {
-    for (const def of defs) {
+    for (const action of actions) {
       const res = LexerCore.tryDefinition(
         input,
-        def,
+        action,
         validator,
         debug,
         logger,
         entity,
       );
       if (res !== undefined) {
-        return { ...res, def };
+        return { ...res, def: action };
       }
     }
 
@@ -370,16 +370,16 @@ export class LexerCore<
     ErrorType,
   >(
     input: ActionInput<ActionState>,
-    def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
+    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
     validator: {
-      pre: (def: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
+      pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
         accept: boolean;
         rejectMessageFormatter: (info: {
           kinds: (string | ExtractKinds<DataBindings>)[];
         }) => string;
       };
       post: (
-        def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
+        action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
         output: AcceptedActionOutput<
           ExtractKinds<DataBindings>,
           ExtractData<DataBindings>,
@@ -398,12 +398,12 @@ export class LexerCore<
     logger: Logger,
     entity: string,
   ) {
-    const preCheckRes = validator.pre(def);
+    const preCheckRes = validator.pre(action);
     if (!preCheckRes.accept) {
       // unexpected
       if (debug) {
         const info = {
-          kinds: [...def.possibleKinds].map((k) =>
+          kinds: [...action.possibleKinds].map((k) =>
             k.length === 0 ? "<anonymous>" : k,
           ),
         };
@@ -416,13 +416,13 @@ export class LexerCore<
       return;
     }
 
-    const output = def.exec(input);
+    const output = action.exec(input);
 
     if (!output.accept) {
       // rejected
       if (debug) {
         const info = {
-          kinds: [...def.possibleKinds].map((k) =>
+          kinds: [...action.possibleKinds].map((k) =>
             k.length === 0 ? "<anonymous>" : k,
           ),
         };
@@ -437,7 +437,7 @@ export class LexerCore<
 
     // accepted, check expectation
     const kind = output.kind;
-    const postCheckRes = validator.post(def, output);
+    const postCheckRes = validator.post(action, output);
     if (postCheckRes.accept) {
       // accepted, return
       if (debug) {
@@ -458,7 +458,7 @@ export class LexerCore<
     // accepted but unexpected and not muted, reject
     if (debug) {
       const info = {
-        kinds: [...def.possibleKinds].map((k) =>
+        kinds: [...action.possibleKinds].map((k) =>
           k.length === 0 ? "<anonymous>" : k,
         ),
         content: output.content,

@@ -31,13 +31,16 @@ export class Builder<
   ActionState = never,
   ErrorType = never,
 > {
-  // TODO: rename
-  private defs: ReadonlyAction<DataBindings, ActionState, ErrorType>[];
+  private readonly actions: ReadonlyAction<
+    DataBindings,
+    ActionState,
+    ErrorType
+  >[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
   constructor() {
-    this.defs = [];
+    this.actions = [];
     this.stateCloner = defaultActionStateCloner;
   }
 
@@ -135,7 +138,7 @@ export class Builder<
       ErrorType
     >;
     builder.forEach((build) =>
-      _this.defs.push(build(new ActionBuilder<ActionState, ErrorType>())),
+      _this.actions.push(build(new ActionBuilder<ActionState, ErrorType>())),
     );
     return _this;
   }
@@ -173,7 +176,7 @@ export class Builder<
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        _this.defs.push(Builder.buildAction(a).bind(kind));
+        _this.actions.push(Builder.buildAction(a).bind(kind));
       });
     }
     return _this;
@@ -220,7 +223,7 @@ export class Builder<
     options?: LexerBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
     return new Lexer<DataBindings, ActionState, ErrorType>(
-      new LexerCore(this.defs, this.initialState, this.stateCloner),
+      new LexerCore(this.actions, this.initialState, this.stateCloner),
       options,
     );
   }
