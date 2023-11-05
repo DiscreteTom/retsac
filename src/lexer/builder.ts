@@ -8,8 +8,7 @@ export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
 >;
 
-// TODO: rename
-export type ActionSource<Data, ActionState, ErrorType> =
+export type IntoNoKindAction<Data, ActionState, ErrorType> =
   | RegExp
   | Action<{ kind: never; data: Data }, ActionState, ErrorType>
   | ((
@@ -100,7 +99,7 @@ export class Builder<
   }
 
   static buildAction<Data, ActionState, ErrorType>(
-    src: ActionSource<Data, ActionState, ErrorType>,
+    src: IntoNoKindAction<Data, ActionState, ErrorType>,
   ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
     return src instanceof RegExp || src instanceof Action
       ? Action.from(src)
@@ -153,8 +152,8 @@ export class Builder<
   // TODO: different kinds map different data?
   define<AppendKinds extends string, AppendData = undefined>(defs: {
     [kind in AppendKinds]:
-      | ActionSource<AppendData, ActionState, ErrorType>
-      | ActionSource<AppendData, ActionState, ErrorType>[];
+      | IntoNoKindAction<AppendData, ActionState, ErrorType>
+      | IntoNoKindAction<AppendData, ActionState, ErrorType>[];
   }): Builder<
     DataBindings | { kind: AppendKinds; data: AppendData },
     ActionState,
@@ -167,8 +166,8 @@ export class Builder<
     >;
     for (const kind in defs) {
       const raw = defs[kind] as
-        | ActionSource<AppendData, ActionState, ErrorType>
-        | ActionSource<AppendData, ActionState, ErrorType>[];
+        | IntoNoKindAction<AppendData, ActionState, ErrorType>
+        | IntoNoKindAction<AppendData, ActionState, ErrorType>[];
 
       // IMPORTANT: DON'T use Action.reduce to merge multi actions into one
       // because when we lex with expectation, we should evaluate actions one by one
@@ -184,7 +183,7 @@ export class Builder<
    * Define tokens with empty kind.
    */
   anonymous<AppendData>(
-    ...actions: ActionSource<AppendData, ActionState, ErrorType>[]
+    ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
   ): Builder<
     DataBindings | { kind: ""; data: AppendData },
     ActionState,
@@ -197,7 +196,7 @@ export class Builder<
    * Define muted anonymous actions.
    */
   ignore<AppendData>(
-    ...actions: ActionSource<AppendData, ActionState, ErrorType>[]
+    ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
   ): Builder<
     DataBindings | { kind: ""; data: AppendData },
     ActionState,
