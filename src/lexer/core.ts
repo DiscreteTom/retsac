@@ -1,5 +1,5 @@
 import { defaultLogger, type Logger } from "../logger";
-import type { Action, ActionStateCloner } from "./action";
+import type { ActionStateCloner, ReadonlyAction } from "./action";
 import { ActionInput, type AcceptedActionOutput } from "./action";
 import type {
   ExtractKinds,
@@ -26,8 +26,10 @@ export class LexerCore<
   state: ActionState;
 
   constructor(
-    readonly defs: readonly Readonly<
-      Action<DataBindings, ActionState, ErrorType>
+    readonly defs: readonly ReadonlyAction<
+      DataBindings,
+      ActionState,
+      ErrorType
     >[],
     readonly initialState: Readonly<ActionState>,
     readonly stateCloner: ActionStateCloner<ActionState>,
@@ -305,17 +307,17 @@ export class LexerCore<
     ErrorType,
   >(
     input: ActionInput<ActionState>,
-    defs: readonly Readonly<Action<DataBindings, ActionState, ErrorType>>[],
+    defs: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
     validator: {
       // TODO: extract type
-      pre: (def: Readonly<Action<DataBindings, ActionState, ErrorType>>) => {
+      pre: (def: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
         accept: boolean;
         rejectMessageFormatter: (info: {
           kinds: (string | ExtractKinds<DataBindings>)[];
         }) => string;
       };
       post: (
-        def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
+        def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
         output: AcceptedActionOutput<
           ExtractKinds<DataBindings>,
           ExtractData<DataBindings>,
@@ -368,16 +370,16 @@ export class LexerCore<
     ErrorType,
   >(
     input: ActionInput<ActionState>,
-    def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
+    def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
     validator: {
-      pre: (def: Readonly<Action<DataBindings, ActionState, ErrorType>>) => {
+      pre: (def: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
         accept: boolean;
         rejectMessageFormatter: (info: {
           kinds: (string | ExtractKinds<DataBindings>)[];
         }) => string;
       };
       post: (
-        def: Readonly<Action<DataBindings, ActionState, ErrorType>>,
+        def: ReadonlyAction<DataBindings, ActionState, ErrorType>,
         output: AcceptedActionOutput<
           ExtractKinds<DataBindings>,
           ExtractData<DataBindings>,

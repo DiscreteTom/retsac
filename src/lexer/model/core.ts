@@ -1,5 +1,5 @@
 import type { Logger } from "../../logger";
-import type { Action, ActionStateCloner } from "../action";
+import type { ActionStateCloner, ReadonlyAction } from "../action";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
@@ -94,8 +94,10 @@ export interface IReadonlyLexerCore<
   ActionState,
   ErrorType,
 > {
-  readonly defs: readonly Readonly<
-    Action<DataBindings, ActionState, ErrorType>
+  readonly defs: readonly ReadonlyAction<
+    DataBindings,
+    ActionState,
+    ErrorType
   >[];
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;

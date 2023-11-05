@@ -567,4 +567,14 @@ export class Action<
   }
 }
 
-// TODO: ReadonlyAction
+export type ReadonlyAction<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> = {
+  readonly [K in
+    | "exec"
+    | "possibleKinds"
+    | "maybeMuted"
+    | "neverMuted"]: Action<DataBindings, ActionState, ErrorType>[K];
+};

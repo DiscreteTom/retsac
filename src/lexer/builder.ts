@@ -1,4 +1,4 @@
-import type { ActionStateCloner } from "./action";
+import type { ActionStateCloner, ReadonlyAction } from "./action";
 import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
 import type { ExtractKinds, GeneralTokenDataBinding, ILexer } from "./model";
@@ -32,7 +32,7 @@ export class Builder<
   ErrorType = never,
 > {
   // TODO: rename
-  private defs: Action<DataBindings, ActionState, ErrorType>[];
+  private defs: ReadonlyAction<DataBindings, ActionState, ErrorType>[];
   private initialState: Readonly<ActionState>;
   private stateCloner: ActionStateCloner<ActionState>;
 
