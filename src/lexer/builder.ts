@@ -36,7 +36,7 @@ export type ExtractNewDataBindings<
 
 export type ExtractBindingData<T, ActionState, ErrorType> = T extends RegExp
   ? undefined
-  : T extends Action<infer Binding, unknown, unknown>
+  : T extends Action<infer Binding, ActionState, ErrorType>
   ? Binding["data"]
   : T extends (
       a: ActionBuilder<ActionState, ErrorType>,
