@@ -569,18 +569,7 @@ export class Action<
     ActionState,
     ErrorType
   > {
-    const _this = this as unknown as Action<
-      {
-        kind: NewKinds;
-        data: DataBindings extends never
-          ? undefined
-          : ExtractData<DataBindings>;
-      },
-      ActionState,
-      ErrorType
-    >;
-    _this.kinds(s).select(() => s);
-    return _this;
+    return this.kinds(s).select(() => s);
   }
 
   /**
