@@ -2,19 +2,44 @@ import { Lexer } from "../../../src";
 
 test("multi kinds", () => {
   const lexer = new Lexer.Builder()
-    // use `select` to define actions with multiple kinds
-    .select((a) =>
+    .error<string>()
+    // use `append` to define actions with kinds set
+    .append((a) =>
       a
         .from(Lexer.javascript.numericLiteral())
         // specify possible kinds
         .kinds("odd", "even")
-        // map the output to the kind
-        .map(({ output }) =>
+        // select the kind for the output
+        .select(({ output }) =>
           Number(output.content) % 2 === 0 ? "even" : "odd",
+        )
+        // bind different data type for different kinds
+        .map({
+          even: (_ctx) => ({
+            even: true,
+          }),
+          odd: (_ctx) => ({
+            odd: true,
+          }),
+        })
+        // other decorators are also available
+        .check(({ output }) =>
+          // you can access the kind of the output
+          // and do something different for different kinds
+          output.kind === "even" ? "even is not accepted" : undefined,
         ),
     )
     .build();
 
-  expect(lexer.lex("1")?.kind).toBe("odd");
-  expect(lexer.lex("2")?.kind).toBe("even");
+  const odd = lexer.lex("1")!;
+  expect(odd.kind).toBe("odd");
+  expect(odd.content).toBe("1");
+  expect(odd.data).toEqual({ odd: true });
+  expect(odd.error).toBeUndefined();
+
+  const even = lexer.lex("2")!;
+  expect(even.kind).toBe("even");
+  expect(even.content).toBe("2");
+  expect(even.data).toEqual({ even: true });
+  expect(even.error).toBe("even is not accepted");
 });

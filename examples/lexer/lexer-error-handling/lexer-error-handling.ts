@@ -12,18 +12,11 @@ export const lexer = new Lexer.Builder()
     string: Lexer.stringLiteral(`"`).check(({ output }) =>
       output.data.unclosed ? ("unclosed string literal" as string) : undefined,
     ),
-  })
-  .define({
-    // different utils may have different output.data type
-    // and you can only have on type of data in one `define` call
-    // so we define number in another `define` call
     number: Lexer.javascript
       .numericLiteral()
       .check(({ output }) =>
         output.data.invalid ? ("invalid numeric literal" as string) : undefined,
       ),
-  })
-  .define({
     // you can customize your own error handling function using `check`
     identifier: (a) =>
       a
