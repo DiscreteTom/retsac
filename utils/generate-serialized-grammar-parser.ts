@@ -38,6 +38,8 @@ const content = [
     kind: "";
     data: undefined;
 }> = ${util.inspect(serializable, {
+    maxArrayLength: Infinity,
+    maxStringLength: Infinity,
     // depth should be infinity, set it to a limited number in case of circular references
     depth: 10,
   })};`,
