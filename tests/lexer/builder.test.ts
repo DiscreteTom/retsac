@@ -7,11 +7,7 @@ function newBuilder() {
     .ignore(Lexer.whitespaces())
     .define({
       number: /[0-9]+/,
-    })
-    .define({
       error: (a) => a.from(/error/).error("error"),
-    })
-    .define({
       stateful: (a) =>
         a
           .from(/state/)
@@ -75,11 +71,11 @@ test("builder define using array", () => {
 
 test("define action with multiple kinds", () => {
   const lexer = new Lexer.Builder()
-    .select((a) =>
+    .append((a) =>
       a
         .from(/\s+/)
         .kinds("singleWs", "multiWs")
-        .map(({ output }) =>
+        .select(({ output }) =>
           output.content.length === 1 ? "singleWs" : "multiWs",
         ),
     )

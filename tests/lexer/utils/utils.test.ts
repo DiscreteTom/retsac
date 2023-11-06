@@ -145,16 +145,16 @@ test("lexer utils stringLiteral", () => {
   // reject multiline but accept unclosed by default
   let token1 = lexer.reset().lex(`'123\n123'`);
   expect(token1?.content).toBe(`'123`);
-  expect(token1?.data.unclosed).toBe(true);
+  expect(token1?.data!.unclosed).toBe(true);
   // accept unclosed by default
   let token2 = lexer.reset().lex(`'123`);
   expect(token2?.content).toBe(`'123`);
-  expect(token2?.data.unclosed).toBe(true);
+  expect(token2?.data!.unclosed).toBe(true);
   // disable escaped
   expect(lexer.reset().lex(`"123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`"123\\""`)?.content).toBe(`"123\\"`);
-  expect(lexer.reset().lex(`"123\n"`)?.data.unclosed).toBe(true);
-  expect(lexer.reset().lex(`"123`)?.data.unclosed).toBe(true);
+  expect(lexer.reset().lex(`"123\n"`)?.data!.unclosed).toBe(true);
+  expect(lexer.reset().lex(`"123`)?.data!.unclosed).toBe(true);
   // enable multiline
   expect(lexer.reset().lex("`123`")?.content).toBe("`123`");
   expect(lexer.reset().lex("`123\n123`")?.content).toBe("`123\n123`");
@@ -186,14 +186,14 @@ test("lexer utils stringLiteral", () => {
   expect(lexer.reset().lex(`  '123\\''`)?.content).toBe(`'123\\''`);
   token1 = lexer.reset().lex(`  '123\n123'`);
   expect(token1?.content).toBe(`'123`);
-  expect(token1?.data.unclosed).toBe(true);
+  expect(token1?.data!.unclosed).toBe(true);
   token2 = lexer.reset().lex(`  '123`);
   expect(token2?.content).toBe(`'123`);
-  expect(token2?.data.unclosed).toBe(true);
+  expect(token2?.data!.unclosed).toBe(true);
   expect(lexer.reset().lex(`  "123"`)?.content).toBe(`"123"`);
   expect(lexer.reset().lex(`  "123\\""`)?.content).toBe(`"123\\"`);
-  expect(lexer.reset().lex(`  "123\n"`)?.data.unclosed).toBe(true);
-  expect(lexer.reset().lex(`  "123`)?.data.unclosed).toBe(true);
+  expect(lexer.reset().lex(`  "123\n"`)?.data!.unclosed).toBe(true);
+  expect(lexer.reset().lex(`  "123`)?.data!.unclosed).toBe(true);
   expect(lexer.reset().lex("  `123`")?.content).toBe("`123`");
   expect(lexer.reset().lex("  `123\n123`")?.content).toBe("`123\n123`");
   expect(lexer.reset().lex("  a123b")?.content).toBe("a123b");

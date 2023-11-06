@@ -100,6 +100,7 @@ test("number", () => {
       content: str,
       start: 0,
       error: undefined,
+      data: undefined,
     } as Token<{ kind: "number"; data: never }, never>);
   });
 });
@@ -119,6 +120,7 @@ test("anonymous", () => {
       content: str,
       start: 0,
       error: undefined,
+      data: undefined,
     } as Token<{ kind: ""; data: never }, never>);
   });
 });

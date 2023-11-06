@@ -8,11 +8,7 @@ function prepare() {
     .anonymous(Lexer.exact(..."+-*/()"))
     .define({
       string: (a) => a.from(Lexer.stringLiteral(`'`)).mute(() => false), // set maybe-mute, but do not mute
-    })
-    .define({
       number: Lexer.javascript.numericLiteral(),
-    })
-    .define({
       hash: /#/,
     })
     .build({ debug: true, logger });

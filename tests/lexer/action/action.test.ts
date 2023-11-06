@@ -1,11 +1,13 @@
 import type { IntoAction, AcceptedActionOutput } from "../../../src/lexer";
 import { Action, ActionInput, CaretNotAllowedError } from "../../../src/lexer";
 
-function expectAccept<Data, ErrorType>(
+function expectAccept<Kinds extends string, Data, ErrorType>(
   buffer: string,
-  src: IntoAction<Data, never, ErrorType>,
+  src: IntoAction<Kinds, Data, never, ErrorType>,
   override?: Partial<
-    Omit<AcceptedActionOutput<Data, ErrorType>, "rest"> & { rest: string }
+    Omit<AcceptedActionOutput<Kinds, Data, ErrorType>, "rest"> & {
+      rest: string;
+    }
   >,
 ) {
   const action = Action.from(src);
@@ -18,7 +20,11 @@ function expectAccept<Data, ErrorType>(
     state: undefined as never,
     peek: false,
   });
-  const output = action.exec(input) as AcceptedActionOutput<Data, ErrorType>;
+  const output = action.exec(input) as AcceptedActionOutput<
+    Kinds,
+    Data,
+    ErrorType
+  >;
   expect(output.accept).toBe(true);
   expect(output.buffer).toBe(override?.buffer ?? buffer);
   expect(output.start).toBe(override?.start ?? 0);
@@ -28,6 +34,7 @@ function expectAccept<Data, ErrorType>(
   expect(output.error).toBe(override?.error ?? undefined);
   expect(output.muted).toBe(override?.muted ?? false);
   expect(output.data).toBe(override?.data ?? undefined);
+  expect(output.kind).toBe(override?.kind ?? undefined);
 
   // additional test for #6
   // set start to 1 to verify that action's output's digest is not affected
@@ -40,6 +47,7 @@ function expectAccept<Data, ErrorType>(
     rest: undefined,
   });
   const newOutput = action.exec(newInput) as AcceptedActionOutput<
+    Kinds,
     Data,
     ErrorType
   >;
@@ -52,11 +60,12 @@ function expectAccept<Data, ErrorType>(
   expect(newOutput.error).toBe(override?.error ?? undefined);
   expect(newOutput.muted).toBe(override?.muted ?? false);
   expect(newOutput.data).toBe(override?.data ?? undefined);
+  expect(newOutput.kind).toBe(override?.kind ?? undefined);
 }
 
-function expectReject<Data, ErrorType>(
+function expectReject<Kinds extends string, Data, ErrorType>(
   buffer: string,
-  src: IntoAction<Data, never, ErrorType>,
+  src: IntoAction<Kinds, Data, never, ErrorType>,
 ) {
   const input = new ActionInput({
     buffer,
@@ -129,8 +138,13 @@ describe("Lexer action constructor", () => {
     });
     const action = Action.match(/\s*/);
     expect(
-      (action.exec(input) as AcceptedActionOutput<RegExpExecArray, never>)
-        .data[0],
+      (
+        action.exec(input) as AcceptedActionOutput<
+          never,
+          RegExpExecArray,
+          never
+        >
+      ).data[0],
     ).not.toBe(null);
   });
 
@@ -226,7 +240,7 @@ describe("Action decorator", () => {
       buffer,
       Action.from(/123/)
         .data(() => "data")
-        .clearData(),
+        .purge(),
     );
   });
 
@@ -251,6 +265,40 @@ describe("Action decorator", () => {
 
     // if already rejected, do nothing
     expectReject(buffer, Action.from(/123/).reject());
+  });
+
+  test("bind action kind", () => {
+    expectAccept("123", Action.from(/123/).bind("num"), { kind: "num" });
+  });
+
+  test("set multi kinds", () => {
+    const a = Action.from(/\d+/)
+      .kinds("odd", "even")
+      .select(({ output }) =>
+        Number(output.content) % 2 === 0 ? "even" : "odd",
+      );
+    expectAccept("1", a, { kind: "odd" });
+    expectAccept("2", a, { kind: "even" });
+  });
+
+  test("map multi kinds data", () => {
+    const a = Action.from(/\d+/)
+      .kinds("odd", "even")
+      .select(({ output }) =>
+        Number(output.content) % 2 === 0 ? "even" : "odd",
+      )
+      .map({
+        odd: (ctx) => `odd: ${ctx.output.content}`,
+        even: (ctx) => Number(ctx.output.content),
+      });
+    expectAccept<"odd" | "even", string | number, never>("1", a, {
+      data: "odd: 1",
+      kind: "odd",
+    });
+    expectAccept<"odd" | "even", string | number, never>("2", a, {
+      data: 2,
+      kind: "even",
+    });
   });
 });
 
@@ -279,7 +327,11 @@ describe("sticky regex related", () => {
       peek: false,
       rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<never, string>;
+    const output = action.exec(input) as AcceptedActionOutput<
+      never,
+      never,
+      string
+    >;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -300,7 +352,11 @@ describe("sticky regex related", () => {
       peek: false,
       rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<never, string>;
+    const output = action.exec(input) as AcceptedActionOutput<
+      never,
+      never,
+      string
+    >;
     expect(output.accept).toBe(true);
     expect(output.buffer).toBe(buffer);
     expect(output.start).toBe(3);
@@ -322,6 +378,7 @@ describe("sticky regex related", () => {
       rest: undefined,
     });
     const output = action.exec(input) as AcceptedActionOutput<
+      never,
       RegExpExecArray,
       never
     >;
@@ -351,7 +408,7 @@ describe("peek & then", () => {
     const state = {
       value: 0,
     };
-    Action.from<never, { value: number }>(/123/)
+    Action.from<never, never, typeof state>(/123/)
       .then(({ input }) => (input.state.value = 1))
       .exec(
         new ActionInput({
@@ -369,7 +426,7 @@ describe("peek & then", () => {
     const state = {
       value: 0,
     };
-    Action.from<never, { value: number }>(/123/)
+    Action.from<never, never, typeof state>(/123/)
       .then(({ input }) => (input.state.value = 1))
       .exec(
         new ActionInput({
@@ -387,7 +444,7 @@ describe("peek & then", () => {
     const state = {
       value: 0,
     };
-    Action.from<never, { value: number }>(/123/)
+    Action.from<never, never, typeof state>(/123/)
       .then(({ input }) => (input.state.value = 1))
       .exec(
         new ActionInput({
