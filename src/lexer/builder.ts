@@ -17,9 +17,8 @@ export type IntoNoKindAction<Data, ActionState, ErrorType> =
     ) => Action<{ kind: never; data: Data }, ActionState, ErrorType>);
 
 export type ExtractNewDataBindings<
-  AppendKinds extends string,
   Mapper extends Record<
-    AppendKinds,
+    string,
     | IntoNoKindAction<unknown, ActionState, ErrorType>
     | IntoNoKindAction<unknown, ActionState, ErrorType>[]
   >,
@@ -181,11 +180,9 @@ export class Builder<
    *   chain: a => a.from(/\d+/).data(() => 123), // with action builder
    * })
    */
-  // TODO: different kinds map different data?
   define<
-    AppendKinds extends string,
     Mapper extends Record<
-      AppendKinds,
+      string,
       | IntoNoKindAction<unknown, ActionState, ErrorType>
       | IntoNoKindAction<unknown, ActionState, ErrorType>[]
     >,
@@ -193,17 +190,13 @@ export class Builder<
     mapper: Mapper,
   ): Builder<
     | DataBindings
-    | Expand<
-        ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>
-      >,
+    | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
     ActionState,
     ErrorType
   > {
     const _this = this as Builder<
       | DataBindings
-      | Expand<
-          ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>
-        >,
+      | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
       ActionState,
       ErrorType
     >;
