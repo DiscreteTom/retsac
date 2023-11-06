@@ -15,8 +15,6 @@ const ruleLexer = new Lexer.Builder()
     rename: /@\w+/,
     grammar: /\w+/,
     or: Lexer.exact("|"),
-  })
-  .define({
     literal: [Lexer.stringLiteral(`"`), Lexer.stringLiteral(`'`)],
   })
   .build();
