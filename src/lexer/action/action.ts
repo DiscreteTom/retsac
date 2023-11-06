@@ -215,6 +215,8 @@ export class Action<
 
     // use `new Action` instead of `Action.simple` to re-use the `res[0]`
     return Action.exec((input) => {
+      // javascript doesn't have a string view
+      // so we use r.lastIndex to run the regex from the start position
       r.lastIndex = input.start;
       const res = r.exec(input.buffer);
       if (res && res.index !== -1)
