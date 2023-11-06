@@ -3,6 +3,7 @@ import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
 import type { ExtractKinds, GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
+import type { Expand } from "../type-helper";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
@@ -192,13 +193,17 @@ export class Builder<
     mapper: Mapper,
   ): Builder<
     | DataBindings
-    | ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>,
+    | Expand<
+        ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>
+      >,
     ActionState,
     ErrorType
   > {
     const _this = this as Builder<
       | DataBindings
-      | ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>,
+      | Expand<
+          ExtractNewDataBindings<AppendKinds, Mapper, ActionState, ErrorType>
+        >,
       ActionState,
       ErrorType
     >;
