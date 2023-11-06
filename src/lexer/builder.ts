@@ -147,21 +147,17 @@ export class Builder<
    * // action with multiple kinds
    * builder.append(a => a.from(...).kinds(...).select(...))
    */
-  append<AppendKinds extends string, AppendData>(
+  append<AppendDataBindings extends GeneralTokenDataBinding>(
     ...builder: ((a: ActionBuilder<ActionState, ErrorType>) => Action<
       // TODO: prevent AppendKinds to be never?
       // but we accept builder as a list, if one of the builders is never, we can't detect it
-      { kind: AppendKinds; data: AppendData },
+      AppendDataBindings,
       ActionState,
       ErrorType
     >)[]
-  ): Builder<
-    DataBindings | { kind: AppendKinds; data: AppendData },
-    ActionState,
-    ErrorType
-  > {
+  ): Builder<DataBindings | AppendDataBindings, ActionState, ErrorType> {
     const _this = this as unknown as Builder<
-      DataBindings | { kind: AppendKinds; data: AppendData },
+      DataBindings | AppendDataBindings,
       ActionState,
       ErrorType
     >;
