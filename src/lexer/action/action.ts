@@ -83,6 +83,8 @@ export class Action<
   /**
    * The possible kinds this action can yield.
    * This should only be modified by {@link Action.kinds}.
+   *
+   * This is needed by `lexer.getTokenKinds` and `lexer.lex` with expectation.
    */
   readonly possibleKinds: ReadonlySet<ExtractKinds<DataBindings>>;
   readonly exec: WrappedActionExec<DataBindings, ActionState, ErrorType>;
@@ -116,10 +118,11 @@ export class Action<
   private constructor(
     wrapped: WrappedActionExec<DataBindings, ActionState, ErrorType>,
     maybeMuted: boolean,
+    possibleKinds: ReadonlySet<ExtractKinds<DataBindings>>,
   ) {
     this.exec = wrapped;
     this.maybeMuted = maybeMuted;
-    this.possibleKinds = new Set();
+    this.possibleKinds = possibleKinds;
   }
 
   /**
@@ -139,6 +142,7 @@ export class Action<
         return rejectedActionOutput;
       },
       options?.maybeMuted ?? false,
+      new Set(),
     );
   }
 
@@ -298,6 +302,7 @@ export class Action<
         return output;
       },
       optionsOverride?.maybeMuted ?? this.maybeMuted,
+      this.possibleKinds as ReadonlySet<ExtractKinds<NewDataBindings>>,
     );
   }
 
@@ -431,7 +436,12 @@ export class Action<
     if (typeof rejecter === "boolean") {
       // always reject
       // ignore maybeMuted since muted is only used when accept is true
-      if (rejecter) return new Action(() => rejectedActionOutput, false);
+      if (rejecter)
+        return new Action(
+          () => rejectedActionOutput,
+          false,
+          this.possibleKinds,
+        );
       // else, always accept, just return self, don't override the original output's accept
       return this;
     }
@@ -473,11 +483,15 @@ export class Action<
     const wrapped = this.exec;
     const other = Action.from(a);
     const otherWrapped = other.exec;
-    return new Action((input) => {
-      const output = wrapped(input);
-      if (output.accept) return output;
-      return otherWrapped(input);
-    }, this.maybeMuted || other.maybeMuted);
+    return new Action(
+      (input) => {
+        const output = wrapped(input);
+        if (output.accept) return output;
+        return otherWrapped(input);
+      },
+      this.maybeMuted || other.maybeMuted,
+      new Set([...this.possibleKinds, ...other.possibleKinds]),
+    );
   }
 
   /**
