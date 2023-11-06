@@ -226,11 +226,7 @@ export class Builder<
     ActionState,
     ErrorType
   > {
-    return this.define({ "": actions }) as unknown as Builder<
-      DataBindings | { kind: ""; data: AppendData },
-      ActionState,
-      ErrorType
-    >;
+    return this.define({ "": actions.map((a) => Builder.buildAction(a)) });
   }
 
   /**
@@ -245,11 +241,7 @@ export class Builder<
   > {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
-    }) as unknown as Builder<
-      DataBindings | { kind: ""; data: AppendData },
-      ActionState,
-      ErrorType
-    >;
+    });
   }
 
   /**
