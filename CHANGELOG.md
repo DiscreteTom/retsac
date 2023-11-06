@@ -6,6 +6,7 @@
   - **_Breaking Change_**: remove `Builder.select`, use `Builder.append` instead.
   - **_Breaking Change_**: rename `Action.map` to `Action.select`.
     - Feat: add `Action.map` to map data for multi kinds action. [#34](https://github.com/DiscreteTom/retsac/issues/34)
+  - **_Breaking Change_**: rename `Action.clearData` to `Action.purge`.
   - Feat: `Builder.define` can accept actions with different data types in one call.
   - Fix: unclosed single line string literal should not include the tail `\n`. [#32](https://github.com/DiscreteTom/retsac/issues/32)
   - Fix: default `token.data` type should be `undefined` instead of `never`. [#33](https://github.com/DiscreteTom/retsac/issues/33)

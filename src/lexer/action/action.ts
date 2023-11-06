@@ -244,7 +244,7 @@ export class Action<
   static dryMatch<ActionState = never, ErrorType = never>(
     ...props: Parameters<typeof Action.match<ActionState, ErrorType>>
   ) {
-    return Action.match<ActionState, ErrorType>(...props).clearData();
+    return Action.match<ActionState, ErrorType>(...props).purge();
   }
 
   /**
@@ -410,7 +410,7 @@ export class Action<
    * Set data to `undefined` if `accept` is `true`.
    * Return a new action.
    */
-  clearData(): Action<
+  purge(): Action<
     { kind: ExtractKinds<DataBindings>; data: undefined },
     ActionState,
     ErrorType
