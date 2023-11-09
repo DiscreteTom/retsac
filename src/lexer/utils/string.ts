@@ -1,5 +1,5 @@
+import { compose } from "@discretetom/r-compose";
 import { Action } from "../action";
-import { esc4regex } from "./common";
 
 /**
  * Match a string literal.
@@ -53,34 +53,53 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
 > {
   const close = options?.close ?? open;
   const multiline = options?.multiline ?? false;
-  const escape = options?.escape ?? true;
+  const escaped = options?.escape ?? true;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
   const lineContinuation = options?.lineContinuation ?? true;
 
   const action = Action.from<never, undefined, ActionState, ErrorType>(
-    new RegExp(
-      // open quote
-      `(?:${esc4regex(open)})` +
-        // content, non-greedy
-        `(?:${
-          escape
-            ? `(?:${lineContinuation ? "\\\\\\n|" : ""}\\\\.|[^\\\\${
-                multiline ? "" : "\\n"
-              }])` // exclude `\n` if not multiline
-            : `(?:${lineContinuation ? "\\\\\\n|" : ""}.${
-                multiline ? "|\\n" : ""
-              })` // if multiline, accept `\n`
-        }*?)` + // '*?' means non-greedy(lazy)
-        // close quote
-        `(?:${
+    compose(
+      ({ concat, any, select, lookahead, escape, not }) =>
+        concat(
+          // match open quote
+          escape(open),
+          // match content
+          any(
+            escaped
+              ? select(
+                  lineContinuation ? /\\\n/ : "", // line continuation is treated as part of the content
+                  /\\./, // any escaped character is treated as part of the content
+                  not(
+                    // any character except the following is treated as part of the content
+                    concat(
+                      /\\/, // standalone backslash shouldn't be treated as part of the content
+                      multiline ? "" : /\n/, // if not multiline, `\n` shouldn't be treated as part of the content
+                    ),
+                  ),
+                )
+              : select(
+                  lineContinuation ? /\\\n/ : "", // line continuation is treated as part of the content
+                  /./, // any non-newline character is treated as part of the content
+                  multiline ? /\n/ : "", // if multiline, `\n` should be treated as part of the content
+                ),
+            {
+              // since we use `/./` in the content, we need to make sure it doesn't match the close quote
+              greedy: false,
+            },
+          ),
+          // match close quote
           acceptUnclosed
-            ? // if accept unclosed, accept '$'(EOF) or '\n'(if not multiline)
-              `(?:${esc4regex(close)})|$${multiline ? "" : "|(?=\\n)"}`
-            : esc4regex(close)
-        })`,
+            ? select(
+                escape(close),
+                "$", // unclosed string is acceptable, so EOF is acceptable
+                multiline
+                  ? "" // if multiline is enabled, we don't treat `\n` as the close quote
+                  : lookahead(/\n/), // use lookahead so we don't include the `\n` in the result
+              )
+            : escape(close), // unclosed string is not accepted, so we only accept the close quote
+        ),
       // DON'T set the `m` flag, because we want to match the whole string literal when `multiline` is true
       // if we set the `m` flag, the `$` will match the end of each line, instead of the end of the whole string literal
-      // multiline ? "m" : undefined
     ),
   ).data(() => ({ unclosed: false }));
 
