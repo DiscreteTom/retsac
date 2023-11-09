@@ -44,6 +44,7 @@ yarn add retsac
 - [Documentation & API reference. (WIP)](https://discretetom.github.io/retsac/)
 - [VSCode extension.](https://github.com/DiscreteTom/vscode-retsac)
 - [Demo programming language which compiles to WebAssembly.](https://github.com/DiscreteTom/dt0)
+- [Compose `RegExp` in JavaScript in a readable and maintainable way.](https://github.com/DiscreteTom/r-compose)
 
 ## [Examples](https://github.com/DiscreteTom/retsac/tree/main/examples)
 
