@@ -106,10 +106,14 @@ export function fromTo<ActionState = never, ErrorType = never>(
  */
 export function comment<ActionState = never, ErrorType = never>(
   start: string | RegExp,
-  /** Default: `\n` */
+  /**
+   * @default '\n'
+   */
   end: string | RegExp = "\n",
   options?: Omit<Parameters<typeof fromTo>[2], "acceptEof"> & {
-    /** Default: `true`. */
+    /**
+     * @default true
+     */
     acceptEof?: boolean;
   },
 ): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
