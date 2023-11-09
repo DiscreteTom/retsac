@@ -82,10 +82,8 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
                   /./, // any non-newline character is treated as part of the content
                   multiline ? /\n/ : "", // if multiline, `\n` should be treated as part of the content
                 ),
-            {
-              // since we use `/./` in the content, we need to make sure it doesn't match the close quote
-              greedy: false,
-            },
+            // since we use `/./` in the content, we need to make sure it doesn't match the close quote
+            { greedy: false },
           ),
           // match close quote
           acceptUnclosed
