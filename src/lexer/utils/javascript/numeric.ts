@@ -1,3 +1,4 @@
+import { compose } from "@discretetom/r-compose";
 import { Action } from "../../action";
 import { esc4regex } from "../common";
 
@@ -68,19 +69,34 @@ export function numericLiteral<
   const acceptInvalid = options?.acceptInvalid ?? true;
 
   const valid = Action.from<never, undefined, ActionState, ErrorType>(
-    enableSeparator
-      ? new RegExp(
-          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
-            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
-          }`,
-          "i",
-        )
-      : new RegExp(
-          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
-            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
-          }`,
-          "i",
-        ),
+    compose(
+      ({ concat, select, any, optional, lookahead }) => {
+        const separatorPart = enableSeparator
+          ? any(concat(separator, /\d+/))
+          : "";
+        return concat(
+          select(
+            /0x[\da-f]+/, // hexadecimal
+            /0o[0-7]+/, // octal
+            // below is decimal with separator
+            concat(
+              /\d+/, // integer part
+              separatorPart, // separator and additional integer part
+              optional(concat(/\.\d+/, separatorPart)), // decimal part
+              optional(concat(/[eE][-+]?\d+/, separatorPart)), // exponent part
+            ),
+          ),
+          boundary
+            ? concat(
+                /\b/,
+                // '.' match /\b/ but is not allowed as the boundary
+                lookahead(/\./, { negative: true }),
+              )
+            : "",
+        );
+      },
+      "i", // case insensitive
+    ),
   ).data(() => ({ invalid: false }));
 
   const invalid = Action.from<
@@ -89,7 +105,18 @@ export function numericLiteral<
     ActionState,
     ErrorType
   >(
-    /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
+    compose(
+      ({ select }) =>
+        select(
+          /0o[0-7]*[^0-7]+/, // octal literals that include non-octal characters
+          /0x[\da-f]*[^\da-f]+/, // hexadecimal literals that include non-hexadecimal characters
+          /(?:\d+\.){2,}/, // numeric literals that include more than one decimal point
+          /\d+\.\.\d+/, // numeric literals that include more than one decimal point without any other characters in between
+          /\d+e[+-]?\d+e[+-]?\d+/, // numeric literals that include more than one exponent (e or E)
+          /\d+e/, // numeric literals that end with an exponent but without any digits after the exponent symbol
+        ),
+      "i",
+    ),
   ).data(() => ({ invalid: true }));
 
   if (acceptInvalid) {
