@@ -303,6 +303,11 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@discretetom/r-compose@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmmirror.com/@discretetom/r-compose/-/r-compose-0.2.0.tgz#5ef28bb4b8e15cf1303cb6a1175e5be94649465d"
+  integrity sha512-DlMOWcodYHOyl4EFsmKs19OeNdMUDiS2wPT3Msj1KmqPGFs5gicwcla+4YjhJWJvT1Xm5PDih4KGfbSogfjSyQ==
+
 "@esbuild/android-arm64@0.19.4":
   version "0.19.4"
   resolved "https://registry.npmmirror.com/@esbuild/android-arm64/-/android-arm64-0.19.4.tgz#74752a09301b8c6b9a415fbda9fb71406a62a7b7"
