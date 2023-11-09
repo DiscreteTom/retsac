@@ -1,3 +1,4 @@
+import { composables } from "@discretetom/r-compose";
 import type { ActionInput } from "../action";
 import { Action, makeRegexAutoGlobal, makeRegexAutoSticky } from "../action";
 
@@ -5,8 +6,7 @@ import { Action, makeRegexAutoGlobal, makeRegexAutoSticky } from "../action";
  * Escape regex special characters.
  */
 export function esc4regex(str: string) {
-  // use the `g` flag to replace all occurrences
-  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+  return composables.escape(str);
 }
 
 /**
