@@ -12,7 +12,7 @@ export type ASTNodeChildrenSelector<
   TokenType extends GeneralToken,
 > = (
   name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-) => ASTNode<Kinds, ASTData, ErrorType, TokenType>[];
+) => ASTNode<Kinds, ASTData, ErrorType, TokenType>[]; // TODO: narrow the return kinds to the given name
 
 /**
  * Select the first matched child node by the name.

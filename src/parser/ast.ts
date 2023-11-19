@@ -68,12 +68,12 @@ export class ASTNode<
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[];
+  children?: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[]; // TODO: conditional make this non nullable
   /**
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<Kinds, ASTData, ErrorType, TokenType>; // parent doesn't have token
+  parent?: ASTNode<Kinds, ASTData, ErrorType, TokenType>; // TODO: conditional make this non nullable
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -83,7 +83,7 @@ export class ASTNode<
   /**
    * If this is a T, this field is set.
    */
-  token?: TokenType;
+  token?: TokenType; // TODO: conditional make this non nullable
   /**
    * Select the first matched child node by the name.
    */
