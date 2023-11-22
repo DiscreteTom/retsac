@@ -10,3 +10,5 @@ test("invalid traverse error", () => {
   });
   expect(() => node.traverse()).toThrow(InvalidTraverseError);
 });
+
+// TODO: test StateCacheMissError by using a undefined anonymous literal in the input

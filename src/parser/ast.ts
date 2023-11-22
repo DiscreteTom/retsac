@@ -45,6 +45,7 @@ export type ASTObj = {
   children: ASTObj[];
 };
 
+// TODO: add TraverseContext as a generic type parameter
 export class ASTNode<
   Kinds extends string,
   ASTData,
@@ -273,6 +274,7 @@ export class ASTNode<
    *
    * @throws {InvalidTraverseError} if the node is a leaf node (no children).
    */
+  // TODO: add a parameter as the traverse context
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(
