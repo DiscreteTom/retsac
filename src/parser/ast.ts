@@ -47,7 +47,7 @@ export type ASTObj = {
 
 // TODO: add TraverseContext as a generic type parameter
 export class ASTNode<
-  Kinds extends string,
+  Kinds extends string, // TODO: rename this to Kind, add NTs as a new type parameter
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,

@@ -44,6 +44,7 @@ export type ParsingState<
   lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
 };
 
+// TODO: rename to reLexState
 export type ReActionState<
   Kinds extends string,
   ASTData,
