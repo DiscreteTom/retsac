@@ -140,11 +140,12 @@ export interface IParserBuilder<
    * const lexer = new Lexer.Builder().build();
    * new ELR.ParserBuilder().lexer(lexer).define(...).build({...});
    */
+  // TODO: allow multiple call
   lexer<
     // make sure this function can only be called once
     // and must be called before defining any grammar rules
     NewLexerDataBindings extends [Kinds] extends [never]
-      ? [LexerDataBindings] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
+      ? [LexerDataBindings] extends [never] // why array? see [[@type constraints with array]]
         ? GeneralTokenDataBinding // NewLexerDataBindings should extends GeneralTokenDataBinding
         : never // LexerDataBindings already set, prevent modification
       : never, // prevent setting LexerDataBindings after Kinds is defined
@@ -174,9 +175,10 @@ export interface IParserBuilder<
    * // infer type from a value
    * builder.data({ a: 1 });
    */
+  // TODO: allow multiple call
   data<
     NewASTData extends [Kinds] extends [never]
-      ? [ASTData] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
+      ? [ASTData] extends [never] // why array? see [[@type constraints with array]]
         ? unknown // NewData can be any type
         : never // ASTData already set, prevent modification
       : never, // prevent setting ASTData after Kinds is defined
