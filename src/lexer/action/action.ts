@@ -523,7 +523,7 @@ export class Action<
   /**
    * Set kinds for this action. This is used if your action can yield multiple kinds.
    * @example
-   * builder.select(a => a.from(...).kinds(...).select(...))
+   * builder.append(a => a.from(...).kinds(...).select(...))
    */
   kinds<NewKinds extends string>(
     ...kinds: NewKinds[]

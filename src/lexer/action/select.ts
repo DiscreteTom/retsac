@@ -21,7 +21,7 @@ export class MultiKindsAction<
   ErrorType,
 > {
   constructor(
-    // make this private so the only thing user can do with this is to call `map` method
+    // make this private so the only thing user can do with this is to call `select` method
     private readonly action: Action<DataBindings, ActionState, ErrorType>,
   ) {}
 
