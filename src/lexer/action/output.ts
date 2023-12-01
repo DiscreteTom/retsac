@@ -51,6 +51,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   error?: ErrorType;
   /**
    * The rest of the input after the action is executed, lazy and cached.
+   * Equals to `buffer.slice(start + digested)`.
    */
   readonly rest: ReadonlyLazyString;
 
@@ -75,12 +76,13 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   }
 
   /**
-   * Get `buffer/start` from the `input` and construct the output from the exec output.
+   * Get `buffer` and `start` from the `input` and construct the output from the exec output.
+   * The `Kinds` of the output will be `never` since `ActionExec` doesn't know the `Kinds`.
    */
   static from<Data, ActionState, ErrorType>(
     input: ActionInput<ActionState>,
     output: AcceptedActionExecOutput<Data, ErrorType>,
-  ) {
+  ): AcceptedActionOutput<never, Data, ErrorType> {
     return new AcceptedActionOutput<never, Data, ErrorType>({
       buffer: input.buffer,
       start: input.start,
@@ -111,8 +113,8 @@ export type ActionOutput<
 
 /**
  * ActionExec's output. No `buffer` and `start` fields.
+ * `Kinds` should be `never` since `Action.exec` doesn't know the `Kinds`.
  */
-// `kind` should be `never` if we use `Action.exec` to create the action.
 export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
   AcceptedActionOutput<never, Data, ErrorType>,
   "accept" | "content" | "data" | "digested" | "error" | "muted"
