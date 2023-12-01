@@ -30,8 +30,7 @@ export class MultiKindsAction<
    */
   select(selector: ActionKindSelector<DataBindings, ActionState, ErrorType>) {
     return this.action.apply((ctx) => {
-      // make it mutable temporarily
-      (ctx.output as { kind: ExtractKinds<DataBindings> }).kind = selector(ctx);
+      ctx.output.kind = selector(ctx);
       return ctx.output;
     });
   }
