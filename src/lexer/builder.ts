@@ -74,8 +74,6 @@ export class Builder<
 
   /**
    * Set initial action state.
-   *
-   * This function can only be called once and must be called before defining any action.
    * @example
    * // use structuredClone as default cloner
    * builder.state({ count: 0 })
@@ -83,13 +81,10 @@ export class Builder<
    * builder.state({ count: 0 }, state => ({ ...state }))
    */
   state<
-    // make sure this function can only be called once
-    // and must be called before defining any action
-    NewActionState extends [DataBindings] extends [never]
-      ? [ActionState] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
-        ? unknown // NewActionState can be any type
-        : never // ActionState already set, prevent modification
-      : never, // prevent setting ActionState after DataBindings is defined
+    // make sure NewActionState is a sub type (superset) of ActionState
+    NewActionState extends [ActionState] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751 [[type constraints with array]]
+      ? unknown // ActionState is never, so NewActionState can be anything
+      : ActionState, // ActionState is not never, so NewActionState must be a child type of ActionState
   >(
     state: NewActionState,
     /**
@@ -109,8 +104,6 @@ export class Builder<
 
   /**
    * Set error type.
-   *
-   * This function can only be called once and must be called before defining any action.
    * @example
    * // provide type explicitly
    * builder.error<number>();
@@ -118,14 +111,11 @@ export class Builder<
    * builder.error(0);
    */
   error<
-    // make sure this function can only be called once
-    // and must be called before defining any action
-    NewError extends [DataBindings] extends [never]
-      ? [ErrorType] extends [never]
-        ? unknown // NewError can be any type
-        : never // ErrorType already set, prevent modification
-      : never, // prevent setting ErrorType after DataBindings is defined
-  >(_?: NewError) {
+    // make sure NewError is a super type (subset) of ErrorType
+    NewError extends [ErrorType] extends [NewError] // why array? see [[@type constraints with array]]
+      ? unknown // NewError is a super type of ErrorType, so it can be anything
+      : never, // NewError is not a super type of ErrorType, reject
+  >(_?: NewError): Builder<DataBindings, ActionState, NewError> {
     return this as unknown as Builder<DataBindings, ActionState, NewError>;
   }
 

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.15.0
+
+- Lexer
+  - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
+
 ## v0.14.0
 
 - Lexer
