@@ -1,5 +1,5 @@
 import type { Logger } from "../../logger";
-import type { ActionStateCloner, ReadonlyAction } from "../action";
+import type { ActionStateCloner } from "../action";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
@@ -97,11 +97,6 @@ export interface IReadonlyLexerCore<
   ActionState,
   ErrorType,
 > {
-  readonly actions: readonly ReadonlyAction<
-    DataBindings,
-    ActionState,
-    ErrorType
-  >[];
   readonly initialState: Readonly<ActionState>;
   get state(): Readonly<ActionState>;
   readonly stateCloner: ActionStateCloner<ActionState>;
@@ -139,6 +134,10 @@ export interface IReadonlyLexerCore<
     // so the options can't be omitted
     options: Readonly<ILexerCoreLexOptions<DataBindings> & { peek: true }>,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
+  /**
+   * Get all defined token kinds.
+   */
+  getTokenKinds(): Set<ExtractKinds<DataBindings>>;
 }
 
 export interface ILexerCore<

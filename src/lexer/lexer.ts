@@ -3,7 +3,6 @@ import { makeRegexAutoGlobal } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import type {
-  ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
   ILexerCloneOptions,
@@ -279,11 +278,7 @@ export class Lexer<
   }
 
   getTokenKinds() {
-    const res: Set<ExtractKinds<DataBindings>> = new Set();
-    this.core.actions.forEach((d) =>
-      d.possibleKinds.forEach((k) => res.add(k)),
-    );
-    return res;
+    return this.core.getTokenKinds();
   }
 
   getPos(index: number): { line: number; column: number } {

@@ -3,6 +3,7 @@
 ## v0.15.0
 
 - Lexer
+  - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
 
 ## v0.14.0

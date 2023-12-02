@@ -66,6 +66,12 @@ export class LexerCore<
     this.state = state ?? stateCloner(initialState);
   }
 
+  getTokenKinds() {
+    const res: Set<ExtractKinds<DataBindings>> = new Set();
+    this.actions.forEach((d) => d.possibleKinds.forEach((k) => res.add(k)));
+    return res;
+  }
+
   get readonly() {
     return this as IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   }
