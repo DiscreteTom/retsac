@@ -14,18 +14,29 @@ import type {
   IReadonlyLexerCore,
 } from "./model";
 
+// TODO: move to a better place
+export const anonymousKindPlaceholder = "<anonymous>";
+export type AnonymousKindPlaceholder = typeof anonymousKindPlaceholder;
+
+/**
+ * Validator is used to check if an action can be skipped before executing it,
+ * and if an action's output can be accepted after executing it.
+ */
 export type Validator<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
 > = {
-  pre: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
-    accept: boolean;
-    rejectMessageFormatter: (info: {
-      kinds: (string | ExtractKinds<DataBindings>)[];
+  /**
+   * Check if an action can be skipped before executing it.
+   */
+  before: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
+    skip: boolean;
+    skippedActionMessageFormatter: (info: {
+      kinds: (AnonymousKindPlaceholder | ExtractKinds<DataBindings>)[];
     }) => string;
   };
-  post: (
+  after: (
     action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
     output: AcceptedActionOutput<
       ExtractKinds<DataBindings>,
@@ -35,8 +46,11 @@ export type Validator<
   ) => {
     accept: boolean;
     acceptMessageFormatter: (info: {
-      kind: string | ExtractKinds<DataBindings>;
+      kind: AnonymousKindPlaceholder | ExtractKinds<DataBindings>;
       muted: boolean;
+      /**
+       * The content of the token.
+       */
       content: string;
     }) => string;
   };
@@ -68,7 +82,7 @@ export class LexerCore<
 
   getTokenKinds() {
     const res: Set<ExtractKinds<DataBindings>> = new Set();
-    this.actions.forEach((d) => d.possibleKinds.forEach((k) => res.add(k)));
+    this.actions.forEach((a) => a.possibleKinds.forEach((k) => res.add(k)));
     return res;
   }
 
@@ -118,7 +132,15 @@ export class LexerCore<
     buffer: string,
     options: Readonly<ILexerCoreLexOptions<DataBindings>>,
   ): ILexerCoreLexOutput<DataBindings, ErrorType> {
-    const { debug, logger, entity, expect, start, rest, peek } = options;
+    const {
+      debug,
+      logger,
+      entity,
+      expect,
+      start,
+      rest: initialRest,
+      peek,
+    } = options;
 
     // debug output
     if (debug) {
@@ -132,7 +154,7 @@ export class LexerCore<
       }
     }
 
-    let currentRest = rest;
+    let currentRest = initialRest;
     let digested = 0;
     const errors = [] as Token<DataBindings, ErrorType>[];
     while (true) {
@@ -159,27 +181,31 @@ export class LexerCore<
       });
       // cache the result of `startsWith` to avoid duplicate calculation
       // since we need to check `startsWith` for every definition
-      const restMatchExpectation =
-        expect.text === undefined ||
-        input.buffer.startsWith(expect.text, input.start);
+      const textMismatch =
+        expect.text !== undefined &&
+        !input.buffer.startsWith(expect.text, input.start);
       const res = LexerCore.evaluateDefs(
         input,
         // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
         // because some token may be muted, and we need to check the rest of the input
+        // TODO: filter actions here, instead of using `before`?
         this.actions,
         {
           // TODO: don't use callback functions
-          pre: (def) => ({
-            accept:
-              // muted actions must be executed
-              def.maybeMuted ||
-              ((expect.kind === undefined ||
-                def.possibleKinds.has(expect.kind)) && // def.kind match expectation
-                restMatchExpectation), // rest head match the text expectation
-            rejectMessageFormatter: (info) =>
+          before: (def) => ({
+            skip:
+              // muted actions must be executed no matter what the expectation is
+              // so only never muted actions can be skipped
+              def.neverMuted &&
+              // def.kind mismatch expectation
+              ((expect.kind !== undefined &&
+                !def.possibleKinds.has(expect.kind)) ||
+                // rest head mismatch the text expectation
+                textMismatch),
+            skippedActionMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
           }),
-          post: (def, output) => ({
+          after: (def, output) => ({
             accept:
               // if muted, we don't need to check expectation
               output.muted ||
@@ -277,14 +303,14 @@ export class LexerCore<
         input,
         this.actions,
         {
-          pre: (def) => ({
+          before: (def) => ({
             // if the action may be muted, we can't skip it
             // if the action is never muted, we just reject it
-            accept: def.maybeMuted,
-            rejectMessageFormatter: (info) =>
+            skip: def.neverMuted,
+            skippedActionMessageFormatter: (info) =>
               `skip (never muted): ${info.kinds}`,
           }),
-          post: () => ({
+          after: () => ({
             accept: true,
             acceptMessageFormatter: (info) =>
               info.muted
@@ -387,18 +413,18 @@ export class LexerCore<
     logger: Logger,
     entity: string,
   ) {
-    const preCheckRes = validator.pre(action);
-    if (!preCheckRes.accept) {
+    const preCheckRes = validator.before(action);
+    if (preCheckRes.skip) {
       // unexpected
       if (debug) {
         const info = {
           kinds: [...action.possibleKinds].map((k) =>
-            k.length === 0 ? "<anonymous>" : k,
+            k.length === 0 ? anonymousKindPlaceholder : k,
           ),
         };
         logger.log({
           entity,
-          message: preCheckRes.rejectMessageFormatter(info),
+          message: preCheckRes.skippedActionMessageFormatter(info),
           info,
         });
       }
@@ -412,7 +438,7 @@ export class LexerCore<
       if (debug) {
         const info = {
           kinds: [...action.possibleKinds].map((k) =>
-            k.length === 0 ? "<anonymous>" : k,
+            k.length === 0 ? anonymousKindPlaceholder : k,
           ),
         };
         logger.log({
@@ -426,12 +452,12 @@ export class LexerCore<
 
     // accepted, check expectation
     const kind = output.kind;
-    const postCheckRes = validator.post(action, output);
+    const postCheckRes = validator.after(action, output);
     if (postCheckRes.accept) {
       // accepted, return
       if (debug) {
         const info = {
-          kind: kind || "<anonymous>",
+          kind: kind || anonymousKindPlaceholder,
           muted: output.muted,
           content: output.content,
         };
@@ -448,7 +474,7 @@ export class LexerCore<
     if (debug) {
       const info = {
         kinds: [...action.possibleKinds].map((k) =>
-          k.length === 0 ? "<anonymous>" : k,
+          k.length === 0 ? anonymousKindPlaceholder : k,
         ),
         content: output.content,
       };
