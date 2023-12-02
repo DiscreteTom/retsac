@@ -97,8 +97,17 @@ export interface IReadonlyLexerCore<
   ActionState,
   ErrorType,
 > {
+  /**
+   * This is used for {@link IReadonlyLexerCore.dryClone} and {@link ILexerCore.reset}.
+   */
   readonly initialState: Readonly<ActionState>;
+  /**
+   * The current state.
+   */
   get state(): Readonly<ActionState>;
+  /**
+   * This is used for {@link IReadonlyLexerCore.clone} and {@link ILexerCore.reset}.
+   */
   readonly stateCloner: ActionStateCloner<ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the initial state.
@@ -150,6 +159,9 @@ export interface ILexerCore<
    */
   get readonly(): IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   get state(): ActionState; // make the state mutable
+  /**
+   * Reset the lexer core to the initial state.
+   */
   reset(): this;
   /**
    * Lex with partial options.
