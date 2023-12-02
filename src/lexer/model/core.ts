@@ -59,6 +59,9 @@ export type ILexerCoreLexOutput<
   token: Token<DataBindings, ErrorType> | null;
   /**
    * How many chars are digested during this lex.
+   * Zero if no actions can be accepted.
+   * This might be non-zero even the `token` is `null`,
+   * since there might be some muted actions are accepted.
    */
   digested: number;
   /**

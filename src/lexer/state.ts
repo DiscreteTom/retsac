@@ -36,7 +36,7 @@ export class LexerState<
 
   /**
    * Take `n` chars from the buffer and update related states.
-   * The caller should ensure the `n` is valid, and provide the content.
+   * The caller should ensure the `n` is valid (greater or equal to 0), and provide the content.
    *
    * If the caller can get the rest unintentionally, it can be passed to the `rest` parameter.
    */
