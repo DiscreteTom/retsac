@@ -26,9 +26,8 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   readonly start: number;
   /**
    * User-defined token kind name.
-   * This should only be set by {@link MultiKindsAction.select}.
    */
-  kind: Kinds;
+  readonly kind: Kinds;
   /**
    * How many chars are accepted by this action.
    */
@@ -62,7 +61,13 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     props: Pick<
       AcceptedActionOutput<Kinds, Data, ErrorType>,
       "buffer" | "start" | "muted" | "digested" | "error" | "content" | "data"
-    > & { rest: string | undefined },
+    > & {
+      rest: string | undefined;
+      /**
+       * This should only be set by {@link MultiKindsAction.select}.
+       */
+      kind: Kinds | undefined;
+    },
   ) {
     this.accept = true;
     this.buffer = props.buffer;
@@ -72,6 +77,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     this.error = props.error;
     this.content = props.content;
     this.data = props.data;
+    if (props.kind !== undefined) this.kind = props.kind;
     this.rest = new Lazy(
       () => this.buffer.slice(this.start + this.digested),
       props.rest,
@@ -95,6 +101,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
       content: output.content,
       data: output.data,
       rest: output.rest,
+      kind: undefined,
     });
   }
 }
