@@ -135,13 +135,23 @@ export type ActionExecOutput<Data, ErrorType> =
  * Make unnecessary fields optional.
  * One of `content` or `digested` must be provided.
  */
-export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
-  Pick<
-    AcceptedActionExecOutput<Data, ErrorType>,
-    "muted" | "error" | "digested" | "content" | "data" | "rest"
-  >
-> &
+export type SimpleAcceptedActionExecOutput<Data, ErrorType> =
+  // necessary fields
   AtLeastOneOf<
     AcceptedActionOutput<never, never, never>,
     "digested" | "content"
-  >;
+  > &
+    // unnecessary fields
+    Partial<
+      Pick<
+        AcceptedActionExecOutput<Data, ErrorType>,
+        | "muted"
+        | "error"
+        | "digested"
+        | "content"
+        | "rest"
+        // data should also be optional
+        // since we need to infer the data type from the exec output
+        | "data"
+      >
+    >;
