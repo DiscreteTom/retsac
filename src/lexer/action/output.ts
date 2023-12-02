@@ -6,6 +6,8 @@ import type {
   GeneralTokenDataBinding,
 } from "../model";
 import type { ActionInput } from "./input";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { MultiKindsAction } from "./select";
 
 // don't use data bindings as the type parameter
 // since we need these info to do type inference for `Action.exec/simple`.
@@ -24,6 +26,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   readonly start: number;
   /**
    * User-defined token kind name.
+   * This should only be set by {@link MultiKindsAction.select}.
    */
   kind: Kinds;
   /**
