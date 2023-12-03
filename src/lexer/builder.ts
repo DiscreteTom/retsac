@@ -229,29 +229,57 @@ export class Builder<
   /**
    * Define tokens with empty kind.
    */
-  anonymous<AppendData>(
-    ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
+  anonymous<
+    Actions extends IntoNoKindAction<unknown, ActionState, ErrorType>[],
+  >(
+    ...actions: Actions
   ): Builder<
-    DataBindings | { kind: ""; data: AppendData },
+    | DataBindings
+    | {
+        kind: "";
+        data: ExtractBindingData<Actions[number], ActionState, ErrorType>;
+      },
     ActionState,
     ErrorType
   > {
-    return this.define({ "": actions.map((a) => Builder.buildAction(a)) });
+    return this.define({
+      "": actions.map((a) => Builder.buildAction(a)),
+    }) as Builder<
+      | DataBindings
+      | {
+          kind: "";
+          data: ExtractBindingData<Actions[number], ActionState, ErrorType>;
+        },
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore<AppendData>(
-    ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
+  ignore<Actions extends IntoNoKindAction<unknown, ActionState, ErrorType>[]>(
+    ...actions: Actions
   ): Builder<
-    DataBindings | { kind: ""; data: AppendData },
+    | DataBindings
+    | {
+        kind: "";
+        data: ExtractBindingData<Actions[number], ActionState, ErrorType>;
+      },
     ActionState,
     ErrorType
   > {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
-    });
+    }) as Builder<
+      | DataBindings
+      | {
+          kind: "";
+          data: ExtractBindingData<Actions[number], ActionState, ErrorType>;
+        },
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
