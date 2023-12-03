@@ -1,8 +1,9 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexer,
   IReadonlyLexer,
+  IReadonlyTrimmedLexer,
+  ITrimmedLexer,
   Token,
 } from "../../../lexer";
 import type { StringOrLiteral } from "../../../type-helper";
@@ -266,7 +267,11 @@ export function lexGrammar<
   LexerErrorType,
 >(
   g: Grammar<ExtractKinds<LexerDataBindings>>,
-  lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+  lexer: IReadonlyTrimmedLexer<
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType
+  >,
 ):
   | {
       node: ASTNode<
@@ -275,7 +280,7 @@ export function lexGrammar<
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
       >;
-      lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+      lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     }
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
@@ -298,7 +303,7 @@ export function lexGrammar<
           ErrorType,
           Token<LexerDataBindings, LexerErrorType>
         >(token),
-        lexer: mutableLexer,
+        lexer: mutableLexer.trimStart(),
       };
 }
 

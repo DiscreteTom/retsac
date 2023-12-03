@@ -1,8 +1,8 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexer,
-  IReadonlyLexer,
+  IReadonlyTrimmedLexer,
+  ITrimmedLexer,
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
@@ -256,7 +256,11 @@ export class State<
    * Return all the possible results after deduplication.
    */
   tryLex(
-    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    lexer: IReadonlyTrimmedLexer<
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType
+    >,
     debug: boolean,
     logger: Logger,
   ): {
@@ -266,7 +270,7 @@ export class State<
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
     >;
-    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   }[] {
     // for deduplication
     const done = new Map<
@@ -367,7 +371,11 @@ export class State<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
-    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    lexer: IReadonlyTrimmedLexer<
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType
+    >,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,

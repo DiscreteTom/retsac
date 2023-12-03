@@ -2,7 +2,7 @@ import type { CandidateRepo, ReadonlyCandidateRepo } from "./candidate-repo";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyLexer,
+  IReadonlyTrimmedLexer,
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
@@ -242,7 +242,11 @@ export class Candidate<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
-    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    lexer: IReadonlyTrimmedLexer<
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType
+    >,
     cascadeQueryPrefix: string | undefined,
     debug: boolean,
     logger: Logger,
@@ -305,7 +309,7 @@ export class Candidate<
     // check follow for LR(1) with the rest input string
     // important! make sure lexer can still lex something not muted
     // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-    const nextTokenExists = lexer.lex({ peek: true }) !== null; // TODO: ensure lexer is already trimmed to optimize perf? new type: IReadonlyTrimmedLexer?
+    const nextTokenExists = lexer.lex({ peek: true }) !== null;
     if (nextTokenExists) {
       if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
         // entry NT, no need to check follow set if `ignoreEntryFollow` is set

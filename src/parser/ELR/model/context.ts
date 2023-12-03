@@ -1,6 +1,6 @@
 import type {
   GeneralTokenDataBinding,
-  IReadonlyLexer,
+  IReadonlyTrimmedLexer,
   Token,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
@@ -66,7 +66,7 @@ export class GrammarRuleContext<
    * Current lexer state.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
    */
-  readonly lexer: IReadonlyLexer<
+  readonly lexer: IReadonlyTrimmedLexer<
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
