@@ -8,10 +8,11 @@ import type {
   ILexerCloneOptions,
   ILexerCore,
   ILexerLexOptions,
+  ILexerState,
   IReadonlyLexer,
   Token,
 } from "./model";
-import { LexerState } from "./state";
+import { lexerStateFactory } from "./state";
 import { esc4regex } from "./utils";
 
 /**
@@ -26,14 +27,14 @@ export class Lexer<
   debug: boolean;
   logger: Logger;
   readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
-  private state: Readonly<LexerState<DataBindings, ErrorType>>;
+  private state: ILexerState<DataBindings, ErrorType>;
 
   constructor(
     core: ILexerCore<DataBindings, ActionState, ErrorType>,
     options?: LexerBuildOptions,
   ) {
     this.core = core;
-    this.state = new LexerState();
+    this.state = lexerStateFactory();
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
   }

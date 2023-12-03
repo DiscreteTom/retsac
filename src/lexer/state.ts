@@ -1,9 +1,10 @@
-import type { GeneralTokenDataBinding, Token } from "./model";
+import type { GeneralTokenDataBinding, ILexerState, Token } from "./model";
 
-export class LexerState<
-  DataBindings extends GeneralTokenDataBinding,
-  ErrorType,
-> {
+// don't export this class because we don't want user to modify its fields directly.
+// user should only use the methods provided by the interface.
+class LexerState<DataBindings extends GeneralTokenDataBinding, ErrorType>
+  implements ILexerState<DataBindings, ErrorType>
+{
   buffer: string;
   digested: number;
   lineChars: number[];
@@ -24,9 +25,6 @@ export class LexerState<
     this.rest = undefined;
   }
 
-  /**
-   * Append new input to the end of the buffer and update related states.
-   */
   feed(input: string) {
     if (input.length === 0) return;
     this.buffer += input;
@@ -34,12 +32,6 @@ export class LexerState<
     this.rest = undefined; // clear cache
   }
 
-  /**
-   * Take `n` chars from the buffer and update related states.
-   * The caller should ensure the `n` is valid (greater or equal to 0), and provide the content.
-   *
-   * If the caller can get the rest unintentionally, it can be passed to the `rest` parameter.
-   */
   take(n: number, content: string, rest: string | undefined) {
     if (n === 0) return;
 
@@ -76,4 +68,14 @@ export class LexerState<
   getRest() {
     return this.rest ?? (this.rest = this.buffer.slice(this.digested));
   }
+}
+
+/**
+ * Create a new {@link ILexerState}.
+ */
+export function lexerStateFactory<
+  DataBindings extends GeneralTokenDataBinding,
+  ErrorType,
+>(): ILexerState<DataBindings, ErrorType> {
+  return new LexerState<DataBindings, ErrorType>();
 }
