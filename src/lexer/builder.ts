@@ -144,13 +144,14 @@ export class Builder<
   >(
     ...builders: Builders
   ): Builder<
-    DataBindings | ReturnType<Builders[number]> extends Action<
-      infer DataBindings, // TODO: make sure kind is not `never`
-      infer _,
-      infer __
-    >
-      ? DataBindings
-      : never,
+    | DataBindings
+    | (ReturnType<Builders[number]> extends Action<
+        infer DataBindings, // TODO: make sure kind is not `never`
+        infer _,
+        infer __
+      >
+        ? DataBindings
+        : never),
     ActionState,
     ErrorType
   > {
