@@ -198,12 +198,6 @@ export class Builder<
     ActionState,
     ErrorType
   > {
-    const _this = this as Builder<
-      | DataBindings
-      | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
-      ActionState,
-      ErrorType
-    >;
     for (const kind in mapper) {
       const raw = mapper[kind] as
         | IntoNoKindAction<unknown, ActionState, ErrorType>
@@ -213,11 +207,22 @@ export class Builder<
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        _this.actions.push(Builder.buildAction(a).bind(kind) as any); // TODO: fix type
+        this.actions.push(
+          Builder.buildAction(a).bind(kind) as unknown as ReadonlyAction<
+            DataBindings,
+            ActionState,
+            ErrorType
+          >,
+        );
       });
     }
-    return _this;
+
+    return this as Builder<
+      | DataBindings
+      | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
