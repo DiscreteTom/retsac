@@ -137,24 +137,42 @@ export class Builder<
    * // action with multiple kinds
    * builder.append(a => a.from(...).kinds(...).select(...))
    */
-  append<AppendDataBindings extends GeneralTokenDataBinding>(
-    ...builder: ((a: ActionBuilder<ActionState, ErrorType>) => Action<
-      // TODO: prevent AppendKinds to be never?
-      // but we accept builder as a list, if one of the builders is never, we can't detect it
-      AppendDataBindings,
-      ActionState,
-      ErrorType
-    >)[]
-  ): Builder<DataBindings | AppendDataBindings, ActionState, ErrorType> {
-    const _this = this as unknown as Builder<
-      DataBindings | AppendDataBindings,
+  append<
+    Builders extends ((
+      a: ActionBuilder<ActionState, ErrorType>,
+    ) => Action<GeneralTokenDataBinding, ActionState, ErrorType>)[],
+  >(
+    ...builders: Builders
+  ): Builder<
+    DataBindings | ReturnType<Builders[number]> extends Action<
+      infer DataBindings, // TODO: make sure kind is not `never`
+      infer _,
+      infer _
+    >
+      ? DataBindings
+      : never,
+    ActionState,
+    ErrorType
+  > {
+    builders.forEach((build) =>
+      this.actions.push(
+        build(
+          new ActionBuilder<ActionState, ErrorType>(),
+        ) as unknown as ReadonlyAction<DataBindings, ActionState, ErrorType>,
+      ),
+    );
+
+    return this as unknown as Builder<
+      DataBindings | ReturnType<Builders[number]> extends Action<
+        infer DataBindings,
+        infer _,
+        infer _
+      >
+        ? DataBindings
+        : never,
       ActionState,
       ErrorType
     >;
-    builder.forEach((build) =>
-      _this.actions.push(build(new ActionBuilder<ActionState, ErrorType>())),
-    );
-    return _this;
   }
 
   /**

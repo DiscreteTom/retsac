@@ -6,6 +6,7 @@
   - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
+  - Feat: `Builder.append` can accept actions with different data bindings in one call.
   - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 - Parser
   - **_Breaking Change_**: lexer will be trimmed after every parse. This should improve the performance.
