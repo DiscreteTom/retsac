@@ -28,17 +28,13 @@ export function executeActions<
   peek: boolean,
   initialRest: string | undefined,
   state: ActionState,
-  cb: (ctx: {
-    // TODO: remove unused params
+  cb: (
     output: AcceptedActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
       ErrorType
-    >;
-    action: ReadonlyAction<DataBindings, ActionState, ErrorType>;
-    digested: number;
-    rest: string | undefined;
-  }) => {
+    >,
+  ) => {
     updateState: boolean;
     stop: boolean;
     token: Token<DataBindings, ErrorType> | null;
@@ -73,7 +69,7 @@ export function executeActions<
       peek,
       rest: currentRest,
     });
-    const res = evaluateActions(
+    const output = evaluateActions(
       input,
       // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
       // because some token may be muted, and we need to check the rest of the input
@@ -85,24 +81,23 @@ export function executeActions<
       entity,
     );
 
-    if (res === undefined) {
+    if (!output.accept) {
       // all definition checked, no accept or muted
       return { token: null, digested, rest: currentRest, errors };
     }
 
-    // TODO: better var name
-    const next = cb({ ...res, digested, rest: currentRest });
+    const res = cb(output);
 
     // accumulate errors
-    if (next.token?.error !== undefined) errors.push(next.token);
+    if (res.token?.error !== undefined) errors.push(res.token);
 
-    if (next.updateState) {
-      digested += res.output.digested;
-      currentRest = res.output.rest.raw;
+    if (res.updateState) {
+      digested += output.digested;
+      currentRest = output.rest.raw;
     }
 
-    if (next.stop)
-      return { token: next.token, digested, rest: currentRest, errors };
+    if (res.stop)
+      return { token: res.token, digested, rest: currentRest, errors };
 
     // else, non-stop, re-loop all actions
   }
@@ -110,7 +105,7 @@ export function executeActions<
 
 /**
  * Find the first action which can accept the input.
- * If no action is accepted, return `undefined`.
+ * If no action is accepted, return rejected action output.
  *
  * If the result token is muted, it may not match the expectation's kind/text.
  *
@@ -128,16 +123,7 @@ export function evaluateActions<
   debug: boolean,
   logger: Logger,
   entity: string,
-):
-  | {
-      output: AcceptedActionOutput<
-        ExtractKinds<DataBindings>,
-        ExtractData<DataBindings>,
-        ErrorType
-      >;
-      action: ReadonlyAction<DataBindings, ActionState, ErrorType>;
-    }
-  | undefined {
+): ActionOutput<DataBindings, ErrorType> {
   for (const action of actions) {
     const output = tryExecuteAction(
       input,
@@ -148,7 +134,7 @@ export function evaluateActions<
       entity,
     );
     if (output.accept) {
-      return { output, action };
+      return output;
     }
   }
 
@@ -158,7 +144,7 @@ export function evaluateActions<
       message: "no accept",
     });
   }
-  return undefined;
+  return rejectedActionOutput;
 }
 
 /**
@@ -256,8 +242,6 @@ export function output2token<
   DataBindings extends GeneralTokenDataBinding,
   ErrorType,
 >(
-  // TODO: remove kind
-  kind: ExtractKinds<DataBindings>,
   output: Readonly<
     AcceptedActionOutput<
       ExtractKinds<DataBindings>,
@@ -267,7 +251,7 @@ export function output2token<
   >,
 ): Token<DataBindings, ErrorType> {
   return {
-    kind,
+    kind: output.kind,
     content: output.content,
     start: output.start,
     error: output.error,

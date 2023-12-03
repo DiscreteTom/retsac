@@ -155,16 +155,13 @@ export class LexerCore<
       peek,
       initialRest,
       this.state,
-      ({ output }) => {
+      (output) => {
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
             updateState: true,
             stop: false,
-            token:
-              output.error !== undefined
-                ? output2token(output.kind, output)
-                : null,
+            token: output.error !== undefined ? output2token(output) : null,
           };
         }
 
@@ -172,7 +169,7 @@ export class LexerCore<
         return {
           updateState: true,
           stop: true,
-          token: output2token(output.kind, output),
+          token: output2token(output),
         };
       },
       debug,
@@ -227,16 +224,13 @@ export class LexerCore<
       false,
       initialRest,
       this.state,
-      ({ output }) => {
+      (output) => {
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
             updateState: true,
             stop: false,
-            token:
-              output.error !== undefined
-                ? output2token(output.kind, output)
-                : null,
+            token: output.error !== undefined ? output2token(output) : null,
           };
         }
 
