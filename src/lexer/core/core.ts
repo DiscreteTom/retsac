@@ -12,7 +12,7 @@ import type {
   ILexerCoreTrimStartOutput,
   IReadonlyLexerCore,
 } from "../model";
-import { evaluateActions, output2token } from "./utils";
+import { evaluateActions, executeActions, output2token } from "./utils";
 
 /**
  * LexerCore only store ActionState, no LexerState.
@@ -112,43 +112,15 @@ export class LexerCore<
       }
     }
 
-    let currentRest = initialRest;
-    let digested = 0;
-    const errors = [] as Token<DataBindings, ErrorType>[];
-    while (true) {
-      // first, ensure rest is not empty
-      // since maybe some token is muted in the last iteration which cause the rest is empty
-      if (start + digested >= buffer.length) {
-        if (debug) {
-          logger.log({
-            entity,
-            message: "no rest",
-          });
-        }
-        return { token: null, digested, rest: currentRest, errors };
-      }
-
-      // all defs will reuse this action input to reuse lazy values
-      // so we have to create it outside the loop
-      const input = new ActionInput({
-        buffer,
-        start: start + digested,
-        state: this.state,
-        peek,
-        rest: currentRest,
-      });
-      // cache the result of `startsWith` to avoid duplicate calculation
-      // since we need to check `startsWith` for every definition
-      const textMismatch =
-        expect.text !== undefined &&
-        !input.buffer.startsWith(expect.text, input.start);
-      const res = evaluateActions(
-        input,
-        // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
-        // because some token may be muted, and we need to check the rest of the input
-        // TODO: filter actions here, instead of using `before`?
-        this.actions,
-        {
+    return executeActions(
+      this.actions,
+      (input) => {
+        // cache the result of `startsWith` to avoid duplicate calculation
+        // since we need to check `startsWith` for every definition
+        const textMismatch =
+          expect.text !== undefined &&
+          !input.buffer.startsWith(expect.text, input.start);
+        return {
           // TODO: don't use callback functions
           before: (def) => ({
             skip:
@@ -176,41 +148,37 @@ export class LexerCore<
                 info.content.length
               } chars: ${JSON.stringify(info.content)}`,
           }),
-        },
-        debug,
-        logger,
-        entity,
-      );
-
-      if (res === undefined) {
-        // all definition checked, no accept or muted
-        return { token: null, digested, rest: currentRest, errors };
-      }
-
-      // update lexer state
-      digested += res.output.digested;
-      currentRest = res.output.rest.raw;
-
-      if (res.output.muted) {
-        // accept but muted, don't emit token, re-loop all definitions after collecting errors
-        if (res.output.error !== undefined) {
-          // collect errors
-          errors.push(output2token(res.output.kind, res.output));
+        };
+      },
+      buffer,
+      start,
+      peek,
+      initialRest,
+      this.state,
+      ({ output }) => {
+        if (output.muted) {
+          // accept but muted, don't emit token, just collect errors and re-loop all definitions
+          return {
+            updateState: true,
+            stop: false,
+            token:
+              output.error !== undefined
+                ? output2token(output.kind, output)
+                : null,
+          };
         }
-        continue;
-      } else {
-        // not muted, emit token after collecting errors
-        const token = output2token<DataBindings, ErrorType>(
-          res.output.kind,
-          res.output,
-        );
-        if (res.output.error !== undefined) {
-          // collect errors
-          errors.push(token);
-        }
-        return { token, digested, rest: currentRest, errors };
-      }
-    }
+
+        // not muted, emit token, collect errors and stop
+        return {
+          updateState: true,
+          stop: true,
+          token: output2token(output.kind, output),
+        };
+      },
+      debug,
+      logger,
+      entity,
+    );
   }
 
   trimStart(
