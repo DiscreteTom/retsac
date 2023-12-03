@@ -39,31 +39,30 @@ export function executeActions<
       ExtractData<DataBindings>,
       ErrorType
     >,
-  ) =>
+  ) => (
     | {
         /**
          * If `true`, update `digested` and `rest`.
          */
-        updateState: true;
+        updateCtx: true;
         /**
+         * Only effective when `updateCtx` is `true`.
+         * If `updateCtx` is `false`, iteration must be stopped to avoid inconsistent context.
+         *
          * If `true`, stop the iteration and return.
          * If `false`, re-loop all actions.
-         *
-         * If `updateState` is `false`, `stop` must be `true` to avoid inconsistent state.
          */
         stop: boolean;
-        /**
-         * If not `null`, the error token will be collected.
-         *
-         * If `stop` is true, the token will be returned.
-         */
-        token: Token<DataBindings, ErrorType> | null;
       }
-    | {
-        updateState: false;
-        stop: true;
-        token: Token<DataBindings, ErrorType> | null;
-      },
+    | { updateCtx: false }
+  ) & {
+    /**
+     * If not `null`, the error token will be collected.
+     *
+     * If `stop` is true, the token will be returned.
+     */
+    token: Token<DataBindings, ErrorType> | null;
+  },
   debug: boolean,
   logger: Logger,
   entity: string,
@@ -117,13 +116,13 @@ export function executeActions<
     // accumulate errors
     if (res.token?.error !== undefined) errors.push(res.token);
 
-    if (res.updateState) {
+    if (res.updateCtx) {
       digested += output.digested;
       currentRest = output.rest.raw;
     }
 
     // if not update state, must return to avoid inconsistent state
-    if (!res.updateState || res.stop)
+    if (!res.updateCtx || res.stop)
       return { token: res.token, digested, rest: currentRest, errors };
 
     // else, non-stop, re-loop all actions

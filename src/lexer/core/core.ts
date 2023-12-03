@@ -156,7 +156,7 @@ export class LexerCore<
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
-            updateState: true,
+            updateCtx: true,
             stop: false,
             token: output.error !== undefined ? output2token(output) : null,
           };
@@ -164,7 +164,7 @@ export class LexerCore<
 
         // not muted, emit token, collect errors and stop
         return {
-          updateState: true,
+          updateCtx: true,
           stop: true,
           token: output2token(output),
         };
@@ -225,7 +225,7 @@ export class LexerCore<
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
-            updateState: true,
+            updateCtx: true,
             stop: false,
             token: output.error !== undefined ? output2token(output) : null,
           };
@@ -233,7 +233,7 @@ export class LexerCore<
 
         // else, not muted, don't update state and collect errors, stop
         return {
-          updateState: false,
+          updateCtx: false,
           stop: true,
           token: null,
         };
