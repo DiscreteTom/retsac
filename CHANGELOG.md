@@ -4,6 +4,7 @@
 
 - Lexer
   - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
+  - **_Breaking Change_**: remove `Builder.getTokenKinds`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
   - Feat: `Builder.append/ignore/anonymous` can accept actions with different data bindings in one call.

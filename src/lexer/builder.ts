@@ -1,7 +1,7 @@
 import type { ActionStateCloner, ReadonlyAction } from "./action";
 import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
-import type { ExtractKinds, GeneralTokenDataBinding, ILexer } from "./model";
+import type { GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
 import type { Expand } from "../type-helper";
 
@@ -280,15 +280,6 @@ export class Builder<
       ActionState,
       ErrorType
     >;
-  }
-
-  /**
-   * Get all defined token kinds. This will build the lexer.
-   * @alias {@link Lexer.getTokenKinds}
-   */
-  getTokenKinds(): Set<ExtractKinds<DataBindings>> {
-    // `this.build` is lightweight, so we don't cache the result
-    return this.build().getTokenKinds();
   }
 
   build(
