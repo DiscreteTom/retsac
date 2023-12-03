@@ -1,11 +1,9 @@
 import { defaultLogger } from "../../logger";
 import type { ActionStateCloner, ReadonlyAction } from "../action";
-// import { ActionInput } from "../action";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexerCore,
-  // Token,
   ILexerCoreLexOptions,
   ILexerCoreLexOutput,
   ILexerCoreTrimStartOptions,
@@ -121,27 +119,26 @@ export class LexerCore<
           expect.text !== undefined &&
           !input.buffer.startsWith(expect.text, input.start);
         return {
-          // TODO: don't use callback functions
-          before: (def) => ({
+          before: (action) => ({
             skip:
               // muted actions must be executed no matter what the expectation is
               // so only never muted actions can be skipped
-              def.neverMuted &&
+              action.neverMuted &&
               // def.kind mismatch expectation
               ((expect.kind !== undefined &&
-                !def.possibleKinds.has(expect.kind)) ||
+                !action.possibleKinds.has(expect.kind)) ||
                 // rest head mismatch the text expectation
                 textMismatch),
             skippedActionMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
           }),
-          after: (def, output) => ({
+          after: (action, output) => ({
             accept:
               // if muted, we don't need to check expectation
               output.muted ||
               // ensure expectation match
               ((expect.kind === undefined ||
-                def.possibleKinds.has(expect.kind)) &&
+                action.possibleKinds.has(expect.kind)) &&
                 (expect.text === undefined || expect.text === output.content)),
             acceptMessageFormatter: (info) =>
               `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
@@ -200,10 +197,10 @@ export class LexerCore<
     return executeActions(
       this.actions,
       () => ({
-        before: (def) => ({
+        before: (action) => ({
           // if the action may be muted, we can't skip it
           // if the action is never muted, we just reject it
-          skip: def.neverMuted,
+          skip: action.neverMuted,
           skippedActionMessageFormatter: (info) =>
             `skip (never muted): ${info.kinds}`,
         }),

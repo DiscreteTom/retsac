@@ -10,6 +10,7 @@ import type {
   ExtractKinds,
   ExtractData,
   Token,
+  ILexerCoreLexOutput,
 } from "../model";
 import type { Validator } from "./model";
 import { anonymousKindPlaceholder } from "./model";
@@ -20,6 +21,10 @@ export function executeActions<
   ErrorType,
 >(
   actions: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
+  /**
+   * Use this factory to pre-calculate some values and cache them,
+   * then we don't need to calculate them again in each iteration.
+   */
   validatorFactory: (
     input: ActionInput<ActionState>,
   ) => Validator<DataBindings, ActionState, ErrorType>,
@@ -34,15 +39,35 @@ export function executeActions<
       ExtractData<DataBindings>,
       ErrorType
     >,
-  ) => {
-    updateState: boolean;
-    stop: boolean;
-    token: Token<DataBindings, ErrorType> | null;
-  },
+  ) =>
+    | {
+        /**
+         * If `true`, update `digested` and `rest`.
+         */
+        updateState: true;
+        /**
+         * If `true`, stop the iteration and return.
+         * If `false`, re-loop all actions.
+         *
+         * If `updateState` is `false`, `stop` must be `true` to avoid inconsistent state.
+         */
+        stop: boolean;
+        /**
+         * If not `null`, the error token will be collected.
+         *
+         * If `stop` is true, the token will be returned.
+         */
+        token: Token<DataBindings, ErrorType> | null;
+      }
+    | {
+        updateState: false;
+        stop: true;
+        token: Token<DataBindings, ErrorType> | null;
+      },
   debug: boolean,
   logger: Logger,
   entity: string,
-) {
+): ILexerCoreLexOutput<DataBindings, ErrorType> {
   let currentRest = initialRest;
   let digested = 0;
   const errors = [] as Token<DataBindings, ErrorType>[];
@@ -69,11 +94,10 @@ export function executeActions<
       peek,
       rest: currentRest,
     });
-    const output = evaluateActions(
+    const output = traverseActions(
       input,
-      // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
-      // because some token may be muted, and we need to check the rest of the input
-      // TODO: filter actions here, instead of using `before`? but filter will create a new array
+      // we use validator to skip actions during the loop,
+      // don't use filter here so we can avoid creating temporary array
       actions,
       validatorFactory(input),
       debug,
@@ -82,7 +106,9 @@ export function executeActions<
     );
 
     if (!output.accept) {
-      // all definition checked, no accept or muted
+      // all definition checked, no accepted action
+      // but the digested, rest and errors might be updated by the last iteration
+      // so we have to return them
       return { token: null, digested, rest: currentRest, errors };
     }
 
@@ -96,7 +122,8 @@ export function executeActions<
       currentRest = output.rest.raw;
     }
 
-    if (res.stop)
+    // if not update state, must return to avoid inconsistent state
+    if (!res.updateState || res.stop)
       return { token: res.token, digested, rest: currentRest, errors };
 
     // else, non-stop, re-loop all actions
@@ -106,13 +133,8 @@ export function executeActions<
 /**
  * Find the first action which can accept the input.
  * If no action is accepted, return rejected action output.
- *
- * If the result token is muted, it may not match the expectation's kind/text.
- *
- * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
  */
-// TODO: optimize comments
-export function evaluateActions<
+function traverseActions<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
@@ -133,9 +155,7 @@ export function evaluateActions<
       logger,
       entity,
     );
-    if (output.accept) {
-      return output;
-    }
+    if (output.accept) return output;
   }
 
   if (debug) {
@@ -151,7 +171,7 @@ export function evaluateActions<
  * Try to apply the action to the input.
  * Return rejected action output if the action is rejected or not pass the validation.
  */
-export function tryExecuteAction<
+function tryExecuteAction<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
@@ -199,7 +219,7 @@ export function tryExecuteAction<
     return output;
   }
 
-  // accepted, check expectation
+  // accepted, validate the output
   const kind = output.kind;
   const postCheckRes = validator.after(action, output);
   if (postCheckRes.accept) {
