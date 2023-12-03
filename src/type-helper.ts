@@ -10,8 +10,10 @@ export type StringOrLiteral<T extends string> =
 /**
  * A quoted string literal type.
  * E.g. `"abc"`, `'abc'`
+ *
+ * Escaped sequences are not supported.
  */
-export type QuotedString = `"${string}"` | `'${string}'`; // TODO: handle escape?
+export type QuotedString = `"${string}"` | `'${string}'`;
 
 // https://stackoverflow.com/questions/57683303/how-can-i-see-the-full-expanded-contract-of-a-typescript-type
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
