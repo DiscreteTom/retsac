@@ -5,6 +5,7 @@
 - Lexer
   - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
+  - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 
 ## v0.14.0
 

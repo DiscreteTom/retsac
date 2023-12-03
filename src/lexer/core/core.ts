@@ -1,18 +1,18 @@
 import { defaultLogger } from "../../logger";
 import type { ActionStateCloner, ReadonlyAction } from "../action";
-import { ActionInput } from "../action";
+// import { ActionInput } from "../action";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexerCore,
-  Token,
+  // Token,
   ILexerCoreLexOptions,
   ILexerCoreLexOutput,
   ILexerCoreTrimStartOptions,
   ILexerCoreTrimStartOutput,
   IReadonlyLexerCore,
 } from "../model";
-import { evaluateActions, executeActions, output2token } from "./utils";
+import { executeActions, output2token } from "./utils";
 
 /**
  * LexerCore only store ActionState, no LexerState.
@@ -198,84 +198,58 @@ export class LexerCore<
     buffer: string,
     options: Readonly<ILexerCoreTrimStartOptions>,
   ): ILexerCoreTrimStartOutput<DataBindings, ErrorType> {
-    const { debug, logger, rest, start, entity } = options;
+    const { debug, logger, rest: initialRest, start, entity } = options;
 
-    let currentRest = rest;
-    let digested = 0;
-    const errors = [] as Token<DataBindings, ErrorType>[];
-    while (true) {
-      // first, ensure rest is not empty
-      // since maybe some token is muted in the last iteration which cause the rest is empty
-      if (start + digested >= buffer.length) {
-        if (debug) {
-          logger.log({
-            entity,
-            message: "no rest",
-          });
+    return executeActions(
+      this.actions,
+      () => ({
+        before: (def) => ({
+          // if the action may be muted, we can't skip it
+          // if the action is never muted, we just reject it
+          skip: def.neverMuted,
+          skippedActionMessageFormatter: (info) =>
+            `skip (never muted): ${info.kinds}`,
+        }),
+        after: () => ({
+          accept: true,
+          acceptMessageFormatter: (info) =>
+            info.muted
+              ? `trim ${info.kind}, ${
+                  info.content.length
+                } chars: ${JSON.stringify(info.content)}`
+              : `found unmuted ${info.kind}, ${
+                  info.content.length
+                } chars: ${JSON.stringify(info.content)}`,
+        }),
+      }),
+      buffer,
+      start,
+      false,
+      initialRest,
+      this.state,
+      ({ output }) => {
+        if (output.muted) {
+          // accept but muted, don't emit token, just collect errors and re-loop all definitions
+          return {
+            updateState: true,
+            stop: false,
+            token:
+              output.error !== undefined
+                ? output2token(output.kind, output)
+                : null,
+          };
         }
-        return { digested, rest: currentRest, errors };
-      }
 
-      // all defs will reuse this input to reuse lazy values
-      const input = new ActionInput({
-        buffer,
-        start: start + digested,
-        state: this.state,
-        peek: false,
-        rest: currentRest,
-      });
-
-      const res = evaluateActions(
-        input,
-        this.actions,
-        {
-          before: (def) => ({
-            // if the action may be muted, we can't skip it
-            // if the action is never muted, we just reject it
-            skip: def.neverMuted,
-            skippedActionMessageFormatter: (info) =>
-              `skip (never muted): ${info.kinds}`,
-          }),
-          after: () => ({
-            accept: true,
-            acceptMessageFormatter: (info) =>
-              info.muted
-                ? `trim ${info.kind}, ${
-                    info.content.length
-                  } chars: ${JSON.stringify(info.content)}`
-                : `found unmuted ${info.kind}, ${
-                    info.content.length
-                  } chars: ${JSON.stringify(info.content)}`,
-          }),
-        },
-        debug,
-        logger,
-        entity,
-      );
-
-      if (res === undefined) {
-        // all definition checked, no accept
-        return { digested, rest: currentRest, errors };
-      }
-
-      if (res.output.muted) {
-        // accept but muted
-        // re-loop all definitions after update states
-        digested += res.output.digested;
-        currentRest = res.output.rest.raw;
-        if (res.output.error !== undefined) {
-          // collect errors
-          errors.push(output2token(res.output.kind, res.output));
-        }
-        continue;
-      } else {
-        // not muted, don't update state, return after collecting errors
-        if (res.output.error !== undefined) {
-          // collect errors
-          errors.push(output2token(res.output.kind, res.output));
-        }
-        return { digested, rest: currentRest, errors };
-      }
-    }
+        // else, not muted, don't update state and collect errors, stop
+        return {
+          updateState: false,
+          stop: true,
+          token: null,
+        };
+      },
+      debug,
+      logger,
+      entity,
+    );
   }
 }
