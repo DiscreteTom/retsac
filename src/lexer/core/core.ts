@@ -1,60 +1,18 @@
-import { defaultLogger, type Logger } from "../../logger";
+import { defaultLogger } from "../../logger";
 import type { ActionStateCloner, ReadonlyAction } from "../action";
-import { ActionInput, type AcceptedActionOutput } from "../action";
+import { ActionInput } from "../action";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexerCore,
   Token,
-  ExtractData,
   ILexerCoreLexOptions,
   ILexerCoreLexOutput,
   ILexerCoreTrimStartOptions,
   ILexerCoreTrimStartOutput,
   IReadonlyLexerCore,
 } from "../model";
-
-// TODO: move to a better place
-export const anonymousKindPlaceholder = "<anonymous>";
-export type AnonymousKindPlaceholder = typeof anonymousKindPlaceholder;
-
-/**
- * Validator is used to check if an action can be skipped before executing it,
- * and if an action's output can be accepted after executing it.
- */
-export type Validator<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> = {
-  /**
-   * Check if an action can be skipped before executing it.
-   */
-  before: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
-    skip: boolean;
-    skippedActionMessageFormatter: (info: {
-      kinds: (AnonymousKindPlaceholder | ExtractKinds<DataBindings>)[];
-    }) => string;
-  };
-  after: (
-    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
-    output: AcceptedActionOutput<
-      ExtractKinds<DataBindings>,
-      ExtractData<DataBindings>,
-      ErrorType
-    >,
-  ) => {
-    accept: boolean;
-    acceptMessageFormatter: (info: {
-      kind: AnonymousKindPlaceholder | ExtractKinds<DataBindings>;
-      muted: boolean;
-      /**
-       * The content of the token.
-       */
-      content: string;
-    }) => string;
-  };
-};
+import { evaluateDefs, output2token } from "./utils";
 
 /**
  * LexerCore only store ActionState, no LexerState.
@@ -184,7 +142,7 @@ export class LexerCore<
       const textMismatch =
         expect.text !== undefined &&
         !input.buffer.startsWith(expect.text, input.start);
-      const res = LexerCore.evaluateDefs(
+      const res = evaluateDefs(
         input,
         // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
         // because some token may be muted, and we need to check the rest of the input
@@ -237,12 +195,12 @@ export class LexerCore<
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.output2token(res.kind, res.output));
+          errors.push(output2token(res.kind, res.output));
         }
         continue;
       } else {
         // not muted, emit token after collecting errors
-        const token = LexerCore.output2token<DataBindings, ErrorType>(
+        const token = output2token<DataBindings, ErrorType>(
           res.kind,
           res.output,
         );
@@ -299,7 +257,7 @@ export class LexerCore<
         rest: currentRest,
       });
 
-      const res = LexerCore.evaluateDefs(
+      const res = evaluateDefs(
         input,
         this.actions,
         {
@@ -339,172 +297,17 @@ export class LexerCore<
         currentRest = res.output.rest.raw;
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.output2token(res.kind, res.output));
+          errors.push(output2token(res.kind, res.output));
         }
         continue;
       } else {
         // not muted, don't update state, return after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(LexerCore.output2token(res.kind, res.output));
+          errors.push(output2token(res.kind, res.output));
         }
         return { digested, rest: currentRest, errors };
       }
     }
-  }
-
-  /**
-   * Find the first definition which can accept the input (including muted).
-   * If no definition is accepted, return `undefined`.
-   *
-   * If the result token is muted, it may not match the expectation's kind/text.
-   *
-   * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
-   */
-  static evaluateDefs<
-    DataBindings extends GeneralTokenDataBinding,
-    ActionState,
-    ErrorType,
-  >(
-    input: ActionInput<ActionState>,
-    actions: readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[],
-    validator: Validator<DataBindings, ActionState, ErrorType>,
-    debug: boolean,
-    logger: Logger,
-    entity: string,
-  ) {
-    for (const action of actions) {
-      const res = LexerCore.tryDefinition(
-        input,
-        action,
-        validator,
-        debug,
-        logger,
-        entity,
-      );
-      if (res !== undefined) {
-        return { ...res, def: action };
-      }
-    }
-
-    if (debug) {
-      logger.log({
-        entity,
-        message: "no accept",
-      });
-    }
-    return undefined;
-  }
-
-  /**
-   * Try to apply the definition's action to the input.
-   * Return the action's output if accepted and expected.
-   * Return `undefined` if the definition is rejected or unexpected.
-   */
-  static tryDefinition<
-    DataBindings extends GeneralTokenDataBinding,
-    ActionState,
-    ErrorType,
-  >(
-    input: ActionInput<ActionState>,
-    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
-    validator: Validator<DataBindings, ActionState, ErrorType>,
-    debug: boolean,
-    logger: Logger,
-    entity: string,
-  ) {
-    const preCheckRes = validator.before(action);
-    if (preCheckRes.skip) {
-      // unexpected
-      if (debug) {
-        const info = {
-          kinds: [...action.possibleKinds].map((k) =>
-            k.length === 0 ? anonymousKindPlaceholder : k,
-          ),
-        };
-        logger.log({
-          entity,
-          message: preCheckRes.skippedActionMessageFormatter(info),
-          info,
-        });
-      }
-      return;
-    }
-
-    const output = action.exec(input);
-
-    if (!output.accept) {
-      // rejected
-      if (debug) {
-        const info = {
-          kinds: [...action.possibleKinds].map((k) =>
-            k.length === 0 ? anonymousKindPlaceholder : k,
-          ),
-        };
-        logger.log({
-          entity,
-          message: `reject: ${info.kinds.join(", ")}`,
-          info,
-        });
-      }
-      return;
-    }
-
-    // accepted, check expectation
-    const kind = output.kind;
-    const postCheckRes = validator.after(action, output);
-    if (postCheckRes.accept) {
-      // accepted, return
-      if (debug) {
-        const info = {
-          kind: kind || anonymousKindPlaceholder,
-          muted: output.muted,
-          content: output.content,
-        };
-        logger.log({
-          entity,
-          message: postCheckRes.acceptMessageFormatter(info),
-          info,
-        });
-      }
-      return { output, kind };
-    }
-
-    // accepted but unexpected and not muted, reject
-    if (debug) {
-      const info = {
-        kinds: [...action.possibleKinds].map((k) =>
-          k.length === 0 ? anonymousKindPlaceholder : k,
-        ),
-        content: output.content,
-      };
-      logger.log({
-        entity,
-        message: `unexpected ${info.kinds.join(", ")}: ${JSON.stringify(
-          info.content,
-        )}`,
-        info,
-      });
-    }
-    return;
-  }
-
-  static output2token<DataBindings extends GeneralTokenDataBinding, ErrorType>(
-    kind: ExtractKinds<DataBindings>,
-    output: Readonly<
-      AcceptedActionOutput<
-        ExtractKinds<DataBindings>,
-        ExtractData<DataBindings>,
-        ErrorType
-      >
-    >,
-  ): Token<DataBindings, ErrorType> {
-    return {
-      kind,
-      content: output.content,
-      start: output.start,
-      error: output.error,
-      data: output.data,
-    } as Token<DataBindings, ErrorType>;
   }
 }
