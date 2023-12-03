@@ -1,15 +1,10 @@
-// TODO: remove this file
-
+import type { AnonymousKindPlaceholder } from "../../anonymous";
 import type { ReadonlyAction, AcceptedActionOutput } from "../action";
 import type {
   GeneralTokenDataBinding,
   ExtractKinds,
   ExtractData,
 } from "../model";
-
-// TODO: move to a better place
-export const anonymousKindPlaceholder = "<anonymous>";
-export type AnonymousKindPlaceholder = typeof anonymousKindPlaceholder;
 
 /**
  * Validator is used to check if an action can be skipped before executing it,

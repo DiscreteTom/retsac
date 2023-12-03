@@ -12,6 +12,7 @@ import { Lazy } from "../lazy";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";
+import { anonymousKindPlaceholder } from "../anonymous";
 
 /**
  * A structured type for serialization.
@@ -203,7 +204,7 @@ export class ASTNode<
 
     // don't use `this.toStringWithName` here
     // since this output will always have ': '
-    const kind = this.kind === "" ? "<anonymous>" : this.kind;
+    const kind = this.kind === "" ? anonymousKindPlaceholder : this.kind;
     let res = `${indent}${
       this.kind === this.name ? kind : `${kind}@${this.name}`
     }: `;
@@ -235,7 +236,7 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.kind === "" ? anonymousKindPlaceholder : data.kind}` +
       `${data.name === data.kind ? "" : `@${data.name}`}` +
       `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
@@ -251,7 +252,7 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.kind === "" ? anonymousKindPlaceholder : data.kind}` +
       `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
