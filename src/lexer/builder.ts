@@ -248,20 +248,14 @@ export class Builder<
   /**
    * Define muted anonymous actions.
    */
-  ignore<AppendData>(
-    ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
-  ): Builder<
-    DataBindings | { kind: ""; data: AppendData },
-    ActionState,
-    ErrorType
-  > {
+  ignore(
+    // muted actions won't emit token
+    // so we don't need to update the data bindings
+    ...actions: IntoNoKindAction<unknown, ActionState, ErrorType>[]
+  ): Builder<DataBindings, ActionState, ErrorType> {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
-    }) as Builder<
-      DataBindings | { kind: ""; data: AppendData },
-      ActionState,
-      ErrorType
-    >;
+    }) as Builder<DataBindings, ActionState, ErrorType>;
   }
 
   build(
