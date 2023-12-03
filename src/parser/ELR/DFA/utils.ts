@@ -280,7 +280,7 @@ export function lexGrammar<
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
   // so we will need many lexers with different states
-  const mutableLexer = lexer.clone();
+  const mutableLexer = lexer.clone(); // TODO: is there a way to prevent clone every time?
 
   const token = mutableLexer.lex({
     expect: {

@@ -1,8 +1,10 @@
 import type { Logger } from "../../logger";
+import { rejectedActionOutput } from "../action";
 import type {
   AcceptedActionOutput,
-  ActionInput,
+  ActionOutput,
   ReadonlyAction,
+  ActionInput,
 } from "../action";
 import type {
   GeneralTokenDataBinding,
@@ -14,14 +16,15 @@ import type { Validator } from "./model";
 import { anonymousKindPlaceholder } from "./model";
 
 /**
- * Find the first definition which can accept the input (including muted).
- * If no definition is accepted, return `undefined`.
+ * Find the first action which can accept the input.
+ * If no action is accepted, return `undefined`.
  *
  * If the result token is muted, it may not match the expectation's kind/text.
  *
  * Set `expect.muted` to `true` doesn't guarantee the result token is muted.
  */
-export function evaluateDefs<
+// TODO: optimize comments
+export function evaluateActions<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
@@ -32,11 +35,27 @@ export function evaluateDefs<
   debug: boolean,
   logger: Logger,
   entity: string,
-) {
+):
+  | {
+      output: AcceptedActionOutput<
+        ExtractKinds<DataBindings>,
+        ExtractData<DataBindings>,
+        ErrorType
+      >;
+      action: ReadonlyAction<DataBindings, ActionState, ErrorType>;
+    }
+  | undefined {
   for (const action of actions) {
-    const res = tryDefinition(input, action, validator, debug, logger, entity);
-    if (res !== undefined) {
-      return { ...res, def: action };
+    const output = tryExecuteAction(
+      input,
+      action,
+      validator,
+      debug,
+      logger,
+      entity,
+    );
+    if (output.accept) {
+      return { output, action };
     }
   }
 
@@ -50,11 +69,10 @@ export function evaluateDefs<
 }
 
 /**
- * Try to apply the definition's action to the input.
- * Return the action's output if accepted and expected.
- * Return `undefined` if the definition is rejected or unexpected.
+ * Try to apply the action to the input.
+ * Return rejected action output if the action is rejected or not pass the validation.
  */
-export function tryDefinition<
+export function tryExecuteAction<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
@@ -65,10 +83,9 @@ export function tryDefinition<
   debug: boolean,
   logger: Logger,
   entity: string,
-) {
+): ActionOutput<DataBindings, ErrorType> {
   const preCheckRes = validator.before(action);
   if (preCheckRes.skip) {
-    // unexpected
     if (debug) {
       const info = {
         kinds: [...action.possibleKinds].map((k) =>
@@ -81,7 +98,7 @@ export function tryDefinition<
         info,
       });
     }
-    return;
+    return rejectedActionOutput;
   }
 
   const output = action.exec(input);
@@ -100,7 +117,7 @@ export function tryDefinition<
         info,
       });
     }
-    return;
+    return output;
   }
 
   // accepted, check expectation
@@ -120,10 +137,10 @@ export function tryDefinition<
         info,
       });
     }
-    return { output, kind };
+    return output;
   }
 
-  // accepted but unexpected and not muted, reject
+  // accepted but not pass the validation, reject
   if (debug) {
     const info = {
       kinds: [...action.possibleKinds].map((k) =>
@@ -139,7 +156,7 @@ export function tryDefinition<
       info,
     });
   }
-  return;
+  return rejectedActionOutput;
 }
 
 export function output2token<

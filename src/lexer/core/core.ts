@@ -12,7 +12,7 @@ import type {
   ILexerCoreTrimStartOutput,
   IReadonlyLexerCore,
 } from "../model";
-import { evaluateDefs, output2token } from "./utils";
+import { evaluateActions, output2token } from "./utils";
 
 /**
  * LexerCore only store ActionState, no LexerState.
@@ -142,7 +142,7 @@ export class LexerCore<
       const textMismatch =
         expect.text !== undefined &&
         !input.buffer.startsWith(expect.text, input.start);
-      const res = evaluateDefs(
+      const res = evaluateActions(
         input,
         // IMPORTANT!: we can't only evaluate the definitions which match the expectation kind
         // because some token may be muted, and we need to check the rest of the input
@@ -195,13 +195,13 @@ export class LexerCore<
         // accept but muted, don't emit token, re-loop all definitions after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(output2token(res.kind, res.output));
+          errors.push(output2token(res.output.kind, res.output));
         }
         continue;
       } else {
         // not muted, emit token after collecting errors
         const token = output2token<DataBindings, ErrorType>(
-          res.kind,
+          res.output.kind,
           res.output,
         );
         if (res.output.error !== undefined) {
@@ -257,7 +257,7 @@ export class LexerCore<
         rest: currentRest,
       });
 
-      const res = evaluateDefs(
+      const res = evaluateActions(
         input,
         this.actions,
         {
@@ -297,14 +297,14 @@ export class LexerCore<
         currentRest = res.output.rest.raw;
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(output2token(res.kind, res.output));
+          errors.push(output2token(res.output.kind, res.output));
         }
         continue;
       } else {
         // not muted, don't update state, return after collecting errors
         if (res.output.error !== undefined) {
           // collect errors
-          errors.push(output2token(res.kind, res.output));
+          errors.push(output2token(res.output.kind, res.output));
         }
         return { digested, rest: currentRest, errors };
       }
