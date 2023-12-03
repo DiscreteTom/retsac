@@ -1,3 +1,4 @@
+import { anonymousKindPlaceholder } from "../../anonymous";
 import type { Logger } from "../../logger";
 import { rejectedActionOutput, ActionInput } from "../action";
 import type {
@@ -13,7 +14,6 @@ import type {
   ILexerCoreLexOutput,
 } from "../model";
 import type { Validator } from "./model";
-import { anonymousKindPlaceholder } from "./model";
 
 export function executeActions<
   DataBindings extends GeneralTokenDataBinding,
