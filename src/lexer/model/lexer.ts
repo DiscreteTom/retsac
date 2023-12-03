@@ -130,12 +130,16 @@ export interface ILexer<
   /**
    * Take `n` chars from the rest of buffer and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).
+   *
+   * Remember to update the lexer's action state if you have any.
    */
   take(n?: number): string;
   /**
    * Take chars from the rest of buffer and update state until `pattern` matches.
    * The pattern will be included in the result.
    * This is useful when you have external logic to handle the token (e.g. error handling).
+   *
+   * Remember to update the lexer's action state if you have any.
    */
   takeUntil(
     pattern: string | RegExp,

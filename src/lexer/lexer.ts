@@ -173,7 +173,7 @@ export class Lexer<
     if (typeof input === "string") {
       this.feed(input);
     } else {
-      if (input.input) this.feed(input.input);
+      if (input.input !== undefined) this.feed(input.input);
     }
 
     const entity = "Lexer.lex";
@@ -216,6 +216,7 @@ export class Lexer<
         res.rest,
       );
       this.errors.push(...res.errors);
+      // action state will be updated in core automatically if peek is false
     }
 
     return res.token;
