@@ -4,7 +4,6 @@ import type {
   ILexerCoreLexOptions,
   IReadonlyLexerCore,
 } from "./core";
-import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
 export type ILexerLexOptions<DataBindings extends GeneralTokenDataBinding> = {
@@ -27,7 +26,10 @@ export interface IReadonlyLexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> {
+> extends Pick<
+    IReadonlyLexerCore<DataBindings, ActionState, ErrorType>,
+    "getTokenKinds"
+  > {
   readonly core: IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
@@ -91,10 +93,6 @@ export interface IReadonlyLexer<
    * The rest of buffer not empty.
    */
   hasRest(): boolean;
-  /**
-   * Get all defined token kinds.
-   */
-  getTokenKinds(): Set<ExtractKinds<DataBindings>>;
   /**
    * Get 1-based line number and 1-based column number
    * from the 0-based index of the whole input string.
