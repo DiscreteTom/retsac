@@ -147,7 +147,7 @@ export class Builder<
     DataBindings | ReturnType<Builders[number]> extends Action<
       infer DataBindings, // TODO: make sure kind is not `never`
       infer _,
-      infer _
+      infer __
     >
       ? DataBindings
       : never,
@@ -166,7 +166,7 @@ export class Builder<
       DataBindings | ReturnType<Builders[number]> extends Action<
         infer DataBindings,
         infer _,
-        infer _
+        infer __
       >
         ? DataBindings
         : never,
