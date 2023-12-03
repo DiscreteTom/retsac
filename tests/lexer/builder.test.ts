@@ -4,7 +4,7 @@ function newBuilder() {
   return new Lexer.Builder()
     .state({ count: 0 })
     .error<string>()
-    .ignore(Lexer.whitespaces())
+    .ignore((a) => a.from(Lexer.whitespaces()))
     .define({
       number: /[0-9]+/,
       error: (a) => a.from(/error/).error("error"),
@@ -14,7 +14,7 @@ function newBuilder() {
           .reject(({ input }) => input.state.count !== 0)
           .then(({ input }) => input.state.count++),
     })
-    .anonymous(Lexer.exact(..."+-*/()"));
+    .anonymous((a) => a.from(Lexer.exact(..."+-*/()")));
 }
 
 test("builder ignore", () => {
