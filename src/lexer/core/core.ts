@@ -1,6 +1,6 @@
-import { defaultLogger, type Logger } from "../logger";
-import type { ActionStateCloner, ReadonlyAction } from "./action";
-import { ActionInput, type AcceptedActionOutput } from "./action";
+import { defaultLogger, type Logger } from "../../logger";
+import type { ActionStateCloner, ReadonlyAction } from "../action";
+import { ActionInput, type AcceptedActionOutput } from "../action";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -12,7 +12,7 @@ import type {
   ILexerCoreTrimStartOptions,
   ILexerCoreTrimStartOutput,
   IReadonlyLexerCore,
-} from "./model";
+} from "../model";
 
 // TODO: move to a better place
 export const anonymousKindPlaceholder = "<anonymous>";
