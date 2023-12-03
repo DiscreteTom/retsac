@@ -546,7 +546,7 @@ export class Action<
     // since we are setting kinds, the DataBindings must be set even it's `never`
     {
       kind: NewKinds;
-      data: DataBindings extends never
+      data: [DataBindings] extends [never]
         ? undefined // ensure default data is undefined instead of never, #33
         : ExtractData<DataBindings>;
     },
@@ -556,7 +556,7 @@ export class Action<
     const _this = this as unknown as Action<
       {
         kind: NewKinds;
-        data: DataBindings extends never
+        data: [DataBindings] extends [never]
           ? undefined
           : ExtractData<DataBindings>;
       },
@@ -579,7 +579,7 @@ export class Action<
     // since we are setting kinds, the DataBindings must be set even it's `never`
     {
       kind: NewKinds;
-      data: DataBindings extends never
+      data: [DataBindings] extends [never]
         ? undefined // ensure default data is undefined instead of never, #33
         : ExtractData<DataBindings>;
     },
