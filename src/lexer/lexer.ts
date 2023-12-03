@@ -10,6 +10,7 @@ import type {
   ILexerLexOptions,
   ILexerState,
   IReadonlyLexer,
+  ITrimmedLexer,
   Token,
 } from "./model";
 import { lexerStateFactory } from "./state";
@@ -69,7 +70,7 @@ export class Lexer<
     }
     this.core.reset();
     this.state.reset();
-    return this;
+    return this as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   dryClone(options?: ILexerCloneOptions) {
@@ -78,7 +79,7 @@ export class Lexer<
     );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
-    return res;
+    return res as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   clone(options?: ILexerCloneOptions) {
@@ -267,7 +268,7 @@ export class Lexer<
       this.state.setTrimmed();
     }
 
-    return this;
+    return this as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   getRest() {

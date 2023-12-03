@@ -60,7 +60,7 @@ export interface IReadonlyLexer<
    */
   dryClone(
     options?: ILexerCloneOptions,
-  ): ILexer<DataBindings, ActionState, ErrorType>;
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -122,7 +122,7 @@ export interface ILexer<
   /**
    * Reset the lexer's state.
    */
-  reset(): this;
+  reset(): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Append buffer with input.
    */
@@ -154,7 +154,9 @@ export interface ILexer<
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
-  trimStart(input?: string): this;
+  trimStart(
+    input?: string,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Try to retrieve a token list exhaustively.
    */
@@ -163,4 +165,73 @@ export interface ILexer<
     stopOnError?: boolean;
   }): Token<DataBindings, ErrorType>[];
   lexAll(input?: string): Token<DataBindings, ErrorType>[];
+}
+
+export interface IReadonlyTrimmedLexer<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> extends Pick<
+    IReadonlyLexer<DataBindings, ActionState, ErrorType>,
+    | "buffer"
+    | "core"
+    | "debug"
+    | "digested"
+    | "dryClone"
+    | "errors"
+    | "getPos"
+    | "getRest"
+    | "getTokenKinds"
+    | "hasErrors"
+    | "hasRest"
+    | "lex"
+    | "lineChars"
+    | "logger"
+  > {
+  /**
+   * Clone a new lexer with the same definitions and current state.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
+   */
+  clone(
+    options?: ILexerCloneOptions,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
+  readonly trimmed: true;
+}
+
+export interface ITrimmedLexer<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> extends Pick<
+    ILexer<DataBindings, ActionState, ErrorType>,
+    | "buffer"
+    | "core"
+    | "debug"
+    | "digested"
+    | "dryClone"
+    | "errors"
+    | "feed"
+    | "getPos"
+    | "getRest"
+    | "getTokenKinds"
+    | "hasErrors"
+    | "hasRest"
+    | "lex"
+    | "lexAll"
+    | "lineChars"
+    | "logger"
+    | "readonly"
+    | "reset"
+    | "take"
+    | "takeUntil"
+    | "trimStart"
+  > {
+  /**
+   * Clone a new lexer with the same definitions and current state.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
+   */
+  clone(
+    options?: ILexerCloneOptions,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
+  readonly trimmed: true;
 }
