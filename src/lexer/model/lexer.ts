@@ -4,6 +4,7 @@ import type {
   ILexerCoreLexOptions,
   IReadonlyLexerCore,
 } from "./core";
+import type { ILexerState } from "./state";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
 export type ILexerLexOptions<DataBindings extends GeneralTokenDataBinding> = {
@@ -27,9 +28,13 @@ export interface IReadonlyLexer<
   ActionState,
   ErrorType,
 > extends Pick<
-    IReadonlyLexerCore<DataBindings, ActionState, ErrorType>,
-    "getTokenKinds"
-  > {
+      IReadonlyLexerCore<DataBindings, ActionState, ErrorType>,
+      "getTokenKinds"
+    >,
+    Pick<
+      ILexerState<DataBindings, ErrorType>,
+      "buffer" | "digested" | "lineChars" | "trimmed" | "getRest"
+    > {
   readonly core: IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
@@ -46,21 +51,9 @@ export interface IReadonlyLexer<
    */
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
   /**
-   * The entire input string.
-   */
-  get buffer(): string;
-  /**
-   * How many chars are digested.
-   */
-  get digested(): number;
-  /**
    * Get how many chars in each line.
    */
   get lineChars(): readonly number[];
-  /**
-   * `true` if the lexer is trimStart-ed.
-   */
-  get trimmed(): boolean;
   /**
    * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -83,12 +76,6 @@ export interface IReadonlyLexer<
   lex(
     options: Readonly<ILexerLexOptions<DataBindings>> & { peek: true },
   ): Token<DataBindings, ErrorType> | null;
-  /**
-   * Get the un-lexed string buffer.
-   * The rest string might be very long, be care of using this method.
-   * The result will be cached in the lexer until its state is changed.
-   */
-  getRest(): string;
   /**
    * The rest of buffer not empty.
    */
@@ -133,7 +120,7 @@ export interface ILexer<
   set debug(value: boolean);
   set logger(value: Logger);
   /**
-   * Reset the lexer's state, only keep the definitions.
+   * Reset the lexer's state.
    */
   reset(): this;
   /**
