@@ -14,7 +14,10 @@ export enum ScannerErrorKind {
 
 export interface ScannerErrorInfo {
   kind: ScannerErrorKind;
-  pos: number;
+  /**
+   * The index of the whole input string.
+   */
+  index: number;
   length: number;
 }
 
@@ -29,7 +32,16 @@ export function createScanner(onError: (info: ScannerErrorInfo) => void) {
   let end: number;
 
   return {
-    reset(newText: string, newPos: number) {
+    reset(
+      /**
+       * Should be the `input.buffer`.
+       */
+      newText: string,
+      /**
+       * Should be the `input.start`.
+       */
+      newPos: number,
+    ) {
       text = newText;
       pos = newPos;
       end = text.length;
@@ -66,7 +78,7 @@ export function createScanner(onError: (info: ScannerErrorInfo) => void) {
     errPos: number = pos,
     length?: number,
   ) {
-    onError({ kind, pos: errPos, length: length || 0 });
+    onError({ kind, index: errPos, length: length || 0 });
   }
 
   function scanString(jsxAttributeString = false): {
