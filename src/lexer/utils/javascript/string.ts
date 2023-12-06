@@ -1,3 +1,6 @@
+import { Action } from "../../action";
+import { createScanner } from "./scanner";
+
 /**
  * Evaluate a JavaScript string literal just like `eval`.
  * The caller should make sure the string is well-formed.
@@ -63,4 +66,49 @@ export function evalStringContent(content: string) {
       }
     },
   );
+}
+
+/**
+ * Match a JavaScript simple string literal (single quote or double quote).
+ */
+export function simpleStringLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<
+  {
+    kind: never;
+    data: {
+      /**
+       * The evaluated string value. Errors will be correctly handled.
+       */
+      value: string;
+      /**
+       * One string literal may contain multiple errors (e.g. many invalid escape sequences).
+       */
+      errors: { message: string; length: number; arg0: string | undefined }[];
+    };
+  },
+  ActionState,
+  ErrorType
+> {
+  const errors = [] as {
+    message: string;
+    length: number;
+    arg0: string | undefined;
+  }[];
+  const scanner = createScanner((message, length, arg0) =>
+    errors.push({ message, length, arg0 }),
+  );
+  return Action.simple((input) => {
+    scanner.reset(input.buffer, input.start);
+    const value = scanner.scanString();
+
+    return {
+      digested: scanner.getTextPos() - input.start,
+      data: {
+        value,
+        errors,
+      },
+    };
+  });
 }
