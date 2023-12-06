@@ -244,7 +244,7 @@ describe("simpleStringLiteral", () => {
           errors: [
             {
               kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
-              pos: 1,
+              index: 1,
               length: 0,
             },
           ],
@@ -259,7 +259,7 @@ describe("simpleStringLiteral", () => {
           errors: [
             {
               kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
-              pos: 4,
+              index: 4,
               length: 0,
             },
           ],
@@ -275,7 +275,7 @@ describe("simpleStringLiteral", () => {
           errors: [
             {
               kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
-              pos: 4,
+              index: 4,
               length: 0,
             },
           ],
@@ -294,13 +294,13 @@ describe("simpleStringLiteral", () => {
             errors: [
               {
                 kind: Lexer.javascript.ScannerErrorKind.UnexpectedEndOfText,
-                pos: 2,
+                index: 2,
                 length: 0,
               },
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .UnterminatedStringLiteral,
-                pos: 2,
+                index: 2,
                 length: 0,
               },
             ],
@@ -315,13 +315,13 @@ describe("simpleStringLiteral", () => {
             errors: [
               {
                 kind: Lexer.javascript.ScannerErrorKind.UnexpectedEndOfText,
-                pos: 5,
+                index: 5,
                 length: 0,
               },
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .UnterminatedStringLiteral,
-                pos: 5,
+                index: 5,
                 length: 0,
               },
             ],
@@ -339,7 +339,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .OctalEscapeSequencesAreNotAllowed,
-                pos: 1,
+                index: 1,
                 length: 2,
               },
             ],
@@ -357,7 +357,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .EscapeSequenceIsNotAllowed,
-                pos: 1,
+                index: 1,
                 length: 2,
               },
             ],
@@ -375,7 +375,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .HexadecimalDigitExpected,
-                pos: 4,
+                index: 4,
                 length: 0,
               },
             ],
@@ -391,7 +391,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .HexadecimalDigitExpected,
-                pos: 4,
+                index: 4,
                 length: 0,
               },
             ],
@@ -407,7 +407,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .HexadecimalDigitExpected,
-                pos: 4,
+                index: 4,
                 length: 0,
               },
             ],
@@ -425,7 +425,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive,
-                pos: 10,
+                index: 10,
                 length: 0,
               },
             ],
@@ -443,7 +443,7 @@ describe("simpleStringLiteral", () => {
               {
                 kind: Lexer.javascript.ScannerErrorKind
                   .UnterminatedUnicodeEscapeSequence,
-                pos: 7,
+                index: 7,
                 length: 0,
               },
             ],
