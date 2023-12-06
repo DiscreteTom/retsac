@@ -1,11 +1,27 @@
-// ref: https://github.com/microsoft/TypeScript/blob/ef6ac03df4db7a61034908ffe08ba0ff5a1601ba/src/compiler/scanner.ts#L1464
-
 import { CharacterCodes } from "./types";
 
-export function createScanner(
-  // TODO: optimize error format
-  onError: (message: string, length: number, arg0: string | undefined) => void,
-) {
+export enum ScannerErrorKind {
+  UnterminatedStringLiteral,
+  UnexpectedEndOfText,
+  OctalEscapeSequencesAreNotAllowed,
+  EscapeSequence_0_IsNotAllowed,
+  HexadecimalDigitExpected,
+  AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive,
+  UnterminatedUnicodeEscapeSequence,
+  MultipleConsecutiveNumericSeparatorsAreNotPermitted,
+  NumericSeparatorsAreNotAllowedHere,
+}
+
+export interface ScannerErrorInfo {
+  kind: ScannerErrorKind;
+  pos: number;
+  length: number;
+}
+
+/**
+ * @see https://github.com/microsoft/TypeScript/blob/ef6ac03df4db7a61034908ffe08ba0ff5a1601ba/src/compiler/scanner.ts#L1464
+ */
+export function createScanner(onError: (info: ScannerErrorInfo) => void) {
   let text: string;
   // Current position (end position of text of current token)
   let pos: number;
@@ -23,24 +39,43 @@ export function createScanner(
      * Return the evaluated string value. Errors will be correctly handled.
      */
     scanString,
-    getTextPos: () => pos,
   };
 
+  // function error(message: DiagnosticMessage): void;
+  // function error(
+  //   message: DiagnosticMessage,
+  //   errPos: number,
+  //   length: number,
+  //   arg0?: any,
+  // ): void;
+  // function error(
+  //   message: DiagnosticMessage,
+  //   errPos: number = pos,
+  //   length?: number,
+  //   arg0?: any,
+  // ): void {
+  //   if (onError) {
+  //     const oldPos = pos;
+  //     pos = errPos;
+  //     onError(message, length || 0, arg0);
+  //     pos = oldPos;
+  //   }
+  // }
   function error(
-    message: string,
+    kind: ScannerErrorKind,
     errPos: number = pos,
     length?: number,
-    arg0?: string,
-  ): void {
-    if (onError) {
-      const oldPos = pos;
-      pos = errPos;
-      onError(message, length || 0, arg0);
-      pos = oldPos;
-    }
+  ) {
+    onError({ kind, pos: errPos, length: length || 0 });
   }
 
-  function scanString(jsxAttributeString = false): string {
+  function scanString(jsxAttributeString = false): {
+    /**
+     * The evaluated string value. Errors will be correctly handled.
+     */
+    value: string;
+    end: number;
+  } {
     const quote = text.charCodeAt(pos);
     pos++;
     let result = "";
@@ -49,7 +84,8 @@ export function createScanner(
       if (pos >= end) {
         result += text.substring(start, pos);
         // tokenFlags |= TokenFlags.Unterminated;
-        error("Unterminated_string_literal");
+        // error(Diagnostics.Unterminated_string_literal);
+        error(ScannerErrorKind.UnterminatedStringLiteral);
         break;
       }
       const ch = text.charCodeAt(pos);
@@ -72,12 +108,13 @@ export function createScanner(
       ) {
         result += text.substring(start, pos);
         // tokenFlags |= TokenFlags.Unterminated;
-        error("Unterminated_string_literal");
+        // error(Diagnostics.Unterminated_string_literal);
+        error(ScannerErrorKind.UnterminatedStringLiteral);
         break;
       }
       pos++;
     }
-    return result;
+    return { value: result, end: pos };
   }
 
   // Extract from Section A.1
@@ -99,7 +136,8 @@ export function createScanner(
     const start = pos;
     pos++;
     if (pos >= end) {
-      error("Unexpected_end_of_text");
+      // error(Diagnostics.Unexpected_end_of_text);
+      error(ScannerErrorKind.UnexpectedEndOfText);
       return "";
     }
     const ch = text.charCodeAt(pos);
@@ -134,11 +172,16 @@ export function createScanner(
         // tokenFlags |= TokenFlags.ContainsInvalidEscape;
         if (shouldEmitInvalidEscapeError) {
           const code = parseInt(text.substring(start + 1, pos), 8);
+          // error(
+          //   Diagnostics.Octal_escape_sequences_are_not_allowed_Use_the_syntax_0,
+          //   start,
+          //   pos - start,
+          //   "\\x" + code.toString(16).padStart(2, "0"),
+          // );
           error(
-            "Octal_escape_sequences_are_not_allowed_Use_the_syntax_0",
+            ScannerErrorKind.OctalEscapeSequencesAreNotAllowed,
             start,
             pos - start,
-            "\\x" + code.toString(16).padStart(2, "0"),
           );
           return String.fromCharCode(code);
         }
@@ -148,11 +191,16 @@ export function createScanner(
         // the invalid '\8' and '\9'
         // tokenFlags |= TokenFlags.ContainsInvalidEscape;
         if (shouldEmitInvalidEscapeError) {
+          // error(
+          //   Diagnostics.Escape_sequence_0_is_not_allowed,
+          //   start,
+          //   pos - start,
+          //   text.substring(start, pos),
+          // );
           error(
-            "Escape_sequence_0_is_not_allowed",
+            ScannerErrorKind.EscapeSequence_0_IsNotAllowed,
             start,
             pos - start,
-            text.substring(start, pos),
           );
           return String.fromCharCode(ch);
         }
@@ -188,15 +236,19 @@ export function createScanner(
           if (escapedValue < 0) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
-              error("Hexadecimal_digit_expected");
+              // error(Diagnostics.Hexadecimal_digit_expected);
+              error(ScannerErrorKind.HexadecimalDigitExpected);
             }
             return text.substring(start, pos);
           }
           if (!isCodePoint(escapedValue)) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
+              // error(
+              //   Diagnostics.An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive,
+              // );
               error(
-                "An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive",
+                ScannerErrorKind.AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive,
               );
             }
             return text.substring(start, pos);
@@ -204,14 +256,16 @@ export function createScanner(
           if (pos >= end) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
-              error("Unexpected_end_of_text");
+              // error(Diagnostics.Unexpected_end_of_text);
+              error(ScannerErrorKind.UnexpectedEndOfText);
             }
             return text.substring(start, pos);
           }
           if (text.charCodeAt(pos) !== CharacterCodes.closeBrace) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
-              error("Unterminated_Unicode_escape_sequence");
+              // error(Diagnostics.Unterminated_Unicode_escape_sequence);
+              error(ScannerErrorKind.UnterminatedUnicodeEscapeSequence);
             }
             return text.substring(start, pos);
           }
@@ -224,7 +278,8 @@ export function createScanner(
           if (!(pos < end && isHexDigit(text.charCodeAt(pos)))) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
-              error("Hexadecimal_digit_expected");
+              // error(Diagnostics.Hexadecimal_digit_expected);
+              error(ScannerErrorKind.HexadecimalDigitExpected);
             }
             return text.substring(start, pos);
           }
@@ -240,7 +295,8 @@ export function createScanner(
           if (!(pos < end && isHexDigit(text.charCodeAt(pos)))) {
             // tokenFlags |= TokenFlags.ContainsInvalidEscape;
             if (shouldEmitInvalidEscapeError) {
-              error("Hexadecimal_digit_expected");
+              // error(Diagnostics.Hexadecimal_digit_expected);
+              error(ScannerErrorKind.HexadecimalDigitExpected);
             }
             return text.substring(start, pos);
           }
@@ -297,13 +353,19 @@ export function createScanner(
           allowSeparator = false;
           isPreviousTokenSeparator = true;
         } else if (isPreviousTokenSeparator) {
+          // error(
+          //   Diagnostics.Multiple_consecutive_numeric_separators_are_not_permitted,
+          //   pos,
+          //   1,
+          // );
           error(
-            "Multiple_consecutive_numeric_separators_are_not_permitted",
+            ScannerErrorKind.MultipleConsecutiveNumericSeparatorsAreNotPermitted,
             pos,
             1,
           );
         } else {
-          error("Numeric_separators_are_not_allowed_here", pos, 1);
+          // error(Diagnostics.Numeric_separators_are_not_allowed_here, pos, 1);
+          error(ScannerErrorKind.NumericSeparatorsAreNotAllowedHere, pos, 1);
         }
         pos++;
         continue;
@@ -327,7 +389,8 @@ export function createScanner(
       valueChars = [];
     }
     if (text.charCodeAt(pos - 1) === CharacterCodes._) {
-      error("Numeric_separators_are_not_allowed_here", pos - 1, 1);
+      // error(Diagnostics.Numeric_separators_are_not_allowed_here, pos - 1, 1);
+      error(ScannerErrorKind.NumericSeparatorsAreNotAllowedHere, pos - 1, 1);
     }
     return String.fromCharCode(...valueChars);
   }

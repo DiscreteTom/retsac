@@ -1,5 +1,6 @@
-// from: https://github.com/microsoft/TypeScript/blob/ef6ac03df4db7a61034908ffe08ba0ff5a1601ba/src/compiler/types.ts
-
+/**
+ * @see https://github.com/microsoft/TypeScript/blob/ef6ac03df4db7a61034908ffe08ba0ff5a1601ba/src/compiler/types.ts
+ */
 export const enum CharacterCodes {
   nullCharacter = 0,
   maxAsciiCharacter = 0x7f,

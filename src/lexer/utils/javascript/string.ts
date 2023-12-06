@@ -1,4 +1,5 @@
 import { Action } from "../../action";
+import type { ScannerErrorInfo } from "./scanner";
 import { createScanner } from "./scanner";
 
 /**
@@ -85,26 +86,20 @@ export function simpleStringLiteral<
       /**
        * One string literal may contain multiple errors (e.g. many invalid escape sequences).
        */
-      errors: { message: string; length: number; arg0: string | undefined }[];
+      errors: ScannerErrorInfo[];
     };
   },
   ActionState,
   ErrorType
 > {
-  const errors = [] as {
-    message: string;
-    length: number;
-    arg0: string | undefined;
-  }[];
-  const scanner = createScanner((message, length, arg0) =>
-    errors.push({ message, length, arg0 }),
-  );
+  const errors = [] as ScannerErrorInfo[];
+  const scanner = createScanner((info) => errors.push(info));
   return Action.simple((input) => {
     scanner.reset(input.buffer, input.start);
-    const value = scanner.scanString();
+    const { value, end } = scanner.scanString();
 
     return {
-      digested: scanner.getTextPos() - input.start,
+      digested: end - input.start,
       data: {
         value,
         errors,
