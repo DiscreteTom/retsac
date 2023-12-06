@@ -195,3 +195,261 @@ test("javascript evalString", () => {
     ),
   ).toBe(`\0'"\n\\\r\v\t\b\f\`\x41\u1234\u{2F804}`);
 });
+
+describe("simpleStringLiteral", () => {
+  const lexer = new Lexer.Builder()
+    .define({ string: Lexer.javascript.simpleStringLiteral() })
+    .build();
+
+  function expectAcceptString(
+    input: string,
+    overrides: Partial<NonNullable<ReturnType<typeof lexer.lex>>> &
+      Pick<NonNullable<ReturnType<typeof lexer.lex>>, "data">,
+  ) {
+    const token = lexer.reset().lex(input)!;
+    expect(token).not.toBeNull();
+    expect(token.kind).toBe("string");
+    expect(token.content).toBe(overrides.content ?? input);
+    expect(token.start).toBe(0);
+    expect(token.data.value).toBe(overrides.data!.value);
+    expect(token.data.errors).toEqual(overrides.data!.errors);
+  }
+
+  test("reject non string", () => {
+    expect(lexer.reset().lex("123")).toBeNull();
+  });
+
+  test("simple single quote", () => {
+    expectAcceptString(`'123'`, {
+      data: {
+        value: "123",
+        errors: [],
+      },
+    });
+  });
+  test("simple double quote", () => {
+    expectAcceptString(`"123"`, {
+      data: {
+        value: "123",
+        errors: [],
+      },
+    });
+  });
+
+  describe("UnterminatedStringLiteral", () => {
+    test("at start", () => {
+      expectAcceptString(`"`, {
+        data: {
+          value: "",
+          errors: [
+            {
+              kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
+              pos: 1,
+              length: 0,
+            },
+          ],
+        },
+      });
+    });
+
+    test("at middle", () => {
+      expectAcceptString(`"123`, {
+        data: {
+          value: "123",
+          errors: [
+            {
+              kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
+              pos: 4,
+              length: 0,
+            },
+          ],
+        },
+      });
+    });
+
+    test("at new line", () => {
+      expectAcceptString(`"123\n"`, {
+        content: `"123`,
+        data: {
+          value: "123",
+          errors: [
+            {
+              kind: Lexer.javascript.ScannerErrorKind.UnterminatedStringLiteral,
+              pos: 4,
+              length: 0,
+            },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("bad escape", () => {
+    describe("UnexpectedEndOfText", () => {
+      test("at start", () => {
+        expectAcceptString(`"\\`, {
+          content: '"\\',
+          data: {
+            value: "",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind.UnexpectedEndOfText,
+                pos: 2,
+                length: 0,
+              },
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .UnterminatedStringLiteral,
+                pos: 2,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+
+      test("bad code point", () => {
+        expectAcceptString(`"\\u{f`, {
+          data: {
+            value: "\\u{f",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind.UnexpectedEndOfText,
+                pos: 5,
+                length: 0,
+              },
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .UnterminatedStringLiteral,
+                pos: 5,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("OctalEscapeSequencesAreNotAllowed", () => {
+      test("", () => {
+        expectAcceptString(`"\\7"`, {
+          data: {
+            value: "\x07",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .OctalEscapeSequencesAreNotAllowed,
+                pos: 1,
+                length: 2,
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("EscapeSequenceIsNotAllowed", () => {
+      test("", () => {
+        expectAcceptString(`"\\8"`, {
+          data: {
+            value: "8",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .EscapeSequenceIsNotAllowed,
+                pos: 1,
+                length: 2,
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("HexadecimalDigitExpected", () => {
+      test("in code point", () => {
+        expectAcceptString(`"\\u{z}"`, {
+          data: {
+            value: "\\u{z}",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .HexadecimalDigitExpected,
+                pos: 4,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+
+      test("in unicode escape", () => {
+        expectAcceptString(`"\\uaz"`, {
+          data: {
+            value: "\\uaz",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .HexadecimalDigitExpected,
+                pos: 4,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+
+      test("in hex escape", () => {
+        expectAcceptString(`"\\xaz"`, {
+          data: {
+            value: "\\xaz",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .HexadecimalDigitExpected,
+                pos: 4,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive", () => {
+      test("", () => {
+        expectAcceptString(`"\\u{ffffff}"`, {
+          data: {
+            value: "\\u{ffffff}",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive,
+                pos: 10,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("UnterminatedUnicodeEscapeSequence", () => {
+      test("", () => {
+        expectAcceptString(`"\\u{fff"`, {
+          data: {
+            value: "\\u{fff",
+            errors: [
+              {
+                kind: Lexer.javascript.ScannerErrorKind
+                  .UnterminatedUnicodeEscapeSequence,
+                pos: 7,
+                length: 0,
+              },
+            ],
+          },
+        });
+      });
+    });
+  });
+});
