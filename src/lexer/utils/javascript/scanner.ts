@@ -4,7 +4,7 @@ export enum ScannerErrorKind {
   UnterminatedStringLiteral,
   UnexpectedEndOfText,
   OctalEscapeSequencesAreNotAllowed,
-  EscapeSequence_0_IsNotAllowed,
+  EscapeSequenceIsNotAllowed,
   HexadecimalDigitExpected,
   AnExtendedUnicodeEscapeValueMustBeBetween_0x0_And_0x10FFFF_Inclusive,
   UnterminatedUnicodeEscapeSequence,
@@ -198,7 +198,7 @@ export function createScanner(onError: (info: ScannerErrorInfo) => void) {
           //   text.substring(start, pos),
           // );
           error(
-            ScannerErrorKind.EscapeSequence_0_IsNotAllowed,
+            ScannerErrorKind.EscapeSequenceIsNotAllowed,
             start,
             pos - start,
           );
