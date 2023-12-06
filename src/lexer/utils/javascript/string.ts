@@ -110,7 +110,7 @@ export function simpleStringLiteral<
       digested: end - input.start,
       data: {
         value,
-        errors,
+        errors: errors.slice(), // copy
       },
     };
   });
