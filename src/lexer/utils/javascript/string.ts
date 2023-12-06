@@ -94,12 +94,16 @@ export function simpleStringLiteral<
 > {
   const errors = [] as ScannerErrorInfo[];
   const scanner = createScanner((info) => errors.push(info));
+
   return Action.simple((input) => {
     // ensure the first char is a quote
     const char = input.buffer[input.start];
     if (char !== `'` && char !== `"`) return 0;
 
+    // reset state
     scanner.reset(input.buffer, input.start);
+    errors.length = 0;
+
     const { value, end } = scanner.scanString();
 
     return {
