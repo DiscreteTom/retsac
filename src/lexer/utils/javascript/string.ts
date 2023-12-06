@@ -1,15 +1,28 @@
 /**
  * Evaluate a JavaScript string literal just like `eval`.
- * Caller should make sure the string is well-quoted and well-ended.
+ * The caller should make sure the string is well-formed.
  * Interpolation is not supported.
+ * @example
+ * evalString(`"\\n"`) // => "\n"
+ * evalString(`'\\n'`) // => "\n"
+ * evalString('`\\n`') // => "\n"
  */
 export function evalString(quoted: string) {
-  const unquoted = quoted.slice(1, -1);
+  return evalStringContent(quoted.slice(1, -1));
+}
 
+/**
+ * Evaluate a JavaScript string literal content just like `eval`.
+ * The caller should make sure the string is well-formed.
+ * @example
+ * evalStringContent('\\n') // => "\n"
+ * evalStringContent('`\\n${'.slice(1, -2)) // => "\n"
+ */
+export function evalStringContent(content: string) {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#literals
   // IMPORTANT! all escaped chars should be searched simultaneously!
   // e.g. you should NOT use `unquoted.replace(/\\\\/g, "\\").replace(/\\'/g, "'")...`
-  return unquoted.replace(
+  return content.replace(
     /(\\0|\\'|\\"|\\n|\\\\|\\r|\\v|\\t|\\b|\\f|\\\n|\\`|\\x(?:[0-9a-fA-F]{2})|\\u(?:[0-9a-fA-F]{4})|\\u\{(?:[0-9a-fA-F]{1,6})\})/g,
     (match) => {
       switch (match) {
