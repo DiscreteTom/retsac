@@ -1,6 +1,7 @@
 import { Action } from "../../action";
 import type { ScannerErrorInfo } from "./scanner";
 import { createScanner } from "./scanner";
+import { CharacterCodes } from "./types";
 
 /**
  * Evaluate a JavaScript string literal just like `eval`.
@@ -97,8 +98,13 @@ export function simpleStringLiteral<
 
   return Action.simple((input) => {
     // ensure the first char is a quote
-    const char = input.buffer[input.start];
-    if (char !== `'` && char !== `"`) return 0;
+    // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1879
+    const char = input.buffer.charCodeAt(input.start);
+    if (
+      char !== CharacterCodes.doubleQuote &&
+      char !== CharacterCodes.singleQuote
+    )
+      return 0;
 
     // reset state
     scanner.reset(input.buffer, input.start);
