@@ -267,9 +267,9 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       // handle escape
       if (escapeEnabled) {
         if (text.startsWith(escapeStarter, pos)) {
+          const starter = { index: pos, length: escapeStarter.length };
           let gotEscape = false;
           for (const handle of escapeHandlers) {
-            const starter = { index: pos, length: escapeStarter.length };
             const res = handle(text, starter);
             if (res.accept) {
               escapes.push({
@@ -289,8 +289,19 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
           // skip `pos++` below since we've already updated `pos`
           if (gotEscape) continue;
 
-          // else, no escape handler accepted, treat the escape starter as a normal character
-          // TODO: record an error?
+          // else, no escape handler accepted, record an error
+          escapes.push({
+            starter,
+            value: "",
+            length: starter.length,
+            errors: [
+              {
+                start: starter.index,
+                length: starter.length,
+              },
+            ],
+          });
+          // treat the escape starter as a normal character
           pos += escapeStarter.length;
           continue;
         }
