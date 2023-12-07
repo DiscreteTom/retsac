@@ -112,15 +112,23 @@ export function _stringLiteral<ActionState = never, ErrorType = never>(
   return action;
 }
 
+export type EscapeStarterInfo = {
+  /**
+   * The index of the start of the escape starter in the buffer.
+   */
+  index: number;
+  /**
+   * The length of the escape starter.
+   */
+  length: number;
+};
+
 export type EscapeInfo = {
   /**
    * The evaluated string value. Errors should be correctly handled.
    */
   value: string;
-  /**
-   * The index of the start of the escape starter in the buffer.
-   */
-  start: number;
+  starter: EscapeStarterInfo;
   /**
    * The length of the whole escape sequence, including the escape starter.
    */
@@ -143,10 +151,7 @@ export type EscapeHandler = (
    * The whole input text.
    */
   buffer: string,
-  /**
-   * The index of the start of the escape starter in the buffer.
-   */
-  start: number,
+  starter: EscapeStarterInfo,
 ) => EscapeHandlerOutput;
 
 // TODO: better name
@@ -256,10 +261,11 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       if (text.startsWith(escapeStarter, pos)) {
         let gotEscape = false;
         for (const handle of escapeHandler) {
-          const res = handle(text, pos);
+          const starter = { index: pos, length: escapeStarter.length };
+          const res = handle(text, starter);
           if (res.accept) {
             escapes.push({
-              start: pos,
+              starter,
               value: res.value,
               length: res.length,
               errors: res.errors,
