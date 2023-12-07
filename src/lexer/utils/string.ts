@@ -181,13 +181,19 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
      */
     multiline?: boolean;
     /**
-     * @default '\\'
+     * If `undefined`, escape will not be handled.
+     * @default undefined
      */
-    escapeStarter?: string;
-    /**
-     * @default []
-     */
-    escapeHandler?: EscapeHandler[];
+    escape?: {
+      /**
+       * @default '\\'
+       */
+      starter?: string;
+      /**
+       * @default []
+       */
+      handlers?: EscapeHandler[];
+    };
     /**
      * If `true`, unclosed strings
      * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
@@ -220,10 +226,11 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       : typeof options.close === "string"
       ? string2matcher(options.close)
       : options.close;
-  const escapeStarter = options?.escapeStarter ?? "\\";
   const multiline = options?.multiline ?? false;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
-  const escapeHandler = options?.escapeHandler ?? [];
+  const escapeEnabled = options?.escape !== undefined;
+  const escapeStarter = options?.escape?.starter ?? "\\";
+  const escapeHandlers = options?.escape?.handlers ?? [];
 
   return Action.exec((input) => {
     // match open quote
@@ -258,32 +265,35 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       }
 
       // handle escape
-      if (text.startsWith(escapeStarter, pos)) {
-        let gotEscape = false;
-        for (const handle of escapeHandler) {
-          const starter = { index: pos, length: escapeStarter.length };
-          const res = handle(text, starter);
-          if (res.accept) {
-            escapes.push({
-              starter,
-              value: res.value,
-              length: res.length,
-              errors: res.errors,
-            });
-            value += res.value;
-            pos += res.length;
-            start = pos;
-            gotEscape = true;
-            break; // only accept the first accepted handler
+      if (escapeEnabled) {
+        if (text.startsWith(escapeStarter, pos)) {
+          let gotEscape = false;
+          for (const handle of escapeHandlers) {
+            const starter = { index: pos, length: escapeStarter.length };
+            const res = handle(text, starter);
+            if (res.accept) {
+              escapes.push({
+                starter,
+                value: res.value,
+                length: res.length,
+                errors: res.errors,
+              });
+              value += res.value;
+              pos += res.length;
+              start = pos;
+              gotEscape = true;
+              break; // only accept the first accepted handler
+            }
           }
+
+          // skip `pos++` below since we've already updated `pos`
+          if (gotEscape) continue;
+
+          // else, no escape handler accepted, treat the escape starter as a normal character
+          // TODO: record an error?
+          pos += escapeStarter.length;
+          continue;
         }
-
-        // skip `pos++` below since we've already updated `pos`
-        if (gotEscape) continue;
-
-        // else, no escape handler accepted, treat the escape starter as a normal character
-        pos += escapeStarter.length;
-        continue;
       }
 
       // handle newline
