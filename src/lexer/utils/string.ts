@@ -128,7 +128,7 @@ export type EscapeInfo = {
    * The evaluated string value. Errors should be correctly handled.
    */
   value: string;
-  starter: EscapeStarterInfo;
+  starter: Readonly<EscapeStarterInfo>;
   /**
    * The length of the whole escape sequence, including the escape starter.
    */
@@ -151,7 +151,7 @@ export type EscapeHandler = (
    * The whole input text.
    */
   buffer: string,
-  starter: EscapeStarterInfo,
+  starter: Readonly<EscapeStarterInfo>,
 ) => EscapeHandlerOutput;
 
 // TODO: better name
