@@ -134,8 +134,8 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
     const text = input.buffer;
     const end = input.buffer.length;
 
-    let start = input.start;
     let pos = input.start + matchOpen.digested; // eat the open quote
+    let start = pos;
     let value = "";
     let unclosed = false;
     const escapes = [] as EscapeInfo[];
