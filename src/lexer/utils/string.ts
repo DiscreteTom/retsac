@@ -302,7 +302,7 @@ export const commonEscapeHandlers = {
      * { n: '\n' }
      * @default
      * // JavaScript's character escape sequences
-     * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'" }
+     * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
      */
     mapper?: Record<string, string>,
   ) {
@@ -316,6 +316,7 @@ export const commonEscapeHandlers = {
       r: "\r",
       '"': '"',
       "'": "'",
+      "\\": "\\",
     };
 
     return ((buffer, starter) => {
