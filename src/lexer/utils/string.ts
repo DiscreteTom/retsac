@@ -38,6 +38,9 @@ export type EscapeHandlerOutput =
 export type EscapeHandler = (
   /**
    * The whole input text.
+   *
+   * `buffer.length` must be greater than `starter.index + starter.length`,
+   * so it's safe to access `buffer[starter.index + starter.length]`.
    */
   buffer: string,
   starter: Readonly<EscapeStarterInfo>,
