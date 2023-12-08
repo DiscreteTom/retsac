@@ -134,26 +134,37 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
     const text = input.buffer;
     const end = input.buffer.length;
 
+    /**
+     * Index of the next char to be read.
+     */
     let pos = input.start + matchOpen.digested; // eat the open quote
+    /**
+     * The start index of the next value fragment.
+     */
     let start = pos;
-    let value = "";
-    let unclosed = false;
-    const escapes = [] as EscapeInfo[];
+    /**
+     * The data to be returned.
+     */
+    const data = {
+      value: "",
+      unclosed: false,
+      escapes: [] as EscapeInfo[],
+    };
 
     while (true) {
       // check for unterminated string
       if (pos >= end) {
         if (!acceptUnclosed) return rejectedActionOutput;
 
-        value += text.substring(start, pos);
-        unclosed = true;
+        data.value += text.substring(start, pos);
+        data.unclosed = true;
         break;
       }
 
       // check for close quote
       const matchClose = closeMatcher(text, pos);
       if (matchClose.accept) {
-        value += text.substring(start, pos);
+        data.value += text.substring(start, pos);
         pos += matchClose.digested; // eat the close quote
         break;
       }
@@ -166,13 +177,13 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
           for (const handle of escapeHandlers) {
             const res = handle(text, starter);
             if (res.accept) {
-              escapes.push({
+              data.escapes.push({
                 starter,
                 value: res.value,
                 length: res.length,
                 errors: res.errors,
               });
-              value += res.value;
+              data.value += res.value;
               pos += res.length;
               start = pos;
               gotEscape = true;
@@ -184,7 +195,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
           if (gotEscape) continue;
 
           // else, no escape handler accepted, record an error
-          escapes.push({
+          data.escapes.push({
             starter,
             value: "",
             length: starter.length,
@@ -208,26 +219,24 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
         ch === /* CharacterCodes.carriageReturn */ 13
       ) {
         if (multiline) {
-          value += text.substring(start, pos);
+          data.value += text.substring(start, pos);
         } else {
           if (!acceptUnclosed) return rejectedActionOutput;
 
-          value += text.substring(start, pos);
-          unclosed = true;
+          data.value += text.substring(start, pos);
+          data.unclosed = true;
           break;
         }
       }
+
+      // by default, just eat the char
       pos++;
     }
 
     return {
       accept: true,
       content: input.buffer.slice(input.start, pos),
-      data: {
-        value,
-        unclosed,
-        escapes,
-      },
+      data,
       digested: pos - input.start,
       muted: false,
     };
