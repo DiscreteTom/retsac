@@ -1,3 +1,4 @@
+import type { ActionInput } from "../action";
 import { Action, rejectedActionOutput } from "../action";
 
 export type EscapeStarterInfo = {
@@ -42,13 +43,23 @@ export type EscapeHandler = (
   starter: Readonly<EscapeStarterInfo>,
 ) => EscapeHandlerOutput;
 
-// TODO: better name
-export type StringLiteralCondition = (
-  buffer: string,
-  start: number,
+/**
+ * Decide whether to digest some chars as a quote.
+ */
+export type QuoteCondition<ActionState> = (
+  input: ActionInput<ActionState>,
+  /**
+   * Index of the next char to be read.
+   *
+   * For the open quote, `pos` equals to `input.start`.
+   */
+  pos: number,
 ) =>
   | {
       accept: true;
+      /**
+       * How many chars are digested by the quote.
+       */
       digested: number;
     }
   | { accept: false };
@@ -57,13 +68,13 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   /**
    * The open quote.
    */
-  open: string | StringLiteralCondition,
+  open: string | QuoteCondition<ActionState>,
   options?: {
     /**
      * The close quote.
      * Equals to the open quote by default.
      */
-    close?: string | StringLiteralCondition;
+    close?: string | QuoteCondition<ActionState>;
     /**
      * @default false
      */
@@ -109,12 +120,13 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   ActionState,
   ErrorType
 > {
-  const openMatcher = typeof open === "string" ? string2matcher(open) : open;
+  const openMatcher =
+    typeof open === "string" ? string2quoteCondition(open) : open;
   const closeMatcher =
     options?.close === undefined
       ? openMatcher // defaults to the open quote
       : typeof options.close === "string"
-      ? string2matcher(options.close)
+      ? string2quoteCondition(options.close)
       : options.close;
   const multiline = options?.multiline ?? false;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
@@ -128,7 +140,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
 
   return Action.exec((input) => {
     // match open quote
-    const matchOpen = openMatcher(input.buffer, input.start);
+    const matchOpen = openMatcher(input, input.start);
     if (!matchOpen.accept) return rejectedActionOutput;
 
     const text = input.buffer;
@@ -162,7 +174,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       }
 
       // check for close quote
-      const matchClose = closeMatcher(text, pos);
+      const matchClose = closeMatcher(input, pos);
       if (matchClose.accept) {
         data.value += text.substring(start, pos);
         pos += matchClose.digested; // eat the close quote
@@ -242,9 +254,11 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
   });
 }
 
-function string2matcher(s: string): StringLiteralCondition {
-  return (buffer, start) =>
-    buffer.startsWith(s, start)
+function string2quoteCondition<ActionState>(
+  s: string,
+): QuoteCondition<ActionState> {
+  return (input, pos) =>
+    input.buffer.startsWith(s, pos)
       ? { accept: true, digested: s.length }
       : { accept: false };
 }
