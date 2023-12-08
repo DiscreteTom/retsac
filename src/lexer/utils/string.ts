@@ -218,15 +218,14 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
         ch === /* CharacterCodes.lineFeed */ 10 ||
         ch === /* CharacterCodes.carriageReturn */ 13
       ) {
-        if (multiline) {
-          data.value += text.substring(start, pos);
-        } else {
+        if (!multiline) {
           if (!acceptUnclosed) return rejectedActionOutput;
 
           data.value += text.substring(start, pos);
           data.unclosed = true;
           break;
         }
+        // else, multiline, just eat the char
       }
 
       // by default, just eat the char
