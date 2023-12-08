@@ -272,7 +272,7 @@ export const commonEscapeHandlers = {
      * ["\r\n", '\n', '\u2028', '\u2029']
      */
     newline?: string[],
-  ) {
+  ): EscapeHandler {
     const newlineSequences = newline ?? [
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1600
       "\r\n",
@@ -281,7 +281,7 @@ export const commonEscapeHandlers = {
       "\u2029", // CharacterCodes.paragraphSeparator
     ];
 
-    return ((buffer, starter) => {
+    return (buffer, starter) => {
       const contentStart = starter.index + starter.length;
       for (const nl of newlineSequences) {
         if (buffer.startsWith(nl, contentStart)) {
@@ -289,11 +289,12 @@ export const commonEscapeHandlers = {
             accept: true,
             value: "",
             length: starter.length + nl.length,
+            errors: [],
           };
         }
       }
       return { accept: false };
-    }) as EscapeHandler;
+    };
   },
   simple(
     /**
@@ -305,7 +306,7 @@ export const commonEscapeHandlers = {
      * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
      */
     mapper?: Record<string, string>,
-  ) {
+  ): EscapeHandler {
     const newlineSequences = mapper ?? {
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1516
       b: "\b",
@@ -319,7 +320,7 @@ export const commonEscapeHandlers = {
       "\\": "\\",
     };
 
-    return ((buffer, starter) => {
+    return (buffer, starter) => {
       const contentStart = starter.index + starter.length;
       for (const raw in newlineSequences) {
         if (buffer.startsWith(raw, contentStart)) {
@@ -327,10 +328,11 @@ export const commonEscapeHandlers = {
             accept: true,
             value: newlineSequences[raw],
             length: starter.length + raw.length,
+            errors: [],
           };
         }
       }
       return { accept: false };
-    }) as EscapeHandler;
+    };
   },
 };
