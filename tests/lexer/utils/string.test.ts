@@ -85,6 +85,57 @@ describe("stringLiteral", () => {
     });
   });
 
+  describe("custom quote", () => {
+    test("single or double quote", () => {
+      const lexer = new Lexer.Builder()
+        .define({
+          string: Lexer.stringLiteral(
+            (input) =>
+              ['"', "'"].includes(input.buffer[input.start])
+                ? { accept: true, digested: 1 }
+                : { accept: false },
+            {
+              close: (input, pos) =>
+                input.buffer[input.start] === input.buffer[pos]
+                  ? { accept: true, digested: 1 }
+                  : { accept: false },
+            },
+          ),
+        })
+        .build();
+
+      expectAccept(lexer, `'123'`);
+      expectAccept(lexer, `"123"`);
+    });
+
+    test("js template string", () => {
+      const lexer = new Lexer.Builder()
+        .define({
+          string: Lexer.stringLiteral(
+            (input) =>
+              input.buffer.startsWith("`", input.start)
+                ? { accept: true, digested: 1 }
+                : { accept: false },
+            {
+              close: (input, pos) =>
+                input.buffer[pos] === "`"
+                  ? { accept: true, digested: 1 }
+                  : input.buffer.startsWith("${", pos)
+                  ? { accept: true, digested: 2 }
+                  : { accept: false },
+            },
+          ),
+        })
+        .build();
+      expectAccept(lexer, "`123`");
+      expectAccept(lexer, "`123${", {
+        data: {
+          value: "123",
+        },
+      });
+    });
+  });
+
   describe("enable multiline", () => {
     const lexer = new Lexer.Builder()
       .define({ string: Lexer.stringLiteral(`'`, { multiline: true }) })
