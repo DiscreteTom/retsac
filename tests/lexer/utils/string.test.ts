@@ -1,14 +1,14 @@
 import { Lexer } from "../../../src";
 
 describe("stringLiteral", () => {
-  function expectAccept(
+  function expectAccept<ErrorKinds extends string>(
     lexer: Lexer.Lexer<
       {
         kind: "string";
         data: {
           value: string;
           unclosed: boolean;
-          escapes: Lexer.EscapeInfo[];
+          escapes: Lexer.EscapeInfo<ErrorKinds>[];
         };
       },
       never,
@@ -30,14 +30,14 @@ describe("stringLiteral", () => {
     expect(token.data.unclosed).toBe(overrides?.data?.unclosed ?? false);
   }
 
-  function expectReject(
+  function expectReject<ErrorKinds extends string>(
     lexer: Lexer.Lexer<
       {
         kind: "string";
         data: {
           value: string;
           unclosed: boolean;
-          escapes: Lexer.EscapeInfo[];
+          escapes: Lexer.EscapeInfo<ErrorKinds>[];
         };
       },
       never,
@@ -143,6 +143,156 @@ describe("stringLiteral", () => {
 
     test("multiline will be accepted", () => {
       expectAccept(lexer, `'123\n'`);
+    });
+  });
+
+  describe("enable escape", () => {
+    describe("no escape handlers", () => {
+      const lexer = new Lexer.Builder()
+        .define({ string: Lexer.stringLiteral(`'`, { escape: {} }) })
+        .build();
+
+      describe("built-in errors", () => {
+        test("unterminated", () => {
+          expectAccept(lexer, `'\\`, {
+            data: {
+              value: "\\",
+              unclosed: true,
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 1,
+                  value: "\\",
+                  error: "unterminated",
+                },
+              ],
+            },
+          });
+        });
+        test("unhandled", () => {
+          expectAccept(lexer, `'\\a'`, {
+            data: {
+              value: "\\a",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 1,
+                  value: "\\",
+                  error: "unhandled",
+                },
+              ],
+            },
+          });
+        });
+      });
+    });
+
+    describe("custom escape starter", () => {
+      const lexer = new Lexer.Builder()
+        .define({
+          string: Lexer.stringLiteral(`'`, { escape: { starter: "^^" } }),
+        })
+        .build();
+
+      test("unterminated", () => {
+        expectAccept(lexer, `'^^`, {
+          data: {
+            value: "^^",
+            unclosed: true,
+            escapes: [
+              {
+                starter: {
+                  index: 1,
+                  length: 2,
+                },
+                length: 2,
+                value: "^^",
+                error: "unterminated",
+              },
+            ],
+          },
+        });
+      });
+    });
+
+    describe("commonEscapeHandlers", () => {
+      test("map", () => {
+        const lexer = new Lexer.Builder()
+          .define({
+            string: Lexer.stringLiteral(`'`, {
+              escape: {
+                handlers: [Lexer.commonEscapeHandlers.map({ b: "\b" })],
+              },
+            }),
+          })
+          .build();
+
+        expectAccept(lexer, `'\\b'`, {
+          data: {
+            value: "\b",
+            escapes: [
+              {
+                starter: {
+                  index: 1,
+                  length: 1,
+                },
+                length: 2,
+                value: "\b",
+              },
+            ],
+          },
+        });
+      });
+
+      test("line continuation", () => {
+        const lexer = new Lexer.Builder()
+          .define({
+            string: Lexer.stringLiteral(`'`, {
+              escape: {
+                handlers: [
+                  Lexer.commonEscapeHandlers.lineContinuation(["\r\n"]),
+                ],
+              },
+            }),
+          })
+          .build();
+
+        expectAccept(lexer, `'\\\r\n'`, {
+          data: {
+            value: "",
+            escapes: [
+              {
+                starter: {
+                  index: 1,
+                  length: 1,
+                },
+                length: 3,
+                value: "",
+              },
+            ],
+          },
+        });
+      });
+    });
+  });
+
+  describe("reject unclosed", () => {
+    const lexer = new Lexer.Builder()
+      .define({ string: Lexer.stringLiteral(`'`, { acceptUnclosed: false }) })
+      .build();
+
+    test("unclosed string literal", () => {
+      expectReject(lexer, `'123`);
+    });
+
+    test("unclosed string literal with bad escape", () => {
+      expectReject(lexer, `'123\\`);
     });
   });
 });
