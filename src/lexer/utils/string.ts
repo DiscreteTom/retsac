@@ -30,10 +30,13 @@ export type EscapeInfo<ErrorKinds extends string> = {
 
 export type EscapeHandlerOutput<ErrorKinds extends string> =
   | { accept: false }
-  | ({ accept: true } & Pick<
-      EscapeInfo<ErrorKinds>,
-      "value" | "length" | "error"
-    >); // TODO: output's length should not contain starter?
+  | ({
+      accept: true;
+      /**
+       * The length of the escaped content, not include the escape starter.
+       */
+      length: number;
+    } & Pick<EscapeInfo<ErrorKinds>, "value" | "error">);
 
 export type EscapeHandler<ErrorKinds extends string> = (
   /**
@@ -220,11 +223,11 @@ export function stringLiteral<
               data.escapes.push({
                 starter,
                 value: res.value,
-                length: res.length,
+                length: starter.length + res.length,
                 error: res.error,
               });
               data.value += res.value;
-              pos += res.length;
+              pos += starter.length + res.length;
               start = pos;
               gotEscape = true;
               break; // only accept the first accepted handler
@@ -303,7 +306,7 @@ export const commonEscapeHandlers = {
           return {
             accept: true,
             value: mapper[raw],
-            length: starter.length + raw.length,
+            length: raw.length,
           };
         }
       }
@@ -344,7 +347,7 @@ export const commonEscapeHandlers = {
           return {
             accept: true,
             value: buffer.slice(contentStart),
-            length: buffer.length - contentStart + starter.length,
+            length: buffer.length - contentStart,
             error: "hex",
           };
         return { accept: false };
@@ -356,7 +359,7 @@ export const commonEscapeHandlers = {
           return {
             accept: true,
             value: hex,
-            length: starter.length + 3,
+            length: 3,
             error: "hex",
           };
         return { accept: false };
@@ -365,7 +368,7 @@ export const commonEscapeHandlers = {
       return {
         accept: true,
         value: String.fromCharCode(parseInt(hex, 16)),
-        length: starter.length + 3,
+        length: 3,
       };
     };
   },
@@ -378,7 +381,7 @@ export const commonEscapeHandlers = {
       return {
         accept: true,
         value: buffer[starter.index + starter.length],
-        length: starter.length + 1,
+        length: 1,
         error: "unnecessary",
       };
     };
