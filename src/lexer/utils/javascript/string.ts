@@ -135,7 +135,7 @@ export function simpleStringLiteral<ActionState = never, ErrorType = never>() {
           hex({ error: "hex" }),
           unicode({ error: "unicode" }),
           codepoint({ error: "codepoint" }),
-          // keep the fallback handler at the end
+          // keep the fallback handler at the end for error handling
           fallback(),
         ],
       },
