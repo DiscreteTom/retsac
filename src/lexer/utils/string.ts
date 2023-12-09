@@ -322,15 +322,15 @@ export const commonEscapeHandlers = {
     return commonEscapeHandlers.map(mapper);
   },
   /**
-   * Accept one character as the escaped character.
+   * Accept one character as the escaped value and mark the escape as unnecessary.
+   * E.g. eval `'\\z'` to `'z'`.
    */
   fallback(): EscapeHandler<"unnecessary"> {
     return (buffer, starter) => {
-      const contentStart = starter.index + starter.length;
       return {
         accept: true,
-        value: buffer[contentStart],
-        length: 1,
+        value: buffer[starter.index + starter.length],
+        length: starter.length + 1,
         error: "unnecessary",
       };
     };
