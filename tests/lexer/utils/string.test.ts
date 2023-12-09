@@ -855,6 +855,315 @@ describe("stringLiteral", () => {
           });
         });
       });
+
+      describe("codepoint", () => {
+        describe("default", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [common.codepoint(), common.fallback()],
+                },
+              }),
+            })
+            .build();
+
+          test("not unicode", () => {
+            expectAccept(lexer, `'\\x'`, {
+              data: {
+                value: "x",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("no hex content", () => {
+            expectAccept(lexer, `'\\u{`, {
+              data: {
+                value: "u{",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("invalid hex", () => {
+            expectAccept(lexer, `'\\u{ffffff`, {
+              data: {
+                value: "u{ffffff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("missing suffix", () => {
+            expectAccept(lexer, `'\\u{ff`, {
+              data: {
+                value: "u{ff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("correct", () => {
+            expectAccept(lexer, `'\\u{1234}'`, {
+              data: {
+                value: "\u{1234}",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 8,
+                    value: "\u{1234}",
+                  },
+                ],
+              },
+            });
+          });
+        });
+
+        describe("custom error", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.codepoint({ error: "codepoint" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          describe("no hex content", () => {
+            test("has suffix", () => {
+              expectAccept(lexer, `'\\u{}'`, {
+                data: {
+                  value: "",
+                  escapes: [
+                    {
+                      starter: {
+                        index: 1,
+                        length: 1,
+                      },
+                      length: 4,
+                      value: "",
+                      error: "codepoint",
+                    },
+                  ],
+                },
+              });
+            });
+            test("no suffix", () => {
+              expectAccept(lexer, `'\\u{`, {
+                data: {
+                  value: "",
+                  escapes: [
+                    {
+                      starter: {
+                        index: 1,
+                        length: 1,
+                      },
+                      length: 3,
+                      value: "",
+                      error: "codepoint",
+                    },
+                  ],
+                  unclosed: true,
+                },
+              });
+            });
+          });
+
+          describe("invalid hex content", () => {
+            test("has suffix", () => {
+              expectAccept(lexer, `'\\u{ffffff}'`, {
+                data: {
+                  value: "ffffff",
+                  escapes: [
+                    {
+                      starter: {
+                        index: 1,
+                        length: 1,
+                      },
+                      length: 10,
+                      value: "ffffff",
+                      error: "codepoint",
+                    },
+                  ],
+                },
+              });
+            });
+            test("no suffix", () => {
+              expectAccept(lexer, `'\\u{ffffff`, {
+                data: {
+                  value: "ffffff",
+                  escapes: [
+                    {
+                      starter: {
+                        index: 1,
+                        length: 1,
+                      },
+                      length: 9,
+                      value: "ffffff",
+                      error: "codepoint",
+                    },
+                  ],
+                  unclosed: true,
+                },
+              });
+            });
+          });
+
+          test("no suffix", () => {
+            expectAccept(lexer, `'\\u{ff`, {
+              data: {
+                value: "\u{ff}",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 5,
+                    value: "\u{ff}",
+                    error: "codepoint",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+        });
+
+        test("custom prefix/suffix", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.codepoint({ prefix: "^", suffix: "$" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\^123$'`, {
+            data: {
+              value: "\u{123}",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 6,
+                  value: "\u{123}",
+                },
+              ],
+            },
+          });
+        });
+
+        describe("custom max hex length", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.codepoint({ maxHexLength: 4 }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          test("correct", () => {
+            expectAccept(lexer, `'\\u{1234}'`, {
+              data: {
+                value: "\u{1234}",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 8,
+                    value: "\u{1234}",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("incorrect", () => {
+            expectAccept(lexer, `'\\u{12345}'`, {
+              data: {
+                value: "u{12345}",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+        });
+      });
     });
   });
 
