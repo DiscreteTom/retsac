@@ -352,6 +352,95 @@ describe("stringLiteral", () => {
                     },
                     length: 2,
                     value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\xf`, {
+              data: {
+                value: "xf",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("incorrect hex", () => {
+            expectAccept(lexer, `'\\xzz'`, {
+              data: {
+                value: "xzz",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("correct hex", () => {
+            expectAccept(lexer, `'\\xff'`, {
+              data: {
+                value: "\xff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 4,
+                    value: "\xff",
+                  },
+                ],
+              },
+            });
+          });
+        });
+
+        describe("custom error", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.hex({ error: "hex" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          test("hex without enough digits", () => {
+            expectAccept(lexer, `'\\x`, {
+              data: {
+                value: "x",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
                     error: "hex",
                   },
                 ],
@@ -390,77 +479,6 @@ describe("stringLiteral", () => {
                     length: 4,
                     value: "zz",
                     error: "hex",
-                  },
-                ],
-              },
-            });
-          });
-
-          test("correct hex", () => {
-            expectAccept(lexer, `'\\xff'`, {
-              data: {
-                value: "\xff",
-                escapes: [
-                  {
-                    starter: {
-                      index: 1,
-                      length: 1,
-                    },
-                    length: 4,
-                    value: "\xff",
-                  },
-                ],
-              },
-            });
-          });
-        });
-
-        describe("reject invalid", () => {
-          const lexer = new Lexer.Builder()
-            .define({
-              string: Lexer.stringLiteral(`'`, {
-                escape: {
-                  handlers: (common) => [
-                    common.hex({ acceptInvalid: false }),
-                    common.fallback(),
-                  ],
-                },
-              }),
-            })
-            .build();
-
-          test("not enough digits", () => {
-            expectAccept(lexer, `'\\x'`, {
-              data: {
-                value: "x",
-                escapes: [
-                  {
-                    starter: {
-                      index: 1,
-                      length: 1,
-                    },
-                    length: 2,
-                    value: "x",
-                    error: "unnecessary",
-                  },
-                ],
-              },
-            });
-          });
-
-          test("incorrect hex", () => {
-            expectAccept(lexer, `'\\xzz'`, {
-              data: {
-                value: "xzz",
-                escapes: [
-                  {
-                    starter: {
-                      index: 1,
-                      length: 1,
-                    },
-                    length: 2,
-                    value: "x",
-                    error: "unnecessary",
                   },
                 ],
               },
@@ -574,6 +592,112 @@ describe("stringLiteral", () => {
                     },
                     length: 2,
                     value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\uf`, {
+              data: {
+                value: "uf",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\uf0`, {
+              data: {
+                value: "uf0",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("incorrect unicode", () => {
+            expectAccept(lexer, `'\\uzzzz'`, {
+              data: {
+                value: "uzzzz",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("correct unicode", () => {
+            expectAccept(lexer, `'\\uaaff'`, {
+              data: {
+                value: "\uaaff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 6,
+                    value: "\uaaff",
+                  },
+                ],
+              },
+            });
+          });
+        });
+
+        describe("custom error", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.unicode({ error: "unicode" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          test("unicode without enough digits", () => {
+            expectAccept(lexer, `'\\u`, {
+              data: {
+                value: "u",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
                     error: "unicode",
                   },
                 ],
@@ -629,24 +753,6 @@ describe("stringLiteral", () => {
                     length: 6,
                     value: "zzzz",
                     error: "unicode",
-                  },
-                ],
-              },
-            });
-          });
-
-          test("correct unicode", () => {
-            expectAccept(lexer, `'\\uaaff'`, {
-              data: {
-                value: "\uaaff",
-                escapes: [
-                  {
-                    starter: {
-                      index: 1,
-                      length: 1,
-                    },
-                    length: 6,
-                    value: "\uaaff",
                   },
                 ],
               },
