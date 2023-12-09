@@ -229,7 +229,7 @@ export class Builder<
   /**
    * Define tokens with empty kind.
    */
-  anonymous<AppendData>(
+  anonymous<AppendData = undefined>(
     ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
   ): Builder<
     DataBindings | { kind: ""; data: AppendData },
@@ -248,7 +248,7 @@ export class Builder<
   /**
    * Define muted anonymous actions.
    */
-  ignore<AppendData>(
+  ignore<AppendData = undefined>(
     // though muted actions won't emit token,
     // there might be muted error tokens which will be recorded
     // so we still need to record the data binding
