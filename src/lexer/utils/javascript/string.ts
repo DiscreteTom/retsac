@@ -1,4 +1,5 @@
 import { Action } from "../../action";
+import type { EscapeHandler } from "../string";
 import { commonEscapeHandlers } from "../string";
 import type { ScannerErrorInfo } from "./scanner";
 import { createScanner } from "./scanner";
@@ -130,7 +131,7 @@ export const escapeHandlers = {
    * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\", "0": "\0" }
    * ```
    */
-  simple() {
+  simple(): EscapeHandler<never> {
     return commonEscapeHandlers.map({
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1516
       b: "\b",
@@ -151,7 +152,7 @@ export const escapeHandlers = {
    * ["\r\n", '\n', '\u2028', '\u2029']
    * ```
    */
-  lineContinuation() {
+  lineContinuation(): EscapeHandler<never> {
     return commonEscapeHandlers.lineContinuation([
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1600
       "\r\n",
