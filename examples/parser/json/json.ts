@@ -6,7 +6,7 @@ export const { cacheStr, cache } = loadCache("./examples/parser/json/dfa.json");
 const lexer = new Lexer.Builder()
   .ignore(Lexer.whitespaces()) // ignore blank characters
   .define({
-    string: Lexer.stringLiteral(`"`), // double quote string literal
+    string: Lexer.json.stringLiteral(), // double quote string literal
     number: /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/,
   })
   .define(Lexer.wordKind("true", "false", "null")) // type's name is the literal value
