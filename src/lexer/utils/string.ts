@@ -289,74 +289,37 @@ function string2quoteCondition<ActionState>(
 }
 
 export const commonEscapeHandlers = {
-  lineContinuation(
-    /**
-     * Newline sequences.
-     * @default
-     * // JavaScript's line continuation rules
-     * ["\r\n", '\n', '\u2028', '\u2029']
-     */
-    newline?: string[],
-  ): EscapeHandler<never> {
-    const newlineSequences = newline ?? [
-      // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1600
-      "\r\n",
-      "\n",
-      "\u2028", // CharacterCodes.lineSeparator
-      "\u2029", // CharacterCodes.paragraphSeparator
-    ];
-
+  /**
+   * Map escape sequences to their corresponding values.
+   * @example
+   * // eval `'\\n'` to `'\n'`
+   * map({ n: '\n' })
+   */
+  map(mapper: Record<string, string>): EscapeHandler<never> {
     return (buffer, starter) => {
       const contentStart = starter.index + starter.length;
-      for (const nl of newlineSequences) {
-        if (buffer.startsWith(nl, contentStart)) {
-          return {
-            accept: true,
-            value: "",
-            length: starter.length + nl.length,
-          };
-        }
-      }
-      return { accept: false };
-    };
-  },
-  simple(
-    /**
-     * A map of escape sequences and their corresponding values.
-     * @example
-     * { n: '\n' }
-     * @default
-     * // JavaScript's character escape sequences
-     * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
-     */
-    mapper?: Record<string, string>,
-  ): EscapeHandler<never> {
-    const newlineSequences = mapper ?? {
-      // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1516
-      b: "\b",
-      t: "\t",
-      n: "\n",
-      v: "\v",
-      f: "\f",
-      r: "\r",
-      '"': '"',
-      "'": "'",
-      "\\": "\\",
-    };
-
-    return (buffer, starter) => {
-      const contentStart = starter.index + starter.length;
-      for (const raw in newlineSequences) {
+      for (const raw in mapper) {
         if (buffer.startsWith(raw, contentStart)) {
           return {
             accept: true,
-            value: newlineSequences[raw],
+            value: mapper[raw],
             length: starter.length + raw.length,
           };
         }
       }
       return { accept: false };
     };
+  },
+  /**
+   * Treat these escape sequences as empty string.
+   * @example
+   * // eval `'\\\r\n'` and `'\\\n'` to `''`
+   * lineContinuation(['\r\n', '\n'])
+   */
+  lineContinuation(newline: string[]): EscapeHandler<never> {
+    const mapper = {} as Record<string, string>;
+    newline.forEach((nl) => (mapper[nl] = ""));
+    return commonEscapeHandlers.map(mapper);
   },
   /**
    * Accept one character as the escaped character.

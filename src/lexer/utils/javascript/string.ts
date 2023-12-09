@@ -1,4 +1,5 @@
 import { Action } from "../../action";
+import { commonEscapeHandlers } from "../string";
 import type { ScannerErrorInfo } from "./scanner";
 import { createScanner } from "./scanner";
 import { CharacterCodes } from "./types";
@@ -121,3 +122,41 @@ export function simpleStringLiteral<
     };
   });
 }
+
+export const escapeHandlers = {
+  /**
+   * JavaScript's simple escape sequences.
+   * ```
+   * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
+   * ```
+   */
+  simple() {
+    return commonEscapeHandlers.map({
+      // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1516
+      b: "\b",
+      t: "\t",
+      n: "\n",
+      v: "\v",
+      f: "\f",
+      r: "\r",
+      '"': '"',
+      "'": "'",
+      "\\": "\\",
+    });
+  },
+  /**
+   * JavaScript's line continuation rules.
+   * ```
+   * ["\r\n", '\n', '\u2028', '\u2029']
+   * ```
+   */
+  lineContinuation() {
+    return commonEscapeHandlers.lineContinuation([
+      // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1600
+      "\r\n",
+      "\n",
+      "\u2028", // CharacterCodes.lineSeparator
+      "\u2029", // CharacterCodes.paragraphSeparator
+    ]);
+  },
+};
