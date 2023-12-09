@@ -397,7 +397,7 @@ export const commonEscapeHandlers = {
   /**
    * Handle unicode escape sequence (`\uDDDD`).
    */
-  unicode(options?: {
+  unicode<ErrorKinds extends string = "unicode">(options?: {
     /**
      * The prefix of the escape sequence.
      * @default 'u'
@@ -413,13 +413,18 @@ export const commonEscapeHandlers = {
      * @default true
      */
     acceptInvalid?: boolean;
-    // TODO: customizable error kind
-  }): EscapeHandler<"unicode"> {
+    /**
+     * The error kind.
+     * @default 'unicode'
+     */
+    error?: ErrorKinds;
+  }): EscapeHandler<ErrorKinds> {
+    const error = options?.error ?? ("unicode" as ErrorKinds);
     return commonEscapeHandlers.hex({
       prefix: options?.prefix ?? "u",
       hexLength: options?.hexLength ?? 4,
       acceptInvalid: options?.acceptInvalid ?? true,
-      error: "unicode",
+      error,
     });
   },
   /**
@@ -549,14 +554,20 @@ export const commonEscapeHandlers = {
    * Accept one character as the escaped value and mark the escape as unnecessary.
    * E.g. eval `'\\z'` to `'z'`.
    */
-  // TODO: customizable error kind
-  fallback(): EscapeHandler<"unnecessary"> {
+  fallback<ErrorKinds extends string = "unnecessary">(options?: {
+    /**
+     * The error kind.
+     * @default 'unnecessary'
+     */
+    error?: ErrorKinds;
+  }): EscapeHandler<ErrorKinds> {
+    const error = options?.error ?? ("unnecessary" as ErrorKinds);
     return (buffer, starter) => {
       return {
         accept: true,
         value: buffer[starter.index + starter.length],
         length: 1,
-        error: "unnecessary",
+        error,
       };
     };
   },
