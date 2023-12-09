@@ -328,7 +328,7 @@ export const commonEscapeHandlers = {
   /**
    * Handle hex escape sequence (`\xDD`).
    */
-  hex<ErrorKinds extends string = "hex">(options?: {
+  hex<ErrorKinds extends string = never>(options?: {
     /**
      * The prefix of the escape sequence.
      * @default 'x'
@@ -340,20 +340,18 @@ export const commonEscapeHandlers = {
      */
     hexLength?: number;
     /**
-     * Accept even if the hexadecimal part is invalid.
-     * @default true
-     */
-    acceptInvalid?: boolean; // TODO: rename to rejectInvalid?
-    /**
      * The error kind.
-     * @default 'hex'
+     *
+     * If set, invalid escape will be accepted and marked with this error.
+     *
+     * If `undefined`, invalid escape will be rejected.
+     * @default undefined
      */
     error?: ErrorKinds;
   }): EscapeHandler<ErrorKinds> {
     const prefix = options?.prefix ?? "x";
     const hexLength = options?.hexLength ?? 2;
-    const acceptInvalid = options?.acceptInvalid ?? true;
-    const error = options?.error ?? ("hex" as ErrorKinds);
+    const error = options?.error;
 
     return (buffer, starter) => {
       const contentStart = starter.index + starter.length;
@@ -362,14 +360,13 @@ export const commonEscapeHandlers = {
       if (!buffer.startsWith(prefix, contentStart)) return { accept: false };
       // ensure the buffer is long enough
       if (buffer.length < contentStart + prefix.length + hexLength) {
-        if (acceptInvalid)
-          return {
-            accept: true,
-            value: buffer.slice(contentStart),
-            length: buffer.length - contentStart,
-            error,
-          };
-        return { accept: false };
+        if (error === undefined) return { accept: false };
+        return {
+          accept: true,
+          value: buffer.slice(contentStart),
+          length: buffer.length - contentStart,
+          error,
+        };
       }
 
       const hex = buffer.slice(
@@ -377,14 +374,13 @@ export const commonEscapeHandlers = {
         contentStart + prefix.length + hexLength,
       );
       if (hex.match(/[^0-9a-fA-F]/)) {
-        if (acceptInvalid)
-          return {
-            accept: true,
-            value: hex,
-            length: prefix.length + hexLength,
-            error,
-          };
-        return { accept: false };
+        if (error === undefined) return { accept: false };
+        return {
+          accept: true,
+          value: hex,
+          length: prefix.length + hexLength,
+          error,
+        };
       }
 
       return {
@@ -397,7 +393,7 @@ export const commonEscapeHandlers = {
   /**
    * Handle unicode escape sequence (`\uDDDD`).
    */
-  unicode<ErrorKinds extends string = "unicode">(options?: {
+  unicode<ErrorKinds extends string = never>(options?: {
     /**
      * The prefix of the escape sequence.
      * @default 'u'
@@ -409,28 +405,26 @@ export const commonEscapeHandlers = {
      */
     hexLength?: number;
     /**
-     * Accept even if the hexadecimal part is invalid.
-     * @default true
-     */
-    acceptInvalid?: boolean;
-    /**
      * The error kind.
-     * @default 'unicode'
+     *
+     * If set, invalid escape will be accepted and marked with this error.
+     *
+     * If `undefined`, invalid escape will be rejected.
+     * @default undefined
      */
     error?: ErrorKinds;
   }): EscapeHandler<ErrorKinds> {
-    const error = options?.error ?? ("unicode" as ErrorKinds);
+    const error = options?.error;
     return commonEscapeHandlers.hex({
       prefix: options?.prefix ?? "u",
       hexLength: options?.hexLength ?? 4,
-      acceptInvalid: options?.acceptInvalid ?? true,
       error,
     });
   },
   /**
    * Handle unicode code point escape sequence (`\u{DDDDDD}`).
    */
-  codepoint<ErrorKinds extends string = "codepoint">(options?: {
+  codepoint<ErrorKinds extends string = never>(options?: {
     /**
      * The prefix of the escape sequence.
      * @default 'u{'
@@ -447,21 +441,19 @@ export const commonEscapeHandlers = {
      */
     maxHexLength?: number;
     /**
-     * Accept even if the hexadecimal part is invalid.
-     * @default true
-     */
-    acceptInvalid?: boolean;
-    /**
      * The error kind.
-     * @default 'codepoint'
+     *
+     * If set, invalid escape will be accepted and marked with this error.
+     *
+     * If `undefined`, invalid escape will be rejected.
+     * @default undefined
      */
     error?: ErrorKinds;
   }): EscapeHandler<ErrorKinds> {
     const prefix = options?.prefix ?? "u{";
     const suffix = options?.suffix ?? "}";
     const maxHexLength = options?.maxHexLength ?? 6;
-    const acceptInvalid = options?.acceptInvalid ?? true;
-    const error = options?.error ?? ("codepoint" as ErrorKinds);
+    const error = options?.error;
     const hexRegex = new RegExp(`[0-9a-fA-F]{1,${maxHexLength}}`, "y");
 
     return (buffer, starter) => {
@@ -475,56 +467,53 @@ export const commonEscapeHandlers = {
       hexRegex.lastIndex = contentStart + prefix.length;
       const hexMatch = hexRegex.exec(buffer);
       if (!hexMatch) {
+        // no hex content
+        if (error === undefined) return { accept: false };
+
+        // check suffix
         if (buffer.startsWith(suffix, contentStart + prefix.length)) {
           // no hex content, has suffix
-          if (acceptInvalid)
-            return {
-              accept: true,
-              value: "",
-              length: prefix.length + suffix.length,
-              error,
-            };
-          return { accept: false };
-        }
-        // else, no hex content, no suffix
-        if (acceptInvalid)
           return {
             accept: true,
             value: "",
-            length: prefix.length,
+            length: prefix.length + suffix.length,
             error,
           };
-        return { accept: false };
+        }
+        // else, no hex content, no suffix
+        return {
+          accept: true,
+          value: "",
+          length: prefix.length,
+          error,
+        };
       }
 
       // else, hex exists, check if it is valid
       const escapedValue = parseInt(hexMatch[0], 16);
       if (escapedValue > 0x10ffff) {
-        if (acceptInvalid) {
-          // invalid hex, check suffix
-          if (
-            buffer.startsWith(
-              suffix,
-              contentStart + prefix.length + hexMatch.length,
-            )
-          ) {
-            return {
-              accept: true,
-              value: hexMatch[0],
-              length: prefix.length + hexMatch[0].length + suffix.length,
-              error,
-            };
-          }
-          // else, no suffix
+        if (error === undefined) return { accept: false };
+        // invalid hex, check suffix
+        if (
+          buffer.startsWith(
+            suffix,
+            contentStart + prefix.length + hexMatch.length,
+          )
+        ) {
           return {
             accept: true,
             value: hexMatch[0],
-            length: prefix.length + hexMatch[0].length,
+            length: prefix.length + hexMatch[0].length + suffix.length,
             error,
           };
         }
-        // else, reject invalid
-        return { accept: false };
+        // else, no suffix
+        return {
+          accept: true,
+          value: hexMatch[0],
+          length: prefix.length + hexMatch[0].length,
+          error,
+        };
       }
       // else, valid hex exists, check suffix
       const value = String.fromCodePoint(parseInt(hexMatch[0], 16));
@@ -541,13 +530,12 @@ export const commonEscapeHandlers = {
         };
       }
       // else, suffix not exists
-      if (acceptInvalid)
-        return {
-          accept: true,
-          value,
-          length: prefix.length + hexMatch[0].length,
-        };
-      return { accept: false };
+      if (error === undefined) return { accept: false };
+      return {
+        accept: true,
+        value,
+        length: prefix.length + hexMatch[0].length,
+      };
     };
   },
   /**
