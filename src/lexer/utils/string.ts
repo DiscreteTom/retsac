@@ -74,6 +74,7 @@ export function stringLiteral<
   ErrorKinds extends string = never,
   ActionState = never,
   ErrorType = never,
+  // TODO: customizable error kind
 >(
   /**
    * The open quote.
@@ -342,7 +343,7 @@ export const commonEscapeHandlers = {
      * Accept even if the hexadecimal part is invalid.
      * @default true
      */
-    acceptInvalid?: boolean;
+    acceptInvalid?: boolean; // TODO: rename to rejectInvalid?
     /**
      * The error kind.
      * @default 'hex'
@@ -412,6 +413,7 @@ export const commonEscapeHandlers = {
      * @default true
      */
     acceptInvalid?: boolean;
+    // TODO: customizable error kind
   }): EscapeHandler<"unicode"> {
     return commonEscapeHandlers.hex({
       prefix: options?.prefix ?? "u",
@@ -421,9 +423,133 @@ export const commonEscapeHandlers = {
     });
   },
   /**
+   * Handle unicode code point escape sequence (`\u{DDDDDD}`).
+   */
+  codepoint<ErrorKinds extends string = "codepoint">(options?: {
+    /**
+     * The prefix of the escape sequence.
+     * @default 'u{'
+     */
+    prefix?: string;
+    /**
+     * The suffix of the escape sequence.
+     * @default '}'
+     */
+    suffix?: string;
+    /**
+     * The maximum length of the hexadecimal part.
+     * @default 6
+     */
+    maxHexLength?: number;
+    /**
+     * Accept even if the hexadecimal part is invalid.
+     * @default true
+     */
+    acceptInvalid?: boolean;
+    /**
+     * The error kind.
+     * @default 'codepoint'
+     */
+    error?: ErrorKinds;
+  }): EscapeHandler<ErrorKinds> {
+    const prefix = options?.prefix ?? "u{";
+    const suffix = options?.suffix ?? "}";
+    const maxHexLength = options?.maxHexLength ?? 6;
+    const acceptInvalid = options?.acceptInvalid ?? true;
+    const error = options?.error ?? ("codepoint" as ErrorKinds);
+    const hexRegex = new RegExp(`[0-9a-fA-F]{1,${maxHexLength}}`, "y");
+
+    return (buffer, starter) => {
+      const contentStart = starter.index + starter.length;
+
+      // ensure the escape content starts with prefix
+      if (!buffer.startsWith(prefix, contentStart)) return { accept: false };
+
+      // use regex to match the hex part
+      // don't use regex to match the suffix to avoid too far lookahead
+      hexRegex.lastIndex = contentStart + prefix.length;
+      const hexMatch = hexRegex.exec(buffer);
+      if (!hexMatch) {
+        if (buffer.startsWith(suffix, contentStart + prefix.length)) {
+          // no hex content, has suffix
+          if (acceptInvalid)
+            return {
+              accept: true,
+              value: "",
+              length: prefix.length + suffix.length,
+              error,
+            };
+          return { accept: false };
+        }
+        // else, no hex content, no suffix
+        if (acceptInvalid)
+          return {
+            accept: true,
+            value: "",
+            length: prefix.length,
+            error,
+          };
+        return { accept: false };
+      }
+
+      // else, hex exists, check if it is valid
+      const escapedValue = parseInt(hexMatch[0], 16);
+      if (escapedValue > 0x10ffff) {
+        if (acceptInvalid) {
+          // invalid hex, check suffix
+          if (
+            buffer.startsWith(
+              suffix,
+              contentStart + prefix.length + hexMatch.length,
+            )
+          ) {
+            return {
+              accept: true,
+              value: hexMatch[0],
+              length: prefix.length + hexMatch[0].length + suffix.length,
+              error,
+            };
+          }
+          // else, no suffix
+          return {
+            accept: true,
+            value: hexMatch[0],
+            length: prefix.length + hexMatch[0].length,
+            error,
+          };
+        }
+        // else, reject invalid
+        return { accept: false };
+      }
+      // else, valid hex exists, check suffix
+      const value = String.fromCodePoint(parseInt(hexMatch[0], 16));
+      if (
+        buffer.startsWith(
+          suffix,
+          contentStart + prefix.length + hexMatch.length,
+        )
+      ) {
+        return {
+          accept: true,
+          value,
+          length: prefix.length + hexMatch[0].length + suffix.length,
+        };
+      }
+      // else, suffix not exists
+      if (acceptInvalid)
+        return {
+          accept: true,
+          value,
+          length: prefix.length + hexMatch[0].length,
+        };
+      return { accept: false };
+    };
+  },
+  /**
    * Accept one character as the escaped value and mark the escape as unnecessary.
    * E.g. eval `'\\z'` to `'z'`.
    */
+  // TODO: customizable error kind
   fallback(): EscapeHandler<"unnecessary"> {
     return (buffer, starter) => {
       return {
