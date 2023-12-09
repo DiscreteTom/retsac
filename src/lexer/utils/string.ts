@@ -12,30 +12,30 @@ export type EscapeStarterInfo = {
   length: number;
 };
 
-export type EscapeInfo = {
+export type EscapeInfo<ErrorKinds extends string> = {
+  starter: Readonly<EscapeStarterInfo>;
   /**
    * The evaluated string value. Errors should be correctly handled.
    */
   value: string;
-  starter: Readonly<EscapeStarterInfo>;
   /**
    * The length of the whole escape sequence, including the escape starter.
    */
   length: number;
-  errors: {
-    /**
-     * The index of the whole input text.
-     */
-    start: number;
-    length: number;
-  }[];
+  /**
+   * `undefined` if no error.
+   */
+  error?: ErrorKinds;
 };
 
-export type EscapeHandlerOutput =
+export type EscapeHandlerOutput<ErrorKinds extends string> =
   | { accept: false }
-  | ({ accept: true } & Pick<EscapeInfo, "value" | "length" | "errors">);
+  | ({ accept: true } & Pick<
+      EscapeInfo<ErrorKinds>,
+      "value" | "length" | "error"
+    >);
 
-export type EscapeHandler = (
+export type EscapeHandler<ErrorKinds extends string> = (
   /**
    * The whole input text.
    *
@@ -44,7 +44,7 @@ export type EscapeHandler = (
    */
   buffer: string,
   starter: Readonly<EscapeStarterInfo>,
-) => EscapeHandlerOutput;
+) => EscapeHandlerOutput<ErrorKinds>;
 
 /**
  * Decide whether to digest some chars as a quote.
@@ -67,7 +67,11 @@ export type QuoteCondition<ActionState> = (
     }
   | { accept: false };
 
-export function stringLiteral<ActionState = never, ErrorType = never>(
+export function stringLiteral<
+  ErrorKinds extends string = never,
+  ActionState = never,
+  ErrorType = never,
+>(
   /**
    * The open quote.
    */
@@ -95,8 +99,10 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
        * @default []
        */
       handlers?:
-        | EscapeHandler[]
-        | ((common: typeof commonEscapeHandlers) => EscapeHandler[]);
+        | EscapeHandler<ErrorKinds>[]
+        | ((
+            common: typeof commonEscapeHandlers,
+          ) => EscapeHandler<ErrorKinds>[]);
     };
     /**
      * If `true`, unclosed strings
@@ -117,7 +123,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
        * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
        */
       unclosed: boolean;
-      escapes: EscapeInfo[];
+      escapes: EscapeInfo<ErrorKinds | "unterminated" | "unhandled">[];
     };
   },
   ActionState,
@@ -163,7 +169,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
     const data = {
       value: "",
       unclosed: false,
-      escapes: [] as EscapeInfo[],
+      escapes: [] as EscapeInfo<ErrorKinds | "unterminated" | "unhandled">[],
     };
 
     while (true) {
@@ -187,7 +193,26 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
       // handle escape
       if (escapeEnabled) {
         if (text.startsWith(escapeStarter, pos)) {
+          // append string value before the escape
+          data.value += text.substring(start, pos);
+          start = pos;
+
           const starter = { index: pos, length: escapeStarter.length };
+
+          // handle unterminated
+          if (pos + starter.length >= end) {
+            data.escapes.push({
+              starter,
+              length: starter.length,
+              value: escapeStarter, // treat the escape starter as a normal string
+              error: "unterminated",
+            });
+            data.value += escapeStarter;
+            data.unclosed = true;
+            pos += starter.length;
+            break;
+          }
+
           let gotEscape = false;
           for (const handle of escapeHandlers) {
             const res = handle(text, starter);
@@ -196,7 +221,7 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
                 starter,
                 value: res.value,
                 length: res.length,
-                errors: res.errors,
+                error: res.error,
               });
               data.value += res.value;
               pos += res.length;
@@ -210,19 +235,16 @@ export function stringLiteral<ActionState = never, ErrorType = never>(
           if (gotEscape) continue;
 
           // else, no escape handler accepted, record an error
+          // treat the escape starter as a normal string
+          data.value += escapeStarter;
           data.escapes.push({
             starter,
-            value: "",
+            value: escapeStarter,
             length: starter.length,
-            errors: [
-              {
-                start: starter.index,
-                length: starter.length,
-              },
-            ],
+            error: "unhandled",
           });
-          // treat the escape starter as a normal character
-          pos += escapeStarter.length;
+          pos += starter.length;
+          start = pos;
           continue;
         }
       }
@@ -275,7 +297,7 @@ export const commonEscapeHandlers = {
      * ["\r\n", '\n', '\u2028', '\u2029']
      */
     newline?: string[],
-  ): EscapeHandler {
+  ): EscapeHandler<never> {
     const newlineSequences = newline ?? [
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1600
       "\r\n",
@@ -292,7 +314,6 @@ export const commonEscapeHandlers = {
             accept: true,
             value: "",
             length: starter.length + nl.length,
-            errors: [],
           };
         }
       }
@@ -309,7 +330,7 @@ export const commonEscapeHandlers = {
      * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
      */
     mapper?: Record<string, string>,
-  ): EscapeHandler {
+  ): EscapeHandler<never> {
     const newlineSequences = mapper ?? {
       // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1516
       b: "\b",
@@ -331,11 +352,24 @@ export const commonEscapeHandlers = {
             accept: true,
             value: newlineSequences[raw],
             length: starter.length + raw.length,
-            errors: [],
           };
         }
       }
       return { accept: false };
+    };
+  },
+  /**
+   * Accept one character as the escaped character.
+   */
+  fallback(): EscapeHandler<"unnecessary"> {
+    return (buffer, starter) => {
+      const contentStart = starter.index + starter.length;
+      return {
+        accept: true,
+        value: buffer[contentStart],
+        length: 1,
+        error: "unnecessary",
+      };
     };
   },
 };
