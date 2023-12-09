@@ -327,40 +327,61 @@ export const commonEscapeHandlers = {
   /**
    * Handle hex escape sequence (`\xDD`).
    */
-  hex(options?: {
+  hex<ErrorKinds extends string = "hex">(options?: {
+    /**
+     * The prefix of the escape sequence.
+     * @default 'x'
+     */
+    prefix?: string;
+    /**
+     * The length of the hexadecimal part.
+     * @default 2
+     */
+    hexLength?: number;
     /**
      * Accept even if the hexadecimal part is invalid.
      * @default true
      */
     acceptInvalid?: boolean;
-  }): EscapeHandler<"hex"> {
+    /**
+     * The error kind.
+     * @default 'hex'
+     */
+    error?: ErrorKinds;
+  }): EscapeHandler<ErrorKinds> {
+    const prefix = options?.prefix ?? "x";
+    const hexLength = options?.hexLength ?? 2;
     const acceptInvalid = options?.acceptInvalid ?? true;
+    const error = options?.error ?? ("hex" as ErrorKinds);
 
     return (buffer, starter) => {
       const contentStart = starter.index + starter.length;
 
-      // ensure the escape content starts with `x`
-      if (buffer[contentStart] !== "x") return { accept: false };
+      // ensure the escape content starts with prefix
+      if (!buffer.startsWith(prefix, contentStart)) return { accept: false };
       // ensure the buffer is long enough
-      if (buffer.length < contentStart + 3) {
+      if (buffer.length < contentStart + prefix.length + hexLength) {
         if (acceptInvalid)
           return {
             accept: true,
             value: buffer.slice(contentStart),
             length: buffer.length - contentStart,
-            error: "hex",
+            error,
           };
         return { accept: false };
       }
 
-      const hex = buffer.slice(contentStart + 1, contentStart + 3);
+      const hex = buffer.slice(
+        contentStart + prefix.length,
+        contentStart + prefix.length + hexLength,
+      );
       if (hex.match(/[^0-9a-fA-F]/)) {
         if (acceptInvalid)
           return {
             accept: true,
             value: hex,
-            length: 3,
-            error: "hex",
+            length: prefix.length + hexLength,
+            error,
           };
         return { accept: false };
       }
@@ -368,7 +389,7 @@ export const commonEscapeHandlers = {
       return {
         accept: true,
         value: String.fromCharCode(parseInt(hex, 16)),
-        length: 3,
+        length: prefix.length + hexLength,
       };
     };
   },
