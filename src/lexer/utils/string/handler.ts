@@ -258,7 +258,6 @@ export function fallback<ErrorKinds extends string = "unnecessary">(options?: {
    */
   error?: ErrorKinds;
 }): EscapeHandler<ErrorKinds> {
-  // TODO: better default error name?
   const error = options?.error ?? ("unnecessary" as ErrorKinds);
   return (buffer, starter) => {
     return {

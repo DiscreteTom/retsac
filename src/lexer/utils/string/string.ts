@@ -28,7 +28,6 @@ export function stringLiteral<
   ErrorKinds extends string = never,
   ActionState = never,
   ErrorType = never,
-  // TODO: customizable error kind
 >(
   /**
    * The open quote.
