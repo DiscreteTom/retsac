@@ -127,7 +127,7 @@ export const escapeHandlers = {
   /**
    * JavaScript's simple escape sequences.
    * ```
-   * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\" }
+   * { b: "\b", t: "\t", n: "\n", v: "\v", f: "\f", r: "\r", '"': '"', "'": "'", "\\": "\\", "0": "\0" }
    * ```
    */
   simple() {
@@ -142,6 +142,7 @@ export const escapeHandlers = {
       '"': '"',
       "'": "'",
       "\\": "\\",
+      "0": "\0",
     });
   },
   /**
