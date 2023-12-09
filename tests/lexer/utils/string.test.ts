@@ -467,6 +467,68 @@ describe("stringLiteral", () => {
             });
           });
         });
+
+        test("custom prefix", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.hex({ prefix: "0x" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\0xff'`, {
+            data: {
+              value: "\xff",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 5,
+                  value: "\xff",
+                },
+              ],
+            },
+          });
+        });
+
+        test("custom hex length", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.hex({ hexLength: 1 }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\xf'`, {
+            data: {
+              value: "\x0f",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 3,
+                  value: "\x0f",
+                },
+              ],
+            },
+          });
+        });
       });
     });
   });
