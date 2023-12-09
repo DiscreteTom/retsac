@@ -280,32 +280,65 @@ describe("stringLiteral", () => {
         });
       });
 
-      test("fallback", () => {
-        const lexer = new Lexer.Builder()
-          .define({
-            string: Lexer.stringLiteral(`'`, {
-              escape: {
-                handlers: [Lexer.commonEscapeHandlers.fallback()],
-              },
-            }),
-          })
-          .build();
-
-        expectAccept(lexer, `'\\z'`, {
-          data: {
-            value: "z",
-            escapes: [
-              {
-                starter: {
-                  index: 1,
-                  length: 1,
+      describe("fallback", () => {
+        test("default", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: [Lexer.commonEscapeHandlers.fallback()],
                 },
-                length: 2,
-                value: "z",
-                error: "unnecessary",
-              },
-            ],
-          },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\z'`, {
+            data: {
+              value: "z",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 2,
+                  value: "z",
+                  error: "unnecessary",
+                },
+              ],
+            },
+          });
+        });
+
+        test("custom error", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: [
+                    Lexer.commonEscapeHandlers.fallback({ error: "fallback" }),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\z'`, {
+            data: {
+              value: "z",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 2,
+                  value: "z",
+                  error: "fallback",
+                },
+              ],
+            },
+          });
         });
       });
 
