@@ -1,9 +1,6 @@
-import { Action } from "../../action";
 import type { EscapeHandler } from "../string";
-import { commonEscapeHandlers } from "../string";
-import type { ScannerErrorInfo } from "./scanner";
-import { createScanner } from "./scanner";
-import { CharacterCodes } from "./types";
+import { commonEscapeHandlers, stringLiteral } from "../string";
+import { codepoint, fallback, hex, unicode } from "../string/handler";
 
 /**
  * Evaluate a JavaScript string literal just like `eval`.
@@ -72,58 +69,6 @@ export function evalStringContent(content: string) {
   );
 }
 
-/**
- * Match a JavaScript simple string literal (single quote or double quote).
- */
-export function simpleStringLiteral<
-  ActionState = never,
-  ErrorType = never,
->(): Action<
-  {
-    kind: never;
-    data: {
-      /**
-       * The evaluated string value. Errors will be correctly handled.
-       */
-      value: string;
-      /**
-       * One string literal may contain multiple errors (e.g. many invalid escape sequences).
-       */
-      errors: ScannerErrorInfo[];
-    };
-  },
-  ActionState,
-  ErrorType
-> {
-  const errors = [] as ScannerErrorInfo[];
-  const scanner = createScanner((info) => errors.push(info));
-
-  return Action.simple((input) => {
-    // ensure the first char is a quote
-    // ref: https://github.com/microsoft/TypeScript/blob/6c0687e493e23bfd054bf9ae1fc37a7cb75229ad/src/compiler/scanner.ts#L1879
-    const char = input.buffer.charCodeAt(input.start);
-    if (
-      char !== CharacterCodes.doubleQuote &&
-      char !== CharacterCodes.singleQuote
-    )
-      return 0;
-
-    // reset state
-    scanner.reset(input.buffer, input.start);
-    errors.length = 0;
-
-    const { value, end } = scanner.scanString();
-
-    return {
-      digested: end - input.start,
-      data: {
-        value,
-        errors: errors.slice(), // copy
-      },
-    };
-  });
-}
-
 export const escapeHandlers = {
   /**
    * JavaScript's simple escape sequences.
@@ -162,3 +107,38 @@ export const escapeHandlers = {
     ]);
   },
 };
+
+/**
+ * Match a JavaScript simple string literal (single quote or double quote).
+ * Legacy octal escape sequences are not supported.
+ */
+export function simpleStringLiteral<ActionState = never, ErrorType = never>() {
+  return stringLiteral<
+    "hex" | "unicode" | "codepoint" | "unnecessary",
+    ActionState,
+    ErrorType
+  >(
+    (input) =>
+      // match single quote or double quote at the same time to optimize performance
+      ['"', "'"].includes(input.buffer[input.start])
+        ? { accept: true, digested: 1 }
+        : { accept: false },
+    {
+      close: (input, pos) =>
+        input.buffer[input.start] === input.buffer[pos]
+          ? { accept: true, digested: 1 }
+          : { accept: false },
+      escape: {
+        handlers: [
+          escapeHandlers.simple(),
+          escapeHandlers.lineContinuation(),
+          hex({ error: "hex" }),
+          unicode({ error: "unicode" }),
+          codepoint({ error: "codepoint" }),
+          // keep the fallback handler at the end
+          fallback(),
+        ],
+      },
+    },
+  );
+}
