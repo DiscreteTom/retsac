@@ -552,7 +552,7 @@ export const commonEscapeHandlers = {
   },
   /**
    * Accept one character as the escaped value and mark the escape as unnecessary.
-   * E.g. eval `'\\z'` to `'z'`.
+   * E.g. treat `'\\z'` as `'z'`.
    */
   fallback<ErrorKinds extends string = "unnecessary">(options?: {
     /**
