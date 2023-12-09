@@ -208,9 +208,10 @@ export function codepoint<ErrorKinds extends string = never>(options?: {
       if (
         buffer.startsWith(
           suffix,
-          contentStart + prefix.length + hexMatch.length,
+          contentStart + prefix.length + hexMatch[0].length,
         )
       ) {
+        // invalid hex, suffix exists
         return {
           accept: true,
           value: hexMatch[0],
@@ -218,7 +219,7 @@ export function codepoint<ErrorKinds extends string = never>(options?: {
           error,
         };
       }
-      // else, no suffix
+      // else, invalid hex, no suffix
       return {
         accept: true,
         value: hexMatch[0],
@@ -227,22 +228,25 @@ export function codepoint<ErrorKinds extends string = never>(options?: {
       };
     }
     // else, valid hex exists, check suffix
-    const value = String.fromCodePoint(parseInt(hexMatch[0], 16));
+    const value = String.fromCodePoint(escapedValue);
     if (
-      buffer.startsWith(suffix, contentStart + prefix.length + hexMatch.length)
+      !buffer.startsWith(
+        suffix,
+        contentStart + prefix.length + hexMatch[0].length,
+      )
     ) {
+      if (error === undefined) return { accept: false };
       return {
         accept: true,
         value,
-        length: prefix.length + hexMatch[0].length + suffix.length,
+        length: prefix.length + hexMatch[0].length,
+        error,
       };
     }
-    // else, suffix not exists
-    if (error === undefined) return { accept: false };
     return {
       accept: true,
       value,
-      length: prefix.length + hexMatch[0].length,
+      length: prefix.length + hexMatch[0].length + suffix.length,
     };
   };
 }
