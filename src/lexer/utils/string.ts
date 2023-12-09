@@ -33,7 +33,7 @@ export type EscapeHandlerOutput<ErrorKinds extends string> =
   | ({ accept: true } & Pick<
       EscapeInfo<ErrorKinds>,
       "value" | "length" | "error"
-    >);
+    >); // TODO: output's length should not contain starter?
 
 export type EscapeHandler<ErrorKinds extends string> = (
   /**
@@ -320,6 +320,54 @@ export const commonEscapeHandlers = {
     const mapper = {} as Record<string, string>;
     newline.forEach((nl) => (mapper[nl] = ""));
     return commonEscapeHandlers.map(mapper);
+  },
+  /**
+   * Handle hex escape sequence (`\xDD`).
+   */
+  hex(options?: {
+    /**
+     * Accept even if the hexadecimal part is invalid.
+     * @default true
+     */
+    acceptInvalid?: boolean;
+  }): EscapeHandler<"hex"> {
+    const acceptInvalid = options?.acceptInvalid ?? true;
+
+    return (buffer, starter) => {
+      const contentStart = starter.index + starter.length;
+
+      // ensure the escape content starts with `x`
+      if (buffer[contentStart] !== "x") return { accept: false };
+      // ensure the buffer is long enough
+      if (buffer.length < contentStart + 3) {
+        if (acceptInvalid)
+          return {
+            accept: true,
+            value: buffer.slice(contentStart),
+            length: buffer.length - contentStart + starter.length,
+            error: "hex",
+          };
+        return { accept: false };
+      }
+
+      const hex = buffer.slice(contentStart + 1, contentStart + 3);
+      if (hex.match(/[^0-9a-fA-F]/)) {
+        if (acceptInvalid)
+          return {
+            accept: true,
+            value: hex,
+            length: starter.length + 3,
+            error: "hex",
+          };
+        return { accept: false };
+      }
+
+      return {
+        accept: true,
+        value: String.fromCharCode(parseInt(hex, 16)),
+        length: starter.length + 3,
+      };
+    };
   },
   /**
    * Accept one character as the escaped value and mark the escape as unnecessary.

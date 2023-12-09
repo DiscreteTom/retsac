@@ -308,6 +308,166 @@ describe("stringLiteral", () => {
           },
         });
       });
+
+      describe("hex", () => {
+        describe("default", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [common.hex(), common.fallback()],
+                },
+              }),
+            })
+            .build();
+
+          test("not hex", () => {
+            expectAccept(lexer, `'\\z'`, {
+              data: {
+                value: "z",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "z",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("hex without enough digits", () => {
+            expectAccept(lexer, `'\\x`, {
+              data: {
+                value: "x",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "hex",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\xf`, {
+              data: {
+                value: "xf",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 3,
+                    value: "xf",
+                    error: "hex",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("incorrect hex", () => {
+            expectAccept(lexer, `'\\xzz'`, {
+              data: {
+                value: "zz",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 4,
+                    value: "zz",
+                    error: "hex",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("correct hex", () => {
+            expectAccept(lexer, `'\\xff'`, {
+              data: {
+                value: "\xff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 4,
+                    value: "\xff",
+                  },
+                ],
+              },
+            });
+          });
+        });
+
+        describe("reject invalid", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.hex({ acceptInvalid: false }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          test("not enough digits", () => {
+            expectAccept(lexer, `'\\x'`, {
+              data: {
+                value: "x",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("incorrect hex", () => {
+            expectAccept(lexer, `'\\xzz'`, {
+              data: {
+                value: "xzz",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+        });
+      });
     });
   });
 
