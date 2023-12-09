@@ -394,6 +394,33 @@ export const commonEscapeHandlers = {
     };
   },
   /**
+   * Handle unicode escape sequence (`\uDDDD`).
+   */
+  unicode(options?: {
+    /**
+     * The prefix of the escape sequence.
+     * @default 'u'
+     */
+    prefix?: string;
+    /**
+     * The length of the hexadecimal part.
+     * @default 4
+     */
+    hexLength?: number;
+    /**
+     * Accept even if the hexadecimal part is invalid.
+     * @default true
+     */
+    acceptInvalid?: boolean;
+  }): EscapeHandler<"unicode"> {
+    return commonEscapeHandlers.hex({
+      prefix: options?.prefix ?? "u",
+      hexLength: options?.hexLength ?? 4,
+      acceptInvalid: options?.acceptInvalid ?? true,
+      error: "unicode",
+    });
+  },
+  /**
    * Accept one character as the escaped value and mark the escape as unnecessary.
    * E.g. eval `'\\z'` to `'z'`.
    */

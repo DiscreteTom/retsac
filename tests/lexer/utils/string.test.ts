@@ -530,6 +530,192 @@ describe("stringLiteral", () => {
           });
         });
       });
+
+      describe("unicode", () => {
+        describe("default", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [common.unicode(), common.fallback()],
+                },
+              }),
+            })
+            .build();
+
+          test("not unicode", () => {
+            expectAccept(lexer, `'\\x'`, {
+              data: {
+                value: "x",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "x",
+                    error: "unnecessary",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("unicode without enough digits", () => {
+            expectAccept(lexer, `'\\u`, {
+              data: {
+                value: "u",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 2,
+                    value: "u",
+                    error: "unicode",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\uf`, {
+              data: {
+                value: "uf",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 3,
+                    value: "uf",
+                    error: "unicode",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+            expectAccept(lexer, `'\\uf0`, {
+              data: {
+                value: "uf0",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 4,
+                    value: "uf0",
+                    error: "unicode",
+                  },
+                ],
+                unclosed: true,
+              },
+            });
+          });
+
+          test("incorrect unicode", () => {
+            expectAccept(lexer, `'\\uzzzz'`, {
+              data: {
+                value: "zzzz",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 6,
+                    value: "zzzz",
+                    error: "unicode",
+                  },
+                ],
+              },
+            });
+          });
+
+          test("correct unicode", () => {
+            expectAccept(lexer, `'\\uaaff'`, {
+              data: {
+                value: "\uaaff",
+                escapes: [
+                  {
+                    starter: {
+                      index: 1,
+                      length: 1,
+                    },
+                    length: 6,
+                    value: "\uaaff",
+                  },
+                ],
+              },
+            });
+          });
+        });
+
+        test("custom prefix", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.unicode({ prefix: "0u" }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\0u1234'`, {
+            data: {
+              value: "\u1234",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 7,
+                  value: "\u1234",
+                },
+              ],
+            },
+          });
+        });
+
+        test("custom hex length", () => {
+          const lexer = new Lexer.Builder()
+            .define({
+              string: Lexer.stringLiteral(`'`, {
+                escape: {
+                  handlers: (common) => [
+                    common.unicode({ hexLength: 6 }),
+                    common.fallback(),
+                  ],
+                },
+              }),
+            })
+            .build();
+
+          expectAccept(lexer, `'\\u003456'`, {
+            data: {
+              value: "\u3456",
+              escapes: [
+                {
+                  starter: {
+                    index: 1,
+                    length: 1,
+                  },
+                  length: 8,
+                  value: "\u3456",
+                },
+              ],
+            },
+          });
+        });
+      });
     });
   });
 
