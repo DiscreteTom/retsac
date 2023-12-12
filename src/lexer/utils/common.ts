@@ -152,3 +152,26 @@ export function str2subAction<ActionState>(s: string): SubAction<ActionState> {
       ? { accept: true, digested: s.length }
       : { accept: false };
 }
+
+/**
+ * Create a sub-action from a regex.
+ * The sub-action will accept if the input buffer match the regex at the given position.
+ */
+export function regex2subAction<ActionState>(
+  r: RegExp,
+  options?: {
+    /**
+     * Auto add the `sticky` flag to the `from` regex if `g` and `y` is not set.
+     * @default true
+     */
+    autoSticky?: boolean;
+  },
+): SubAction<ActionState> {
+  r = options?.autoSticky ? makeRegexAutoSticky(r) : r;
+  return (input, pos) => {
+    r.lastIndex = pos;
+    const res = r.exec(input.buffer);
+    if (res === null) return { accept: false };
+    return { accept: true, digested: res[0].length };
+  };
+}
