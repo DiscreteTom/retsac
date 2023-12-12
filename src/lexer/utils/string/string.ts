@@ -1,28 +1,7 @@
-import type { ActionInput } from "../../action";
 import { Action, rejectedActionOutput } from "../../action";
+import type { SubAction } from "../common";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
-
-/**
- * Decide whether to digest some chars as a quote.
- */
-export type QuoteCondition<ActionState> = (
-  input: ActionInput<ActionState>,
-  /**
-   * Index of the next char to be read.
-   *
-   * For the open quote, `pos` equals to `input.start`.
-   */
-  pos: number,
-) =>
-  | {
-      accept: true;
-      /**
-       * How many chars are digested by the quote.
-       */
-      digested: number;
-    }
-  | { accept: false };
 
 export function stringLiteral<
   ErrorKinds extends string = never,
@@ -32,13 +11,13 @@ export function stringLiteral<
   /**
    * The open quote.
    */
-  open: string | QuoteCondition<ActionState>,
+  open: string | SubAction<ActionState>,
   options?: {
     /**
      * The close quote.
      * Equals to the open quote by default.
      */
-    close?: string | QuoteCondition<ActionState>;
+    close?: string | SubAction<ActionState>;
     /**
      * @default false
      */
@@ -236,9 +215,7 @@ export function stringLiteral<
   });
 }
 
-function string2quoteCondition<ActionState>(
-  s: string,
-): QuoteCondition<ActionState> {
+function string2quoteCondition<ActionState>(s: string): SubAction<ActionState> {
   return (input, pos) =>
     input.buffer.startsWith(s, pos)
       ? { accept: true, digested: s.length }

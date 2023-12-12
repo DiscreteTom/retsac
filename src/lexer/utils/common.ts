@@ -1,5 +1,5 @@
 import { composables } from "@discretetom/r-compose";
-import type { ActionInput } from "../action";
+import type { ActionInput, RejectedActionOutput } from "../action";
 import { Action, makeRegexAutoGlobal, makeRegexAutoSticky } from "../action";
 
 /**
@@ -122,3 +122,22 @@ export function comment<ActionState = never, ErrorType = never>(
     acceptEof: options?.acceptEof ?? true,
   });
 }
+
+/**
+ * Decide whether to digest some chars.
+ */
+export type SubAction<ActionState> = (
+  input: ActionInput<ActionState>,
+  /**
+   * Index of the next char to be read.
+   */
+  pos: number,
+) =>
+  | {
+      accept: true;
+      /**
+       * How many chars are digested by the sub-action.
+       */
+      digested: number;
+    }
+  | RejectedActionOutput;
