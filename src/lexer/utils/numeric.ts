@@ -1,9 +1,8 @@
 import { Action, rejectedActionOutput } from "../action";
+import { regex2subAction, str2subAction, type SubAction } from "./common";
 
-export function binaryIntegerLiteral<
-  ActionState = never,
-  ErrorType = never,
->(options?: {
+// TODO: comments
+export type IntegerLiteralOptions<ActionState> = {
   /**
    * If `undefined`, the numeric separator will be disabled.
    * @default undefined
@@ -12,30 +11,43 @@ export function binaryIntegerLiteral<
   /**
    * @default undefined
    */
-  suffix?:
-    | string
-    | ((
-        buffer: string,
-        start: number,
-      ) => { accept: false } | { accept: true; digested: number });
+  // TODO: optimize comments
+  suffix?: string | SubAction<ActionState>;
   /**
-   * If `true`, common invalid numeric literals will also be accepted and marked in `output.data` with `{ invalid: true }`.
    * @default true
    */
+  // TODO: optimize comments
   acceptInvalid?: boolean;
-}) {
-  const rejectInvalid = !(options?.acceptInvalid ?? true);
-  const separator = options?.separator;
-  const suffix = options?.suffix;
-  const suffixChecker =
+};
+
+// TODO: comments
+export function integerLiteral<ActionState = never, ErrorType = never>(
+  options: {
+    /**
+     * E.g. `0b`, `0o`, `0x`.
+     */
+    prefix: string | SubAction<ActionState>;
+    /**
+     * Specify how to match the integer content.
+     * Separators should not be included.
+     */
+    content: SubAction<ActionState>;
+  } & IntegerLiteralOptions<ActionState>,
+) {
+  const prefixMatcher =
+    typeof options.prefix === "string"
+      ? str2subAction(options.prefix)
+      : options.prefix;
+  const contentMatcher = options.content;
+  const separator = options.separator;
+  const suffix = options.suffix;
+  const suffixChecker: SubAction<ActionState> =
     suffix === undefined
-      ? () => ({ accept: true as const, digested: 0 })
+      ? () => ({ accept: true, digested: 0 }) // always accept if no suffix
       : typeof suffix === "string"
-      ? (buffer: string, start: number) =>
-          buffer.startsWith(suffix, start)
-            ? { accept: true as const, digested: suffix.length }
-            : { accept: false as const }
+      ? str2subAction(suffix)
       : suffix;
+  const rejectInvalid = !(options.acceptInvalid ?? true);
 
   return Action.exec<
     {
@@ -63,9 +75,9 @@ export function binaryIntegerLiteral<
     ActionState,
     ErrorType
   >((input) => {
-    // ensure the input starts with '0b'
-    if (!input.buffer.startsWith("0b", input.start))
-      return rejectedActionOutput;
+    // ensure the input starts with prefix
+    const prefixMatch = prefixMatcher(input, input.start);
+    if (!prefixMatch.accept) return rejectedActionOutput;
 
     const data = {
       value: "",
@@ -77,7 +89,7 @@ export function binaryIntegerLiteral<
 
     // check content and separators
     let lastPartIsSeparator = false;
-    let pos = input.start + 2;
+    let pos = input.start + prefixMatch.digested;
     while (true) {
       // check end of text
       if (pos >= input.buffer.length) break;
@@ -101,14 +113,15 @@ export function binaryIntegerLiteral<
       }
 
       // check content
-      if (["0", "1"].includes(input.buffer[pos])) {
-        pos++;
+      const contentMatch = contentMatcher(input, pos);
+      if (contentMatch.accept) {
+        data.value += input.buffer.slice(pos, pos + contentMatch.digested);
+        pos += contentMatch.digested;
         lastPartIsSeparator = false;
-        data.value += input.buffer[pos];
         continue;
       }
 
-      const suffixMatch = suffixChecker(input.buffer, pos);
+      const suffixMatch = suffixChecker(input, pos);
       // check suffix
       if (suffixMatch.accept) {
         // check tailing separator
@@ -137,5 +150,53 @@ export function binaryIntegerLiteral<
       muted: false,
       data,
     };
+  });
+}
+
+/**
+ * Create an action that accepts binary integer literal.
+ * E.g. `0b101`.
+ */
+export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: IntegerLiteralOptions<ActionState>,
+) {
+  return integerLiteral<ActionState, ErrorType>({
+    prefix: "0b",
+    content: regex2subAction(/[01]/),
+    acceptInvalid: options?.acceptInvalid,
+    separator: options?.separator,
+    suffix: options?.suffix,
+  });
+}
+
+/**
+ * Create an action that accepts octal integer literal.
+ * E.g. `0o123`.
+ */
+export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: IntegerLiteralOptions<ActionState>,
+) {
+  return integerLiteral<ActionState, ErrorType>({
+    prefix: "0o",
+    content: regex2subAction(/[0-7]/),
+    acceptInvalid: options?.acceptInvalid,
+    separator: options?.separator,
+    suffix: options?.suffix,
+  });
+}
+
+/**
+ * Create an action that accepts hexadecimal integer literal.
+ * E.g. `0x123`.
+ */
+export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: IntegerLiteralOptions<ActionState>,
+) {
+  return integerLiteral<ActionState, ErrorType>({
+    prefix: "0x",
+    content: regex2subAction(/[0-9a-fA-F]/),
+    acceptInvalid: options?.acceptInvalid,
+    separator: options?.separator,
+    suffix: options?.suffix,
   });
 }
