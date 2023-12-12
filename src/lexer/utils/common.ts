@@ -141,3 +141,14 @@ export type SubAction<ActionState> = (
       digested: number;
     }
   | RejectedActionOutput;
+
+/**
+ * Create a sub-action from a string.
+ * The sub-action will accept if the input buffer starts with the string at the given position.
+ */
+export function str2subAction<ActionState>(s: string): SubAction<ActionState> {
+  return (input, pos) =>
+    input.buffer.startsWith(s, pos)
+      ? { accept: true, digested: s.length }
+      : { accept: false };
+}

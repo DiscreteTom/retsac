@@ -1,5 +1,5 @@
 import { Action, rejectedActionOutput } from "../../action";
-import type { SubAction } from "../common";
+import { str2subAction, type SubAction } from "../common";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
 
@@ -65,13 +65,12 @@ export function stringLiteral<
   ActionState,
   ErrorType
 > {
-  const openMatcher =
-    typeof open === "string" ? string2quoteCondition(open) : open;
+  const openMatcher = typeof open === "string" ? str2subAction(open) : open;
   const closeMatcher =
     options?.close === undefined
       ? openMatcher // defaults to the open quote
       : typeof options.close === "string"
-      ? string2quoteCondition(options.close)
+      ? str2subAction(options.close)
       : options.close;
   const multiline = options?.multiline ?? false;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
@@ -213,11 +212,4 @@ export function stringLiteral<
       muted: false,
     };
   });
-}
-
-function string2quoteCondition<ActionState>(s: string): SubAction<ActionState> {
-  return (input, pos) =>
-    input.buffer.startsWith(s, pos)
-      ? { accept: true, digested: s.length }
-      : { accept: false };
 }
