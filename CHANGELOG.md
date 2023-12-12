@@ -10,6 +10,7 @@
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
   - Feat: `Builder.append` can accept actions with different data bindings in one call.
   - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral`.
+  - Feat: add `Lexer.binaryIntegerLiteral`.
   - Feat: add `Lexer.json`.
   - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 - Parser
