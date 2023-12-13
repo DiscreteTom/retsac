@@ -30,7 +30,7 @@ export type EscapeHandlerOutput<ErrorKinds extends string> =
   | ({
       accept: true;
       /**
-       * The length of the escaped content, not include the escape starter.
+       * The length of the escaped content, ***NOT*** include the escape starter.
        */
       length: number;
     } & Pick<EscapeInfo<ErrorKinds>, "value" | "error">);

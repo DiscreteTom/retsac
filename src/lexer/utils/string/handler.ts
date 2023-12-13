@@ -36,6 +36,13 @@ export function lineContinuation(newline: string[]): EscapeHandler<never> {
 
 /**
  * Handle hex escape sequence (`\xDD`).
+ * @example
+ * // match \xDD
+ * hex()
+ * // custom prefix
+ * hex({ prefix: 'u' })
+ * // custom hex length
+ * hex({ hexLength: 4 })
  */
 export function hex<ErrorKinds extends string = never>(options?: {
   /**
@@ -102,6 +109,13 @@ export function hex<ErrorKinds extends string = never>(options?: {
 
 /**
  * Handle unicode escape sequence (`\uDDDD`).
+ * @example
+ * // match \uDDDD
+ * unicode()
+ * // custom prefix
+ * unicode({ prefix: 'U' })
+ * // custom hex length
+ * unicode({ hexLength: 6 })
  */
 export function unicode<ErrorKinds extends string = never>(options?: {
   /**
@@ -134,6 +148,16 @@ export function unicode<ErrorKinds extends string = never>(options?: {
 
 /**
  * Handle unicode code point escape sequence (`\u{DDDDDD}`).
+ * The length of the hexadecimal part should between 1 and `maxHexLength`.
+ * @example
+ * // match \u{DDDDDD}
+ * codepoint()
+ * // custom prefix
+ * codepoint({ prefix: 'U{' })
+ * // custom suffix
+ * codepoint({ suffix: '}' })
+ * // custom max hex length
+ * codepoint({ maxHexLength: 8 })
  */
 export function codepoint<ErrorKinds extends string = never>(options?: {
   /**

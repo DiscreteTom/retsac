@@ -2,7 +2,6 @@ import { Action, rejectedActionOutput } from "../action";
 import type { IntoSubAction } from "./subaction";
 import { SubAction } from "./subaction";
 
-// TODO: comments
 export type IntegerLiteralOptions<ActionState> = {
   /**
    * If `undefined`, the numeric separator will be disabled.
@@ -10,18 +9,23 @@ export type IntegerLiteralOptions<ActionState> = {
    */
   separator?: string;
   /**
+   * If provided, this is the suffix of the integer literal.
+   * E.g. the `n` suffix in JavaScript's big int literal.
    * @default undefined
    */
-  // TODO: optimize comments
   suffix?: IntoSubAction<ActionState>;
   /**
+   * If `true`, the action will accept invalid integer literal and record errors in the data.
+   *
+   * If `false`, the action will reject invalid integer literal.
    * @default true
    */
-  // TODO: optimize comments
   acceptInvalid?: boolean;
 };
 
-// TODO: comments
+/**
+ * Create an action that accepts custom integer literal.
+ */
 export function integerLiteral<ActionState = never, ErrorType = never>(
   options: {
     /**

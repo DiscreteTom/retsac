@@ -3,6 +3,21 @@ import { SubAction, type IntoSubAction } from "../subaction";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
 
+/**
+ * @example
+ * // simple, single line, accept unclosed, no escape
+ * stringLiteral("'")
+ * // custom close quote
+ * stringLiteral("<<", { close: ">>" })
+ * // multiline
+ * stringLiteral("`", { multiline: true })
+ * // enable escape with custom escape handlers
+ * stringLiteral('"', { escape: { handlers: [...] } })
+ * // custom escape starter
+ * stringLiteral('"', { escape: { starter: "^", handlers: [...] } })
+ * // reject unclosed
+ * stringLiteral('"', { acceptUnclosed: false })
+ */
 export function stringLiteral<
   ErrorKinds extends string = never,
   ActionState = never,
