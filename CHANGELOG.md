@@ -12,7 +12,7 @@
   - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral`.
   - Feat: add `Lexer.integerLiteral/binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral`.
   - Feat: add `Lexer.json`.
-  - Feat: add `Lexer.SubAction`, `Lexer.str2subAction/regex2subAction`.
+  - Feat: add `Lexer.SubAction`, `Lexer.IntoSubAction`.
   - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 - Parser
   - **_Breaking Change_**: lexer will be trimmed after every parse. This should improve the performance.

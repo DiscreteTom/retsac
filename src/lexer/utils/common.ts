@@ -1,5 +1,5 @@
 import { composables } from "@discretetom/r-compose";
-import type { ActionInput, RejectedActionOutput } from "../action";
+import type { ActionInput } from "../action";
 import { Action, makeRegexAutoGlobal, makeRegexAutoSticky } from "../action";
 
 /**
@@ -121,57 +121,4 @@ export function comment<ActionState = never, ErrorType = never>(
     ...options,
     acceptEof: options?.acceptEof ?? true,
   });
-}
-
-/**
- * Decide whether to digest some chars.
- */
-export type SubAction<ActionState> = (
-  input: ActionInput<ActionState>,
-  /**
-   * Index of the next char to be read.
-   */
-  pos: number,
-) =>
-  | {
-      accept: true;
-      /**
-       * How many chars are digested by the sub-action.
-       */
-      digested: number;
-    }
-  | RejectedActionOutput;
-
-/**
- * Create a sub-action from a string.
- * The sub-action will accept if the input buffer starts with the string at the given position.
- */
-export function str2subAction<ActionState>(s: string): SubAction<ActionState> {
-  return (input, pos) =>
-    input.buffer.startsWith(s, pos)
-      ? { accept: true, digested: s.length }
-      : { accept: false };
-}
-
-/**
- * Create a sub-action from a regex.
- * The sub-action will accept if the input buffer match the regex at the given position.
- */
-export function regex2subAction<ActionState>(
-  r: RegExp,
-  options?: {
-    /**
-     * Auto add the `sticky` flag to the `from` regex if `g` and `y` is not set.
-     * @default true
-     */
-    autoSticky?: boolean;
-  },
-): SubAction<ActionState> {
-  r = options?.autoSticky ? makeRegexAutoSticky(r) : r;
-  return (input, pos) => {
-    r.lastIndex = pos;
-    const res = r.exec(input.buffer);
-    if (res === null) return { accept: false };
-    return { accept: true, digested: res[0].length };
-  };
 }

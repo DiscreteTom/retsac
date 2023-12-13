@@ -1,5 +1,6 @@
 import { Action, rejectedActionOutput } from "../action";
-import { regex2subAction, str2subAction, type SubAction } from "./common";
+import type { IntoSubAction } from "./subaction";
+import { SubAction } from "./subaction";
 
 // TODO: comments
 export type IntegerLiteralOptions<ActionState> = {
@@ -12,7 +13,7 @@ export type IntegerLiteralOptions<ActionState> = {
    * @default undefined
    */
   // TODO: optimize comments
-  suffix?: string | SubAction<ActionState>;
+  suffix?: IntoSubAction<ActionState>;
   /**
    * @default true
    */
@@ -26,27 +27,23 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
     /**
      * E.g. `0b`, `0o`, `0x`.
      */
-    prefix: string | SubAction<ActionState>;
+    prefix: IntoSubAction<ActionState>;
     /**
      * Specify how to match the integer content.
      * Separators should not be included.
      */
-    content: SubAction<ActionState>;
+    content: IntoSubAction<ActionState>;
   } & IntegerLiteralOptions<ActionState>,
 ) {
-  const prefixMatcher =
-    typeof options.prefix === "string"
-      ? str2subAction(options.prefix)
-      : options.prefix;
-  const contentMatcher = options.content;
+  const prefixMatcher = SubAction.from(options.prefix);
+  const contentMatcher = SubAction.from(options.content);
   const separator = options.separator;
   const suffix = options.suffix;
-  const suffixChecker: SubAction<ActionState> =
+  const suffixChecker: SubAction<ActionState> = SubAction.from(
     suffix === undefined
       ? () => ({ accept: true, digested: 0 }) // always accept if no suffix
-      : typeof suffix === "string"
-      ? str2subAction(suffix)
-      : suffix;
+      : suffix,
+  );
   const rejectInvalid = !(options.acceptInvalid ?? true);
 
   return Action.exec<
@@ -76,7 +73,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
     ErrorType
   >((input) => {
     // ensure the input starts with prefix
-    const prefixMatch = prefixMatcher(input, input.start);
+    const prefixMatch = prefixMatcher.exec(input, input.start);
     if (!prefixMatch.accept) return rejectedActionOutput;
 
     const data = {
@@ -113,7 +110,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
       }
 
       // check content
-      const contentMatch = contentMatcher(input, pos);
+      const contentMatch = contentMatcher.exec(input, pos);
       if (contentMatch.accept) {
         data.value += input.buffer.slice(pos, pos + contentMatch.digested);
         pos += contentMatch.digested;
@@ -121,7 +118,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
         continue;
       }
 
-      const suffixMatch = suffixChecker(input, pos);
+      const suffixMatch = suffixChecker.exec(input, pos);
       // check suffix
       if (suffixMatch.accept) {
         // check tailing separator
@@ -162,7 +159,7 @@ export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
 ) {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0b",
-    content: regex2subAction(/[01]/),
+    content: /[01]/,
     acceptInvalid: options?.acceptInvalid,
     separator: options?.separator,
     suffix: options?.suffix,
@@ -178,7 +175,7 @@ export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
 ) {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0o",
-    content: regex2subAction(/[0-7]/),
+    content: /[0-7]/,
     acceptInvalid: options?.acceptInvalid,
     separator: options?.separator,
     suffix: options?.suffix,
@@ -194,7 +191,7 @@ export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
 ) {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0x",
-    content: regex2subAction(/[0-9a-fA-F]/),
+    content: /[0-9a-fA-F]/,
     acceptInvalid: options?.acceptInvalid,
     separator: options?.separator,
     suffix: options?.suffix,

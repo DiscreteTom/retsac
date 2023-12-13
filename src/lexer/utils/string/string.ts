@@ -1,5 +1,5 @@
 import { Action, rejectedActionOutput } from "../../action";
-import { str2subAction, type SubAction } from "../common";
+import { SubAction, type IntoSubAction } from "../subaction";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
 
@@ -11,13 +11,13 @@ export function stringLiteral<
   /**
    * The open quote.
    */
-  open: string | SubAction<ActionState>,
+  open: IntoSubAction<ActionState>,
   options?: {
     /**
      * The close quote.
      * Equals to the open quote by default.
      */
-    close?: string | SubAction<ActionState>;
+    close?: IntoSubAction<ActionState>;
     /**
      * @default false
      */
@@ -65,13 +65,11 @@ export function stringLiteral<
   ActionState,
   ErrorType
 > {
-  const openMatcher = typeof open === "string" ? str2subAction(open) : open;
+  const openMatcher = SubAction.from(open);
   const closeMatcher =
     options?.close === undefined
       ? openMatcher // defaults to the open quote
-      : typeof options.close === "string"
-      ? str2subAction(options.close)
-      : options.close;
+      : SubAction.from(options.close);
   const multiline = options?.multiline ?? false;
   const acceptUnclosed = options?.acceptUnclosed ?? true;
   const escapeEnabled = options?.escape !== undefined;
@@ -84,7 +82,7 @@ export function stringLiteral<
 
   return Action.exec((input) => {
     // match open quote
-    const matchOpen = openMatcher(input, input.start);
+    const matchOpen = openMatcher.exec(input, input.start);
     if (!matchOpen.accept) return rejectedActionOutput;
 
     const text = input.buffer;
@@ -118,7 +116,7 @@ export function stringLiteral<
       }
 
       // check for close quote
-      const matchClose = closeMatcher(input, pos);
+      const matchClose = closeMatcher.exec(input, pos);
       if (matchClose.accept) {
         data.value += text.substring(start, pos);
         pos += matchClose.digested; // eat the close quote
