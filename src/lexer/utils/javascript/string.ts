@@ -1,4 +1,4 @@
-import type { EscapeHandler } from "../string";
+import type { EscapeHandler, StringLiteralOptions } from "../string";
 import { commonEscapeHandlers, stringLiteral } from "../string";
 import { codepoint, fallback, hex, unicode } from "../string/handler";
 
@@ -112,7 +112,9 @@ export const escapeHandlers = {
  * Match a JavaScript simple string literal (single quote or double quote).
  * Legacy octal escape sequences are not supported.
  */
-export function simpleStringLiteral<ActionState = never, ErrorType = never>() {
+export function simpleStringLiteral<ActionState = never, ErrorType = never>(
+  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
+) {
   return stringLiteral<
     "hex" | "unicode" | "codepoint" | "unnecessary",
     ActionState,
@@ -139,6 +141,7 @@ export function simpleStringLiteral<ActionState = never, ErrorType = never>() {
           fallback(),
         ],
       },
+      acceptUnclosed: options?.acceptUnclosed,
     },
   );
 }
