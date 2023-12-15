@@ -3,6 +3,52 @@ import { SubAction, type IntoSubAction } from "../subaction";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
 
+export type StringLiteralOptions<ActionState, ErrorKinds extends string> = {
+  /**
+   * The close quote.
+   * Equals to the open quote by default.
+   */
+  close?: IntoSubAction<ActionState>;
+  /**
+   * @default false
+   */
+  multiline?: boolean;
+  /**
+   * If `undefined`, escape will not be handled.
+   * @default undefined
+   */
+  escape?: {
+    /**
+     * @default '\\'
+     */
+    starter?: string;
+    /**
+     * @default []
+     */
+    handlers?:
+      | EscapeHandler<ErrorKinds>[]
+      | ((common: typeof commonEscapeHandlers) => EscapeHandler<ErrorKinds>[]);
+  };
+  /**
+   * If `true`, unclosed strings
+   * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
+   * @default true
+   */
+  acceptUnclosed?: boolean;
+};
+
+export type StringLiteralData<ErrorKinds extends string> = {
+  /**
+   * The evaluated string value. Errors will be correctly handled.
+   */
+  value: string;
+  /**
+   * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
+   */
+  unclosed: boolean;
+  escapes: EscapeInfo<ErrorKinds>[];
+};
+
 /**
  * @example
  * // simple, single line, accept unclosed, no escape
@@ -27,55 +73,11 @@ export function stringLiteral<
    * The open quote.
    */
   open: IntoSubAction<ActionState>,
-  options?: {
-    /**
-     * The close quote.
-     * Equals to the open quote by default.
-     */
-    close?: IntoSubAction<ActionState>;
-    /**
-     * @default false
-     */
-    multiline?: boolean;
-    /**
-     * If `undefined`, escape will not be handled.
-     * @default undefined
-     */
-    escape?: {
-      /**
-       * @default '\\'
-       */
-      starter?: string;
-      /**
-       * @default []
-       */
-      handlers?:
-        | EscapeHandler<ErrorKinds>[]
-        | ((
-            common: typeof commonEscapeHandlers,
-          ) => EscapeHandler<ErrorKinds>[]);
-    };
-    /**
-     * If `true`, unclosed strings
-     * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
-     * @default true
-     */
-    acceptUnclosed?: boolean;
-  },
+  options?: StringLiteralOptions<ActionState, ErrorKinds>,
 ): Action<
   {
     kind: never;
-    data: {
-      /**
-       * The evaluated string value. Errors will be correctly handled.
-       */
-      value: string;
-      /**
-       * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
-       */
-      unclosed: boolean;
-      escapes: EscapeInfo<ErrorKinds | "unterminated" | "unhandled">[];
-    };
+    data: StringLiteralData<ErrorKinds | "unterminated" | "unhandled">;
   },
   ActionState,
   ErrorType
@@ -114,10 +116,10 @@ export function stringLiteral<
     /**
      * The data to be returned.
      */
-    const data = {
+    const data: StringLiteralData<ErrorKinds | "unterminated" | "unhandled"> = {
       value: "",
       unclosed: false,
-      escapes: [] as EscapeInfo<ErrorKinds | "unterminated" | "unhandled">[],
+      escapes: [],
     };
 
     while (true) {

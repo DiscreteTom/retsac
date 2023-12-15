@@ -6,6 +6,7 @@
   - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
   - **_Breaking Change_**: remove `Builder.getTokenKinds`.
   - **_Breaking Change_**: rewrite `stringLiteral`.
+    - Add `StringLiteralOptions/StringLiteralData/EscapeHandler`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
   - Feat: `Builder.append` can accept actions with different data bindings in one call.
