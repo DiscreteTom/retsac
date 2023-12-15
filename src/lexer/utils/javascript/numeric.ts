@@ -1,6 +1,12 @@
 import { compose } from "@discretetom/r-compose";
 import { Action } from "../../action";
 import { esc4regex } from "../common";
+import type { IntegerLiteralOptions } from "../numeric";
+import {
+  binaryIntegerLiteral as commonBinaryIntegerLiteral,
+  octalIntegerLiteral as commonOctalIntegerLiteral,
+  hexIntegerLiteral as commonHexIntegerLiteral,
+} from "../numeric";
 
 /**
  * Match the literal representations of numbers in JavaScript code.
@@ -125,4 +131,43 @@ export function numericLiteral<
     // only accept valid numbers
     return valid;
   }
+}
+
+/**
+ * Create an action that accepts JavaScript's binary integer literal (`0b101n`).
+ */
+export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
+) {
+  return commonBinaryIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+    acceptInvalid: options?.acceptInvalid,
+  });
+}
+
+/**
+ * Create an action that accepts JavaScript's octal integer literal (`0o707n`).
+ */
+export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
+) {
+  return commonOctalIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+    acceptInvalid: options?.acceptInvalid,
+  });
+}
+
+/**
+ * Create an action that accepts JavaScript's hexadecimal integer literal (`0xF0Fn`).
+ */
+export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
+  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
+) {
+  return commonHexIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+    acceptInvalid: options?.acceptInvalid,
+  });
 }
