@@ -23,6 +23,29 @@ export type IntegerLiteralOptions<ActionState> = {
   acceptInvalid?: boolean;
 };
 
+export type IntegerLiteralData = {
+  /**
+   * The string value of the binary literal. Prefix, suffix and separators are removed.
+   */
+  value: string;
+  /**
+   * If `true`, there is no content after the prefix.
+   */
+  empty: boolean;
+  /**
+   * If `true`, there is a separator at the beginning, after the prefix.
+   */
+  leadingSeparator: boolean;
+  /**
+   * If `true`, there is a separator at the end, before the suffix.
+   */
+  tailingSeparator: boolean;
+  /**
+   * The index of the consecutive separators.
+   */
+  consecutiveSeparatorIndex: number[];
+};
+
 /**
  * Create an action that accepts custom integer literal.
  */
@@ -38,7 +61,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
      */
     content: IntoSubAction<ActionState>;
   } & IntegerLiteralOptions<ActionState>,
-) {
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
   const prefixMatcher = SubAction.from(options.prefix);
   const contentMatcher = SubAction.from(options.content);
   const separator = options.separator;
@@ -50,32 +73,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
   );
   const rejectInvalid = !(options.acceptInvalid ?? true);
 
-  return Action.exec<
-    {
-      /**
-       * The string value of the binary literal. Prefix, suffix and separators are removed.
-       */
-      value: string;
-      /**
-       * If `true`, there is no content after the prefix.
-       */
-      empty: boolean;
-      /**
-       * If `true`, there is a separator at the beginning, after the prefix.
-       */
-      leadingSeparator: boolean;
-      /**
-       * If `true`, there is a separator at the end, before the suffix.
-       */
-      tailingSeparator: boolean;
-      /**
-       * The index of the consecutive separators.
-       */
-      consecutiveSeparatorIndex: number[];
-    },
-    ActionState,
-    ErrorType
-  >((input) => {
+  return Action.exec<IntegerLiteralData, ActionState, ErrorType>((input) => {
     // ensure the input starts with prefix
     const prefixMatch = prefixMatcher.exec(input, input.start);
     if (!prefixMatch.accept) return rejectedActionOutput;
@@ -160,7 +158,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
  */
 export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
   options?: IntegerLiteralOptions<ActionState>,
-) {
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0b",
     content: /[01]/,
@@ -176,7 +174,7 @@ export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
  */
 export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
   options?: IntegerLiteralOptions<ActionState>,
-) {
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0o",
     content: /[0-7]/,
@@ -192,7 +190,7 @@ export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
  */
 export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
   options?: IntegerLiteralOptions<ActionState>,
-) {
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
   return integerLiteral<ActionState, ErrorType>({
     prefix: "0x",
     content: /[0-9a-fA-F]/,
