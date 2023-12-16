@@ -181,6 +181,11 @@ export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
 
 export type NumericLiteralOptions<ActionState> = {
   /**
+   * E.g. `/[+-]?/`
+   * @default undefined
+   */
+  prefix?: IntoSubAction<ActionState>;
+  /**
    * The decimal point.
    * If `undefined`, the fraction part will not be digested.
    * @default undefined
@@ -195,10 +200,15 @@ export type NumericLiteralOptions<ActionState> = {
 } & IntegerLiteralOptions<ActionState>;
 
 export type NumericLiteralData = {
+  prefix: string;
   /**
    * The integer part of the numeric literal.
    */
   integer: {
+    /**
+     * The index of the whole input string where the integer part starts.
+     */
+    index: number;
     /**
      * Separators are removed.
      */
@@ -304,12 +314,16 @@ enum NumericLiteralPhase {
  * numericLiteral({ suffix: "n" })
  * // numeric separator
  * numericLiteral({ separator: "_" })
+ * // prefix
+ * numericLiteral({ prefix: /[+-]?/ })
  * // all together
- * numericLiteral({ decimalPoint: ".", exponentIndicator: /[eE](?:[+-])?/, suffix: "n", separator: "_" })
+ * numericLiteral({ prefix: /[+-]?/, decimalPoint: ".", exponentIndicator: /[eE](?:[+-])?/, suffix: "n", separator: "_" })
  */
 export function numericLiteral<ActionState = never, ErrorType = never>(
   options?: NumericLiteralOptions<ActionState>,
 ): Action<{ kind: never; data: NumericLiteralData }, ActionState, ErrorType> {
+  const prefix =
+    options?.prefix === undefined ? undefined : SubAction.from(options.prefix);
   const separator =
     options?.separator === undefined
       ? undefined
@@ -332,7 +346,9 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
     let phase = NumericLiteralPhase.Integer;
 
     const data: NumericLiteralData = {
+      prefix: "",
       integer: {
+        index: pos,
         value: "",
         digested: 0,
       },
@@ -341,6 +357,15 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       suffix: "",
       separators: [],
     };
+
+    // check prefix
+    if (prefix !== undefined) {
+      const prefixMatch = prefix.exec(input, pos);
+      if (!prefixMatch.accept) return rejectedActionOutput;
+      pos += prefixMatch.digested;
+      data.prefix = text.slice(input.start, pos);
+      data.integer.index = pos;
+    }
 
     while (true) {
       // check end of text

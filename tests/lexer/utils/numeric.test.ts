@@ -481,6 +481,7 @@ describe("numericLiteral", () => {
     expect(token.content).toBe(overrides?.content ?? input);
     expect(token.kind).toBe("number");
     expect(token.error).toBe(undefined);
+    expect(token.data.prefix).toEqual(overrides.data.prefix ?? "");
     expect(token.data.integer).toEqual(overrides.data.integer);
     expect(token.data.fraction).toEqual(overrides.data.fraction ?? undefined);
     expect(token.data.exponent).toEqual(overrides.data.exponent ?? undefined);
@@ -519,6 +520,7 @@ describe("numericLiteral", () => {
           expectAccept(lexer, "1", {
             data: {
               integer: {
+                index: 0,
                 value: "1",
                 digested: 1,
               },
@@ -529,6 +531,7 @@ describe("numericLiteral", () => {
           expectAccept(lexer, "111", {
             data: {
               integer: {
+                index: 0,
                 value: "111",
                 digested: 3,
               },
@@ -544,6 +547,7 @@ describe("numericLiteral", () => {
           content: "1",
           data: {
             integer: {
+              index: 0,
               value: "1",
               digested: 1,
             },
@@ -558,6 +562,7 @@ describe("numericLiteral", () => {
           content: "1",
           data: {
             integer: {
+              index: 0,
               value: "1",
               digested: 1,
             },
@@ -572,6 +577,7 @@ describe("numericLiteral", () => {
           content: "1",
           data: {
             integer: {
+              index: 0,
               value: "1",
               digested: 1,
             },
@@ -586,6 +592,7 @@ describe("numericLiteral", () => {
           content: "1",
           data: {
             integer: {
+              index: 0,
               value: "1",
               digested: 1,
             },
@@ -604,6 +611,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1,1", {
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -625,6 +633,7 @@ describe("numericLiteral", () => {
         content: "1,1",
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -655,6 +664,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1e1", {
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -676,6 +686,7 @@ describe("numericLiteral", () => {
         content: "1e1",
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -706,6 +717,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1-1", {
         data: {
           integer: {
+            index: 0,
             value: "11",
             digested: 3,
           },
@@ -718,6 +730,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1-1-1", {
         data: {
           integer: {
+            index: 0,
             value: "111",
             digested: 5,
           },
@@ -743,6 +756,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1i", {
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -752,6 +766,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1f", {
         data: {
           integer: {
+            index: 0,
             value: "1",
             digested: 1,
           },
@@ -761,10 +776,49 @@ describe("numericLiteral", () => {
     });
   });
 
+  describe("custom prefix", () => {
+    const lexer = new Lexer.Builder()
+      .define({ number: Lexer.numericLiteral({ prefix: /[+-]?/ }) })
+      .build();
+
+    test("accept", () => {
+      expectAccept(lexer, "-1", {
+        data: {
+          prefix: "-",
+          integer: {
+            index: 1,
+            value: "1",
+            digested: 1,
+          },
+        },
+      });
+      expectAccept(lexer, "+1", {
+        data: {
+          prefix: "+",
+          integer: {
+            index: 1,
+            value: "1",
+            digested: 1,
+          },
+        },
+      });
+      expectAccept(lexer, "1", {
+        data: {
+          integer: {
+            index: 0,
+            value: "1",
+            digested: 1,
+          },
+        },
+      });
+    });
+  });
+
   describe("fully customized", () => {
     const lexer = new Lexer.Builder()
       .define({
         number: Lexer.numericLiteral({
+          prefix: /[+-]?/,
           decimalPoint: ",",
           exponentIndicator: "e",
           separator: "-",
@@ -774,35 +828,37 @@ describe("numericLiteral", () => {
       .build();
 
     test("accept", () => {
-      expectAccept(lexer, "1-1,1-1e1-1i", {
+      expectAccept(lexer, "-1-1,1-1e1-1i", {
         data: {
+          prefix: "-",
           integer: {
+            index: 1,
             value: "11",
             digested: 3,
           },
           fraction: {
             point: {
-              index: 3,
+              index: 4,
               content: ",",
             },
-            index: 4,
+            index: 5,
             value: "11",
             digested: 3,
           },
           exponent: {
             indicator: {
-              index: 7,
+              index: 8,
               content: "e",
             },
-            index: 8,
+            index: 9,
             value: "11",
             digested: 3,
           },
           suffix: "i",
           separators: [
-            { index: 1, content: "-" },
-            { index: 5, content: "-" },
-            { index: 9, content: "-" },
+            { index: 2, content: "-" },
+            { index: 6, content: "-" },
+            { index: 10, content: "-" },
           ],
         },
       });

@@ -541,6 +541,40 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123", {
         data: {
           integer: {
+            index: 0,
+            digested: 3,
+            value: "123",
+          },
+        },
+      });
+    });
+
+    test("integer with prefix", () => {
+      expectAccept(lexer, "+123", {
+        data: {
+          prefix: "+",
+          integer: {
+            index: 1,
+            digested: 3,
+            value: "123",
+          },
+        },
+      });
+      expectAccept(lexer, "-123", {
+        data: {
+          prefix: "-",
+          integer: {
+            index: 1,
+            digested: 3,
+            value: "123",
+          },
+        },
+      });
+      expectAccept(lexer, "- 123", {
+        data: {
+          prefix: "- ",
+          integer: {
+            index: 2,
             digested: 3,
             value: "123",
           },
@@ -552,6 +586,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1_2_3", {
         data: {
           integer: {
+            index: 0,
             digested: 5,
             value: "123",
           },
@@ -567,6 +602,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123n", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -579,6 +615,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123.456", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -599,6 +636,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, ".456", {
         data: {
           integer: {
+            index: 0,
             digested: 0,
             value: "",
           },
@@ -619,6 +657,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1_2_3.4_5_6", {
         data: {
           integer: {
+            index: 0,
             digested: 5,
             value: "123",
           },
@@ -645,6 +684,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, ".4_5_6", {
         data: {
           integer: {
+            index: 0,
             digested: 0,
             value: "",
           },
@@ -669,6 +709,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, ".456n", {
         data: {
           integer: {
+            index: 0,
             digested: 0,
             value: "",
           },
@@ -691,6 +732,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e456", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -708,6 +750,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123E456", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -728,6 +771,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123.456e789", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -757,6 +801,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e+456", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -774,6 +819,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e-456", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -794,6 +840,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e456n", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -816,6 +863,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e4_5_6", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -840,6 +888,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -861,6 +910,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "0123", {
         data: {
           integer: {
+            index: 0,
             digested: 4,
             value: "0123",
           },
@@ -873,6 +923,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123.456n", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -895,6 +946,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "123e456n", {
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -918,6 +970,7 @@ describe("numericLiteral", () => {
         content: "123",
         data: {
           integer: {
+            index: 0,
             digested: 3,
             value: "123",
           },
@@ -931,6 +984,7 @@ describe("numericLiteral", () => {
         expectAccept(lexer, "0_123", {
           data: {
             integer: {
+              index: 0,
               digested: 5,
               value: "0123",
             },
@@ -945,6 +999,7 @@ describe("numericLiteral", () => {
         expectAccept(lexer, "_1_._1_e_1_n", {
           data: {
             integer: {
+              index: 0,
               digested: 3,
               value: "1",
             },
@@ -987,6 +1042,7 @@ describe("numericLiteral", () => {
       expectAccept(lexer, "1__2__3", {
         data: {
           integer: {
+            index: 0,
             digested: 7,
             value: "123",
           },
@@ -1055,6 +1111,7 @@ describe("numericLiteral", () => {
           content: "123",
           data: {
             integer: {
+              index: 0,
               digested: 3,
               value: "123",
             },

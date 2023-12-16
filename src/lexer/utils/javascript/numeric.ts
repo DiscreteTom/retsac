@@ -266,6 +266,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
   ErrorType
 > {
   const action = commonNumericLiteral<ActionState, ErrorType>({
+    prefix: /(?:[+-]\s*)?/,
     decimalPoint: ".",
     exponentIndicator: /[eE](?:[+-])?/,
     separator: "_",
