@@ -75,6 +75,7 @@ export function integerLiteralRejecter<ActionState, ErrorType>({
   ErrorType
 >): boolean {
   return (
+    output.data.value.length === 0 ||
     output.data.leadingSeparator ||
     output.data.tailingSeparator ||
     output.data.consecutiveSeparatorIndexes.length > 0
