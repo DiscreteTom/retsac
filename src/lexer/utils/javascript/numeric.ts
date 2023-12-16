@@ -1,7 +1,8 @@
 import { compose } from "@discretetom/r-compose";
+import type { AcceptedActionDecoratorContext } from "../../action";
 import { Action } from "../../action";
 import { esc4regex } from "../common";
-import type { IntegerLiteralOptions } from "../numeric";
+import type { IntegerLiteralData as CommonIntegerLiteralData } from "../numeric";
 import {
   binaryIntegerLiteral as commonBinaryIntegerLiteral,
   octalIntegerLiteral as commonOctalIntegerLiteral,
@@ -133,41 +134,120 @@ export function numericLiteral<
   }
 }
 
+export type IntegerLiteralOptions = {
+  /**
+   * If `true`, the action will accept invalid numeric literal and record errors in the data.
+   *
+   * If `false`, the action will reject invalid numeric literal.
+   * @default true
+   */
+  acceptInvalid?: boolean;
+};
+
+export type IntegerLiteralData = {
+  /**
+   * If `true`, there is a separator at the beginning, after the prefix.
+   */
+  leadingSeparator: boolean;
+  /**
+   * If `true`, there is a separator at the end, before the suffix.
+   */
+  tailingSeparator: boolean;
+  /**
+   * The index of the whole input string where the consecutive separator is located.
+   */
+  consecutiveSeparatorIndexes: number[];
+} & CommonIntegerLiteralData;
+
+export function integerLiteralDataMapper<ActionState, ErrorType>({
+  input,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonIntegerLiteralData },
+  ActionState,
+  ErrorType
+>): IntegerLiteralData {
+  const lastSeparator = output.data.separators.at(-1);
+
+  return {
+    leadingSeparator:
+      output.data.separators[0]?.index ===
+      input.start + output.data.prefix.length,
+    tailingSeparator:
+      lastSeparator === undefined
+        ? false
+        : lastSeparator.index + lastSeparator.content.length ===
+          input.start - output.digested,
+    consecutiveSeparatorIndexes: output.data.separators
+      .map((s, i, arr) => {
+        if (i === 0) return -1;
+        if (arr[i - 1].index + arr[i - 1].content.length === s.index)
+          return s.index;
+        return -1;
+      })
+      .filter((i) => i !== -1),
+    ...output.data,
+  };
+}
+
+export function integerLiteralRejecter<ActionState, ErrorType>({
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: IntegerLiteralData },
+  ActionState,
+  ErrorType
+>): boolean {
+  return (
+    output.data.leadingSeparator ||
+    output.data.tailingSeparator ||
+    output.data.consecutiveSeparatorIndexes.length > 0
+  );
+}
+
 /**
  * Create an action that accepts JavaScript's binary integer literal (`0b101n`).
  */
 export function binaryIntegerLiteral<ActionState = never, ErrorType = never>(
-  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
-) {
-  return commonBinaryIntegerLiteral<ActionState, ErrorType>({
+  options?: IntegerLiteralOptions,
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  const action = commonBinaryIntegerLiteral<ActionState, ErrorType>({
     separator: "_",
     suffix: "n",
-    acceptInvalid: options?.acceptInvalid,
-  });
+  }).data(integerLiteralDataMapper);
+
+  return options?.acceptInvalid ?? true
+    ? action
+    : action.reject(integerLiteralRejecter);
 }
 
 /**
  * Create an action that accepts JavaScript's octal integer literal (`0o707n`).
  */
 export function octalIntegerLiteral<ActionState = never, ErrorType = never>(
-  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
-) {
-  return commonOctalIntegerLiteral<ActionState, ErrorType>({
+  options?: IntegerLiteralOptions,
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  const action = commonOctalIntegerLiteral<ActionState, ErrorType>({
     separator: "_",
     suffix: "n",
-    acceptInvalid: options?.acceptInvalid,
-  });
+  }).data(integerLiteralDataMapper);
+
+  return options?.acceptInvalid ?? true
+    ? action
+    : action.reject(integerLiteralRejecter);
 }
 
 /**
  * Create an action that accepts JavaScript's hexadecimal integer literal (`0xF0Fn`).
  */
 export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
-  options?: Pick<IntegerLiteralOptions<never>, "acceptInvalid">,
-) {
-  return commonHexIntegerLiteral<ActionState, ErrorType>({
+  options?: IntegerLiteralOptions,
+): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  const action = commonHexIntegerLiteral<ActionState, ErrorType>({
     separator: "_",
     suffix: "n",
-    acceptInvalid: options?.acceptInvalid,
-  });
+  }).data(integerLiteralDataMapper);
+
+  return options?.acceptInvalid ?? true
+    ? action
+    : action.reject(integerLiteralRejecter);
 }
