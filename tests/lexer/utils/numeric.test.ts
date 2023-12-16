@@ -791,10 +791,10 @@ describe("numericLiteral", () => {
           },
           exponent: {
             indicator: {
-              index: 8,
+              index: 7,
               content: "e",
             },
-            index: 9,
+            index: 8,
             value: "11",
             digested: 3,
           },
