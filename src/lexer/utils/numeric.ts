@@ -337,7 +337,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
         if (separatorMatch.accept) {
           data.separators.push({
             index: pos,
-            content: input.buffer.slice(pos, separatorMatch.digested),
+            content: input.buffer.slice(pos, pos + separatorMatch.digested),
           });
           pos += separatorMatch.digested;
           switch (phase) {
@@ -390,14 +390,14 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       }
 
       // check decimal point
-      if (decimal !== undefined) {
+      if (phase === NumericLiteralPhase.Integer && decimal !== undefined) {
         const decimalMatch = decimal.exec(input, pos);
         if (decimalMatch.accept) {
           phase = NumericLiteralPhase.Fraction;
           data.fraction = {
             point: {
               index: pos,
-              content: input.buffer.slice(pos, decimalMatch.digested),
+              content: input.buffer.slice(pos, pos + decimalMatch.digested),
             },
             index: pos + decimalMatch.digested,
             value: "",
@@ -409,13 +409,17 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       }
 
       // check scientific notation
-      if (scientific !== undefined) {
+      if (
+        (phase === NumericLiteralPhase.Integer ||
+          phase === NumericLiteralPhase.Fraction) &&
+        scientific !== undefined
+      ) {
         const scientificMatch = scientific.exec(input, pos);
         if (scientificMatch.accept) {
           data.exponent = {
             indicator: {
               index: pos,
-              content: input.buffer.slice(pos, scientificMatch.digested),
+              content: input.buffer.slice(pos, pos + scientificMatch.digested),
             },
             index: pos + scientificMatch.digested,
             value: "",
@@ -439,6 +443,22 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       // otherwise
       break;
     }
+
+    // reject if all parts are empty
+    if (
+      data.integer.value.length === 0 &&
+      (data.fraction?.value.length ?? 0) === 0 &&
+      (data.exponent?.value.length ?? 0) === 0
+    )
+      return rejectedActionOutput;
+    // reject if no integer and fraction, but exponent exists
+    // e.g. `.e1`
+    if (
+      data.integer.value.length === 0 &&
+      (data.fraction?.value.length ?? 0) === 0 &&
+      data.exponent !== undefined
+    )
+      return rejectedActionOutput;
 
     return {
       accept: true,
