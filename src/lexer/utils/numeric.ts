@@ -292,6 +292,21 @@ enum NumericLiteralPhase {
   Exponent,
 }
 
+/**
+ * @example
+ * // integer only, no fraction, no exponent, no suffix
+ * numericLiteral()
+ * // allow fraction with custom decimal point
+ * numericLiteral({ decimalPoint: "." })
+ * // fraction and exponent
+ * numericLiteral({ decimalPoint: ".", exponentIndicator: /[eE](?:[+-])?/ })
+ * // suffix
+ * numericLiteral({ suffix: "n" })
+ * // numeric separator
+ * numericLiteral({ separator: "_" })
+ * // all together
+ * numericLiteral({ decimalPoint: ".", exponentIndicator: /[eE](?:[+-])?/, suffix: "n", separator: "_" })
+ */
 export function numericLiteral<ActionState = never, ErrorType = never>(
   options?: NumericLiteralOptions<ActionState>,
 ): Action<{ kind: never; data: NumericLiteralData }, ActionState, ErrorType> {

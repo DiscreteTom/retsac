@@ -251,15 +251,9 @@ export function numericLiteralRejecterFactory<ActionState, ErrorType>(
 }
 
 /**
- * Match the literal representations of numbers in JavaScript code.
+ * JavaScript's numeric literal. E.g. `0.123_456e-789n`.
  *
- * You can use `Number(token.content.replaceAll(numericSeparator, ''))` to get the numeric value.
- * The default numeric separator is `_`, you can customize it by setting `options.numericSeparator` to a string.
- *
- * If you want to disable the numeric separator, set `options.numericSeparator` to `false`.
- *
- * If `options.acceptInvalid` is `true` (by default), common invalid numeric literals will also be matched and marked with error.
- *
+ * Integer literal is not included.
  */
 export function numericLiteral<ActionState = never, ErrorType = never>(
   options?: NumericLiteralOptions,
