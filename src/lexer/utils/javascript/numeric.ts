@@ -54,7 +54,7 @@ export function integerLiteralDataMapper<ActionState, ErrorType>({
       lastSeparator === undefined
         ? false
         : lastSeparator.index + lastSeparator.content.length ===
-          input.start - output.digested,
+          input.start + output.digested,
     consecutiveSeparatorIndexes: output.data.separators
       .map((s, i, arr) => {
         if (i === 0) return -1;
