@@ -1,6 +1,5 @@
 import type { GeneralTokenDataBinding } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import type { IParser } from "../../../model";
 import type { Definition, RS_ResolverOptions } from "../../builder";
 import { InvalidGrammarRuleError } from "../error";
 import type { PlaceholderMap } from "./grammar-parser-factory";
@@ -15,31 +14,9 @@ export class GrammarExpander<
 > {
   readonly placeholderMap: PlaceholderMap;
   /** This parser will expand grammar rules, and collect placeholders for `gr+`. */
-  private readonly parser: IParser<
-    "gr",
-    string[],
-    never,
-    | {
-        kind: "";
-        data: undefined;
-      }
-    | {
-        kind: "grammar" | "rename";
-        data: undefined;
-      }
-    | {
-        kind: "literal";
-        data: {
-          unclosed: boolean;
-        };
-      }
-    | {
-        kind: "";
-        data: undefined;
-      },
-    never,
-    never
-  >;
+  private readonly parser: ReturnType<
+    ReturnType<typeof grammarParserFactory>["parserBuilder"]["build"]
+  >["parser"];
   readonly placeholderPrefix: string;
 
   constructor(options: { placeholderPrefix: string }) {
