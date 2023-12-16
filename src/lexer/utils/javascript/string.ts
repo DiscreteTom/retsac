@@ -117,8 +117,10 @@ export const escapeHandlers = [
   escapeHandlerFactory.simple(),
   escapeHandlerFactory.lineContinuation(),
   hex({ error: "hex" }),
-  unicode({ error: "unicode" }),
+  // make sure to handle codepoint before unicode
+  // since codepoint's prefix is longer than unicode's and has overlap
   codepoint({ error: "codepoint" }),
+  unicode({ error: "unicode" }),
   // keep the fallback handler at the end for error handling
   fallback(),
 ];
