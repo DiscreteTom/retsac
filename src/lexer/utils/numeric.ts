@@ -98,7 +98,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
         if (separatorMatch.accept) {
           data.separators.push({
             index: pos,
-            content: input.buffer.slice(pos, separatorMatch.digested),
+            content: input.buffer.slice(pos, pos + separatorMatch.digested),
           });
           pos += separatorMatch.digested;
           continue;
