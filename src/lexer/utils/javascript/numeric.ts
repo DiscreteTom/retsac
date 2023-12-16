@@ -273,7 +273,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
 > {
   const action = commonNumericLiteral<ActionState, ErrorType>({
     decimalPoint: ".",
-    exponentIndicator: /[eE]/,
+    exponentIndicator: /[eE](?:[+-])?/,
     separator: "_",
     suffix: "n",
   }).data(numericLiteralDataMapper);
