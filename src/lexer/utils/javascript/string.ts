@@ -1,4 +1,9 @@
-import type { EscapeHandler, StringLiteralOptions } from "../string";
+import type { Action } from "../../action";
+import type {
+  EscapeHandler,
+  StringLiteralData,
+  StringLiteralOptions,
+} from "../string";
 import { commonEscapeHandlers, stringLiteral } from "../string";
 import { codepoint, fallback, hex, unicode } from "../string/handler";
 
@@ -69,7 +74,7 @@ export function evalStringContent(content: string) {
   );
 }
 
-export const escapeHandlers = {
+export const escapeHandlerFactory = {
   /**
    * JavaScript's simple escape sequences.
    * ```
@@ -108,13 +113,99 @@ export const escapeHandlers = {
   },
 };
 
+export const escapeHandlers = [
+  escapeHandlerFactory.simple(),
+  escapeHandlerFactory.lineContinuation(),
+  hex({ error: "hex" }),
+  unicode({ error: "unicode" }),
+  codepoint({ error: "codepoint" }),
+  // keep the fallback handler at the end for error handling
+  fallback(),
+];
+
+export function singleQuoteStringLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(
+  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
+): Action<
+  {
+    kind: never;
+    data: StringLiteralData<
+      | "hex"
+      | "unicode"
+      | "codepoint"
+      | "unnecessary"
+      | "unterminated"
+      | "unhandled"
+    >;
+  },
+  ActionState,
+  ErrorType
+> {
+  return stringLiteral<
+    "hex" | "unicode" | "codepoint" | "unnecessary",
+    ActionState,
+    ErrorType
+  >("'", {
+    escape: { handlers: escapeHandlers },
+    acceptUnclosed: options?.acceptUnclosed,
+  });
+}
+
+export function doubleQuoteStringLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(
+  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
+): Action<
+  {
+    kind: never;
+    data: StringLiteralData<
+      | "hex"
+      | "unicode"
+      | "codepoint"
+      | "unnecessary"
+      | "unterminated"
+      | "unhandled"
+    >;
+  },
+  ActionState,
+  ErrorType
+> {
+  return stringLiteral<
+    "hex" | "unicode" | "codepoint" | "unnecessary",
+    ActionState,
+    ErrorType
+  >('"', {
+    escape: { handlers: escapeHandlers },
+    acceptUnclosed: options?.acceptUnclosed,
+  });
+}
+
 /**
  * Match a JavaScript simple string literal (single quote or double quote).
  * Legacy octal escape sequences are not supported.
+ *
+ * Single quote and double quote are matched at the same time to optimize performance.
  */
 export function simpleStringLiteral<ActionState = never, ErrorType = never>(
   options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
-) {
+): Action<
+  {
+    kind: never;
+    data: StringLiteralData<
+      | "hex"
+      | "unicode"
+      | "codepoint"
+      | "unnecessary"
+      | "unterminated"
+      | "unhandled"
+    >;
+  },
+  ActionState,
+  ErrorType
+> {
   return stringLiteral<
     "hex" | "unicode" | "codepoint" | "unnecessary",
     ActionState,
@@ -130,17 +221,7 @@ export function simpleStringLiteral<ActionState = never, ErrorType = never>(
         input.buffer[input.start] === input.buffer[pos]
           ? { accept: true, digested: 1 }
           : { accept: false },
-      escape: {
-        handlers: [
-          escapeHandlers.simple(),
-          escapeHandlers.lineContinuation(),
-          hex({ error: "hex" }),
-          unicode({ error: "unicode" }),
-          codepoint({ error: "codepoint" }),
-          // keep the fallback handler at the end for error handling
-          fallback(),
-        ],
-      },
+      escape: { handlers: escapeHandlers },
       acceptUnclosed: options?.acceptUnclosed,
     },
   );
