@@ -9,15 +9,15 @@ export type IntegerLiteralOptions<ActionState> = {
    */
   separator?: string;
   /**
-   * If provided, this is the suffix of the integer literal.
+   * If provided, this is the suffix of the numeric literal.
    * E.g. the `n` suffix in JavaScript's big int literal.
    * @default undefined
    */
   suffix?: IntoSubAction<ActionState>;
   /**
-   * If `true`, the action will accept invalid integer literal and record errors in the data.
+   * If `true`, the action will accept invalid numeric literal and record errors in the data.
    *
-   * If `false`, the action will reject invalid integer literal.
+   * If `false`, the action will reject invalid numeric literal.
    * @default true
    */
   acceptInvalid?: boolean;
