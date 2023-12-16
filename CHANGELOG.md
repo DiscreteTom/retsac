@@ -5,7 +5,7 @@
 - Lexer
   - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
   - **_Breaking Change_**: remove `Builder.getTokenKinds`.
-  - **_Breaking Change_**: rewrite `stringLiteral`.
+  - **_Breaking Change_**: rewrite `stringLiteral/numericLiteral`.
     - Add `StringLiteralOptions/StringLiteralData/EscapeHandler`.
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
