@@ -1,8 +1,10 @@
+import { tryOrUndefined } from "../../../try";
 import { Action } from "../../action";
 
 /**
  * Return an action that matches JavaScript regex literal.
  */
+// TODO: update this
 export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
   /**
    * If `true`, the action may reject invalid JavaScript regex literal. See `options.rejectOnInvalid`.
@@ -40,25 +42,16 @@ export function regexLiteral<ActionState = never, ErrorType = never>(options?: {
 
   if (options?.validate ?? true) {
     if (options?.rejectOnInvalid ?? true) {
-      return action.reject(({ output }) => {
-        try {
-          new RegExp(output.content);
-        } catch (e) {
-          return true;
-        }
-        return false;
-      });
+      return action.reject(
+        ({ output }) =>
+          tryOrUndefined(() => new RegExp(output.content)) === undefined,
+      );
     }
 
     // else, set token.data on invalid
-    return action.data(({ output }) => {
-      try {
-        new RegExp(output.content);
-      } catch (e) {
-        return { invalid: true };
-      }
-      return { invalid: false };
-    });
+    return action.data(({ output }) => ({
+      invalid: tryOrUndefined(() => new RegExp(output.content)) === undefined,
+    }));
   }
 
   // else, no validation
