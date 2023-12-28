@@ -27,7 +27,7 @@ export type IntegerLiteralData = {
    *
    * This might be an empty string if there is no content after the prefix.
    */
-  value: string;
+  body: string;
   /**
    * The matched suffix if any.
    * Empty string if there is no suffix.
@@ -81,7 +81,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
         input.start,
         input.start + prefixMatch.digested,
       ),
-      value: "",
+      body: "",
       suffix: "",
       separators: [],
     };
@@ -108,7 +108,7 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
       // check content
       const contentMatch = contentMatcher.exec(input, pos);
       if (contentMatch.accept) {
-        data.value += input.buffer.slice(pos, pos + contentMatch.digested);
+        data.body += input.buffer.slice(pos, pos + contentMatch.digested);
         pos += contentMatch.digested;
         continue;
       }
