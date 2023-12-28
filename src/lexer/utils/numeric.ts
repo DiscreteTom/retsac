@@ -11,6 +11,8 @@ export type IntegerLiteralOptions<ActionState> = {
   /**
    * If provided, this is the suffix of the numeric literal.
    * E.g. the `n` suffix in JavaScript's big int literal.
+   *
+   * Even this is provided, the action will still accept literals without the suffix.
    * @default undefined
    */
   suffix?: IntoSubAction<ActionState>;
