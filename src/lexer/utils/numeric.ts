@@ -212,7 +212,7 @@ export type NumericLiteralData = {
     /**
      * Separators are removed.
      */
-    value: string;
+    body: string;
     /**
      * How many characters are digested.
      */
@@ -243,7 +243,7 @@ export type NumericLiteralData = {
     /**
      * Separators are removed.
      */
-    value: string;
+    body: string;
     /**
      * How many characters are digested.
      * The decimal point is not included.
@@ -275,7 +275,7 @@ export type NumericLiteralData = {
     /**
      * Separators are removed.
      */
-    value: string;
+    body: string;
     /**
      * How many characters are digested.
      * The exponent indicator is not included.
@@ -349,7 +349,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       prefix: "",
       integer: {
         index: pos,
-        value: "",
+        body: "",
         digested: 0,
       },
       fraction: undefined,
@@ -402,21 +402,21 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       if (contentMatch.accept) {
         switch (phase) {
           case NumericLiteralPhase.Integer:
-            data.integer.value += input.buffer.slice(
+            data.integer.body += input.buffer.slice(
               pos,
               pos + contentMatch.digested,
             );
             data.integer.digested += contentMatch.digested;
             break;
           case NumericLiteralPhase.Fraction:
-            data.fraction!.value += input.buffer.slice(
+            data.fraction!.body += input.buffer.slice(
               pos,
               pos + contentMatch.digested,
             );
             data.fraction!.digested += contentMatch.digested;
             break;
           case NumericLiteralPhase.Exponent:
-            data.exponent!.value += input.buffer.slice(
+            data.exponent!.body += input.buffer.slice(
               pos,
               pos + contentMatch.digested,
             );
@@ -440,7 +440,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
               content: input.buffer.slice(pos, pos + decimalMatch.digested),
             },
             index: pos + decimalMatch.digested,
-            value: "",
+            body: "",
             digested: 0,
           };
           pos += decimalMatch.digested;
@@ -462,7 +462,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
               content: input.buffer.slice(pos, pos + scientificMatch.digested),
             },
             index: pos + scientificMatch.digested,
-            value: "",
+            body: "",
             digested: 0,
           };
           phase = NumericLiteralPhase.Exponent;
@@ -486,16 +486,16 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
 
     // reject if all parts are empty
     if (
-      data.integer.value.length === 0 &&
-      (data.fraction?.value.length ?? 0) === 0 &&
-      (data.exponent?.value.length ?? 0) === 0
+      data.integer.body.length === 0 &&
+      (data.fraction?.body.length ?? 0) === 0 &&
+      (data.exponent?.body.length ?? 0) === 0
     )
       return rejectedActionOutput;
     // reject if no integer and fraction, but exponent exists
     // e.g. `.e1`
     if (
-      data.integer.value.length === 0 &&
-      (data.fraction?.value.length ?? 0) === 0 &&
+      data.integer.body.length === 0 &&
+      (data.fraction?.body.length ?? 0) === 0 &&
       data.exponent !== undefined
     )
       return rejectedActionOutput;
