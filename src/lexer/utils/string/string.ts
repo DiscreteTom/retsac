@@ -29,10 +29,10 @@ export type StringLiteralOptions<
      * @default []
      */
     handlers?:
-      | EscapeHandler<StringLiteralErrorKinds>[]
+      | readonly EscapeHandler<StringLiteralErrorKinds>[]
       | ((
           common: typeof commonEscapeHandlers,
-        ) => EscapeHandler<StringLiteralErrorKinds>[]);
+        ) => readonly EscapeHandler<StringLiteralErrorKinds>[]);
   };
 };
 
