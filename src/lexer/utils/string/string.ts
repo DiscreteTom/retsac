@@ -5,7 +5,7 @@ import * as commonEscapeHandlers from "./handler";
 
 export type StringLiteralOptions<
   ActionState,
-  StringLiteralErrorKinds extends string,
+  EscapeErrorKinds extends string,
 > = {
   /**
    * The close quote.
@@ -29,14 +29,14 @@ export type StringLiteralOptions<
      * @default []
      */
     handlers?:
-      | readonly EscapeHandler<StringLiteralErrorKinds>[]
+      | readonly EscapeHandler<EscapeErrorKinds>[]
       | ((
           common: typeof commonEscapeHandlers,
-        ) => readonly EscapeHandler<StringLiteralErrorKinds>[]);
+        ) => readonly EscapeHandler<EscapeErrorKinds>[]);
   };
 };
 
-export type StringLiteralData<StringLiteralErrorKinds extends string> = {
+export type StringLiteralData<EscapeErrorKinds extends string> = {
   /**
    * The evaluated string value. Errors will be correctly handled.
    */
@@ -45,7 +45,7 @@ export type StringLiteralData<StringLiteralErrorKinds extends string> = {
    * If `true`, the string literal is unclosed (`\n` or EOF for single line string, and EOF for multiline string).
    */
   unclosed: boolean;
-  escapes: EscapeInfo<StringLiteralErrorKinds>[];
+  escapes: EscapeInfo<EscapeErrorKinds>[];
 };
 
 /**
@@ -62,7 +62,7 @@ export type StringLiteralData<StringLiteralErrorKinds extends string> = {
  * stringLiteral('"', { escape: { starter: "^", handlers: [...] } })
  */
 export function stringLiteral<
-  StringLiteralErrorKinds extends string = never,
+  EscapeErrorKinds extends string = never,
   ActionState = never,
   ErrorType = never,
 >(
@@ -70,13 +70,11 @@ export function stringLiteral<
    * The open quote.
    */
   open: IntoSubAction<ActionState>,
-  options?: StringLiteralOptions<ActionState, StringLiteralErrorKinds>,
+  options?: StringLiteralOptions<ActionState, EscapeErrorKinds>,
 ): Action<
   {
     kind: never;
-    data: StringLiteralData<
-      StringLiteralErrorKinds | "unterminated" | "unhandled"
-    >;
+    data: StringLiteralData<EscapeErrorKinds | "unterminated" | "unhandled">;
   },
   ActionState,
   ErrorType
@@ -115,7 +113,7 @@ export function stringLiteral<
      * The data to be returned.
      */
     const data: StringLiteralData<
-      StringLiteralErrorKinds | "unterminated" | "unhandled"
+      EscapeErrorKinds | "unterminated" | "unhandled"
     > = {
       value: "",
       unclosed: false,

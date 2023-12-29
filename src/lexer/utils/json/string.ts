@@ -37,37 +37,35 @@ export const escapeHandlers = [
   fallback({ error: "unnecessary" }),
 ] as const;
 
-export type StringLiteralData<StringLiteralErrorKinds extends string> = {
+export type StringLiteralData<EscapeErrorKinds extends string> = {
   /**
    * `undefined` if the string literal is valid.
    */
   invalid?: {
-    escapes: EscapeInfo<StringLiteralErrorKinds>[];
+    escapes: EscapeInfo<EscapeErrorKinds>[];
     /**
      * The index of the whole input string where the invalid characters (control characters, char code < 0x20) are located.
      */
     chars: number[];
-  } & Pick<CommonStringLiteralData<StringLiteralErrorKinds>, "unclosed">;
-} & Pick<CommonStringLiteralData<StringLiteralErrorKinds>, "value" | "escapes">;
+  } & Pick<CommonStringLiteralData<EscapeErrorKinds>, "unclosed">;
+} & Pick<CommonStringLiteralData<EscapeErrorKinds>, "value" | "escapes">;
 
 /**
  * Transform {@link CommonStringLiteralData} to {@link StringLiteralData}.
  */
 export function stringLiteralDataMapper<
-  StringLiteralErrorKinds extends string,
+  EscapeErrorKinds extends string,
   ActionState,
   ErrorType,
 >({
   input: _,
   output,
 }: AcceptedActionDecoratorContext<
-  { kind: never; data: CommonStringLiteralData<StringLiteralErrorKinds> },
+  { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
   ActionState,
   ErrorType
->): StringLiteralData<StringLiteralErrorKinds> {
-  const invalid: NonNullable<
-    StringLiteralData<StringLiteralErrorKinds>["invalid"]
-  > = {
+>): StringLiteralData<EscapeErrorKinds> {
+  const invalid: NonNullable<StringLiteralData<EscapeErrorKinds>["invalid"]> = {
     unclosed: output.data.unclosed,
     escapes: output.data.escapes.filter((e) => e.error !== undefined),
     chars: new Array(output.data.value.length)
