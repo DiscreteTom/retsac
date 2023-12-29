@@ -259,3 +259,166 @@ export function simpleStringLiteral<
     },
   ).data(stringLiteralDataMapper);
 }
+
+export type TemplateStringLiteralData<
+  EscapeErrorKinds extends string,
+  TemplateStringLiteralKinds extends "simple" | "start" | "middle" | "end",
+> = {
+  /**
+   * `undefined` if the string literal is valid.
+   */
+  invalid?: {
+    escapes: EscapeInfo<EscapeErrorKinds>[];
+  } & Pick<CommonStringLiteralData<EscapeErrorKinds>, "unclosed">;
+  /**
+   * - `simple` means `` `123` ``
+   * - `start` means `` `123${ ``
+   * - `middle` means `` }123${ ``
+   * - `end` means `` }123` ``
+   */
+  kind: TemplateStringLiteralKinds;
+} & Pick<CommonStringLiteralData<EscapeErrorKinds>, "value" | "escapes">;
+
+/**
+ * Transform {@link CommonStringLiteralData} to {@link TemplateStringLiteralData}.
+ */
+export function templateStringLiteralLeftDataMapper<
+  EscapeErrorKinds extends string,
+  ActionState,
+  ErrorType,
+>({
+  input: _,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
+  ActionState,
+  ErrorType
+>): TemplateStringLiteralData<EscapeErrorKinds, "simple" | "start"> {
+  const invalid: NonNullable<
+    TemplateStringLiteralData<EscapeErrorKinds, "simple" | "start">["invalid"]
+  > = {
+    unclosed: output.data.unclosed,
+    escapes: output.data.escapes.filter(
+      // `\$` is not an escape sequence
+      (e) => e.value !== "$" && e.error !== undefined,
+    ),
+  };
+
+  return {
+    // ref: https://github.com/microsoft/TypeScript/blob/d027e9619fb8ca964df3885a536a67b5f813738b/src/compiler/scanner.ts#L1427
+    // Speculated ECMAScript 6 Spec 11.8.6.1:
+    // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
+    value: output.data.value.replace(/\r\n/g, "\n"),
+    // `\$` is not an escape sequence
+    escapes: output.data.escapes.filter((e) => e.value !== "$"),
+    invalid:
+      invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
+    kind:
+      output.data.unclosed || output.content.endsWith("`") ? "simple" : "start",
+  };
+}
+
+/**
+ * Transform {@link CommonStringLiteralData} to {@link TemplateStringLiteralData}.
+ */
+export function templateStringLiteralRightDataMapper<
+  EscapeErrorKinds extends string,
+  ActionState,
+  ErrorType,
+>({
+  input: _,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
+  ActionState,
+  ErrorType
+>): TemplateStringLiteralData<EscapeErrorKinds, "middle" | "end"> {
+  const invalid: NonNullable<
+    TemplateStringLiteralData<EscapeErrorKinds, "middle" | "end">["invalid"]
+  > = {
+    unclosed: output.data.unclosed,
+    escapes: output.data.escapes.filter(
+      // `\$` is not an escape sequence
+      (e) => e.value !== "$" && e.error !== undefined,
+    ),
+  };
+
+  return {
+    // ref: https://github.com/microsoft/TypeScript/blob/d027e9619fb8ca964df3885a536a67b5f813738b/src/compiler/scanner.ts#L1427
+    // Speculated ECMAScript 6 Spec 11.8.6.1:
+    // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
+    value: output.data.value.replace(/\r\n/g, "\n"),
+    // `\$` is not an escape sequence
+    escapes: output.data.escapes.filter((e) => e.value !== "$"),
+    invalid:
+      invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
+    kind:
+      output.data.unclosed || output.content.endsWith("`") ? "end" : "middle",
+  };
+}
+
+/**
+ * Match a JavaScript template string literal left part (`` `123` `` or `` `123${ ``).
+ */
+export function templateStringLiteralLeft<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<
+  {
+    kind: never;
+    data: TemplateStringLiteralData<
+      | "hex"
+      | "codepoint"
+      | "unicode"
+      | "unnecessary"
+      | "unterminated"
+      | "unhandled",
+      "start" | "simple"
+    >;
+  },
+  ActionState,
+  ErrorType
+> {
+  return stringLiteral<
+    "hex" | "unicode" | "codepoint" | "unnecessary",
+    ActionState,
+    ErrorType
+  >("`", {
+    close: /`|\${/,
+    multiline: true,
+    escape: { handlers: escapeHandlers },
+  }).data(templateStringLiteralLeftDataMapper);
+}
+
+/**
+ * Match a JavaScript template string literal right part (`` }123` `` or `` }123${ ``).
+ */
+export function templateStringLiteralRight<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<
+  {
+    kind: never;
+    data: TemplateStringLiteralData<
+      | "hex"
+      | "codepoint"
+      | "unicode"
+      | "unnecessary"
+      | "unterminated"
+      | "unhandled",
+      "middle" | "end"
+    >;
+  },
+  ActionState,
+  ErrorType
+> {
+  return stringLiteral<
+    "hex" | "unicode" | "codepoint" | "unnecessary",
+    ActionState,
+    ErrorType
+  >("}", {
+    close: /`|\${/,
+    multiline: true,
+    escape: { handlers: escapeHandlers },
+  }).data(templateStringLiteralRightDataMapper);
+}

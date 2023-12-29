@@ -10,7 +10,7 @@
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
   - Feat: `Builder.append` can accept actions with different data bindings in one call.
-  - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral/singleQuoteStringLiteral/doubleQuoteStringLiteral`.
+  - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral/singleQuoteStringLiteral/doubleQuoteStringLiteral/templateStringLiteralLeft/templateStringLiteralRight`.
   - Feat: add `Lexer.integerLiteral/binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral` and `IntegerLiteralOptions/IntegerLiteralData`.
     - Add `Lexer.javascript.binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral`.
   - Feat: add `Lexer.json`.
