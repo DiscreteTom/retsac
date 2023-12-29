@@ -34,12 +34,6 @@ export type StringLiteralOptions<
           common: typeof commonEscapeHandlers,
         ) => EscapeHandler<StringLiteralErrorKinds>[]);
   };
-  /**
-   * If `true`, unclosed strings
-   * will also be accepted and marked as `{ unclosed: true }` in `output.data`.
-   * @default true
-   */
-  acceptUnclosed?: boolean;
 };
 
 export type StringLiteralData<StringLiteralErrorKinds extends string> = {
@@ -66,8 +60,6 @@ export type StringLiteralData<StringLiteralErrorKinds extends string> = {
  * stringLiteral('"', { escape: { handlers: [...] } })
  * // custom escape starter
  * stringLiteral('"', { escape: { starter: "^", handlers: [...] } })
- * // reject unclosed
- * stringLiteral('"', { acceptUnclosed: false })
  */
 export function stringLiteral<
   StringLiteralErrorKinds extends string = never,
@@ -95,7 +87,6 @@ export function stringLiteral<
       ? openMatcher // defaults to the open quote
       : SubAction.from(options.close);
   const multiline = options?.multiline ?? false;
-  const acceptUnclosed = options?.acceptUnclosed ?? true;
   const escapeEnabled = options?.escape !== undefined;
   const escapeStarter = options?.escape?.starter ?? "\\";
   const rawEscapeHandlers = options?.escape?.handlers ?? [];
@@ -134,8 +125,6 @@ export function stringLiteral<
     while (true) {
       // check for unterminated string
       if (pos >= end) {
-        if (!acceptUnclosed) return rejectedActionOutput;
-
         data.value += text.substring(start, pos);
         data.unclosed = true;
         break;
@@ -215,8 +204,6 @@ export function stringLiteral<
         ch === /* CharacterCodes.carriageReturn */ 13
       ) {
         if (!multiline) {
-          if (!acceptUnclosed) return rejectedActionOutput;
-
           data.value += text.substring(start, pos);
           data.unclosed = true;
           break;
