@@ -111,7 +111,7 @@ export const escapeHandlerFactory = {
       "\u2029", // CharacterCodes.paragraphSeparator
     ]);
   },
-};
+} as const;
 
 export const escapeHandlers = [
   escapeHandlerFactory.simple(),
@@ -160,7 +160,7 @@ export function stringLiteralDataMapper<
     value: output.data.value,
     escapes: output.data.escapes,
     invalid:
-      invalid.escapes.length > 0 || invalid.unclosed ? invalid : undefined,
+      invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
   };
 }
 
