@@ -146,6 +146,9 @@ export type NumericLiteralData = {
      * If `true`, the exponent identifier is provided but the exponent content is empty.
      */
     emptyExponent: boolean;
+    /**
+     * If `true`, the integer part starts with `0` but is not `0`.
+     */
     leadingZero: boolean;
     bigIntWithFraction: boolean;
     bigIntWithExponent: boolean;
@@ -259,6 +262,7 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
     ...output.data,
   };
 }
+
 /**
  * JavaScript's numeric literal, including BigInt. E.g. `-0.123_456e-789n`.
  *
