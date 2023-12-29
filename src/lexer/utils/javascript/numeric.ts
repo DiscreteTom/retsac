@@ -167,6 +167,9 @@ export type NumericLiteralData = {
   };
 } & CommonNumericLiteralData;
 
+/**
+ * Transform {@link CommonNumericLiteralData} to {@link NumericLiteralData}.
+ */
 export function numericLiteralDataMapper<ActionState, ErrorType>({
   input,
   output,
@@ -175,7 +178,7 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
   ActionState,
   ErrorType
 >): NumericLiteralData {
-  const rawInvalid: NonNullable<NumericLiteralData["invalid"]> = {
+  const invalid: NonNullable<NumericLiteralData["invalid"]> = {
     emptyExponent:
       output.data.exponent !== undefined &&
       output.data.exponent.body.length === 0,
@@ -207,7 +210,7 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
     output.data.integer.body.startsWith("0") &&
     output.data.separators[0]?.index === input.start + 1
   ) {
-    rawInvalid.invalidSeparatorIndexes.push(output.data.separators[0].index);
+    invalid.invalidSeparatorIndexes.push(output.data.separators[0].index);
   }
 
   // separator should NOT be at start or end of each part
@@ -231,7 +234,7 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
         s.index + s.content.length ===
           output.data.exponent.index + output.data.exponent.digested)
     ) {
-      rawInvalid.invalidSeparatorIndexes.push(s.index);
+      invalid.invalidSeparatorIndexes.push(s.index);
     }
   });
 
@@ -250,14 +253,14 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
       0,
     ),
     invalid:
-      rawInvalid.emptyExponent ||
-      rawInvalid.leadingZero ||
-      rawInvalid.bigIntWithFraction ||
-      rawInvalid.bigIntWithExponent ||
-      rawInvalid.missingBoundary ||
-      rawInvalid.invalidSeparatorIndexes.length > 0 ||
-      rawInvalid.consecutiveSeparatorIndexes.length > 0
-        ? rawInvalid
+      invalid.emptyExponent ||
+      invalid.leadingZero ||
+      invalid.bigIntWithFraction ||
+      invalid.bigIntWithExponent ||
+      invalid.missingBoundary ||
+      invalid.invalidSeparatorIndexes.length > 0 ||
+      invalid.consecutiveSeparatorIndexes.length > 0
+        ? invalid
         : undefined,
     ...output.data,
   };
@@ -271,14 +274,7 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
 export function numericLiteral<
   ActionState = never,
   ErrorType = never,
->(): Action<
-  {
-    kind: never;
-    data: NumericLiteralData;
-  },
-  ActionState,
-  ErrorType
-> {
+>(): Action<{ kind: never; data: NumericLiteralData }, ActionState, ErrorType> {
   return commonNumericLiteral<ActionState, ErrorType>({
     prefix: /(?:[+-]\s*)?/,
     decimalPoint: ".",
