@@ -183,6 +183,7 @@ export function hexIntegerLiteral<ActionState = never, ErrorType = never>(
 
 export type NumericLiteralOptions<ActionState> = {
   /**
+   * If provided, the prefix must be matched.
    * E.g. `/[+-]?/`
    * @default undefined
    */
