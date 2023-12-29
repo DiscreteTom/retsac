@@ -15,6 +15,7 @@
     - Add `Lexer.javascript.binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral`.
   - Feat: add `Lexer.json`.
   - Feat: add `Lexer.SubAction`, `Lexer.IntoSubAction`.
+  - Feat: add `Lexer.invalidRejecter`.
   - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 - Parser
   - **_Breaking Change_**: lexer will be trimmed after every parse. This should improve the performance.
