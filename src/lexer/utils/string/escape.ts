@@ -9,7 +9,7 @@ export type EscapeStarterInfo = {
   length: number;
 };
 
-export type EscapeInfo<ErrorKinds extends string> = {
+export type EscapeInfo<StringLiteralErrorKinds extends string> = {
   starter: Readonly<EscapeStarterInfo>;
   /**
    * The evaluated string value. Errors should be correctly handled.
@@ -22,10 +22,10 @@ export type EscapeInfo<ErrorKinds extends string> = {
   /**
    * `undefined` if no error.
    */
-  error?: ErrorKinds;
+  error?: StringLiteralErrorKinds;
 };
 
-export type EscapeHandlerOutput<ErrorKinds extends string> =
+export type EscapeHandlerOutput<StringLiteralErrorKinds extends string> =
   | { accept: false }
   | ({
       accept: true;
@@ -33,9 +33,9 @@ export type EscapeHandlerOutput<ErrorKinds extends string> =
        * The length of the escaped content, ***NOT*** include the escape starter.
        */
       length: number;
-    } & Pick<EscapeInfo<ErrorKinds>, "value" | "error">);
+    } & Pick<EscapeInfo<StringLiteralErrorKinds>, "value" | "error">);
 
-export type EscapeHandler<ErrorKinds extends string> = (
+export type EscapeHandler<StringLiteralErrorKinds extends string> = (
   /**
    * The whole input text.
    *
@@ -44,4 +44,4 @@ export type EscapeHandler<ErrorKinds extends string> = (
    */
   buffer: string,
   starter: Readonly<EscapeStarterInfo>,
-) => EscapeHandlerOutput<ErrorKinds>;
+) => EscapeHandlerOutput<StringLiteralErrorKinds>;

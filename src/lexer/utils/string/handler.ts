@@ -44,7 +44,7 @@ export function lineContinuation(newline: string[]): EscapeHandler<never> {
  * // custom hex length
  * hex({ hexLength: 4 })
  */
-export function hex<ErrorKinds extends string = never>(options?: {
+export function hex<StringLiteralErrorKinds extends string = never>(options?: {
   /**
    * The prefix of the escape sequence.
    * @default 'x'
@@ -63,8 +63,8 @@ export function hex<ErrorKinds extends string = never>(options?: {
    * If `undefined`, invalid escape will be rejected.
    * @default undefined
    */
-  error?: ErrorKinds;
-}): EscapeHandler<ErrorKinds> {
+  error?: StringLiteralErrorKinds;
+}): EscapeHandler<StringLiteralErrorKinds> {
   const prefix = options?.prefix ?? "x";
   const hexLength = options?.hexLength ?? 2;
   const error = options?.error;
@@ -117,7 +117,9 @@ export function hex<ErrorKinds extends string = never>(options?: {
  * // custom hex length
  * unicode({ hexLength: 6 })
  */
-export function unicode<ErrorKinds extends string = never>(options?: {
+export function unicode<
+  StringLiteralErrorKinds extends string = never,
+>(options?: {
   /**
    * The prefix of the escape sequence.
    * @default 'u'
@@ -136,8 +138,8 @@ export function unicode<ErrorKinds extends string = never>(options?: {
    * If `undefined`, invalid escape will be rejected.
    * @default undefined
    */
-  error?: ErrorKinds;
-}): EscapeHandler<ErrorKinds> {
+  error?: StringLiteralErrorKinds;
+}): EscapeHandler<StringLiteralErrorKinds> {
   const error = options?.error;
   return hex({
     prefix: options?.prefix ?? "u",
@@ -159,7 +161,9 @@ export function unicode<ErrorKinds extends string = never>(options?: {
  * // custom max hex length
  * codepoint({ maxHexLength: 8 })
  */
-export function codepoint<ErrorKinds extends string = never>(options?: {
+export function codepoint<
+  StringLiteralErrorKinds extends string = never,
+>(options?: {
   /**
    * The prefix of the escape sequence.
    * @default 'u{'
@@ -183,8 +187,8 @@ export function codepoint<ErrorKinds extends string = never>(options?: {
    * If `undefined`, invalid escape will be rejected.
    * @default undefined
    */
-  error?: ErrorKinds;
-}): EscapeHandler<ErrorKinds> {
+  error?: StringLiteralErrorKinds;
+}): EscapeHandler<StringLiteralErrorKinds> {
   const prefix = options?.prefix ?? "u{";
   const suffix = options?.suffix ?? "}";
   const maxHexLength = options?.maxHexLength ?? 6;
@@ -279,14 +283,16 @@ export function codepoint<ErrorKinds extends string = never>(options?: {
  * Accept one character as the escaped value and mark the escape as unnecessary.
  * E.g. treat `'\\z'` as `'z'`.
  */
-export function fallback<ErrorKinds extends string = "unnecessary">(options?: {
+export function fallback<
+  StringLiteralErrorKinds extends string = "unnecessary",
+>(options?: {
   /**
    * The error kind.
    * @default 'unnecessary'
    */
-  error?: ErrorKinds;
-}): EscapeHandler<ErrorKinds> {
-  const error = options?.error ?? ("unnecessary" as ErrorKinds);
+  error?: StringLiteralErrorKinds;
+}): EscapeHandler<StringLiteralErrorKinds> {
+  const error = options?.error ?? ("unnecessary" as StringLiteralErrorKinds);
   return (buffer, starter) => {
     return {
       accept: true,
