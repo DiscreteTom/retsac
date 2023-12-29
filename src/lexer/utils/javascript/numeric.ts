@@ -19,7 +19,7 @@ export type IntegerLiteralData = {
    */
   value: number | bigint;
   /**
-   * `undefined` if the integer literal valid.
+   * `undefined` if the integer literal is valid.
    */
   invalid?: {
     /**
