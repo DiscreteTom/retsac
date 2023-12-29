@@ -468,6 +468,23 @@ export class Action<
   }
 
   /**
+   * Check the input before the action is executed.
+   * Reject if the `rejecter` returns `true`.
+   * Return a new action.
+   */
+  prevent(
+    rejecter: (input: Readonly<ActionInput<ActionState>>) => boolean,
+  ): Action<DataBindings, ActionState, ErrorType> {
+    const wrapped = this.exec;
+
+    return new Action(
+      (input) => (rejecter(input) ? rejectedActionOutput : wrapped(input)),
+      this.maybeMuted,
+      this.possibleKinds,
+    );
+  }
+
+  /**
    * Call `f` if `accept` is `true` and `peek` is `false`.
    * You can modify the action state in `cb`.
    * Return a new action.
