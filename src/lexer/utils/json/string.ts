@@ -114,9 +114,13 @@ export function stringLiteral<ActionState = never, ErrorType = never>(): Action<
  *
  * To get the value of the string literal, use `Lexer.javascript.evalString`.
  */
-export function exactStringLiteral<ActionState = never, ErrorType = never>() {
+export function exactStringLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.dryMatch<ActionState, ErrorType>(
     // ref: https://www.json.org/json-en.html
+    // import { compose } from "@discretetom/r-compose";
     // compose((c) =>
     //   c.concat(
     //     '"', // the open quote
