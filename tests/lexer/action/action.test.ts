@@ -267,6 +267,40 @@ describe("Action decorator", () => {
     expectReject(buffer, Action.from(/123/).reject());
   });
 
+  describe("prevent action", () => {
+    const buffer = "123";
+
+    test("check rejection", () => {
+      expectAccept(buffer, Action.from(/123/));
+      expectReject(
+        buffer,
+        Action.from(/123/).prevent((_) => true),
+      );
+    });
+
+    test("check execution", () => {
+      let executed = false;
+      expectAccept(
+        buffer,
+        Action.from((_) => {
+          executed = true;
+          return buffer.length;
+        }),
+      );
+      expect(executed).toBe(true);
+
+      executed = false;
+      expectReject(
+        buffer,
+        Action.from((_) => {
+          executed = true;
+          return buffer.length;
+        }).prevent((_) => true),
+      );
+      expect(executed).toBe(false);
+    });
+  });
+
   test("bind action kind", () => {
     expectAccept("123", Action.from(/123/).bind("num"), { kind: "num" });
   });
