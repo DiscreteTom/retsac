@@ -1,8 +1,8 @@
-import type { Action } from "../../action";
+import type { AcceptedActionDecoratorContext, Action } from "../../action";
 import type {
   EscapeHandler,
-  StringLiteralData,
-  StringLiteralOptions,
+  StringLiteralData as CommonStringLiteralData,
+  EscapeInfo,
 } from "../string";
 import { commonEscapeHandlers, stringLiteral } from "../string";
 import { codepoint, fallback, hex, unicode } from "../string/handler";
@@ -123,14 +123,51 @@ export const escapeHandlers = [
   unicode({ error: "unicode" }),
   // keep the fallback handler at the end for error handling
   fallback(),
-];
+] as const;
+
+export type StringLiteralData<StringLiteralErrorKinds extends string> = {
+  /**
+   * `undefined` if the string literal is valid.
+   */
+  invalid?: {
+    escapes: EscapeInfo<StringLiteralErrorKinds>[];
+  } & Pick<CommonStringLiteralData<StringLiteralErrorKinds>, "unclosed">;
+} & Pick<CommonStringLiteralData<StringLiteralErrorKinds>, "value" | "escapes">;
+
+/**
+ * Transform {@link CommonStringLiteralData} to {@link StringLiteralData}.
+ */
+export function stringLiteralDataMapper<
+  StringLiteralErrorKinds extends string,
+  ActionState,
+  ErrorType,
+>({
+  input: _,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonStringLiteralData<StringLiteralErrorKinds> },
+  ActionState,
+  ErrorType
+>): StringLiteralData<StringLiteralErrorKinds> {
+  const invalid: NonNullable<
+    StringLiteralData<StringLiteralErrorKinds>["invalid"]
+  > = {
+    unclosed: output.data.unclosed,
+    escapes: output.data.escapes.filter((e) => e.error !== undefined),
+  };
+
+  return {
+    value: output.data.value,
+    escapes: output.data.escapes,
+    invalid:
+      invalid.escapes.length > 0 || invalid.unclosed ? invalid : undefined,
+  };
+}
 
 export function singleQuoteStringLiteral<
   ActionState = never,
   ErrorType = never,
->(
-  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
-): Action<
+>(): Action<
   {
     kind: never;
     data: StringLiteralData<
@@ -151,16 +188,13 @@ export function singleQuoteStringLiteral<
     ErrorType
   >("'", {
     escape: { handlers: escapeHandlers },
-    acceptUnclosed: options?.acceptUnclosed,
-  });
+  }).data(stringLiteralDataMapper);
 }
 
 export function doubleQuoteStringLiteral<
   ActionState = never,
   ErrorType = never,
->(
-  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
-): Action<
+>(): Action<
   {
     kind: never;
     data: StringLiteralData<
@@ -181,8 +215,7 @@ export function doubleQuoteStringLiteral<
     ErrorType
   >('"', {
     escape: { handlers: escapeHandlers },
-    acceptUnclosed: options?.acceptUnclosed,
-  });
+  }).data(stringLiteralDataMapper);
 }
 
 /**
@@ -191,9 +224,10 @@ export function doubleQuoteStringLiteral<
  *
  * Single quote and double quote are matched at the same time to optimize performance.
  */
-export function simpleStringLiteral<ActionState = never, ErrorType = never>(
-  options?: Pick<StringLiteralOptions<never, never>, "acceptUnclosed">,
-): Action<
+export function simpleStringLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<
   {
     kind: never;
     data: StringLiteralData<
@@ -224,7 +258,6 @@ export function simpleStringLiteral<ActionState = never, ErrorType = never>(
           ? { accept: true, digested: 1 }
           : { accept: false },
       escape: { handlers: escapeHandlers },
-      acceptUnclosed: options?.acceptUnclosed,
     },
-  );
+  ).data(stringLiteralDataMapper);
 }
