@@ -405,3 +405,232 @@ describe("simpleStringLiteral", () => {
     expectReject(lexer, `"abc'`);
   });
 });
+
+describe("template string", () => {
+  function expectAccept<EscapeErrorKinds extends string>(
+    lexer: Lexer.Lexer<
+      {
+        kind: Lexer.javascript.TemplateStringLiteralKinds;
+        data: Lexer.javascript.TemplateStringLiteralData<
+          EscapeErrorKinds,
+          Lexer.javascript.TemplateStringLiteralKinds
+        >;
+      },
+      never,
+      never
+    >,
+    input: string,
+    overrides?: Partial<
+      Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
+    > & {
+      data?: Partial<
+        Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+      > & {
+        invalid?: Partial<
+          NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+        >;
+      };
+    },
+  ) {
+    const token = lexer.reset().lex(input)!;
+    expect(token.content).toBe(overrides?.content ?? input);
+    expect(token.kind).toBe(overrides?.kind);
+    expect(token.error).toBe(undefined);
+    expect(token.data.value).toBe(overrides?.data?.value ?? input.slice(1, -1));
+    expect(token.data.escapes).toEqual(overrides?.data?.escapes ?? []);
+    if (token.data.invalid !== undefined) {
+      expect(token.data.invalid.unclosed).toBe(
+        overrides?.data?.invalid?.unclosed ?? false,
+      );
+      expect(token.data.invalid.escapes).toEqual(
+        overrides?.data?.invalid?.escapes ?? [],
+      );
+    }
+  }
+
+  describe("left", () => {
+    const lexer = new Lexer.Builder()
+      .append((a) =>
+        a
+          .from(Lexer.javascript.templateStringLiteralLeft())
+          .kinds("start", "simple")
+          .select((ctx) => ctx.output.data.kind),
+      )
+      .build();
+
+    test("simple", () => {
+      expectAccept(lexer, "`abc`", {
+        kind: "simple",
+      });
+    });
+
+    test("start", () => {
+      expectAccept(lexer, "`abc${", {
+        kind: "start",
+        data: {
+          value: "abc",
+        },
+      });
+    });
+
+    test("multiline", () => {
+      expectAccept(lexer, "`abc\n`", {
+        kind: "simple",
+      });
+      expectAccept(lexer, "`abc\n${", {
+        kind: "start",
+        data: {
+          value: "abc\n",
+        },
+      });
+    });
+
+    test("\\$ is not invalid escape", () => {
+      expectAccept(lexer, "`abc\\$`", {
+        kind: "simple",
+        data: {
+          value: "abc$",
+          escapes: [
+            {
+              error: undefined,
+              length: 2,
+              starter: {
+                index: 4,
+                length: 1,
+              },
+              value: "$",
+            },
+          ],
+        },
+      });
+      expectAccept(lexer, "`abc\\${", {
+        kind: "simple",
+        data: {
+          value: "abc${",
+          escapes: [
+            {
+              error: undefined,
+              length: 2,
+              starter: {
+                index: 4,
+                length: 1,
+              },
+              value: "$",
+            },
+          ],
+          invalid: {
+            unclosed: true,
+          },
+        },
+      });
+    });
+
+    test("\\r\\n will be transformed to \\n", () => {
+      expectAccept(lexer, "`abc\r\n`", {
+        kind: "simple",
+        data: {
+          value: "abc\n",
+        },
+      });
+      expectAccept(lexer, "`abc\r\n${", {
+        kind: "start",
+        data: {
+          value: "abc\n",
+        },
+      });
+    });
+  });
+
+  describe("right", () => {
+    const lexer = new Lexer.Builder()
+      .append((a) =>
+        a
+          .from(Lexer.javascript.templateStringLiteralRight())
+          .kinds("middle", "end")
+          .select((ctx) => ctx.output.data.kind),
+      )
+      .build();
+
+    test("end", () => {
+      expectAccept(lexer, "}abc`", {
+        kind: "end",
+      });
+    });
+
+    test("middle", () => {
+      expectAccept(lexer, "}abc${", {
+        kind: "middle",
+        data: {
+          value: "abc",
+        },
+      });
+    });
+
+    test("multiline", () => {
+      expectAccept(lexer, "}abc\n`", {
+        kind: "end",
+      });
+      expectAccept(lexer, "}abc\n${", {
+        kind: "middle",
+        data: {
+          value: "abc\n",
+        },
+      });
+    });
+
+    test("\\$ is not invalid escape", () => {
+      expectAccept(lexer, "}abc\\$`", {
+        kind: "end",
+        data: {
+          value: "abc$",
+          escapes: [
+            {
+              error: undefined,
+              length: 2,
+              starter: {
+                index: 4,
+                length: 1,
+              },
+              value: "$",
+            },
+          ],
+        },
+      });
+      expectAccept(lexer, "}abc\\${", {
+        kind: "end",
+        data: {
+          value: "abc${",
+          escapes: [
+            {
+              error: undefined,
+              length: 2,
+              starter: {
+                index: 4,
+                length: 1,
+              },
+              value: "$",
+            },
+          ],
+          invalid: {
+            unclosed: true,
+          },
+        },
+      });
+    });
+
+    test("\\r\\n will be transformed to \\n", () => {
+      expectAccept(lexer, "}abc\r\n`", {
+        kind: "end",
+        data: {
+          value: "abc\n",
+        },
+      });
+      expectAccept(lexer, "}abc\r\n${", {
+        kind: "middle",
+        data: {
+          value: "abc\n",
+        },
+      });
+    });
+  });
+});
