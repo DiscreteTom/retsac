@@ -1,4 +1,4 @@
-import { Lazy } from "../src/lazy";
+import { Lazy } from "../../src";
 
 describe("lazy", () => {
   test("without initial value", () => {
