@@ -24,10 +24,8 @@
     "prepublishOnly": "yarn format:check:all && yarn lint:all && yarn test:coverage && yarn clean && yarn build && yarn build:readme",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "@discretetom/r-compose": "^0.2.0"
-  },
   "devDependencies": {
+    "@discretetom/r-compose": "^0.2.2",
     "@types/jest": "^29.2.5",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^6.7.0",

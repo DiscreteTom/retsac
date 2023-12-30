@@ -1,11 +1,11 @@
-import { composables } from "@discretetom/r-compose";
 import { Action, rejectedActionOutput } from "../action";
 
 /**
  * Escape regex special characters.
  */
 export function esc4regex(str: string) {
-  return composables.escape(str);
+  // ref: https://github.com/DiscreteTom/r-compose/blob/193231b7a766d3809c91dea85ac58171806cb0b1/src/index.ts#L38
+  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
 /**
