@@ -11,6 +11,7 @@ import {
   hexIntegerLiteral as commonHexIntegerLiteral,
   numericLiteral as commonNumericLiteral,
 } from "../numeric";
+import { isUnicodeIdentifierPart } from "./utils";
 
 export type IntegerLiteralData = {
   /**
@@ -191,9 +192,12 @@ export function numericLiteralDataMapper<ActionState, ErrorType>({
       output.data.suffix === "n" && output.data.exponent !== undefined,
     missingBoundary:
       input.buffer.length > input.start + output.digested &&
-      // TODO: support unicode
       // see https://github.com/microsoft/TypeScript/blob/efc9c065a2caa52c5bebd08d730eed508075a78a/src/compiler/scanner.ts#L957
-      input.buffer[input.start + output.digested].match(/[a-zA-Z_$]/) !== null,
+      (input.buffer[input.start + output.digested].match(/[a-zA-Z_$]/) !==
+        null ||
+        isUnicodeIdentifierPart(
+          input.buffer.charCodeAt(input.start + output.digested),
+        )),
     invalidSeparatorIndexes: [], // will be filled later
     consecutiveSeparatorIndexes: output.data.separators
       .map((s, i, arr) => {
