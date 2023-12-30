@@ -76,7 +76,7 @@ export function regexLiteral<ActionState = never, ErrorType = never>(): Action<
       pos++;
     }
 
-    const source = input.buffer.slice(input.start, pos);
+    const source = input.buffer.slice(input.start + 1, pos);
     if (!unterminated) pos++; // eat the suffix `/`
 
     // scan for flags
@@ -87,14 +87,15 @@ export function regexLiteral<ActionState = never, ErrorType = never>(): Action<
     const rawFlags = input.buffer.slice(flagsStart, pos);
     const flags = rawFlags
       .split("")
-      .filter((c) => c.match(/dgimsuvy/) !== null)
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags
+      .filter((c) => c.match(/[dgimsuvy]/) !== null)
       .join("");
 
     const invalid: NonNullable<RegexLiteralData["invalid"]> = {
       unterminated,
       flags: rawFlags
         .split("")
-        .map((c, i) => (c.match(/dgimsuvy/) === null ? flagsStart + i : -1))
+        .map((c, i) => (c.match(/[dgimsuvy]/) === null ? flagsStart + i : -1))
         .filter((i) => i !== -1),
     };
 
