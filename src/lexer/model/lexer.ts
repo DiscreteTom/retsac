@@ -128,18 +128,29 @@ export interface ILexer<
    */
   feed(input: string): this;
   /**
-   * Take `n` chars from the rest of buffer and update state.
+   * Take at most `n` chars from the rest of buffer and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).
    *
-   * By default the lexer's action state will be reset, unless you provide `state`.
+   * If `n` is larger than the length of the rest of buffer, the rest of buffer will be taken (might be an empty string).
+   *
+   * By default the lexer's action state will be reset, unless you provide `state`, or the `n` is invalid (smaller than 1).
    */
-  take(n?: number, state?: ActionState): string;
+  take(
+    /**
+     * @default 1
+     */
+    n?: number,
+    /**
+     * @default undefined
+     */
+    state?: ActionState,
+  ): string;
   /**
    * Take chars from the rest of buffer and update state until `pattern` matches.
    * The pattern will be included in the result.
    * This is useful when you have external logic to handle the token (e.g. error handling).
    *
-   * By default the lexer's action state will be reset, unless you provide `options.state`.
+   * By default the lexer's action state will be reset, unless you provide `options.state`, or nothing is taken.
    */
   takeUntil(
     pattern: string | RegExp,
