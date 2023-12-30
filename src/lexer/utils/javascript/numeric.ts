@@ -1,101 +1,290 @@
-import { Action } from "../../action";
-import { esc4regex } from "../common";
+import { tryOrDefault } from "../../../helper";
+import type { AcceptedActionDecoratorContext } from "../../action";
+import type { Action } from "../../action";
+import type {
+  IntegerLiteralData as CommonIntegerLiteralData,
+  NumericLiteralData as CommonNumericLiteralData,
+} from "../numeric";
+import {
+  binaryIntegerLiteral as commonBinaryIntegerLiteral,
+  octalIntegerLiteral as commonOctalIntegerLiteral,
+  hexIntegerLiteral as commonHexIntegerLiteral,
+  numericLiteral as commonNumericLiteral,
+} from "../numeric";
+import { isUnicodeIdentifierPart } from "./utils";
+
+export type IntegerLiteralData = {
+  /**
+   * The value of the integer literal.
+   * This will try to be parsed even if the integer literal is invalid.
+   * `NaN` will be transformed to `0`.
+   */
+  value: number | bigint;
+  /**
+   * `undefined` if the integer literal is valid.
+   */
+  invalid?: {
+    /**
+     * If `true`, the integer literal's content is empty.
+     */
+    emptyContent: boolean;
+    /**
+     * If `true`, there is a separator at the beginning, after the prefix.
+     */
+    leadingSeparator: boolean;
+    /**
+     * If `true`, there is a separator at the end, before the suffix.
+     */
+    tailingSeparator: boolean;
+    /**
+     * The index of the whole input string where the consecutive separator is located.
+     */
+    consecutiveSeparatorIndexes: number[];
+  };
+} & CommonIntegerLiteralData;
 
 /**
- * Match the literal representations of numbers in JavaScript code.
+ * Transform {@link CommonIntegerLiteralData} to {@link IntegerLiteralData}.
+ */
+export function integerLiteralDataMapper<ActionState, ErrorType>({
+  input,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonIntegerLiteralData },
+  ActionState,
+  ErrorType
+>): IntegerLiteralData {
+  const lastSeparator = output.data.separators.at(-1);
+
+  const rawInvalid: NonNullable<IntegerLiteralData["invalid"]> = {
+    emptyContent: output.data.body.length === 0,
+    leadingSeparator:
+      output.data.separators[0]?.index ===
+      input.start + output.data.prefix.length,
+    tailingSeparator:
+      lastSeparator === undefined
+        ? false
+        : lastSeparator.index + lastSeparator.content.length ===
+          input.start + output.digested,
+    consecutiveSeparatorIndexes: output.data.separators
+      .map((s, i, arr) => {
+        if (i === 0) return -1;
+        if (arr[i - 1].index + arr[i - 1].content.length === s.index)
+          return s.index;
+        return -1;
+      })
+      .filter((i) => i !== -1),
+  };
+
+  return {
+    value: tryOrDefault(() => {
+      const res =
+        output.data.suffix === "n"
+          ? BigInt(output.data.prefix + output.data.body)
+          : Number(output.data.prefix + output.data.body);
+      return Number.isNaN(res) ? 0 : res;
+    }, 0),
+    invalid:
+      rawInvalid.emptyContent ||
+      rawInvalid.leadingSeparator ||
+      rawInvalid.tailingSeparator ||
+      rawInvalid.consecutiveSeparatorIndexes.length > 0
+        ? rawInvalid
+        : undefined,
+    ...output.data,
+  };
+}
+
+/**
+ * Create an action that accepts JavaScript's binary integer literal (`0b101n`).
+ */
+export function binaryIntegerLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  return commonBinaryIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+  }).data(integerLiteralDataMapper);
+}
+
+/**
+ * Create an action that accepts JavaScript's octal integer literal (`0o707n`).
+ */
+export function octalIntegerLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  return commonOctalIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+  }).data(integerLiteralDataMapper);
+}
+
+/**
+ * Create an action that accepts JavaScript's hexadecimal integer literal (`0xF0Fn`).
+ */
+export function hexIntegerLiteral<
+  ActionState = never,
+  ErrorType = never,
+>(): Action<{ kind: never; data: IntegerLiteralData }, ActionState, ErrorType> {
+  return commonHexIntegerLiteral<ActionState, ErrorType>({
+    separator: "_",
+    suffix: "n",
+  }).data(integerLiteralDataMapper);
+}
+
+export type NumericLiteralData = {
+  /**
+   * The value of the numeric literal.
+   * This will try to be parsed even if the numeric literal is invalid.
+   */
+  value: number | bigint;
+  /**
+   * `undefined` if the numeric literal valid.
+   */
+  invalid?: {
+    /**
+     * If `true`, the exponent identifier is provided but the exponent content is empty.
+     */
+    emptyExponent: boolean;
+    /**
+     * If `true`, the integer part starts with `0` but is not `0`.
+     */
+    leadingZero: boolean;
+    bigIntWithFraction: boolean;
+    bigIntWithExponent: boolean;
+    /**
+     * If `true`, there is no boundary between the numeric literal and the following identifier.
+     */
+    missingBoundary: boolean;
+    /**
+     * The index of the whole input string where the invalid separator is located.
+     */
+    invalidSeparatorIndexes: number[];
+    /**
+     * The index of the whole input string where the consecutive separator is located.
+     */
+    consecutiveSeparatorIndexes: number[];
+  };
+} & CommonNumericLiteralData;
+
+/**
+ * Transform {@link CommonNumericLiteralData} to {@link NumericLiteralData}.
+ */
+export function numericLiteralDataMapper<ActionState, ErrorType>({
+  input,
+  output,
+}: AcceptedActionDecoratorContext<
+  { kind: never; data: CommonNumericLiteralData },
+  ActionState,
+  ErrorType
+>): NumericLiteralData {
+  const invalid: NonNullable<NumericLiteralData["invalid"]> = {
+    emptyExponent:
+      output.data.exponent !== undefined &&
+      output.data.exponent.body.length === 0,
+    leadingZero:
+      output.data.integer.body.length > 1 &&
+      output.data.integer.body.startsWith("0"),
+    bigIntWithFraction:
+      output.data.suffix === "n" && output.data.fraction !== undefined,
+    bigIntWithExponent:
+      output.data.suffix === "n" && output.data.exponent !== undefined,
+    missingBoundary:
+      input.buffer.length > input.start + output.digested &&
+      // see https://github.com/microsoft/TypeScript/blob/efc9c065a2caa52c5bebd08d730eed508075a78a/src/compiler/scanner.ts#L957
+      (input.buffer[input.start + output.digested].match(/[a-zA-Z_$]/) !==
+        null ||
+        isUnicodeIdentifierPart(
+          input.buffer.charCodeAt(input.start + output.digested),
+        )),
+    invalidSeparatorIndexes: [], // will be filled later
+    consecutiveSeparatorIndexes: output.data.separators
+      .map((s, i, arr) => {
+        if (i === 0) return -1;
+        if (arr[i - 1].index + arr[i - 1].content.length === s.index)
+          return s.index;
+        return -1;
+      })
+      .filter((i) => i !== -1),
+  };
+
+  // `0_` is invalid
+  if (
+    output.data.integer.body.startsWith("0") &&
+    output.data.separators[0]?.index === input.start + 1
+  ) {
+    invalid.invalidSeparatorIndexes.push(output.data.separators[0].index);
+  }
+
+  // separator should NOT be at start or end of each part
+  output.data.separators.forEach((s) => {
+    if (
+      // start of integer
+      s.index === input.start ||
+      // start of fraction
+      s.index === output.data.fraction?.index ||
+      // start of exponent
+      s.index === output.data.exponent?.index ||
+      // end of integer
+      s.index + s.content.length ===
+        input.start + output.data.integer.digested ||
+      // end of fraction
+      (output.data.fraction !== undefined &&
+        s.index + s.content.length ===
+          output.data.fraction.index + output.data.fraction.digested) ||
+      // end of exponent
+      (output.data.exponent !== undefined &&
+        s.index + s.content.length ===
+          output.data.exponent.index + output.data.exponent.digested)
+    ) {
+      invalid.invalidSeparatorIndexes.push(s.index);
+    }
+  });
+
+  return {
+    value: tryOrDefault(
+      () =>
+        output.data.suffix === "n"
+          ? BigInt(output.data.integer.body) // only integer part is allowed
+          : Number(
+              output.data.integer.body +
+                output.data.fraction?.point.content +
+                output.data.fraction?.body +
+                output.data.exponent?.indicator.content +
+                output.data.exponent?.body,
+            ),
+      0,
+    ),
+    invalid:
+      invalid.emptyExponent ||
+      invalid.leadingZero ||
+      invalid.bigIntWithFraction ||
+      invalid.bigIntWithExponent ||
+      invalid.missingBoundary ||
+      invalid.invalidSeparatorIndexes.length > 0 ||
+      invalid.consecutiveSeparatorIndexes.length > 0
+        ? invalid
+        : undefined,
+    ...output.data,
+  };
+}
+
+/**
+ * JavaScript's numeric literal, including BigInt. E.g. `-0.123_456e-789n`.
  *
- * You can use `Number(token.content.replaceAll(numericSeparator, ''))` to get the numeric value.
- * The default numeric separator is `_`, you can customize it by setting `options.numericSeparator` to a string.
- *
- * If you want to disable the numeric separator, set `options.numericSeparator` to `false`.
- *
- * If `options.acceptInvalid` is `true` (by default), common invalid numeric literals will also be matched and marked with error.
- *
- * E.g.
- * - Valid numeric literals
- *   - `42`
- *   - `3.1415`
- *   - `1.5e10`
- *   - `0.123e-4`
- *   - `0x2a`
- *   - `0xFF`
- *   - `0o755`
- *   - `1_000_000`
- *   - `1_000_000.000_001`
- *   - `1e6_000`
- * - Invalid numeric literals
- *   - `0o[0-7]*[^0-7]+`: Octal literals that include non-octal characters.
- *   - `0x[\da-f]*[^\da-f]+`: Hexadecimal literals that include non-hexadecimal characters.
- *   - `(?:\d+\.){2,}`: Numeric literals that include more than one decimal point.
- *   - `\d+\.\.\d+`: Numeric literals that include more than one decimal point without any other characters in between.
- *   - `\d+e[+-]?\d+e[+-]?\d+`: Numeric literals that include more than one exponent (e or E).
- *   - `\d+e`: Numeric literals that end with an exponent but without any digits after the exponent symbol.
+ * Integer literal is NOT included (e.g. `0b101`).
  */
 export function numericLiteral<
   ActionState = never,
   ErrorType = never,
->(options?: {
-  /**
-   * @default '_'
-   */
-  numericSeparator?: string | false;
-  /**
-   * If `true`, the numeric literal must have a boundary at the end (non inclusive).
-   * @default true
-   */
-  boundary?: boolean;
-  /**
-   * If `true`, common invalid numeric literals will also be accepted and marked in `output.data` with `{ invalid: true }`.
-   * @default true
-   */
-  acceptInvalid?: boolean;
-}): Action<
-  {
-    kind: never;
-    data: {
-      /**
-       * If `true`, the numeric literal is invalid.
-       */
-      invalid: boolean;
-    };
-  },
-  ActionState,
-  ErrorType
-> {
-  const enableSeparator = !(options?.numericSeparator === false);
-  const separator = esc4regex(String(options?.numericSeparator ?? "_")); // use String to handle `false`
-  const boundary = options?.boundary ?? true;
-  const acceptInvalid = options?.acceptInvalid ?? true;
-
-  const valid = Action.from<never, undefined, ActionState, ErrorType>(
-    enableSeparator
-      ? new RegExp(
-          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:${separator}\\d+)*(?:\\.\\d+(?:${separator}\\d+)*)?(?:[eE][-+]?\\d+(?:${separator}\\d+)*)?)${
-            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
-          }`,
-          "i",
-        )
-      : new RegExp(
-          `(?:0x[\\da-f]+|0o[0-7]+|\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?)${
-            boundary ? "\\b(?!\\.)" : "" // '.' is not allowed as the boundary
-          }`,
-          "i",
-        ),
-  ).data(() => ({ invalid: false }));
-
-  const invalid = Action.from<
-    never,
-    { invalid: boolean },
-    ActionState,
-    ErrorType
-  >(
-    /0o[0-7]*[^0-7]+|0x[\da-f]*[^\da-f]+|(?:\d+\.){2,}|\d+\.\.\d+|\d+e[+-]?\d+e[+-]?\d+|\d+e/i,
-  ).data(() => ({ invalid: true }));
-
-  if (acceptInvalid) {
-    return valid.or(invalid);
-  } else {
-    // only accept valid numbers
-    return valid;
-  }
+>(): Action<{ kind: never; data: NumericLiteralData }, ActionState, ErrorType> {
+  return commonNumericLiteral<ActionState, ErrorType>({
+    prefix: /(?:[+-]\s*)?/,
+    decimalPoint: ".",
+    exponentIndicator: /[eE](?:[+-])?/,
+    separator: "_",
+    suffix: "n",
+  }).data(numericLiteralDataMapper);
 }

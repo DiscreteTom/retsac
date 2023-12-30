@@ -148,7 +148,7 @@ test("with ignoreEntryFollow", () => {
   // now we can use `parse` to get the first top-level statement
   let res = parser.reset().parse("fn foo(); fn bar();");
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe(" fn bar();");
+  expect(parser.lexer.getRest()).toBe("fn bar();");
   // and take it out from the parser buffer
   parser.take(1);
   // then parse the second top-level statement
@@ -207,7 +207,7 @@ test("abuse", () => {
   // thus the `b` will never be parsed
   res = parser.reset().parse("a b");
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe(" b");
+  expect(parser.lexer.getRest()).toBe("b");
 
   // as you can see, if the entry NT can be early accepted if we ignore entry follow,
   // we shouldn't use `ignoreEntryFollow`

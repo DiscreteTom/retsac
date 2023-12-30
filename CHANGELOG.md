@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v0.15.0
+
+- Lexer
+  - **_Breaking Change_**: remove `IReadonlyLexerCore.actions`, add `IReadonlyLexerCore.getTokenKinds`.
+  - **_Breaking Change_**: remove `Builder.getTokenKinds`.
+  - **_Breaking Change_**: remove `Lexer.fromTo`.
+  - **_Breaking Change_**: rewrite `stringLiteral/numericLiteral/comment`.
+    - Add `StringLiteralOptions/StringLiteralData/EscapeHandler`.
+  - **_Breaking Change_**: rewrite `javascript.regexLiteral`.
+  - **_Breaking Change_**: `Lexer.take/takeUntil` will reset lexer's action state by default. [#42](https://github.com/DiscreteTom/retsac/issues/42)
+  - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
+  - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`. [#37](https://github.com/DiscreteTom/retsac/issues/37)
+  - Feat: `Builder.append` can accept actions with different data bindings in one call.
+  - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral/singleQuoteStringLiteral/doubleQuoteStringLiteral/templateStringLiteralLeft/templateStringLiteralRight`.
+  - Feat: add `Lexer.integerLiteral/binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral` and `IntegerLiteralOptions/IntegerLiteralData`.
+    - Add `Lexer.javascript.binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral/identifier`.
+  - Feat: add `Lexer.json`.
+  - Feat: add `Lexer.SubAction`, `Lexer.IntoSubAction`.
+  - Feat: add `Lexer.Action.prevent`.
+  - Feat: add `Lexer.invalidRejecter`.
+  - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
+- Parser
+  - **_Breaking Change_**: lexer will be trimmed after every parse. This should improve the performance.
+    - `GrammarRuleContext.lexer` will be `IReadonlyTrimmedLexer` instead of `IReadonlyLexer`.
+
 ## v0.14.0
 
 - Lexer

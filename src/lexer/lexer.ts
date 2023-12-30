@@ -3,16 +3,17 @@ import { makeRegexAutoGlobal } from "./action";
 import type { LexerBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
 import type {
-  ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
   ILexerCloneOptions,
   ILexerCore,
   ILexerLexOptions,
+  ILexerState,
   IReadonlyLexer,
+  ITrimmedLexer,
   Token,
 } from "./model";
-import { LexerState } from "./state";
+import { lexerStateFactory } from "./state";
 import { esc4regex } from "./utils";
 
 /**
@@ -27,14 +28,14 @@ export class Lexer<
   debug: boolean;
   logger: Logger;
   readonly core: ILexerCore<DataBindings, ActionState, ErrorType>;
-  private state: Readonly<LexerState<DataBindings, ErrorType>>;
+  private state: ILexerState<DataBindings, ErrorType>;
 
   constructor(
     core: ILexerCore<DataBindings, ActionState, ErrorType>,
     options?: LexerBuildOptions,
   ) {
     this.core = core;
-    this.state = new LexerState();
+    this.state = lexerStateFactory();
     this.debug = options?.debug ?? false;
     this.logger = options?.logger ?? defaultLogger;
   }
@@ -69,7 +70,7 @@ export class Lexer<
     }
     this.core.reset();
     this.state.reset();
-    return this;
+    return this as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   dryClone(options?: ILexerCloneOptions) {
@@ -78,7 +79,7 @@ export class Lexer<
     );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
-    return res;
+    return res as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   clone(options?: ILexerCloneOptions) {
@@ -105,7 +106,7 @@ export class Lexer<
     return this;
   }
 
-  take(n = 1) {
+  take(n = 1, state?: ActionState) {
     const content = this.buffer.slice(this.digested, this.digested + n);
 
     if (n > 0) {
@@ -122,6 +123,11 @@ export class Lexer<
     } else throw new InvalidLengthForTakeError(n);
 
     this.state.take(n, content, undefined);
+
+    // update action state
+    if (state === undefined) this.core.reset();
+    else this.core.state = state;
+
     return content;
   }
 
@@ -129,6 +135,7 @@ export class Lexer<
     pattern: string | RegExp,
     options?: {
       autoGlobal?: boolean;
+      state?: ActionState;
     },
   ) {
     let regex =
@@ -162,6 +169,11 @@ export class Lexer<
       });
     }
     this.state.take(content.length, content, undefined);
+
+    // update action state
+    if (options?.state === undefined) this.core.reset();
+    else this.core.state = options.state;
+
     return content;
   }
 
@@ -172,7 +184,7 @@ export class Lexer<
     if (typeof input === "string") {
       this.feed(input);
     } else {
-      if (input.input) this.feed(input.input);
+      if (input.input !== undefined) this.feed(input.input);
     }
 
     const entity = "Lexer.lex";
@@ -215,6 +227,7 @@ export class Lexer<
         res.rest,
       );
       this.errors.push(...res.errors);
+      // action state will be updated in core automatically if peek is false
     }
 
     return res.token;
@@ -267,7 +280,7 @@ export class Lexer<
       this.state.setTrimmed();
     }
 
-    return this;
+    return this as ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   }
 
   getRest() {
@@ -279,11 +292,7 @@ export class Lexer<
   }
 
   getTokenKinds() {
-    const res: Set<ExtractKinds<DataBindings>> = new Set();
-    this.core.actions.forEach((d) =>
-      d.possibleKinds.forEach((k) => res.add(k)),
-    );
-    return res;
+    return this.core.getTokenKinds();
   }
 
   getPos(index: number): { line: number; column: number } {

@@ -35,13 +35,6 @@ test("builder anonymous", () => {
   expect(lexer.reset().lex("+")?.content).toBe("+");
 });
 
-test("builder getTokenKinds", () => {
-  const builder = newBuilder();
-  expect(Array.from(builder.getTokenKinds()).sort()).toEqual(
-    ["", "number", "error", "stateful"].sort(),
-  );
-});
-
 test("error", () => {
   const lexer = newBuilder().build();
   expect(lexer.reset().lex("error")?.error).toBe("error");

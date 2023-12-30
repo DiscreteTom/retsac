@@ -141,7 +141,7 @@ export class DFA<
         index: 0,
         errors: [],
         buffer,
-        lexer,
+        lexer: lexer.trimStart(),
       },
       reLexStack,
       rollbackStack,

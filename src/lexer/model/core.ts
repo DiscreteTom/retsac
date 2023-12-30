@@ -1,5 +1,5 @@
 import type { Logger } from "../../logger";
-import type { ActionStateCloner, ReadonlyAction } from "../action";
+import type { ActionStateCloner } from "../action";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
@@ -59,6 +59,9 @@ export type ILexerCoreLexOutput<
   token: Token<DataBindings, ErrorType> | null;
   /**
    * How many chars are digested during this lex.
+   * Zero if no actions can be accepted.
+   * This might be non-zero even the `token` is `null`,
+   * since there might be some muted actions are accepted.
    */
   digested: number;
   /**
@@ -94,13 +97,17 @@ export interface IReadonlyLexerCore<
   ActionState,
   ErrorType,
 > {
-  readonly actions: readonly ReadonlyAction<
-    DataBindings,
-    ActionState,
-    ErrorType
-  >[];
+  /**
+   * This is used for {@link IReadonlyLexerCore.dryClone} and {@link ILexerCore.reset}.
+   */
   readonly initialState: Readonly<ActionState>;
+  /**
+   * The current state.
+   */
   get state(): Readonly<ActionState>;
+  /**
+   * This is used for {@link IReadonlyLexerCore.clone} and {@link ILexerCore.reset}.
+   */
   readonly stateCloner: ActionStateCloner<ActionState>;
   /**
    * Clone a new lexer core with the same definitions and the initial state.
@@ -136,6 +143,10 @@ export interface IReadonlyLexerCore<
     // so the options can't be omitted
     options: Readonly<ILexerCoreLexOptions<DataBindings> & { peek: true }>,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
+  /**
+   * Get all defined token kinds.
+   */
+  getTokenKinds(): Set<ExtractKinds<DataBindings>>;
 }
 
 export interface ILexerCore<
@@ -147,7 +158,10 @@ export interface ILexerCore<
    * Return this as a readonly lexer core.
    */
   get readonly(): IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
-  get state(): ActionState; // make the state mutable
+  state: ActionState; // make the state mutable
+  /**
+   * Reset the lexer core to the initial state.
+   */
   reset(): this;
   /**
    * Lex with partial options.

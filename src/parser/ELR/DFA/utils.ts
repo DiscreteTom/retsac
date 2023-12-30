@@ -1,11 +1,12 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexer,
   IReadonlyLexer,
+  IReadonlyTrimmedLexer,
+  ITrimmedLexer,
   Token,
 } from "../../../lexer";
-import type { StringOrLiteral } from "../../../type-helper";
+import type { StringOrLiteral } from "../../../helper";
 import type {
   ASTNodeSelector,
   ASTNodeFirstMatchSelector,
@@ -266,7 +267,11 @@ export function lexGrammar<
   LexerErrorType,
 >(
   g: Grammar<ExtractKinds<LexerDataBindings>>,
-  lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+  lexer: IReadonlyTrimmedLexer<
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType
+  >,
 ):
   | {
       node: ASTNode<
@@ -275,12 +280,12 @@ export function lexGrammar<
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
       >;
-      lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+      lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     }
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
   // so we will need many lexers with different states
-  const mutableLexer = lexer.clone();
+  const mutableLexer = lexer.clone(); // TODO: is there a way to prevent clone every time?
 
   const token = mutableLexer.lex({
     expect: {
@@ -298,7 +303,7 @@ export function lexGrammar<
           ErrorType,
           Token<LexerDataBindings, LexerErrorType>
         >(token),
-        lexer: mutableLexer,
+        lexer: mutableLexer.trimStart(),
       };
 }
 

@@ -6,8 +6,8 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { Traverser } from "../../../traverser";
-import type { LazyString } from "../../../../lazy";
-import { Lazy } from "../../../../lazy";
+import type { LazyString } from "../../../../helper";
+import { Lazy } from "../../../../helper";
 import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
 import { InvalidLiteralError } from "../error";
 

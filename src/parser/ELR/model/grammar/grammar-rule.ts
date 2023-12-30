@@ -1,5 +1,5 @@
 import type { Traverser } from "../../../traverser";
-import { Lazy, type LazyString } from "../../../../lazy";
+import { Lazy, type LazyString } from "../../../../helper";
 import type {
   Conflict,
   ConflictType,

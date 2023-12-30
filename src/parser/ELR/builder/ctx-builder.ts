@@ -137,6 +137,7 @@ export class DefinitionContextBuilder<
   /**
    *  Modify this context with a rollback function appended.
    */
+  // TODO: remove this?
   rollback(
     f: Callback<
       Kinds,

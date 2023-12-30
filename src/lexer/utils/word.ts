@@ -7,7 +7,9 @@ export function exact<ActionState = never, ErrorType = never>(
   ...ss: readonly string[]
 ): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.from((input) => {
-    for (const s of ss) if (input.buffer.startsWith(s, input.start)) return s;
+    for (const s of ss) {
+      if (input.buffer.startsWith(s, input.start)) return s;
+    }
     return 0;
   });
 }

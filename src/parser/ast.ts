@@ -7,11 +7,12 @@ import {
   defaultASTNodeSelector,
   defaultASTNodeFirstMatchSelector,
 } from "./selector";
-import type { LazyString } from "../lazy";
-import { Lazy } from "../lazy";
+import type { LazyString } from "../helper";
+import { Lazy } from "../helper";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";
+import { anonymousKindPlaceholder } from "../anonymous";
 
 /**
  * A structured type for serialization.
@@ -45,8 +46,9 @@ export type ASTObj = {
   children: ASTObj[];
 };
 
+// TODO: add TraverseContext as a generic type parameter
 export class ASTNode<
-  Kinds extends string,
+  Kinds extends string, // TODO: rename this to Kind, add NTs as a new type parameter
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
@@ -68,12 +70,12 @@ export class ASTNode<
   /**
    * NT's children.
    */
-  children?: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[];
+  children?: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[]; // TODO: conditional make this non nullable
   /**
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: ASTNode<Kinds, ASTData, ErrorType, TokenType>; // parent doesn't have token
+  parent?: ASTNode<Kinds, ASTData, ErrorType, TokenType>; // TODO: conditional make this non nullable
   /**
    * Data calculated by traverser.
    * You can also set this field manually if you don't use top-down traverse.
@@ -83,7 +85,7 @@ export class ASTNode<
   /**
    * If this is a T, this field is set.
    */
-  token?: TokenType;
+  token?: TokenType; // TODO: conditional make this non nullable
   /**
    * Select the first matched child node by the name.
    */
@@ -202,7 +204,7 @@ export class ASTNode<
 
     // don't use `this.toStringWithName` here
     // since this output will always have ': '
-    const kind = this.kind === "" ? "<anonymous>" : this.kind;
+    const kind = this.kind === "" ? anonymousKindPlaceholder : this.kind;
     let res = `${indent}${
       this.kind === this.name ? kind : `${kind}@${this.name}`
     }: `;
@@ -234,7 +236,7 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.kind === "" ? anonymousKindPlaceholder : data.kind}` +
       `${data.name === data.kind ? "" : `@${data.name}`}` +
       `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
@@ -250,7 +252,7 @@ export class ASTNode<
     >,
   ) {
     return (
-      `${data.kind === "" ? "<anonymous>" : data.kind}` +
+      `${data.kind === "" ? anonymousKindPlaceholder : data.kind}` +
       `${data.text === undefined ? "" : `: ${JSON.stringify(data.text)}`}`
     );
   }
@@ -273,6 +275,7 @@ export class ASTNode<
    *
    * @throws {InvalidTraverseError} if the node is a leaf node (no children).
    */
+  // TODO: add a parameter as the traverse context
   traverse(): ASTData | undefined {
     if (this.children === undefined) throw new InvalidTraverseError(this);
     const res = this.traverser(

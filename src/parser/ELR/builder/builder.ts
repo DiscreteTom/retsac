@@ -167,6 +167,7 @@ export class ParserBuilder<
     >;
   }
 
+  // TODO: move this into a base class
   load(
     data: readonly ParserBuilderData<
       Kinds,
@@ -489,6 +490,7 @@ export class ParserBuilder<
       LexerErrorType
     >,
   ) {
+    // TODO: dedup when build?
     this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
@@ -518,6 +520,7 @@ export class ParserBuilder<
       LexerErrorType
     >,
   ) {
+    // TODO: dedup when build?
     this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<

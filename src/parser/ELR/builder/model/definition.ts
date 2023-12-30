@@ -20,6 +20,7 @@ type JoinableString<
   ? true
   : false;
 
+// TODO: make this readonly
 export type Definition<Kinds extends string> = {
   [NT in Kinds]?: string | string[];
 };

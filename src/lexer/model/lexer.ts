@@ -4,7 +4,7 @@ import type {
   ILexerCoreLexOptions,
   IReadonlyLexerCore,
 } from "./core";
-import type { ExtractKinds } from "./extractor";
+import type { ILexerState } from "./state";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
 export type ILexerLexOptions<DataBindings extends GeneralTokenDataBinding> = {
@@ -27,7 +27,14 @@ export interface IReadonlyLexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> {
+> extends Pick<
+      IReadonlyLexerCore<DataBindings, ActionState, ErrorType>,
+      "getTokenKinds"
+    >,
+    Pick<
+      ILexerState<DataBindings, ErrorType>,
+      "buffer" | "digested" | "lineChars" | "trimmed" | "getRest"
+    > {
   readonly core: IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
   /**
    * When `debug` is `true`, the lexer will use `logger` to log debug info.
@@ -44,28 +51,16 @@ export interface IReadonlyLexer<
    */
   get errors(): readonly Readonly<Token<DataBindings, ErrorType>>[];
   /**
-   * The entire input string.
-   */
-  get buffer(): string;
-  /**
-   * How many chars are digested.
-   */
-  get digested(): number;
-  /**
    * Get how many chars in each line.
    */
   get lineChars(): readonly number[];
-  /**
-   * `true` if the lexer is trimStart-ed.
-   */
-  get trimmed(): boolean;
   /**
    * Clone a new lexer with the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
   dryClone(
     options?: ILexerCloneOptions,
-  ): ILexer<DataBindings, ActionState, ErrorType>;
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Clone a new lexer with the same definitions and current state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
@@ -82,19 +77,9 @@ export interface IReadonlyLexer<
     options: Readonly<ILexerLexOptions<DataBindings>> & { peek: true },
   ): Token<DataBindings, ErrorType> | null;
   /**
-   * Get the un-lexed string buffer.
-   * The rest string might be very long, be care of using this method.
-   * The result will be cached in the lexer until its state is changed.
-   */
-  getRest(): string;
-  /**
    * The rest of buffer not empty.
    */
   hasRest(): boolean;
-  /**
-   * Get all defined token kinds.
-   */
-  getTokenKinds(): Set<ExtractKinds<DataBindings>>;
   /**
    * Get 1-based line number and 1-based column number
    * from the 0-based index of the whole input string.
@@ -135,22 +120,37 @@ export interface ILexer<
   set debug(value: boolean);
   set logger(value: Logger);
   /**
-   * Reset the lexer's state, only keep the definitions.
+   * Reset the lexer's state.
    */
-  reset(): this;
+  reset(): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Append buffer with input.
    */
   feed(input: string): this;
   /**
-   * Take `n` chars from the rest of buffer and update state.
+   * Take at most `n` chars from the rest of buffer and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).
+   *
+   * If `n` is larger than the length of the rest of buffer, the rest of buffer will be taken (might be an empty string).
+   *
+   * By default the lexer's action state will be reset, unless you provide `state`, or the `n` is invalid (smaller than 1).
    */
-  take(n?: number): string;
+  take(
+    /**
+     * @default 1
+     */
+    n?: number,
+    /**
+     * @default undefined
+     */
+    state?: ActionState,
+  ): string;
   /**
    * Take chars from the rest of buffer and update state until `pattern` matches.
    * The pattern will be included in the result.
    * This is useful when you have external logic to handle the token (e.g. error handling).
+   *
+   * By default the lexer's action state will be reset, unless you provide `options.state`, or nothing is taken.
    */
   takeUntil(
     pattern: string | RegExp,
@@ -160,6 +160,12 @@ export interface ILexer<
        * @default true
        */
       autoGlobal?: boolean;
+      /**
+       * If provided, the lexer's action state will be updated to this value.
+       * Otherwise the lexer's action state will be reset.
+       * @default undefined
+       */
+      state?: ActionState;
     },
   ): string;
   lex(
@@ -169,7 +175,9 @@ export interface ILexer<
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
-  trimStart(input?: string): this;
+  trimStart(
+    input?: string,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
   /**
    * Try to retrieve a token list exhaustively.
    */
@@ -178,4 +186,73 @@ export interface ILexer<
     stopOnError?: boolean;
   }): Token<DataBindings, ErrorType>[];
   lexAll(input?: string): Token<DataBindings, ErrorType>[];
+}
+
+export interface IReadonlyTrimmedLexer<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> extends Pick<
+    IReadonlyLexer<DataBindings, ActionState, ErrorType>,
+    | "buffer"
+    | "core"
+    | "debug"
+    | "digested"
+    | "dryClone"
+    | "errors"
+    | "getPos"
+    | "getRest"
+    | "getTokenKinds"
+    | "hasErrors"
+    | "hasRest"
+    | "lex"
+    | "lineChars"
+    | "logger"
+  > {
+  /**
+   * Clone a new lexer with the same definitions and current state.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
+   */
+  clone(
+    options?: ILexerCloneOptions,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
+  readonly trimmed: true;
+}
+
+export interface ITrimmedLexer<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+  ErrorType,
+> extends Pick<
+    ILexer<DataBindings, ActionState, ErrorType>,
+    | "buffer"
+    | "core"
+    | "debug"
+    | "digested"
+    | "dryClone"
+    | "errors"
+    | "feed"
+    | "getPos"
+    | "getRest"
+    | "getTokenKinds"
+    | "hasErrors"
+    | "hasRest"
+    | "lex"
+    | "lexAll"
+    | "lineChars"
+    | "logger"
+    | "readonly"
+    | "reset"
+    | "take"
+    | "takeUntil"
+    | "trimStart"
+  > {
+  /**
+   * Clone a new lexer with the same definitions and current state.
+   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
+   */
+  clone(
+    options?: ILexerCloneOptions,
+  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
+  readonly trimmed: true;
 }

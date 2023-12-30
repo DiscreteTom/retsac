@@ -194,4 +194,8 @@ export default {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  // use this to prevent bigint serialization issue
+  // ref: https://github.com/jestjs/jest/issues/11617
+  workerThreads: true,
 };

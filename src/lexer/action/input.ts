@@ -1,4 +1,6 @@
-import { Lazy, type ReadonlyLazyString } from "../../lazy";
+import { Lazy, type ReadonlyLazyString } from "../../helper";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Builder } from "../builder";
 
 export class ActionInput<ActionState> {
   /**
@@ -17,8 +19,12 @@ export class ActionInput<ActionState> {
   readonly peek: boolean;
   /**
    * The rest of the input before the action is executed, lazy and cached.
+   * Equals to `buffer.slice(start)`.
    */
   readonly rest: ReadonlyLazyString;
+  /**
+   * The state set by {@link Builder.state}
+   */
   readonly state: ActionState;
 
   constructor(

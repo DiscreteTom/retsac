@@ -23,7 +23,7 @@ export type ActionExec<Data, ActionState, ErrorType> = (
 
 /**
  * Wrapped action execution function.
- * The `AcceptedActionOutput.buffer/start` will be set by the action.
+ * The `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` will be set by the action.
  */
 export type WrappedActionExec<
   DataBindings extends GeneralTokenDataBinding,
@@ -109,11 +109,11 @@ export class Action<
    * Make constructor private to prevent user from creating action directly,
    * because we don't want the user to construct the ActionOutput directly.
    *
-   * We have to make sure the `AcceptedActionOutput.buffer/start` is the same
-   * with `ActionInput.buffer/start`.
+   * We have to make sure the `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` are the same
+   * as `ActionInput.buffer` and `ActionInput.start`.
    *
-   * So for most cases, use {@link Action.exec} is recommended.
-   * It will set `AcceptedActionOutput.buffer/start` automatically.
+   * So for most cases, use {@link Action.exec} as a substitute.
+   * It will set `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` automatically.
    */
   private constructor(
     wrapped: WrappedActionExec<DataBindings, ActionState, ErrorType>,
@@ -134,7 +134,15 @@ export class Action<
     options?: Partial<
       Pick<Action<never, ActionState, ErrorType>, "maybeMuted">
     >,
-  ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
+  ): Action<
+    {
+      // Action constructed with `exec` has no kind
+      kind: never;
+      data: Data;
+    },
+    ActionState,
+    ErrorType
+  > {
     return new Action(
       (input) => {
         const output = exec(input);
@@ -151,7 +159,15 @@ export class Action<
    */
   static simple<Data = undefined, ActionState = never, ErrorType = never>(
     f: SimpleActionExec<Data, ActionState, ErrorType>,
-  ): Action<{ kind: never; data: Data }, ActionState, ErrorType> {
+  ): Action<
+    {
+      // Action constructed with `simple` has no kind
+      kind: never;
+      data: Data;
+    },
+    ActionState,
+    ErrorType
+  > {
     return Action.exec((input) => {
       const res = f(input);
       // if javascript support real function overload
@@ -217,7 +233,6 @@ export class Action<
     if (options?.autoSticky ?? true) r = makeRegexAutoSticky(r);
     if (options?.rejectCaret ?? true) checkRegexNotStartsWithCaret(r);
 
-    // use `new Action` instead of `Action.simple` to re-use the `res[0]`
     return Action.exec((input) => {
       // javascript doesn't have a string view
       // so we use r.lastIndex to run the regex from the start position
@@ -248,7 +263,7 @@ export class Action<
   }
 
   /**
-   * Create an `Action` from `RegExp/Action/SimpleActionExec`.
+   * Create an `Action` from `RegExp`/`Action`/`SimpleActionExec`.
    */
   static from<
     Kinds extends string = never,
@@ -259,10 +274,9 @@ export class Action<
     r: IntoAction<Kinds, Data, ActionState, ErrorType>,
   ): Action<{ kind: Kinds; data: Data }, ActionState, ErrorType> {
     return r instanceof RegExp
-      ? // Action.match will set Data to RegExpExecArray so we need to clean it.
-        // The result should be Action<never, ActionState, ErrorType>
-        // but only when r is SimpleActionExec the Data will take effect
-        // so its ok to cast the result to Action<Data, ActionState, ErrorType>
+      ? // The result of `dryMatch` should be Action<{kind: never, data: undefined}, ActionState, ErrorType>
+        // but when `r` is `RegExp` the `Kinds` is `never` and the `Data` is `undefined`
+        // so its ok to cast the result to Action<{ kind: Kinds; data: Data }, ActionState, ErrorType>
         (Action.dryMatch<ActionState, ErrorType>(r) as unknown as Action<
           { kind: Kinds; data: Data },
           ActionState,
@@ -434,14 +448,15 @@ export class Action<
         ) => boolean) = true,
   ): Action<DataBindings, ActionState, ErrorType> {
     if (typeof rejecter === "boolean") {
-      // always reject
-      // ignore maybeMuted since muted is only used when accept is true
-      if (rejecter)
+      if (rejecter) {
+        // always reject
+        // ignore maybeMuted since muted is only used when accept is true
         return new Action(
           () => rejectedActionOutput,
           false,
           this.possibleKinds,
         );
+      }
       // else, always accept, just return self, don't override the original output's accept
       return this;
     }
@@ -453,17 +468,34 @@ export class Action<
   }
 
   /**
+   * Check the input before the action is executed.
+   * Reject if the `rejecter` returns `true`.
+   * Return a new action.
+   */
+  prevent(
+    rejecter: (input: Readonly<ActionInput<ActionState>>) => boolean,
+  ): Action<DataBindings, ActionState, ErrorType> {
+    const wrapped = this.exec;
+
+    return new Action(
+      (input) => (rejecter(input) ? rejectedActionOutput : wrapped(input)),
+      this.maybeMuted,
+      this.possibleKinds,
+    );
+  }
+
+  /**
    * Call `f` if `accept` is `true` and `peek` is `false`.
-   * You can modify the action state in `f`.
+   * You can modify the action state in `cb`.
    * Return a new action.
    */
   then(
-    f: (
+    cb: (
       ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
     ) => void,
   ): Action<DataBindings, ActionState, ErrorType> {
     return this.apply((ctx) => {
-      if (!ctx.input.peek) f(ctx);
+      if (!ctx.input.peek) cb(ctx);
       return ctx.output;
     });
   }
@@ -523,14 +555,15 @@ export class Action<
   /**
    * Set kinds for this action. This is used if your action can yield multiple kinds.
    * @example
-   * builder.select(a => a.from(...).kinds(...).select(...))
+   * builder.append(a => a.from(...).kinds(...).select(...))
    */
   kinds<NewKinds extends string>(
     ...kinds: NewKinds[]
   ): MultiKindsAction<
+    // since we are setting kinds, the DataBindings must be set even it's `never`
     {
       kind: NewKinds;
-      data: DataBindings extends never
+      data: [DataBindings] extends [never]
         ? undefined // ensure default data is undefined instead of never, #33
         : ExtractData<DataBindings>;
     },
@@ -540,7 +573,7 @@ export class Action<
     const _this = this as unknown as Action<
       {
         kind: NewKinds;
-        data: DataBindings extends never
+        data: [DataBindings] extends [never]
           ? undefined
           : ExtractData<DataBindings>;
       },
@@ -560,9 +593,10 @@ export class Action<
   bind<NewKinds extends string>(
     s: NewKinds,
   ): Action<
+    // since we are setting kinds, the DataBindings must be set even it's `never`
     {
       kind: NewKinds;
-      data: DataBindings extends never
+      data: [DataBindings] extends [never]
         ? undefined // ensure default data is undefined instead of never, #33
         : ExtractData<DataBindings>;
     },
@@ -630,10 +664,9 @@ export type ReadonlyAction<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> = {
-  readonly [K in
-    | "exec"
-    | "possibleKinds"
-    | "maybeMuted"
-    | "neverMuted"]: Action<DataBindings, ActionState, ErrorType>[K];
-};
+> = Readonly<
+  Pick<
+    Action<DataBindings, ActionState, ErrorType>,
+    "exec" | "possibleKinds" | "maybeMuted" | "neverMuted"
+  >
+>;

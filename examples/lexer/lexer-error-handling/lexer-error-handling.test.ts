@@ -21,7 +21,7 @@ describe("lexer error handling", () => {
     expect(token1!.error).toBeUndefined();
 
     const token2 = lexer.reset().lex(`12e34e56`);
-    expect(token2!.content).toBe(`12e34e56`);
+    expect(token2!.content).toBe(`12e34`);
     expect(token2!.error).toBe("invalid numeric literal");
   });
 
@@ -29,10 +29,6 @@ describe("lexer error handling", () => {
     const token1 = lexer.reset().lex(`abc`);
     expect(token1!.content).toBe(`abc`);
     expect(token1!.error).toBeUndefined();
-
-    const token2 = lexer.reset().lex(`123abc`);
-    expect(token2!.content).toBe(`123abc`);
-    expect(token2!.error).toBe("identifier should not starts with a number");
   });
 
   test("fallback handler", () => {

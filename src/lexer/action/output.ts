@@ -1,11 +1,13 @@
-import { Lazy, type ReadonlyLazyString } from "../../lazy";
-import type { AtLeastOneOf } from "../../type-helper";
+import { Lazy, type ReadonlyLazyString } from "../../helper";
+import type { AtLeastOneOf } from "../../helper";
 import type {
   ExtractData,
   ExtractKinds,
   GeneralTokenDataBinding,
 } from "../model";
 import type { ActionInput } from "./input";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { MultiKindsAction } from "./select";
 
 // don't use data bindings as the type parameter
 // since we need these info to do type inference for `Action.exec/simple`.
@@ -51,6 +53,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   error?: ErrorType;
   /**
    * The rest of the input after the action is executed, lazy and cached.
+   * Equals to `buffer.slice(start + digested)`.
    */
   readonly rest: ReadonlyLazyString;
 
@@ -58,7 +61,13 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     props: Pick<
       AcceptedActionOutput<Kinds, Data, ErrorType>,
       "buffer" | "start" | "muted" | "digested" | "error" | "content" | "data"
-    > & { rest: string | undefined },
+    > & {
+      rest: string | undefined;
+      /**
+       * This should only be set by {@link MultiKindsAction.select}.
+       */
+      kind: Kinds | undefined;
+    },
   ) {
     this.accept = true;
     this.buffer = props.buffer;
@@ -68,6 +77,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     this.error = props.error;
     this.content = props.content;
     this.data = props.data;
+    if (props.kind !== undefined) this.kind = props.kind;
     this.rest = new Lazy(
       () => this.buffer.slice(this.start + this.digested),
       props.rest,
@@ -75,12 +85,13 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
   }
 
   /**
-   * Get `buffer/start` from the `input` and construct the output from the exec output.
+   * Get `buffer` and `start` from the `input` and construct the output from the exec output.
+   * The `Kinds` of the output will be `never` since `ActionExec` doesn't know the `Kinds`.
    */
   static from<Data, ActionState, ErrorType>(
     input: ActionInput<ActionState>,
     output: AcceptedActionExecOutput<Data, ErrorType>,
-  ) {
+  ): AcceptedActionOutput<never, Data, ErrorType> {
     return new AcceptedActionOutput<never, Data, ErrorType>({
       buffer: input.buffer,
       start: input.start,
@@ -90,6 +101,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
       content: output.content,
       data: output.data,
       rest: output.rest,
+      kind: undefined,
     });
   }
 }
@@ -111,8 +123,8 @@ export type ActionOutput<
 
 /**
  * ActionExec's output. No `buffer` and `start` fields.
+ * `Kinds` should be `never` since `Action.exec` doesn't know the `Kinds`.
  */
-// `kind` should be `never` if we use `Action.exec` to create the action.
 export type AcceptedActionExecOutput<Data, ErrorType> = Pick<
   AcceptedActionOutput<never, Data, ErrorType>,
   "accept" | "content" | "data" | "digested" | "error" | "muted"
@@ -133,13 +145,23 @@ export type ActionExecOutput<Data, ErrorType> =
  * Make unnecessary fields optional.
  * One of `content` or `digested` must be provided.
  */
-export type SimpleAcceptedActionExecOutput<Data, ErrorType> = Partial<
-  Pick<
-    AcceptedActionExecOutput<Data, ErrorType>,
-    "muted" | "error" | "digested" | "content" | "data" | "rest"
-  >
-> &
+export type SimpleAcceptedActionExecOutput<Data, ErrorType> =
+  // necessary fields
   AtLeastOneOf<
     AcceptedActionOutput<never, never, never>,
     "digested" | "content"
-  >;
+  > &
+    // unnecessary fields
+    Partial<
+      Pick<
+        AcceptedActionExecOutput<Data, ErrorType>,
+        | "muted"
+        | "error"
+        | "digested"
+        | "content"
+        | "rest"
+        // data should also be optional
+        // since we need to infer the data type from the exec output
+        | "data"
+      >
+    >;

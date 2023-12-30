@@ -1,9 +1,9 @@
 import type { ActionStateCloner, ReadonlyAction } from "./action";
 import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
-import type { ExtractKinds, GeneralTokenDataBinding, ILexer } from "./model";
+import type { GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
-import type { Expand } from "../type-helper";
+import type { Expand } from "../helper";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
@@ -74,8 +74,6 @@ export class Builder<
 
   /**
    * Set initial action state.
-   *
-   * This function can only be called once and must be called before defining any action.
    * @example
    * // use structuredClone as default cloner
    * builder.state({ count: 0 })
@@ -83,13 +81,10 @@ export class Builder<
    * builder.state({ count: 0 }, state => ({ ...state }))
    */
   state<
-    // make sure this function can only be called once
-    // and must be called before defining any action
-    NewActionState extends [DataBindings] extends [never]
-      ? [ActionState] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751
-        ? unknown // NewActionState can be any type
-        : never // ActionState already set, prevent modification
-      : never, // prevent setting ActionState after DataBindings is defined
+    // make sure NewActionState is a sub type (superset) of ActionState
+    NewActionState extends [ActionState] extends [never] // why array? see https://github.com/microsoft/TypeScript/issues/31751 [[type constraints with array]]
+      ? unknown // ActionState is never, so NewActionState can be anything
+      : ActionState, // ActionState is not never, so NewActionState must be a child type of ActionState
   >(
     state: NewActionState,
     /**
@@ -109,8 +104,6 @@ export class Builder<
 
   /**
    * Set error type.
-   *
-   * This function can only be called once and must be called before defining any action.
    * @example
    * // provide type explicitly
    * builder.error<number>();
@@ -118,14 +111,11 @@ export class Builder<
    * builder.error(0);
    */
   error<
-    // make sure this function can only be called once
-    // and must be called before defining any action
-    NewError extends [DataBindings] extends [never]
-      ? [ErrorType] extends [never]
-        ? unknown // NewError can be any type
-        : never // ErrorType already set, prevent modification
-      : never, // prevent setting ErrorType after DataBindings is defined
-  >(_?: NewError) {
+    // make sure NewError is a super type (subset) of ErrorType
+    NewError extends [ErrorType] extends [NewError] // why array? see [[@type constraints with array]]
+      ? unknown // NewError is a super type of ErrorType, so it can be anything
+      : never, // NewError is not a super type of ErrorType, reject
+  >(_?: NewError): Builder<DataBindings, ActionState, NewError> {
     return this as unknown as Builder<DataBindings, ActionState, NewError>;
   }
 
@@ -147,24 +137,43 @@ export class Builder<
    * // action with multiple kinds
    * builder.append(a => a.from(...).kinds(...).select(...))
    */
-  append<AppendDataBindings extends GeneralTokenDataBinding>(
-    ...builder: ((a: ActionBuilder<ActionState, ErrorType>) => Action<
-      // TODO: prevent AppendKinds to be never?
-      // but we accept builder as a list, if one of the builders is never, we can't detect it
-      AppendDataBindings,
-      ActionState,
-      ErrorType
-    >)[]
-  ): Builder<DataBindings | AppendDataBindings, ActionState, ErrorType> {
-    const _this = this as unknown as Builder<
-      DataBindings | AppendDataBindings,
+  append<
+    Builders extends ((
+      a: ActionBuilder<ActionState, ErrorType>,
+    ) => Action<GeneralTokenDataBinding, ActionState, ErrorType>)[],
+  >(
+    ...builders: Builders
+  ): Builder<
+    | DataBindings
+    | (ReturnType<Builders[number]> extends Action<
+        infer DataBindings, // TODO: make sure kind is not `never`
+        infer _,
+        infer __
+      >
+        ? DataBindings
+        : never),
+    ActionState,
+    ErrorType
+  > {
+    builders.forEach((build) =>
+      this.actions.push(
+        build(
+          new ActionBuilder<ActionState, ErrorType>(),
+        ) as unknown as ReadonlyAction<DataBindings, ActionState, ErrorType>,
+      ),
+    );
+
+    return this as unknown as Builder<
+      DataBindings | ReturnType<Builders[number]> extends Action<
+        infer DataBindings,
+        infer _,
+        infer __
+      >
+        ? DataBindings
+        : never,
       ActionState,
       ErrorType
     >;
-    builder.forEach((build) =>
-      _this.actions.push(build(new ActionBuilder<ActionState, ErrorType>())),
-    );
-    return _this;
   }
 
   /**
@@ -190,12 +199,6 @@ export class Builder<
     ActionState,
     ErrorType
   > {
-    const _this = this as Builder<
-      | DataBindings
-      | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
-      ActionState,
-      ErrorType
-    >;
     for (const kind in mapper) {
       const raw = mapper[kind] as
         | IntoNoKindAction<unknown, ActionState, ErrorType>
@@ -205,30 +208,50 @@ export class Builder<
       // because when we lex with expectation, we should evaluate actions one by one
 
       (raw instanceof Array ? raw : [raw]).forEach((a) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        _this.actions.push(Builder.buildAction(a).bind(kind) as any); // TODO: fix type
+        this.actions.push(
+          Builder.buildAction(a).bind(kind) as unknown as ReadonlyAction<
+            DataBindings,
+            ActionState,
+            ErrorType
+          >,
+        );
       });
     }
-    return _this;
+
+    return this as Builder<
+      | DataBindings
+      | Expand<ExtractNewDataBindings<Mapper, ActionState, ErrorType>>,
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
    * Define tokens with empty kind.
    */
-  anonymous<AppendData>(
+  anonymous<AppendData = undefined>(
     ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
   ): Builder<
     DataBindings | { kind: ""; data: AppendData },
     ActionState,
     ErrorType
   > {
-    return this.define({ "": actions.map((a) => Builder.buildAction(a)) });
+    return this.define({
+      "": actions.map((a) => Builder.buildAction(a)),
+    }) as Builder<
+      DataBindings | { kind: ""; data: AppendData },
+      ActionState,
+      ErrorType
+    >;
   }
 
   /**
    * Define muted anonymous actions.
    */
-  ignore<AppendData>(
+  ignore<AppendData = undefined>(
+    // though muted actions won't emit token,
+    // there might be muted error tokens which will be recorded
+    // so we still need to record the data binding
     ...actions: IntoNoKindAction<AppendData, ActionState, ErrorType>[]
   ): Builder<
     DataBindings | { kind: ""; data: AppendData },
@@ -237,16 +260,7 @@ export class Builder<
   > {
     return this.define({
       "": actions.map((a) => Builder.buildAction(a).mute()),
-    });
-  }
-
-  /**
-   * Get all defined token kinds. This will build the lexer.
-   * @alias {@link Lexer.getTokenKinds}
-   */
-  getTokenKinds(): Set<ExtractKinds<DataBindings>> {
-    // `this.build` is lightweight, so we don't cache the result
-    return this.build().getTokenKinds();
+    }) as Builder<DataBindings, ActionState, ErrorType>;
   }
 
   build(

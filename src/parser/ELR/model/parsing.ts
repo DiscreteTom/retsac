@@ -1,4 +1,8 @@
-import type { GeneralTokenDataBinding, ILexer, Token } from "../../../lexer";
+import type {
+  GeneralTokenDataBinding,
+  ITrimmedLexer,
+  Token,
+} from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type { State } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
@@ -41,9 +45,10 @@ export type ParsingState<
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
   >[];
-  lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
 };
 
+// TODO: rename to reLexState
 export type ReActionState<
   Kinds extends string,
   ASTData,
