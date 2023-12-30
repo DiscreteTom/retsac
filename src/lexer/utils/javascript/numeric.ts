@@ -17,6 +17,7 @@ export type IntegerLiteralData = {
   /**
    * The value of the integer literal.
    * This will try to be parsed even if the integer literal is invalid.
+   * `NaN` will be transformed to `0`.
    */
   value: number | bigint;
   /**
@@ -76,13 +77,13 @@ export function integerLiteralDataMapper<ActionState, ErrorType>({
   };
 
   return {
-    value: tryOrDefault(
-      () =>
+    value: tryOrDefault(() => {
+      const res =
         output.data.suffix === "n"
           ? BigInt(output.data.prefix + output.data.body)
-          : Number(output.data.prefix + output.data.body),
-      0,
-    ),
+          : Number(output.data.prefix + output.data.body);
+      return Number.isNaN(res) ? 0 : res;
+    }, 0),
     invalid:
       rawInvalid.emptyContent ||
       rawInvalid.leadingSeparator ||
