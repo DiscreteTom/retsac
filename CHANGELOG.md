@@ -23,7 +23,7 @@
   - Fix: `Lexer.trimStart` shouldn't collect non-muted errors.
 - Parser
   - **_Breaking Change_**: lexer will be trimmed after every parse. This should improve the performance.
-    - `IReadonlyTrimmedLexer.lexer` will be `IReadonlyTrimmedLexer` instead of `IReadonlyLexer`.
+    - `GrammarRuleContext.lexer` will be `IReadonlyTrimmedLexer` instead of `IReadonlyLexer`.
 
 ## v0.14.0
 
