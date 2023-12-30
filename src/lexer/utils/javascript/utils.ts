@@ -321,3 +321,10 @@ export function isIdentifierPart(ch: number): boolean {
       isUnicodeIdentifierPart(ch))
   );
 }
+
+/**
+ * @see https://github.com/microsoft/TypeScript/blob/efc9c065a2caa52c5bebd08d730eed508075a78a/src/compiler/scanner.ts#L2844
+ */
+export function charSize(ch: number) {
+  return ch >= 0x10000 ? 2 : 1;
+}

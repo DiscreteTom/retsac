@@ -12,7 +12,7 @@
   - Feat: `Builder.append` can accept actions with different data bindings in one call.
   - Feat: add `Lexer.javascript.evalStringContent/simpleStringLiteral/singleQuoteStringLiteral/doubleQuoteStringLiteral/templateStringLiteralLeft/templateStringLiteralRight`.
   - Feat: add `Lexer.integerLiteral/binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral` and `IntegerLiteralOptions/IntegerLiteralData`.
-    - Add `Lexer.javascript.binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral`.
+    - Add `Lexer.javascript.binaryIntegerLiteral/octalIntegerLiteral/hexIntegerLiteral/identifier`.
   - Feat: add `Lexer.json`.
   - Feat: add `Lexer.SubAction`, `Lexer.IntoSubAction`.
   - Feat: add `Lexer.Action.prevent`.
