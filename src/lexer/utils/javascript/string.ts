@@ -1,4 +1,8 @@
-import type { AcceptedActionDecoratorContext, Action } from "../../action";
+import type {
+  AcceptedActionDecoratorContext,
+  AcceptedActionOutput,
+  Action,
+} from "../../action";
 import type {
   EscapeHandler,
   StringLiteralData as CommonStringLiteralData,
@@ -260,9 +264,11 @@ export function simpleStringLiteral<
   ).data(stringLiteralDataMapper);
 }
 
+export type TemplateStringLiteralKinds = "simple" | "start" | "middle" | "end";
+
 export type TemplateStringLiteralData<
   EscapeErrorKinds extends string,
-  TemplateStringLiteralKinds extends "simple" | "start" | "middle" | "end",
+  LiteralKinds extends TemplateStringLiteralKinds,
 > = {
   /**
    * `undefined` if the string literal is valid.
@@ -276,86 +282,103 @@ export type TemplateStringLiteralData<
    * - `middle` means `` }123${ ``
    * - `end` means `` }123` ``
    */
-  kind: TemplateStringLiteralKinds;
+  kind: LiteralKinds;
 } & Pick<CommonStringLiteralData<EscapeErrorKinds>, "value" | "escapes">;
 
-/**
- * Transform {@link CommonStringLiteralData} to {@link TemplateStringLiteralData}.
- */
-export function templateStringLiteralLeftDataMapper<
+function templateStringLiteralDataMapperFactory<
+  LiteralKinds extends TemplateStringLiteralKinds,
   EscapeErrorKinds extends string,
   ActionState,
   ErrorType,
->({
-  input: _,
-  output,
-}: AcceptedActionDecoratorContext<
-  { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
-  ActionState,
-  ErrorType
->): TemplateStringLiteralData<EscapeErrorKinds, "simple" | "start"> {
-  const invalid: NonNullable<
-    TemplateStringLiteralData<EscapeErrorKinds, "simple" | "start">["invalid"]
-  > = {
-    unclosed: output.data.unclosed,
-    escapes: output.data.escapes.filter(
-      // `\$` is not an escape sequence
-      (e) => e.value !== "$" && e.error !== undefined,
-    ),
-  };
+>(
+  kindMapper: (
+    output: AcceptedActionOutput<
+      never,
+      CommonStringLiteralData<EscapeErrorKinds>,
+      ErrorType
+    >,
+  ) => LiteralKinds,
+) {
+  return function ({
+    input: _,
+    output,
+  }: AcceptedActionDecoratorContext<
+    { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
+    ActionState,
+    ErrorType
+  >): TemplateStringLiteralData<EscapeErrorKinds, LiteralKinds> {
+    const invalid: NonNullable<
+      TemplateStringLiteralData<EscapeErrorKinds, LiteralKinds>["invalid"]
+    > = {
+      unclosed: output.data.unclosed,
+      escapes: output.data.escapes.filter((e) => e.error !== undefined),
+    };
 
-  return {
-    // ref: https://github.com/microsoft/TypeScript/blob/d027e9619fb8ca964df3885a536a67b5f813738b/src/compiler/scanner.ts#L1427
-    // Speculated ECMAScript 6 Spec 11.8.6.1:
-    // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
-    value: output.data.value.replace(/\r\n/g, "\n"),
-    // `\$` is not an escape sequence
-    escapes: output.data.escapes.filter((e) => e.value !== "$"),
-    invalid:
-      invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
-    kind:
-      output.data.unclosed || output.content.endsWith("`") ? "simple" : "start",
+    return {
+      // ref: https://github.com/microsoft/TypeScript/blob/d027e9619fb8ca964df3885a536a67b5f813738b/src/compiler/scanner.ts#L1427
+      // Speculated ECMAScript 6 Spec 11.8.6.1:
+      // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
+      value: output.data.value.replace(/\r\n/g, "\n"),
+      escapes: output.data.escapes,
+      invalid:
+        invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
+      kind: kindMapper(output),
+    };
   };
 }
 
 /**
  * Transform {@link CommonStringLiteralData} to {@link TemplateStringLiteralData}.
  */
-export function templateStringLiteralRightDataMapper<
+export function templateStringLiteralLeftDataMapperFactory<
   EscapeErrorKinds extends string,
   ActionState,
   ErrorType,
->({
-  input: _,
-  output,
-}: AcceptedActionDecoratorContext<
-  { kind: never; data: CommonStringLiteralData<EscapeErrorKinds> },
-  ActionState,
-  ErrorType
->): TemplateStringLiteralData<EscapeErrorKinds, "middle" | "end"> {
-  const invalid: NonNullable<
-    TemplateStringLiteralData<EscapeErrorKinds, "middle" | "end">["invalid"]
-  > = {
-    unclosed: output.data.unclosed,
-    escapes: output.data.escapes.filter(
-      // `\$` is not an escape sequence
-      (e) => e.value !== "$" && e.error !== undefined,
-    ),
-  };
-
-  return {
-    // ref: https://github.com/microsoft/TypeScript/blob/d027e9619fb8ca964df3885a536a67b5f813738b/src/compiler/scanner.ts#L1427
-    // Speculated ECMAScript 6 Spec 11.8.6.1:
-    // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
-    value: output.data.value.replace(/\r\n/g, "\n"),
-    // `\$` is not an escape sequence
-    escapes: output.data.escapes.filter((e) => e.value !== "$"),
-    invalid:
-      invalid.unclosed || invalid.escapes.length > 0 ? invalid : undefined,
-    kind:
-      output.data.unclosed || output.content.endsWith("`") ? "end" : "middle",
-  };
+>() {
+  return templateStringLiteralDataMapperFactory<
+    "simple" | "start",
+    EscapeErrorKinds,
+    ActionState,
+    ErrorType
+  >((output) =>
+    output.data.unclosed || output.content.endsWith("`") ? "simple" : "start",
+  );
 }
+
+/**
+ * Transform {@link CommonStringLiteralData} to {@link TemplateStringLiteralData}.
+ */
+export function templateStringLiteralRightDataMapperFactory<
+  EscapeErrorKinds extends string,
+  ActionState,
+  ErrorType,
+>() {
+  return templateStringLiteralDataMapperFactory<
+    "middle" | "end",
+    EscapeErrorKinds,
+    ActionState,
+    ErrorType
+  >((output) =>
+    output.data.unclosed || output.content.endsWith("`") ? "end" : "middle",
+  );
+}
+
+/**
+ * Escape handlers for template string literals.
+ */
+export const templateEscapeHandlers = [
+  escapeHandlerFactory.simple(),
+  escapeHandlerFactory.lineContinuation(),
+  hex({ error: "hex" }),
+  // make sure to handle codepoint before unicode
+  // since codepoint's prefix is longer than unicode's and has overlap
+  codepoint({ error: "codepoint" }),
+  unicode({ error: "unicode" }),
+  // `\$` is a valid escape sequence in template string literal
+  commonEscapeHandlers.map({ $: "$" }),
+  // keep the fallback handler at the end for error handling
+  fallback(),
+] as const;
 
 /**
  * Match a JavaScript template string literal left part (`` `123` `` or `` `123${ ``).
@@ -386,8 +409,8 @@ export function templateStringLiteralLeft<
   >("`", {
     close: /`|\${/,
     multiline: true,
-    escape: { handlers: escapeHandlers },
-  }).data(templateStringLiteralLeftDataMapper);
+    escape: { handlers: templateEscapeHandlers },
+  }).data(templateStringLiteralLeftDataMapperFactory());
 }
 
 /**
@@ -419,6 +442,6 @@ export function templateStringLiteralRight<
   >("}", {
     close: /`|\${/,
     multiline: true,
-    escape: { handlers: escapeHandlers },
-  }).data(templateStringLiteralRightDataMapper);
+    escape: { handlers: templateEscapeHandlers },
+  }).data(templateStringLiteralRightDataMapperFactory());
 }
