@@ -1,4 +1,4 @@
-import { Lazy, type ReadonlyLazyString } from "../../lazy";
+import { Lazy, type ReadonlyLazyString } from "../../helper";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Builder } from "../builder";
 

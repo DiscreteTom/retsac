@@ -1,4 +1,4 @@
-import { tryOrDefault } from "../../../try";
+import { tryOrDefault } from "../../../helper";
 import type { AcceptedActionDecoratorContext } from "../../action";
 import { Action } from "../../action";
 import type { NumericLiteralData as CommonNumericLiteralData } from "../numeric";

@@ -1,5 +1,5 @@
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
-import type { AtLeastOneOf, QuotedString } from "../../../../type-helper";
+import type { AtLeastOneOf, QuotedString } from "../../../../helper";
 import type { Condition, ConflictType, ResolverHydrationId } from "../../model";
 import type { Definition } from "./definition";
 import type { TempGrammarRule } from "./temp-grammar";

@@ -7,8 +7,8 @@ import {
   defaultASTNodeSelector,
   defaultASTNodeFirstMatchSelector,
 } from "./selector";
-import type { LazyString } from "../lazy";
-import { Lazy } from "../lazy";
+import type { LazyString } from "../helper";
+import { Lazy } from "../helper";
 import { InvalidTraverseError } from "./error";
 import type { Traverser } from "./traverser";
 import { defaultTraverser } from "./traverser";

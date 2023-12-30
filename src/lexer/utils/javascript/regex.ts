@@ -1,4 +1,4 @@
-import { tryOrDefault } from "../../../try";
+import { tryOrDefault } from "../../../helper";
 import { Action, rejectedActionOutput } from "../../action";
 
 export type RegexLiteralData = {

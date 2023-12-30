@@ -1,6 +1,6 @@
 import { ASTNode } from "../../../ast";
-import type { LazyString } from "../../../../lazy";
-import { Lazy } from "../../../../lazy";
+import type { LazyString } from "../../../../helper";
+import { Lazy } from "../../../../helper";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { GrammarRepo } from "./grammar-repo";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

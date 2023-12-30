@@ -1,5 +1,3 @@
-// TODO: move to a helper folder
-
 /**
  * Try to execute a function and return the result or a default value if an error is thrown.
  */

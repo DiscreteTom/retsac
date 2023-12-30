@@ -1,5 +1,5 @@
 import type { ExtractKinds, GeneralToken } from "../lexer";
-import type { StringOrLiteral } from "../type-helper";
+import type { StringOrLiteral } from "../helper";
 import type { ASTNode } from "./ast";
 
 /**

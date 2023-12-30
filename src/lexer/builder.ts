@@ -3,7 +3,7 @@ import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
 import type { GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
-import type { Expand } from "../type-helper";
+import type { Expand } from "../helper";
 
 export type LexerBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">

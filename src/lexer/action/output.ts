@@ -1,5 +1,5 @@
-import { Lazy, type ReadonlyLazyString } from "../../lazy";
-import type { AtLeastOneOf } from "../../type-helper";
+import { Lazy, type ReadonlyLazyString } from "../../helper";
+import type { AtLeastOneOf } from "../../helper";
 import type {
   ExtractData,
   ExtractKinds,

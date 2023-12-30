@@ -6,7 +6,7 @@ import type {
   ITrimmedLexer,
   Token,
 } from "../../../lexer";
-import type { StringOrLiteral } from "../../../type-helper";
+import type { StringOrLiteral } from "../../../helper";
 import type {
   ASTNodeSelector,
   ASTNodeFirstMatchSelector,
