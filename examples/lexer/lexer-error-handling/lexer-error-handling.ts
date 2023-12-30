@@ -10,12 +10,12 @@ export const lexer = new Lexer.Builder()
     // built-in utils will check common errors and flag it in output.data
     // you can set error by checking output.data
     string: Lexer.stringLiteral(`"`).check(({ output }) =>
-      output.data.unclosed ? ("unclosed string literal" as string) : undefined,
+      output.data.unclosed ? "unclosed string literal" : undefined,
     ),
     number: Lexer.javascript
       .numericLiteral()
       .check(({ output }) =>
-        output.data.invalid ? ("invalid numeric literal" as string) : undefined,
+        output.data.invalid ? "invalid numeric literal" : undefined,
       ),
     // you can customize your own error handling function using `check`
     identifier: (a) =>
@@ -23,7 +23,7 @@ export const lexer = new Lexer.Builder()
         .from(/\w+/)
         .check(({ output }) =>
           output.content.match(/\d/)
-            ? ("identifier should not starts with a number" as string)
+            ? "identifier should not starts with a number"
             : undefined,
         ),
   })

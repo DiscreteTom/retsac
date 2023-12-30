@@ -13,7 +13,15 @@ describe("integer literals", () => {
     input: string,
     overrides: Partial<
       Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
-    > & { data: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]> },
+    > & {
+      data: Partial<
+        Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+      > & {
+        invalid?: Partial<
+          NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+        >;
+      };
+    },
   ) {
     const token = lexer.reset().lex(input)!;
     expect(token.content).toBe(overrides?.content ?? input);
@@ -21,17 +29,22 @@ describe("integer literals", () => {
     expect(token.error).toBe(undefined);
     expect(token.data.prefix).toBe(overrides.data?.prefix ?? "");
     expect(token.data.suffix).toBe(overrides.data?.suffix ?? "");
-    expect(token.data.value).toBe(overrides.data?.value ?? "");
+    expect(token.data.value).toBe(overrides.data?.value ?? eval(input));
     expect(token.data.separators).toEqual(overrides.data?.separators ?? []);
-    expect(token.data.leadingSeparator).toBe(
-      overrides.data?.leadingSeparator ?? false,
-    );
-    expect(token.data.tailingSeparator).toBe(
-      overrides.data?.tailingSeparator ?? false,
-    );
-    expect(token.data.consecutiveSeparatorIndexes).toEqual(
-      overrides.data?.consecutiveSeparatorIndexes ?? [],
-    );
+    if (token.data.invalid !== undefined) {
+      expect(token.data.invalid.emptyContent).toBe(
+        overrides.data?.invalid?.emptyContent ?? false,
+      );
+      expect(token.data.invalid.consecutiveSeparatorIndexes).toEqual(
+        overrides.data?.invalid?.consecutiveSeparatorIndexes ?? [],
+      );
+      expect(token.data.invalid.tailingSeparator).toBe(
+        overrides.data?.invalid?.tailingSeparator ?? false,
+      );
+      expect(token.data.invalid.leadingSeparator).toBe(
+        overrides.data?.invalid?.leadingSeparator ?? false,
+      );
+    }
   }
 
   function expectReject(
@@ -61,10 +74,14 @@ describe("integer literals", () => {
       test("only prefix", () => {
         expectAccept(lexer, "0b", {
           data: {
+            value: 0,
             prefix: "0b",
             suffix: "",
-            value: "",
+            body: "",
             separators: [],
+            invalid: {
+              emptyContent: true,
+            },
           },
         });
       });
@@ -74,7 +91,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0b",
             suffix: "",
-            value: "101",
+            body: "101",
             separators: [],
           },
         });
@@ -85,7 +102,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0b",
             suffix: "",
-            value: "101",
+            body: "101",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -99,7 +116,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0b",
             suffix: "n",
-            value: "101",
+            body: "101",
             separators: [],
           },
         });
@@ -110,7 +127,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0b",
             suffix: "n",
-            value: "101",
+            body: "101",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -122,11 +139,14 @@ describe("integer literals", () => {
       test("leading separator", () => {
         expectAccept(lexer, "0b_101", {
           data: {
+            value: 0b101,
             prefix: "0b",
             suffix: "",
-            value: "101",
+            body: "101",
             separators: [{ index: 2, content: "_" }],
-            leadingSeparator: true,
+            invalid: {
+              leadingSeparator: true,
+            },
           },
         });
       });
@@ -134,11 +154,14 @@ describe("integer literals", () => {
       test("tailing separator", () => {
         expectAccept(lexer, "0b101_", {
           data: {
+            value: 0b101,
             prefix: "0b",
             suffix: "",
-            value: "101",
+            body: "101",
             separators: [{ index: 5, content: "_" }],
-            tailingSeparator: true,
+            invalid: {
+              tailingSeparator: true,
+            },
           },
         });
       });
@@ -146,14 +169,17 @@ describe("integer literals", () => {
       test("consecutive separators", () => {
         expectAccept(lexer, "0b1__01", {
           data: {
+            value: 0b101,
             prefix: "0b",
             suffix: "",
-            value: "101",
+            body: "101",
             separators: [
               { index: 3, content: "_" },
               { index: 4, content: "_" },
             ],
-            consecutiveSeparatorIndexes: [4],
+            invalid: {
+              consecutiveSeparatorIndexes: [4],
+            },
           },
         });
       });
@@ -162,7 +188,9 @@ describe("integer literals", () => {
     describe("reject invalid", () => {
       const lexer = new Lexer.Builder()
         .define({
-          int: Lexer.javascript.binaryIntegerLiteral({ acceptInvalid: false }),
+          int: Lexer.javascript
+            .binaryIntegerLiteral()
+            .reject(Lexer.invalidRejecter),
         })
         .build();
 
@@ -200,10 +228,14 @@ describe("integer literals", () => {
       test("only prefix", () => {
         expectAccept(lexer, "0o", {
           data: {
+            value: 0,
             prefix: "0o",
             suffix: "",
-            value: "",
+            body: "",
             separators: [],
+            invalid: {
+              emptyContent: true,
+            },
           },
         });
       });
@@ -213,7 +245,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0o",
             suffix: "",
-            value: "707",
+            body: "707",
             separators: [],
           },
         });
@@ -224,7 +256,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0o",
             suffix: "",
-            value: "707",
+            body: "707",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -238,7 +270,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0o",
             suffix: "n",
-            value: "707",
+            body: "707",
             separators: [],
           },
         });
@@ -249,7 +281,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0o",
             suffix: "n",
-            value: "707",
+            body: "707",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -261,11 +293,14 @@ describe("integer literals", () => {
       test("leading separator", () => {
         expectAccept(lexer, "0o_707", {
           data: {
+            value: 0o707,
             prefix: "0o",
             suffix: "",
-            value: "707",
+            body: "707",
             separators: [{ index: 2, content: "_" }],
-            leadingSeparator: true,
+            invalid: {
+              leadingSeparator: true,
+            },
           },
         });
       });
@@ -273,11 +308,14 @@ describe("integer literals", () => {
       test("tailing separator", () => {
         expectAccept(lexer, "0o707_", {
           data: {
+            value: 0o707,
             prefix: "0o",
             suffix: "",
-            value: "707",
+            body: "707",
             separators: [{ index: 5, content: "_" }],
-            tailingSeparator: true,
+            invalid: {
+              tailingSeparator: true,
+            },
           },
         });
       });
@@ -285,14 +323,17 @@ describe("integer literals", () => {
       test("consecutive separators", () => {
         expectAccept(lexer, "0o7__07", {
           data: {
+            value: 0o707,
             prefix: "0o",
             suffix: "",
-            value: "707",
+            body: "707",
             separators: [
               { index: 3, content: "_" },
               { index: 4, content: "_" },
             ],
-            consecutiveSeparatorIndexes: [4],
+            invalid: {
+              consecutiveSeparatorIndexes: [4],
+            },
           },
         });
       });
@@ -301,7 +342,9 @@ describe("integer literals", () => {
     describe("reject invalid", () => {
       const lexer = new Lexer.Builder()
         .define({
-          int: Lexer.javascript.binaryIntegerLiteral({ acceptInvalid: false }),
+          int: Lexer.javascript
+            .binaryIntegerLiteral()
+            .reject(Lexer.invalidRejecter),
         })
         .build();
 
@@ -339,10 +382,14 @@ describe("integer literals", () => {
       test("only prefix", () => {
         expectAccept(lexer, "0x", {
           data: {
+            value: 0,
             prefix: "0x",
             suffix: "",
-            value: "",
+            body: "",
             separators: [],
+            invalid: {
+              emptyContent: true,
+            },
           },
         });
       });
@@ -352,7 +399,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0x",
             suffix: "",
-            value: "F0F",
+            body: "F0F",
             separators: [],
           },
         });
@@ -363,7 +410,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0x",
             suffix: "",
-            value: "F0F",
+            body: "F0F",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -377,7 +424,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0x",
             suffix: "n",
-            value: "F0F",
+            body: "F0F",
             separators: [],
           },
         });
@@ -388,7 +435,7 @@ describe("integer literals", () => {
           data: {
             prefix: "0x",
             suffix: "n",
-            value: "F0F",
+            body: "F0F",
             separators: [
               { index: 3, content: "_" },
               { index: 5, content: "_" },
@@ -400,11 +447,14 @@ describe("integer literals", () => {
       test("leading separator", () => {
         expectAccept(lexer, "0x_F0F", {
           data: {
+            value: 0xf0f,
             prefix: "0x",
             suffix: "",
-            value: "F0F",
+            body: "F0F",
             separators: [{ index: 2, content: "_" }],
-            leadingSeparator: true,
+            invalid: {
+              leadingSeparator: true,
+            },
           },
         });
       });
@@ -412,11 +462,14 @@ describe("integer literals", () => {
       test("tailing separator", () => {
         expectAccept(lexer, "0xF0F_", {
           data: {
+            value: 0xf0f,
             prefix: "0x",
             suffix: "",
-            value: "F0F",
+            body: "F0F",
             separators: [{ index: 5, content: "_" }],
-            tailingSeparator: true,
+            invalid: {
+              tailingSeparator: true,
+            },
           },
         });
       });
@@ -424,14 +477,17 @@ describe("integer literals", () => {
       test("consecutive separators", () => {
         expectAccept(lexer, "0xF__0F", {
           data: {
+            value: 0xf0f,
             prefix: "0x",
             suffix: "",
-            value: "F0F",
+            body: "F0F",
             separators: [
               { index: 3, content: "_" },
               { index: 4, content: "_" },
             ],
-            consecutiveSeparatorIndexes: [4],
+            invalid: {
+              consecutiveSeparatorIndexes: [4],
+            },
           },
         });
       });
@@ -440,7 +496,9 @@ describe("integer literals", () => {
     describe("reject invalid", () => {
       const lexer = new Lexer.Builder()
         .define({
-          int: Lexer.javascript.binaryIntegerLiteral({ acceptInvalid: false }),
+          int: Lexer.javascript
+            .binaryIntegerLiteral()
+            .reject(Lexer.invalidRejecter),
         })
         .build();
 
@@ -480,8 +538,14 @@ describe("numericLiteral", () => {
     overrides: Partial<
       Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
     > & {
-      data: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]> &
-        Pick<NonNullable<ReturnType<typeof lexer.lex>>["data"], "integer">;
+      data: Partial<
+        Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+      > &
+        Pick<NonNullable<ReturnType<typeof lexer.lex>>["data"], "integer"> & {
+          invalid?: Partial<
+            NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+          >;
+        };
     },
   ) {
     const token = lexer.reset().lex(input)!;
@@ -493,25 +557,29 @@ describe("numericLiteral", () => {
     expect(token.data.exponent).toEqual(overrides.data.exponent ?? undefined);
     expect(token.data.suffix).toBe(overrides.data.suffix ?? "");
     expect(token.data.separators).toEqual(overrides.data.separators ?? []);
-    expect(token.data.emptyExponent).toBe(
-      overrides.data.emptyExponent ?? false,
-    );
-    expect(token.data.leadingZero).toBe(overrides.data.leadingZero ?? false);
-    expect(token.data.bigIntWithFraction).toBe(
-      overrides.data.bigIntWithFraction ?? false,
-    );
-    expect(token.data.bigIntWithExponent).toBe(
-      overrides.data.bigIntWithExponent ?? false,
-    );
-    expect(token.data.missingBoundary).toBe(
-      overrides.data.missingBoundary ?? false,
-    );
-    expect(token.data.invalidSeparatorIndexes).toEqual(
-      overrides.data.invalidSeparatorIndexes ?? [],
-    );
-    expect(token.data.consecutiveSeparatorIndexes).toEqual(
-      overrides.data.consecutiveSeparatorIndexes ?? [],
-    );
+    if (token.data.invalid !== undefined) {
+      expect(token.data.invalid.emptyExponent).toBe(
+        overrides.data.invalid?.emptyExponent ?? false,
+      );
+      expect(token.data.invalid.leadingZero).toBe(
+        overrides.data.invalid?.leadingZero ?? false,
+      );
+      expect(token.data.invalid.bigIntWithFraction).toBe(
+        overrides.data.invalid?.bigIntWithFraction ?? false,
+      );
+      expect(token.data.invalid.bigIntWithExponent).toBe(
+        overrides.data.invalid?.bigIntWithExponent ?? false,
+      );
+      expect(token.data.invalid.missingBoundary).toBe(
+        overrides.data.invalid?.missingBoundary ?? false,
+      );
+      expect(token.data.invalid.invalidSeparatorIndexes).toEqual(
+        overrides.data.invalid?.invalidSeparatorIndexes ?? [],
+      );
+      expect(token.data.invalid.consecutiveSeparatorIndexes).toEqual(
+        overrides.data.invalid?.consecutiveSeparatorIndexes ?? [],
+      );
+    }
   }
 
   function expectReject(
@@ -543,7 +611,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
         },
       });
@@ -556,7 +624,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 1,
             digested: 3,
-            value: "123",
+            body: "123",
           },
         },
       });
@@ -566,7 +634,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 1,
             digested: 3,
-            value: "123",
+            body: "123",
           },
         },
       });
@@ -576,7 +644,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 2,
             digested: 3,
-            value: "123",
+            body: "123",
           },
         },
       });
@@ -588,7 +656,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 5,
-            value: "123",
+            body: "123",
           },
           separators: [
             { index: 1, content: "_" },
@@ -604,7 +672,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           suffix: "n",
         },
@@ -617,7 +685,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           fraction: {
             point: {
@@ -626,7 +694,7 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -638,7 +706,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 0,
-            value: "",
+            body: "",
           },
           fraction: {
             point: {
@@ -647,7 +715,7 @@ describe("numericLiteral", () => {
             },
             index: 1,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -659,7 +727,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 5,
-            value: "123",
+            body: "123",
           },
           fraction: {
             point: {
@@ -668,7 +736,7 @@ describe("numericLiteral", () => {
             },
             index: 6,
             digested: 5,
-            value: "456",
+            body: "456",
           },
           separators: [
             { index: 1, content: "_" },
@@ -686,7 +754,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 0,
-            value: "",
+            body: "",
           },
           fraction: {
             point: {
@@ -695,7 +763,7 @@ describe("numericLiteral", () => {
             },
             index: 1,
             digested: 5,
-            value: "456",
+            body: "456",
           },
           separators: [
             { index: 2, content: "_" },
@@ -711,7 +779,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 0,
-            value: "",
+            body: "",
           },
           fraction: {
             point: {
@@ -720,10 +788,12 @@ describe("numericLiteral", () => {
             },
             index: 1,
             digested: 3,
-            value: "456",
+            body: "456",
           },
           suffix: "n",
-          bigIntWithFraction: true,
+          invalid: {
+            bigIntWithFraction: true,
+          },
         },
       });
     });
@@ -734,7 +804,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -743,7 +813,7 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -752,7 +822,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -761,7 +831,7 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -773,7 +843,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           fraction: {
             point: {
@@ -782,7 +852,7 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
           exponent: {
             indicator: {
@@ -791,7 +861,7 @@ describe("numericLiteral", () => {
             },
             index: 8,
             digested: 3,
-            value: "789",
+            body: "789",
           },
         },
       });
@@ -803,7 +873,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -812,7 +882,7 @@ describe("numericLiteral", () => {
             },
             index: 5,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -821,7 +891,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -830,7 +900,7 @@ describe("numericLiteral", () => {
             },
             index: 5,
             digested: 3,
-            value: "456",
+            body: "456",
           },
         },
       });
@@ -842,7 +912,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -851,10 +921,12 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
           suffix: "n",
-          bigIntWithExponent: true,
+          invalid: {
+            bigIntWithExponent: true,
+          },
         },
       });
     });
@@ -865,7 +937,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -874,7 +946,7 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 5,
-            value: "456",
+            body: "456",
           },
           separators: [
             { index: 5, content: "_" },
@@ -890,7 +962,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -899,9 +971,11 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 0,
-            value: "",
+            body: "",
           },
-          emptyExponent: true,
+          invalid: {
+            emptyExponent: true,
+          },
         },
       });
     });
@@ -912,9 +986,11 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 4,
-            value: "0123",
+            body: "0123",
           },
-          leadingZero: true,
+          invalid: {
+            leadingZero: true,
+          },
         },
       });
     });
@@ -925,7 +1001,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           fraction: {
             point: {
@@ -934,10 +1010,12 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
           suffix: "n",
-          bigIntWithFraction: true,
+          invalid: {
+            bigIntWithFraction: true,
+          },
         },
       });
     });
@@ -948,7 +1026,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
           exponent: {
             indicator: {
@@ -957,10 +1035,12 @@ describe("numericLiteral", () => {
             },
             index: 4,
             digested: 3,
-            value: "456",
+            body: "456",
           },
           suffix: "n",
-          bigIntWithExponent: true,
+          invalid: {
+            bigIntWithExponent: true,
+          },
         },
       });
     });
@@ -972,9 +1052,11 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 3,
-            value: "123",
+            body: "123",
           },
-          missingBoundary: true,
+          invalid: {
+            missingBoundary: true,
+          },
         },
       });
     });
@@ -986,11 +1068,13 @@ describe("numericLiteral", () => {
             integer: {
               index: 0,
               digested: 5,
-              value: "0123",
+              body: "0123",
             },
             separators: [{ index: 1, content: "_" }],
-            invalidSeparatorIndexes: [1],
-            leadingZero: true,
+            invalid: {
+              invalidSeparatorIndexes: [1],
+              leadingZero: true,
+            },
           },
         });
       });
@@ -1001,7 +1085,7 @@ describe("numericLiteral", () => {
             integer: {
               index: 0,
               digested: 3,
-              value: "1",
+              body: "1",
             },
             fraction: {
               point: {
@@ -1010,7 +1094,7 @@ describe("numericLiteral", () => {
               },
               index: 4,
               digested: 3,
-              value: "1",
+              body: "1",
             },
             exponent: {
               indicator: {
@@ -1019,7 +1103,7 @@ describe("numericLiteral", () => {
               },
               index: 8,
               digested: 3,
-              value: "1",
+              body: "1",
             },
             suffix: "n",
             separators: [
@@ -1030,9 +1114,11 @@ describe("numericLiteral", () => {
               { index: 8, content: "_" },
               { index: 10, content: "_" },
             ],
-            invalidSeparatorIndexes: [0, 2, 4, 6, 8, 10],
-            bigIntWithFraction: true,
-            bigIntWithExponent: true,
+            invalid: {
+              invalidSeparatorIndexes: [0, 2, 4, 6, 8, 10],
+              bigIntWithFraction: true,
+              bigIntWithExponent: true,
+            },
           },
         });
       });
@@ -1044,7 +1130,7 @@ describe("numericLiteral", () => {
           integer: {
             index: 0,
             digested: 7,
-            value: "123",
+            body: "123",
           },
           separators: [
             { index: 1, content: "_" },
@@ -1052,7 +1138,9 @@ describe("numericLiteral", () => {
             { index: 4, content: "_" },
             { index: 5, content: "_" },
           ],
-          consecutiveSeparatorIndexes: [2, 5],
+          invalid: {
+            consecutiveSeparatorIndexes: [2, 5],
+          },
         },
       });
     });
@@ -1062,7 +1150,9 @@ describe("numericLiteral", () => {
     describe("require boundary", () => {
       const lexer = new Lexer.Builder()
         .define({
-          number: Lexer.javascript.numericLiteral({ acceptInvalid: false }),
+          number: Lexer.javascript
+            .numericLiteral()
+            .reject(Lexer.invalidRejecter),
         })
         .build();
 
@@ -1099,10 +1189,7 @@ describe("numericLiteral", () => {
     describe("don't require boundary", () => {
       const lexer = new Lexer.Builder()
         .define({
-          number: Lexer.javascript.numericLiteral({
-            acceptInvalid: false,
-            boundary: false,
-          }),
+          number: Lexer.javascript.numericLiteral(),
         })
         .build();
 
@@ -1113,9 +1200,11 @@ describe("numericLiteral", () => {
             integer: {
               index: 0,
               digested: 3,
-              value: "123",
+              body: "123",
             },
-            missingBoundary: true,
+            invalid: {
+              missingBoundary: true,
+            },
           },
         });
       });

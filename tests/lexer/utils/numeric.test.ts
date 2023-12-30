@@ -21,7 +21,7 @@ describe("integerLiteral", () => {
     expect(token.error).toBe(undefined);
     expect(token.data.prefix).toEqual(overrides.data?.prefix ?? "");
     expect(token.data.suffix).toEqual(overrides.data?.suffix ?? "");
-    expect(token.data.value).toEqual(overrides.data?.value ?? "");
+    expect(token.data.body).toEqual(overrides.data?.body ?? "");
     expect(token.data.separators).toEqual(overrides.data?.separators ?? []);
   }
 
@@ -65,7 +65,7 @@ describe("integerLiteral", () => {
           expectAccept(lexer, "0a1", {
             data: {
               prefix: "0a",
-              value: "1",
+              body: "1",
             },
           });
         });
@@ -73,7 +73,7 @@ describe("integerLiteral", () => {
           expectAccept(lexer, "0a111", {
             data: {
               prefix: "0a",
-              value: "111",
+              body: "111",
             },
           });
         });
@@ -86,7 +86,7 @@ describe("integerLiteral", () => {
           content: "0a1",
           data: {
             prefix: "0a",
-            value: "1",
+            body: "1",
           },
         });
       });
@@ -98,7 +98,7 @@ describe("integerLiteral", () => {
           content: "0a1",
           data: {
             prefix: "0a",
-            value: "1",
+            body: "1",
           },
         });
       });
@@ -120,7 +120,7 @@ describe("integerLiteral", () => {
       expectAccept(lexer, "0a1-1", {
         data: {
           prefix: "0a",
-          value: "11",
+          body: "11",
           separators: [{ index: 3, content: "-" }],
         },
       });
@@ -130,7 +130,7 @@ describe("integerLiteral", () => {
       expectAccept(lexer, "0a1-1-1", {
         data: {
           prefix: "0a",
-          value: "111",
+          body: "111",
           separators: [
             { index: 3, content: "-" },
             { index: 5, content: "-" },
@@ -143,7 +143,7 @@ describe("integerLiteral", () => {
       expectAccept(lexer, "0a--", {
         data: {
           prefix: "0a",
-          value: "",
+          body: "",
           separators: [
             { index: 2, content: "-" },
             { index: 3, content: "-" },
@@ -168,14 +168,14 @@ describe("integerLiteral", () => {
       expectAccept(lexer, "0a1i", {
         data: {
           prefix: "0a",
-          value: "1",
+          body: "1",
           suffix: "i",
         },
       });
       expectAccept(lexer, "0a1f", {
         data: {
           prefix: "0a",
-          value: "1",
+          body: "1",
           suffix: "f",
         },
       });
@@ -194,7 +194,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0b1", {
           data: {
             prefix: "0b",
-            value: "1",
+            body: "1",
           },
         });
       });
@@ -202,7 +202,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0b101", {
           data: {
             prefix: "0b",
-            value: "101",
+            body: "101",
           },
         });
       });
@@ -211,7 +211,7 @@ describe("integerLiteral", () => {
           content: "0b1",
           data: {
             prefix: "0b",
-            value: "1",
+            body: "1",
           },
         });
       });
@@ -220,7 +220,7 @@ describe("integerLiteral", () => {
           content: "0b1",
           data: {
             prefix: "0b",
-            value: "1",
+            body: "1",
           },
         });
       });
@@ -239,7 +239,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0b1-1", {
           data: {
             prefix: "0b",
-            value: "11",
+            body: "11",
             separators: [{ index: 3, content: "-" }],
           },
         });
@@ -259,14 +259,14 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0b1i", {
           data: {
             prefix: "0b",
-            value: "1",
+            body: "1",
             suffix: "i",
           },
         });
         expectAccept(lexer, "0b1f", {
           data: {
             prefix: "0b",
-            value: "1",
+            body: "1",
             suffix: "f",
           },
         });
@@ -286,7 +286,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0o7", {
           data: {
             prefix: "0o",
-            value: "7",
+            body: "7",
           },
         });
       });
@@ -294,7 +294,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0o707", {
           data: {
             prefix: "0o",
-            value: "707",
+            body: "707",
           },
         });
       });
@@ -303,7 +303,7 @@ describe("integerLiteral", () => {
           content: "0o7",
           data: {
             prefix: "0o",
-            value: "7",
+            body: "7",
           },
         });
       });
@@ -312,7 +312,7 @@ describe("integerLiteral", () => {
           content: "0o7",
           data: {
             prefix: "0o",
-            value: "7",
+            body: "7",
           },
         });
       });
@@ -331,7 +331,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0o7-7", {
           data: {
             prefix: "0o",
-            value: "77",
+            body: "77",
             separators: [{ index: 3, content: "-" }],
           },
         });
@@ -351,14 +351,14 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0o7i", {
           data: {
             prefix: "0o",
-            value: "7",
+            body: "7",
             suffix: "i",
           },
         });
         expectAccept(lexer, "0o7f", {
           data: {
             prefix: "0o",
-            value: "7",
+            body: "7",
             suffix: "f",
           },
         });
@@ -378,7 +378,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0xF", {
           data: {
             prefix: "0x",
-            value: "F",
+            body: "F",
           },
         });
       });
@@ -386,7 +386,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0xF0F", {
           data: {
             prefix: "0x",
-            value: "F0F",
+            body: "F0F",
           },
         });
       });
@@ -395,7 +395,7 @@ describe("integerLiteral", () => {
           content: "0xF",
           data: {
             prefix: "0x",
-            value: "F",
+            body: "F",
           },
         });
       });
@@ -404,7 +404,7 @@ describe("integerLiteral", () => {
           content: "0xF",
           data: {
             prefix: "0x",
-            value: "F",
+            body: "F",
           },
         });
       });
@@ -423,7 +423,7 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0xF-F", {
           data: {
             prefix: "0x",
-            value: "FF",
+            body: "FF",
             separators: [{ index: 3, content: "-" }],
           },
         });
@@ -443,14 +443,14 @@ describe("integerLiteral", () => {
         expectAccept(lexer, "0xFi", {
           data: {
             prefix: "0x",
-            value: "F",
+            body: "F",
             suffix: "i",
           },
         });
         expectAccept(lexer, "0xFg", {
           data: {
             prefix: "0x",
-            value: "F",
+            body: "F",
             suffix: "g",
           },
         });
@@ -521,7 +521,7 @@ describe("numericLiteral", () => {
             data: {
               integer: {
                 index: 0,
-                value: "1",
+                body: "1",
                 digested: 1,
               },
             },
@@ -532,7 +532,7 @@ describe("numericLiteral", () => {
             data: {
               integer: {
                 index: 0,
-                value: "111",
+                body: "111",
                 digested: 3,
               },
             },
@@ -548,7 +548,7 @@ describe("numericLiteral", () => {
           data: {
             integer: {
               index: 0,
-              value: "1",
+              body: "1",
               digested: 1,
             },
           },
@@ -563,7 +563,7 @@ describe("numericLiteral", () => {
           data: {
             integer: {
               index: 0,
-              value: "1",
+              body: "1",
               digested: 1,
             },
           },
@@ -578,7 +578,7 @@ describe("numericLiteral", () => {
           data: {
             integer: {
               index: 0,
-              value: "1",
+              body: "1",
               digested: 1,
             },
           },
@@ -593,7 +593,7 @@ describe("numericLiteral", () => {
           data: {
             integer: {
               index: 0,
-              value: "1",
+              body: "1",
               digested: 1,
             },
           },
@@ -612,7 +612,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           fraction: {
@@ -621,7 +621,7 @@ describe("numericLiteral", () => {
               content: ",",
             },
             index: 2,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -634,7 +634,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           fraction: {
@@ -643,7 +643,7 @@ describe("numericLiteral", () => {
               content: ",",
             },
             index: 2,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -665,7 +665,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           exponent: {
@@ -674,7 +674,7 @@ describe("numericLiteral", () => {
               content: "e",
             },
             index: 2,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -687,7 +687,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           exponent: {
@@ -696,7 +696,7 @@ describe("numericLiteral", () => {
               content: "e",
             },
             index: 2,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -718,7 +718,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "11",
+            body: "11",
             digested: 3,
           },
           separators: [{ index: 1, content: "-" }],
@@ -731,7 +731,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "111",
+            body: "111",
             digested: 5,
           },
           separators: [
@@ -757,7 +757,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           suffix: "i",
@@ -767,7 +767,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
           suffix: "f",
@@ -787,7 +787,7 @@ describe("numericLiteral", () => {
           prefix: "-",
           integer: {
             index: 1,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -797,7 +797,7 @@ describe("numericLiteral", () => {
           prefix: "+",
           integer: {
             index: 1,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -806,7 +806,7 @@ describe("numericLiteral", () => {
         data: {
           integer: {
             index: 0,
-            value: "1",
+            body: "1",
             digested: 1,
           },
         },
@@ -833,7 +833,7 @@ describe("numericLiteral", () => {
           prefix: "-",
           integer: {
             index: 1,
-            value: "11",
+            body: "11",
             digested: 3,
           },
           fraction: {
@@ -842,7 +842,7 @@ describe("numericLiteral", () => {
               content: ",",
             },
             index: 5,
-            value: "11",
+            body: "11",
             digested: 3,
           },
           exponent: {
@@ -851,7 +851,7 @@ describe("numericLiteral", () => {
               content: "e",
             },
             index: 9,
-            value: "11",
+            body: "11",
             digested: 3,
           },
           suffix: "i",

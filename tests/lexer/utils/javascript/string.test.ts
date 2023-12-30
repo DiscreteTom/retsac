@@ -58,15 +58,11 @@ test("javascript evalStringContent", () => {
   ).toBe(`\0'"\n\\\r\v\t\b\f\`\x41\u1234\u{2F804}`);
 });
 
-function expectAccept<ErrorKinds extends string>(
+function expectAccept<EscapeErrorKinds extends string>(
   lexer: Lexer.Lexer<
     {
       kind: "string";
-      data: {
-        value: string;
-        unclosed: boolean;
-        escapes: Lexer.EscapeInfo<ErrorKinds>[];
-      };
+      data: Lexer.javascript.StringLiteralData<EscapeErrorKinds>;
     },
     never,
     never
@@ -75,7 +71,13 @@ function expectAccept<ErrorKinds extends string>(
   overrides?: Partial<
     Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
   > & {
-    data?: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]>;
+    data?: Partial<
+      Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+    > & {
+      invalid?: Partial<
+        NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+      >;
+    };
   },
 ) {
   const token = lexer.reset().lex(input)!;
@@ -84,18 +86,21 @@ function expectAccept<ErrorKinds extends string>(
   expect(token.error).toBe(undefined);
   expect(token.data.value).toBe(overrides?.data?.value ?? input.slice(1, -1));
   expect(token.data.escapes).toEqual(overrides?.data?.escapes ?? []);
-  expect(token.data.unclosed).toBe(overrides?.data?.unclosed ?? false);
+  if (token.data.invalid !== undefined) {
+    expect(token.data.invalid.unclosed).toBe(
+      overrides?.data?.invalid?.unclosed ?? false,
+    );
+    expect(token.data.invalid.escapes).toEqual(
+      overrides?.data?.invalid?.escapes ?? [],
+    );
+  }
 }
 
-function expectReject<ErrorKinds extends string>(
+function expectReject<EscapeErrorKinds extends string>(
   lexer: Lexer.Lexer<
     {
       kind: "string";
-      data: {
-        value: string;
-        unclosed: boolean;
-        escapes: Lexer.EscapeInfo<ErrorKinds>[];
-      };
+      data: Lexer.javascript.StringLiteralData<EscapeErrorKinds>;
     },
     never,
     never
@@ -288,6 +293,19 @@ describe("singleQuoteStringLiteral", () => {
                 error: "unnecessary",
               },
             ],
+            invalid: {
+              escapes: [
+                {
+                  starter: {
+                    index: 51,
+                    length: 1,
+                  },
+                  length: 2,
+                  value: "a",
+                  error: "unnecessary",
+                },
+              ],
+            },
           },
         },
       );
@@ -297,7 +315,9 @@ describe("singleQuoteStringLiteral", () => {
       expectAccept(lexer, `'abc`, {
         data: {
           value: "abc",
-          unclosed: true,
+          invalid: {
+            unclosed: true,
+          },
         },
       });
     });
@@ -306,9 +326,9 @@ describe("singleQuoteStringLiteral", () => {
   test("reject unclosed", () => {
     const lexer = new Lexer.Builder()
       .define({
-        string: Lexer.javascript.singleQuoteStringLiteral({
-          acceptUnclosed: false,
-        }),
+        string: Lexer.javascript
+          .singleQuoteStringLiteral()
+          .reject(Lexer.invalidRejecter),
       })
       .build();
 
@@ -332,7 +352,9 @@ describe("doubleQuoteStringLiteral", () => {
       expectAccept(lexer, `"abc`, {
         data: {
           value: "abc",
-          unclosed: true,
+          invalid: {
+            unclosed: true,
+          },
         },
       });
     });
@@ -341,9 +363,9 @@ describe("doubleQuoteStringLiteral", () => {
   test("reject unclosed", () => {
     const lexer = new Lexer.Builder()
       .define({
-        string: Lexer.javascript.singleQuoteStringLiteral({
-          acceptUnclosed: false,
-        }),
+        string: Lexer.javascript
+          .singleQuoteStringLiteral()
+          .reject(Lexer.invalidRejecter),
       })
       .build();
 
@@ -371,9 +393,9 @@ describe("simpleStringLiteral", () => {
   test("reject unclosed", () => {
     const lexer = new Lexer.Builder()
       .define({
-        string: Lexer.javascript.simpleStringLiteral({
-          acceptUnclosed: false,
-        }),
+        string: Lexer.javascript
+          .simpleStringLiteral()
+          .reject(Lexer.invalidRejecter),
       })
       .build();
 

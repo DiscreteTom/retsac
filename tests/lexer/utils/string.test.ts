@@ -1169,7 +1169,11 @@ describe("stringLiteral", () => {
 
   describe("reject unclosed", () => {
     const lexer = new Lexer.Builder()
-      .define({ string: Lexer.stringLiteral(`'`, { acceptUnclosed: false }) })
+      .define({
+        string: Lexer.stringLiteral(`'`).reject(
+          (ctx) => ctx.output.data.unclosed,
+        ),
+      })
       .build();
 
     test("unclosed string literal", () => {

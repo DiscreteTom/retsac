@@ -1,38 +1,5 @@
 import { Lexer } from "../../../src";
 
-test("lexer utils fromTo", () => {
-  const lexer = new Lexer.Builder()
-    .ignore(Lexer.whitespaces())
-    .define({
-      a: Lexer.fromTo("a", "b", { acceptEof: false }),
-      c: Lexer.fromTo("c", "d", { acceptEof: true }),
-      e: Lexer.fromTo(/e/, /f/, { acceptEof: false }),
-      g: Lexer.fromTo(/g/y, "h", { acceptEof: true, autoSticky: false }),
-      i: Lexer.fromTo("i", /j/g, { acceptEof: true, autoGlobal: false }),
-    })
-    .build();
-  expect(lexer.reset().lex("ab")?.content).toBe("ab");
-  expect(lexer.reset().lex("a   b")?.content).toBe("a   b");
-  expect(lexer.reset().lex("a ")?.content).toBe(undefined);
-  expect(lexer.reset().lex("cd")?.content).toBe("cd");
-  expect(lexer.reset().lex("c ")?.content).toBe("c ");
-  expect(lexer.reset().lex("ef")?.content).toBe("ef");
-  expect(lexer.reset().lex("e  f")?.content).toBe("e  f");
-  expect(lexer.reset().lex("e")).toBe(null);
-  expect(lexer.reset().lex("gh")?.content).toBe("gh");
-  expect(lexer.reset().lex("ij")?.content).toBe("ij");
-
-  // additional test for #6
-  expect(lexer.reset().lex("  ab")?.content).toBe("ab");
-  expect(lexer.reset().lex("  a   b")?.content).toBe("a   b");
-  expect(lexer.reset().lex("  a ")?.content).toBe(undefined);
-  expect(lexer.reset().lex("  cd")?.content).toBe("cd");
-  expect(lexer.reset().lex("  c ")?.content).toBe("c ");
-  expect(lexer.reset().lex("  ef")?.content).toBe("ef");
-  expect(lexer.reset().lex("  e  f")?.content).toBe("e  f");
-  expect(lexer.reset().lex("  e")).toBe(null);
-});
-
 test("lexer utils exact", () => {
   const lexer = new Lexer.Builder()
     .ignore(Lexer.whitespaces())
@@ -146,7 +113,7 @@ test("lexer utils comment", () => {
       comment: [
         Lexer.comment("//"),
         Lexer.comment("/*", "*/"),
-        Lexer.comment("#", "\n", { acceptEof: false }),
+        Lexer.comment("#", "\n"),
       ],
     })
     .build();
@@ -161,7 +128,6 @@ test("lexer utils comment", () => {
     `/* 123\n123 */`,
   );
   expect(lexer.reset().lex(`# 123\n123`)?.content).toBe(`# 123\n`);
-  expect(lexer.reset().lex(`# 123`)).toBe(null);
 
   // additional test for #6
   expect(lexer.reset().lex(`  123`)).toBe(null);
@@ -174,5 +140,4 @@ test("lexer utils comment", () => {
     `/* 123\n123 */`,
   );
   expect(lexer.reset().lex(`  # 123\n123`)?.content).toBe(`# 123\n`);
-  expect(lexer.reset().lex(`  # 123`)).toBe(null);
 });
