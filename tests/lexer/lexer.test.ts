@@ -1,20 +1,23 @@
 import { Lexer } from "../../src";
 import type { Token } from "../../src/lexer";
-import { Action, InvalidLengthForTakeError } from "../../src/lexer";
+import { InvalidLengthForTakeError } from "../../src/lexer";
 
 function buildLexer() {
   return new Lexer.Builder()
     .error<string>()
+    .state({ value: 0 })
     .ignore(Lexer.whitespaces())
     .define({
-      number: /[0-9]+/,
+      number: (a) => a.from(/[0-9]+/).then((ctx) => ctx.input.state.value++),
     })
     .anonymous(Lexer.exact(..."+-*/()"))
     .define({
-      someErr: Action.from(/error/).check(() => "some error"),
-      mutedErr: Action.from(/muted-error/)
-        .check(() => "muted error")
-        .mute(),
+      someErr: (a) => a.from(/error/).check(() => "some error"),
+      mutedErr: (a) =>
+        a
+          .from(/muted-error/)
+          .check(() => "muted error")
+          .mute(),
     })
     .build();
 }
@@ -29,6 +32,13 @@ test("lexer basic functions", () => {
   expect(Array.from(lexer.getTokenKinds()).sort()).toEqual(
     ["", "number", "someErr", "mutedErr"].sort(),
   );
+
+  // reset will also reset the action state
+  expect(lexer.reset().core.state.value).toBe(0);
+  lexer.lex("123");
+  expect(lexer.core.state.value).toBe(1);
+  lexer.reset();
+  expect(lexer.core.state.value).toBe(0);
 });
 
 test("lex with peek", () => {
@@ -80,6 +90,24 @@ test("lexer take", () => {
   expect(() => lexer.reset().feed("123").take(-1)).toThrow(
     InvalidLengthForTakeError,
   );
+
+  // take will reset state by default if success
+  lexer.reset().lex("123");
+  expect(lexer.core.state.value).toBe(1);
+  expect(() => lexer.take(-1)).toThrow(InvalidLengthForTakeError);
+  expect(lexer.core.state.value).toBe(1);
+  lexer.feed("123");
+  lexer.take(3);
+  expect(lexer.core.state.value).toBe(0);
+
+  // set new action state
+  lexer.reset().lex("123");
+  expect(lexer.core.state.value).toBe(1);
+  expect(() => lexer.take(-1, { value: 2 })).toThrow(InvalidLengthForTakeError);
+  expect(lexer.core.state.value).toBe(1);
+  lexer.feed("123");
+  lexer.take(3, { value: 2 });
+  expect(lexer.core.state.value).toBe(2);
 });
 
 test("lexer takeUntil", () => {
@@ -90,6 +118,24 @@ test("lexer takeUntil", () => {
   expect(lexer.reset().feed("123").takeUntil(/3/g, { autoGlobal: false })).toBe(
     "123",
   );
+
+  // takeUntil will reset state by default if success
+  lexer.reset().lex("123");
+  expect(lexer.core.state.value).toBe(1);
+  lexer.takeUntil("3");
+  expect(lexer.core.state.value).toBe(1);
+  lexer.feed("123");
+  lexer.takeUntil("3");
+  expect(lexer.core.state.value).toBe(0);
+
+  // set new action state
+  lexer.reset().lex("123");
+  expect(lexer.core.state.value).toBe(1);
+  lexer.takeUntil("3", { state: { value: 2 } });
+  expect(lexer.core.state.value).toBe(1);
+  lexer.feed("123");
+  lexer.takeUntil("3", { state: { value: 2 } });
+  expect(lexer.core.state.value).toBe(2);
 });
 
 test("number", () => {
