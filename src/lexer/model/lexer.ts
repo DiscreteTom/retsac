@@ -131,15 +131,15 @@ export interface ILexer<
    * Take `n` chars from the rest of buffer and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).
    *
-   * Remember to update the lexer's action state if you have any.
+   * By default the lexer's action state will be reset, unless you provide `state`.
    */
-  take(n?: number): string;
+  take(n?: number, state?: ActionState): string;
   /**
    * Take chars from the rest of buffer and update state until `pattern` matches.
    * The pattern will be included in the result.
    * This is useful when you have external logic to handle the token (e.g. error handling).
    *
-   * Remember to update the lexer's action state if you have any.
+   * By default the lexer's action state will be reset, unless you provide `options.state`.
    */
   takeUntil(
     pattern: string | RegExp,
@@ -149,6 +149,12 @@ export interface ILexer<
        * @default true
        */
       autoGlobal?: boolean;
+      /**
+       * If provided, the lexer's action state will be updated to this value.
+       * Otherwise the lexer's action state will be reset.
+       * @default undefined
+       */
+      state?: ActionState;
     },
   ): string;
   lex(

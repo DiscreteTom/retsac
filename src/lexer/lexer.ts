@@ -106,7 +106,7 @@ export class Lexer<
     return this;
   }
 
-  take(n = 1) {
+  take(n = 1, state?: ActionState) {
     const content = this.buffer.slice(this.digested, this.digested + n);
 
     if (n > 0) {
@@ -123,6 +123,11 @@ export class Lexer<
     } else throw new InvalidLengthForTakeError(n);
 
     this.state.take(n, content, undefined);
+
+    // update action state
+    if (state === undefined) this.core.reset();
+    else this.core.state = state;
+
     return content;
   }
 
@@ -130,6 +135,7 @@ export class Lexer<
     pattern: string | RegExp,
     options?: {
       autoGlobal?: boolean;
+      state?: ActionState;
     },
   ) {
     let regex =
@@ -163,6 +169,11 @@ export class Lexer<
       });
     }
     this.state.take(content.length, content, undefined);
+
+    // update action state
+    if (options?.state === undefined) this.core.reset();
+    else this.core.state = options.state;
+
     return content;
   }
 

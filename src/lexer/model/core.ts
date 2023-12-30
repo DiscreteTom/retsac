@@ -158,7 +158,7 @@ export interface ILexerCore<
    * Return this as a readonly lexer core.
    */
   get readonly(): IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
-  get state(): ActionState; // make the state mutable
+  state: ActionState; // make the state mutable
   /**
    * Reset the lexer core to the initial state.
    */

@@ -9,6 +9,7 @@
   - **_Breaking Change_**: rewrite `stringLiteral/numericLiteral/comment`.
     - Add `StringLiteralOptions/StringLiteralData/EscapeHandler`.
   - **_Breaking Change_**: rewrite `javascript.regexLiteral`.
+  - **_Breaking Change_**: `Lexer.take/takeUntil` will reset lexer's action state by default. [#42](https://github.com/DiscreteTom/retsac/issues/42)
   - Feat: allow multiple calls for `Builder.state` and `Builder.error`.
   - Feat: add `ITrimmedLexer/IReadonlyTrimmedLexer`.
   - Feat: `Builder.append` can accept actions with different data bindings in one call.
