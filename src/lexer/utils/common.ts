@@ -40,7 +40,8 @@ export function comment<ActionState = never, ErrorType = never>(
 
     // match end
     const rawEndIndex = input.buffer.indexOf(end, input.start);
-    const safeEndIndex = rawEndIndex < 0 ? input.buffer.length : rawEndIndex;
+    const safeEndIndex =
+      rawEndIndex < 0 ? input.buffer.length : rawEndIndex + end.length;
 
     return {
       accept: true,
