@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.16.0
+
+- Lexer
+  - Feat: add `ExtractToken`.
+
 ## v0.15.0
 
 - Lexer
