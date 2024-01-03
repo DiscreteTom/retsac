@@ -4,6 +4,8 @@
 
 - Lexer
   - Feat: add `ExtractToken`.
+- Parser
+  - **_Breaking Change_**: rewrite `ASTNode`, add `NTNode` and `TNode`.
 
 ## v0.15.0
 
