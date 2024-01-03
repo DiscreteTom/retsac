@@ -1,6 +1,22 @@
 import type { ExtractKinds, GeneralToken } from "../lexer";
 import type { StringOrLiteral } from "../helper";
-import type { ASTNode } from "./ast";
+import type { ASTNode, NTNode, TNode } from "./ast";
+
+export type ExtractASTNodeType<
+  NTs extends string,
+  ASTData,
+  ErrorType,
+  TokenType extends GeneralToken,
+  TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>,
+> = TargetKind extends NTs
+  ? // target is NT
+    NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType>
+  : TargetKind extends ExtractKinds<TokenType>
+  ? // target is T
+    TNode<TargetKind, NTs, ASTData, ErrorType, TokenType>
+  : // target is a literal or user defined name, use general ASTNode
+    // TODO: can we determine the type by the user defined name?
+    ASTNode<NTs | ExtractKinds<TokenType>, NTs, ASTData, ErrorType, TokenType>;
 
 /**
  * Select children nodes by the name.
@@ -12,18 +28,7 @@ export type ASTNodeChildrenSelector<
   TokenType extends GeneralToken,
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind, // TODO: support user defined name
-) => ASTNode<
-  // TODO: extract kind
-  TargetKind extends NTs
-    ? TargetKind // target is NT
-    : TargetKind extends ExtractKinds<TokenType>
-    ? TargetKind // target is T
-    : ExtractKinds<TokenType>, // target is a literal, use all T
-  NTs,
-  ASTData,
-  ErrorType,
-  TokenType
->[];
+) => ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>[];
 
 /**
  * Select the first matched child node by the name.
@@ -36,17 +41,7 @@ export type ASTNodeFirstMatchChildSelector<
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind,
 ) =>
-  | ASTNode<
-      TargetKind extends NTs
-        ? TargetKind // target is NT
-        : TargetKind extends ExtractKinds<TokenType>
-        ? TargetKind // target is T
-        : ExtractKinds<TokenType>, // target is a literal, use all T
-      NTs,
-      ASTData,
-      ErrorType,
-      TokenType
-    >
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>
   | undefined;
 
 /**
@@ -66,17 +61,7 @@ export type ASTNodeSelector<
     ErrorType,
     TokenType
   >[],
-) => ASTNode<
-  TargetKind extends NTs
-    ? TargetKind // target is NT
-    : TargetKind extends ExtractKinds<TokenType>
-    ? TargetKind // target is T
-    : ExtractKinds<TokenType>, // target is a literal, use all T
-  NTs,
-  ASTData,
-  ErrorType,
-  TokenType
->[];
+) => ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>[];
 
 /**
  * Select the first matched node from the given nodes by the name.
@@ -96,15 +81,5 @@ export type ASTNodeFirstMatchSelector<
     TokenType
   >[],
 ) =>
-  | ASTNode<
-      TargetKind extends NTs
-        ? TargetKind // target is NT
-        : TargetKind extends ExtractKinds<TokenType>
-        ? TargetKind // target is T
-        : ExtractKinds<TokenType>, // target is a literal, use all T
-      NTs,
-      ASTData,
-      ErrorType,
-      TokenType
-    >
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>
   | undefined;
