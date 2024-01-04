@@ -349,7 +349,10 @@ export class TNode<
 
     return `${options.initial}${
       this.kind === this.name ? kind : `${kind}@${this.name}`
-    }: ${JSON.stringify(this.text)}\n`;
+    }: ${
+      // quote text, handle escape
+      JSON.stringify(this.text)
+    }\n`;
   }
 
   toJSON(): ASTObj {
