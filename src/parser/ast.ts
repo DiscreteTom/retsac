@@ -1,7 +1,7 @@
 import type { ExtractKinds, GeneralToken } from "../lexer";
 import {
-  type ASTNodeFirstMatchChildSelector,
-  type ASTNodeChildrenSelector,
+  type NTNodeFirstMatchChildSelector,
+  type NTNodeChildrenSelector,
   type ASTNodeSelector,
   type ASTNodeFirstMatchSelector,
 } from "./selector";
@@ -174,16 +174,11 @@ export class NTNode<
   /**
    * Select the first matched child node by the name.
    */
-  readonly $: ASTNodeFirstMatchChildSelector<
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType
-  >;
+  readonly $: NTNodeFirstMatchChildSelector<NTs, ASTData, ErrorType, TokenType>;
   /**
    * Select children nodes by the name.
    */
-  readonly $$: ASTNodeChildrenSelector<NTs, ASTData, ErrorType, TokenType>;
+  readonly $$: NTNodeChildrenSelector<NTs, ASTData, ErrorType, TokenType>;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.

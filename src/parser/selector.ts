@@ -21,7 +21,7 @@ export type ExtractASTNodeType<
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeChildrenSelector<
+export type NTNodeChildrenSelector<
   NTs extends string,
   ASTData,
   ErrorType,
@@ -33,7 +33,7 @@ export type ASTNodeChildrenSelector<
 /**
  * Select the first matched child node by the name.
  */
-export type ASTNodeFirstMatchChildSelector<
+export type NTNodeFirstMatchChildSelector<
   NTs extends string,
   ASTData,
   ErrorType,
