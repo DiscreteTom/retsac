@@ -72,6 +72,11 @@ export abstract class ASTNode<
    * @default undefined
    */
   error: ErrorType | undefined;
+  /**
+   * Parent must be an NT node, or `undefined` if this node is a top level node.
+   * This is not readonly because it will be set by parent node.
+   */
+  parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType>;
 
   // should only be used by subclasses
   protected constructor(
@@ -278,11 +283,6 @@ export class TNode<
   ErrorType,
   TokenType extends GeneralToken,
 > extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType> {
-  /**
-   * Parent must be an NT node, or `undefined` if this node is a top level node.
-   * This is not readonly because it will be set by parent node.
-   */
-  parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType>;
   // TODO: remove token, #38
   token: TokenType & { kind: Kind };
 
