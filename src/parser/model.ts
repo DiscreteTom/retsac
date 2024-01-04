@@ -1,4 +1,5 @@
 import type {
+  ExtractKinds,
   GeneralToken,
   GeneralTokenDataBinding,
   ILexer,
@@ -12,7 +13,7 @@ import type { ASTNode } from "./ast";
  * If `input` is provided, it will be fed to the lexer.
  */
 export type ParseExec<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
@@ -29,14 +30,14 @@ export type ParseExec<
          */
         stopOnError?: boolean;
       },
-) => ParserOutput<Kinds, ASTData, ErrorType, TokenType>;
+) => ParserOutput<NTs, ASTData, ErrorType, TokenType>;
 
 export interface IParser<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerActionState,
+  LexerActionState, // TODO: simplify generic params to LexerType
   LexerErrorType,
 > {
   /**
@@ -77,7 +78,7 @@ export interface IParser<
    * Stop when the first entry NT is reduced and follow match(or reach EOF).
    */
   readonly parse: ParseExec<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -90,7 +91,7 @@ export interface IParser<
    * because the result will be accepted if at least one parse is successful.
    */
   readonly parseAll: ParseExec<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -99,7 +100,8 @@ export interface IParser<
    * Accumulated error AST nodes.
    */
   readonly errors: ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -109,7 +111,8 @@ export interface IParser<
    * Current AST nodes.
    */
   get buffer(): readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -121,7 +124,8 @@ export interface IParser<
   take(
     n?: number,
   ): ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
