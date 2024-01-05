@@ -4,13 +4,13 @@ import { Grammar, GrammarType } from "./grammar";
  * A set of different grammars (the name is counted).
  * This is used to manage the creation of grammars, to prevent creating the same grammar twice.
  *
- * The key of the map is the {@link Grammar.idWithName}.
+ * The key of the map is the {@link Grammar.grammarString}.
  */
 export class GrammarRepo<NTs extends string, LexerKinds extends string> {
   /**
    * Grammars.
    *
-   * {@link Grammar.idWithName} => grammar
+   * {@link Grammar.grammarString} => grammar
    */
   private gs: Map<string, Grammar<NTs | LexerKinds>>;
 
@@ -19,25 +19,29 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
   }
 
   /**
-   * Get the grammar by the id with name (see {@link Grammar.idWithName}).
+   * Get the grammar by the {@link Grammar.grammarString}.
    */
-  getById(id: string) {
-    return this.gs.get(id);
+  get(key: string) {
+    return this.gs.get(key);
   }
 
   /**
    * Get the grammar by the id with name for non-grammar objects.
    */
   match(data: Pick<Grammar<NTs | LexerKinds>, "kind" | "name" | "text">) {
-    return this.getById(Grammar.getIdWithName(data));
+    return this.get(Grammar.getGrammarString(data));
   }
 
   /**
    * Get or create a T grammar.
    */
   T(kind: LexerKinds, name: string) {
-    const id = Grammar.getIdWithName({ kind, name, text: undefined });
-    const res = this.getById(id);
+    const key = Grammar.getGrammarString({
+      kind,
+      name,
+      text: undefined,
+    });
+    const res = this.get(key);
     if (res !== undefined) return res as Grammar<LexerKinds>;
 
     const g = new Grammar<NTs | LexerKinds>({
@@ -45,10 +49,13 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
       kind,
       name,
       text: undefined,
-      idWithName: id,
-      idWithoutName: Grammar.getIdWithoutName({ kind, text: undefined }),
+      grammarString: key,
+      grammarStringNoName: Grammar.getGrammarStringNoName({
+        kind,
+        text: undefined,
+      }),
     });
-    this.gs.set(id, g);
+    this.gs.set(key, g);
 
     if (name !== kind)
       // this grammar is renamed, ensure the un-renamed grammar is created
@@ -61,8 +68,12 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
    * Get or create an NT grammar.
    */
   NT(kind: NTs, name: string) {
-    const id = Grammar.getIdWithName({ kind, name, text: undefined });
-    const res = this.getById(id);
+    const key = Grammar.getGrammarString({
+      kind,
+      name,
+      text: undefined,
+    });
+    const res = this.get(key);
     if (res !== undefined) return res as Grammar<NTs>;
 
     const g = new Grammar<NTs | LexerKinds>({
@@ -70,10 +81,13 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
       kind,
       name,
       text: undefined,
-      idWithName: id,
-      idWithoutName: Grammar.getIdWithoutName({ kind, text: undefined }),
+      grammarString: key,
+      grammarStringNoName: Grammar.getGrammarStringNoName({
+        kind,
+        text: undefined,
+      }),
     });
-    this.gs.set(id, g);
+    this.gs.set(key, g);
 
     if (name !== kind)
       // this grammar is renamed, ensure the un-renamed grammar is created
@@ -86,8 +100,8 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
    * Get or create a T grammar with text.
    */
   Literal(text: string, kind: LexerKinds, name: string) {
-    const str = Grammar.getIdWithName({ kind, name, text });
-    const res = this.getById(str);
+    const key = Grammar.getGrammarString({ kind, name, text });
+    const res = this.get(key);
     if (res !== undefined) return res as Grammar<LexerKinds>;
 
     const g = new Grammar<NTs | LexerKinds>({
@@ -95,10 +109,13 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
       kind,
       name,
       text,
-      idWithName: str,
-      idWithoutName: Grammar.getIdWithoutName({ kind, text }),
+      grammarString: key,
+      grammarStringNoName: Grammar.getGrammarStringNoName({
+        kind,
+        text,
+      }),
     });
-    this.gs.set(str, g);
+    this.gs.set(key, g);
 
     if (name !== kind)
       // this grammar is renamed, ensure the un-renamed grammar is created
@@ -121,7 +138,7 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
     data: ReturnType<GrammarRepo<Kinds, LexerKinds>["toJSON"]>,
   ) {
     const repo = new GrammarRepo<Kinds, LexerKinds>();
-    data.forEach((d) => repo.gs.set(d.idWithName, Grammar.fromJSON(d)));
+    data.forEach((d) => repo.gs.set(d.grammarString, Grammar.fromJSON(d)));
     return repo;
   }
 }

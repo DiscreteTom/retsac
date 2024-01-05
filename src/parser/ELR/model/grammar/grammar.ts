@@ -35,23 +35,26 @@ export class Grammar<AllKinds extends string> implements MockNode {
   readonly name: string;
 
   /**
-   * Unique string by the kind, name and text.
-   * This is used in {@link GrammarRepo} to track all unique grammars.
+   * Format: `kind` if not literal, else `'text'` (use single quote to reduce the length when `JSON.stringify`).
    *
-   * Can be calculated by {@link Grammar.getIdWithName}.
+   * Can be calculated by {@link Grammar.getGrammarStringNoName}.
    *
-   * This is frequently used so we will pre-calculate it.
-   */
-  readonly idWithName: string;
-  /**
-   * Unique string by the kind and text.
    * This is used in {@link GrammarSet} to compare grammars without name.
-   *
-   * Can be calculated by {@link Grammar.getIdWithoutName}.
-   *
+   * This can be used as the unique id for the grammar when the name is not required.
    * This is frequently used so we will pre-calculate it.
    */
-  readonly idWithoutName: string;
+  readonly grammarStringNoName: string;
+  /**
+   * Format: `kind@name` if not literal, else `'text'@name` (use single quote to reduce the length when `JSON.stringify`).
+   *
+   * Can be calculated by {@link Grammar.getGrammarString}.
+   *
+   * This is used to generate grammar rule string with name.
+   * This is used in {@link GrammarRepo} to track all unique grammars.
+   * This can be used as the unique id for the grammar when the name is required.
+   * This is frequently used so we will pre-calculate it.
+   */
+  readonly grammarString: string;
 
   /**
    * Only {@link GrammarRepo} should use this constructor.
@@ -59,7 +62,12 @@ export class Grammar<AllKinds extends string> implements MockNode {
   constructor(
     p: Pick<
       Grammar<AllKinds>,
-      "type" | "kind" | "name" | "text" | "idWithName" | "idWithoutName"
+      | "type"
+      | "kind"
+      | "name"
+      | "text"
+      | "grammarStringNoName"
+      | "grammarString"
     >,
   ) {
     this.type = p.type;
@@ -67,8 +75,8 @@ export class Grammar<AllKinds extends string> implements MockNode {
     this.name = p.name;
     this.text = p.text;
 
-    this.idWithName = p.idWithName;
-    this.idWithoutName = p.idWithoutName;
+    this.grammarString = p.grammarString;
+    this.grammarStringNoName = p.grammarStringNoName;
   }
 
   /**
@@ -97,62 +105,23 @@ export class Grammar<AllKinds extends string> implements MockNode {
   }
 
   /**
-   * @see {@link Grammar.idWithoutName}
+   * @see {@link Grammar.grammarStringNoName}
    */
-  static getIdWithoutName(
-    data: Pick<Grammar<string>, "kind" | "text">,
-  ): string {
-    //
+  static getGrammarStringNoName(data: Pick<Grammar<string>, "kind" | "text">) {
     return data.text !== undefined
-      ? // text exists, we can use the text content as the id without the kind
-        // because same text must have the same kind. // TODO: why?
-        // | kind | text | idWithoutName |
-        // | ---- | ---- | ------------- |
-        // | same | same | same          |
-        // | same | diff | diff          |
-        // | diff | same | won't happen  |
-        // | diff | diff | diff          |
-        //
-        // use one quote to reduce the length
-        // use single quote to prevent escape in json to reduce the length
-        `'${data.text}`
-      : // else, there is no text, use the kind as the id
-        data.kind;
+      ? `'${JSON.stringify(data.text).slice(1, -1)}'` // quote text, escape literal
+      : data.kind;
   }
 
   /**
-   * @see {@link Grammar.idWithName}
+   * @see {@link Grammar.grammarString}
    */
-  static getIdWithName(data: Pick<Grammar<string>, "kind" | "name" | "text">) {
+  static getGrammarString(
+    data: Pick<Grammar<string>, "kind" | "name" | "text">,
+  ) {
     return (
-      // if name is the same as kind, don't include name to reduce the length
-      (data.name === data.kind ? "" : data.name + "@") +
-      // put name before idWithoutName to prevent there is '@' in the text content
-      Grammar.getIdWithoutName(data)
-    );
-  }
-
-  /**
-   * Format: `kind` if not literal, else `"text"`.
-   *
-   * This is not pre-calculated because it's only used in debug and error output.
-   */
-  toGrammarStringWithoutName() {
-    return this.text !== undefined
-      ? JSON.stringify(this.text) // quote text, escape literal
-      : this.kind;
-  }
-
-  /**
-   * Format: `kind@name` if not literal, else `"text"@name`.
-   * This is used to generate grammar rule string with name.
-   *
-   * This is not pre-calculated because it's only used in debug and error output.
-   */
-  toGrammarStringWithName() {
-    return (
-      this.toGrammarStringWithoutName() +
-      (this.name === this.kind ? "" : "@" + this.name)
+      Grammar.getGrammarStringNoName(data) +
+      (data.name === data.kind ? "" : "@" + data.name)
     );
   }
 
@@ -162,8 +131,8 @@ export class Grammar<AllKinds extends string> implements MockNode {
       kind: this.kind,
       name: this.name,
       text: this.text,
-      idWithName: this.idWithName,
-      idWithoutName: this.idWithoutName,
+      grammarString: this.grammarString,
+      grammarStringNoName: this.grammarStringNoName,
     };
   }
 
@@ -175,8 +144,8 @@ export class Grammar<AllKinds extends string> implements MockNode {
       kind: data.kind,
       name: data.name,
       text: data.text,
-      idWithName: data.idWithName,
-      idWithoutName: data.idWithoutName,
+      grammarString: data.grammarString,
+      grammarStringNoName: data.grammarStringNoName,
     });
   }
 }

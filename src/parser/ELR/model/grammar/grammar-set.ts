@@ -6,19 +6,19 @@ import type { GrammarRepo } from "./grammar-repo";
  * This is used when the name of grammar is NOT needed.
  * E.g. DFA first/follow sets.
  *
- * The key of this map is {@link Grammar.idWithoutName}.
+ * The key of this map is {@link Grammar.grammarStringNoName}.
  */
 export class GrammarSet<NTs extends string, LexerKinds extends string> {
   /**
    * Grammars.
    *
-   * {@link Grammar.idWithoutName} => grammar
+   * {@link Grammar.grammarStringNoName} => grammar
    */
   private gs: Map<string, Grammar<NTs | LexerKinds>>;
 
   constructor(gs: Grammar<NTs | LexerKinds>[] = []) {
     this.gs = new Map();
-    gs.forEach((g) => this.gs.set(g.idWithoutName, g));
+    gs.forEach((g) => this.gs.set(g.grammarStringNoName, g));
   }
 
   get grammars() {
@@ -31,12 +31,12 @@ export class GrammarSet<NTs extends string, LexerKinds extends string> {
    */
   add(g: Grammar<NTs | LexerKinds>) {
     if (this.has(g)) return false;
-    this.gs.set(g.idWithoutName, g);
+    this.gs.set(g.grammarStringNoName, g);
     return true;
   }
 
   has(g: Grammar<NTs | LexerKinds>) {
-    return this.gs.has(g.idWithoutName);
+    return this.gs.has(g.grammarStringNoName);
   }
 
   map<T>(callback: (g: Readonly<Grammar<NTs | LexerKinds>>) => T) {
@@ -72,13 +72,13 @@ export class GrammarSet<NTs extends string, LexerKinds extends string> {
   }
 
   toJSON() {
-    return this.map((g) => g.idWithName);
+    return this.map((g) => g.grammarString);
   }
 
   static fromJSON<Kinds extends string, LexerKinds extends string>(
     data: ReturnType<GrammarSet<Kinds, LexerKinds>["toJSON"]>,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
-    return new GrammarSet(data.map((s) => repo.getById(s)!));
+    return new GrammarSet(data.map((s) => repo.get(s)!));
   }
 }
