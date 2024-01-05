@@ -27,7 +27,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
    * The literal value if this is a T and require the text to match, without quote.
    * @default undefined
    */
-  readonly text?: string;
+  readonly text: string | undefined;
   /**
    * The name of the grammar.
    * By default it's the same as the {@link Grammar.kind kind} name.
