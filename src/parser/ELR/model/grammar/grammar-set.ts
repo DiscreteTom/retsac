@@ -1,4 +1,3 @@
-import type { ASTNode } from "../../../ast";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 
@@ -6,54 +5,55 @@ import type { GrammarRepo } from "./grammar-repo";
  * A set of different grammars, ignore the name.
  * This is used when the name of grammar is NOT needed.
  * E.g. DFA first/follow sets.
+ *
+ * The key of this map is {@link Grammar.idWithoutName}.
  */
-export class GrammarSet<Kinds extends string, LexerKinds extends string> {
+export class GrammarSet<NTs extends string, LexerKinds extends string> {
   /**
-   * Grammars. {@link Grammar.strWithoutName} => grammar
+   * Grammars.
+   *
+   * {@link Grammar.idWithoutName} => grammar
    */
-  private gs: Map<string, Grammar<Kinds | LexerKinds>>;
+  private gs: Map<string, Grammar<NTs | LexerKinds>>;
 
-  constructor(gs: Grammar<Kinds | LexerKinds>[] = []) {
+  constructor(gs: Grammar<NTs | LexerKinds>[] = []) {
     this.gs = new Map();
-    gs.forEach((g) => this.gs.set(g.strWithoutName.value, g));
+    gs.forEach((g) => this.gs.set(g.idWithoutName, g));
   }
 
   get grammars() {
-    return this.gs as ReadonlyMap<string, Grammar<Kinds | LexerKinds>>;
+    // make this readonly
+    return this.gs as ReadonlyMap<string, Grammar<NTs | LexerKinds>>;
   }
 
   /**
-   * Return `true` if successfully added(g is not in this before), else `false`.
+   * Return `true` if successfully added(`g` is not in this before), else `false`.
    */
-  add(g: Grammar<Kinds | LexerKinds>) {
+  add(g: Grammar<NTs | LexerKinds>) {
     if (this.has(g)) return false;
-    this.gs.set(g.strWithoutName.value, g);
+    this.gs.set(g.idWithoutName, g);
     return true;
   }
 
-  has(
-    g:
-      | Readonly<Grammar<Kinds | LexerKinds>>
-      | Readonly<ASTNode<never, never, never, never>>,
-  ) {
-    return this.gs.has(g.strWithoutName.value); // Grammar & ASTNode has the same string format
+  has(g: Grammar<NTs | LexerKinds>) {
+    return this.gs.has(g.idWithoutName);
   }
 
-  map<T>(callback: (g: Grammar<Kinds | LexerKinds>) => T) {
+  map<T>(callback: (g: Readonly<Grammar<NTs | LexerKinds>>) => T) {
     const res = [] as T[];
     this.gs.forEach((g) => res.push(callback(g)));
     return res;
   }
 
-  some(callback: (g: Grammar<Kinds | LexerKinds>) => boolean) {
+  some(callback: (g: Readonly<Grammar<NTs | LexerKinds>>) => boolean) {
     for (const g of this.gs.values()) {
       if (callback(g)) return true;
     }
     return false;
   }
 
-  filter(callback: (g: Grammar<Kinds | LexerKinds>) => boolean) {
-    const res = [] as Grammar<Kinds | LexerKinds>[];
+  filter(callback: (g: Readonly<Grammar<NTs | LexerKinds>>) => boolean) {
+    const res = [] as Grammar<NTs | LexerKinds>[];
     this.gs.forEach((g) => {
       if (callback(g)) res.push(g);
     });
@@ -63,22 +63,22 @@ export class GrammarSet<Kinds extends string, LexerKinds extends string> {
   /**
    * Return a list of grammars that in both `this` and `gs`.
    */
-  overlap(gs: Readonly<GrammarSet<Kinds, LexerKinds>>) {
-    const result = [] as Grammar<Kinds | LexerKinds>[];
+  overlap(gs: Readonly<GrammarSet<NTs, LexerKinds>>) {
+    const result = [] as Grammar<NTs | LexerKinds>[];
     this.gs.forEach((g) => {
       if (gs.has(g)) result.push(g);
     });
     return new GrammarSet(result);
   }
 
-  toSerializable(repo: GrammarRepo<Kinds, LexerKinds>) {
-    return this.map((g) => repo.getKey(g));
+  toJSON() {
+    return this.map((g) => g.idWithName);
   }
 
   static fromJSON<Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarSet<Kinds, LexerKinds>["toSerializable"]>,
+    data: ReturnType<GrammarSet<Kinds, LexerKinds>["toJSON"]>,
     repo: GrammarRepo<Kinds, LexerKinds>,
   ) {
-    return new GrammarSet(data.map((s) => repo.getByString(s)!));
+    return new GrammarSet(data.map((s) => repo.getById(s)!));
   }
 }
