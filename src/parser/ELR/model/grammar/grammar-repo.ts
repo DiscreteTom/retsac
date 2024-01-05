@@ -107,8 +107,14 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
     return g as Grammar<LexerKinds>;
   }
 
+  map<T>(callback: (g: Readonly<Grammar<NTs | LexerKinds>>) => T) {
+    const res = [] as T[];
+    this.gs.forEach((g) => res.push(callback(g)));
+    return res;
+  }
+
   toJSON() {
-    return [...this.gs.values()].map((g) => g.toJSON());
+    return this.map((g) => g.toJSON());
   }
 
   static fromJSON<Kinds extends string, LexerKinds extends string>(
