@@ -84,6 +84,8 @@ export class Grammar<AllKinds extends string> implements MockNode {
 
   /**
    * For debug output.
+   *
+   * Format: `Grammar({ type, kind, name, text })`.
    */
   toString() {
     return `Grammar(${JSON.stringify({
@@ -135,8 +137,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
    *
    * This is not pre-calculated because it's only used in debug and error output.
    */
-  // TODO: what's the usage?
-  getGrammarStrWithoutName() {
+  toGrammarStringWithoutName() {
     return this.text !== undefined
       ? JSON.stringify(this.text) // quote text, escape literal
       : this.kind;
@@ -148,9 +149,9 @@ export class Grammar<AllKinds extends string> implements MockNode {
    *
    * This is not pre-calculated because it's only used in debug and error output.
    */
-  grammarStrWithName() {
+  toGrammarStringWithName() {
     return (
-      this.getGrammarStrWithoutName() +
+      this.toGrammarStringWithoutName() +
       (this.name === this.kind ? "" : "@" + this.name)
     );
   }
