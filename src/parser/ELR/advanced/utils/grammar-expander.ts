@@ -7,7 +7,7 @@ import { grammarParserFactory, entry } from "./grammar-parser-factory";
 import { data } from "./serialized-grammar-parser-data";
 
 export class GrammarExpander<
-  Kinds extends string,
+  NTs extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
@@ -39,7 +39,7 @@ export class GrammarExpander<
 
   expand<ASTData, ErrorType>(
     s: string,
-    NT: Kinds,
+    NT: NTs,
     debug: boolean,
     logger: Logger,
     /**
@@ -48,12 +48,12 @@ export class GrammarExpander<
     resolve: boolean,
   ) {
     const result = {
-      defs: [] as Definition<Kinds>[],
+      defs: [] as Definition<NTs>[],
       rs: [] as {
-        reducerRule: Definition<Kinds>;
-        anotherRule: Definition<Kinds>;
+        reducerRule: Definition<NTs>;
+        anotherRule: Definition<NTs>;
         options: RS_ResolverOptions<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -69,7 +69,7 @@ export class GrammarExpander<
 
     const expanded = res.buffer[0].traverse()!;
 
-    const resultDef: Definition<Kinds> = {};
+    const resultDef: Definition<NTs> = {};
     resultDef[NT] = expanded;
     if (debug) {
       const info = {
@@ -101,8 +101,8 @@ export class GrammarExpander<
           // this should ensure all RS conflicts are resolved
 
           result.rs.push({
-            reducerRule: { [NT]: reducerRule } as Definition<Kinds>,
-            anotherRule: { [NT]: anotherRule } as Definition<Kinds>,
+            reducerRule: { [NT]: reducerRule } as Definition<NTs>,
+            anotherRule: { [NT]: anotherRule } as Definition<NTs>,
             // we want the `+*?` to be greedy
             // so the shorter rule (reducer rule) should be rejected
             options: { next: "*", accept: false },
@@ -143,12 +143,12 @@ export class GrammarExpander<
     logger: Logger,
   ) {
     const result = {
-      defs: [] as Definition<Kinds>[],
+      defs: [] as Definition<NTs>[],
       rs: [] as {
-        reducerRule: Definition<Kinds>;
-        anotherRule: Definition<Kinds>;
+        reducerRule: Definition<NTs>;
+        anotherRule: Definition<NTs>;
         options: RS_ResolverOptions<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -161,12 +161,12 @@ export class GrammarExpander<
     this.placeholderMap.p2g.forEach((gs, p) => {
       const gr = gs.map((s) => `${s} | ${s} ${p}`).join(" | ");
 
-      result.defs.push({ [p]: gr } as Definition<Kinds>);
+      result.defs.push({ [p]: gr } as Definition<NTs>);
       // the gr will introduce an RS conflict, so we need to resolve it
       result.rs.push(
         ...gs.map((s) => ({
-          reducerRule: { [p]: `${s}` } as Definition<Kinds>,
-          anotherRule: { [p]: `${s} ${p}` } as Definition<Kinds>,
+          reducerRule: { [p]: `${s}` } as Definition<NTs>,
+          anotherRule: { [p]: `${s} ${p}` } as Definition<NTs>,
           // we want the `+*?` to be greedy
           options: { next: "*" as const, accept: false },
         })),

@@ -13,7 +13,7 @@ import { InvalidPlaceholderFollowError } from "./error";
 import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
-    Kinds extends string = never,
+    NTs extends string = never,
     ASTData = never,
     ErrorType = never,
     LexerDataBindings extends GeneralTokenDataBinding = never,
@@ -21,7 +21,7 @@ export class AdvancedBuilder<
     LexerErrorType = never,
   >
   extends ParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -30,7 +30,7 @@ export class AdvancedBuilder<
   >
   implements
     IParserBuilder<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -39,7 +39,7 @@ export class AdvancedBuilder<
     >
 {
   private readonly expander: GrammarExpander<
-    Kinds,
+    NTs,
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
@@ -55,7 +55,7 @@ export class AdvancedBuilder<
     const prefix = options?.prefix ?? `__`;
     super({ cascadeQueryPrefix: prefix });
     this.expander = new GrammarExpander<
-      Kinds,
+      NTs,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
@@ -65,7 +65,7 @@ export class AdvancedBuilder<
   }
 
   private expand(
-    d: Definition<Kinds>,
+    d: Definition<NTs>,
     debug: boolean,
     logger: Logger,
     /**
@@ -74,12 +74,12 @@ export class AdvancedBuilder<
     resolve: boolean,
   ) {
     const res = [] as {
-      defs: Definition<Kinds>[];
+      defs: Definition<NTs>[];
       rs: {
-        reducerRule: Definition<Kinds>;
-        anotherRule: Definition<Kinds>;
+        reducerRule: Definition<NTs>;
+        anotherRule: Definition<NTs>;
         options: RS_ResolverOptions<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -104,7 +104,7 @@ export class AdvancedBuilder<
     return res;
   }
 
-  build(options: BuildOptions<Kinds, LexerDataBindings>) {
+  build(options: BuildOptions<NTs, LexerDataBindings>) {
     // if hydrate, just call super.build()
     // since all data needed for build is in super.data & serialized data
     if (options.hydrate !== undefined) return super.build(options);
@@ -117,7 +117,7 @@ export class AdvancedBuilder<
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     }).lexer(this._lexer) as unknown as ParserBuilder<
       // TODO: better typing?
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -127,7 +127,7 @@ export class AdvancedBuilder<
 
     // expand definitions in data
     const toBeLoaded = [] as ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -139,7 +139,7 @@ export class AdvancedBuilder<
         // first, expand another rules in ctx.resolvers if exists
         const ctx = ctxBuilder?.build();
         const expandedCtxBuilder = new DefinitionContextBuilder<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -190,7 +190,7 @@ export class AdvancedBuilder<
             toBeLoaded.push({
               defs: r.reducerRule,
               ctxBuilder: new DefinitionContextBuilder<
-                Kinds,
+                NTs,
                 ASTData,
                 ErrorType,
                 LexerDataBindings,
@@ -244,8 +244,8 @@ export class AdvancedBuilder<
         // because the presumption of the generated resolver is that the overlap is empty
         // otherwise the LR(1) peek will fail
         const overlap = res.parser.dfa.followSets
-          .get(p as Kinds)!
-          .overlap(res.parser.dfa.firstSets.get(p as Kinds)!);
+          .get(p as NTs)!
+          .overlap(res.parser.dfa.firstSets.get(p as NTs)!);
 
         if (overlap.grammars.size > 0) {
           const e = new InvalidPlaceholderFollowError(p, g, overlap);

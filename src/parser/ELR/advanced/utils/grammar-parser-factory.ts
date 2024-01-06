@@ -58,13 +58,15 @@ export function grammarParserFactory(placeholderPrefix: string) {
     .define(
       { gr: `grammar | literal` },
       // return the matched token text as a list
-      (d) => d.traverser(({ children }) => [children[0].text!]),
+      (d) => d.traverser(({ children }) => [children[0].asT().text!]),
     )
     .define(
       { gr: `grammar rename | literal rename` },
       // just keep the format, but return as a list
       (d) =>
-        d.traverser(({ children }) => [children[0].text! + children[1].text!]),
+        d.traverser(({ children }) => [
+          children[0].asT().text! + children[1].asT().text!,
+        ]),
     )
     .define({ gr: `'(' gr ')'` }, (d) =>
       d.traverser(({ children }) => [...children[1].traverse()!]),

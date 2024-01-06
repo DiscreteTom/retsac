@@ -1,4 +1,4 @@
-import type { GrammarSet } from "../model";
+import { Grammar, type GrammarSet } from "../model";
 
 export type LR_AdvancedBuilderErrorType =
   | "INVALID_GRAMMAR_RULE"
@@ -27,18 +27,18 @@ export class InvalidGrammarRuleError extends LR_AdvancedBuilderError {
 }
 
 export class InvalidPlaceholderFollowError<
-  Kinds extends string,
+  NTs extends string,
   LexerKinds extends string,
 > extends LR_AdvancedBuilderError {
   constructor(
     public placeholderNT: string,
     public grammarSnippet: string,
-    public follows: GrammarSet<Kinds, LexerKinds>,
+    public follows: GrammarSet<NTs, LexerKinds>,
   ) {
     super(
       "INVALID_PLACEHOLDER_FOLLOW",
       `Placeholder rule { ${placeholderNT} := \`${grammarSnippet}\` } has invalid follow: ${follows
-        .map((g) => g.grammarStrWithoutName.value)
+        .map((g) => Grammar.getGrammarStringNoName(g))
         .join(
           ", ",
         )}. You can modify your grammar rule to fix this. See https://github.com/DiscreteTom/retsac/issues/22 for more details.`,
