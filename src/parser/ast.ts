@@ -96,16 +96,6 @@ export abstract class ASTNode<
   }
 
   /**
-   * A type guard for checking the kind of this node.
-   */
-  is<TargetKind extends Kind>(
-    kind: TargetKind,
-  ): this is ASTNode<TargetKind, NTs, ASTData, ErrorType, TokenType> {
-    // TODO: make the return type more accurate
-    return this.kind === kind;
-  }
-
-  /**
    * Use the traverser to calculate data and return the data.
    */
   // TODO: add a parameter as the traverse context
@@ -161,8 +151,60 @@ export abstract class ASTNode<
    */
   abstract toJSON(): ASTObj;
 
+  /**
+   * A type guard for checking the kind of this node.
+   */
+  is<TargetKind extends Kind>(
+    kind: TargetKind,
+  ): this is ASTNode<TargetKind, NTs, ASTData, ErrorType, TokenType> {
+    // TODO: make the return type more accurate
+    return this.kind === kind;
+  }
+
+  /**
+   * A type guard for checking whether this node is a T node.
+   */
+  isT(): this is TNode<
+    Kind & ExtractKinds<TokenType>,
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType
+  > {
+    return this instanceof TNode; // TODO: is this the fastest way? maybe `'$' in this`?
+  }
+
+  /**
+   * A type guard for checking whether this node is an NT node.
+   */
   isNT(): this is NTNode<Kind & NTs, NTs, ASTData, ErrorType, TokenType> {
     return this instanceof NTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+  }
+
+  /**
+   * Cast this node to a T node. No type check.
+   */
+  asT() {
+    return this as unknown as TNode<
+      Kind & ExtractKinds<TokenType>,
+      NTs,
+      ASTData,
+      ErrorType,
+      TokenType
+    >;
+  }
+
+  /**
+   * Cast this node to an NT node. No type check.
+   */
+  asNT() {
+    return this as unknown as NTNode<
+      Kind & NTs,
+      NTs,
+      ASTData,
+      ErrorType,
+      TokenType
+    >;
   }
 }
 
