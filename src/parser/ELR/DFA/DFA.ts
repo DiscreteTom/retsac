@@ -30,7 +30,7 @@ import {
  * DFA for ELR parsers. Stateless.
  */
 export class DFA<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -39,16 +39,16 @@ export class DFA<
 > {
   constructor(
     readonly grammarRules: ReadonlyGrammarRuleRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    private readonly entryNTs: ReadonlySet<Kinds>,
+    private readonly entryNTs: ReadonlySet<NTs>,
     private readonly entryState: State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -56,7 +56,7 @@ export class DFA<
       LexerErrorType
     >,
     private readonly NTClosures: ReadonlyNTClosures<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -64,15 +64,15 @@ export class DFA<
       LexerErrorType
     >,
     public readonly firstSets: ReadonlyFirstSets<
-      Kinds,
+      NTs,
       ExtractKinds<LexerDataBindings>
     >,
     public readonly followSets: ReadonlyFollowSets<
-      Kinds,
+      NTs,
       ExtractKinds<LexerDataBindings>
     >,
     private readonly candidates: ReadonlyCandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -80,15 +80,15 @@ export class DFA<
       LexerErrorType
     >,
     readonly states: ReadonlyStateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    readonly grammars: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-    readonly NTs: ReadonlySet<Kinds>,
+    readonly grammars: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
+    readonly NTs: ReadonlySet<NTs>,
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
@@ -99,14 +99,15 @@ export class DFA<
    */
   parse(
     buffer: readonly ASTNode<
-      Kinds,
+      NTs | ExtractKinds<LexerDataBindings>,
+      NTs,
       ASTData,
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
     reLexStack: ReActionState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -114,7 +115,7 @@ export class DFA<
       LexerErrorType
     >[],
     rollbackStack: RollbackState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -128,7 +129,7 @@ export class DFA<
     logger: Logger,
   ): {
     output: ParserOutput<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
@@ -160,7 +161,7 @@ export class DFA<
    */
   private _reLex(
     parsingState: ParsingState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -168,7 +169,7 @@ export class DFA<
       LexerErrorType
     >,
     reLexStack: ReActionState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -176,7 +177,7 @@ export class DFA<
       LexerErrorType
     >[],
     rollbackStack: RollbackState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -225,7 +226,7 @@ export class DFA<
 
   private _parse(
     parsingState: ParsingState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -233,7 +234,7 @@ export class DFA<
       LexerErrorType
     >,
     reLexStack: ReActionState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -241,7 +242,7 @@ export class DFA<
       LexerErrorType
     >[],
     rollbackStack: RollbackState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -295,7 +296,7 @@ export class DFA<
       for (let i = 0; i < reduced; ++i) parsingState.stateStack.pop(); // remove the reduced states
       // if a top-level NT is reduced to the head of the buffer, should return
       if (
-        this.entryNTs.has(parsingState.buffer[0].kind as Kinds) &&
+        this.entryNTs.has(parsingState.buffer[0].kind as NTs) &&
         parsingState.index === 0
       )
         return {
@@ -329,7 +330,7 @@ export class DFA<
    */
   private tryLex(
     parsingState: ParsingState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -337,7 +338,7 @@ export class DFA<
       LexerErrorType
     >,
     reLexStack: ReActionState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -345,7 +346,7 @@ export class DFA<
       LexerErrorType
     >[],
     rollbackStack: RollbackState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -402,7 +403,7 @@ export class DFA<
         if (debug) {
           if (res.length > 1) {
             const info = {
-              others: res.slice(1).map((r) => r.node.strWithoutName.value),
+              others: res.slice(1).map((r) => r.node.toString()),
             };
             logger.log({
               entity: "Parser",
@@ -438,7 +439,7 @@ export class DFA<
 
   private tryReduce(
     parsingState: ParsingState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -446,7 +447,7 @@ export class DFA<
       LexerErrorType
     >,
     reLexStack: ReActionState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -454,7 +455,7 @@ export class DFA<
       LexerErrorType
     >[],
     rollbackStack: RollbackState<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -523,22 +524,15 @@ export class DFA<
       NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],
       grammars: this.grammars.toJSON(),
-      grammarRules: this.grammarRules.toSerializable(this.grammars),
-      candidates: this.candidates.toSerializable(
-        this.grammarRules,
-        this.grammars,
-      ),
-      states: this.states.toSerializable(this.candidates, this.grammars),
-      entryState: this.states.getKey(this.entryState),
+      grammarRules: this.grammarRules.toJSON(),
+      candidates: this.candidates.toJSON(),
+      states: this.states.toJSON(),
+      entryState: this.entryState.id,
       NTClosures: stringMap2serializable(this.NTClosures, (grs) =>
-        grs.map((gr) => this.grammarRules.getKey(gr)),
+        grs.map((gr) => gr.id),
       ),
-      firstSets: stringMap2serializable(this.firstSets, (v) =>
-        v.toSerializable(this.grammars),
-      ),
-      followSets: stringMap2serializable(this.followSets, (v) =>
-        v.toSerializable(this.grammars),
-      ),
+      firstSets: stringMap2serializable(this.firstSets, (v) => v.toJSON()),
+      followSets: stringMap2serializable(this.followSets, (v) => v.toJSON()),
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     };
   }
@@ -597,9 +591,9 @@ export class DFA<
       GrammarSet.fromJSON(v, grammars),
     ) as ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>;
     const NTClosures = serializable2map(data.NTClosures, (v) =>
-      v.map((s) => grs.getByString(s)!),
+      v.map((s) => grs.get(s)!),
     );
-    const entryState = states.getByString(data.entryState)!;
+    const entryState = states.get(data.entryState)!;
     return new DFA(
       grs,
       new Set(data.entryNTs),
@@ -634,7 +628,7 @@ export class DFA<
     const res = [
       `stateDiagram-v2`,
       "direction LR",
-      `[*] --> ${hashStr(this.entryState.str)}`, // entry state
+      `[*] --> ${hashStr(this.entryState.id)}`, // entry state
     ];
 
     // push states & transitions
