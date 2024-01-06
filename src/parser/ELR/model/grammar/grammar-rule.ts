@@ -1,7 +1,12 @@
 import type { NTNodeTraverser } from "../../../traverser";
-import type { Conflict, ResolvedConflict } from "../conflict";
+import type {
+  Conflict,
+  ConflictType,
+  ResolvedConflict,
+  ResolverHydrationId,
+} from "../conflict";
 import type { Callback, Condition } from "../context";
-import type { Grammar } from "./grammar";
+import type { Grammar, GrammarString } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 import type { ReadonlyGrammarRuleRepo } from "./grammar-rule-repo";
 import { GrammarSet } from "./grammar-set";
@@ -210,7 +215,28 @@ export class GrammarRule<
       .join(" ")}\` }`;
   }
 
-  toJSON() {
+  toJSON(): {
+    // TODO: remove the return type. currently removing this will cause a type error when running with ts-node
+    NT: NT;
+    rule: GrammarString[];
+    conflicts: {
+      type: ConflictType;
+      anotherRule: GrammarRuleID;
+      next: GrammarString[];
+      handleEnd: boolean;
+      resolvers: number[];
+    }[];
+    resolved: {
+      type: ConflictType;
+      anotherRule: GrammarRuleID;
+      handleEnd: boolean;
+      next: GrammarString[] | "*";
+      accepter: boolean | undefined;
+      hydrationId: Readonly<ResolverHydrationId> | undefined;
+    }[];
+    id: GrammarRuleID;
+    hydrationId: number;
+  } {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => g.grammarString),
