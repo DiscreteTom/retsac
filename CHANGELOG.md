@@ -7,6 +7,7 @@
 - Parser
   - **_Breaking Change_**: rewrite `ASTNode`, add `NTNode` and `TNode`.
     - Rewrite selectors and traversers.
+- Perf: prevent unnecessary calculation.
 
 ## v0.15.0
 
