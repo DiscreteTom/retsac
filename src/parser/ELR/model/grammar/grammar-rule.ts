@@ -161,14 +161,14 @@ export class GrammarRule<
     this.conflicts = [];
     this.resolved = [];
 
-    this.id = p.id ?? GrammarRule.getId(p);
+    this.id = p.id ?? GrammarRule.generateId(p);
     this.hydrationId = p.hydrationId;
   }
 
   /**
    * @see {@link GrammarRule.id}.
    */
-  static getId(
+  static generateId(
     data: Readonly<{ NT: string; rule: readonly { grammarString: string }[] }>,
   ) {
     return `${data.NT}:${data.rule.map((g) => g.grammarString).join(",")}`;
@@ -180,10 +180,10 @@ export class GrammarRule<
    * Format: `GrammarRule({ NT, rule })`.
    */
   toString() {
-    // don't use JSON.stringify, because grammar's grammar string is already human-readable and stringify-ed
-    return `GrammarRule({ NT: ${this.NT}, rule: [${this.rule
-      .map((g) => g.grammarString)
-      .join(", ")}] })`;
+    return `GrammarRule(${JSON.stringify({
+      NT: this.NT,
+      rule: this.rule.map((g) => g.grammarString),
+    })})`;
   }
 
   /**
