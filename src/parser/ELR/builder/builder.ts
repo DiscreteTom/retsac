@@ -98,8 +98,8 @@ export class ParserBuilder<
     LexerActionState,
     LexerErrorType
   >;
-  private _global: Global;
-  private globalCloner: (g: Global) => Global;
+  protected _global: Global;
+  protected globalCloner: (g: Global) => Global;
 
   constructor(options?: {
     /**
