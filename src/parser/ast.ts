@@ -160,6 +160,10 @@ export abstract class ASTNode<
    * Return an ASTObj for serialization.
    */
   abstract toJSON(): ASTObj;
+
+  isNT(): this is NTNode<Kind & NTs, NTs, ASTData, ErrorType, TokenType> {
+    return this instanceof NTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+  }
 }
 
 export class NTNode<
