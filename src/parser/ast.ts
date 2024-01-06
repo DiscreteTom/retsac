@@ -42,13 +42,13 @@ export type ASTObj = {
   children: ASTObj[];
 };
 
-// TODO: add TraverseContext as a generic type parameter
 export abstract class ASTNode<
   Kind extends NTs | ExtractKinds<TokenType>, // the kind name of this node
   NTs extends string, // all NTs' kind names
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > {
   /**
    * By default, this is the same as the kind name.
@@ -76,12 +76,16 @@ export abstract class ASTNode<
    * Parent must be an NT node, or `undefined` if this node is a top level node.
    * This is not readonly because it will be set by parent node.
    */
-  parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType>;
+  parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType, Global>;
+  /**
+   * Global data, shared by all nodes.
+   */
+  global: Global;
 
   // should only be used by subclasses
   protected constructor(
     p: Pick<
-      ASTNode<Kind, NTs, ASTData, ErrorType, TokenType>,
+      ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
       "kind" | "start" | "data" | "error"
     >,
   ) {
@@ -156,7 +160,7 @@ export abstract class ASTNode<
    */
   is<TargetKind extends Kind>(
     kind: TargetKind,
-  ): this is ASTNode<TargetKind, NTs, ASTData, ErrorType, TokenType> {
+  ): this is ASTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global> {
     // TODO: make the return type more accurate
     return this.kind === kind;
   }
@@ -169,7 +173,8 @@ export abstract class ASTNode<
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   > {
     return this instanceof TNode; // TODO: is this the fastest way? maybe `'$' in this`?
   }
@@ -177,7 +182,14 @@ export abstract class ASTNode<
   /**
    * A type guard for checking whether this node is an NT node.
    */
-  isNT(): this is NTNode<Kind & NTs, NTs, ASTData, ErrorType, TokenType> {
+  isNT(): this is NTNode<
+    Kind & NTs,
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  > {
     return this instanceof NTNode; // TODO: is this the fastest way? maybe `'$' in this`?
   }
 
@@ -190,7 +202,8 @@ export abstract class ASTNode<
       NTs,
       ASTData,
       ErrorType,
-      TokenType
+      TokenType,
+      Global
     >;
   }
 
@@ -203,7 +216,8 @@ export abstract class ASTNode<
       NTs,
       ASTData,
       ErrorType,
-      TokenType
+      TokenType,
+      Global
     >;
   }
 }
@@ -214,44 +228,66 @@ export class NTNode<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType> {
+  Global,
+> extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global> {
   readonly children: readonly ASTNode<
     NTs | ExtractKinds<TokenType>,
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   >[];
   /**
    * Select the first matched child node by the name.
    */
-  readonly $: NTNodeFirstMatchChildSelector<NTs, ASTData, ErrorType, TokenType>;
+  readonly $: NTNodeFirstMatchChildSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  >;
   /**
    * Select children nodes by the name.
    */
-  readonly $$: NTNodeChildrenSelector<NTs, ASTData, ErrorType, TokenType>;
+  readonly $$: NTNodeChildrenSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  >;
   /**
    * `traverser` shouldn't be exposed
    * because we want users to use `traverse` instead of `traverser` directly.
    * Make this non-public to prevent users from using it by mistake.
    */
-  private traverser: NTNodeTraverser<Kind, NTs, ASTData, ErrorType, TokenType>;
+  private traverser: NTNodeTraverser<
+    Kind,
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  >;
 
   constructor(
     p: Pick<
-      NTNode<Kind, NTs, ASTData, ErrorType, TokenType>,
+      NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
       "kind" | "start" | "data" | "error" | "children"
     > & {
       traverser:
-        | NTNodeTraverser<Kind, NTs, ASTData, ErrorType, TokenType>
+        | NTNodeTraverser<Kind, NTs, ASTData, ErrorType, TokenType, Global>
         | undefined;
       firstMatchSelector: ASTNodeFirstMatchSelector<
         NTs,
         ASTData,
         ErrorType,
-        TokenType
+        TokenType,
+        Global
       >;
-      selector: ASTNodeSelector<NTs, ASTData, ErrorType, TokenType>;
+      selector: ASTNodeSelector<NTs, ASTData, ErrorType, TokenType, Global>;
     },
   ) {
     super(p);
@@ -328,7 +364,8 @@ export class TNode<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType> {
+  Global,
+> extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global> {
   // TODO: remove token, #38
   token: TokenType & { kind: Kind };
 
@@ -341,7 +378,7 @@ export class TNode<
 
   constructor(
     p: Pick<
-      TNode<Kind, NTs, ASTData, ErrorType, TokenType>,
+      TNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
       "kind" | "start" | "token"
     >,
   ) {
@@ -355,13 +392,15 @@ export class TNode<
     ASTData,
     ErrorType,
     TokenType extends GeneralToken,
+    Global,
   >(t: Readonly<TokenType>) {
     return new TNode<
       ExtractKinds<TokenType>,
       NTs,
       ASTData,
       ErrorType,
-      TokenType
+      TokenType,
+      Global
     >({
       kind: t.kind,
       start: t.start,

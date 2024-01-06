@@ -23,6 +23,7 @@ function getEndSet<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
@@ -32,7 +33,8 @@ function getEndSet<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
   const result = new GrammarSet<NTs, never>(); // never means no lexer kinds
@@ -72,6 +74,7 @@ function getUserUnresolvedConflicts<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   type: ConflictType,
   reducerRule: Readonly<
@@ -82,7 +85,8 @@ function getUserUnresolvedConflicts<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >,
   anotherRule: Readonly<
@@ -93,7 +97,8 @@ function getUserUnresolvedConflicts<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >,
   next: GrammarSet<NTs, ExtractKinds<LexerDataBindings>>,
@@ -238,6 +243,7 @@ export function appendConflicts<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
@@ -247,7 +253,8 @@ export function appendConflicts<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   dfa: DFA<
     NTs,
@@ -255,7 +262,8 @@ export function appendConflicts<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   debug: boolean,
   logger: Logger,
@@ -442,6 +450,7 @@ export function getUnresolvedConflicts<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   grs: ReadonlyGrammarRuleRepo<
     NTs,
@@ -449,7 +458,8 @@ export function getUnresolvedConflicts<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   debug: boolean,
   logger: Logger,
@@ -462,7 +472,8 @@ export function getUnresolvedConflicts<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     Conflict<
       NTs,
@@ -470,7 +481,8 @@ export function getUnresolvedConflicts<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[]
   >();
 
@@ -494,7 +506,8 @@ export function getUnresolvedConflicts<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           > = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
@@ -522,7 +535,8 @@ export function getUnresolvedConflicts<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           > = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,

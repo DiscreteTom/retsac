@@ -6,6 +6,7 @@ export type AcceptedParserOutput<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = {
   accept: true;
   /**
@@ -16,7 +17,8 @@ export type AcceptedParserOutput<
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   >[];
   /**
    * Newly generated AST nodes by the current parsing call with error.
@@ -27,7 +29,8 @@ export type AcceptedParserOutput<
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   >[];
 };
 
@@ -39,6 +42,7 @@ export type ParserOutput<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > =
   | RejectedParserOutput
-  | AcceptedParserOutput<NTs, ASTData, ErrorType, TokenType>;
+  | AcceptedParserOutput<NTs, ASTData, ErrorType, TokenType, Global>;

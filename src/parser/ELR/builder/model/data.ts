@@ -12,6 +12,7 @@ export type ParserBuilderData<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   defs: Definition<NTs>;
   ctxBuilder?: DefinitionContextBuilder<
@@ -20,7 +21,8 @@ export type ParserBuilderData<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
    * If `true`, only resolve conflicts, don't create definition.

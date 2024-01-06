@@ -64,6 +64,7 @@ export class ParserBuilder<
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
   LexerErrorType = never,
+  Global = never,
 > implements
     IParserBuilder<
       NTs,
@@ -71,7 +72,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
 {
   /**
@@ -85,7 +87,8 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   /**
    * The lexer should be readonly. When build the parser, the lexer will be cloned into a mutable lexer.
@@ -127,7 +130,8 @@ export class ParserBuilder<
     ErrorType,
     NewLexerDataBindings,
     NewLexerActionState,
-    NewLexerErrorType
+    NewLexerErrorType,
+    Global
   > {
     const _this = this as unknown as ParserBuilder<
       NTs,
@@ -135,7 +139,8 @@ export class ParserBuilder<
       ErrorType,
       NewLexerDataBindings,
       NewLexerActionState,
-      NewLexerErrorType
+      NewLexerErrorType,
+      Global
     >;
     _this._lexer = lexer;
     return _this;
@@ -155,7 +160,8 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     return this as unknown as ParserBuilder<
       NTs,
@@ -163,7 +169,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >;
   }
 
@@ -175,7 +182,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
   ) {
     this.builderData.push(...data);
@@ -185,7 +193,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >;
   }
 
@@ -197,7 +206,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): IParserBuilder<
     NTs | Append,
@@ -205,7 +215,8 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     (
       this.builderData as ParserBuilderData<
@@ -214,7 +225,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >[]
     ).push({
       defs,
@@ -228,7 +240,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >;
   }
 
@@ -270,7 +283,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(
       repo,
       lexer,
@@ -281,7 +295,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >[],
       printAll,
       logger,
@@ -353,7 +368,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       > =
         typeof accepter === "boolean"
           ? {
@@ -419,7 +435,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       Conflict<
         NTs,
@@ -427,7 +444,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >[]
     >,
     style: "builder" | "context",
@@ -488,7 +506,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     // TODO: dedup when build?
@@ -500,7 +519,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >().resolveRS(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.builderData.length,
@@ -518,7 +538,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     // TODO: dedup when build?
@@ -530,7 +551,8 @@ export class ParserBuilder<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >().resolveRR(anotherRule, options),
       resolveOnly: true,
       hydrationId: this.builderData.length,
@@ -547,6 +569,7 @@ export class ParserBuilder<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType,
+      Global,
       AppendKinds
     >,
   ): IParserBuilder<
@@ -555,7 +578,8 @@ export class ParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     return f(this);
   }
@@ -668,7 +692,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(data.data.dfa, options);
     const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
@@ -678,7 +703,8 @@ export class ParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[];
 
     // hydrate grammar rules with user defined functions & resolvers
@@ -701,7 +727,8 @@ export class ParserBuilder<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           >;
         }
       });
@@ -803,7 +830,8 @@ export class ParserBuilder<
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           >,
       serializable:
         options.serialize ?? false

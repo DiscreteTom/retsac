@@ -14,6 +14,7 @@ export function calculateHash<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   data: readonly Readonly<
     ParserBuilderData<
@@ -22,7 +23,8 @@ export function calculateHash<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[],
   entryNTs: ReadonlySet<NTs>,
@@ -55,6 +57,7 @@ export function buildSerializable<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   data: readonly Readonly<
     ParserBuilderData<
@@ -63,7 +66,8 @@ export function buildSerializable<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[],
   dfa: DFA<
@@ -72,7 +76,8 @@ export function buildSerializable<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   entryNTs: ReadonlySet<NTs>,
   lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,

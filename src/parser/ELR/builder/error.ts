@@ -38,6 +38,7 @@ export class GrammarRuleNotFoundError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public gr: TempGrammarRule<
@@ -47,7 +48,8 @@ export class GrammarRuleNotFoundError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
@@ -80,6 +82,7 @@ export class ConflictError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
@@ -89,7 +92,8 @@ export class ConflictError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public c: Conflict<
       NTs,
@@ -97,7 +101,8 @@ export class ConflictError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
@@ -187,6 +192,7 @@ export class TooManyEndHandlerError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public rule: GrammarRule<
@@ -196,7 +202,8 @@ export class TooManyEndHandlerError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
@@ -214,6 +221,7 @@ export class NoSuchConflictError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
@@ -223,7 +231,8 @@ export class NoSuchConflictError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public anotherRule: GrammarRule<
       NTs,
@@ -232,7 +241,8 @@ export class NoSuchConflictError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public conflictType: ConflictType,
     public next: Grammar<NTs | ExtractKinds<LexerDataBindings>>[],
@@ -279,6 +289,7 @@ export class RollbackDefinedWhileNotEnabledError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public rule: GrammarRule<
@@ -288,7 +299,8 @@ export class RollbackDefinedWhileNotEnabledError<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(

@@ -13,8 +13,9 @@ export type NTNodeTraverser<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = (
-  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType>,
+  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
 ) => ASTData | undefined | void;
 
 /**
@@ -26,8 +27,9 @@ export function defaultNTNodeTraverser<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 >(
-  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType>,
+  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length === 1)

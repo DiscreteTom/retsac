@@ -40,6 +40,7 @@ export class Candidate<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   readonly gr: Readonly<
     GrammarRule<
@@ -49,7 +50,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >;
   /**
@@ -71,7 +73,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
@@ -91,7 +94,8 @@ export class Candidate<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       "gr" | "digested" | "id"
     >,
@@ -137,7 +141,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): Candidate<
     NTs,
@@ -145,7 +150,8 @@ export class Candidate<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > | null {
     if (this.current === undefined) return null;
 
@@ -197,7 +203,8 @@ export class Candidate<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >;
     digested: number;
@@ -222,7 +229,8 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
@@ -236,13 +244,15 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
     firstMatchSelector: ASTNodeFirstMatchSelector<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
     debug: boolean,
     logger: Logger,
@@ -252,7 +262,8 @@ export class Candidate<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       > & {
         context: GrammarRuleContext<
           NTs,
@@ -260,7 +271,8 @@ export class Candidate<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
         /**
          * If `true`, the parser will commit the current state.
@@ -279,7 +291,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       matched,
       lexer,
@@ -462,7 +475,8 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >({
       kind: this.gr.NT,
       children: matched,
@@ -514,6 +528,7 @@ export class Candidate<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       Candidate<
@@ -522,7 +537,8 @@ export class Candidate<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
@@ -531,7 +547,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
@@ -541,7 +558,8 @@ export class Candidate<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       gr: grs.get(data.gr)!,
       digested: data.digested,
@@ -556,7 +574,8 @@ export class Candidate<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => {
       for (const key in data.nextMap) {

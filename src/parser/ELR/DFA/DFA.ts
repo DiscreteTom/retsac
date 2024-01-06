@@ -42,18 +42,21 @@ export class DFA<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   private selector: ASTNodeSelector<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   private firstMatchSelector: ASTNodeFirstMatchSelector<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
 
   constructor(
@@ -63,7 +66,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     private readonly entryNTs: ReadonlySet<NTs>,
     private readonly entryState: State<
@@ -72,7 +76,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     private readonly NTClosures: ReadonlyNTClosures<
       NTs,
@@ -80,7 +85,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public readonly firstSets: ReadonlyFirstSets<
       NTs,
@@ -96,7 +102,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     readonly states: ReadonlyStateRepo<
       NTs,
@@ -104,7 +111,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     readonly grammars: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     readonly NTs: ReadonlySet<NTs>,
@@ -117,14 +125,16 @@ export class DFA<
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(cascadeQueryPrefix);
     this.firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
       NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(cascadeQueryPrefix);
   }
 
@@ -137,7 +147,8 @@ export class DFA<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
     reLexStack: ReActionState<
@@ -146,7 +157,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     rollbackStack: RollbackState<
       NTs,
@@ -154,7 +166,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -166,7 +179,8 @@ export class DFA<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >;
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   } {
@@ -200,7 +214,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     reLexStack: ReActionState<
       NTs,
@@ -208,7 +223,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     rollbackStack: RollbackState<
       NTs,
@@ -216,7 +232,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     debug: boolean,
     logger: Logger,
@@ -234,7 +251,8 @@ export class DFA<
               NTs,
               ASTData,
               ErrorType,
-              Token<LexerDataBindings, LexerErrorType>
+              Token<LexerDataBindings, LexerErrorType>,
+              Global
             >
           ).text +
           targetState.lexer.buffer.slice(
@@ -274,7 +292,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     reLexStack: ReActionState<
       NTs,
@@ -282,7 +301,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     rollbackStack: RollbackState<
       NTs,
@@ -290,7 +310,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     commitParser: () => void,
     stopOnError: boolean,
@@ -378,7 +399,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     reLexStack: ReActionState<
       NTs,
@@ -386,7 +408,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     rollbackStack: RollbackState<
       NTs,
@@ -394,7 +417,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     debug: boolean,
     logger: Logger,
@@ -487,7 +511,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     reLexStack: ReActionState<
       NTs,
@@ -495,7 +520,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     rollbackStack: RollbackState<
       NTs,
@@ -503,7 +529,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     ignoreEntryFollow: boolean,
     debug: boolean,
@@ -588,6 +615,7 @@ export class DFA<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       DFA<
@@ -596,7 +624,8 @@ export class DFA<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >,
     options: {
@@ -616,7 +645,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
       NTs,
@@ -624,7 +654,8 @@ export class DFA<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >(data.candidates, grs, grammars);
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>

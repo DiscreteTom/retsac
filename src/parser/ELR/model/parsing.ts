@@ -15,6 +15,7 @@ export type ParsingState<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   /**
    * Current state is `states.at(-1)`.
@@ -25,14 +26,16 @@ export type ParsingState<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   buffer: readonly ASTNode<
     NTs | ExtractKinds<LexerDataBindings>,
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   /**
    * ASTNode buffer index.
@@ -46,7 +49,8 @@ export type ParsingState<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
 };
@@ -59,6 +63,7 @@ export type ReActionState<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Readonly<
   ParsingState<
     NTs,
@@ -66,7 +71,8 @@ export type ReActionState<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >
 > & {
   readonly rollbackStackLength: number;
@@ -79,6 +85,7 @@ export type RollbackState<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   readonly rollback?: Callback<
     NTs,
@@ -86,7 +93,8 @@ export type RollbackState<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   readonly context: GrammarRuleContext<
     NTs,
@@ -94,6 +102,7 @@ export type RollbackState<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 };

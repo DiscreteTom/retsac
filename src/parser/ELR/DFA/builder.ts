@@ -26,6 +26,7 @@ export class DFABuilder {
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     lexer: IReadonlyLexerCore<
@@ -41,7 +42,8 @@ export class DFABuilder {
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >[],
     printAll: boolean,
@@ -81,7 +83,8 @@ export class DFABuilder {
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
@@ -104,7 +107,8 @@ export class DFABuilder {
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 

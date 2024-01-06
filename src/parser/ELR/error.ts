@@ -20,6 +20,7 @@ export class StateCacheMissError<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_RuntimeError {
   constructor(
     public state: Readonly<
@@ -29,7 +30,8 @@ export class StateCacheMissError<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     public node: Readonly<
@@ -38,7 +40,8 @@ export class StateCacheMissError<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       >
     >,
   ) {

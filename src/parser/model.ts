@@ -17,6 +17,7 @@ export type ParseExec<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = (
   input?:
     | string
@@ -30,7 +31,7 @@ export type ParseExec<
          */
         stopOnError?: boolean;
       },
-) => ParserOutput<NTs, ASTData, ErrorType, TokenType>;
+) => ParserOutput<NTs, ASTData, ErrorType, TokenType, Global>;
 
 export interface IParser<
   NTs extends string,
@@ -39,6 +40,7 @@ export interface IParser<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState, // TODO: simplify generic params to LexerType
   LexerErrorType,
+  Global,
 > {
   /**
    * When `debug` is `true`, the parser will use `logger` to log debug info.
@@ -81,7 +83,8 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   /**
    * Try to reduce till the parser can't accept more.
@@ -94,7 +97,8 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   /**
    * Accumulated error AST nodes.
@@ -104,7 +108,8 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   hasErrors(): boolean;
   /**
@@ -115,7 +120,8 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   /**
    * Take the first N AST nodes.
@@ -128,6 +134,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
 }

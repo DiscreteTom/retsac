@@ -19,6 +19,7 @@ export class CandidateRepo<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   /**
    * Candidates. {@link CandidateID} => {@link Candidate}
@@ -31,7 +32,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >;
 
@@ -54,7 +56,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     return this.get(Candidate.generateId({ gr, digested: 0 }));
@@ -71,7 +74,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const raw = { gr, digested: 0 };
@@ -84,7 +88,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       ...raw,
       id,
@@ -103,7 +108,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const raw = { gr: c.gr, digested: c.digested + 1 };
@@ -117,7 +123,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       ...raw,
       id,
@@ -134,7 +141,8 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >[];
     this.cs.forEach((c) => res.push(c.toJSON()));
@@ -148,6 +156,7 @@ export class CandidateRepo<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       CandidateRepo<
@@ -156,7 +165,8 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
@@ -165,7 +175,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ): ReadonlyCandidateRepo<
@@ -174,7 +185,8 @@ export class CandidateRepo<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     const callbacks = [] as ((
       cs: CandidateRepo<
@@ -183,7 +195,8 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => void)[];
     const res = new CandidateRepo<
@@ -192,7 +205,8 @@ export class CandidateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     data.forEach((d) => {
       const { c, restoreNextMap } = Candidate.fromJSON<
@@ -201,7 +215,8 @@ export class CandidateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >(d, grs, repo);
       callbacks.push(restoreNextMap);
       res.cs.set(c.id, c);
@@ -219,6 +234,7 @@ export type ReadonlyCandidateRepo<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Omit<
   CandidateRepo<
     NTs,
@@ -226,7 +242,8 @@ export type ReadonlyCandidateRepo<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   "addNext" | "addInitial"
 >;

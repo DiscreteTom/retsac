@@ -18,7 +18,15 @@ export type BuildOptions<
   ? never // no lexer, prevent build
   : Partial<
       Pick<
-        IParser<string, never, never, GeneralTokenDataBinding, never, never>,
+        IParser<
+          string,
+          never,
+          never,
+          GeneralTokenDataBinding,
+          never,
+          never,
+          never
+        >,
         "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
       >
     > & {
@@ -98,6 +106,7 @@ export type BuildOutput<
   ErrorType,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   parser: [LexerDataBindings] extends [never]
     ? never // if no lexer, no parser
@@ -107,7 +116,8 @@ export type BuildOutput<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >;
   /**
    * If you build the parser with {@link BuildOptions.serialize},
@@ -130,6 +140,7 @@ export interface IParserBuilder<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   /**
    * Set the lexer. The lexer won't be modified.
@@ -163,7 +174,8 @@ export interface IParserBuilder<
     ErrorType,
     NewLexerDataBindings,
     NewLexerActionState,
-    NewLexerErrorType
+    NewLexerErrorType,
+    Global
   >;
   /**
    * Set the `ASTNode.data` type.
@@ -190,7 +202,8 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
    * Define grammar rules.
@@ -203,7 +216,8 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): IParserBuilder<
     NTs | Append,
@@ -211,7 +225,8 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
    * Resolve a reduce-shift conflict.
@@ -225,7 +240,8 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): this;
   /**
@@ -240,7 +256,8 @@ export interface IParserBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): this;
   /**
@@ -277,6 +294,7 @@ export interface IParserBuilder<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType,
+      Global,
       AppendKinds
     >,
   ): IParserBuilder<
@@ -285,7 +303,8 @@ export interface IParserBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
    * Generate the {@link Parser ELR Parser}.
@@ -300,7 +319,8 @@ export interface IParserBuilder<
     ASTData,
     ErrorType,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 }
 
@@ -311,6 +331,7 @@ export type BuilderDecorator<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
   AppendKinds extends string,
 > = (
   pb: IParserBuilder<
@@ -319,7 +340,8 @@ export type BuilderDecorator<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) => IParserBuilder<
   NTs | AppendKinds,
@@ -327,7 +349,8 @@ export type BuilderDecorator<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;
 
 /**
@@ -344,7 +367,7 @@ export type SerializableParserData<
   hash: number;
   data: {
     dfa: ReturnType<
-      DFA<NTs, never, never, LexerDataBindings, never, never>["toJSON"]
+      DFA<NTs, never, never, LexerDataBindings, never, never, never>["toJSON"]
     >;
   };
 };

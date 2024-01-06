@@ -17,6 +17,7 @@ export class DefinitionContextBuilder<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   private resolved: ResolvedPartialTempConflict<
     NTs,
@@ -24,7 +25,8 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   private _callback?: Callback<
     NTs,
@@ -32,7 +34,8 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _rejecter?: Condition<
     NTs,
@@ -40,7 +43,8 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _rollback?: Callback<
     NTs,
@@ -48,7 +52,8 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _commit?: Condition<
     NTs,
@@ -56,14 +61,16 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _traverser?: NTNodeTraverser<
     NTs,
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
 
   constructor() {
@@ -80,7 +87,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _callback = this._callback;
@@ -105,7 +113,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _rejecter = this._rejecter;
@@ -129,7 +138,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     return this.callback((context) => (context.data = f(context)));
@@ -146,7 +156,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _rollback = this._rollback;
@@ -170,7 +181,8 @@ export class DefinitionContextBuilder<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
   ) {
     this._traverser = f;
@@ -189,7 +201,8 @@ export class DefinitionContextBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         > = true,
   ) {
     this._commit = typeof enable === "boolean" ? () => enable : enable;
@@ -207,7 +220,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     this.resolved.push({
@@ -233,7 +247,8 @@ export class DefinitionContextBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     this.resolved.push({
@@ -254,7 +269,8 @@ export class DefinitionContextBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     return {
       resolved: this.resolved,
@@ -274,6 +290,7 @@ export type DefinitionContextBuilderDecorator<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = (
   ctxBuilder: DefinitionContextBuilder<
     NTs,
@@ -281,7 +298,8 @@ export type DefinitionContextBuilderDecorator<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) => DefinitionContextBuilder<
   NTs,
@@ -289,5 +307,6 @@ export type DefinitionContextBuilderDecorator<
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;

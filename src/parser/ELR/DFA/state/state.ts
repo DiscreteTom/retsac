@@ -51,6 +51,7 @@ export class State<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   readonly candidates: readonly Candidate<
     NTs,
@@ -58,7 +59,8 @@ export class State<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   /**
    * This will be calculated during `DFA.calculateAllStates`.
@@ -75,7 +77,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
@@ -94,7 +97,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
     id: string,
   ) {
@@ -112,7 +116,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     allStates: StateRepo<
       NTs,
@@ -120,7 +125,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     cs: CandidateRepo<
       NTs,
@@ -128,7 +134,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): {
     state: State<
@@ -137,7 +144,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null;
     changed: boolean;
   } {
@@ -175,7 +183,8 @@ export class State<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       >
     >,
   ): {
@@ -185,7 +194,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null;
     changed: boolean;
   } {
@@ -227,7 +237,8 @@ export class State<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     digested: number,
@@ -256,6 +267,7 @@ export class State<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: Pick<
       State<
@@ -264,7 +276,8 @@ export class State<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       "candidates"
     >,
@@ -293,7 +306,8 @@ export class State<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >;
     lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   }[] {
@@ -305,7 +319,8 @@ export class State<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       > | null // don't use undefined, use null
     >();
 
@@ -351,7 +366,8 @@ export class State<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >(c.current as Grammar<ExtractKinds<LexerDataBindings>>, lexer);
         // mark this grammar as done, no matter if the lex is successful
         done.set(c.current.grammarStringNoName, r?.node ?? null);
@@ -393,7 +409,8 @@ export class State<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
@@ -407,13 +424,15 @@ export class State<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
     firstMatchSelector: ASTNodeFirstMatchSelector<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
     debug: boolean,
     logger: Logger,
@@ -423,7 +442,8 @@ export class State<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       > & {
         context: GrammarRuleContext<
           NTs,
@@ -431,7 +451,8 @@ export class State<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
         commit: boolean;
         rollback?: Callback<
@@ -440,7 +461,8 @@ export class State<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
       }) {
     if (debug) {
@@ -498,6 +520,7 @@ export class State<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       State<
@@ -506,7 +529,8 @@ export class State<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
@@ -515,7 +539,8 @@ export class State<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
@@ -532,7 +557,8 @@ export class State<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => {
       for (const key in data.nextMap) {

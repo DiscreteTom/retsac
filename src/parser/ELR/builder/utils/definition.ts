@@ -29,6 +29,7 @@ export function defToTempGRs<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   defs: Definition<NTs>,
   hydrationId: number = 0,
@@ -38,7 +39,8 @@ export function defToTempGRs<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
   const result: TempGrammarRule<
@@ -48,7 +50,8 @@ export function defToTempGRs<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[] = [];
 
   // parse rules
@@ -98,7 +101,8 @@ export function defToTempGRs<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >({
           NT,
           rule: tokens.map((t) => {

@@ -127,6 +127,7 @@ export class TempGrammarRule<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   readonly rule: readonly TempGrammar[];
   /**
@@ -139,7 +140,8 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rejecter?: Condition<
     NTs,
@@ -147,7 +149,8 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rollback?: Callback<
     NTs,
@@ -155,7 +158,8 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   commit?: Condition<
     NTs,
@@ -163,14 +167,16 @@ export class TempGrammarRule<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   traverser?: NTNodeTraverser<
     NT,
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   readonly hydrationId: number;
   /**
@@ -187,7 +193,8 @@ export class TempGrammarRule<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       | "rule"
       | "NT"

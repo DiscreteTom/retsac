@@ -25,6 +25,7 @@ export function checkSymbols<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
@@ -36,7 +37,8 @@ export function checkSymbols<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,
@@ -101,6 +103,7 @@ export function checkConflicts<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
   unresolved: ReadonlyMap<
@@ -112,7 +115,8 @@ export function checkConflicts<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     readonly Readonly<
@@ -122,7 +126,8 @@ export function checkConflicts<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >[]
   >,
@@ -132,7 +137,8 @@ export function checkConflicts<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,
@@ -225,6 +231,7 @@ export function checkRollbacks<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   grs: ReadonlyGrammarRuleRepo<
     NTs,
@@ -232,7 +239,8 @@ export function checkRollbacks<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,

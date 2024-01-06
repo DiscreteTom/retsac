@@ -8,15 +8,23 @@ export type ExtractASTNodeType<
   ErrorType,
   TokenType extends GeneralToken,
   TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>,
+  Global,
 > = TargetKind extends NTs
   ? // target is NT
-    NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType>
+    NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
   : TargetKind extends ExtractKinds<TokenType>
   ? // target is T
-    TNode<TargetKind, NTs, ASTData, ErrorType, TokenType>
+    TNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
   : // target is a literal or user defined name, use general ASTNode
     // TODO: can we determine the type by the user defined name?
-    ASTNode<NTs | ExtractKinds<TokenType>, NTs, ASTData, ErrorType, TokenType>;
+    ASTNode<
+      NTs | ExtractKinds<TokenType>,
+      NTs,
+      ASTData,
+      ErrorType,
+      TokenType,
+      Global
+    >;
 
 /**
  * Select children nodes by the name.
@@ -26,9 +34,17 @@ export type NTNodeChildrenSelector<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind, // TODO: support user defined name
-) => ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>[];
+) => ExtractASTNodeType<
+  NTs,
+  ASTData,
+  ErrorType,
+  TokenType,
+  TargetKind,
+  Global
+>[];
 
 /**
  * Select the first matched child node by the name.
@@ -38,10 +54,11 @@ export type NTNodeFirstMatchChildSelector<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind,
 ) =>
-  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind, Global>
   | undefined;
 
 /**
@@ -52,6 +69,7 @@ export type ASTNodeSelector<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind,
   nodes: readonly ASTNode<
@@ -59,9 +77,17 @@ export type ASTNodeSelector<
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   >[],
-) => ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>[];
+) => ExtractASTNodeType<
+  NTs,
+  ASTData,
+  ErrorType,
+  TokenType,
+  TargetKind,
+  Global
+>[];
 
 /**
  * Select the first matched node from the given nodes by the name.
@@ -71,6 +97,7 @@ export type ASTNodeFirstMatchSelector<
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
   name: TargetKind,
   nodes: readonly ASTNode<
@@ -78,8 +105,9 @@ export type ASTNodeFirstMatchSelector<
     NTs,
     ASTData,
     ErrorType,
-    TokenType
+    TokenType,
+    Global
   >[],
 ) =>
-  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind>
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind, Global>
   | undefined;

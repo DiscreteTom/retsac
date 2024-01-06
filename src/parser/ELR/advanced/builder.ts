@@ -19,6 +19,7 @@ export class AdvancedBuilder<
     LexerDataBindings extends GeneralTokenDataBinding = never,
     LexerActionState = never,
     LexerErrorType = never,
+    Global = never,
   >
   extends ParserBuilder<
     NTs,
@@ -26,7 +27,8 @@ export class AdvancedBuilder<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >
   implements
     IParserBuilder<
@@ -35,14 +37,16 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
 {
   private readonly expander: GrammarExpander<
     NTs,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 
   constructor(options?: {
@@ -58,7 +62,8 @@ export class AdvancedBuilder<
       NTs,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       placeholderPrefix: prefix,
     });
@@ -84,7 +89,8 @@ export class AdvancedBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
       }[];
     }[];
@@ -122,7 +128,8 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >;
 
     // expand definitions in data
@@ -132,7 +139,8 @@ export class AdvancedBuilder<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[];
     this.builderData.forEach(
       ({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
@@ -144,7 +152,8 @@ export class AdvancedBuilder<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >();
         ctx?.resolved.forEach((r) => {
           // for another rule, we don't need to log debug info or auto resolve R-S conflict
@@ -195,7 +204,8 @@ export class AdvancedBuilder<
                 ErrorType,
                 LexerDataBindings,
                 LexerActionState,
-                LexerErrorType
+                LexerErrorType,
+                Global
               >().resolveRS(r.anotherRule, r.options),
               resolveOnly: true,
               hydrationId, // the hydration id does not matter, since the generated resolvers are serializable

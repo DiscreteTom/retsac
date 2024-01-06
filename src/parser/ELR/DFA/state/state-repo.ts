@@ -19,6 +19,7 @@ export class StateRepo<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   private ss: Map<
     StateID,
@@ -28,7 +29,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >;
 
@@ -46,7 +48,8 @@ export class StateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >;
   }
@@ -65,7 +68,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
   ) {
     const raw = { candidates };
@@ -89,7 +93,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     grammar: Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
@@ -98,7 +103,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     cs: CandidateRepo<
       NTs,
@@ -106,7 +112,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const directCandidates = current.candidates
@@ -137,7 +144,8 @@ export class StateRepo<
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >[],
       ) // de-duplicated GrammarRule list
       .map(
@@ -170,7 +178,8 @@ export class StateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => boolean,
   ) {
@@ -191,6 +200,7 @@ export class StateRepo<
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       StateRepo<
@@ -199,7 +209,8 @@ export class StateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
@@ -208,7 +219,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
@@ -218,7 +230,8 @@ export class StateRepo<
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     const callbacks = [] as ((
       ss: StateRepo<
@@ -227,7 +240,8 @@ export class StateRepo<
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => void)[];
     for (const key in data) {
@@ -248,6 +262,7 @@ export type ReadonlyStateRepo<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Omit<
   StateRepo<
     NTs,
@@ -255,7 +270,8 @@ export type ReadonlyStateRepo<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   "addEntry" | "addNext"
 >;
