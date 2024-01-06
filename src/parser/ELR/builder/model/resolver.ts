@@ -5,7 +5,7 @@ import type { Definition } from "./definition";
 import type { TempGrammarRule } from "./temp-grammar";
 
 export type BaseResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -18,7 +18,7 @@ export type BaseResolverOptions<
   accept?:
     | boolean
     | Condition<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -42,14 +42,14 @@ export type BaseResolverOptions<
 };
 
 export type RR_ResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > = BaseResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
@@ -58,32 +58,32 @@ export type RR_ResolverOptions<
 > &
   AtLeastOneOf<
     {
-      next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
+      next: "*" | (NTs | ExtractKinds<LexerDataBindings> | QuotedString)[];
       handleEnd: boolean;
     },
     "next" | "handleEnd"
   >;
 
 export type RS_ResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > = BaseResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
   LexerErrorType
 > & {
-  next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
+  next: "*" | (NTs | ExtractKinds<LexerDataBindings> | QuotedString)[];
 };
 
 export type ConflictTypeAndResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -93,7 +93,7 @@ export type ConflictTypeAndResolverOptions<
   | {
       type: ConflictType.REDUCE_REDUCE;
       options: RR_ResolverOptions<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -104,7 +104,7 @@ export type ConflictTypeAndResolverOptions<
   | {
       type: ConflictType.REDUCE_SHIFT;
       options: RS_ResolverOptions<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -114,7 +114,7 @@ export type ConflictTypeAndResolverOptions<
     }
 ) &
   BaseResolverOptions<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -159,17 +159,17 @@ export type ResolvedTempConflict<
 >;
 
 export type ResolvedPartialTempConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > = {
-  anotherRule: Definition<Kinds>;
+  anotherRule: Definition<NTs>;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,

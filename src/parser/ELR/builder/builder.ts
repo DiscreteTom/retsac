@@ -58,7 +58,7 @@ import { buildSerializable, calculateHash } from "./utils/serialize";
  * When build, it's recommended to set `checkAll` to `true` in development environment.
  */
 export class ParserBuilder<
-  Kinds extends string = never,
+  NTs extends string = never,
   ASTData = never,
   ErrorType = never,
   LexerDataBindings extends GeneralTokenDataBinding = never,
@@ -66,7 +66,7 @@ export class ParserBuilder<
   LexerErrorType = never,
 > implements
     IParserBuilder<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -80,7 +80,7 @@ export class ParserBuilder<
    */
   protected readonly cascadeQueryPrefix?: string;
   protected readonly builderData: ParserBuilderData<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -108,7 +108,7 @@ export class ParserBuilder<
   }
 
   lexer<
-    NewLexerDataBindings extends [Kinds] extends [never]
+    NewLexerDataBindings extends [NTs] extends [never]
       ? [LexerDataBindings] extends [never]
         ? GeneralTokenDataBinding
         : never
@@ -122,7 +122,7 @@ export class ParserBuilder<
       NewLexerErrorType
     >,
   ): IParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     NewLexerDataBindings,
@@ -130,7 +130,7 @@ export class ParserBuilder<
     NewLexerErrorType
   > {
     const _this = this as unknown as ParserBuilder<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       NewLexerDataBindings,
@@ -142,7 +142,7 @@ export class ParserBuilder<
   }
 
   data<
-    NewASTData extends [Kinds] extends [never]
+    NewASTData extends [NTs] extends [never]
       ? [ASTData] extends [never]
         ? unknown
         : never
@@ -150,7 +150,7 @@ export class ParserBuilder<
   >(
     _data?: NewASTData,
   ): IParserBuilder<
-    Kinds,
+    NTs,
     NewASTData,
     ErrorType,
     LexerDataBindings,
@@ -158,7 +158,7 @@ export class ParserBuilder<
     LexerErrorType
   > {
     return this as unknown as ParserBuilder<
-      Kinds,
+      NTs,
       NewASTData,
       ErrorType,
       LexerDataBindings,
@@ -170,7 +170,7 @@ export class ParserBuilder<
   // TODO: move this into a base class
   load(
     data: readonly ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -180,7 +180,7 @@ export class ParserBuilder<
   ) {
     this.builderData.push(...data);
     return this as IParserBuilder<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -190,9 +190,9 @@ export class ParserBuilder<
   }
 
   define<Append extends string>(
-    defs: Definition<Kinds | Append>,
+    defs: Definition<NTs | Append>,
     decorator?: DefinitionContextBuilderDecorator<
-      Kinds | Append,
+      NTs | Append,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -200,7 +200,7 @@ export class ParserBuilder<
       LexerErrorType
     >,
   ): IParserBuilder<
-    Kinds | Append,
+    NTs | Append,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -209,7 +209,7 @@ export class ParserBuilder<
   > {
     (
       this.builderData as ParserBuilderData<
-        Kinds | Append,
+        NTs | Append,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -223,7 +223,7 @@ export class ParserBuilder<
       hydrationId: this.builderData.length,
     });
     return this as IParserBuilder<
-      Kinds | Append,
+      NTs | Append,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -233,7 +233,7 @@ export class ParserBuilder<
   }
 
   private buildDFA(
-    entryNTs: ReadonlySet<Kinds>,
+    entryNTs: ReadonlySet<NTs>,
     lexer: IReadonlyLexerCore<
       LexerDataBindings,
       LexerActionState,
@@ -251,7 +251,7 @@ export class ParserBuilder<
       else throw e;
     }
 
-    const repo = new GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>();
+    const repo = new GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>();
 
     // build the DFA
     const {
@@ -265,7 +265,7 @@ export class ParserBuilder<
       NTs,
       resolvedTemps,
     } = DFABuilder.prepare<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -276,7 +276,7 @@ export class ParserBuilder<
       lexer,
       entryNTs,
       this.builderData as ParserBuilderData<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -306,7 +306,7 @@ export class ParserBuilder<
     // and append into grammar rules
     resolvedTemps.forEach((r) => {
       // find the grammar rules
-      const reducerRule = grs.get(r.reducerRule);
+      const reducerRule = grs.get(r.reducerRule.id);
       if (!reducerRule) {
         const e = new GrammarRuleNotFoundError(r.reducerRule);
         if (printAll) {
@@ -314,7 +314,7 @@ export class ParserBuilder<
           return;
         } else throw e;
       }
-      const anotherRule = grs.get(r.anotherRule);
+      const anotherRule = grs.get(r.anotherRule.id);
       if (!anotherRule) {
         const e = new GrammarRuleNotFoundError(r.anotherRule);
         if (printAll) {
@@ -327,8 +327,8 @@ export class ParserBuilder<
         r.options.next === "*"
           ? ("*" as const)
           : r.options.next === undefined
-          ? new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>()
-          : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
+          ? new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>()
+          : new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>(
               r.options.next.map((n) =>
                 new TempGrammar({
                   type:
@@ -338,17 +338,17 @@ export class ParserBuilder<
                   content:
                     n.startsWith('"') || n.startsWith("'") ? n.slice(1, -1) : n,
                 }).toGrammar<
-                  Kinds,
+                  NTs,
                   LexerDataBindings,
                   LexerActionState,
                   LexerErrorType
-                >(repo, lexer, printAll, logger, NTs.has(n as Kinds)),
+                >(repo, lexer, printAll, logger, NTs.has(n as NTs)),
               ),
             );
 
       const accepter = r.options.accept ?? true;
       const resolved: ResolvedConflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -413,7 +413,8 @@ export class ParserBuilder<
   private generateResolvers(
     unresolved: Map<
       GrammarRule<
-        Kinds,
+        NTs,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -421,7 +422,7 @@ export class ParserBuilder<
         LexerErrorType
       >,
       Conflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -437,12 +438,12 @@ export class ParserBuilder<
         const txt = v
           .map(
             (c) =>
-              `.resolve${c.type === ConflictType.REDUCE_SHIFT ? "RS" : "RR"}(${
-                reducerRule.strWithGrammarName.value
-              }, ${c.anotherRule.strWithGrammarName.value}, { ${
+              `.resolve${
+                c.type === ConflictType.REDUCE_SHIFT ? "RS" : "RR"
+              }(${reducerRule.toGrammarRuleString()}, ${c.anotherRule.toGrammarRuleString()}, { ${
                 c.next.grammars.size > 0
                   ? `next: \`${c.next
-                      .map((g) => g.grammarStrWithName)
+                      .map((g) => g.grammarString)
                       .join(" ")}\`, `
                   : ""
               }${c.handleEnd ? `handleEnd: true, ` : ""}accept: TODO })`,
@@ -462,10 +463,10 @@ export class ParserBuilder<
               (c) =>
                 `ELR.resolve${
                   c.type === ConflictType.REDUCE_SHIFT ? "RS" : "RR"
-                }(${c.anotherRule.strWithGrammarName.value}, { ${
+                }(${c.anotherRule.toGrammarRuleString()}, { ${
                   c.next.grammars.size > 0
                     ? `next: \`${c.next
-                        .map((g) => g.grammarStrWithName)
+                        .map((g) => g.grammarString)
                         .join(" ")}\`, `
                     : ""
                 }${c.handleEnd ? `handleEnd: true, ` : ""}accept: TODO })`,
@@ -479,10 +480,10 @@ export class ParserBuilder<
   }
 
   resolveRS(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RS_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -494,7 +495,7 @@ export class ParserBuilder<
     this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -509,10 +510,10 @@ export class ParserBuilder<
   }
 
   resolveRR(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RR_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -524,7 +525,7 @@ export class ParserBuilder<
     this.builderData.push({
       defs: reducerRule,
       ctxBuilder: new DefinitionContextBuilder<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -540,7 +541,7 @@ export class ParserBuilder<
 
   use<AppendKinds extends string>(
     f: BuilderDecorator<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -549,7 +550,7 @@ export class ParserBuilder<
       AppendKinds
     >,
   ): IParserBuilder<
-    Kinds | AppendKinds,
+    NTs | AppendKinds,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -561,9 +562,9 @@ export class ParserBuilder<
 
   priority(
     ...groups: (
-      | Definition<Kinds>
-      | Definition<Kinds>[]
-      | DefinitionGroupWithAssociativity<Kinds>
+      | Definition<NTs>
+      | Definition<NTs>[]
+      | DefinitionGroupWithAssociativity<NTs>
     )[]
   ) {
     // grammar rules with higher priority will always be reduced first
@@ -658,11 +659,11 @@ export class ParserBuilder<
   }
 
   private restoreAndHydrate(
-    data: SerializableParserData<Kinds, LexerDataBindings>,
+    data: SerializableParserData<NTs, LexerDataBindings>,
     options: Parameters<typeof DFA.fromJSON>[1],
   ) {
     const dfa = DFA.fromJSON<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -672,7 +673,7 @@ export class ParserBuilder<
     const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -695,7 +696,7 @@ export class ParserBuilder<
               ? ctxs[r.hydrationId.index].resolved[0].accept // resolvers in builder mode only have one resolver
               : ctxs[gr.hydrationId].resolved[r.hydrationId.index].accept
           ) as Condition<
-            Kinds,
+            NTs,
             ASTData,
             ErrorType,
             LexerDataBindings,
@@ -706,10 +707,10 @@ export class ParserBuilder<
       });
     });
 
-    return { dfa, NTs: dfa.NTs as ReadonlySet<Kinds>, grs: dfa.grammarRules };
+    return { dfa, NTs: dfa.NTs as ReadonlySet<NTs>, grs: dfa.grammarRules };
   }
 
-  build(options: BuildOptions<Kinds, LexerDataBindings>) {
+  build(options: BuildOptions<NTs, LexerDataBindings>) {
     const debug = options.debug ?? false;
     const logger = options.logger ?? defaultLogger;
     const printAll = options.printAll ?? false;
@@ -721,7 +722,7 @@ export class ParserBuilder<
 
     const entryNTs = new Set(
       options.entry instanceof Array ? options.entry : [options.entry],
-    ) as ReadonlySet<Kinds>;
+    ) as ReadonlySet<NTs>;
 
     // hydrate or build dfa
     const { dfa, NTs, grs } =
@@ -797,7 +798,7 @@ export class ParserBuilder<
       ) as unknown as [LexerDataBindings] extends [never]
         ? never // if no lexer, no parser
         : Parser<
-            Kinds,
+            NTs,
             ASTData,
             ErrorType,
             LexerDataBindings,
@@ -813,7 +814,7 @@ export class ParserBuilder<
                 entryNTs,
                 lexer,
                 this.cascadeQueryPrefix,
-              )) as Readonly<SerializableParserData<Kinds, LexerDataBindings>>)
+              )) as Readonly<SerializableParserData<NTs, LexerDataBindings>>)
           : undefined,
       mermaid: options.mermaid ?? false ? dfa.toMermaid() : undefined,
       resolvers,

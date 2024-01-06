@@ -1,5 +1,5 @@
 import type { GeneralTokenDataBinding, Token } from "../../../lexer";
-import type { Traverser } from "../../traverser";
+import type { NTNodeTraverser } from "../../traverser";
 import type { Callback, Condition, Reducer } from "../model";
 import { ConflictType, ResolverHydrationType } from "../model";
 import type {
@@ -11,7 +11,7 @@ import type {
 } from "./model";
 
 export class DefinitionContextBuilder<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -19,7 +19,7 @@ export class DefinitionContextBuilder<
   LexerErrorType,
 > {
   private resolved: ResolvedPartialTempConflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -27,7 +27,7 @@ export class DefinitionContextBuilder<
     LexerErrorType
   >[];
   private _callback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -35,7 +35,7 @@ export class DefinitionContextBuilder<
     LexerErrorType
   >;
   private _rejecter?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -43,7 +43,7 @@ export class DefinitionContextBuilder<
     LexerErrorType
   >;
   private _rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -51,15 +51,16 @@ export class DefinitionContextBuilder<
     LexerErrorType
   >;
   private _commit?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
   >;
-  private _traverser?: Traverser<
-    Kinds,
+  private _traverser?: NTNodeTraverser<
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -74,7 +75,7 @@ export class DefinitionContextBuilder<
    */
   callback(
     f: Callback<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -99,7 +100,7 @@ export class DefinitionContextBuilder<
    */
   rejecter(
     f: Condition<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -123,7 +124,7 @@ export class DefinitionContextBuilder<
    */
   reducer(
     f: Reducer<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -140,7 +141,7 @@ export class DefinitionContextBuilder<
   // TODO: remove this?
   rollback(
     f: Callback<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -164,8 +165,9 @@ export class DefinitionContextBuilder<
    * Set the traverser for this grammar rule.
    */
   traverser(
-    f: Traverser<
-      Kinds,
+    f: NTNodeTraverser<
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
@@ -182,7 +184,7 @@ export class DefinitionContextBuilder<
     enable:
       | boolean
       | Condition<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -198,9 +200,9 @@ export class DefinitionContextBuilder<
    * Resolve an Reduce-Shift conflict.
    */
   resolveRS(
-    another: Definition<Kinds>,
+    another: Definition<NTs>,
     options: RS_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -224,9 +226,9 @@ export class DefinitionContextBuilder<
    * Resolve an Reduce-Reduce conflict.
    */
   resolveRR(
-    another: Definition<Kinds>,
+    another: Definition<NTs>,
     options: RR_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -247,7 +249,7 @@ export class DefinitionContextBuilder<
   }
 
   build(): DefinitionContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -266,7 +268,7 @@ export class DefinitionContextBuilder<
 }
 
 export type DefinitionContextBuilderDecorator<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -274,7 +276,7 @@ export type DefinitionContextBuilderDecorator<
   LexerErrorType,
 > = (
   ctxBuilder: DefinitionContextBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -282,7 +284,7 @@ export type DefinitionContextBuilderDecorator<
     LexerErrorType
   >,
 ) => DefinitionContextBuilder<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,

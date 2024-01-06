@@ -19,7 +19,7 @@ import {
  * @throws if `printAll` is false and there is any error.
  */
 export function checkSymbols<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -31,7 +31,7 @@ export function checkSymbols<
   Ts: ReadonlySet<string>,
   // grammar rule repo is already readonly
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -95,18 +95,19 @@ export function checkSymbols<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkConflicts<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 >(
-  followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
+  followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
   unresolved: ReadonlyMap<
     Readonly<
       GrammarRule<
-        Kinds,
+        NTs,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -116,7 +117,7 @@ export function checkConflicts<
     >,
     readonly Readonly<
       Conflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -126,7 +127,7 @@ export function checkConflicts<
     >[]
   >,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -218,7 +219,7 @@ export function checkConflicts<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkRollbacks<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -226,7 +227,7 @@ export function checkRollbacks<
   LexerErrorType,
 >(
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
