@@ -9,9 +9,11 @@ import { stringMap2serializable } from "../utils";
 
 /**
  * Store all states.
+ *
+ * The key of the map is the {@link State.id}.
  */
 export class StateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -21,7 +23,7 @@ export class StateRepo<
   private ss: Map<
     string,
     State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -35,10 +37,11 @@ export class StateRepo<
   }
 
   get states() {
+    // make readonly
     return this.ss as ReadonlyMap<
       string,
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -48,40 +51,8 @@ export class StateRepo<
     >;
   }
 
-  getKey(
-    s: Pick<
-      State<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "candidates"
-    >,
-  ): string {
-    return s instanceof State ? s.str : State.getString(s);
-  }
-
-  get(
-    s: Pick<
-      State<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "candidates"
-    >,
-  ) {
-    return this.ss.get(this.getKey(s));
-  }
-
-  getByString(str: string) {
-    return this.ss.get(str);
+  get(id: string) {
+    return this.ss.get(id);
   }
 
   /**
@@ -89,7 +60,7 @@ export class StateRepo<
    */
   addEntry(
     candidates: Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -98,7 +69,7 @@ export class StateRepo<
     >[],
   ) {
     const raw = { candidates };
-    const key = this.getKey(raw);
+    const key = State.generateId(raw);
     if (this.ss.has(key)) return undefined;
 
     const s = new State(candidates, key);
@@ -113,16 +84,16 @@ export class StateRepo<
    */
   addNext(
     current: State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    grammar: Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
+    grammar: Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -130,7 +101,7 @@ export class StateRepo<
       LexerErrorType
     >,
     cs: CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -147,11 +118,11 @@ export class StateRepo<
         if (
           c.canDigestMore() &&
           c.current!.type === GrammarType.NT &&
-          !p.includes(c.current!.kind as Kinds)
+          !p.includes(c.current!.kind as NTs)
         )
-          p.push(c.current!.kind as Kinds);
+          p.push(c.current!.kind as NTs);
         return p;
-      }, [] as Kinds[]) // de-duplicated NT list
+      }, [] as NTs[]) // de-duplicated NT list
       .reduce(
         (p, c) => {
           NTClosures.get(c)!.forEach((gr) => {
@@ -160,7 +131,8 @@ export class StateRepo<
           return p;
         },
         [] as GrammarRule<
-          Kinds,
+          NTs,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -180,7 +152,7 @@ export class StateRepo<
 
     // check cache
     const raw = { candidates: nextCandidates };
-    const key = this.getKey(raw);
+    const key = State.generateId(raw);
     const cache = this.ss.get(key);
     if (cache !== undefined) return { state: cache, changed: false };
 
@@ -193,7 +165,7 @@ export class StateRepo<
   some(
     f: (
       s: State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -208,20 +180,8 @@ export class StateRepo<
     return false;
   }
 
-  toSerializable(
-    cs: ReadonlyCandidateRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-  ) {
-    return stringMap2serializable(this.ss, (s) =>
-      s.toSerializable(cs, this, repo),
-    );
+  toJSON() {
+    return stringMap2serializable(this.ss, (s) => s.toJSON());
   }
 
   static fromJSON<
@@ -240,7 +200,7 @@ export class StateRepo<
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
-      >["toSerializable"]
+      >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
       Kinds,
