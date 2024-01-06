@@ -123,7 +123,7 @@ export type ConflictTypeAndResolverOptions<
   >;
 
 export type ResolvedTempConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -131,7 +131,8 @@ export type ResolvedTempConflict<
   LexerErrorType,
 > = {
   reducerRule: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -139,7 +140,8 @@ export type ResolvedTempConflict<
     LexerErrorType
   >;
   anotherRule: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -148,7 +150,7 @@ export type ResolvedTempConflict<
   >;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,

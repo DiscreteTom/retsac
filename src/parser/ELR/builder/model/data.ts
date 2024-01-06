@@ -6,16 +6,16 @@ import type { Definition } from "./definition";
  * ParserBuilder's main data, to store all definitions and corresponding context builder user defined.
  */
 export type ParserBuilderData<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > = {
-  defs: Definition<Kinds>;
+  defs: Definition<NTs>;
   ctxBuilder?: DefinitionContextBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
