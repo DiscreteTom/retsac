@@ -838,6 +838,8 @@ export class ParserBuilder<
         lexer,
         autoCommit,
         ignoreEntryFollow,
+        this._global,
+        this.globalCloner,
         debug,
         logger,
       ) as unknown as [LexerDataBindings] extends [never]

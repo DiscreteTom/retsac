@@ -121,6 +121,8 @@ export class Parser<
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
     autoCommit: boolean,
     ignoreEntryFollow: boolean,
+    initialGlobal: Global,
+    globalCloner: (g: Global) => Global,
     debug: boolean,
     logger: Logger,
   ) {
@@ -132,6 +134,9 @@ export class Parser<
     this.rollbackStack = [];
     this.autoCommit = autoCommit;
     this.ignoreEntryFollow = ignoreEntryFollow;
+    this.initialGlobal = initialGlobal;
+    this._global = globalCloner(initialGlobal);
+    this.globalCloner = globalCloner;
     this.debug = debug;
     this.logger = logger;
   }
