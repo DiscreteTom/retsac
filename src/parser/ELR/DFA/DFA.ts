@@ -8,6 +8,10 @@ import type { Logger } from "../../../logger";
 import type { ASTNode, TNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
+import type {
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../../selector";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type { ParsingState, ReActionState, RollbackState } from "../model";
 import { hashStringToNum } from "../utils";
@@ -24,6 +28,8 @@ import {
   stringMap2serializable,
   serializable2map,
   prettierLexerRest,
+  cascadeASTNodeSelectorFactory,
+  cascadeASTNodeFirstMatchSelectorFactory,
 } from "./utils";
 
 /**
@@ -37,6 +43,19 @@ export class DFA<
   LexerActionState,
   LexerErrorType,
 > {
+  private selector: ASTNodeSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    Token<LexerDataBindings, LexerErrorType>
+  >;
+  private firstMatchSelector: ASTNodeFirstMatchSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    Token<LexerDataBindings, LexerErrorType>
+  >;
+
   constructor(
     readonly grammarRules: ReadonlyGrammarRuleRepo<
       NTs,
@@ -92,7 +111,22 @@ export class DFA<
     private readonly cascadeQueryPrefix: string | undefined,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
-  ) {}
+  ) {
+    this.selector = cascadeASTNodeSelectorFactory<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerErrorType
+    >(cascadeQueryPrefix);
+    this.firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerErrorType
+    >(cascadeQueryPrefix);
+  }
 
   /**
    * Try to yield an entry NT.
@@ -513,7 +547,8 @@ export class DFA<
         ignoreEntryFollow,
         this.followSets,
         parsingState.lexer,
-        this.cascadeQueryPrefix,
+        this.selector,
+        this.firstMatchSelector,
         debug,
         logger,
       );

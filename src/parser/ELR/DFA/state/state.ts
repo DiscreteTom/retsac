@@ -12,6 +12,10 @@ import type {
   AcceptedParserOutput,
 } from "../../../output";
 import { rejectedParserOutput } from "../../../output";
+import type {
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../../../selector";
 import { StateCacheMissError } from "../../error";
 import type { GrammarStringNoName, MockNode } from "../../model";
 import {
@@ -386,7 +390,18 @@ export class State<
       LexerActionState,
       LexerErrorType
     >,
-    cascadeQueryPrefix: string | undefined,
+    selector: ASTNodeSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>
+    >,
+    firstMatchSelector: ASTNodeFirstMatchSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>
+    >,
     debug: boolean,
     logger: Logger,
   ):
@@ -433,7 +448,8 @@ export class State<
         ignoreEntryFollow,
         followSets,
         lexer,
-        cascadeQueryPrefix,
+        selector,
+        firstMatchSelector,
         debug,
         logger,
       );

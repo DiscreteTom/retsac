@@ -21,12 +21,11 @@ import type {
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
 import type { ReadonlyFollowSets } from "../model";
-import {
-  cascadeASTNodeSelectorFactory,
-  cascadeASTNodeFirstMatchSelectorFactory,
-  map2serializable,
-  prettierLexerRest,
-} from "../utils";
+import { map2serializable, prettierLexerRest } from "../utils";
+import type {
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../../../selector";
 
 /**
  * @see {@link Candidate.id}.
@@ -233,7 +232,18 @@ export class Candidate<
       LexerActionState,
       LexerErrorType
     >,
-    cascadeQueryPrefix: string | undefined,
+    selector: ASTNodeSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>
+    >,
+    firstMatchSelector: ASTNodeFirstMatchSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>
+    >,
     debug: boolean,
     logger: Logger,
   ):
@@ -263,20 +273,6 @@ export class Candidate<
     matched.forEach((n, i) => (n.name = this.gr.rule[i].name)); // temp set name
     const rollbackNames = () => matched.forEach((n) => (n.name = n.kind)); // rollback the name
 
-    const selector = cascadeASTNodeSelectorFactory<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerErrorType
-    >(cascadeQueryPrefix); // TODO: make cascadeQueryPrefix and selectors a field of DFA, prevent duplicated creation
-    const firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerErrorType
-    >(cascadeQueryPrefix);
     const context = new GrammarRuleContext<
       NTs,
       ASTData,
