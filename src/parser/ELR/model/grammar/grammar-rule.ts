@@ -190,7 +190,17 @@ export class GrammarRule<
    * Format: ``{ NT: `grammar rules with name` }``.
    */
   toGrammarRuleString() {
-    return `{ ${this.NT}: \`${this.rule
+    return GrammarRule.getGrammarRuleString(this);
+  }
+
+  /**
+   * @see {@link GrammarRule.toGrammarRuleString}.
+   */
+  static getGrammarRuleString(data: {
+    NT: string;
+    rule: readonly Readonly<{ grammarString: string }>[];
+  }) {
+    return `{ ${data.NT}: \`${data.rule
       .map((g) => g.grammarString)
       .join(" ")}\` }`;
   }
