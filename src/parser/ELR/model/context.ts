@@ -1,12 +1,14 @@
+import type { StringOrLiteral } from "../../../helper";
 import type {
+  ExtractKinds,
   GeneralTokenDataBinding,
   IReadonlyTrimmedLexer,
   Token,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type {
-  ASTNodeChildrenSelector,
-  ASTNodeFirstMatchChildSelector,
+  NTNodeChildrenSelector,
+  NTNodeFirstMatchChildSelector,
   ASTNodeFirstMatchSelector,
   ASTNodeSelector,
 } from "../../selector";
@@ -15,7 +17,7 @@ import type {
  * This is used in grammar rule's callback, reducer and condition of rejecter/committer.
  */
 export class GrammarRuleContext<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -23,7 +25,8 @@ export class GrammarRuleContext<
   LexerErrorType,
 > {
   readonly matched: readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -33,7 +36,8 @@ export class GrammarRuleContext<
    * This is lazy and cached.
    */
   get before(): readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -47,8 +51,8 @@ export class GrammarRuleContext<
   get after() {
     return this.lexer.getRest();
   }
-  readonly $: ASTNodeFirstMatchChildSelector<
-    Kinds,
+  readonly $: NTNodeFirstMatchChildSelector<
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -56,8 +60,8 @@ export class GrammarRuleContext<
   /**
    * Find AST nodes by the name.
    */
-  readonly $$: ASTNodeChildrenSelector<
-    Kinds,
+  readonly $$: NTNodeChildrenSelector<
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -88,13 +92,15 @@ export class GrammarRuleContext<
     );
   }
   private beforeFactory: () => ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
   >[];
   private _before?: readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -104,7 +110,7 @@ export class GrammarRuleContext<
   constructor(
     p: Pick<
       GrammarRuleContext<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -114,19 +120,20 @@ export class GrammarRuleContext<
       "matched" | "lexer"
     > & {
       beforeFactory: () => ASTNode<
-        Kinds,
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
         ASTData,
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
       >[];
       selector: ASTNodeSelector<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
       >;
       firstMatchSelector: ASTNodeFirstMatchSelector<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
@@ -136,10 +143,16 @@ export class GrammarRuleContext<
     this.matched = p.matched;
     this.lexer = p.lexer;
     this.beforeFactory = p.beforeFactory;
-    const selector = p.selector;
-    const firstMatchSelector = p.firstMatchSelector;
-    this.$ = (name: string) => firstMatchSelector(name, this.matched);
-    this.$$ = (name: string) => selector(name, this.matched);
+    this.$ = <
+      TargetKind extends StringOrLiteral<NTs | ExtractKinds<LexerDataBindings>>,
+    >(
+      name: TargetKind,
+    ) => p.firstMatchSelector(name, this.matched);
+    this.$$ = <
+      TargetKind extends StringOrLiteral<NTs | ExtractKinds<LexerDataBindings>>,
+    >(
+      name: TargetKind,
+    ) => p.selector(name, this.matched);
   }
 }
 

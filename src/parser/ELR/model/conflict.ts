@@ -12,7 +12,7 @@ export enum ConflictType {
 }
 
 export interface Conflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -25,7 +25,8 @@ export interface Conflict<
    */
   anotherRule: Readonly<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -36,7 +37,7 @@ export interface Conflict<
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>;
+  next: GrammarSet<NTs, ExtractKinds<LexerDataBindings>>;
   /**
    * Is this a conflict if there is no next input?
    */
@@ -68,7 +69,7 @@ export type ResolverHydrationId = {
 };
 
 export type ResolvedConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -76,7 +77,7 @@ export type ResolvedConflict<
   LexerErrorType,
 > = Pick<
   Conflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -90,7 +91,7 @@ export type ResolvedConflict<
    */
   next:
     | Conflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -108,7 +109,7 @@ export type ResolvedConflict<
       }
     | {
         accepter: Condition<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
