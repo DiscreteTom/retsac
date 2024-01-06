@@ -348,3 +348,9 @@ export type SerializableParserData<
     >;
   };
 };
+
+export type ExtractSerializableParserData<
+  ParserBuilder extends {
+    build(...params: unknown[]): { serializable?: unknown };
+  },
+> = NonNullable<ReturnType<ParserBuilder["build"]>["serializable"]>;
