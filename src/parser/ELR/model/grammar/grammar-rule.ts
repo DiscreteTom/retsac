@@ -1,11 +1,5 @@
-import type { Traverser } from "../../../traverser";
-import { Lazy, type LazyString } from "../../../../helper";
-import type {
-  Conflict,
-  ConflictType,
-  ResolvedConflict,
-  ResolverHydrationId,
-} from "../conflict";
+import type { NTNodeTraverser } from "../../../traverser";
+import type { Conflict, ResolvedConflict } from "../conflict";
 import type { Callback, Condition } from "../context";
 import type { Grammar } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
@@ -20,25 +14,26 @@ import type {
 } from "../../../../lexer";
 
 export class GrammarRule<
-  Kinds extends string,
+  NT extends NTs, // the target NT
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > {
-  readonly rule: readonly Grammar<Kinds | ExtractKinds<LexerDataBindings>>[];
+  readonly rule: readonly Grammar<NTs | ExtractKinds<LexerDataBindings>>[];
   /**
    * The reduce target's kind name.
    */
-  readonly NT: Kinds;
+  readonly NT: NT;
   /**
    * A list of conflicts when the grammar rule wants to reduce.
    * All conflicts must be resolved before the DFA can be built.
    * This will be evaluated during the parsing process.
    */
   readonly conflicts: (Conflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -49,7 +44,7 @@ export class GrammarRule<
      * Related resolvers.
      */
     resolvers: ResolvedConflict<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -63,7 +58,7 @@ export class GrammarRule<
    * This will be evaluated by candidate during parsing.
    */
   readonly resolved: ResolvedConflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -71,7 +66,7 @@ export class GrammarRule<
     LexerErrorType
   >[];
   callback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -79,7 +74,7 @@ export class GrammarRule<
     LexerErrorType
   >;
   rejecter?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -87,7 +82,7 @@ export class GrammarRule<
     LexerErrorType
   >;
   rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -95,32 +90,26 @@ export class GrammarRule<
     LexerErrorType
   >;
   commit?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
   >;
-  traverser?: Traverser<
-    Kinds,
+  traverser?: NTNodeTraverser<
+    NT,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
   >;
 
   /**
-   * @see {@link GrammarRule.toString}
+   * Format: `NT:grammar,...`.
+   * This is used in {@link ReadonlyGrammarRuleRepo} when build DFA.
    */
-  readonly str: LazyString;
-  /**
-   * @see {@link GrammarRule.getStrWithGrammarName}
-   */
-  readonly strWithGrammarName: LazyString;
-  /**
-   * @see {@link GrammarRule.getStrWithoutGrammarName}
-   */
-  readonly strWithoutGrammarName: LazyString;
+  readonly id: string;
   /**
    * The index of {@link ParserBuilder.builderData}
    */
@@ -129,7 +118,8 @@ export class GrammarRule<
   constructor(
     p: Pick<
       GrammarRule<
-        Kinds,
+        NT,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -144,12 +134,22 @@ export class GrammarRule<
       | "commit"
       | "traverser"
       | "hydrationId"
-    > & {
+    > &
       // restored from JSON
-      str?: string;
-      strWithGrammarName?: string;
-      strWithoutGrammarName?: string;
-    },
+      Partial<
+        Pick<
+          GrammarRule<
+            NT,
+            NTs,
+            ASTData,
+            ErrorType,
+            LexerDataBindings,
+            LexerActionState,
+            LexerErrorType
+          >,
+          "id"
+        >
+      >,
   ) {
     this.rule = p.rule;
     this.NT = p.NT;
@@ -161,144 +161,68 @@ export class GrammarRule<
     this.conflicts = [];
     this.resolved = [];
 
-    this.str = new Lazy(() => this.strWithGrammarName.value, p.str);
-    this.strWithGrammarName = new Lazy(
-      () => GrammarRule.getStrWithGrammarName(this),
-      p.strWithGrammarName,
-    );
-    this.strWithoutGrammarName = new Lazy(
-      () => GrammarRule.getStrWithoutGrammarName(this),
-      p.strWithoutGrammarName,
-    );
+    this.id = p.id ?? GrammarRule.getId(p);
     this.hydrationId = p.hydrationId;
   }
 
   /**
+   * @see {@link GrammarRule.id}.
+   */
+  static getId(
+    data: Readonly<{ NT: string; rule: readonly { grammarString: string }[] }>,
+  ) {
+    return `${data.NT}:${data.rule.map((g) => g.grammarString).join(",")}`;
+  }
+
+  /**
    * For debug output.
+   *
+   * Format: `GrammarRule({ NT, rule })`.
    */
   toString() {
-    return this.str.value;
+    // don't use JSON.stringify, because grammar's grammar string is already human-readable and stringify-ed
+    return `GrammarRule({ NT: ${this.NT}, rule: [${this.rule
+      .map((g) => g.grammarString)
+      .join(", ")}] })`;
   }
 
   /**
-   * Return ``{ NT: `grammar rules with name` }``.
+   * Format: ``{ NT: `grammar rules with name` }``.
    */
-  static getStrWithGrammarName<
-    Kinds extends string,
-    ASTData,
-    ErrorType,
-    LexerDataBindings extends GeneralTokenDataBinding,
-    LexerActionState,
-    LexerErrorType,
-  >(
-    gr: Pick<
-      GrammarRule<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "NT" | "rule"
-    >,
-  ) {
-    return `{ ${gr.NT}: \`${gr.rule
-      .map((g) => g.grammarStrWithName)
+  toGrammarRuleString() {
+    return `{ ${this.NT}: \`${this.rule
+      .map((g) => g.grammarString)
       .join(" ")}\` }`;
   }
 
-  /**
-   * Return ``{ NT: `grammar rules without name` }``.
-   */
-  static getStrWithoutGrammarName<
-    Kinds extends string,
-    ASTData,
-    ErrorType,
-    LexerDataBindings extends GeneralTokenDataBinding,
-    LexerActionState,
-    LexerErrorType,
-  >(
-    gr: Pick<
-      GrammarRule<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "NT" | "rule"
-    >,
-  ) {
-    return `{ ${gr.NT}: \`${gr.rule
-      .map((g) => g.grammarStrWithoutName.value)
-      .join(" ")}\` }`;
-  }
-
-  toSerializable(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-    grs: ReadonlyGrammarRuleRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-  ): {
-    // TODO: omit this return type definition
-    // currently run `ts-node utils/generate-serialized-grammar-parser.ts` requires this return type definition
-    NT: Kinds;
-    rule: string[];
-    conflicts: {
-      type: ConflictType;
-      anotherRule: string;
-      next: string[];
-      handleEnd: boolean;
-      resolvers: number[];
-    }[];
-    resolved: {
-      type: ConflictType;
-      anotherRule: string;
-      handleEnd: boolean;
-      next: string[] | "*";
-      accepter: boolean | undefined;
-      hydrationId: Readonly<ResolverHydrationId> | undefined;
-    }[];
-    str: string;
-    strWithGrammarName: string;
-    strWithoutGrammarName: string;
-    hydrationId: number;
-  } {
+  toJSON() {
     return {
       NT: this.NT,
-      rule: this.rule.map((g) => repo.getKey(g)),
+      rule: this.rule.map((g) => g.grammarString),
       conflicts: this.conflicts.map((c) => ({
         type: c.type,
-        anotherRule: grs.getKey(c.anotherRule),
-        next: c.next.map((g) => repo.getKey(g)),
+        anotherRule: c.anotherRule.id,
+        next: c.next.map((g) => g.grammarString),
         handleEnd: c.handleEnd,
         resolvers: c.resolvers.map((r) => this.resolved.indexOf(r)),
       })),
       resolved: this.resolved.map((r) => ({
         type: r.type,
-        anotherRule: grs.getKey(r.anotherRule),
+        anotherRule: r.anotherRule.id,
         handleEnd: r.handleEnd,
         next:
-          r.next === "*" ? ("*" as const) : r.next.map((g) => repo.getKey(g)),
+          r.next === "*" ? ("*" as const) : r.next.map((g) => g.grammarString),
         accepter: r.hydrationId === undefined ? r.accepter : undefined,
         hydrationId: r.hydrationId === undefined ? undefined : r.hydrationId,
       })),
-      str: this.str.value,
-      strWithGrammarName: this.strWithGrammarName.value,
-      strWithoutGrammarName: this.strWithoutGrammarName.value,
+      id: this.id,
       hydrationId: this.hydrationId,
     };
   }
 
   static fromJSON<
-    Kinds extends string,
+    NT extends NTs,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -307,36 +231,36 @@ export class GrammarRule<
   >(
     data: ReturnType<
       GrammarRule<
-        Kinds,
+        NT,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
-      >["toSerializable"]
+      >["toJSON"]
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const gr = new GrammarRule<
-      Kinds,
+      NT,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >({
-      rule: data.rule.map((r) => repo.getByString(r)!),
-      NT: data.NT as Kinds,
+      rule: data.rule.map((r) => repo.get(r)!),
+      NT: data.NT as NT,
       hydrationId: data.hydrationId,
-      str: data.str,
-      strWithGrammarName: data.strWithGrammarName,
-      strWithoutGrammarName: data.strWithoutGrammarName,
+      id: data.id,
     });
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.
     const restoreConflicts = (
       grs: ReadonlyGrammarRuleRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -349,26 +273,26 @@ export class GrammarRule<
           r.hydrationId === undefined
             ? {
                 type: r.type,
-                anotherRule: grs.getByString(r.anotherRule)!,
+                anotherRule: grs.get(r.anotherRule)!,
                 handleEnd: r.handleEnd,
                 next:
                   r.next === "*"
                     ? ("*" as const)
-                    : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
-                        r.next.map((g) => repo.getByString(g)!),
+                    : new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>(
+                        r.next.map((g) => repo.get(g)!),
                       ),
                 accepter: r.accepter!,
                 hydrationId: undefined,
               }
             : {
                 type: r.type,
-                anotherRule: grs.getByString(r.anotherRule)!,
+                anotherRule: grs.get(r.anotherRule)!,
                 handleEnd: r.handleEnd,
                 next:
                   r.next === "*"
                     ? ("*" as const)
-                    : new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
-                        r.next.map((g) => repo.getByString(g)!),
+                    : new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>(
+                        r.next.map((g) => repo.get(g)!),
                       ),
                 // accepter will be restored when hydrate if hydration id is provided.
                 accepter: () => true,
@@ -379,9 +303,9 @@ export class GrammarRule<
       gr.conflicts.push(
         ...data.conflicts.map((c) => ({
           type: c.type,
-          anotherRule: grs.getByString(c.anotherRule)!,
-          next: new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>(
-            c.next.map((g) => repo.getByString(g)!),
+          anotherRule: grs.get(c.anotherRule)!,
+          next: new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>(
+            c.next.map((g) => repo.get(g)!),
           ),
           handleEnd: c.handleEnd,
           resolvers: c.resolvers.map((i) => gr.resolved[i]),

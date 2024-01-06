@@ -119,6 +119,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
   static getGrammarString(
     data: Pick<Grammar<string>, "kind" | "name" | "text">,
   ) {
+    // [[grammar string]]
     return (
       Grammar.getGrammarStringNoName(data) +
       (data.name === data.kind ? "" : "@" + data.name)
