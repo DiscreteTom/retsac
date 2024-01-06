@@ -67,6 +67,7 @@ export interface IParser<
    */
   ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
   readonly lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  get global(): Global;
   /**
    * Reset state.
    */

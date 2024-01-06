@@ -96,6 +96,13 @@ export class Parser<
     >[];
   }
 
+  private _global: Global;
+  private globalCloner: (g: Global) => Global;
+  private initialGlobal: Global;
+  get global() {
+    return this._global;
+  }
+
   debug: boolean;
   logger: Logger;
   autoCommit: boolean;
@@ -141,6 +148,7 @@ export class Parser<
     this.lexer.reset();
     this._buffer = [];
     this.errors.length = 0;
+    this._global = this.globalCloner(this.initialGlobal);
     return this.commit();
   }
 
@@ -191,6 +199,7 @@ export class Parser<
         () => this.commit(),
         stopOnError,
         this.ignoreEntryFollow,
+        this._global,
         this.debug,
         this.logger,
       );

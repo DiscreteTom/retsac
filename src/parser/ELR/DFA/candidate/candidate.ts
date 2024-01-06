@@ -254,6 +254,7 @@ export class Candidate<
       Token<LexerDataBindings, LexerErrorType>,
       Global
     >,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ):
@@ -486,6 +487,7 @@ export class Candidate<
       traverser: this.gr.traverser,
       selector,
       firstMatchSelector,
+      global,
     });
     node.children!.forEach((c) => (c.parent = node)); // link parent
     if (debug) {

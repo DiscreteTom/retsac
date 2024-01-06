@@ -64,7 +64,7 @@ export class ParserBuilder<
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
   LexerErrorType = never,
-  Global = never,
+  Global = undefined,
 > implements
     IParserBuilder<
       NTs,
@@ -98,6 +98,8 @@ export class ParserBuilder<
     LexerActionState,
     LexerErrorType
   >;
+  private _global: Global;
+  private globalCloner: (g: Global) => Global;
 
   constructor(options?: {
     /**
@@ -108,6 +110,7 @@ export class ParserBuilder<
   }) {
     this.builderData = [];
     this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
+    this.globalCloner = structuredClone;
   }
 
   lexer<
@@ -143,6 +146,21 @@ export class ParserBuilder<
       Global
     >;
     _this._lexer = lexer;
+    return _this;
+  }
+
+  global<NewGlobal>(g: NewGlobal, cloner?: (g: NewGlobal) => NewGlobal) {
+    const _this = this as unknown as ParserBuilder<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      NewGlobal
+    >;
+    _this._global = g;
+    _this.globalCloner = cloner ?? structuredClone;
     return _this;
   }
 

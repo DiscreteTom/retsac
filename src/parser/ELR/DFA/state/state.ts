@@ -434,6 +434,7 @@ export class State<
       Token<LexerDataBindings, LexerErrorType>,
       Global
     >,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ):
@@ -485,6 +486,7 @@ export class State<
         lexer,
         selector,
         firstMatchSelector,
+        global,
         debug,
         logger,
       );

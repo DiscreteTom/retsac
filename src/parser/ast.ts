@@ -77,10 +77,6 @@ export abstract class ASTNode<
    * This is not readonly because it will be set by parent node.
    */
   parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType, Global>;
-  /**
-   * Global data, shared by all nodes.
-   */
-  global: Global;
 
   // should only be used by subclasses
   protected constructor(
@@ -271,11 +267,15 @@ export class NTNode<
     TokenType,
     Global
   >;
+  /**
+   * Global data, shared by all NT nodes.
+   */
+  readonly global: Global; // this should be a reference type. make this readonly
 
   constructor(
     p: Pick<
       NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
-      "kind" | "start" | "data" | "error" | "children"
+      "kind" | "start" | "data" | "error" | "children" | "global"
     > & {
       traverser:
         | NTNodeTraverser<Kind, NTs, ASTData, ErrorType, TokenType, Global>
@@ -304,6 +304,7 @@ export class NTNode<
       name: TargetKind,
     ) => p.selector(name, this.children);
     this.traverser = p.traverser ?? defaultNTNodeTraverser;
+    this.global = p.global;
   }
 
   traverse(): ASTData | undefined {

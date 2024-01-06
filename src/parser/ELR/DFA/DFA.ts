@@ -172,6 +172,7 @@ export class DFA<
     commitParser: () => void,
     stopOnError: boolean,
     ignoreEntryFollow: boolean,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ): {
@@ -197,6 +198,7 @@ export class DFA<
       commitParser,
       stopOnError,
       ignoreEntryFollow,
+      global,
       debug,
       logger,
     );
@@ -316,6 +318,7 @@ export class DFA<
     commitParser: () => void,
     stopOnError: boolean,
     ignoreEntryFollow: boolean,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ) {
@@ -334,6 +337,7 @@ export class DFA<
         reLexStack,
         rollbackStack,
         ignoreEntryFollow,
+        global,
         debug,
         logger,
       );
@@ -533,6 +537,7 @@ export class DFA<
       Global
     >[],
     ignoreEntryFollow: boolean,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ) {
@@ -576,6 +581,7 @@ export class DFA<
         parsingState.lexer,
         this.selector,
         this.firstMatchSelector,
+        global,
         debug,
         logger,
       );
