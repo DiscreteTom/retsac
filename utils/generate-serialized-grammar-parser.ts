@@ -21,28 +21,18 @@ const content = [
   "// comment all lines and uncomment the next line to re-generate the data",
   "// export const data = undefined;",
   "",
-  `import type { SerializableParserData } from "../../model";`,
+  `import type { ExtractSerializableParserData } from "../../model";`,
+  `import type { GrammarParserBuilder } from "./grammar-parser-factory";`,
   "",
-  `export const data: SerializableParserData<"gr", {
-    kind: "";
-    data: undefined;
-} | {
-    kind: "rename" | "grammar";
-    data: undefined;
-} | {
-    kind: "literal";
-    data: {
-        unclosed: boolean;
-    };
-} | {
-    kind: "";
-    data: undefined;
-}> = ${util.inspect(serializable, {
-    maxArrayLength: Infinity,
-    maxStringLength: Infinity,
-    // depth should be infinity, set it to a limited number in case of circular references
-    depth: 10,
-  })};`,
+  `export const data: ExtractSerializableParserData<GrammarParserBuilder> = ${util.inspect(
+    serializable,
+    {
+      maxArrayLength: Infinity,
+      maxStringLength: Infinity,
+      // depth should be infinity, set it to a limited number in case of circular references
+      depth: 10,
+    },
+  )};`,
 ].join("\n");
 
 prettier.format(content, { parser: "typescript" }).then((content) => {

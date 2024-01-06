@@ -128,3 +128,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
 }
 
 export const entry = "gr" as const;
+
+export type GrammarParserBuilder = ReturnType<
+  typeof grammarParserFactory
+>["parserBuilder"];
