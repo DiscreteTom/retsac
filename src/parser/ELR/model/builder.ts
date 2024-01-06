@@ -12,7 +12,7 @@ import type {
 import type { Parser } from "../parser";
 
 export type BuildOptions<
-  Kinds extends string,
+  NTs extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
 > = [LexerDataBindings] extends [never]
   ? never // no lexer, prevent build
@@ -26,7 +26,7 @@ export type BuildOptions<
        * Declare top-level NT's.
        * This is required for ELR parser.
        */
-      entry: Kinds | readonly Kinds[];
+      entry: NTs | readonly NTs[];
       /**
        * Which format to generate resolvers.
        * If `undefined`, resolvers will not be generated.
@@ -83,7 +83,7 @@ export type BuildOptions<
        * If provided and valid, the parser will be hydrated from this data.
        * The value is always checked to make sure it's valid.
        */
-      hydrate?: SerializableParserData<Kinds, LexerDataBindings>;
+      hydrate?: SerializableParserData<NTs, LexerDataBindings>;
       /**
        * If `true` and the build is successful, {@link IParserBuilder.build} will return a mermaid graph.
        * @default false
@@ -93,7 +93,7 @@ export type BuildOptions<
 
 export type BuildOutput<
   LexerDataBindings extends GeneralTokenDataBinding,
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerActionState,
@@ -102,7 +102,7 @@ export type BuildOutput<
   parser: [LexerDataBindings] extends [never]
     ? never // if no lexer, no parser
     : IParser<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -113,7 +113,7 @@ export type BuildOutput<
    * If you build the parser with {@link BuildOptions.serialize},
    * this will be set to the serializable object.
    */
-  serializable?: Readonly<SerializableParserData<Kinds, LexerDataBindings>>;
+  serializable?: Readonly<SerializableParserData<NTs, LexerDataBindings>>;
   mermaid?: string;
   /**
    * If you build the parser with {@link BuildOptions.generateResolvers},
@@ -124,7 +124,7 @@ export type BuildOutput<
 
 // TODO: add TraverseContext as a generic type parameter
 export interface IParserBuilder<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -144,7 +144,7 @@ export interface IParserBuilder<
   lexer<
     // make sure this function can only be called once
     // and must be called before defining any grammar rules
-    NewLexerDataBindings extends [Kinds] extends [never]
+    NewLexerDataBindings extends [NTs] extends [never]
       ? [LexerDataBindings] extends [never] // why array? see [[@type constraints with array]]
         ? GeneralTokenDataBinding // NewLexerDataBindings should extends GeneralTokenDataBinding
         : never // LexerDataBindings already set, prevent modification
@@ -158,7 +158,7 @@ export interface IParserBuilder<
       NewLexerErrorType
     >,
   ): IParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     NewLexerDataBindings,
@@ -177,7 +177,7 @@ export interface IParserBuilder<
    */
   // TODO: allow multiple call
   data<
-    NewASTData extends [Kinds] extends [never]
+    NewASTData extends [NTs] extends [never]
       ? [ASTData] extends [never] // why array? see [[@type constraints with array]]
         ? unknown // NewData can be any type
         : never // ASTData already set, prevent modification
@@ -185,7 +185,7 @@ export interface IParserBuilder<
   >(
     data?: NewASTData,
   ): IParserBuilder<
-    Kinds,
+    NTs,
     NewASTData,
     ErrorType,
     LexerDataBindings,
@@ -196,9 +196,9 @@ export interface IParserBuilder<
    * Define grammar rules.
    */
   define<Append extends string>(
-    defs: Definition<Kinds | Append>,
+    defs: Definition<NTs | Append>,
     decorator?: DefinitionContextBuilderDecorator<
-      Kinds | Append,
+      NTs | Append,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -206,7 +206,7 @@ export interface IParserBuilder<
       LexerErrorType
     >,
   ): IParserBuilder<
-    Kinds | Append,
+    NTs | Append,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -217,10 +217,10 @@ export interface IParserBuilder<
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RS_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -232,10 +232,10 @@ export interface IParserBuilder<
    * Resolve a reduce-reduce conflict.
    */
   resolveRR(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RR_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -261,9 +261,9 @@ export interface IParserBuilder<
    */
   priority(
     ...groups: (
-      | Definition<Kinds>
-      | Definition<Kinds>[]
-      | DefinitionGroupWithAssociativity<Kinds>
+      | Definition<NTs>
+      | Definition<NTs>[]
+      | DefinitionGroupWithAssociativity<NTs>
     )[]
   ): this;
   /**
@@ -271,7 +271,7 @@ export interface IParserBuilder<
    */
   use<AppendKinds extends string>(
     f: BuilderDecorator<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -280,7 +280,7 @@ export interface IParserBuilder<
       AppendKinds
     >,
   ): IParserBuilder<
-    Kinds | AppendKinds,
+    NTs | AppendKinds,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -293,10 +293,10 @@ export interface IParserBuilder<
    */
   // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
   build(
-    options: BuildOptions<Kinds, LexerDataBindings>,
+    options: BuildOptions<NTs, LexerDataBindings>,
   ): BuildOutput<
     LexerDataBindings,
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerActionState,
@@ -305,7 +305,7 @@ export interface IParserBuilder<
 }
 
 export type BuilderDecorator<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -314,7 +314,7 @@ export type BuilderDecorator<
   AppendKinds extends string,
 > = (
   pb: IParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -322,7 +322,7 @@ export type BuilderDecorator<
     LexerErrorType
   >,
 ) => IParserBuilder<
-  Kinds | AppendKinds,
+  NTs | AppendKinds,
   ASTData,
   ErrorType,
   LexerDataBindings,
@@ -334,7 +334,7 @@ export type BuilderDecorator<
  * Used to store the parser to a serializable object.
  */
 export type SerializableParserData<
-  Kinds extends string,
+  NTs extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
 > = {
   /**
@@ -344,7 +344,7 @@ export type SerializableParserData<
   hash: number;
   data: {
     dfa: ReturnType<
-      DFA<Kinds, never, never, LexerDataBindings, never, never>["toJSON"]
+      DFA<NTs, never, never, LexerDataBindings, never, never>["toJSON"]
     >;
   };
 };

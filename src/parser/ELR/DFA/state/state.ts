@@ -228,7 +228,7 @@ export class State<
    * @see {@link State.id}.
    */
   static generateId<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -237,7 +237,7 @@ export class State<
   >(
     data: Pick<
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -338,7 +338,7 @@ export class State<
           if (r !== undefined) {
             const info = {
               candidate: c.toString(),
-              got: r.node.strWithoutName.value,
+              got: r.node.toString(),
             };
             logger.log({
               entity: "Parser",
@@ -458,7 +458,7 @@ export class State<
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -467,7 +467,7 @@ export class State<
   >(
     data: ReturnType<
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -476,14 +476,14 @@ export class State<
       >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const s = new State(
       data.candidates.map((c) => cs.get(c)!),
@@ -493,7 +493,7 @@ export class State<
     // restore nextMap after the whole state repo is filled.
     const restoreNextMap = (
       ss: StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,

@@ -75,9 +75,9 @@ export class GrammarSet<NTs extends string, LexerKinds extends string> {
     return this.map((g) => g.grammarString);
   }
 
-  static fromJSON<Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarSet<Kinds, LexerKinds>["toJSON"]>,
-    repo: GrammarRepo<Kinds, LexerKinds>,
+  static fromJSON<NTs extends string, LexerKinds extends string>(
+    data: ReturnType<GrammarSet<NTs, LexerKinds>["toJSON"]>,
+    repo: GrammarRepo<NTs, LexerKinds>,
   ) {
     return new GrammarSet(data.map((s) => repo.get(s)!));
   }

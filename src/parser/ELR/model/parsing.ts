@@ -1,4 +1,5 @@
 import type {
+  ExtractKinds,
   GeneralTokenDataBinding,
   ITrimmedLexer,
   Token,
@@ -8,7 +9,7 @@ import type { State } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
 
 export type ParsingState<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -19,7 +20,7 @@ export type ParsingState<
    * Current state is `states.at(-1)`.
    */
   stateStack: State<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -27,7 +28,8 @@ export type ParsingState<
     LexerErrorType
   >[];
   buffer: readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -40,7 +42,8 @@ export type ParsingState<
    * Newly collected errors in that parsing process.
    */
   errors: ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>
@@ -50,7 +53,7 @@ export type ParsingState<
 
 // TODO: rename to reLexState
 export type ReActionState<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -58,7 +61,7 @@ export type ReActionState<
   LexerErrorType,
 > = Readonly<
   ParsingState<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -70,7 +73,7 @@ export type ReActionState<
 };
 
 export type RollbackState<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -78,7 +81,7 @@ export type RollbackState<
   LexerErrorType,
 > = {
   readonly rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -86,7 +89,7 @@ export type RollbackState<
     LexerErrorType
   >;
   readonly context: GrammarRuleContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,

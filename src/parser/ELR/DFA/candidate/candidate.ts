@@ -504,7 +504,7 @@ export class Candidate<
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -513,7 +513,7 @@ export class Candidate<
   >(
     data: ReturnType<
       Candidate<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -522,17 +522,17 @@ export class Candidate<
       >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const c = new Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -547,7 +547,7 @@ export class Candidate<
     // restore next map after the whole candidate repo is filled
     const restoreNextMap = (
       cs: ReadonlyCandidateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,

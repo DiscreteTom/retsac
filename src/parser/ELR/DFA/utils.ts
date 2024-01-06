@@ -333,16 +333,16 @@ export function lexGrammar<
  * Calculate state machine's state transition map ahead of time and cache.
  */
 export function calculateAllStates<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 >(
-  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+  repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -350,7 +350,7 @@ export function calculateAllStates<
     LexerErrorType
   >,
   allStates: StateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -358,7 +358,7 @@ export function calculateAllStates<
     LexerErrorType
   >,
   NTClosures: ReadonlyNTClosures<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -366,7 +366,7 @@ export function calculateAllStates<
     LexerErrorType
   >,
   cs: CandidateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -382,7 +382,7 @@ export function calculateAllStates<
   // and the `parser.parse` will throw StateCacheMissError.
   // if we do convert entry-only NTs into ASTNodes,
   // the `parser.parse` will just reject the input without throwing StateCacheMissError.
-  const gs = new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>();
+  const gs = new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>();
   allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
@@ -584,16 +584,16 @@ export function prettierLexerRest<
  * Construct first sets for all NTs.
  */
 export function buildFirstSets<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 >(
-  NTs: ReadonlySet<Kinds>,
+  NTs: ReadonlySet<NTs>,
   NTClosures: ReadonlyNTClosures<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -602,8 +602,8 @@ export function buildFirstSets<
   >,
 ) {
   const firstSets = new Map<
-    Kinds,
-    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
+    NTs,
+    GrammarSet<NTs, ExtractKinds<LexerDataBindings>>
   >();
 
   NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
@@ -614,34 +614,34 @@ export function buildFirstSets<
     grs.forEach((gr) => gs!.add(gr.rule[0]));
   });
 
-  return firstSets as ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>;
+  return firstSets as ReadonlyFirstSets<NTs, ExtractKinds<LexerDataBindings>>;
 }
 
 /**
  * Construct follow sets for all grammars.
  */
 export function buildFollowSets<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 >(
-  NTs: ReadonlySet<Kinds>,
+  NTs: ReadonlySet<NTs>,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
   >,
-  firstSets: ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>,
+  firstSets: ReadonlyFirstSets<NTs, ExtractKinds<LexerDataBindings>>,
 ) {
   const followSets = new Map<
-    Kinds | ExtractKinds<LexerDataBindings>,
-    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
+    NTs | ExtractKinds<LexerDataBindings>,
+    GrammarSet<NTs, ExtractKinds<LexerDataBindings>>
   >();
 
   NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
@@ -660,7 +660,7 @@ export function buildFollowSets<
         // if next grammar is also NT, merge with its first set
         if (rule[i + 1].type === GrammarType.NT)
           firstSets
-            .get(rule[i + 1].kind as Kinds)!
+            .get(rule[i + 1].kind as NTs)!
             .grammars.forEach((g) => gs.add(g));
       }
     });
@@ -682,8 +682,5 @@ export function buildFollowSets<
     if (!changed) break;
   }
 
-  return followSets as ReadonlyFollowSets<
-    Kinds,
-    ExtractKinds<LexerDataBindings>
-  >;
+  return followSets as ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>;
 }

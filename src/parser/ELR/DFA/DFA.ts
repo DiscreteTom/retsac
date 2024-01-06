@@ -5,7 +5,7 @@ import type {
   Token,
 } from "../../../lexer";
 import type { Logger } from "../../../logger";
-import type { ASTNode } from "../../ast";
+import type { ASTNode, TNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
@@ -193,7 +193,16 @@ export class DFA<
       const info = {
         trying: targetState.buffer.at(-1)!.toString(),
         restored:
-          targetState.buffer.at(-1)!.text +
+          // the last node must be a TNode
+          (
+            targetState.buffer.at(-1)! as TNode<
+              ExtractKinds<LexerDataBindings>,
+              NTs,
+              ASTData,
+              ErrorType,
+              Token<LexerDataBindings, LexerErrorType>
+            >
+          ).text +
           targetState.lexer.buffer.slice(
             targetState.lexer.digested,
             parsingState.lexer.digested,
@@ -538,7 +547,7 @@ export class DFA<
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -547,7 +556,7 @@ export class DFA<
   >(
     data: ReturnType<
       DFA<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -563,12 +572,11 @@ export class DFA<
     },
   ) {
     const NTs = new Set(data.NTs);
-    const grammars = GrammarRepo.fromJSON<
-      Kinds,
-      ExtractKinds<LexerDataBindings>
-    >(data.grammars);
+    const grammars = GrammarRepo.fromJSON<NTs, ExtractKinds<LexerDataBindings>>(
+      data.grammars,
+    );
     const grs = ReadonlyGrammarRuleRepo.fromJSON<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -576,7 +584,7 @@ export class DFA<
       LexerErrorType
     >(data.grammarRules, grammars);
     const candidates = CandidateRepo.fromJSON<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -586,10 +594,10 @@ export class DFA<
     const states = StateRepo.fromJSON(data.states, candidates, grammars);
     const firstSets = serializable2map(data.firstSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>;
+    ) as ReadonlyFirstSets<NTs, ExtractKinds<LexerDataBindings>>;
     const followSets = serializable2map(data.followSets, (v) =>
       GrammarSet.fromJSON(v, grammars),
-    ) as ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>;
+    ) as ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>;
     const NTClosures = serializable2map(data.NTClosures, (v) =>
       v.map((s) => grs.get(s)!),
     );

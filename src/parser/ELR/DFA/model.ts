@@ -5,29 +5,30 @@ import type { GrammarRule, GrammarSet } from "../model";
  * `NT => Grammars`
  */
 export type ReadonlyFirstSets<
-  Kinds extends string,
+  NTs extends string,
   LexerKinds extends string,
-> = ReadonlyMap<Kinds, GrammarSet<Kinds, LexerKinds>>;
+> = ReadonlyMap<NTs, GrammarSet<NTs, LexerKinds>>;
 
 /**
  * `grammar.kind => Grammars`
  */
 export type ReadonlyFollowSets<
-  Kinds extends string,
+  NTs extends string,
   LexerKinds extends string,
-> = ReadonlyMap<Kinds | LexerKinds, GrammarSet<Kinds, LexerKinds>>;
+> = ReadonlyMap<NTs | LexerKinds, GrammarSet<NTs, LexerKinds>>;
 
 export type ReadonlyNTClosures<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
 > = ReadonlyMap<
-  Kinds,
+  NTs,
   GrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,

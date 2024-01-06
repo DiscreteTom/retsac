@@ -20,23 +20,23 @@ import {
 
 export class DFABuilder {
   static prepare<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
   >(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     lexer: IReadonlyLexerCore<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    entryNTs: ReadonlySet<Kinds>,
+    entryNTs: ReadonlySet<NTs>,
     data: readonly Readonly<
       ParserBuilderData<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -66,7 +66,7 @@ export class DFABuilder {
                 lexer,
                 printAll,
                 logger,
-                NTs.has(g.content as Kinds),
+                NTs.has(g.content as NTs),
               ),
             ),
             hydrationId: gr.hydrationId,
@@ -76,7 +76,7 @@ export class DFABuilder {
 
     // init all initial candidates, initial candidate is candidate with digested=0
     const cs = new CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -99,7 +99,7 @@ export class DFABuilder {
 
     // init all states
     const allStates = new StateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,

@@ -141,7 +141,7 @@ export class CandidateRepo<
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -150,7 +150,7 @@ export class CandidateRepo<
   >(
     data: ReturnType<
       CandidateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -159,16 +159,16 @@ export class CandidateRepo<
       >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ): ReadonlyCandidateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -177,7 +177,7 @@ export class CandidateRepo<
   > {
     const callbacks = [] as ((
       cs: CandidateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -186,7 +186,7 @@ export class CandidateRepo<
       >,
     ) => void)[];
     const res = new CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -195,7 +195,7 @@ export class CandidateRepo<
     >();
     data.forEach((d) => {
       const { c, restoreNextMap } = Candidate.fromJSON<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -212,7 +212,7 @@ export class CandidateRepo<
 }
 
 export type ReadonlyCandidateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -220,7 +220,7 @@ export type ReadonlyCandidateRepo<
   LexerErrorType,
 > = Omit<
   CandidateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,

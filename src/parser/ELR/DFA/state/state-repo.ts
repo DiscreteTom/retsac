@@ -185,7 +185,7 @@ export class StateRepo<
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
@@ -194,7 +194,7 @@ export class StateRepo<
   >(
     data: ReturnType<
       StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -203,17 +203,17 @@ export class StateRepo<
       >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const ss = new StateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -222,7 +222,7 @@ export class StateRepo<
     >();
     const callbacks = [] as ((
       ss: StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -242,7 +242,7 @@ export class StateRepo<
 }
 
 export type ReadonlyStateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -250,7 +250,7 @@ export type ReadonlyStateRepo<
   LexerErrorType,
 > = Omit<
   StateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,

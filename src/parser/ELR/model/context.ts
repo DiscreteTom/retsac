@@ -160,7 +160,7 @@ export class GrammarRuleContext<
  * This will be called if the current grammar rule is accepted.
  */
 export type Callback<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -168,7 +168,7 @@ export type Callback<
   LexerErrorType,
 > = (
   context: GrammarRuleContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -178,7 +178,7 @@ export type Callback<
 ) => void;
 
 export type Condition<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -186,7 +186,7 @@ export type Condition<
   LexerErrorType,
 > = (
   context: GrammarRuleContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -199,7 +199,7 @@ export type Condition<
  * Reducer should use children's data to yield the parent's data.
  */
 export type Reducer<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -207,7 +207,7 @@ export type Reducer<
   LexerErrorType,
 > = (
   context: GrammarRuleContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,

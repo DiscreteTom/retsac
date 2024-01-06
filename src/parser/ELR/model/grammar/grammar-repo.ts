@@ -134,10 +134,10 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
     return this.map((g) => g.toJSON());
   }
 
-  static fromJSON<Kinds extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarRepo<Kinds, LexerKinds>["toJSON"]>,
+  static fromJSON<NTs extends string, LexerKinds extends string>(
+    data: ReturnType<GrammarRepo<NTs, LexerKinds>["toJSON"]>,
   ) {
-    const repo = new GrammarRepo<Kinds, LexerKinds>();
+    const repo = new GrammarRepo<NTs, LexerKinds>();
     data.forEach((d) => repo.gs.set(d.grammarString, Grammar.fromJSON(d)));
     return repo;
   }
