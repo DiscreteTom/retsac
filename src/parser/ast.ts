@@ -156,8 +156,16 @@ export abstract class ASTNode<
    */
   is<TargetKind extends Kind>(
     kind: TargetKind,
-  ): this is ASTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global> {
-    // TODO: make the return type more accurate
+  ): this is TargetKind extends NTs
+    ? NTNode<TargetKind & NTs, NTs, ASTData, ErrorType, TokenType, Global>
+    : TNode<
+        TargetKind & ExtractKinds<TokenType>,
+        NTs,
+        ASTData,
+        ErrorType,
+        TokenType,
+        Global
+      > {
     return this.kind === kind;
   }
 
@@ -187,6 +195,22 @@ export abstract class ASTNode<
     Global
   > {
     return this instanceof NTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+  }
+
+  /**
+   * Cast this node to another kind. No type check.
+   */
+  as<TargetKind extends Kind>(_kind: TargetKind) {
+    return this as unknown as TargetKind extends NTs
+      ? NTNode<TargetKind & NTs, NTs, ASTData, ErrorType, TokenType, Global>
+      : TNode<
+          TargetKind & ExtractKinds<TokenType>,
+          NTs,
+          ASTData,
+          ErrorType,
+          TokenType,
+          Global
+        >;
   }
 
   /**
