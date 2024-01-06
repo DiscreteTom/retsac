@@ -14,9 +14,6 @@ export enum GrammarType {
   NT,
 }
 
-// TODO: move to another file? rename to ASTNodeLike?
-export type MockNode = { kind: string; text?: string };
-
 /**
  * @see {@link Grammar.grammarString}.
  */
@@ -26,7 +23,7 @@ export type GrammarString = string & NonNullable<unknown>; // same as string, bu
  */
 export type GrammarStringNoName = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
 
-export class Grammar<AllKinds extends string> implements MockNode {
+export class Grammar<AllKinds extends string> {
   readonly type: GrammarType;
   /**
    * The kind name.

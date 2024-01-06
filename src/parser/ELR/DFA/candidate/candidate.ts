@@ -458,7 +458,7 @@ export class Candidate<
     // accept
     this.gr.callback?.(context);
     const node = new NTNode<
-      NTs, // TODO: fix type
+      NTs,
       NTs,
       ASTData,
       ErrorType,

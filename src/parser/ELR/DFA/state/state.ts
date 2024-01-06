@@ -17,7 +17,7 @@ import type {
   ASTNodeSelector,
 } from "../../../selector";
 import { StateCacheMissError } from "../../error";
-import type { GrammarStringNoName, MockNode } from "../../model";
+import type { GrammarStringNoName } from "../../model";
 import {
   type GrammarRepo,
   type GrammarRule,
@@ -105,7 +105,7 @@ export class State<
 
   generateNext(
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
-    next: Readonly<Readonly<MockNode>>,
+    next: Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
       NTs,
       ASTData,
@@ -169,7 +169,15 @@ export class State<
 
   getNext(
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
-    next: Readonly<MockNode>,
+    next: Readonly<
+      ASTNode<
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
+        ASTData,
+        ErrorType,
+        Token<LexerDataBindings, LexerErrorType>
+      >
+    >,
   ): {
     state: State<
       NTs,
@@ -181,21 +189,26 @@ export class State<
     > | null;
     changed: boolean;
   } {
-    const grammar =
-      repo.match({
-        // first, try to do an accurate match with text if text is provided.
-        // if the text is not provided, this will still always return a result.
-        kind: next.kind,
-        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
-        text: next.text,
-      }) ??
-      repo.match({
-        // if the last match failed, means the text is provided but not matched.
-        // try to match without text.
-        kind: next.kind,
-        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
-        text: undefined,
-      })!; // this will always return a result
+    const grammar = next.isT()
+      ? repo.match({
+          // first, try to do an accurate match with text if text is provided.
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: next.text,
+        }) ??
+        repo.match({
+          // if the last match failed, means the text is provided but not matched.
+          // try to match without text.
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: undefined,
+        })! // this will always return a result
+      : // else, next is an NT, match without text
+        repo.match({
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: undefined,
+        })!; // this will always return a result
 
     // try to get from local cache
     const cache = this.nextMap.get(grammar);

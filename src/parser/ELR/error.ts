@@ -1,6 +1,6 @@
-import type { GeneralTokenDataBinding } from "../../lexer";
+import type { ExtractKinds, GeneralTokenDataBinding, Token } from "../../lexer";
+import type { ASTNode } from "../ast";
 import type { State } from "./DFA";
-import type { MockNode } from "./model";
 
 export type ELR_RuntimeErrorType = "STATE_CACHE_MISS";
 
@@ -32,7 +32,15 @@ export class StateCacheMissError<
         LexerErrorType
       >
     >,
-    public node: Readonly<MockNode>,
+    public node: Readonly<
+      ASTNode<
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
+        ASTData,
+        ErrorType,
+        Token<LexerDataBindings, LexerErrorType>
+      >
+    >,
   ) {
     super(
       "STATE_CACHE_MISS",

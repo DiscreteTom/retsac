@@ -388,13 +388,11 @@ export function calculateAllStates<
       gs.add(g);
     });
   });
-  // convert to mock AST node
-  const mockNodes = gs.map((g) => g); // TODO: remove map
 
   while (true) {
     let changed = false;
     allStates.states.forEach((state) => {
-      mockNodes.forEach((node) => {
+      gs.grammars.forEach((node) => {
         if (state.generateNext(repo, node, NTClosures, allStates, cs).changed)
           changed = true;
       });
