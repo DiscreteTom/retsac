@@ -8,9 +8,11 @@ import { Candidate } from "./candidate";
 
 /**
  * Store all candidates.
+ *
+ * The key of the map is the {@link Candidate.id}.
  */
 export class CandidateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -18,12 +20,12 @@ export class CandidateRepo<
   LexerErrorType,
 > {
   /**
-   * Candidates. {@link Candidate.strWithGrammarName} => {@link Candidate}
+   * Candidates. {@link Candidate.id} => {@link Candidate}
    */
   private cs: Map<
     string,
     Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -36,47 +38,17 @@ export class CandidateRepo<
     this.cs = new Map();
   }
 
-  getKey(
-    c: Pick<
-      Candidate<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "gr" | "digested"
-    >,
-  ): string {
-    return c instanceof Candidate
-      ? c.strWithGrammarName
-      : Candidate.getStrWithGrammarName(c);
-  }
-
-  get(
-    c: Pick<
-      Candidate<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "gr" | "digested"
-    >,
-  ) {
-    return this.cs.get(this.getKey(c));
-  }
-
-  getByString(str: string) {
-    return this.cs.get(str);
+  /**
+   * Get the candidate by the {@link Candidate.id}.
+   */
+  get(id: string) {
+    return this.cs.get(id);
   }
 
   getInitial(
     gr: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -84,7 +56,7 @@ export class CandidateRepo<
       LexerErrorType
     >,
   ) {
-    return this.get({ gr, digested: 0 });
+    return this.get(Candidate.generateId({ gr, digested: 0 }));
   }
 
   /**
@@ -92,7 +64,8 @@ export class CandidateRepo<
    */
   addInitial(
     gr: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -101,11 +74,11 @@ export class CandidateRepo<
     >,
   ) {
     const raw = { gr, digested: 0 };
-    const key = this.getKey(raw);
-    if (this.cs.has(key)) return undefined;
+    const id = Candidate.generateId(raw);
+    if (this.cs.has(id)) return undefined;
 
     const c = new Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -113,9 +86,9 @@ export class CandidateRepo<
       LexerErrorType
     >({
       ...raw,
-      strWithGrammarName: key,
+      id,
     });
-    this.cs.set(key, c);
+    this.cs.set(id, c);
     return c;
   }
 
@@ -124,7 +97,7 @@ export class CandidateRepo<
    */
   addNext(
     c: Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -133,12 +106,12 @@ export class CandidateRepo<
     >,
   ) {
     const raw = { gr: c.gr, digested: c.digested + 1 };
-    const key = this.getKey(raw);
-    const cache = this.cs.get(key);
+    const id = Candidate.generateId(raw);
+    const cache = this.cs.get(id);
     if (cache !== undefined) return cache;
 
     const next = new Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -146,34 +119,24 @@ export class CandidateRepo<
       LexerErrorType
     >({
       ...raw,
-      strWithGrammarName: key,
+      id,
     });
-    this.cs.set(key, next);
+    this.cs.set(id, next);
     return next;
   }
 
-  toSerializable(
-    grs: ReadonlyGrammarRuleRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-  ) {
+  toJSON() {
     const res = [] as ReturnType<
       Candidate<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
-      >["toSerializable"]
+      >["toJSON"]
     >[];
-    this.cs.forEach((c) => res.push(c.toSerializable(grs, this, repo)));
+    this.cs.forEach((c) => res.push(c.toJSON()));
     return res;
   }
 
@@ -193,7 +156,7 @@ export class CandidateRepo<
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
-      >["toSerializable"]
+      >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
       Kinds,
@@ -240,7 +203,7 @@ export class CandidateRepo<
         LexerErrorType
       >(d, grs, repo);
       callbacks.push(restoreNextMap);
-      res.cs.set(c.strWithGrammarName, c);
+      res.cs.set(c.id, c);
     });
     // restore next map after the whole candidate repo is filled
     callbacks.forEach((c) => c(res));

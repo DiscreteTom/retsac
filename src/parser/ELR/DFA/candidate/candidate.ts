@@ -6,7 +6,8 @@ import type {
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import { ASTNode } from "../../../ast";
+import type { ASTNode } from "../../../ast";
+import { NTNode } from "../../../ast";
 import type {
   RejectedParserOutput,
   AcceptedParserOutput,
@@ -29,7 +30,7 @@ import {
 
 /** Candidate for ELR parsers. */
 export class Candidate<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
@@ -38,7 +39,8 @@ export class Candidate<
 > {
   readonly gr: Readonly<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -58,9 +60,9 @@ export class Candidate<
    * we can use Grammar as the key of this map.
    */
   private readonly nextMap: Map<
-    Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
+    Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -70,13 +72,9 @@ export class Candidate<
   >;
 
   /**
-   * @see {@link Candidate.toString}
+   * Format: `digested#grammarRuleId`.
    */
-  readonly str: string;
-  /**
-   * @see {@link Candidate.getStrWithGrammarName}
-   */
-  readonly strWithGrammarName: string;
+  readonly id: string; // TODO: use new type pattern to make sure the id is correct
 
   /**
    * Only {@link CandidateRepo} should use this constructor.
@@ -84,42 +82,35 @@ export class Candidate<
   constructor(
     data: Pick<
       Candidate<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
       >,
-      "gr" | "digested" | "strWithGrammarName"
-    > &
-      Partial<
-        Pick<
-          Candidate<
-            Kinds,
-            ASTData,
-            ErrorType,
-            LexerDataBindings,
-            LexerActionState,
-            LexerErrorType
-          >,
-          "str"
-        >
-      >,
+      "gr" | "digested" | "id"
+    >,
   ) {
     this.gr = data.gr;
     this.digested = data.digested;
-    this.nextMap = new Map();
+    this.id = data.id;
 
-    this.strWithGrammarName = data.strWithGrammarName;
-    this.str = this.strWithGrammarName;
+    this.nextMap = new Map();
+  }
+
+  /**
+   * @see {@link Candidate.id}
+   */
+  static generateId(data: { digested: number; gr: { id: string } }) {
+    return `${data.digested}#${data.gr.id}`;
   }
 
   /**
    * Current ***undigested*** grammar.
    * Use this to match the next node.
    */
-  get current(): Grammar<Kinds | ExtractKinds<LexerDataBindings>> | undefined {
+  get current(): Grammar<NTs | ExtractKinds<LexerDataBindings>> | undefined {
     return this.gr.rule[this.digested];
   }
 
@@ -134,7 +125,7 @@ export class Candidate<
    */
   generateNext(
     cs: CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -142,7 +133,7 @@ export class Candidate<
       LexerErrorType
     >,
   ): Candidate<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
@@ -163,42 +154,27 @@ export class Candidate<
 
   /**
    * For debug output.
+   *
+   * Format: `Candidate({ gr, digested })`
    */
   toString() {
-    return this.str;
+    return `Candidate(${JSON.stringify({
+      gr: this.gr.toString(),
+      digested: this.digested,
+    })})`;
   }
 
   /**
-   * Return `NT := ...before # ...after`.
-   * This is unique for each candidate.
+   * Format: ``{ NT: `...before # ...after` }``.
    */
-  static getStrWithGrammarName<
-    Kinds extends string,
-    ASTData,
-    ErrorType,
-    LexerDataBindings extends GeneralTokenDataBinding,
-    LexerActionState,
-    LexerErrorType,
-  >(
-    data: Pick<
-      Candidate<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "gr" | "digested"
-    >,
-  ) {
-    return [
-      data.gr.NT,
-      ":=",
-      ...data.gr.rule.slice(0, data.digested).map((r) => r.grammarStrWithName),
-      "#",
-      ...data.gr.rule.slice(data.digested).map((r) => r.grammarStrWithName),
-    ].join(" ");
+  toGrammarRuleString() {
+    return `{ ${this.gr.NT}: \`${this.gr.rule
+      .slice(0, this.digested)
+      .map((g) => g.grammarString)
+      .join(" ")} # ${this.gr.rule
+      .slice(this.digested)
+      .map((g) => g.grammarString)
+      .join(" ")}\` }`;
   }
 
   /**
@@ -208,7 +184,8 @@ export class Candidate<
   eq(other: {
     gr: Readonly<
       GrammarRule<
-        Kinds,
+        NTs,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
@@ -234,14 +211,15 @@ export class Candidate<
    */
   tryReduce(
     buffer: readonly ASTNode<
-      Kinds,
+      NTs | ExtractKinds<LexerDataBindings>,
+      NTs,
       ASTData,
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
     >[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
-    followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
+    followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
     lexer: IReadonlyTrimmedLexer<
       LexerDataBindings,
       LexerActionState,
@@ -253,13 +231,13 @@ export class Candidate<
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         Token<LexerDataBindings, LexerErrorType>
       > & {
         context: GrammarRuleContext<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
@@ -278,21 +256,21 @@ export class Candidate<
     const rollbackNames = () => matched.forEach((n) => (n.name = n.kind)); // rollback the name
 
     const selector = cascadeASTNodeSelectorFactory<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerErrorType
-    >(cascadeQueryPrefix);
+    >(cascadeQueryPrefix); // TODO: make cascadeQueryPrefix and selectors a field of DFA, prevent duplicated creation
     const firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerErrorType
     >(cascadeQueryPrefix);
     const context = new GrammarRuleContext<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
@@ -342,7 +320,7 @@ export class Candidate<
               rest: prettierLexerRest(context.lexer),
               follows: followSets
                 .get(this.gr.NT)!
-                .map((g) => g.grammarStrWithoutName.value),
+                .map((g) => g.grammarStringNoName),
             };
             logger.log({
               entity: "Parser",
@@ -406,7 +384,7 @@ export class Candidate<
       // no matter if it's RR or SR conflict
       if (!nextTokenExists) continue; // skip if no next token
       let reject = false;
-      let next: Grammar<Kinds | ExtractKinds<LexerDataBindings>> | undefined =
+      let next: Grammar<NTs | ExtractKinds<LexerDataBindings>> | undefined =
         undefined;
       for (const g of c.next.grammars.values()) {
         next = g;
@@ -444,7 +422,7 @@ export class Candidate<
             reducerRule: this.gr.toString(),
             anotherRule: c.anotherRule.toString(),
             type: c.type === ConflictType.REDUCE_REDUCE ? "RR" : "RS",
-            next: next!.grammarStrWithoutName.value,
+            next: next!.grammarStringNoName,
           };
           logger.log({
             entity: "Parser",
@@ -475,8 +453,9 @@ export class Candidate<
 
     // accept
     this.gr.callback?.(context);
-    const node = new ASTNode<
-      Kinds,
+    const node = new NTNode<
+      NTs, // TODO: fix type
+      NTs,
       ASTData,
       ErrorType,
       Token<LexerDataBindings, LexerErrorType>
@@ -511,35 +490,16 @@ export class Candidate<
     };
   }
 
-  toSerializable(
-    grs: ReadonlyGrammarRuleRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    cs: ReadonlyCandidateRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-  ) {
+  toJSON() {
     return {
-      gr: grs.getKey(this.gr),
+      gr: this.gr.id,
       digested: this.digested,
       nextMap: map2serializable(
         this.nextMap,
-        (g) => repo.getKey(g),
-        (c) => (c === null ? null : cs.getKey(c)),
+        (g) => g.grammarString,
+        (c) => (c === null ? null : c.id),
       ),
-      str: this.str,
-      strWithGrammarName: this.strWithGrammarName,
+      id: this.id,
     };
   }
 
@@ -559,7 +519,7 @@ export class Candidate<
         LexerDataBindings,
         LexerActionState,
         LexerErrorType
-      >["toSerializable"]
+      >["toJSON"]
     >,
     grs: ReadonlyGrammarRuleRepo<
       Kinds,
@@ -579,10 +539,9 @@ export class Candidate<
       LexerActionState,
       LexerErrorType
     >({
-      gr: grs.getByString(data.gr)!,
+      gr: grs.get(data.gr)!,
       digested: data.digested,
-      strWithGrammarName: data.strWithGrammarName,
-      str: data.str,
+      id: data.id,
     });
 
     // restore next map after the whole candidate repo is filled
@@ -598,8 +557,8 @@ export class Candidate<
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next === null) c.nextMap.set(repo.getByString(key)!, null);
-        else c.nextMap.set(repo.getByString(key)!, cs.getByString(next)!);
+        if (next === null) c.nextMap.set(repo.get(key)!, null);
+        else c.nextMap.set(repo.get(key)!, cs.get(next)!);
       }
     };
 
