@@ -13,6 +13,11 @@ import type {
   Token,
 } from "../../../../lexer";
 
+/**
+ * @see {@link GrammarRule.id}.
+ */
+export type GrammarRuleID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+
 export class GrammarRule<
   NT extends NTs, // the target NT
   NTs extends string,
@@ -109,7 +114,7 @@ export class GrammarRule<
    * Format: `NT:grammar,...`.
    * This is used in {@link ReadonlyGrammarRuleRepo} when build DFA.
    */
-  readonly id: string;
+  readonly id: GrammarRuleID;
   /**
    * The index of {@link ParserBuilder.builderData}
    */
@@ -170,7 +175,7 @@ export class GrammarRule<
    */
   static generateId(
     data: Readonly<{ NT: string; rule: readonly { grammarString: string }[] }>,
-  ) {
+  ): GrammarRuleID {
     return `${data.NT}:${data.rule.map((g) => g.grammarString).join(",")}`;
   }
 

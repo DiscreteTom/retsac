@@ -13,7 +13,7 @@ import type {
 } from "../../../output";
 import { rejectedParserOutput } from "../../../output";
 import { StateCacheMissError } from "../../error";
-import type { MockNode } from "../../model";
+import type { GrammarStringNoName, MockNode } from "../../model";
 import {
   type GrammarRepo,
   type GrammarRule,
@@ -31,6 +31,11 @@ import type {
 import type { ReadonlyFollowSets, ReadonlyNTClosures } from "../model";
 import { lexGrammar, map2serializable, prettierLexerRest } from "../utils";
 import type { StateRepo } from "./state-repo";
+
+/**
+ * @see {@link State.id}.
+ */
+export type StateID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
 
 /**
  * State for ELR parsers.
@@ -73,7 +78,7 @@ export class State<
   /**
    * Format: `candidateId\n...`.
    */
-  readonly id: string;
+  readonly id: StateID;
 
   /**
    * Only {@link StateRepo} should use this constructor.
@@ -246,7 +251,7 @@ export class State<
       >,
       "candidates"
     >,
-  ) {
+  ): StateID {
     return data.candidates
       .map((c) => c.id)
       .sort()
@@ -277,7 +282,7 @@ export class State<
   }[] {
     // for deduplication
     const done = new Map<
-      string,
+      GrammarStringNoName,
       ASTNode<
         NTs | ExtractKinds<LexerDataBindings>,
         NTs,

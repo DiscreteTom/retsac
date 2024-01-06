@@ -1,12 +1,13 @@
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { GrammarRepo } from "./grammar-repo";
+import type { GrammarRuleID } from "./grammar-rule";
 import { GrammarRule } from "./grammar-rule";
 
 /**
  * A set of different grammar rules, grammar's name will be included.
  * This is used to manage the creation of grammar rules, to prevent creating the same grammar rule twice.
  *
- * The key of the map is the {@link GrammarRule.id}.
+ * The key of the map is the {@link GrammarRuleID}.
  *
  * This is always readonly since all grammar rules are created before the repo is created.
  */
@@ -19,10 +20,10 @@ export class ReadonlyGrammarRuleRepo<
   LexerErrorType,
 > {
   /**
-   * {@link GrammarRule.id} => grammar rule
+   * {@link GrammarRuleID} => {@link GrammarRule}
    */
   readonly grammarRules: ReadonlyMap<
-    string,
+    GrammarRuleID,
     GrammarRule<
       NTs,
       NTs,
@@ -45,7 +46,18 @@ export class ReadonlyGrammarRuleRepo<
       LexerErrorType
     >[],
   ) {
-    const map = new Map();
+    const map = new Map<
+      GrammarRuleID,
+      GrammarRule<
+        NTs,
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType
+      >
+    >();
     grs.forEach((gr) => map.set(gr.id, gr));
     this.grammarRules = map; // make the map readonly
   }
@@ -53,7 +65,7 @@ export class ReadonlyGrammarRuleRepo<
   /**
    * Get the grammar rule by the {@link GrammarRule.id}.
    */
-  get(id: string) {
+  get(id: GrammarRuleID) {
     return this.grammarRules.get(id);
   }
 

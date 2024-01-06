@@ -4,12 +4,13 @@ import type {
   GrammarRule,
   ReadonlyGrammarRuleRepo,
 } from "../../model";
+import type { CandidateID } from "./candidate";
 import { Candidate } from "./candidate";
 
 /**
  * Store all candidates.
  *
- * The key of the map is the {@link Candidate.id}.
+ * The key of the map is the {@link CandidateID}.
  */
 export class CandidateRepo<
   NTs extends string,
@@ -20,10 +21,10 @@ export class CandidateRepo<
   LexerErrorType,
 > {
   /**
-   * Candidates. {@link Candidate.id} => {@link Candidate}
+   * Candidates. {@link CandidateID} => {@link Candidate}
    */
   private cs: Map<
-    string,
+    CandidateID,
     Candidate<
       NTs,
       ASTData,
@@ -39,9 +40,9 @@ export class CandidateRepo<
   }
 
   /**
-   * Get the candidate by the {@link Candidate.id}.
+   * Get the candidate by the {@link CandidateID}.
    */
-  get(id: string) {
+  get(id: CandidateID) {
     return this.cs.get(id);
   }
 

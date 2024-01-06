@@ -1,4 +1,4 @@
-import type { Candidate, ReadonlyNTClosures } from "..";
+import type { Candidate, ReadonlyNTClosures, StateID } from "..";
 import { State } from "..";
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { Grammar, GrammarRepo, GrammarRule } from "../../model";
@@ -10,7 +10,7 @@ import { stringMap2serializable } from "../utils";
 /**
  * Store all states.
  *
- * The key of the map is the {@link State.id}.
+ * The key of the map is the {@link StateID}.
  */
 export class StateRepo<
   NTs extends string,
@@ -21,7 +21,7 @@ export class StateRepo<
   LexerErrorType,
 > {
   private ss: Map<
-    string,
+    StateID,
     State<
       NTs,
       ASTData,

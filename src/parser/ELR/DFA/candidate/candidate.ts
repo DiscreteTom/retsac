@@ -28,6 +28,11 @@ import {
   prettierLexerRest,
 } from "../utils";
 
+/**
+ * @see {@link Candidate.id}.
+ */
+export type CandidateID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+
 /** Candidate for ELR parsers. */
 export class Candidate<
   NTs extends string,
@@ -74,7 +79,7 @@ export class Candidate<
   /**
    * Format: `digested#grammarRuleId`.
    */
-  readonly id: string; // TODO: use new type pattern to make sure the id is correct
+  readonly id: CandidateID;
 
   /**
    * Only {@link CandidateRepo} should use this constructor.
@@ -102,7 +107,10 @@ export class Candidate<
   /**
    * @see {@link Candidate.id}
    */
-  static generateId(data: { digested: number; gr: { id: string } }) {
+  static generateId(data: {
+    digested: number;
+    gr: { id: string };
+  }): CandidateID {
     return `${data.digested}#${data.gr.id}`;
   }
 

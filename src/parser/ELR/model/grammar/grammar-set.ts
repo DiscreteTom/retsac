@@ -1,4 +1,4 @@
-import type { Grammar } from "./grammar";
+import type { Grammar, GrammarStringNoName } from "./grammar";
 import type { GrammarRepo } from "./grammar-repo";
 
 /**
@@ -6,15 +6,15 @@ import type { GrammarRepo } from "./grammar-repo";
  * This is used when the name of grammar is NOT needed.
  * E.g. DFA first/follow sets.
  *
- * The key of this map is {@link Grammar.grammarStringNoName}.
+ * The key of this map is {@link GrammarStringNoName}.
  */
 export class GrammarSet<NTs extends string, LexerKinds extends string> {
   /**
    * Grammars.
    *
-   * {@link Grammar.grammarStringNoName} => grammar
+   * {@link GrammarStringNoName} => {@link Grammar}
    */
-  private gs: Map<string, Grammar<NTs | LexerKinds>>;
+  private gs: Map<GrammarStringNoName, Grammar<NTs | LexerKinds>>;
 
   constructor(gs: Grammar<NTs | LexerKinds>[] = []) {
     this.gs = new Map();

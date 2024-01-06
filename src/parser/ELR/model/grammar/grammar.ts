@@ -17,6 +17,15 @@ export enum GrammarType {
 // TODO: move to another file? rename to ASTNodeLike?
 export type MockNode = { kind: string; text?: string };
 
+/**
+ * @see {@link Grammar.grammarString}.
+ */
+export type GrammarString = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+/**
+ * @see {@link Grammar.grammarStringNoName}.
+ */
+export type GrammarStringNoName = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+
 export class Grammar<AllKinds extends string> implements MockNode {
   readonly type: GrammarType;
   /**
@@ -43,7 +52,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
    * This can be used as the unique id for the grammar when the name is not required.
    * This is frequently used so we will pre-calculate it.
    */
-  readonly grammarStringNoName: string;
+  readonly grammarStringNoName: GrammarStringNoName;
   /**
    * Format: `kind@name` if not literal, else `'text'@name` (use single quote to reduce the length when `JSON.stringify`).
    *
@@ -54,7 +63,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
    * This can be used as the unique id for the grammar when the name is required.
    * This is frequently used so we will pre-calculate it.
    */
-  readonly grammarString: string;
+  readonly grammarString: GrammarString;
 
   /**
    * Only {@link GrammarRepo} should use this constructor.
@@ -107,7 +116,9 @@ export class Grammar<AllKinds extends string> implements MockNode {
   /**
    * @see {@link Grammar.grammarStringNoName}
    */
-  static getGrammarStringNoName(data: Pick<Grammar<string>, "kind" | "text">) {
+  static getGrammarStringNoName(
+    data: Pick<Grammar<string>, "kind" | "text">,
+  ): GrammarStringNoName {
     return data.text !== undefined
       ? `'${JSON.stringify(data.text).slice(1, -1)}'` // quote text, escape literal
       : data.kind;
@@ -118,7 +129,7 @@ export class Grammar<AllKinds extends string> implements MockNode {
    */
   static getGrammarString(
     data: Pick<Grammar<string>, "kind" | "name" | "text">,
-  ) {
+  ): GrammarString {
     // [[grammar string]]
     return (
       Grammar.getGrammarStringNoName(data) +

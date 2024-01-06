@@ -6,7 +6,14 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { NTNodeTraverser } from "../../../traverser";
-import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
+import type {
+  Callback,
+  Condition,
+  Grammar,
+  GrammarRepo,
+  GrammarRuleID,
+  GrammarString,
+} from "../../model";
 import { GrammarRule } from "../../model";
 import { InvalidLiteralError } from "../error";
 
@@ -39,7 +46,7 @@ export class TempGrammar {
   /**
    * @see {@link Grammar.grammarString}.
    */
-  readonly grammarString: string;
+  readonly grammarString: GrammarString;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     this.type = p.type;
@@ -97,7 +104,7 @@ export class TempGrammar {
   /**
    * @see {@link Grammar.grammarString}
    */
-  private getGrammarString() {
+  private getGrammarString(): GrammarString {
     // follow the format of [[@grammar string]]
     return this.type === TempGrammarType.LITERAL
       ? `'${JSON.stringify(this.content).slice(1, -1)}'` + // quote text, escape literal
@@ -169,7 +176,7 @@ export class TempGrammarRule<
   /**
    * @see {@link GrammarRule.id}.
    */
-  readonly id: string;
+  readonly id: GrammarRuleID;
 
   constructor(
     data: Pick<

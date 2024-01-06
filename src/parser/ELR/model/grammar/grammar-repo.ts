@@ -1,27 +1,28 @@
+import type { GrammarString } from "./grammar";
 import { Grammar, GrammarType } from "./grammar";
 
 /**
  * A set of different grammars (the name is counted).
  * This is used to manage the creation of grammars, to prevent creating the same grammar twice.
  *
- * The key of the map is the {@link Grammar.grammarString}.
+ * The key of the map is the {@link GrammarString}.
  */
 export class GrammarRepo<NTs extends string, LexerKinds extends string> {
   /**
    * Grammars.
    *
-   * {@link Grammar.grammarString} => grammar
+   * {@link GrammarString} => {@link Grammar}
    */
-  private gs: Map<string, Grammar<NTs | LexerKinds>>;
+  private gs: Map<GrammarString, Grammar<NTs | LexerKinds>>;
 
   constructor() {
     this.gs = new Map();
   }
 
   /**
-   * Get the grammar by the {@link Grammar.grammarString}.
+   * Get the grammar by the {@link GrammarString}.
    */
-  get(key: string) {
+  get(key: GrammarString) {
     return this.gs.get(key);
   }
 
