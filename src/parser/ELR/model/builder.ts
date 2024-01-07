@@ -10,6 +10,8 @@ import type {
 } from "../builder";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Parser } from "../parser";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ASTNode } from "../../ast";
 
 export type BuildOptions<
   NTs extends string,
@@ -178,7 +180,7 @@ export interface IParserBuilder<
     Global
   >;
   /**
-   * Set the `ASTNode.data` type.
+   * Set the {@link ASTNode.data} type.
    *
    * @example
    * // provide type explicitly
