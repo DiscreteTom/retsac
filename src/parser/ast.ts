@@ -98,7 +98,6 @@ export abstract class ASTNode<
   /**
    * Use the traverser to calculate data and return the data.
    */
-  // TODO: add a parameter as the traverse context
   abstract traverse(): ASTData | undefined;
 
   /**
