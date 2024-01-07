@@ -42,6 +42,10 @@ export type ASTObj = {
   children: ASTObj[];
 };
 
+// make ASTNode an interface, so that
+// when a node is ASTNode, text/$/$$/children is nullable, but can be asserted by `!`
+// and when a node is TNode, text is not nullable, $/$$/children not exist
+// and when a node is NTNode, text is not exist, $/$$/children is not nullable
 export interface ASTNode<
   Kind extends NTs | ExtractKinds<TokenType>, // the kind name of this node
   NTs extends string, // all NTs' kind names
