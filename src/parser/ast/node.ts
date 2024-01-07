@@ -1,241 +1,15 @@
-import type { ExtractKinds, GeneralToken } from "../lexer";
-import {
-  type NTNodeFirstMatchChildSelector,
-  type NTNodeChildrenSelector,
-  type ASTNodeSelector,
-  type ASTNodeFirstMatchSelector,
-} from "./selector";
-import type { NTNodeTraverser } from "./traverser";
-import { defaultNTNodeTraverser } from "./traverser";
-import { anonymousKindPlaceholder } from "../anonymous";
-import type { StringOrLiteral } from "../helper";
-
-/**
- * A structured type for serialization.
- * Every field is not null/undefined.
- */
-export type ASTObj = {
-  /**
-   * By default, this is the same as the kind name.
-   * You can rename nodes in your grammar rules.
-   */
-  name: string;
-  /**
-   * T's or NT's kind name.
-   * If the T is anonymous, the value is an empty string.
-   */
-  kind: string;
-  /**
-   * Start position of the whole input string.
-   * Same as the first token's start position.
-   */
-  start: number;
-  /**
-   * T's text content.
-   * If this is not a T, the value is an empty string.
-   */
-  text: string;
-  /**
-   * NT's children.
-   * If this is not an NT, the value is an empty array.
-   */
-  children: ASTObj[];
-};
-
-// make ASTNode an interface, so that
-// when a node is ASTNode, text/$/$$/children is nullable, but can be asserted by `!`
-// and when a node is TNode, text is not nullable, $/$$/children not exist
-// and when a node is NTNode, text is not exist, $/$$/children is not nullable
-export interface ASTNode<
-  Kind extends NTs | ExtractKinds<TokenType>, // the kind name of this node
-  NTs extends string, // all NTs' kind names
-  ASTData,
-  ErrorType,
-  TokenType extends GeneralToken,
-  Global,
-> {
-  /**
-   * By default, this is the same as the kind name.
-   * You can rename nodes in your grammar rules.
-   */
-  name: string;
-  /**
-   * T's or NT's kind name.
-   */
-  readonly kind: Kind;
-  /**
-   * Start position of the whole input string.
-   * Same as the first token's start position.
-   */
-  readonly start: number;
-  /**
-   * @default undefined
-   */
-  data: ASTData | undefined;
-  /**
-   * @default undefined
-   */
-  error: ErrorType | undefined;
-  /**
-   * Parent must be an NT node, or `undefined` if this node is a top level node.
-   */
-  // * This is not readonly because it will be set by parent node.
-  parent?: NTNode<NTs, NTs, ASTData, ErrorType, TokenType, Global>;
-  /**
-   * Global data, shared by all nodes.
-   */
-  readonly global: Global; // this should be a reference type. make this readonly
-  /**
-   * Token's text content.
-   * `undefined` if this is {@link NTNode}.
-   */
-  readonly text?: string;
-  /**
-   * `undefined` if this is {@link TNode}.
-   */
-  readonly children?: readonly ASTNode<
-    NTs | ExtractKinds<TokenType>,
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >[];
-  /**
-   * Select the first matched child node by the name.
-   * `undefined` if this is {@link TNode}.
-   */
-  readonly $?: NTNodeFirstMatchChildSelector<
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >;
-  /**
-   * Select children nodes by the name.
-   * `undefined` if this is {@link TNode}.
-   */
-  readonly $$?: NTNodeChildrenSelector<
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >;
-  /**
-   * Use the traverser to calculate data and return the data.
-   */
-  traverse(): ASTData | undefined;
-  /**
-   * Return a tree-structured string.
-   */
-  toTreeString(options?: {
-    /**
-     * The indent for each level.
-     * @default '  ' // two spaces
-     */
-    indent?: string;
-    /**
-     * Anonymous kind name placeholder.
-     * @default "<anonymous>" // anonymousKindPlaceholder
-     */
-    anonymous?: string;
-  }): string;
-  /**
-   * {@link ASTNode.toTreeString} with full options.
-   */
-  _toTreeString(options: {
-    /**
-     * The initial indent.
-     */
-    initial: string;
-    /**
-     * The indent for each level.
-     */
-    indent: string;
-    /**
-     * Anonymous kind name placeholder.
-     */
-    anonymous: string;
-  }): string;
-  /**
-   * For debug output.
-   */
-  toString(): string;
-  /**
-   * Return an ASTObj for serialization.
-   */
-  toJSON(): ASTObj;
-  /**
-   * A type guard for checking the kind of this node.
-   */
-  is<TargetKind extends Kind>(
-    kind: TargetKind,
-  ): this is TargetKind extends NTs
-    ? NTNode<TargetKind & NTs, NTs, ASTData, ErrorType, TokenType, Global>
-    : TNode<
-        TargetKind & ExtractKinds<TokenType>,
-        NTs,
-        ASTData,
-        ErrorType,
-        TokenType,
-        Global
-      >;
-  /**
-   * A type guard for checking whether this node is a T node.
-   */
-  isT(): this is TNode<
-    Kind & ExtractKinds<TokenType>,
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >;
-  /**
-   * A type guard for checking whether this node is an NT node.
-   */
-  isNT(): this is NTNode<
-    Kind & NTs,
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >;
-  /**
-   * Cast this node to another kind. No type check.
-   */
-  as<TargetKind extends Kind>(
-    kind: TargetKind,
-  ): TargetKind extends NTs
-    ? NTNode<TargetKind & NTs, NTs, ASTData, ErrorType, TokenType, Global>
-    : TNode<
-        TargetKind & ExtractKinds<TokenType>,
-        NTs,
-        ASTData,
-        ErrorType,
-        TokenType,
-        Global
-      >;
-  /**
-   * Cast this node to a T node. No type check.
-   */
-  asT(): TNode<
-    Kind & ExtractKinds<TokenType>,
-    NTs,
-    ASTData,
-    ErrorType,
-    TokenType,
-    Global
-  >;
-
-  /**
-   * Cast this node to an NT node. No type check.
-   */
-  asNT(): NTNode<Kind & NTs, NTs, ASTData, ErrorType, TokenType, Global>;
-}
+import { anonymousKindPlaceholder } from "../../anonymous";
+import type { StringOrLiteral } from "../../helper";
+import type { ExtractKinds, GeneralToken } from "../../lexer";
+import type { ASTNode, ASTObj, NTNode, TNode } from "./interface";
+import type {
+  NTNodeFirstMatchChildSelector,
+  NTNodeChildrenSelector,
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../selector";
+import type { NTNodeTraverser } from "../traverser";
+import { defaultNTNodeTraverser } from "../traverser";
 
 export abstract class AbstractASTNode<
   Kind extends NTs | ExtractKinds<TokenType>, // the kind name of this node
@@ -295,7 +69,7 @@ export abstract class AbstractASTNode<
     TokenType,
     Global
   > {
-    return this instanceof TNode; // TODO: is this the fastest way? maybe `'$' in this`?
+    return this instanceof TheTNode; // TODO: is this the fastest way? maybe `'$' in this`?
   }
 
   isNT(): this is NTNode<
@@ -306,7 +80,7 @@ export abstract class AbstractASTNode<
     TokenType,
     Global
   > {
-    return this instanceof NTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+    return this instanceof TheNTNode; // TODO: is this the fastest way? maybe `'$' in this`?
   }
 
   as<TargetKind extends Kind>(_kind: TargetKind) {
@@ -342,6 +116,10 @@ export abstract class AbstractASTNode<
       TokenType,
       Global
     >;
+  }
+
+  asASTNode(): ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global> {
+    return this as ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>;
   }
 
   toTreeString(options?: {
@@ -386,8 +164,8 @@ export abstract class AbstractASTNode<
   abstract traverse(): ASTData | undefined;
 }
 
-// TODO: make NTNode/TNode interface, hide isNT/isT/asNT/asT
-export class NTNode<
+// TODO: better name?
+export class TheNTNode<
     Kind extends NTs, // the kind name of this node
     NTs extends string, // all NTs' kind names
     ASTData,
@@ -396,7 +174,7 @@ export class NTNode<
     Global,
   >
   extends AbstractASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
-  implements ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
+  implements NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
 {
   readonly children: readonly ASTNode<
     NTs | ExtractKinds<TokenType>,
@@ -439,7 +217,7 @@ export class NTNode<
 
   constructor(
     p: Pick<
-      NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
+      TheNTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
       "kind" | "start" | "data" | "error" | "children" | "global"
     > & {
       traverser:
@@ -523,7 +301,7 @@ export class NTNode<
   }
 }
 
-export class TNode<
+export class TheTNode<
     Kind extends ExtractKinds<TokenType>, // the kind name of this node
     NTs extends string, // all NTs' kind names
     ASTData,
@@ -532,7 +310,7 @@ export class TNode<
     Global,
   >
   extends AbstractASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
-  implements ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
+  implements TNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>
 {
   readonly text: string;
 
@@ -556,7 +334,7 @@ export class TNode<
     TokenType extends GeneralToken,
     Global,
   >(t: Readonly<TokenType>, data: ASTData | undefined, global: Global) {
-    return new TNode<
+    return new TheTNode<
       ExtractKinds<TokenType>,
       NTs,
       ASTData,

@@ -5,7 +5,7 @@ import type {
   Token,
 } from "../../../lexer";
 import type { Logger } from "../../../logger";
-import type { ASTNode, TNode } from "../../ast";
+import type { ASTNode } from "../../ast";
 import type { ParserOutput } from "../../output";
 import { rejectedParserOutput } from "../../output";
 import type {
@@ -256,16 +256,7 @@ export class DFA<
         trying: targetState.buffer.at(-1)!.toString(),
         restored:
           // the last node must be a TNode
-          (
-            targetState.buffer.at(-1)! as TNode<
-              ExtractKinds<LexerDataBindings>,
-              NTs,
-              ASTData,
-              ErrorType,
-              Token<LexerDataBindings, LexerErrorType>,
-              Global
-            >
-          ).text +
+          targetState.buffer.at(-1)!.asT().text +
           targetState.lexer.buffer.slice(
             targetState.lexer.digested,
             parsingState.lexer.digested,
@@ -487,7 +478,7 @@ export class DFA<
         for (let i = res.length - 1; i >= 0; --i) {
           reLexStack.push({
             stateStack: parsingState.stateStack.slice(), // make a copy
-            buffer: parsingState.buffer.slice().concat(res[i].node),
+            buffer: parsingState.buffer.slice().concat(res[i].node.asASTNode()),
             lexer: res[i].lexer,
             index: parsingState.index,
             errors: parsingState.errors.slice(),
@@ -513,7 +504,9 @@ export class DFA<
         parsingState.lexer = state.lexer;
       } else {
         // use the first lexing result to continue parsing
-        parsingState.buffer = parsingState.buffer.concat(res[0].node);
+        parsingState.buffer = parsingState.buffer.concat(
+          res[0].node.asASTNode(),
+        );
         parsingState.lexer = res[0].lexer;
       }
       if (debug) {

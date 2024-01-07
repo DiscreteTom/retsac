@@ -7,7 +7,7 @@ import type {
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { ASTNode } from "../../../ast";
-import { NTNode } from "../../../ast";
+import { TheNTNode } from "../../../ast";
 import type {
   RejectedParserOutput,
   AcceptedParserOutput,
@@ -471,7 +471,7 @@ export class Candidate<
 
     // accept
     this.gr.callback?.(context);
-    const node = new NTNode<
+    const node = new TheNTNode<
       NTs,
       NTs,
       ASTData,
@@ -503,28 +503,8 @@ export class Candidate<
 
     return {
       accept: true,
-      buffer: context.before.concat(
-        node as ASTNode<
-          NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
-          NTs,
-          ASTData,
-          ErrorType,
-          Token<LexerDataBindings, LexerErrorType>,
-          Global
-        >,
-      ),
-      errors: context.error
-        ? [
-            node as ASTNode<
-              NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
-              NTs,
-              ASTData,
-              ErrorType,
-              Token<LexerDataBindings, LexerErrorType>,
-              Global
-            >,
-          ]
-        : [],
+      buffer: context.before.concat(node.asASTNode()),
+      errors: context.error ? [node.asASTNode()] : [],
       context,
       commit: this.gr.commit?.(context) ?? false,
     };

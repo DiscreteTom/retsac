@@ -6,7 +6,7 @@ import type {
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import type { ASTNode } from "../../../ast";
+import type { ASTNode, TNode } from "../../../ast";
 import type {
   RejectedParserOutput,
   AcceptedParserOutput,
@@ -306,7 +306,7 @@ export class State<
     debug: boolean,
     logger: Logger,
   ): {
-    node: ASTNode<
+    node: TNode<
       NTs | ExtractKinds<LexerDataBindings>,
       NTs,
       ASTData,
@@ -319,7 +319,7 @@ export class State<
     // for deduplication
     const done = new Map<
       GrammarStringNoName,
-      ASTNode<
+      TNode<
         NTs | ExtractKinds<LexerDataBindings>,
         NTs,
         ASTData,

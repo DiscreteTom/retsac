@@ -11,8 +11,8 @@ import type {
   ASTNodeSelector,
   ASTNodeFirstMatchSelector,
 } from "../../selector";
-import { TNode } from "../../ast";
-import type { ASTNode } from "../../ast";
+import { TheTNode } from "../../ast";
+import type { ASTNode, TNode } from "../../ast";
 import type {
   ParserBuilderData,
   ResolvedTempConflict,
@@ -356,7 +356,7 @@ export function lexGrammar<
   return token === null
     ? undefined
     : {
-        node: TNode.from<
+        node: TheTNode.from<
           NTs,
           ASTData,
           ErrorType,
