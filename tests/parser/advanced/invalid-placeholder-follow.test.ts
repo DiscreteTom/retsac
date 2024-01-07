@@ -3,13 +3,12 @@ import { InvalidPlaceholderFollowError } from "../../../src/parser/ELR/advanced/
 
 test("simple", () => {
   try {
-    new ELR.AdvancedBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.exactKind(..."abc"))
-          .build(),
-      )
+    new ELR.AdvancedBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.exactKind(..."abc"))
+        .build(),
+    })
       .define({
         entry: `a+ a`,
       })
@@ -30,13 +29,12 @@ test("simple", () => {
 test("complex", () => {
   const printer = jest.fn();
   const logger = new Logger({ printer });
-  new ELR.AdvancedBuilder()
-    .lexer(
-      new Lexer.Builder()
-        .anonymous(Lexer.whitespaces())
-        .define(Lexer.exactKind(..."abc"))
-        .build(),
-    )
+  new ELR.AdvancedBuilder({
+    lexer: new Lexer.Builder()
+      .anonymous(Lexer.whitespaces())
+      .define(Lexer.exactKind(..."abc"))
+      .build(),
+  })
     .define({
       entry: `(a b+)+ (a|b)`,
     })

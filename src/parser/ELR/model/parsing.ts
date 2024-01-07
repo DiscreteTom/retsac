@@ -1,4 +1,5 @@
 import type {
+  ExtractKinds,
   GeneralTokenDataBinding,
   ITrimmedLexer,
   Token,
@@ -8,29 +9,33 @@ import type { State } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
 
 export type ParsingState<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   /**
    * Current state is `states.at(-1)`.
    */
   stateStack: State<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   buffer: readonly ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   /**
    * ASTNode buffer index.
@@ -40,57 +45,63 @@ export type ParsingState<
    * Newly collected errors in that parsing process.
    */
   errors: ASTNode<
-    Kinds,
+    NTs | ExtractKinds<LexerDataBindings>,
+    NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >[];
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
 };
 
-// TODO: rename to reLexState
-export type ReActionState<
-  Kinds extends string,
+export type ReLexState<
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Readonly<
   ParsingState<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >
 > & {
   readonly rollbackStackLength: number;
 };
 
 export type RollbackState<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   readonly rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   readonly context: GrammarRuleContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 };

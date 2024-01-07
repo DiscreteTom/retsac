@@ -6,13 +6,18 @@ import type {
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import type { ASTNode } from "../../../ast";
+import type { ASTNode, TNode } from "../../../ast";
 import type {
   RejectedParserOutput,
   AcceptedParserOutput,
 } from "../../../output";
 import { rejectedParserOutput } from "../../../output";
+import type {
+  ASTNodeFirstMatchSelector,
+  ASTNodeSelector,
+} from "../../../selector";
 import { StateCacheMissError } from "../../error";
+import type { GrammarStringNoName, TokenASTDataMapperExec } from "../../model";
 import {
   type GrammarRepo,
   type GrammarRule,
@@ -29,28 +34,34 @@ import type {
 } from "../candidate";
 import type { ReadonlyFollowSets, ReadonlyNTClosures } from "../model";
 import { lexGrammar, map2serializable, prettierLexerRest } from "../utils";
-import type { StateRepo, ReadonlyStateRepo } from "./state-repo";
+import type { StateRepo } from "./state-repo";
+
+/**
+ * @see {@link State.id}.
+ */
+export type StateID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
 
 /**
  * State for ELR parsers.
  */
 export class State<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   readonly candidates: readonly Candidate<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
-  readonly str: string;
   /**
    * This will be calculated during `DFA.calculateAllStates`.
    * `null` means the node can not be accepted.
@@ -59,86 +70,99 @@ export class State<
    * we can use Grammar as the key of this map.
    */
   private readonly nextMap: Map<
-    Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
+    Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null // don't use `undefined` here because `Map.get` return `undefined` when key not found
   >;
 
+  /**
+   * Format: `candidateId\n...`.
+   */
+  readonly id: StateID;
+
+  /**
+   * Only {@link StateRepo} should use this constructor.
+   */
   constructor(
     candidates: Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
-    str: string,
+    id: string,
   ) {
     this.candidates = candidates;
-    this.str = str;
+    this.id = id;
     this.nextMap = new Map();
   }
 
   generateNext(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-    next: Readonly<
-      ASTNode<Kinds | ExtractKinds<LexerDataBindings>, never, never, never>
-    >,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
+    next: Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     allStates: StateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     cs: CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): {
     state: State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null;
     changed: boolean;
   } {
     const grammar =
-      repo.get({
+      repo.match({
         // first, try to do an accurate match with text if text is provided.
         // if the text is not provided, this will still always return a result.
         kind: next.kind,
         name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
         text: next.text,
       }) ??
-      repo.get({
+      repo.match({
         // if the last match failed, means the text is provided but not matched.
         // try to match without text.
         kind: next.kind,
         name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+        text: undefined,
       })!; // this will always return a result
 
     // try to get from local cache
@@ -152,40 +176,49 @@ export class State<
   }
 
   getNext(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     next: Readonly<
       ASTNode<
-        Kinds,
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       >
     >,
   ): {
     state: State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     > | null;
     changed: boolean;
   } {
-    const grammar =
-      repo.get({
-        // first, try to do an accurate match with text if text is provided.
-        // if the text is not provided, this will still always return a result.
-        kind: next.kind,
-        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
-        text: next.text,
-      }) ??
-      repo.get({
-        // if the last match failed, means the text is provided but not matched.
-        // try to match without text.
-        kind: next.kind,
-        name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
-      })!; // this will always return a result
+    const grammar = next.isT()
+      ? repo.match({
+          // first, try to do an accurate match with text if text is provided.
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: next.text,
+        }) ??
+        repo.match({
+          // if the last match failed, means the text is provided but not matched.
+          // try to match without text.
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: undefined,
+        })! // this will always return a result
+      : // else, next is an NT, match without text
+        repo.match({
+          kind: next.kind,
+          name: next.kind, // use kind as name since the node's name should be defined by parent which is not known here
+          text: undefined,
+        })!; // this will always return a result
 
     // try to get from local cache
     const cache = this.nextMap.get(grammar);
@@ -198,12 +231,14 @@ export class State<
   contains(
     gr: Readonly<
       GrammarRule<
-        Kinds,
+        NTs,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     digested: number,
@@ -212,41 +247,43 @@ export class State<
   }
 
   /**
-   * Get the string representation of this state.
-   * Grammar's name will be included.
-   * The result is sorted by candidate string, so that the same state will have the same string representation.
-   * This is cached.
+   * For debug output.
+   *
+   * Format: `State({ candidates })`.
    */
   toString() {
-    return this.str;
+    return `State(${JSON.stringify({
+      candidates: this.candidates.map((c) => c.toString()),
+    })})`;
   }
+
   /**
-   * Get the string representation of this state.
-   * Grammar's name will be included.
-   * The result is sorted by candidate string, so that the same state will have the same string representation.
+   * @see {@link State.id}.
    */
-  static getString<
-    Kinds extends string,
+  static generateId<
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: Pick<
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       "candidates"
     >,
-  ) {
+  ): StateID {
     return data.candidates
-      .map((c) => c.strWithGrammarName)
+      .map((c) => c.id)
       .sort()
       .join("\n");
   }
@@ -261,25 +298,34 @@ export class State<
       LexerActionState,
       LexerErrorType
     >,
+    tokenASTDataMapper: ReadonlyMap<
+      ExtractKinds<LexerDataBindings>,
+      TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+    >,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ): {
-    node: ASTNode<
-      Kinds,
+    node: TNode<
+      NTs | ExtractKinds<LexerDataBindings>,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >;
     lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   }[] {
     // for deduplication
     const done = new Map<
-      string,
-      ASTNode<
-        Kinds,
+      GrammarStringNoName,
+      TNode<
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       > | null // don't use undefined, use null
     >();
 
@@ -290,13 +336,13 @@ export class State<
 
         // if current grammar is already lexed, skip
         // we don't need to check name here since ASTNode's name is set later
-        if (done.has(c.current.grammarStrWithoutName.value)) {
+        if (done.has(c.current.grammarStringNoName)) {
           if (debug) {
-            const cache = done.get(c.current.grammarStrWithoutName.value);
+            const cache = done.get(c.current.grammarStringNoName);
             if (cache) {
               const info = {
                 candidate: c.toString(),
-                got: cache.strWithoutName.value,
+                got: cache.toString(),
               };
               logger.log({
                 entity: "Parser",
@@ -320,21 +366,27 @@ export class State<
 
         // lex candidate.current
         const r = lexGrammar<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
-        >(c.current as Grammar<ExtractKinds<LexerDataBindings>>, lexer);
+          LexerErrorType,
+          Global
+        >(
+          c.current as Grammar<ExtractKinds<LexerDataBindings>>,
+          lexer,
+          tokenASTDataMapper,
+          global,
+        );
         // mark this grammar as done, no matter if the lex is successful
-        done.set(c.current.grammarStrWithoutName.value, r?.node ?? null);
+        done.set(c.current.grammarStringNoName, r?.node ?? null);
 
         if (debug) {
           if (r !== undefined) {
             const info = {
               candidate: c.toString(),
-              got: r.node.strWithoutName.value,
+              got: r.node.toString(),
             };
             logger.log({
               entity: "Parser",
@@ -363,51 +415,70 @@ export class State<
    */
   tryReduce(
     buffer: readonly ASTNode<
-      Kinds,
+      NTs | ExtractKinds<LexerDataBindings>,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
-    followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
+    followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
     lexer: IReadonlyTrimmedLexer<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    cascadeQueryPrefix: string | undefined,
+    selector: ASTNodeSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
+    >,
+    firstMatchSelector: ASTNodeFirstMatchSelector<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
+    >,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ):
     | RejectedParserOutput
     | (AcceptedParserOutput<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       > & {
         context: GrammarRuleContext<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
         commit: boolean;
         rollback?: Callback<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
       }) {
     if (debug) {
       const info = {
-        state: this.str,
+        state: this.id,
       };
       logger.log({
         entity: "Parser",
@@ -423,7 +494,9 @@ export class State<
         ignoreEntryFollow,
         followSets,
         lexer,
-        cascadeQueryPrefix,
+        selector,
+        firstMatchSelector,
+        global,
         debug,
         logger,
       );
@@ -440,84 +513,70 @@ export class State<
     return rejectedParserOutput;
   }
 
-  toSerializable(
-    cs: ReadonlyCandidateRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    ss: ReadonlyStateRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-  ) {
+  toJSON() {
     return {
-      candidates: this.candidates.map((c) => cs.getKey(c)),
+      candidates: this.candidates.map((c) => c.id),
       nextMap: map2serializable(
         this.nextMap,
-        (g) => repo.getKey(g),
-        (s) => (s === null ? null : ss.getKey(s)),
+        (g) => g.grammarString,
+        (s) => (s === null ? null : s.id),
       ),
-      str: this.str,
+      id: this.id,
     };
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
-      >["toSerializable"]
+        LexerErrorType,
+        Global
+      >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const s = new State(
-      data.candidates.map((c) => cs.getByString(c)!),
-      data.str,
+      data.candidates.map((c) => cs.get(c)!),
+      data.id,
     );
 
     // restore nextMap after the whole state repo is filled.
     const restoreNextMap = (
       ss: StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => {
       for (const key in data.nextMap) {
         const next = data.nextMap[key];
-        if (next === null) s.nextMap.set(repo.getByString(key)!, null);
-        else s.nextMap.set(repo.getByString(key)!, ss.getByString(next)!);
+        if (next === null) s.nextMap.set(repo.get(key)!, null);
+        else s.nextMap.set(repo.get(key)!, ss.get(next)!);
       }
     };
     return { s, restoreNextMap };
@@ -531,14 +590,14 @@ export class State<
     const res = [] as string[];
 
     // append state
-    res.push(`state ${escapeStateDescription(this.str)} as ${hash(this.str)}`);
+    res.push(`state ${escapeStateDescription(this.id)} as ${hash(this.id)}`);
 
     // append transition
     this.nextMap.forEach((next, key) => {
       if (next !== null)
         res.push(
-          `${hash(this.str)} --> ${hash(next.str)}: ${escapeTransition(
-            key.grammarStrWithoutName.value,
+          `${hash(this.id)} --> ${hash(next.id)}: ${escapeTransition(
+            key.grammarStringNoName,
           )}`,
         );
       // else, next === null, don't draw this transition since the graph will grow too large

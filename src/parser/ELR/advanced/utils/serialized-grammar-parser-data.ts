@@ -3,29 +3,10 @@
 // comment all lines and uncomment the next line to re-generate the data
 // export const data = undefined;
 
-import type { SerializableParserData } from "../../model";
+import type { ExtractSerializableParserData } from "../../model";
+import type { GrammarParserBuilder } from "./grammar-parser-factory";
 
-export const data: SerializableParserData<
-  "gr",
-  | {
-      kind: "";
-      data: undefined;
-    }
-  | {
-      kind: "rename" | "grammar";
-      data: undefined;
-    }
-  | {
-      kind: "literal";
-      data: {
-        unclosed: boolean;
-      };
-    }
-  | {
-      kind: "";
-      data: undefined;
-    }
-> = {
+export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
   hash: 554900317,
   data: {
     dfa: {
@@ -37,110 +18,80 @@ export const data: SerializableParserData<
           kind: "grammar",
           name: "grammar",
           text: undefined,
-          str: 'Grammar({ type: "T", kind: "grammar", name: "grammar", text: undefined })',
-          strWithName: "grammar",
-          strWithoutName: "grammar",
-          grammarStrWithName: "grammar",
-          grammarStrWithoutName: "grammar",
+          grammarString: "grammar",
+          grammarStringNoName: "grammar",
         },
         {
           type: 0,
           kind: "literal",
           name: "literal",
           text: undefined,
-          str: 'Grammar({ type: "T", kind: "literal", name: "literal", text: undefined })',
-          strWithName: "literal",
-          strWithoutName: "literal",
-          grammarStrWithName: "literal",
-          grammarStrWithoutName: "literal",
+          grammarString: "literal",
+          grammarStringNoName: "literal",
         },
         {
           type: 0,
           kind: "rename",
           name: "rename",
           text: undefined,
-          str: 'Grammar({ type: "T", kind: "rename", name: "rename", text: undefined })',
-          strWithName: "rename",
-          strWithoutName: "rename",
-          grammarStrWithName: "rename",
-          grammarStrWithoutName: "rename",
+          grammarString: "rename",
+          grammarStringNoName: "rename",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: "(",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: "(" })',
-          strWithName: '<anonymous>: "("',
-          strWithoutName: '<anonymous>: "("',
-          grammarStrWithName: '"("',
-          grammarStrWithoutName: '"("',
+          grammarString: "'('",
+          grammarStringNoName: "'('",
         },
         {
           type: 1,
           kind: "gr",
           name: "gr",
           text: undefined,
-          str: 'Grammar({ type: "NT", kind: "gr", name: "gr", text: undefined })',
-          strWithName: "gr",
-          strWithoutName: "gr",
-          grammarStrWithName: "gr",
-          grammarStrWithoutName: "gr",
+          grammarString: "gr",
+          grammarStringNoName: "gr",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: ")",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: ")" })',
-          strWithName: '<anonymous>: ")"',
-          strWithoutName: '<anonymous>: ")"',
-          grammarStrWithName: '")"',
-          grammarStrWithoutName: '")"',
+          grammarString: "')'",
+          grammarStringNoName: "')'",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: "?",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: "?" })',
-          strWithName: '<anonymous>: "?"',
-          strWithoutName: '<anonymous>: "?"',
-          grammarStrWithName: '"?"',
-          grammarStrWithoutName: '"?"',
+          grammarString: "'?'",
+          grammarStringNoName: "'?'",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: "*",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: "*" })',
-          strWithName: '<anonymous>: "*"',
-          strWithoutName: '<anonymous>: "*"',
-          grammarStrWithName: '"*"',
-          grammarStrWithoutName: '"*"',
+          grammarString: "'*'",
+          grammarStringNoName: "'*'",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: "+",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: "+" })',
-          strWithName: '<anonymous>: "+"',
-          strWithoutName: '<anonymous>: "+"',
-          grammarStrWithName: '"+"',
-          grammarStrWithoutName: '"+"',
+          grammarString: "'+'",
+          grammarStringNoName: "'+'",
         },
         {
           type: 0,
           kind: "",
           name: "",
           text: "|",
-          str: 'Grammar({ type: "T", kind: "", name: "", text: "|" })',
-          strWithName: '<anonymous>: "|"',
-          strWithoutName: '<anonymous>: "|"',
-          grammarStrWithName: '"|"',
-          grammarStrWithoutName: '"|"',
+          grammarString: "'|'",
+          grammarStringNoName: "'|'",
         },
       ],
       grammarRules: [
@@ -149,9 +100,7 @@ export const data: SerializableParserData<
           rule: ["grammar"],
           conflicts: [],
           resolved: [],
-          str: "{ gr: `grammar` }",
-          strWithGrammarName: "{ gr: `grammar` }",
-          strWithoutGrammarName: "{ gr: `grammar` }",
+          id: "gr:grammar",
           hydrationId: 0,
         },
         {
@@ -159,9 +108,7 @@ export const data: SerializableParserData<
           rule: ["literal"],
           conflicts: [],
           resolved: [],
-          str: "{ gr: `literal` }",
-          strWithGrammarName: "{ gr: `literal` }",
-          strWithoutGrammarName: "{ gr: `literal` }",
+          id: "gr:literal",
           hydrationId: 0,
         },
         {
@@ -169,9 +116,7 @@ export const data: SerializableParserData<
           rule: ["grammar", "rename"],
           conflicts: [],
           resolved: [],
-          str: "{ gr: `grammar rename` }",
-          strWithGrammarName: "{ gr: `grammar rename` }",
-          strWithoutGrammarName: "{ gr: `grammar rename` }",
+          id: "gr:grammar,rename",
           hydrationId: 1,
         },
         {
@@ -179,29 +124,25 @@ export const data: SerializableParserData<
           rule: ["literal", "rename"],
           conflicts: [],
           resolved: [],
-          str: "{ gr: `literal rename` }",
-          strWithGrammarName: "{ gr: `literal rename` }",
-          strWithoutGrammarName: "{ gr: `literal rename` }",
+          id: "gr:literal,rename",
           hydrationId: 1,
         },
         {
           NT: "gr",
-          rule: ['"("', "gr", '")"'],
+          rule: ["'('", "gr", "')'"],
           conflicts: [],
           resolved: [],
-          str: '{ gr: `"(" gr ")"` }',
-          strWithGrammarName: '{ gr: `"(" gr ")"` }',
-          strWithoutGrammarName: '{ gr: `"(" gr ")"` }',
+          id: "gr:'(',gr,')'",
           hydrationId: 2,
         },
         {
           NT: "gr",
-          rule: ["gr", '"?"'],
+          rule: ["gr", "'?'"],
           conflicts: [],
           resolved: [
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -209,7 +150,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -217,7 +158,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -225,7 +166,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -233,7 +174,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -241,7 +182,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -249,7 +190,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -257,7 +198,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -265,7 +206,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -273,7 +214,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -281,7 +222,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -289,7 +230,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -297,26 +238,24 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: true,
               hydrationId: undefined,
             },
           ],
-          str: '{ gr: `gr "?"` }',
-          strWithGrammarName: '{ gr: `gr "?"` }',
-          strWithoutGrammarName: '{ gr: `gr "?"` }',
+          id: "gr:gr,'?'",
           hydrationId: 3,
         },
         {
           NT: "gr",
-          rule: ["gr", '"*"'],
+          rule: ["gr", "'*'"],
           conflicts: [],
           resolved: [
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -324,7 +263,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -332,7 +271,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -340,7 +279,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -348,7 +287,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -356,7 +295,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -364,7 +303,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -372,7 +311,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -380,7 +319,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -388,7 +327,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -396,7 +335,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -404,7 +343,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -412,26 +351,24 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: true,
               hydrationId: undefined,
             },
           ],
-          str: '{ gr: `gr "*"` }',
-          strWithGrammarName: '{ gr: `gr "*"` }',
-          strWithoutGrammarName: '{ gr: `gr "*"` }',
+          id: "gr:gr,'*'",
           hydrationId: 4,
         },
         {
           NT: "gr",
-          rule: ["gr", '"+"'],
+          rule: ["gr", "'+'"],
           conflicts: [],
           resolved: [
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -439,7 +376,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -447,7 +384,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -455,7 +392,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -463,7 +400,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -471,7 +408,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -479,7 +416,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -487,7 +424,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -495,7 +432,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -503,7 +440,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -511,7 +448,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -519,7 +456,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -527,54 +464,52 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: true,
               hydrationId: undefined,
             },
           ],
-          str: '{ gr: `gr "+"` }',
-          strWithGrammarName: '{ gr: `gr "+"` }',
-          strWithoutGrammarName: '{ gr: `gr "+"` }',
+          id: "gr:gr,'+'",
           hydrationId: 5,
         },
         {
           NT: "gr",
-          rule: ["gr", '"|"', "gr"],
+          rule: ["gr", "'|'", "gr"],
           conflicts: [
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
-              next: ['"?"'],
+              anotherRule: "gr:gr,'?'",
+              next: ["'?'"],
               handleEnd: false,
               resolvers: [0],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
-              next: ['"*"'],
+              anotherRule: "gr:gr,'*'",
+              next: ["'*'"],
               handleEnd: false,
               resolvers: [2],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
-              next: ['"+"'],
+              anotherRule: "gr:gr,'+'",
+              next: ["'+'"],
               handleEnd: false,
               resolvers: [4],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
-              next: ['"|"'],
+              anotherRule: "gr:gr,'|',gr",
+              next: ["'|'"],
               handleEnd: false,
               resolvers: [8],
             },
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
-              next: ["gr", "grammar", "literal", '"("'],
+              anotherRule: "gr:gr,gr",
+              next: ["gr", "grammar", "literal", "'('"],
               handleEnd: false,
               resolvers: [6],
             },
@@ -582,7 +517,7 @@ export const data: SerializableParserData<
           resolved: [
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -590,7 +525,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -598,7 +533,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -606,7 +541,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -614,7 +549,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -622,7 +557,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -630,7 +565,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -638,7 +573,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -646,16 +581,14 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: false,
               next: "*",
               accepter: true,
               hydrationId: undefined,
             },
           ],
-          str: '{ gr: `gr "|" gr` }',
-          strWithGrammarName: '{ gr: `gr "|" gr` }',
-          strWithoutGrammarName: '{ gr: `gr "|" gr` }',
+          id: "gr:gr,'|',gr",
           hydrationId: 6,
         },
         {
@@ -664,36 +597,36 @@ export const data: SerializableParserData<
           conflicts: [
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
-              next: ['"?"'],
+              anotherRule: "gr:gr,'?'",
+              next: ["'?'"],
               handleEnd: false,
               resolvers: [0],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
-              next: ['"*"'],
+              anotherRule: "gr:gr,'*'",
+              next: ["'*'"],
               handleEnd: false,
               resolvers: [2],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
-              next: ['"+"'],
+              anotherRule: "gr:gr,'+'",
+              next: ["'+'"],
               handleEnd: false,
               resolvers: [4],
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
-              next: ['"|"'],
+              anotherRule: "gr:gr,'|',gr",
+              next: ["'|'"],
               handleEnd: false,
               resolvers: [6],
             },
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
-              next: ["gr", "grammar", "literal", '"("'],
+              anotherRule: "gr:gr,gr",
+              next: ["gr", "grammar", "literal", "'('"],
               handleEnd: false,
               resolvers: [8],
             },
@@ -701,7 +634,7 @@ export const data: SerializableParserData<
           resolved: [
             {
               type: 0,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -709,7 +642,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "?"` }',
+              anotherRule: "gr:gr,'?'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -717,7 +650,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -725,7 +658,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "*"` }',
+              anotherRule: "gr:gr,'*'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -733,7 +666,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: false,
               next: "*",
               accepter: false,
@@ -741,7 +674,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "+"` }',
+              anotherRule: "gr:gr,'+'",
               handleEnd: true,
               next: "*",
               accepter: false,
@@ -749,7 +682,7 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: false,
               next: "*",
               accepter: true,
@@ -757,7 +690,7 @@ export const data: SerializableParserData<
             },
             {
               type: 1,
-              anotherRule: '{ gr: `gr "|" gr` }',
+              anotherRule: "gr:gr,'|',gr",
               handleEnd: true,
               next: "*",
               accepter: true,
@@ -765,992 +698,955 @@ export const data: SerializableParserData<
             },
             {
               type: 0,
-              anotherRule: "{ gr: `gr gr` }",
+              anotherRule: "gr:gr,gr",
               handleEnd: false,
               next: "*",
               accepter: true,
               hydrationId: undefined,
             },
           ],
-          str: "{ gr: `gr gr` }",
-          strWithGrammarName: "{ gr: `gr gr` }",
-          strWithoutGrammarName: "{ gr: `gr gr` }",
+          id: "gr:gr,gr",
           hydrationId: 7,
         },
       ],
       candidates: [
         {
-          gr: "{ gr: `grammar` }",
+          gr: "gr:grammar",
           digested: 0,
-          nextMap: { grammar: "gr := grammar #" },
-          str: "gr := # grammar",
-          strWithGrammarName: "gr := # grammar",
+          nextMap: { grammar: "1#gr:grammar" },
+          id: "0#gr:grammar",
         },
         {
-          gr: "{ gr: `literal` }",
+          gr: "gr:literal",
           digested: 0,
-          nextMap: { literal: "gr := literal #" },
-          str: "gr := # literal",
-          strWithGrammarName: "gr := # literal",
+          nextMap: { literal: "1#gr:literal" },
+          id: "0#gr:literal",
         },
         {
-          gr: "{ gr: `grammar rename` }",
+          gr: "gr:grammar,rename",
           digested: 0,
-          nextMap: { grammar: "gr := grammar # rename" },
-          str: "gr := # grammar rename",
-          strWithGrammarName: "gr := # grammar rename",
+          nextMap: { grammar: "1#gr:grammar,rename" },
+          id: "0#gr:grammar,rename",
         },
         {
-          gr: "{ gr: `literal rename` }",
+          gr: "gr:literal,rename",
           digested: 0,
-          nextMap: { literal: "gr := literal # rename" },
-          str: "gr := # literal rename",
-          strWithGrammarName: "gr := # literal rename",
+          nextMap: { literal: "1#gr:literal,rename" },
+          id: "0#gr:literal,rename",
         },
         {
-          gr: '{ gr: `"(" gr ")"` }',
+          gr: "gr:'(',gr,')'",
           digested: 0,
-          nextMap: { '"("': 'gr := "(" # gr ")"' },
-          str: 'gr := # "(" gr ")"',
-          strWithGrammarName: 'gr := # "(" gr ")"',
+          nextMap: { "'('": "1#gr:'(',gr,')'" },
+          id: "0#gr:'(',gr,')'",
         },
         {
-          gr: '{ gr: `gr "?"` }',
+          gr: "gr:gr,'?'",
           digested: 0,
-          nextMap: { gr: 'gr := gr # "?"' },
-          str: 'gr := # gr "?"',
-          strWithGrammarName: 'gr := # gr "?"',
+          nextMap: { gr: "1#gr:gr,'?'" },
+          id: "0#gr:gr,'?'",
         },
         {
-          gr: '{ gr: `gr "*"` }',
+          gr: "gr:gr,'*'",
           digested: 0,
-          nextMap: { gr: 'gr := gr # "*"' },
-          str: 'gr := # gr "*"',
-          strWithGrammarName: 'gr := # gr "*"',
+          nextMap: { gr: "1#gr:gr,'*'" },
+          id: "0#gr:gr,'*'",
         },
         {
-          gr: '{ gr: `gr "+"` }',
+          gr: "gr:gr,'+'",
           digested: 0,
-          nextMap: { gr: 'gr := gr # "+"' },
-          str: 'gr := # gr "+"',
-          strWithGrammarName: 'gr := # gr "+"',
+          nextMap: { gr: "1#gr:gr,'+'" },
+          id: "0#gr:gr,'+'",
         },
         {
-          gr: '{ gr: `gr "|" gr` }',
+          gr: "gr:gr,'|',gr",
           digested: 0,
-          nextMap: { gr: 'gr := gr # "|" gr' },
-          str: 'gr := # gr "|" gr',
-          strWithGrammarName: 'gr := # gr "|" gr',
+          nextMap: { gr: "1#gr:gr,'|',gr" },
+          id: "0#gr:gr,'|',gr",
         },
         {
-          gr: "{ gr: `gr gr` }",
+          gr: "gr:gr,gr",
           digested: 0,
-          nextMap: { gr: "gr := gr # gr" },
-          str: "gr := # gr gr",
-          strWithGrammarName: "gr := # gr gr",
+          nextMap: { gr: "1#gr:gr,gr" },
+          id: "0#gr:gr,gr",
         },
         {
-          gr: "{ gr: `grammar` }",
+          gr: "gr:grammar",
           digested: 1,
           nextMap: {},
-          str: "gr := grammar #",
-          strWithGrammarName: "gr := grammar #",
+          id: "1#gr:grammar",
         },
         {
-          gr: "{ gr: `grammar rename` }",
+          gr: "gr:grammar,rename",
           digested: 1,
-          nextMap: { rename: "gr := grammar rename #" },
-          str: "gr := grammar # rename",
-          strWithGrammarName: "gr := grammar # rename",
+          nextMap: { rename: "2#gr:grammar,rename" },
+          id: "1#gr:grammar,rename",
         },
         {
-          gr: "{ gr: `literal` }",
+          gr: "gr:literal",
           digested: 1,
           nextMap: {},
-          str: "gr := literal #",
-          strWithGrammarName: "gr := literal #",
+          id: "1#gr:literal",
         },
         {
-          gr: "{ gr: `literal rename` }",
+          gr: "gr:literal,rename",
           digested: 1,
-          nextMap: { rename: "gr := literal rename #" },
-          str: "gr := literal # rename",
-          strWithGrammarName: "gr := literal # rename",
+          nextMap: { rename: "2#gr:literal,rename" },
+          id: "1#gr:literal,rename",
         },
         {
-          gr: '{ gr: `"(" gr ")"` }',
+          gr: "gr:'(',gr,')'",
           digested: 1,
-          nextMap: { gr: 'gr := "(" gr # ")"' },
-          str: 'gr := "(" # gr ")"',
-          strWithGrammarName: 'gr := "(" # gr ")"',
+          nextMap: { gr: "2#gr:'(',gr,')'" },
+          id: "1#gr:'(',gr,')'",
         },
         {
-          gr: '{ gr: `gr "?"` }',
+          gr: "gr:gr,'?'",
           digested: 1,
-          nextMap: { '"?"': 'gr := gr "?" #' },
-          str: 'gr := gr # "?"',
-          strWithGrammarName: 'gr := gr # "?"',
+          nextMap: { "'?'": "2#gr:gr,'?'" },
+          id: "1#gr:gr,'?'",
         },
         {
-          gr: '{ gr: `gr "*"` }',
+          gr: "gr:gr,'*'",
           digested: 1,
-          nextMap: { '"*"': 'gr := gr "*" #' },
-          str: 'gr := gr # "*"',
-          strWithGrammarName: 'gr := gr # "*"',
+          nextMap: { "'*'": "2#gr:gr,'*'" },
+          id: "1#gr:gr,'*'",
         },
         {
-          gr: '{ gr: `gr "+"` }',
+          gr: "gr:gr,'+'",
           digested: 1,
-          nextMap: { '"+"': 'gr := gr "+" #' },
-          str: 'gr := gr # "+"',
-          strWithGrammarName: 'gr := gr # "+"',
+          nextMap: { "'+'": "2#gr:gr,'+'" },
+          id: "1#gr:gr,'+'",
         },
         {
-          gr: '{ gr: `gr "|" gr` }',
+          gr: "gr:gr,'|',gr",
           digested: 1,
-          nextMap: { '"|"': 'gr := gr "|" # gr' },
-          str: 'gr := gr # "|" gr',
-          strWithGrammarName: 'gr := gr # "|" gr',
+          nextMap: { "'|'": "2#gr:gr,'|',gr" },
+          id: "1#gr:gr,'|',gr",
         },
         {
-          gr: "{ gr: `gr gr` }",
+          gr: "gr:gr,gr",
           digested: 1,
-          nextMap: { gr: "gr := gr gr #" },
-          str: "gr := gr # gr",
-          strWithGrammarName: "gr := gr # gr",
+          nextMap: { gr: "2#gr:gr,gr" },
+          id: "1#gr:gr,gr",
         },
         {
-          gr: "{ gr: `grammar rename` }",
+          gr: "gr:grammar,rename",
           digested: 2,
           nextMap: {},
-          str: "gr := grammar rename #",
-          strWithGrammarName: "gr := grammar rename #",
+          id: "2#gr:grammar,rename",
         },
         {
-          gr: "{ gr: `literal rename` }",
+          gr: "gr:literal,rename",
           digested: 2,
           nextMap: {},
-          str: "gr := literal rename #",
-          strWithGrammarName: "gr := literal rename #",
+          id: "2#gr:literal,rename",
         },
         {
-          gr: '{ gr: `"(" gr ")"` }',
+          gr: "gr:'(',gr,')'",
           digested: 2,
-          nextMap: { '")"': 'gr := "(" gr ")" #' },
-          str: 'gr := "(" gr # ")"',
-          strWithGrammarName: 'gr := "(" gr # ")"',
+          nextMap: { "')'": "3#gr:'(',gr,')'" },
+          id: "2#gr:'(',gr,')'",
         },
+        { gr: "gr:gr,gr", digested: 2, nextMap: {}, id: "2#gr:gr,gr" },
         {
-          gr: "{ gr: `gr gr` }",
-          digested: 2,
-          nextMap: {},
-          str: "gr := gr gr #",
-          strWithGrammarName: "gr := gr gr #",
-        },
-        {
-          gr: '{ gr: `gr "?"` }',
+          gr: "gr:gr,'?'",
           digested: 2,
           nextMap: {},
-          str: 'gr := gr "?" #',
-          strWithGrammarName: 'gr := gr "?" #',
+          id: "2#gr:gr,'?'",
         },
         {
-          gr: '{ gr: `gr "*"` }',
+          gr: "gr:gr,'*'",
           digested: 2,
           nextMap: {},
-          str: 'gr := gr "*" #',
-          strWithGrammarName: 'gr := gr "*" #',
+          id: "2#gr:gr,'*'",
         },
         {
-          gr: '{ gr: `gr "+"` }',
+          gr: "gr:gr,'+'",
           digested: 2,
           nextMap: {},
-          str: 'gr := gr "+" #',
-          strWithGrammarName: 'gr := gr "+" #',
+          id: "2#gr:gr,'+'",
         },
         {
-          gr: '{ gr: `gr "|" gr` }',
+          gr: "gr:gr,'|',gr",
           digested: 2,
-          nextMap: { gr: 'gr := gr "|" gr #' },
-          str: 'gr := gr "|" # gr',
-          strWithGrammarName: 'gr := gr "|" # gr',
+          nextMap: { gr: "3#gr:gr,'|',gr" },
+          id: "2#gr:gr,'|',gr",
         },
         {
-          gr: '{ gr: `"(" gr ")"` }',
+          gr: "gr:'(',gr,')'",
           digested: 3,
           nextMap: {},
-          str: 'gr := "(" gr ")" #',
-          strWithGrammarName: 'gr := "(" gr ")" #',
+          id: "3#gr:'(',gr,')'",
         },
         {
-          gr: '{ gr: `gr "|" gr` }',
+          gr: "gr:gr,'|',gr",
           digested: 3,
           nextMap: {},
-          str: 'gr := gr "|" gr #',
-          strWithGrammarName: 'gr := gr "|" gr #',
+          id: "3#gr:gr,'|',gr",
         },
       ],
       states: {
-        'gr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename":
           {
             candidates: [
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr",
-              '")"': null,
-              '"?"': null,
-              '"*"': null,
-              '"+"': null,
-              '"|"': null,
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr",
+              "')'": null,
+              "'?'": null,
+              "'*'": null,
+              "'+'": null,
+              "'|'": null,
             },
-            str:
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename",
           },
-        "gr := grammar #\ngr := grammar # rename": {
-          candidates: ["gr := grammar #", "gr := grammar # rename"],
+        "1#gr:grammar\n1#gr:grammar,rename": {
+          candidates: ["1#gr:grammar", "1#gr:grammar,rename"],
           nextMap: {
             grammar: null,
             literal: null,
-            rename: "gr := grammar rename #",
-            '"("': null,
+            rename: "2#gr:grammar,rename",
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: "gr := grammar #\ngr := grammar # rename",
+          id: "1#gr:grammar\n1#gr:grammar,rename",
         },
-        "gr := literal #\ngr := literal # rename": {
-          candidates: ["gr := literal #", "gr := literal # rename"],
+        "1#gr:literal\n1#gr:literal,rename": {
+          candidates: ["1#gr:literal", "1#gr:literal,rename"],
           nextMap: {
             grammar: null,
             literal: null,
-            rename: "gr := literal rename #",
-            '"("': null,
+            rename: "2#gr:literal,rename",
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: "gr := literal #\ngr := literal # rename",
+          id: "1#gr:literal\n1#gr:literal,rename",
         },
-        'gr := "(" # gr ")"\ngr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'":
           {
             candidates: [
-              'gr := "(" # gr ")"',
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "1#gr:'(',gr,')'",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := "(" gr # ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr",
-              '")"': null,
-              '"?"': null,
-              '"*"': null,
-              '"+"': null,
-              '"|"': null,
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "2#gr:'(',gr,')'",
+              "')'": null,
+              "'?'": null,
+              "'*'": null,
+              "'+'": null,
+              "'|'": null,
             },
-            str:
-              'gr := "(" # gr ")"\n' +
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "1#gr:'(',gr,')'",
           },
-        'gr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename\ngr := gr # "*"\ngr := gr # "+"\ngr := gr # "?"\ngr := gr # "|" gr\ngr := gr # gr':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr":
           {
             candidates: [
-              'gr := gr # "?"',
-              'gr := gr # "*"',
-              'gr := gr # "+"',
-              'gr := gr # "|" gr',
-              "gr := gr # gr",
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "1#gr:gr,'?'",
+              "1#gr:gr,'*'",
+              "1#gr:gr,'+'",
+              "1#gr:gr,'|',gr",
+              "1#gr:gr,gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr\n" +
-                "gr := gr gr #",
-              '")"': null,
-              '"?"': 'gr := gr "?" #',
-              '"*"': 'gr := gr "*" #',
-              '"+"': 'gr := gr "+" #',
-              '"|"':
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr "|" # gr',
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "2#gr:gr,gr",
+              "')'": null,
+              "'?'": "2#gr:gr,'?'",
+              "'*'": "2#gr:gr,'*'",
+              "'+'": "2#gr:gr,'+'",
+              "'|'":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "2#gr:gr,'|',gr",
             },
-            str:
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename\n" +
-              'gr := gr # "*"\n' +
-              'gr := gr # "+"\n' +
-              'gr := gr # "?"\n' +
-              'gr := gr # "|" gr\n' +
-              "gr := gr # gr",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "1#gr:gr,'*'\n" +
+              "1#gr:gr,'+'\n" +
+              "1#gr:gr,'?'\n" +
+              "1#gr:gr,'|',gr\n" +
+              "1#gr:gr,gr",
           },
-        "gr := grammar rename #": {
-          candidates: ["gr := grammar rename #"],
+        "2#gr:grammar,rename": {
+          candidates: ["2#gr:grammar,rename"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: "gr := grammar rename #",
+          id: "2#gr:grammar,rename",
         },
-        "gr := literal rename #": {
-          candidates: ["gr := literal rename #"],
+        "2#gr:literal,rename": {
+          candidates: ["2#gr:literal,rename"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: "gr := literal rename #",
+          id: "2#gr:literal,rename",
         },
-        'gr := "(" gr # ")"\ngr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename\ngr := gr # "*"\ngr := gr # "+"\ngr := gr # "?"\ngr := gr # "|" gr\ngr := gr # gr':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'":
           {
             candidates: [
-              'gr := "(" gr # ")"',
-              'gr := gr # "?"',
-              'gr := gr # "*"',
-              'gr := gr # "+"',
-              'gr := gr # "|" gr',
-              "gr := gr # gr",
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "2#gr:'(',gr,')'",
+              "1#gr:gr,'?'",
+              "1#gr:gr,'*'",
+              "1#gr:gr,'+'",
+              "1#gr:gr,'|',gr",
+              "1#gr:gr,gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr\n" +
-                "gr := gr gr #",
-              '")"': 'gr := "(" gr ")" #',
-              '"?"': 'gr := gr "?" #',
-              '"*"': 'gr := gr "*" #',
-              '"+"': 'gr := gr "+" #',
-              '"|"':
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr "|" # gr',
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "2#gr:gr,gr",
+              "')'": "3#gr:'(',gr,')'",
+              "'?'": "2#gr:gr,'?'",
+              "'*'": "2#gr:gr,'*'",
+              "'+'": "2#gr:gr,'+'",
+              "'|'":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "2#gr:gr,'|',gr",
             },
-            str:
-              'gr := "(" gr # ")"\n' +
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename\n" +
-              'gr := gr # "*"\n' +
-              'gr := gr # "+"\n' +
-              'gr := gr # "?"\n' +
-              'gr := gr # "|" gr\n' +
-              "gr := gr # gr",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "1#gr:gr,'*'\n" +
+              "1#gr:gr,'+'\n" +
+              "1#gr:gr,'?'\n" +
+              "1#gr:gr,'|',gr\n" +
+              "1#gr:gr,gr\n" +
+              "2#gr:'(',gr,')'",
           },
-        'gr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename\ngr := gr # "*"\ngr := gr # "+"\ngr := gr # "?"\ngr := gr # "|" gr\ngr := gr # gr\ngr := gr gr #':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr":
           {
             candidates: [
-              "gr := gr gr #",
-              'gr := gr # "?"',
-              'gr := gr # "*"',
-              'gr := gr # "+"',
-              'gr := gr # "|" gr',
-              "gr := gr # gr",
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "2#gr:gr,gr",
+              "1#gr:gr,'?'",
+              "1#gr:gr,'*'",
+              "1#gr:gr,'+'",
+              "1#gr:gr,'|',gr",
+              "1#gr:gr,gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr\n" +
-                "gr := gr gr #",
-              '")"': null,
-              '"?"': 'gr := gr "?" #',
-              '"*"': 'gr := gr "*" #',
-              '"+"': 'gr := gr "+" #',
-              '"|"':
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr "|" # gr',
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "2#gr:gr,gr",
+              "')'": null,
+              "'?'": "2#gr:gr,'?'",
+              "'*'": "2#gr:gr,'*'",
+              "'+'": "2#gr:gr,'+'",
+              "'|'":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "2#gr:gr,'|',gr",
             },
-            str:
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename\n" +
-              'gr := gr # "*"\n' +
-              'gr := gr # "+"\n' +
-              'gr := gr # "?"\n' +
-              'gr := gr # "|" gr\n' +
-              "gr := gr # gr\n" +
-              "gr := gr gr #",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "1#gr:gr,'*'\n" +
+              "1#gr:gr,'+'\n" +
+              "1#gr:gr,'?'\n" +
+              "1#gr:gr,'|',gr\n" +
+              "1#gr:gr,gr\n" +
+              "2#gr:gr,gr",
           },
-        'gr := gr "?" #': {
-          candidates: ['gr := gr "?" #'],
+        "2#gr:gr,'?'": {
+          candidates: ["2#gr:gr,'?'"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: 'gr := gr "?" #',
+          id: "2#gr:gr,'?'",
         },
-        'gr := gr "*" #': {
-          candidates: ['gr := gr "*" #'],
+        "2#gr:gr,'*'": {
+          candidates: ["2#gr:gr,'*'"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: 'gr := gr "*" #',
+          id: "2#gr:gr,'*'",
         },
-        'gr := gr "+" #': {
-          candidates: ['gr := gr "+" #'],
+        "2#gr:gr,'+'": {
+          candidates: ["2#gr:gr,'+'"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: 'gr := gr "+" #',
+          id: "2#gr:gr,'+'",
         },
-        'gr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename\ngr := gr "|" # gr':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr":
           {
             candidates: [
-              'gr := gr "|" # gr',
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "2#gr:gr,'|',gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr "|" gr #\n' +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr",
-              '")"': null,
-              '"?"': null,
-              '"*"': null,
-              '"+"': null,
-              '"|"': null,
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "3#gr:gr,'|',gr",
+              "')'": null,
+              "'?'": null,
+              "'*'": null,
+              "'+'": null,
+              "'|'": null,
             },
-            str:
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename\n" +
-              'gr := gr "|" # gr',
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "2#gr:gr,'|',gr",
           },
-        'gr := "(" gr ")" #': {
-          candidates: ['gr := "(" gr ")" #'],
+        "3#gr:'(',gr,')'": {
+          candidates: ["3#gr:'(',gr,')'"],
           nextMap: {
             grammar: null,
             literal: null,
             rename: null,
-            '"("': null,
+            "'('": null,
             gr: null,
-            '")"': null,
-            '"?"': null,
-            '"*"': null,
-            '"+"': null,
-            '"|"': null,
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-          str: 'gr := "(" gr ")" #',
+          id: "3#gr:'(',gr,')'",
         },
-        'gr := # "(" gr ")"\ngr := # gr "*"\ngr := # gr "+"\ngr := # gr "?"\ngr := # gr "|" gr\ngr := # gr gr\ngr := # grammar\ngr := # grammar rename\ngr := # literal\ngr := # literal rename\ngr := gr "|" gr #\ngr := gr # "*"\ngr := gr # "+"\ngr := gr # "?"\ngr := gr # "|" gr\ngr := gr # gr':
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr":
           {
             candidates: [
-              'gr := gr "|" gr #',
-              'gr := gr # "?"',
-              'gr := gr # "*"',
-              'gr := gr # "+"',
-              'gr := gr # "|" gr',
-              "gr := gr # gr",
-              "gr := # grammar",
-              "gr := # literal",
-              "gr := # grammar rename",
-              "gr := # literal rename",
-              'gr := # "(" gr ")"',
-              'gr := # gr "?"',
-              'gr := # gr "*"',
-              'gr := # gr "+"',
-              'gr := # gr "|" gr',
-              "gr := # gr gr",
+              "3#gr:gr,'|',gr",
+              "1#gr:gr,'?'",
+              "1#gr:gr,'*'",
+              "1#gr:gr,'+'",
+              "1#gr:gr,'|',gr",
+              "1#gr:gr,gr",
+              "0#gr:grammar",
+              "0#gr:literal",
+              "0#gr:grammar,rename",
+              "0#gr:literal,rename",
+              "0#gr:'(',gr,')'",
+              "0#gr:gr,'?'",
+              "0#gr:gr,'*'",
+              "0#gr:gr,'+'",
+              "0#gr:gr,'|',gr",
+              "0#gr:gr,gr",
             ],
             nextMap: {
-              grammar: "gr := grammar #\ngr := grammar # rename",
-              literal: "gr := literal #\ngr := literal # rename",
+              grammar: "1#gr:grammar\n1#gr:grammar,rename",
+              literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
-              '"("':
-                'gr := "(" # gr ")"\n' +
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename",
+              "'('":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:'(',gr,')'",
               gr:
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr # "*"\n' +
-                'gr := gr # "+"\n' +
-                'gr := gr # "?"\n' +
-                'gr := gr # "|" gr\n' +
-                "gr := gr # gr\n" +
-                "gr := gr gr #",
-              '")"': null,
-              '"?"': 'gr := gr "?" #',
-              '"*"': 'gr := gr "*" #',
-              '"+"': 'gr := gr "+" #',
-              '"|"':
-                'gr := # "(" gr ")"\n' +
-                'gr := # gr "*"\n' +
-                'gr := # gr "+"\n' +
-                'gr := # gr "?"\n' +
-                'gr := # gr "|" gr\n' +
-                "gr := # gr gr\n" +
-                "gr := # grammar\n" +
-                "gr := # grammar rename\n" +
-                "gr := # literal\n" +
-                "gr := # literal rename\n" +
-                'gr := gr "|" # gr',
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "1#gr:gr,'*'\n" +
+                "1#gr:gr,'+'\n" +
+                "1#gr:gr,'?'\n" +
+                "1#gr:gr,'|',gr\n" +
+                "1#gr:gr,gr\n" +
+                "2#gr:gr,gr",
+              "')'": null,
+              "'?'": "2#gr:gr,'?'",
+              "'*'": "2#gr:gr,'*'",
+              "'+'": "2#gr:gr,'+'",
+              "'|'":
+                "0#gr:'(',gr,')'\n" +
+                "0#gr:gr,'*'\n" +
+                "0#gr:gr,'+'\n" +
+                "0#gr:gr,'?'\n" +
+                "0#gr:gr,'|',gr\n" +
+                "0#gr:gr,gr\n" +
+                "0#gr:grammar\n" +
+                "0#gr:grammar,rename\n" +
+                "0#gr:literal\n" +
+                "0#gr:literal,rename\n" +
+                "2#gr:gr,'|',gr",
             },
-            str:
-              'gr := # "(" gr ")"\n' +
-              'gr := # gr "*"\n' +
-              'gr := # gr "+"\n' +
-              'gr := # gr "?"\n' +
-              'gr := # gr "|" gr\n' +
-              "gr := # gr gr\n" +
-              "gr := # grammar\n" +
-              "gr := # grammar rename\n" +
-              "gr := # literal\n" +
-              "gr := # literal rename\n" +
-              'gr := gr "|" gr #\n' +
-              'gr := gr # "*"\n' +
-              'gr := gr # "+"\n' +
-              'gr := gr # "?"\n' +
-              'gr := gr # "|" gr\n' +
-              "gr := gr # gr",
+            id:
+              "0#gr:'(',gr,')'\n" +
+              "0#gr:gr,'*'\n" +
+              "0#gr:gr,'+'\n" +
+              "0#gr:gr,'?'\n" +
+              "0#gr:gr,'|',gr\n" +
+              "0#gr:gr,gr\n" +
+              "0#gr:grammar\n" +
+              "0#gr:grammar,rename\n" +
+              "0#gr:literal\n" +
+              "0#gr:literal,rename\n" +
+              "1#gr:gr,'*'\n" +
+              "1#gr:gr,'+'\n" +
+              "1#gr:gr,'?'\n" +
+              "1#gr:gr,'|',gr\n" +
+              "1#gr:gr,gr\n" +
+              "3#gr:gr,'|',gr",
           },
       },
       entryState:
-        'gr := # "(" gr ")"\n' +
-        'gr := # gr "*"\n' +
-        'gr := # gr "+"\n' +
-        'gr := # gr "?"\n' +
-        'gr := # gr "|" gr\n' +
-        "gr := # gr gr\n" +
-        "gr := # grammar\n" +
-        "gr := # grammar rename\n" +
-        "gr := # literal\n" +
-        "gr := # literal rename",
+        "0#gr:'(',gr,')'\n" +
+        "0#gr:gr,'*'\n" +
+        "0#gr:gr,'+'\n" +
+        "0#gr:gr,'?'\n" +
+        "0#gr:gr,'|',gr\n" +
+        "0#gr:gr,gr\n" +
+        "0#gr:grammar\n" +
+        "0#gr:grammar,rename\n" +
+        "0#gr:literal\n" +
+        "0#gr:literal,rename",
       NTClosures: {
         gr: [
-          "{ gr: `grammar` }",
-          "{ gr: `literal` }",
-          "{ gr: `grammar rename` }",
-          "{ gr: `literal rename` }",
-          '{ gr: `"(" gr ")"` }',
-          '{ gr: `gr "?"` }',
-          '{ gr: `gr "*"` }',
-          '{ gr: `gr "+"` }',
-          '{ gr: `gr "|" gr` }',
-          "{ gr: `gr gr` }",
+          "gr:grammar",
+          "gr:literal",
+          "gr:grammar,rename",
+          "gr:literal,rename",
+          "gr:'(',gr,')'",
+          "gr:gr,'?'",
+          "gr:gr,'*'",
+          "gr:gr,'+'",
+          "gr:gr,'|',gr",
+          "gr:gr,gr",
         ],
       },
-      firstSets: { gr: ["grammar", "literal", '"("', "gr"] },
+      firstSets: { gr: ["grammar", "literal", "'('", "gr"] },
       followSets: {
         gr: [
-          '")"',
-          '"?"',
-          '"*"',
-          '"+"',
-          '"|"',
+          "')'",
+          "'?'",
+          "'*'",
+          "'+'",
+          "'|'",
           "gr",
           "grammar",
           "literal",
-          '"("',
+          "'('",
         ],
         grammar: [
           "rename",
-          '")"',
-          '"?"',
-          '"*"',
-          '"+"',
-          '"|"',
+          "')'",
+          "'?'",
+          "'*'",
+          "'+'",
+          "'|'",
           "gr",
           "grammar",
           "literal",
-          '"("',
+          "'('",
         ],
         literal: [
           "rename",
-          '")"',
-          '"?"',
-          '"*"',
-          '"+"',
-          '"|"',
+          "')'",
+          "'?'",
+          "'*'",
+          "'+'",
+          "'|'",
           "gr",
           "grammar",
           "literal",
-          '"("',
+          "'('",
         ],
         rename: [
-          '")"',
-          '"?"',
-          '"*"',
-          '"+"',
-          '"|"',
+          "')'",
+          "'?'",
+          "'*'",
+          "'+'",
+          "'|'",
           "gr",
           "grammar",
           "literal",
-          '"("',
+          "'('",
         ],
         "": [
           "gr",
           "grammar",
           "literal",
-          '"("',
-          '")"',
-          '"?"',
-          '"*"',
-          '"+"',
-          '"|"',
+          "'('",
+          "')'",
+          "'?'",
+          "'*'",
+          "'+'",
+          "'|'",
         ],
       },
       cascadeQueryPrefix: undefined,

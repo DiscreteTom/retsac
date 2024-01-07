@@ -23,31 +23,35 @@ const ruleLexer = new Lexer.Builder()
  * Definition to TempGrammarRules.
  */
 export function defToTempGRs<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  defs: Definition<Kinds>,
+  defs: Definition<NTs>,
   hydrationId: number = 0,
   ctx?: DefinitionContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
   const result: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[] = [];
 
   // parse rules
@@ -91,12 +95,14 @@ export function defToTempGRs<
 
       result.push(
         new TempGrammarRule<
-          Kinds,
+          NTs,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >({
           NT,
           rule: tokens.map((t) => {

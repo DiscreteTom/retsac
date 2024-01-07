@@ -1,5 +1,5 @@
 import type { GeneralTokenDataBinding, Token } from "../../../lexer";
-import type { Traverser } from "../../traverser";
+import type { NTNodeTraverser } from "../../traverser";
 import type { Callback, Condition, Reducer } from "../model";
 import { ConflictType, ResolverHydrationType } from "../model";
 import type {
@@ -11,58 +11,66 @@ import type {
 } from "./model";
 
 export class DefinitionContextBuilder<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   private resolved: ResolvedPartialTempConflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   private _callback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _rejecter?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   private _commit?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
-  private _traverser?: Traverser<
-    Kinds,
+  private _traverser?: NTNodeTraverser<
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
 
   constructor() {
@@ -74,12 +82,13 @@ export class DefinitionContextBuilder<
    */
   callback(
     f: Callback<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _callback = this._callback;
@@ -99,12 +108,13 @@ export class DefinitionContextBuilder<
    */
   rejecter(
     f: Condition<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _rejecter = this._rejecter;
@@ -123,12 +133,13 @@ export class DefinitionContextBuilder<
    */
   reducer(
     f: Reducer<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     return this.callback((context) => (context.data = f(context)));
@@ -140,12 +151,13 @@ export class DefinitionContextBuilder<
   // TODO: remove this?
   rollback(
     f: Callback<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const _rollback = this._rollback;
@@ -164,11 +176,13 @@ export class DefinitionContextBuilder<
    * Set the traverser for this grammar rule.
    */
   traverser(
-    f: Traverser<
-      Kinds,
+    f: NTNodeTraverser<
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >,
   ) {
     this._traverser = f;
@@ -182,12 +196,13 @@ export class DefinitionContextBuilder<
     enable:
       | boolean
       | Condition<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         > = true,
   ) {
     this._commit = typeof enable === "boolean" ? () => enable : enable;
@@ -198,14 +213,15 @@ export class DefinitionContextBuilder<
    * Resolve an Reduce-Shift conflict.
    */
   resolveRS(
-    another: Definition<Kinds>,
+    another: Definition<NTs>,
     options: RS_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     this.resolved.push({
@@ -224,14 +240,15 @@ export class DefinitionContextBuilder<
    * Resolve an Reduce-Reduce conflict.
    */
   resolveRR(
-    another: Definition<Kinds>,
+    another: Definition<NTs>,
     options: RR_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     this.resolved.push({
@@ -247,12 +264,13 @@ export class DefinitionContextBuilder<
   }
 
   build(): DefinitionContext<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   > {
     return {
       resolved: this.resolved,
@@ -266,26 +284,29 @@ export class DefinitionContextBuilder<
 }
 
 export type DefinitionContextBuilderDecorator<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = (
   ctxBuilder: DefinitionContextBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) => DefinitionContextBuilder<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;

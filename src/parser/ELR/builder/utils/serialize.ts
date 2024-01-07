@@ -8,24 +8,26 @@ import { hashStringToNum } from "../../utils";
 import type { ParserBuilderData } from "../model";
 
 export function calculateHash<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   data: readonly Readonly<
     ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[],
-  entryNTs: ReadonlySet<Kinds>,
+  entryNTs: ReadonlySet<NTs>,
   lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
   cascadeQueryPrefix: string | undefined,
 ) {
@@ -49,35 +51,38 @@ export function calculateHash<
 }
 
 export function buildSerializable<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   data: readonly Readonly<
     ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[],
   dfa: DFA<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
-  entryNTs: ReadonlySet<Kinds>,
+  entryNTs: ReadonlySet<NTs>,
   lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
   cascadeQueryPrefix: string | undefined,
-): SerializableParserData<Kinds, LexerDataBindings> {
+): SerializableParserData<NTs, LexerDataBindings> {
   return {
     hash: calculateHash(data, entryNTs, lexer, cascadeQueryPrefix),
     data: { dfa: dfa.toJSON() },

@@ -6,8 +6,7 @@ const lexer = new Lexer.Builder()
   .anonymous(...Lexer.exactArray("-", "--"))
   .build();
 
-export const { parser } = new ELR.AdvancedBuilder()
-  .lexer(lexer)
+export const { parser } = new ELR.AdvancedBuilder({ lexer })
   .define(
     // the first rule will be tried first
     { exp: `num '-'` },

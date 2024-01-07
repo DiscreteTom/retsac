@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding } from "../../../lexer";
+import type { GeneralTokenDataBinding, ILexer } from "../../../lexer";
 import { defaultLogger, type Logger } from "../../../logger";
 import type {
   Definition,
@@ -7,65 +7,79 @@ import type {
 } from "../builder";
 import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import { buildSerializable } from "../builder/utils/serialize";
-import type { BuildOptions, IParserBuilder } from "../model";
+import type {
+  BuildOptions,
+  IParserBuilder,
+  TokenASTDataMapper,
+} from "../model";
 import { ConflictType } from "../model";
 import { InvalidPlaceholderFollowError } from "./error";
 import { GrammarExpander } from "./utils/grammar-expander";
 
 export class AdvancedBuilder<
-    Kinds extends string = never,
+    NTs extends string = never,
     ASTData = never,
     ErrorType = never,
     LexerDataBindings extends GeneralTokenDataBinding = never,
     LexerActionState = never,
     LexerErrorType = never,
+    Global = never,
   >
   extends ParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >
   implements
     IParserBuilder<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
 {
   private readonly expander: GrammarExpander<
-    Kinds,
+    NTs,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 
-  constructor(options?: {
+  constructor(options: {
+    /**
+     * Set the lexer. The lexer won't be modified.
+     * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
+     */
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * Prefix of the generated placeholder grammar rules.
      * This will also be used as the cascade query prefix.
      */
     prefix?: string;
   }) {
-    const prefix = options?.prefix ?? `__`;
-    super({ cascadeQueryPrefix: prefix });
+    const prefix = options.prefix ?? `__`;
+    super({ lexer: options.lexer, cascadeQueryPrefix: prefix });
     this.expander = new GrammarExpander<
-      Kinds,
+      NTs,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >({
       placeholderPrefix: prefix,
     });
   }
 
   private expand(
-    d: Definition<Kinds>,
+    d: Definition<NTs>,
     debug: boolean,
     logger: Logger,
     /**
@@ -74,17 +88,18 @@ export class AdvancedBuilder<
     resolve: boolean,
   ) {
     const res = [] as {
-      defs: Definition<Kinds>[];
+      defs: Definition<NTs>[];
       rs: {
-        reducerRule: Definition<Kinds>;
-        anotherRule: Definition<Kinds>;
+        reducerRule: Definition<NTs>;
+        anotherRule: Definition<NTs>;
         options: RS_ResolverOptions<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
       }[];
     }[];
@@ -104,7 +119,7 @@ export class AdvancedBuilder<
     return res;
   }
 
-  build(options: BuildOptions<Kinds, LexerDataBindings>) {
+  build(options: BuildOptions<NTs, LexerDataBindings>) {
     // if hydrate, just call super.build()
     // since all data needed for build is in super.data & serialized data
     if (options.hydrate !== undefined) return super.build(options);
@@ -114,37 +129,49 @@ export class AdvancedBuilder<
 
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder({
+      lexer: this.lexer,
       cascadeQueryPrefix: this.cascadeQueryPrefix,
-    }).lexer(this._lexer) as unknown as ParserBuilder<
+    })
+      .global(this._global, this.globalCloner)
+      .mapper(
+        Object.fromEntries(this.tokenASTDataMapper) as TokenASTDataMapper<
+          LexerDataBindings,
+          LexerErrorType,
+          never
+        >,
+      ) as unknown as ParserBuilder<
       // TODO: better typing?
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >;
 
     // expand definitions in data
     const toBeLoaded = [] as ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[];
     this.builderData.forEach(
       ({ defs, ctxBuilder, resolveOnly, hydrationId }) => {
         // first, expand another rules in ctx.resolvers if exists
         const ctx = ctxBuilder?.build();
         const expandedCtxBuilder = new DefinitionContextBuilder<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >();
         ctx?.resolved.forEach((r) => {
           // for another rule, we don't need to log debug info or auto resolve R-S conflict
@@ -190,12 +217,13 @@ export class AdvancedBuilder<
             toBeLoaded.push({
               defs: r.reducerRule,
               ctxBuilder: new DefinitionContextBuilder<
-                Kinds,
+                NTs,
                 ASTData,
                 ErrorType,
                 LexerDataBindings,
                 LexerActionState,
-                LexerErrorType
+                LexerErrorType,
+                Global
               >().resolveRS(r.anotherRule, r.options),
               resolveOnly: true,
               hydrationId, // the hydration id does not matter, since the generated resolvers are serializable
@@ -231,7 +259,7 @@ export class AdvancedBuilder<
         new Set(
           options.entry instanceof Array ? options.entry : [options.entry],
         ),
-        this._lexer,
+        this.lexer,
         this.cascadeQueryPrefix,
       );
     }
@@ -244,8 +272,8 @@ export class AdvancedBuilder<
         // because the presumption of the generated resolver is that the overlap is empty
         // otherwise the LR(1) peek will fail
         const overlap = res.parser.dfa.followSets
-          .get(p as Kinds)!
-          .overlap(res.parser.dfa.firstSets.get(p as Kinds)!);
+          .get(p as NTs)!
+          .overlap(res.parser.dfa.firstSets.get(p as NTs)!);
 
         if (overlap.grammars.size > 0) {
           const e = new InvalidPlaceholderFollowError(p, g, overlap);

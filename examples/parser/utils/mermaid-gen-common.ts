@@ -3,25 +3,27 @@ import type { BuildOptions, IParserBuilder } from "../../../src/parser/ELR";
 import type { GeneralTokenDataBinding } from "../../../src/lexer";
 
 export function generateMermaidString<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
+  Global,
 >(
   builder: IParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerError,
+    Global
   >,
-  entry: Kinds | readonly Kinds[],
+  entry: NTs | readonly NTs[],
 ) {
   const { mermaid } = builder.build({ entry, mermaid: true } as BuildOptions<
-    Kinds,
+    NTs,
     LexerDataBindings
   >);
   return mermaid!;
@@ -34,6 +36,7 @@ export function generateMermaidFile<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
+  Global,
 >(
   builder: IParserBuilder<
     Kinds,
@@ -41,7 +44,8 @@ export function generateMermaidFile<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerError,
+    Global
   >,
   entry: Kinds | readonly Kinds[],
   path: string,

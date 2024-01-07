@@ -17,37 +17,40 @@ import { TooManyEndHandlerError } from "../error";
  * These grammars will be used to check end of input.
  */
 function getEndSet<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+  repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
-  const result = new GrammarSet<Kinds, never>(); // never means no lexer kinds
+  const result = new GrammarSet<NTs, never>(); // never means no lexer kinds
 
   // entry NTs might be the last input grammar of course
-  entryNTs.forEach((nt) => result.add(repo.NT(nt as Kinds)));
+  entryNTs.forEach((NT) => result.add(repo.NT(NT as NTs, NT)));
 
   while (true) {
     let changed = false;
     grs.grammarRules.forEach((gr) => {
-      if (result.has(repo.NT(gr.NT))) {
+      if (result.has(repo.NT(gr.NT, gr.NT))) {
         // current NT is in result, so we need to check the last grammar of its rule
         if (gr.rule.at(-1)!.type === GrammarType.NT) {
+          const NT = gr.rule.at(-1)!.kind;
           // last grammar is a NT, so we need to check it in result
-          const last = repo.NT(gr.rule.at(-1)!.kind as Kinds);
+          const last = repo.NT(NT as NTs, NT);
           if (!result.has(last)) {
             result.add(last);
             changed = true;
@@ -65,35 +68,40 @@ function getEndSet<
  * Return conflicts that user didn't resolve.
  */
 function getUserUnresolvedConflicts<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   type: ConflictType,
   reducerRule: Readonly<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >,
   anotherRule: Readonly<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >,
-  next: GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>,
+  next: GrammarSet<NTs, ExtractKinds<LexerDataBindings>>,
   checkHandleEnd: boolean,
   debug: boolean,
   logger: Logger,
@@ -106,7 +114,7 @@ function getUserUnresolvedConflicts<
 
   // collect resolved next & calculate unresolved next
   const resolvedNext = [] as {
-    grammar: Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
+    grammar: Grammar<NTs | ExtractKinds<LexerDataBindings>>;
     /**
      * If `undefined`, the accepter is a function.
      */
@@ -131,7 +139,7 @@ function getUserUnresolvedConflicts<
       );
   });
   const unresolvedNext = resolveAll
-    ? new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>()
+    ? new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>()
     : next.filter(
         (n) => !resolvedNext.some((rn) => n.equalWithoutName(rn.grammar)),
       );
@@ -229,30 +237,33 @@ function getUserUnresolvedConflicts<
  * Conflicts that can't be auto resolved will be stored in `GrammarRule.conflicts` in `grs`.
  */
 export function appendConflicts<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+  repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   entryNTs: ReadonlySet<string>,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   dfa: DFA<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   debug: boolean,
   logger: Logger,
@@ -289,8 +300,8 @@ export function appendConflicts<
 
         // if reducer's NT and another's NT are both in end set, then we need to handle end of input
         const handleEnd =
-          endSet.has(repo.NT(reducer.gr.NT)) &&
-          endSet.has(repo.NT(another.gr.NT));
+          endSet.has(repo.NT(reducer.gr.NT, reducer.gr.NT)) &&
+          endSet.has(repo.NT(another.gr.NT, another.gr.NT));
 
         if (debug) {
           const info = {
@@ -374,7 +385,7 @@ export function appendConflicts<
                 type: ConflictType.REDUCE_SHIFT,
                 anotherRule: another.gr,
                 handleEnd: false,
-                next: new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>([
+                next: new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>([
                   another.current!,
                 ]),
                 resolvers: [],
@@ -384,7 +395,7 @@ export function appendConflicts<
           // another's next is a NT, check if reducer's NT's follow has some grammar that is also in another's next's first
           const overlap = dfa.followSets
             .get(reducer.gr.NT)!
-            .overlap(dfa.firstSets.get(another.current!.kind as Kinds)!);
+            .overlap(dfa.firstSets.get(another.current!.kind as NTs)!);
 
           if (overlap.grammars.size > 0) {
             // overlap, RS conflict
@@ -433,40 +444,45 @@ export function appendConflicts<
  * since the user may resolve part of the conflicts.
  */
 export function getUnresolvedConflicts<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   debug: boolean,
   logger: Logger,
 ) {
   const result = new Map<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     Conflict<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[]
   >();
 
@@ -485,12 +501,13 @@ export function getUnresolvedConflicts<
 
         if (res.next.grammars.size > 0) {
           const conflict: Conflict<
-            Kinds,
+            NTs,
             ASTData,
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           > = {
             type: ConflictType.REDUCE_SHIFT,
             anotherRule: c.anotherRule,
@@ -513,12 +530,13 @@ export function getUnresolvedConflicts<
         );
         if (res.next.grammars.size > 0 || res.end) {
           const conflict: Conflict<
-            Kinds,
+            NTs,
             ASTData,
             ErrorType,
             LexerDataBindings,
             LexerActionState,
-            LexerErrorType
+            LexerErrorType,
+            Global
           > = {
             type: ConflictType.REDUCE_REDUCE,
             anotherRule: c.anotherRule,

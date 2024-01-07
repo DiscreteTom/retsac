@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, Token } from "../../lexer";
+import type { ExtractKinds, GeneralTokenDataBinding, Token } from "../../lexer";
 import type { ASTNode } from "../ast";
 import type { State } from "./DFA";
 
@@ -14,36 +14,40 @@ export class ELR_RuntimeError extends Error {
 }
 
 export class StateCacheMissError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_RuntimeError {
   constructor(
     public state: Readonly<
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     public node: Readonly<
       ASTNode<
-        Kinds,
+        NTs | ExtractKinds<LexerDataBindings>,
+        NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       >
     >,
   ) {
     super(
       "STATE_CACHE_MISS",
-      `State cache miss for node ${node}, state: \n${state}\n` +
+      `State cache miss for node ${node}, state: \n${state.toString()}\n` +
         `This might be caused by an outdated parser data cache (rebuild the parser data to fix this) or you might forget to call \`parser.take\` to consume the ASTNode from the buffer.`,
     );
     Object.setPrototypeOf(this, StateCacheMissError.prototype);

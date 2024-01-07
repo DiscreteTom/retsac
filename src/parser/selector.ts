@@ -1,77 +1,113 @@
 import type { ExtractKinds, GeneralToken } from "../lexer";
 import type { StringOrLiteral } from "../helper";
-import type { ASTNode } from "./ast";
+import type { ASTNode, NTNode, TNode } from "./ast";
+
+export type ExtractASTNodeType<
+  NTs extends string,
+  ASTData,
+  ErrorType,
+  TokenType extends GeneralToken,
+  TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>,
+  Global,
+> = TargetKind extends NTs
+  ? // target is NT
+    NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
+  : TargetKind extends ExtractKinds<TokenType>
+  ? // target is T
+    TNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
+  : // target is a literal or user defined name, use general ASTNode
+    // TODO: can we determine the type by the user defined name?
+    ASTNode<
+      NTs | ExtractKinds<TokenType>,
+      NTs,
+      ASTData,
+      ErrorType,
+      TokenType,
+      Global
+    >;
 
 /**
  * Select children nodes by the name.
  */
-export type ASTNodeChildrenSelector<
-  Kinds extends string,
+export type NTNodeChildrenSelector<
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> = (
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-) => ASTNode<Kinds, ASTData, ErrorType, TokenType>[]; // TODO: narrow the return kinds to the given name
+  Global,
+> = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
+  name: TargetKind, // TODO: support user defined name
+) => ExtractASTNodeType<
+  NTs,
+  ASTData,
+  ErrorType,
+  TokenType,
+  TargetKind,
+  Global
+>[];
 
 /**
  * Select the first matched child node by the name.
  */
-export type ASTNodeFirstMatchChildSelector<
-  Kinds extends string,
+export type NTNodeFirstMatchChildSelector<
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> = (
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-) => ASTNode<Kinds, ASTData, ErrorType, TokenType> | undefined;
+  Global,
+> = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
+  name: TargetKind,
+) =>
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind, Global>
+  | undefined;
 
 /**
  * Select from the given nodes by the name.
  */
 export type ASTNodeSelector<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> = (
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-  nodes: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[],
-) => ASTNode<Kinds, ASTData, ErrorType, TokenType>[];
+  Global,
+> = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
+  name: TargetKind,
+  nodes: readonly ASTNode<
+    NTs | ExtractKinds<TokenType>,
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  >[],
+) => ExtractASTNodeType<
+  NTs,
+  ASTData,
+  ErrorType,
+  TokenType,
+  TargetKind,
+  Global
+>[];
 
 /**
  * Select the first matched node from the given nodes by the name.
  */
 export type ASTNodeFirstMatchSelector<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
-> = (
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-  nodes: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[],
-) => ASTNode<Kinds, ASTData, ErrorType, TokenType> | undefined;
-
-export function defaultASTNodeSelector<
-  Kinds extends string,
-  ASTData,
-  ErrorType,
-  TokenType extends GeneralToken,
->(
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-  nodes: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[],
-) {
-  return nodes.filter((n) => n.name === name);
-}
-
-export function defaultASTNodeFirstMatchSelector<
-  Kinds extends string,
-  ASTData,
-  ErrorType,
-  TokenType extends GeneralToken,
->(
-  name: StringOrLiteral<Kinds | ExtractKinds<TokenType>>,
-  nodes: readonly ASTNode<Kinds, ASTData, ErrorType, TokenType>[],
-) {
-  return nodes.find((c) => c.name === name);
-}
+  Global,
+> = <TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>>(
+  name: TargetKind,
+  nodes: readonly ASTNode<
+    NTs | ExtractKinds<TokenType>,
+    NTs,
+    ASTData,
+    ErrorType,
+    TokenType,
+    Global
+  >[],
+) =>
+  | ExtractASTNodeType<NTs, ASTData, ErrorType, TokenType, TargetKind, Global>
+  | undefined;

@@ -7,8 +7,7 @@ test("auto commit", () => {
     .anonymous(...Lexer.exactArray("-", "--"))
     .build();
 
-  const { parser } = new ELR.AdvancedBuilder()
-    .lexer(lexer)
+  const { parser } = new ELR.AdvancedBuilder({ lexer })
     .define({ exp: `num ('-' '-' | '--') num` })
     .build({
       entry: "exp",

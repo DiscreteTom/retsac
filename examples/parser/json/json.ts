@@ -14,8 +14,7 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders without a kind name
   .build();
 
-export const builder = new ELR.AdvancedBuilder()
-  .lexer(lexer)
+export const builder = new ELR.AdvancedBuilder({ lexer })
   .data<unknown>()
   .define(
     { value: `string | number | true | false | null` },
@@ -35,29 +34,22 @@ export const builder = new ELR.AdvancedBuilder()
     // traverse all values in the array and return the result as an array
     (d) => d.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse())),
   )
-  .define({ object: `'{' (object_item (',' object_item)*)? '}'` }, (d) =>
-    d.traverser(({ $$ }) => {
-      // every object_item's traverse result is an object, we need to merge them
-      const result: Record<string, unknown> = {};
-      $$(`object_item`).forEach((item) => {
-        // traverse the child object_item to get the value, then merge the result
-        Object.assign(result, item.traverse());
-      });
-      return result;
-    }),
-  )
   .define(
     // use `@` to rename a grammar
     { object_item: `string@key ':' value` },
-    // return an object
     (d) =>
+      // return an object
       // use `$` to select the first child with the given name
-      d.traverser(({ $ }) => {
-        const result: Record<string, unknown> = {};
-        // remove the double quotes in the key string, then traverse child to get the value
-        result[$(`key`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
-        return result;
-      }),
+      d.traverser(({ $ }) => ({
+        // eval the key's value, then traverse child to get the entry's value
+        [eval($(`key`)!.text!)]: $(`value`)!.traverse(),
+      })),
+  )
+  .define({ object: `'{' (object_item (',' object_item)*)? '}'` }, (d) =>
+    d.traverser(({ $$ }) =>
+      // every object_item's traverse result is an object, we need to merge them.
+      Object.assign({}, ...$$(`object_item`).map((item) => item.traverse())),
+    ),
   );
 
 export const entry = "value" as const;

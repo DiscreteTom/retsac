@@ -1,40 +1,40 @@
 import type { GeneralToken } from "../lexer";
-import type { ASTNode } from "./ast";
+import type { NTNode } from "./ast";
 
 /**
  * Traverser is called when a top-down traverse is performed.
  * The result of the traverser is stored in the ASTNode's data field.
- * Traverser should never be called in a leaf node (no children).
+ *
+ * Only NT nodes can have custom traversers, since T nodes are created by tokens instead of grammar rules.
  */
-// TODO: why never be called in a leaf node?
-export type Traverser<
-  Kinds extends string,
+export type NTNodeTraverser<
+  Kind extends NTs,
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 > = (
-  self: ASTNode<Kinds, ASTData, ErrorType, TokenType> & {
-    // ensure children is not undefined
-    children: NonNullable<
-      ASTNode<Kinds, ASTData, ErrorType, TokenType>["children"]
-    >;
-  },
+  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
 ) => ASTData | undefined | void;
 
 /**
- * The default traverser.
+ * The default NT node traverser.
  */
-export function defaultTraverser<
-  Kinds extends string,
+export function defaultNTNodeTraverser<
+  Kind extends NTs,
+  NTs extends string,
   ASTData,
   ErrorType,
   TokenType extends GeneralToken,
+  Global,
 >(
-  self: Parameters<Traverser<Kinds, ASTData, ErrorType, TokenType>>[0],
+  self: NTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
 ): ASTData | undefined | void {
   // if there is only one child, use its data or traverse to get its data
   if (self.children.length === 1)
     return self.children[0].data ?? self.children[0].traverse();
-  // if there are multiple children, traverse all, don't return anything
+
+  // otherwise (no children or multiple children), traverse all, don't return anything
   self.children.forEach((c) => c.traverse());
 }

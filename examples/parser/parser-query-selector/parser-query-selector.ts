@@ -12,8 +12,7 @@ const lexer = new Lexer.Builder()
 export let fName = "";
 export let returnType = "";
 
-export const { parser } = new ELR.ParserBuilder()
-  .lexer(lexer)
+export const { parser } = new ELR.ParserBuilder({ lexer })
   .define(
     {
       fn_def: `

@@ -1,5 +1,5 @@
 import type { GeneralTokenDataBinding, Token } from "../../../../lexer";
-import type { Traverser } from "../../../traverser";
+import type { NTNodeTraverser } from "../../../traverser";
 import type { Callback, Condition } from "../../model";
 import type { ResolvedPartialTempConflict } from "./resolver";
 
@@ -26,58 +26,66 @@ export type Definition<Kinds extends string> = {
 };
 
 export interface DefinitionContext<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   resolved: ResolvedPartialTempConflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
   callback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rejecter?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   commit?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
-  traverser?: Traverser<
-    Kinds,
+  traverser?: NTNodeTraverser<
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   // TODO: reParse?: boolean;
 }

@@ -6,7 +6,7 @@ test("same parser has the same hash", () => {
     .anonymous(Lexer.whitespaces())
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
-  const builder = new ELR.ParserBuilder().lexer(lexer).define({
+  const builder = new ELR.ParserBuilder({ lexer }).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
@@ -38,19 +38,17 @@ test("same parser has the same hash", () => {
 });
 
 test("change lexer kinds", () => {
-  const builder = new ELR.ParserBuilder()
-    .lexer(
-      new Lexer.Builder()
-        .anonymous(Lexer.whitespaces())
-        .define(Lexer.wordKind(..."abcdefgh"))
-        .build(),
-    )
-    .define({
-      entry: `A | B | C`,
-      A: `a`,
-      B: `a`,
-      C: `a`,
-    });
+  const builder = new ELR.ParserBuilder({
+    lexer: new Lexer.Builder()
+      .anonymous(Lexer.whitespaces())
+      .define(Lexer.wordKind(..."abcdefgh"))
+      .build(),
+  }).define({
+    entry: `A | B | C`,
+    A: `a`,
+    B: `a`,
+    C: `a`,
+  });
   const entry = "entry" as const;
   const data = builder.build({
     entry,
@@ -58,13 +56,12 @@ test("change lexer kinds", () => {
   }).serializable;
 
   expect(() => {
-    new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg")) // lexer kinds changed
-          .build(),
-      )
+    new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg")) // lexer kinds changed
+        .build(),
+    })
       .define({
         entry: `A | B | C`,
         A: `a`,
@@ -84,7 +81,7 @@ test("change entry kinds", () => {
     .anonymous(Lexer.whitespaces())
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
-  const builder = new ELR.ParserBuilder().lexer(lexer).define({
+  const builder = new ELR.ParserBuilder({ lexer }).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
@@ -110,7 +107,7 @@ test("change grammar rules", () => {
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
   const entry = "entry" as const;
-  const builder = new ELR.ParserBuilder().lexer(lexer).define({
+  const builder = new ELR.ParserBuilder({ lexer }).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
@@ -138,7 +135,7 @@ test("new resolvers", () => {
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
   const entry = "entry" as const;
-  const builder = new ELR.ParserBuilder().lexer(lexer).define({
+  const builder = new ELR.ParserBuilder({ lexer }).define({
     entry: `A | B | C`,
     A: `a`,
     B: `a`,
@@ -166,8 +163,7 @@ test("change resolver fields", () => {
     .define(Lexer.wordKind(..."abcdefg"))
     .build();
   const entry = "entry" as const;
-  const builder = new ELR.ParserBuilder()
-    .lexer(lexer)
+  const builder = new ELR.ParserBuilder({ lexer })
     .define({
       entry: `A | B | C`,
       A: `a`,
@@ -181,8 +177,7 @@ test("change resolver fields", () => {
   }).serializable;
 
   expect(() => {
-    new ELR.ParserBuilder()
-      .lexer(lexer)
+    new ELR.ParserBuilder({ lexer })
       .define({
         entry: `A | B | C`,
         A: `a`,

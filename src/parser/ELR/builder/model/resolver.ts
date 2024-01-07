@@ -5,12 +5,13 @@ import type { Definition } from "./definition";
 import type { TempGrammarRule } from "./temp-grammar";
 
 export type BaseResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   /**
    * @default: true
@@ -18,12 +19,13 @@ export type BaseResolverOptions<
   accept?:
     | boolean
     | Condition<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >;
   // TODO: is the following feature needed?
   // /**
@@ -42,135 +44,151 @@ export type BaseResolverOptions<
 };
 
 export type RR_ResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = BaseResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 > &
   AtLeastOneOf<
     {
-      next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
+      next: "*" | (NTs | ExtractKinds<LexerDataBindings> | QuotedString)[];
       handleEnd: boolean;
     },
     "next" | "handleEnd"
   >;
 
 export type RS_ResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = BaseResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 > & {
-  next: "*" | (Kinds | ExtractKinds<LexerDataBindings> | QuotedString)[];
+  next: "*" | (NTs | ExtractKinds<LexerDataBindings> | QuotedString)[];
 };
 
 export type ConflictTypeAndResolverOptions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = (
   | {
       type: ConflictType.REDUCE_REDUCE;
       options: RR_ResolverOptions<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >;
     }
   | {
       type: ConflictType.REDUCE_SHIFT;
       options: RS_ResolverOptions<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >;
     }
 ) &
   BaseResolverOptions<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 
 export type ResolvedTempConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   reducerRule: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   anotherRule: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;
 
 export type ResolvedPartialTempConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
-  anotherRule: Definition<Kinds>;
+  anotherRule: Definition<NTs>;
   hydrationId: Readonly<ResolverHydrationId>;
 } & ConflictTypeAndResolverOptions<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;

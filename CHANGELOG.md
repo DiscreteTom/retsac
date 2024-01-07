@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.16.0
+
+- Lexer
+  - Feat: add `ExtractToken`.
+- Parser
+  - Feat: `ASTNode`, `$` and `$$` are kind-sensitive.
+  - **_Breaking Change_**: rewrite `ASTNode`, add `NTNode` and `TNode`.
+    - Rewrite selectors and traversers.
+  - **_Breaking Change_**: remove `IParserBuilder.lexer`. Set the lexer in parser builders' constructor instead.
+  - **_Breaking Change_**: remove `ASTNode.token`, add `IParserBuilder.mapper` to transform token into `ASTData`. [#38](https://github.com/DiscreteTom/retsac/issues/38)
+  - **_Breaking Change_**: `IParserBuilder.build` will consume the builder. Don't re-use the builder after calling `build`.
+  - Feat: add `ExtractSerializableParserData`. [#41](https://github.com/DiscreteTom/retsac/issues/41)
+  - Feat: add `ASTNode.global` to share data across all nodes.
+    - Add `IParserBuilder.global` to set the global data and cloner.
+  - Feat: allow multiple calls for `IParserBuilder.data`.
+- Perf: prevent unnecessary calculation.
+- Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
+  - Optimize the format of serialized parser data, remove unused strings.
+
 ## v0.15.0
 
 - Lexer

@@ -5,10 +5,16 @@ import type {
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
-import type { Traverser } from "../../../traverser";
-import type { LazyString } from "../../../../helper";
-import { Lazy } from "../../../../helper";
-import type { Callback, Condition, Grammar, GrammarRepo } from "../../model";
+import type { NTNodeTraverser } from "../../../traverser";
+import type {
+  Callback,
+  Condition,
+  Grammar,
+  GrammarRepo,
+  GrammarRuleID,
+  GrammarString,
+} from "../../model";
+import { GrammarRule } from "../../model";
 import { InvalidLiteralError } from "../error";
 
 /**
@@ -23,7 +29,7 @@ export enum TempGrammarType {
 }
 
 /**
- * Grammar, but can't distinguish N or NT.
+ * Grammar, but can't distinguish T or NT.
  */
 export class TempGrammar {
   readonly type: TempGrammarType;
@@ -37,23 +43,26 @@ export class TempGrammar {
    */
   readonly name?: string;
 
-  readonly strWithGrammarName: LazyString;
+  /**
+   * @see {@link Grammar.grammarString}.
+   */
+  readonly grammarString: GrammarString;
 
   constructor(p: Pick<TempGrammar, "type" | "content" | "name">) {
     this.type = p.type;
     this.content = p.content;
     this.name = p.name;
 
-    this.strWithGrammarName = new Lazy(() => this.toGrammarStringWithName());
+    this.grammarString = this.getGrammarString();
   }
 
   toGrammar<
-    Kinds extends string,
+    NTs extends string,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
   >(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
@@ -75,27 +84,30 @@ export class TempGrammar {
         if (printAll) logger.log({ entity: "Parser", message: e.message });
         else throw e;
       }
-      return repo.Literal(
-        this.content,
-        token?.kind ?? ("" as ExtractKinds<LexerDataBindings>), // this null check is for printAll
-        this.name,
-      ) as Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
+      // when printAll, the token might be null, we set the default kind to empty string
+      const kind = token?.kind ?? ("" as ExtractKinds<LexerDataBindings>);
+      return repo.Literal(this.content, kind, this.name ?? kind) as Grammar<
+        NTs | ExtractKinds<LexerDataBindings>
+      >;
     }
 
     return (
       isNT
-        ? repo.NT(this.content as Kinds, this.name)
-        : repo.T(this.content as ExtractKinds<LexerDataBindings>, this.name)
-    ) as Grammar<Kinds | ExtractKinds<LexerDataBindings>>;
+        ? repo.NT(this.content as NTs, this.name ?? this.content)
+        : repo.T(
+            this.content as ExtractKinds<LexerDataBindings>,
+            this.name ?? this.content,
+          )
+    ) as Grammar<NTs | ExtractKinds<LexerDataBindings>>;
   }
 
   /**
-   * Format: `kind@name` if not literal, else `"text"@name`.
-   * The output format should be the same as `Grammar.toStringWithName`.
+   * @see {@link Grammar.grammarString}
    */
-  private toGrammarStringWithName() {
+  private getGrammarString(): GrammarString {
+    // follow the format of [[@grammar string]]
     return this.type === TempGrammarType.LITERAL
-      ? JSON.stringify(this.content) +
+      ? `'${JSON.stringify(this.content).slice(1, -1)}'` + // quote text, escape literal
           (this.name === undefined ? "" : "@" + this.name)
       : this.content +
           (this.name === undefined || this.name === this.content
@@ -108,68 +120,81 @@ export class TempGrammar {
  * Grammar rule, but can't distinguish N or NT.
  */
 export class TempGrammarRule<
-  Kinds extends string,
+  NT extends NTs,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   readonly rule: readonly TempGrammar[];
   /**
    * The reduce target.
    */
-  readonly NT: Kinds;
+  readonly NT: NT;
   callback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rejecter?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   rollback?: Callback<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   commit?: Condition<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
-  traverser?: Traverser<
-    Kinds,
+  traverser?: NTNodeTraverser<
+    NT,
+    NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
   >;
   readonly hydrationId: number;
-  readonly strWithGrammarName: LazyString;
+  /**
+   * @see {@link GrammarRule.id}.
+   */
+  readonly id: GrammarRuleID;
 
   constructor(
     data: Pick<
       TempGrammarRule<
-        Kinds,
+        NT,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
       | "rule"
       | "NT"
@@ -189,18 +214,6 @@ export class TempGrammarRule<
     this.rollback = data.rollback;
     this.traverser = data.traverser;
     this.hydrationId = data.hydrationId;
-
-    this.strWithGrammarName = new Lazy(() => this.toStringWithGrammarName());
-  }
-
-  /**
-   * Return ``{ NT: `grammar rules` }``.
-   * Grammar's name is included.
-   * This should yield the same output format as `GrammarRule.toStringWithGrammarName`.
-   */
-  private toStringWithGrammarName() {
-    return `{ ${this.NT}: \`${this.rule
-      .map((g) => g.strWithGrammarName.value)
-      .join(" ")}\` }`;
+    this.id = GrammarRule.generateId(this);
   }
 }

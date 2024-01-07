@@ -1,4 +1,4 @@
-import type { Candidate, ReadonlyNTClosures } from "..";
+import type { Candidate, ReadonlyNTClosures, StateID } from "..";
 import { State } from "..";
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { Grammar, GrammarRepo, GrammarRule } from "../../model";
@@ -9,24 +9,28 @@ import { stringMap2serializable } from "../utils";
 
 /**
  * Store all states.
+ *
+ * The key of the map is the {@link StateID}.
  */
 export class StateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   private ss: Map<
-    string,
+    StateID,
     State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >;
 
@@ -35,53 +39,23 @@ export class StateRepo<
   }
 
   get states() {
+    // make readonly
     return this.ss as ReadonlyMap<
       string,
       State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >;
   }
 
-  getKey(
-    s: Pick<
-      State<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "candidates"
-    >,
-  ): string {
-    return s instanceof State ? s.str : State.getString(s);
-  }
-
-  get(
-    s: Pick<
-      State<
-        Kinds,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType
-      >,
-      "candidates"
-    >,
-  ) {
-    return this.ss.get(this.getKey(s));
-  }
-
-  getByString(str: string) {
-    return this.ss.get(str);
+  get(id: string) {
+    return this.ss.get(id);
   }
 
   /**
@@ -89,16 +63,17 @@ export class StateRepo<
    */
   addEntry(
     candidates: Candidate<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[],
   ) {
     const raw = { candidates };
-    const key = this.getKey(raw);
+    const key = State.generateId(raw);
     if (this.ss.has(key)) return undefined;
 
     const s = new State(candidates, key);
@@ -113,29 +88,32 @@ export class StateRepo<
    */
   addNext(
     current: State<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
-    grammar: Grammar<Kinds | ExtractKinds<LexerDataBindings>>,
+    grammar: Grammar<NTs | ExtractKinds<LexerDataBindings>>,
     NTClosures: ReadonlyNTClosures<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     cs: CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     const directCandidates = current.candidates
@@ -147,11 +125,11 @@ export class StateRepo<
         if (
           c.canDigestMore() &&
           c.current!.type === GrammarType.NT &&
-          !p.includes(c.current!.kind as Kinds)
+          !p.includes(c.current!.kind as NTs)
         )
-          p.push(c.current!.kind as Kinds);
+          p.push(c.current!.kind as NTs);
         return p;
-      }, [] as Kinds[]) // de-duplicated NT list
+      }, [] as NTs[]) // de-duplicated NT list
       .reduce(
         (p, c) => {
           NTClosures.get(c)!.forEach((gr) => {
@@ -160,12 +138,14 @@ export class StateRepo<
           return p;
         },
         [] as GrammarRule<
-          Kinds,
+          NTs,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >[],
       ) // de-duplicated GrammarRule list
       .map(
@@ -180,7 +160,7 @@ export class StateRepo<
 
     // check cache
     const raw = { candidates: nextCandidates };
-    const key = this.getKey(raw);
+    const key = State.generateId(raw);
     const cache = this.ss.get(key);
     if (cache !== undefined) return { state: cache, changed: false };
 
@@ -193,12 +173,13 @@ export class StateRepo<
   some(
     f: (
       s: State<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => boolean,
   ) {
@@ -208,66 +189,59 @@ export class StateRepo<
     return false;
   }
 
-  toSerializable(
-    cs: ReadonlyCandidateRepo<
-      Kinds,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
-  ) {
-    return stringMap2serializable(this.ss, (s) =>
-      s.toSerializable(cs, this, repo),
-    );
+  toJSON() {
+    return stringMap2serializable(this.ss, (s) => s.toJSON());
   }
 
   static fromJSON<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
     data: ReturnType<
       StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
-      >["toSerializable"]
+        LexerErrorType,
+        Global
+      >["toJSON"]
     >,
     cs: ReadonlyCandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const ss = new StateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     const callbacks = [] as ((
       ss: StateRepo<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >,
     ) => void)[];
     for (const key in data) {
@@ -282,20 +256,22 @@ export class StateRepo<
 }
 
 export type ReadonlyStateRepo<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Omit<
   StateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   "addEntry" | "addNext"
 >;

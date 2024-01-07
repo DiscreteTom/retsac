@@ -11,7 +11,8 @@ import type {
   ASTNodeSelector,
   ASTNodeFirstMatchSelector,
 } from "../../selector";
-import { ASTNode } from "../../ast";
+import { TheTNode } from "../../ast";
+import type { ASTNode, TNode } from "../../ast";
 import type {
   ParserBuilderData,
   ResolvedTempConflict,
@@ -23,6 +24,7 @@ import type {
   GrammarRepo,
   GrammarRule,
   ReadonlyGrammarRuleRepo,
+  TokenASTDataMapperExec,
 } from "../model";
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
@@ -34,39 +36,44 @@ import type {
 } from "./model";
 
 export function getAllNTClosure<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  NTs: ReadonlySet<Kinds>,
+  NTs: ReadonlySet<NTs>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ): ReadonlyNTClosures<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 > {
   const result = new Map<
-    Kinds,
+    NTs,
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >[]
   >();
   NTs.forEach((NT) => result.set(NT, getNTClosure(NT, allGrammarRules)));
@@ -80,29 +87,33 @@ export function getAllNTClosure<
  * In this case, `A <= # B 'c'` and `B <= # 'd'` are the closure of the NT 'A'.
  */
 export function getNTClosure<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  NT: Kinds,
+  NT: NTs,
   allGrammarRules: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ): GrammarRule<
-  Kinds,
+  NTs,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >[] {
   return getGrammarRulesClosure(
     allGrammarRules.filter((gr) => gr.NT === NT),
@@ -116,36 +127,42 @@ export function getNTClosure<
  * When we construct DFA state, if we have `A <= # B 'c'`, we should also have `B <= # 'd'`.
  */
 export function getGrammarRulesClosure<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   rules: readonly GrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[],
   allGrammarRules: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ): GrammarRule<
-  Kinds,
+  NTs,
+  NTs,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >[] {
   const result = [...rules];
 
@@ -173,33 +190,39 @@ export function getGrammarRulesClosure<
 // since the cascade query is only used in ELR parser
 // so don't move this into ast.ts file
 export function cascadeASTNodeSelectorFactory<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerErrorType,
+  Global,
 >(
   cascadeQueryPrefix: string | undefined,
 ): ASTNodeSelector<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
-  Token<LexerDataBindings, LexerErrorType>
+  Token<LexerDataBindings, LexerErrorType>,
+  Global
 > {
-  return (
-    name: StringOrLiteral<Kinds | ExtractKinds<LexerDataBindings>>,
+  return ((
+    name: StringOrLiteral<NTs | ExtractKinds<LexerDataBindings>>,
     nodes: readonly ASTNode<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
   ) => {
     const result: ASTNode<
-      Kinds,
+      NTs | ExtractKinds<LexerDataBindings>,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[] = [];
     nodes.forEach((n) => {
       if (n.name === name) result.push(n);
@@ -207,34 +230,55 @@ export function cascadeASTNodeSelectorFactory<
       // cascade query
       if (
         cascadeQueryPrefix !== undefined &&
-        n.name.startsWith(cascadeQueryPrefix)
-      )
-        result.push(...n.$$(name));
+        n.name.startsWith(cascadeQueryPrefix) &&
+        n.isNT()
+      ) {
+        result.push(
+          ...(n.$$(name) as ASTNode<
+            NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
+            NTs,
+            ASTData,
+            ErrorType,
+            Token<LexerDataBindings, LexerErrorType>,
+            Global
+          >[]),
+        );
+      }
     });
     return result;
-  };
+  }) as ASTNodeSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
+  >;
 }
 export function cascadeASTNodeFirstMatchSelectorFactory<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerErrorType,
+  Global,
 >(
   cascadeQueryPrefix: string | undefined,
 ): ASTNodeFirstMatchSelector<
-  Kinds,
+  NTs,
   ASTData,
   ErrorType,
-  Token<LexerDataBindings, LexerErrorType>
+  Token<LexerDataBindings, LexerErrorType>,
+  Global
 > {
-  return (
-    name: StringOrLiteral<Kinds | ExtractKinds<LexerDataBindings>>,
+  return ((
+    name: StringOrLiteral<NTs | ExtractKinds<LexerDataBindings>>,
     nodes: readonly ASTNode<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
     >[],
   ) => {
     for (const n of nodes) {
@@ -243,14 +287,21 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
       // cascade query
       if (
         cascadeQueryPrefix !== undefined &&
-        n.name.startsWith(cascadeQueryPrefix)
+        n.name.startsWith(cascadeQueryPrefix) &&
+        n.isNT()
       ) {
         const result = n.$(name);
         if (result !== undefined) return result;
       }
     }
     return undefined;
-  };
+  }) as ASTNodeFirstMatchSelector<
+    NTs,
+    ASTData,
+    ErrorType,
+    Token<LexerDataBindings, LexerErrorType>,
+    Global
+  >;
 }
 
 /**
@@ -259,12 +310,13 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
  * The caller should make sure that the grammar is not a NT.
  */
 export function lexGrammar<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   g: Grammar<ExtractKinds<LexerDataBindings>>,
   lexer: IReadonlyTrimmedLexer<
@@ -272,13 +324,20 @@ export function lexGrammar<
     LexerActionState,
     LexerErrorType
   >,
+  tokenASTDataMapper: ReadonlyMap<
+    ExtractKinds<LexerDataBindings>,
+    TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+  >,
+  global: Global,
 ):
   | {
-      node: ASTNode<
-        Kinds,
+      node: TNode<
+        ExtractKinds<LexerDataBindings>,
+        NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>
+        Token<LexerDataBindings, LexerErrorType>,
+        Global
       >;
       lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     }
@@ -297,12 +356,13 @@ export function lexGrammar<
   return token === null
     ? undefined
     : {
-        node: ASTNode.from<
-          Kinds,
+        node: TheTNode.from<
+          NTs,
           ASTData,
           ErrorType,
-          Token<LexerDataBindings, LexerErrorType>
-        >(token),
+          Token<LexerDataBindings, LexerErrorType>,
+          Global
+        >(token, tokenASTDataMapper.get(token.kind)?.(token), global),
         lexer: mutableLexer.trimStart(),
       };
 }
@@ -311,45 +371,50 @@ export function lexGrammar<
  * Calculate state machine's state transition map ahead of time and cache.
  */
 export function calculateAllStates<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+  repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   allGrammarRules: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   allStates: StateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   NTClosures: ReadonlyNTClosures<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   cs: CandidateRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
   // collect all grammars in grammar rules.
@@ -360,19 +425,17 @@ export function calculateAllStates<
   // and the `parser.parse` will throw StateCacheMissError.
   // if we do convert entry-only NTs into ASTNodes,
   // the `parser.parse` will just reject the input without throwing StateCacheMissError.
-  const gs = new GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>();
+  const gs = new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>();
   allGrammarRules.grammarRules.forEach((gr) => {
     gr.rule.forEach((g) => {
       gs.add(g);
     });
   });
-  // convert to mock AST node
-  const mockNodes = gs.map((g) => g.mockNode.value);
 
   while (true) {
     let changed = false;
     allStates.states.forEach((state) => {
-      mockNodes.forEach((node) => {
+      gs.grammars.forEach((node) => {
         if (state.generateNext(repo, node, NTClosures, allStates, cs).changed)
           changed = true;
       });
@@ -386,60 +449,68 @@ export function calculateAllStates<
  * collect all resolved conflicts in `resolvedTemp`.
  */
 export function processDefinitions<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   data: readonly Readonly<
     ParserBuilderData<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[],
 ): {
   tempGrammarRules: readonly TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
-  NTs: ReadonlySet<Kinds>;
+  NTs: ReadonlySet<NTs>;
   resolvedTemps: readonly Readonly<
     ResolvedTempConflict<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >[];
 } {
   const tempGrammarRules: TempGrammarRule<
-    Kinds,
+    NTs,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[] = [];
-  const NTs: Set<Kinds> = new Set();
+  const NTs: Set<NTs> = new Set();
   const resolvedTemps = [] as ResolvedTempConflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >[];
 
   data.forEach((d) => {
@@ -456,12 +527,13 @@ export function processDefinitions<
     ctx?.resolved?.forEach((r) => {
       if (r.type === ConflictType.REDUCE_REDUCE) {
         defToTempGRs<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
@@ -476,12 +548,13 @@ export function processDefinitions<
       } else {
         // ConflictType.REDUCE_SHIFT
         defToTempGRs<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >(r.anotherRule).forEach((another) => {
           grs.forEach((gr) => {
             resolvedTemps.push({
@@ -560,26 +633,28 @@ export function prettierLexerRest<
  * Construct first sets for all NTs.
  */
 export function buildFirstSets<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  NTs: ReadonlySet<Kinds>,
+  NTs: ReadonlySet<NTs>,
   NTClosures: ReadonlyNTClosures<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) {
   const firstSets = new Map<
-    Kinds,
-    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
+    NTs,
+    GrammarSet<NTs, ExtractKinds<LexerDataBindings>>
   >();
 
   NTs.forEach((NT) => firstSets.set(NT, new GrammarSet())); // init
@@ -590,34 +665,36 @@ export function buildFirstSets<
     grs.forEach((gr) => gs!.add(gr.rule[0]));
   });
 
-  return firstSets as ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>;
+  return firstSets as ReadonlyFirstSets<NTs, ExtractKinds<LexerDataBindings>>;
 }
 
 /**
  * Construct follow sets for all grammars.
  */
 export function buildFollowSets<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  NTs: ReadonlySet<Kinds>,
+  NTs: ReadonlySet<NTs>,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
-  firstSets: ReadonlyFirstSets<Kinds, ExtractKinds<LexerDataBindings>>,
+  firstSets: ReadonlyFirstSets<NTs, ExtractKinds<LexerDataBindings>>,
 ) {
   const followSets = new Map<
-    Kinds | ExtractKinds<LexerDataBindings>,
-    GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>
+    NTs | ExtractKinds<LexerDataBindings>,
+    GrammarSet<NTs, ExtractKinds<LexerDataBindings>>
   >();
 
   NTs.forEach((NT) => followSets.set(NT, new GrammarSet())); // init for all NTs
@@ -636,7 +713,7 @@ export function buildFollowSets<
         // if next grammar is also NT, merge with its first set
         if (rule[i + 1].type === GrammarType.NT)
           firstSets
-            .get(rule[i + 1].kind as Kinds)!
+            .get(rule[i + 1].kind as NTs)!
             .grammars.forEach((g) => gs.add(g));
       }
     });
@@ -658,8 +735,5 @@ export function buildFollowSets<
     if (!changed) break;
   }
 
-  return followSets as ReadonlyFollowSets<
-    Kinds,
-    ExtractKinds<LexerDataBindings>
-  >;
+  return followSets as ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>;
 }

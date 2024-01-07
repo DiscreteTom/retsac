@@ -12,12 +12,13 @@ export enum ConflictType {
 }
 
 export interface Conflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   type: ConflictType;
   /**
@@ -25,18 +26,20 @@ export interface Conflict<
    */
   anotherRule: Readonly<
     GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >
   >;
   /**
    * A list of grammars that will cause conflicts when appear at the next of input.
    */
-  next: GrammarSet<Kinds, ExtractKinds<LexerDataBindings>>;
+  next: GrammarSet<NTs, ExtractKinds<LexerDataBindings>>;
   /**
    * Is this a conflict if there is no next input?
    */
@@ -68,20 +71,22 @@ export type ResolverHydrationId = {
 };
 
 export type ResolvedConflict<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = Pick<
   Conflict<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   "type" | "anotherRule" | "handleEnd"
 > & {
@@ -90,12 +95,13 @@ export type ResolvedConflict<
    */
   next:
     | Conflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >["next"]
     | "*";
 } & (
@@ -108,12 +114,13 @@ export type ResolvedConflict<
       }
     | {
         accepter: Condition<
-          Kinds,
+          NTs,
           ASTData,
           ErrorType,
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType
+          LexerErrorType,
+          Global
         >;
         /**
          * If the accepter is not a boolean, we need this hydration ID to restore the accepter.

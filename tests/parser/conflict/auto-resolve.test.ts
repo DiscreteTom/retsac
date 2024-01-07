@@ -4,12 +4,11 @@ test.each([`a b c?`, `a b c*`, `a b c+`, `a? b c d?`])(
   "Auto resolve conflicts when AdvancedBuilder.expand",
   (gr) => {
     expect(() => {
-      new ELR.AdvancedBuilder()
-        .lexer(
-          new Lexer.Builder()
-            .define(Lexer.exactKind("a", "b", "c", "d"))
-            .build(),
-        )
+      new ELR.AdvancedBuilder({
+        lexer: new Lexer.Builder()
+          .define(Lexer.exactKind("a", "b", "c", "d"))
+          .build(),
+      })
         .define({
           test: gr,
         })

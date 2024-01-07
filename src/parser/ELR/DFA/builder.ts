@@ -20,28 +20,30 @@ import {
 
 export class DFABuilder {
   static prepare<
-    Kinds extends string,
+    NTs extends string,
     ASTData,
     ErrorType,
     LexerDataBindings extends GeneralTokenDataBinding,
     LexerActionState,
     LexerErrorType,
+    Global,
   >(
-    repo: GrammarRepo<Kinds, ExtractKinds<LexerDataBindings>>,
+    repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     lexer: IReadonlyLexerCore<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
     >,
-    entryNTs: ReadonlySet<Kinds>,
+    entryNTs: ReadonlySet<NTs>,
     data: readonly Readonly<
       ParserBuilderData<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >[],
     printAll: boolean,
@@ -66,7 +68,7 @@ export class DFABuilder {
                 lexer,
                 printAll,
                 logger,
-                NTs.has(g.content as Kinds),
+                NTs.has(g.content as NTs),
               ),
             ),
             hydrationId: gr.hydrationId,
@@ -76,12 +78,13 @@ export class DFABuilder {
 
     // init all initial candidates, initial candidate is candidate with digested=0
     const cs = new CandidateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     grs.grammarRules.forEach((gr) => {
       cs.addInitial(gr);
@@ -99,12 +102,13 @@ export class DFABuilder {
 
     // init all states
     const allStates = new StateRepo<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >();
     const entryState = allStates.addEntry(entryCandidates)!;
 

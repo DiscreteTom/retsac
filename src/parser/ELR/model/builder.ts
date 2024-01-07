@@ -1,4 +1,8 @@
-import type { GeneralTokenDataBinding, IReadonlyLexer } from "../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  Token,
+} from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -10,15 +14,25 @@ import type {
 } from "../builder";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Parser } from "../parser";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ASTNode, NTNode, TNode } from "../../ast";
 
 export type BuildOptions<
-  Kinds extends string,
+  NTs extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
 > = [LexerDataBindings] extends [never]
   ? never // no lexer, prevent build
   : Partial<
       Pick<
-        IParser<string, never, never, GeneralTokenDataBinding, never, never>,
+        IParser<
+          string,
+          never,
+          never,
+          GeneralTokenDataBinding,
+          never,
+          never,
+          never
+        >,
         "logger" | "debug" | "autoCommit" | "ignoreEntryFollow"
       >
     > & {
@@ -26,7 +40,7 @@ export type BuildOptions<
        * Declare top-level NT's.
        * This is required for ELR parser.
        */
-      entry: Kinds | readonly Kinds[];
+      entry: NTs | readonly NTs[];
       /**
        * Which format to generate resolvers.
        * If `undefined`, resolvers will not be generated.
@@ -83,7 +97,7 @@ export type BuildOptions<
        * If provided and valid, the parser will be hydrated from this data.
        * The value is always checked to make sure it's valid.
        */
-      hydrate?: SerializableParserData<Kinds, LexerDataBindings>;
+      hydrate?: SerializableParserData<NTs, LexerDataBindings>;
       /**
        * If `true` and the build is successful, {@link IParserBuilder.build} will return a mermaid graph.
        * @default false
@@ -93,27 +107,29 @@ export type BuildOptions<
 
 export type BuildOutput<
   LexerDataBindings extends GeneralTokenDataBinding,
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerActionState,
   LexerErrorType,
+  Global,
 > = {
   parser: [LexerDataBindings] extends [never]
     ? never // if no lexer, no parser
     : IParser<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >;
   /**
    * If you build the parser with {@link BuildOptions.serialize},
    * this will be set to the serializable object.
    */
-  serializable?: Readonly<SerializableParserData<Kinds, LexerDataBindings>>;
+  serializable?: Readonly<SerializableParserData<NTs, LexerDataBindings>>;
   mermaid?: string;
   /**
    * If you build the parser with {@link BuildOptions.generateResolvers},
@@ -122,125 +138,133 @@ export type BuildOutput<
   resolvers?: string;
 };
 
-// TODO: add TraverseContext as a generic type parameter
+export type TokenASTDataMapperExec<
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerErrorType,
+  ASTData,
+> = (token: Token<LexerDataBindings, LexerErrorType>) => ASTData | undefined;
+
+export type TokenASTDataMapper<
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerErrorType,
+  ASTData,
+> = Record<
+  ExtractKinds<LexerDataBindings>,
+  TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+>;
+
 export interface IParserBuilder<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > {
   /**
-   * Set the lexer. The lexer won't be modified.
-   * When build the parser, the lexer will be cloned to make sure the builder is not modified.
+   * Set the {@link ASTNode.data} type.
    *
-   * This function must and can only be called once and must be called before defining any grammar rules.
-   * @example
-   * const lexer = new Lexer.Builder().build();
-   * new ELR.ParserBuilder().lexer(lexer).define(...).build({...});
-   */
-  // TODO: allow multiple call
-  lexer<
-    // make sure this function can only be called once
-    // and must be called before defining any grammar rules
-    NewLexerDataBindings extends [Kinds] extends [never]
-      ? [LexerDataBindings] extends [never] // why array? see [[@type constraints with array]]
-        ? GeneralTokenDataBinding // NewLexerDataBindings should extends GeneralTokenDataBinding
-        : never // LexerDataBindings already set, prevent modification
-      : never, // prevent setting LexerDataBindings after Kinds is defined
-    NewLexerActionState,
-    NewLexerErrorType,
-  >(
-    lexer: IReadonlyLexer<
-      NewLexerDataBindings,
-      NewLexerActionState,
-      NewLexerErrorType
-    >,
-  ): IParserBuilder<
-    Kinds,
-    ASTData,
-    ErrorType,
-    NewLexerDataBindings,
-    NewLexerActionState,
-    NewLexerErrorType
-  >;
-  /**
-   * Set the `ASTNode.data` type.
-   *
-   * This function can only be called once and must be called before defining any grammar rules.
    * @example
    * // provide type explicitly
    * builder.data<number>();
-   * // infer type from a value
+   * // infer type from a value. only the type is used, the value is ignored.
    * builder.data({ a: 1 });
    */
-  // TODO: allow multiple call
-  data<
-    NewASTData extends [Kinds] extends [never]
-      ? [ASTData] extends [never] // why array? see [[@type constraints with array]]
-        ? unknown // NewData can be any type
-        : never // ASTData already set, prevent modification
-      : never, // prevent setting ASTData after Kinds is defined
-  >(
+  data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
     data?: NewASTData,
   ): IParserBuilder<
-    Kinds,
+    NTs,
     NewASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
-   * Define grammar rules.
+   * Set the value of {@link NTNode.global}.
    */
-  define<Append extends string>(
-    defs: Definition<Kinds | Append>,
-    decorator?: DefinitionContextBuilderDecorator<
-      Kinds | Append,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
+  global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
+    g: NewGlobal,
+    /**
+     * @default structuredClone
+     */
+    cloner?: (g: NewGlobal) => NewGlobal,
   ): IParserBuilder<
-    Kinds | Append,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    NewGlobal
+  >;
+  /**
+   * Define how the {@link TNode.data} is generated when creating from a token.
+   * @example
+   * builder
+   *   .data<number>()
+   *   .mapper({
+   *     binary: token => token.data.value,
+   *   })
+   */
+  mapper(
+    m: TokenASTDataMapper<LexerDataBindings, LexerErrorType, ASTData>,
+  ): this;
+  /**
+   * Define grammar rules.
+   */
+  define<Append extends string>(
+    defs: Definition<NTs | Append>,
+    decorator?: DefinitionContextBuilderDecorator<
+      NTs | Append,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >,
+  ): IParserBuilder<
+    NTs | Append,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType,
+    Global
   >;
   /**
    * Resolve a reduce-shift conflict.
    */
   resolveRS(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RS_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): this;
   /**
    * Resolve a reduce-reduce conflict.
    */
   resolveRR(
-    reducerRule: Definition<Kinds>,
-    anotherRule: Definition<Kinds>,
+    reducerRule: Definition<NTs>,
+    anotherRule: Definition<NTs>,
     options: RR_ResolverOptions<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ): this;
   /**
@@ -261,9 +285,9 @@ export interface IParserBuilder<
    */
   priority(
     ...groups: (
-      | Definition<Kinds>
-      | Definition<Kinds>[]
-      | DefinitionGroupWithAssociativity<Kinds>
+      | Definition<NTs>
+      | Definition<NTs>[]
+      | DefinitionGroupWithAssociativity<NTs>
     )[]
   ): this;
   /**
@@ -271,70 +295,75 @@ export interface IParserBuilder<
    */
   use<AppendKinds extends string>(
     f: BuilderDecorator<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
       LexerErrorType,
+      Global,
       AppendKinds
     >,
   ): IParserBuilder<
-    Kinds | AppendKinds,
+    NTs | AppendKinds,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
   /**
    * Generate the {@link Parser ELR Parser}.
-   * This won't modify the builder, so you can call this multiple times.
    */
   // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
   build(
-    options: BuildOptions<Kinds, LexerDataBindings>,
+    options: BuildOptions<NTs, LexerDataBindings>,
   ): BuildOutput<
     LexerDataBindings,
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >;
 }
 
 export type BuilderDecorator<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
   AppendKinds extends string,
 > = (
   pb: IParserBuilder<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
 ) => IParserBuilder<
-  Kinds | AppendKinds,
+  NTs | AppendKinds,
   ASTData,
   ErrorType,
   LexerDataBindings,
   LexerActionState,
-  LexerErrorType
+  LexerErrorType,
+  Global
 >;
 
 /**
  * Used to store the parser to a serializable object.
  */
 export type SerializableParserData<
-  Kinds extends string,
+  NTs extends string,
   LexerDataBindings extends GeneralTokenDataBinding,
 > = {
   /**
@@ -344,7 +373,13 @@ export type SerializableParserData<
   hash: number;
   data: {
     dfa: ReturnType<
-      DFA<Kinds, never, never, LexerDataBindings, never, never>["toJSON"]
+      DFA<NTs, never, never, LexerDataBindings, never, never, never>["toJSON"]
     >;
   };
 };
+
+export type ExtractSerializableParserData<
+  ParserBuilder extends {
+    build(...params: unknown[]): { serializable?: unknown };
+  },
+> = NonNullable<ReturnType<ParserBuilder["build"]>["serializable"]>;

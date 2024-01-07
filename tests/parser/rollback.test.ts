@@ -3,8 +3,9 @@ import { RollbackDefinedWhileNotEnabledError } from "../../src/parser/ELR/builde
 
 test("Ensure no rollback if rollback is disabled", () => {
   expect(() => {
-    new ELR.ParserBuilder()
-      .lexer(new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build())
+    new ELR.ParserBuilder({
+      lexer: new Lexer.Builder().define(Lexer.exactKind("a", "b", "c")).build(),
+    })
       .define({ test: `a b | a b c` }, (d) => d.rollback(() => ""))
       .build({
         entry: "test",

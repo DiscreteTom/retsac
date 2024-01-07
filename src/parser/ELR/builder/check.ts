@@ -19,24 +19,26 @@ import {
  * @throws if `printAll` is false and there is any error.
  */
 export function checkSymbols<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   entryNTs: ReadonlySet<string>,
   NTs: ReadonlySet<string>,
   Ts: ReadonlySet<string>,
   // grammar rule repo is already readonly
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,
@@ -95,43 +97,48 @@ export function checkSymbols<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkConflicts<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
-  followSets: ReadonlyFollowSets<Kinds, ExtractKinds<LexerDataBindings>>,
+  followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
   unresolved: ReadonlyMap<
     Readonly<
       GrammarRule<
-        Kinds,
+        NTs,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >,
     readonly Readonly<
       Conflict<
-        Kinds,
+        NTs,
         ASTData,
         ErrorType,
         LexerDataBindings,
         LexerActionState,
-        LexerErrorType
+        LexerErrorType,
+        Global
       >
     >[]
   >,
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,
@@ -218,20 +225,22 @@ export function checkConflicts<
  * @throws if `printAll` is false and there is any error.
  */
 export function checkRollbacks<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 >(
   grs: ReadonlyGrammarRuleRepo<
-    Kinds,
+    NTs,
     ASTData,
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerErrorType
+    LexerErrorType,
+    Global
   >,
   printAll: boolean,
   logger: Logger,

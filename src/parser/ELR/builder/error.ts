@@ -1,6 +1,6 @@
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../lexer";
-import type { Conflict, Grammar, GrammarRule } from "../model";
-import { ConflictType } from "../model";
+import type { Conflict, Grammar } from "../model";
+import { ConflictType, GrammarRule } from "../model";
 import type { TempGrammarRule } from "./model";
 
 export type ELR_BuilderErrorType =
@@ -32,36 +32,39 @@ export class ELR_BuilderError extends Error {
 }
 
 export class GrammarRuleNotFoundError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public gr: TempGrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
       "GRAMMAR_RULE_NOT_FOUND",
-      `No such grammar rule: ${gr.strWithGrammarName.value}`,
+      `No such grammar rule: ${GrammarRule.getGrammarRuleString(gr)}`,
     );
     Object.setPrototypeOf(this, GrammarRuleNotFoundError.prototype);
   }
 }
 
 export class NextGrammarNotFoundError<
-  AllKinds extends string,
+  AllNTs extends string,
 > extends ELR_BuilderError {
   constructor(
-    public next: Grammar<AllKinds>,
+    public next: Grammar<AllNTs>,
     public NT: string,
   ) {
     super(
@@ -73,29 +76,33 @@ export class NextGrammarNotFoundError<
 }
 
 export class ConflictError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public c: Conflict<
-      Kinds,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
@@ -179,21 +186,24 @@ export class EmptyLiteralError extends ELR_BuilderError {
 }
 
 export class TooManyEndHandlerError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public rule: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
@@ -205,32 +215,37 @@ export class TooManyEndHandlerError<
 }
 
 export class NoSuchConflictError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public reducerRule: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public anotherRule: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
     public conflictType: ConflictType,
-    public next: Grammar<Kinds | ExtractKinds<LexerDataBindings>>[],
+    public next: Grammar<NTs | ExtractKinds<LexerDataBindings>>[],
     public handleEnd: boolean,
   ) {
     super(
@@ -268,21 +283,24 @@ export class NoRenameTargetError extends ELR_BuilderError {
 }
 
 export class RollbackDefinedWhileNotEnabledError<
-  Kinds extends string,
+  NTs extends string,
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerErrorType,
+  Global,
 > extends ELR_BuilderError {
   constructor(
     public rule: GrammarRule<
-      Kinds,
+      NTs,
+      NTs,
       ASTData,
       ErrorType,
       LexerDataBindings,
       LexerActionState,
-      LexerErrorType
+      LexerErrorType,
+      Global
     >,
   ) {
     super(
