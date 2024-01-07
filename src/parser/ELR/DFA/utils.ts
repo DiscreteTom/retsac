@@ -233,7 +233,16 @@ export function cascadeASTNodeSelectorFactory<
         n.name.startsWith(cascadeQueryPrefix) &&
         n.isNT()
       ) {
-        result.push(...n.$$(name));
+        result.push(
+          ...(n.$$(name) as ASTNode<
+            NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
+            NTs,
+            ASTData,
+            ErrorType,
+            Token<LexerDataBindings, LexerErrorType>,
+            Global
+          >[]),
+        );
       }
     });
     return result;
@@ -319,6 +328,7 @@ export function lexGrammar<
     ExtractKinds<LexerDataBindings>,
     TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
   >,
+  global: Global,
 ):
   | {
       node: TNode<
@@ -352,7 +362,7 @@ export function lexGrammar<
           ErrorType,
           Token<LexerDataBindings, LexerErrorType>,
           Global
-        >(token, tokenASTDataMapper.get(token.kind)?.(token)),
+        >(token, tokenASTDataMapper.get(token.kind)?.(token), global),
         lexer: mutableLexer.trimStart(),
       };
 }

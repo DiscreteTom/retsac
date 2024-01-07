@@ -302,6 +302,7 @@ export class State<
       ExtractKinds<LexerDataBindings>,
       TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
     >,
+    global: Global,
     debug: boolean,
     logger: Logger,
   ): {
@@ -376,6 +377,7 @@ export class State<
           c.current as Grammar<ExtractKinds<LexerDataBindings>>,
           lexer,
           tokenASTDataMapper,
+          global,
         );
         // mark this grammar as done, no matter if the lex is successful
         done.set(c.current.grammarStringNoName, r?.node ?? null);

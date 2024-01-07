@@ -11,7 +11,7 @@
   - **_Breaking Change_**: remove `ASTNode.token`, add `IParserBuilder.mapper` to transform token into `ASTData`. [#38](https://github.com/DiscreteTom/retsac/issues/38)
   - **_Breaking Change_**: `IParserBuilder.build` will consume the builder. Don't re-use the builder after calling `build`.
   - Feat: add `ExtractSerializableParserData`. [#41](https://github.com/DiscreteTom/retsac/issues/41)
-  - Feat: add `NTNode.global` to share data across all NT nodes.
+  - Feat: add `ASTNode.global` to share data across all nodes.
     - Add `IParserBuilder.global` to set the global data and cloner.
   - Feat: allow multiple calls for `IParserBuilder.data`.
 - Perf: prevent unnecessary calculation.

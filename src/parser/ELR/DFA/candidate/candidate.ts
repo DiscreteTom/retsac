@@ -503,8 +503,28 @@ export class Candidate<
 
     return {
       accept: true,
-      buffer: context.before.concat(node),
-      errors: context.error ? [node] : [],
+      buffer: context.before.concat(
+        node as ASTNode<
+          NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
+          NTs,
+          ASTData,
+          ErrorType,
+          Token<LexerDataBindings, LexerErrorType>,
+          Global
+        >,
+      ),
+      errors: context.error
+        ? [
+            node as ASTNode<
+              NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
+              NTs,
+              ASTData,
+              ErrorType,
+              Token<LexerDataBindings, LexerErrorType>,
+              Global
+            >,
+          ]
+        : [],
       context,
       commit: this.gr.commit?.(context) ?? false,
     };

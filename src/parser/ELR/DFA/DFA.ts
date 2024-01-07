@@ -335,7 +335,14 @@ export class DFA<
       // if no enough AST nodes, try to lex a new one
       if (parsingState.index >= parsingState.buffer.length) {
         if (
-          !this.tryLex(parsingState, reLexStack, rollbackStack, debug, logger)
+          !this.tryLex(
+            parsingState,
+            reLexStack,
+            rollbackStack,
+            global,
+            debug,
+            logger,
+          )
         ) {
           return { output: rejectedParserOutput, lexer: parsingState.lexer };
         }
@@ -433,13 +440,20 @@ export class DFA<
       LexerErrorType,
       Global
     >[],
+    global: Global,
     debug: boolean,
     logger: Logger,
   ) {
     // end of buffer, try to lex input string to get next ASTNode
     const res = parsingState.stateStack
       .at(-1)!
-      .tryLex(parsingState.lexer, this.tokenASTDataMapper, debug, logger);
+      .tryLex(
+        parsingState.lexer,
+        this.tokenASTDataMapper,
+        global,
+        debug,
+        logger,
+      );
     // if no more ASTNode can be lexed
     if (res.length === 0) {
       // try to restore from re-lex stack
