@@ -134,7 +134,6 @@ export type BuildOutput<
   resolvers?: string;
 };
 
-// TODO: add TraverseContext as a generic type parameter
 export interface IParserBuilder<
   NTs extends string,
   ASTData,
