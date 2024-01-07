@@ -69,7 +69,7 @@ export abstract class AbstractASTNode<
     TokenType,
     Global
   > {
-    return this instanceof TheTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+    return this.asASTNode().$ === undefined; // TODO: is this the fastest way? maybe `'$' in this`?
   }
 
   isNT(): this is NTNode<
@@ -80,7 +80,7 @@ export abstract class AbstractASTNode<
     TokenType,
     Global
   > {
-    return this instanceof TheNTNode; // TODO: is this the fastest way? maybe `'$' in this`?
+    return this.asASTNode().$ !== undefined; // TODO: is this the fastest way? maybe `'$' in this`?
   }
 
   as<TargetKind extends Kind>(_kind: TargetKind) {
