@@ -13,87 +13,63 @@
           "type": 0,
           "kind": "number",
           "name": "number",
-          "str": "Grammar({ type: \"T\", kind: \"number\", name: \"number\", text: undefined })",
-          "strWithName": "number",
-          "strWithoutName": "number",
-          "grammarStrWithName": "number",
-          "grammarStrWithoutName": "number"
+          "grammarString": "number",
+          "grammarStringNoName": "number"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": "-",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"-\" })",
-          "strWithName": "<anonymous>: \"-\"",
-          "strWithoutName": "<anonymous>: \"-\"",
-          "grammarStrWithName": "\"-\"",
-          "grammarStrWithoutName": "\"-\""
+          "grammarString": "'-'",
+          "grammarStringNoName": "'-'"
         },
         {
           "type": 1,
           "kind": "exp",
           "name": "exp",
-          "str": "Grammar({ type: \"NT\", kind: \"exp\", name: \"exp\", text: undefined })",
-          "strWithName": "exp",
-          "strWithoutName": "exp",
-          "grammarStrWithName": "exp",
-          "grammarStrWithoutName": "exp"
+          "grammarString": "exp",
+          "grammarStringNoName": "exp"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": "(",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"(\" })",
-          "strWithName": "<anonymous>: \"(\"",
-          "strWithoutName": "<anonymous>: \"(\"",
-          "grammarStrWithName": "\"(\"",
-          "grammarStrWithoutName": "\"(\""
+          "grammarString": "'('",
+          "grammarStringNoName": "'('"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": ")",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \")\" })",
-          "strWithName": "<anonymous>: \")\"",
-          "strWithoutName": "<anonymous>: \")\"",
-          "grammarStrWithName": "\")\"",
-          "grammarStrWithoutName": "\")\""
+          "grammarString": "')'",
+          "grammarStringNoName": "')'"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": "+",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"+\" })",
-          "strWithName": "<anonymous>: \"+\"",
-          "strWithoutName": "<anonymous>: \"+\"",
-          "grammarStrWithName": "\"+\"",
-          "grammarStrWithoutName": "\"+\""
+          "grammarString": "'+'",
+          "grammarStringNoName": "'+'"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": "*",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"*\" })",
-          "strWithName": "<anonymous>: \"*\"",
-          "strWithoutName": "<anonymous>: \"*\"",
-          "grammarStrWithName": "\"*\"",
-          "grammarStrWithoutName": "\"*\""
+          "grammarString": "'*'",
+          "grammarStringNoName": "'*'"
         },
         {
           "type": 0,
           "kind": "",
           "name": "",
           "text": "/",
-          "str": "Grammar({ type: \"T\", kind: \"\", name: \"\", text: \"/\" })",
-          "strWithName": "<anonymous>: \"/\"",
-          "strWithoutName": "<anonymous>: \"/\"",
-          "grammarStrWithName": "\"/\"",
-          "grammarStrWithoutName": "\"/\""
+          "grammarString": "'/'",
+          "grammarStringNoName": "'/'"
         }
       ],
       "grammarRules": [
@@ -104,23 +80,21 @@
           ],
           "conflicts": [],
           "resolved": [],
-          "str": "{ exp: `number` }",
-          "strWithGrammarName": "{ exp: `number` }",
-          "strWithoutGrammarName": "{ exp: `number` }",
+          "id": "exp:number",
           "hydrationId": 0
         },
         {
           "NT": "exp",
           "rule": [
-            "\"-\"",
+            "'-'",
             "exp"
           ],
           "conflicts": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "next": [
-                "\"+\""
+                "'+'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -129,9 +103,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "next": [
-                "\"-\""
+                "'-'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -140,9 +114,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "next": [
-                "\"*\""
+                "'*'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -151,9 +125,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "next": [
-                "\"/\""
+                "'/'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -164,100 +138,96 @@
           "resolved": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             }
           ],
-          "str": "{ exp: `\"-\" exp` }",
-          "strWithGrammarName": "{ exp: `\"-\" exp` }",
-          "strWithoutGrammarName": "{ exp: `\"-\" exp` }",
+          "id": "exp:'-',exp",
           "hydrationId": 1
         },
         {
           "NT": "exp",
           "rule": [
-            "\"(\"",
+            "'('",
             "exp",
-            "\")\""
+            "')'"
           ],
           "conflicts": [],
           "resolved": [],
-          "str": "{ exp: `\"(\" exp \")\"` }",
-          "strWithGrammarName": "{ exp: `\"(\" exp \")\"` }",
-          "strWithoutGrammarName": "{ exp: `\"(\" exp \")\"` }",
+          "id": "exp:'(',exp,')'",
           "hydrationId": 2
         },
         {
           "NT": "exp",
           "rule": [
             "exp",
-            "\"+\"",
+            "'+'",
             "exp"
           ],
           "conflicts": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "next": [
-                "\"+\""
+                "'+'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -266,9 +236,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "next": [
-                "\"-\""
+                "'-'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -278,9 +248,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "next": [
-                "\"*\""
+                "'*'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -289,9 +259,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "next": [
-                "\"/\""
+                "'/'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -302,100 +272,98 @@
           "resolved": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             }
           ],
-          "str": "{ exp: `exp \"+\" exp` }",
-          "strWithGrammarName": "{ exp: `exp \"+\" exp` }",
-          "strWithoutGrammarName": "{ exp: `exp \"+\" exp` }",
+          "id": "exp:exp,'+',exp",
           "hydrationId": 3
         },
         {
           "NT": "exp",
           "rule": [
             "exp",
-            "\"-\"",
+            "'-'",
             "exp"
           ],
           "conflicts": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "next": [
-                "\"+\""
+                "'+'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -405,9 +373,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "next": [
-                "\"-\""
+                "'-'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -416,9 +384,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "next": [
-                "\"*\""
+                "'*'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -427,9 +395,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "next": [
-                "\"/\""
+                "'/'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -440,100 +408,98 @@
           "resolved": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
-              "handleEnd": false,
-              "next": "*",
-              "accepter": true
-            },
-            {
-              "type": 1,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
-              "handleEnd": true,
-              "next": "*",
-              "accepter": true
-            },
-            {
-              "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
+              "handleEnd": false,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 1,
+              "anotherRule": "exp:exp,'+',exp",
+              "handleEnd": true,
+              "next": "*",
+              "accepter": true
+            },
+            {
+              "type": 0,
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             }
           ],
-          "str": "{ exp: `exp \"-\" exp` }",
-          "strWithGrammarName": "{ exp: `exp \"-\" exp` }",
-          "strWithoutGrammarName": "{ exp: `exp \"-\" exp` }",
+          "id": "exp:exp,'-',exp",
           "hydrationId": 4
         },
         {
           "NT": "exp",
           "rule": [
             "exp",
-            "\"*\"",
+            "'*'",
             "exp"
           ],
           "conflicts": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "next": [
-                "\"+\""
+                "'+'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -542,9 +508,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "next": [
-                "\"-\""
+                "'-'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -553,9 +519,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "next": [
-                "\"*\""
+                "'*'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -564,9 +530,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "next": [
-                "\"/\""
+                "'/'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -578,100 +544,98 @@
           "resolved": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             }
           ],
-          "str": "{ exp: `exp \"*\" exp` }",
-          "strWithGrammarName": "{ exp: `exp \"*\" exp` }",
-          "strWithoutGrammarName": "{ exp: `exp \"*\" exp` }",
+          "id": "exp:exp,'*',exp",
           "hydrationId": 5
         },
         {
           "NT": "exp",
           "rule": [
             "exp",
-            "\"/\"",
+            "'/'",
             "exp"
           ],
           "conflicts": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "next": [
-                "\"+\""
+                "'+'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -680,9 +644,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "next": [
-                "\"-\""
+                "'-'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -691,9 +655,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "next": [
-                "\"*\""
+                "'*'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -703,9 +667,9 @@
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "next": [
-                "\"/\""
+                "'/'"
               ],
               "handleEnd": false,
               "resolvers": [
@@ -716,678 +680,651 @@
           "resolved": [
             {
               "type": 0,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": false
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `\"-\" exp` }",
+              "anotherRule": "exp:'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": false
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"+\" exp` }",
+              "anotherRule": "exp:exp,'+',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"-\" exp` }",
+              "anotherRule": "exp:exp,'-',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             },
             {
               "type": 1,
-              "anotherRule": "{ exp: `exp \"*\" exp` }",
+              "anotherRule": "exp:exp,'*',exp",
               "handleEnd": true,
               "next": "*",
               "accepter": true
             },
             {
               "type": 0,
-              "anotherRule": "{ exp: `exp \"/\" exp` }",
+              "anotherRule": "exp:exp,'/',exp",
               "handleEnd": false,
               "next": "*",
               "accepter": true
             }
           ],
-          "str": "{ exp: `exp \"/\" exp` }",
-          "strWithGrammarName": "{ exp: `exp \"/\" exp` }",
-          "strWithoutGrammarName": "{ exp: `exp \"/\" exp` }",
+          "id": "exp:exp,'/',exp",
           "hydrationId": 6
         }
       ],
       "candidates": [
         {
-          "gr": "{ exp: `number` }",
+          "gr": "exp:number",
           "digested": 0,
           "nextMap": {
-            "number": "exp := number #"
+            "number": "1#exp:number"
           },
-          "str": "exp := # number",
-          "strWithGrammarName": "exp := # number"
+          "id": "0#exp:number"
         },
         {
-          "gr": "{ exp: `\"-\" exp` }",
+          "gr": "exp:'-',exp",
           "digested": 0,
           "nextMap": {
-            "\"-\"": "exp := \"-\" # exp"
+            "'-'": "1#exp:'-',exp"
           },
-          "str": "exp := # \"-\" exp",
-          "strWithGrammarName": "exp := # \"-\" exp"
+          "id": "0#exp:'-',exp"
         },
         {
-          "gr": "{ exp: `\"(\" exp \")\"` }",
+          "gr": "exp:'(',exp,')'",
           "digested": 0,
           "nextMap": {
-            "\"(\"": "exp := \"(\" # exp \")\""
+            "'('": "1#exp:'(',exp,')'"
           },
-          "str": "exp := # \"(\" exp \")\"",
-          "strWithGrammarName": "exp := # \"(\" exp \")\""
+          "id": "0#exp:'(',exp,')'"
         },
         {
-          "gr": "{ exp: `exp \"+\" exp` }",
+          "gr": "exp:exp,'+',exp",
           "digested": 0,
           "nextMap": {
-            "exp": "exp := exp # \"+\" exp"
+            "exp": "1#exp:exp,'+',exp"
           },
-          "str": "exp := # exp \"+\" exp",
-          "strWithGrammarName": "exp := # exp \"+\" exp"
+          "id": "0#exp:exp,'+',exp"
         },
         {
-          "gr": "{ exp: `exp \"-\" exp` }",
+          "gr": "exp:exp,'-',exp",
           "digested": 0,
           "nextMap": {
-            "exp": "exp := exp # \"-\" exp"
+            "exp": "1#exp:exp,'-',exp"
           },
-          "str": "exp := # exp \"-\" exp",
-          "strWithGrammarName": "exp := # exp \"-\" exp"
+          "id": "0#exp:exp,'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"*\" exp` }",
+          "gr": "exp:exp,'*',exp",
           "digested": 0,
           "nextMap": {
-            "exp": "exp := exp # \"*\" exp"
+            "exp": "1#exp:exp,'*',exp"
           },
-          "str": "exp := # exp \"*\" exp",
-          "strWithGrammarName": "exp := # exp \"*\" exp"
+          "id": "0#exp:exp,'*',exp"
         },
         {
-          "gr": "{ exp: `exp \"/\" exp` }",
+          "gr": "exp:exp,'/',exp",
           "digested": 0,
           "nextMap": {
-            "exp": "exp := exp # \"/\" exp"
+            "exp": "1#exp:exp,'/',exp"
           },
-          "str": "exp := # exp \"/\" exp",
-          "strWithGrammarName": "exp := # exp \"/\" exp"
+          "id": "0#exp:exp,'/',exp"
         },
         {
-          "gr": "{ exp: `number` }",
+          "gr": "exp:number",
           "digested": 1,
           "nextMap": {},
-          "str": "exp := number #",
-          "strWithGrammarName": "exp := number #"
+          "id": "1#exp:number"
         },
         {
-          "gr": "{ exp: `\"-\" exp` }",
+          "gr": "exp:'-',exp",
           "digested": 1,
           "nextMap": {
-            "exp": "exp := \"-\" exp #"
+            "exp": "2#exp:'-',exp"
           },
-          "str": "exp := \"-\" # exp",
-          "strWithGrammarName": "exp := \"-\" # exp"
+          "id": "1#exp:'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"+\" exp` }",
+          "gr": "exp:exp,'+',exp",
           "digested": 1,
           "nextMap": {
-            "\"+\"": "exp := exp \"+\" # exp"
+            "'+'": "2#exp:exp,'+',exp"
           },
-          "str": "exp := exp # \"+\" exp",
-          "strWithGrammarName": "exp := exp # \"+\" exp"
+          "id": "1#exp:exp,'+',exp"
         },
         {
-          "gr": "{ exp: `exp \"-\" exp` }",
+          "gr": "exp:exp,'-',exp",
           "digested": 1,
           "nextMap": {
-            "\"-\"": "exp := exp \"-\" # exp"
+            "'-'": "2#exp:exp,'-',exp"
           },
-          "str": "exp := exp # \"-\" exp",
-          "strWithGrammarName": "exp := exp # \"-\" exp"
+          "id": "1#exp:exp,'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"*\" exp` }",
+          "gr": "exp:exp,'*',exp",
           "digested": 1,
           "nextMap": {
-            "\"*\"": "exp := exp \"*\" # exp"
+            "'*'": "2#exp:exp,'*',exp"
           },
-          "str": "exp := exp # \"*\" exp",
-          "strWithGrammarName": "exp := exp # \"*\" exp"
+          "id": "1#exp:exp,'*',exp"
         },
         {
-          "gr": "{ exp: `exp \"/\" exp` }",
+          "gr": "exp:exp,'/',exp",
           "digested": 1,
           "nextMap": {
-            "\"/\"": "exp := exp \"/\" # exp"
+            "'/'": "2#exp:exp,'/',exp"
           },
-          "str": "exp := exp # \"/\" exp",
-          "strWithGrammarName": "exp := exp # \"/\" exp"
+          "id": "1#exp:exp,'/',exp"
         },
         {
-          "gr": "{ exp: `\"(\" exp \")\"` }",
+          "gr": "exp:'(',exp,')'",
           "digested": 1,
           "nextMap": {
-            "exp": "exp := \"(\" exp # \")\""
+            "exp": "2#exp:'(',exp,')'"
           },
-          "str": "exp := \"(\" # exp \")\"",
-          "strWithGrammarName": "exp := \"(\" # exp \")\""
+          "id": "1#exp:'(',exp,')'"
         },
         {
-          "gr": "{ exp: `\"-\" exp` }",
+          "gr": "exp:'-',exp",
           "digested": 2,
           "nextMap": {},
-          "str": "exp := \"-\" exp #",
-          "strWithGrammarName": "exp := \"-\" exp #"
+          "id": "2#exp:'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"-\" exp` }",
+          "gr": "exp:exp,'-',exp",
           "digested": 2,
           "nextMap": {
-            "exp": "exp := exp \"-\" exp #"
+            "exp": "3#exp:exp,'-',exp"
           },
-          "str": "exp := exp \"-\" # exp",
-          "strWithGrammarName": "exp := exp \"-\" # exp"
+          "id": "2#exp:exp,'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"+\" exp` }",
+          "gr": "exp:exp,'+',exp",
           "digested": 2,
           "nextMap": {
-            "exp": "exp := exp \"+\" exp #"
+            "exp": "3#exp:exp,'+',exp"
           },
-          "str": "exp := exp \"+\" # exp",
-          "strWithGrammarName": "exp := exp \"+\" # exp"
+          "id": "2#exp:exp,'+',exp"
         },
         {
-          "gr": "{ exp: `exp \"*\" exp` }",
+          "gr": "exp:exp,'*',exp",
           "digested": 2,
           "nextMap": {
-            "exp": "exp := exp \"*\" exp #"
+            "exp": "3#exp:exp,'*',exp"
           },
-          "str": "exp := exp \"*\" # exp",
-          "strWithGrammarName": "exp := exp \"*\" # exp"
+          "id": "2#exp:exp,'*',exp"
         },
         {
-          "gr": "{ exp: `exp \"/\" exp` }",
+          "gr": "exp:exp,'/',exp",
           "digested": 2,
           "nextMap": {
-            "exp": "exp := exp \"/\" exp #"
+            "exp": "3#exp:exp,'/',exp"
           },
-          "str": "exp := exp \"/\" # exp",
-          "strWithGrammarName": "exp := exp \"/\" # exp"
+          "id": "2#exp:exp,'/',exp"
         },
         {
-          "gr": "{ exp: `\"(\" exp \")\"` }",
+          "gr": "exp:'(',exp,')'",
           "digested": 2,
           "nextMap": {
-            "\")\"": "exp := \"(\" exp \")\" #"
+            "')'": "3#exp:'(',exp,')'"
           },
-          "str": "exp := \"(\" exp # \")\"",
-          "strWithGrammarName": "exp := \"(\" exp # \")\""
+          "id": "2#exp:'(',exp,')'"
         },
         {
-          "gr": "{ exp: `exp \"-\" exp` }",
+          "gr": "exp:exp,'-',exp",
           "digested": 3,
           "nextMap": {},
-          "str": "exp := exp \"-\" exp #",
-          "strWithGrammarName": "exp := exp \"-\" exp #"
+          "id": "3#exp:exp,'-',exp"
         },
         {
-          "gr": "{ exp: `exp \"+\" exp` }",
+          "gr": "exp:exp,'+',exp",
           "digested": 3,
           "nextMap": {},
-          "str": "exp := exp \"+\" exp #",
-          "strWithGrammarName": "exp := exp \"+\" exp #"
+          "id": "3#exp:exp,'+',exp"
         },
         {
-          "gr": "{ exp: `exp \"*\" exp` }",
+          "gr": "exp:exp,'*',exp",
           "digested": 3,
           "nextMap": {},
-          "str": "exp := exp \"*\" exp #",
-          "strWithGrammarName": "exp := exp \"*\" exp #"
+          "id": "3#exp:exp,'*',exp"
         },
         {
-          "gr": "{ exp: `exp \"/\" exp` }",
+          "gr": "exp:exp,'/',exp",
           "digested": 3,
           "nextMap": {},
-          "str": "exp := exp \"/\" exp #",
-          "strWithGrammarName": "exp := exp \"/\" exp #"
+          "id": "3#exp:exp,'/',exp"
         },
         {
-          "gr": "{ exp: `\"(\" exp \")\"` }",
+          "gr": "exp:'(',exp,')'",
           "digested": 3,
           "nextMap": {},
-          "str": "exp := \"(\" exp \")\" #",
-          "strWithGrammarName": "exp := \"(\" exp \")\" #"
+          "id": "3#exp:'(',exp,')'"
         }
       ],
       "states": {
-        "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number": {
           "candidates": [
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number"
         },
-        "exp := number #": {
+        "1#exp:number": {
           "candidates": [
-            "exp := number #"
+            "1#exp:number"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": null,
+            "'-'": null,
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "'('": null,
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := number #"
+          "id": "1#exp:number"
         },
-        "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp": {
           "candidates": [
-            "exp := \"-\" # exp",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "1#exp:'-',exp",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp"
         },
-        "exp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp": {
           "candidates": [
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp"
         },
-        "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'": {
           "candidates": [
-            "exp := \"(\" # exp \")\"",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "1#exp:'(',exp,')'",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := \"(\" exp # \")\"\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'"
         },
-        "exp := \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp": {
           "candidates": [
-            "exp := \"-\" exp #",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "2#exp:'-',exp",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp"
         },
-        "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp": {
           "candidates": [
-            "exp := exp \"-\" # exp",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "2#exp:exp,'-',exp",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := exp \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp"
         },
-        "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp": {
           "candidates": [
-            "exp := exp \"+\" # exp",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "2#exp:exp,'+',exp",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := exp \"+\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp"
         },
-        "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp": {
           "candidates": [
-            "exp := exp \"*\" # exp",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "2#exp:exp,'*',exp",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := exp \"*\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp"
         },
-        "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp": {
+        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp": {
           "candidates": [
-            "exp := exp \"/\" # exp",
-            "exp := # number",
-            "exp := # \"-\" exp",
-            "exp := # \"(\" exp \")\"",
-            "exp := # exp \"+\" exp",
-            "exp := # exp \"-\" exp",
-            "exp := # exp \"*\" exp",
-            "exp := # exp \"/\" exp"
+            "2#exp:exp,'/',exp",
+            "0#exp:number",
+            "0#exp:'-',exp",
+            "0#exp:'(',exp,')'",
+            "0#exp:exp,'+',exp",
+            "0#exp:exp,'-',exp",
+            "0#exp:exp,'*',exp",
+            "0#exp:exp,'/',exp"
           ],
           "nextMap": {
-            "number": "exp := number #",
-            "\"-\"": "exp := \"-\" # exp\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "exp": "exp := exp \"/\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp",
-            "\"(\"": "exp := \"(\" # exp \")\"\nexp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "number": "1#exp:number",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp",
+            "exp": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp",
+            "'('": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'",
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
         },
-        "exp := \"(\" exp # \")\"\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'": {
           "candidates": [
-            "exp := \"(\" exp # \")\"",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "2#exp:'(',exp,')'",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": "exp := \"(\" exp \")\" #",
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": "3#exp:'(',exp,')'",
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := \"(\" exp # \")\"\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'"
         },
-        "exp := exp \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp": {
           "candidates": [
-            "exp := exp \"-\" exp #",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "3#exp:exp,'-',exp",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := exp \"-\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp"
         },
-        "exp := exp \"+\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp": {
           "candidates": [
-            "exp := exp \"+\" exp #",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "3#exp:exp,'+',exp",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := exp \"+\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp"
         },
-        "exp := exp \"*\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp": {
           "candidates": [
-            "exp := exp \"*\" exp #",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "3#exp:exp,'*',exp",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := exp \"*\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp"
         },
-        "exp := exp \"/\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp": {
+        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp": {
           "candidates": [
-            "exp := exp \"/\" exp #",
-            "exp := exp # \"+\" exp",
-            "exp := exp # \"-\" exp",
-            "exp := exp # \"*\" exp",
-            "exp := exp # \"/\" exp"
+            "3#exp:exp,'/',exp",
+            "1#exp:exp,'+',exp",
+            "1#exp:exp,'-',exp",
+            "1#exp:exp,'*',exp",
+            "1#exp:exp,'/',exp"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"-\" # exp",
+            "'-'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp",
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"+\" # exp",
-            "\"*\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"*\" # exp",
-            "\"/\"": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number\nexp := exp \"/\" # exp"
+            "'('": null,
+            "')'": null,
+            "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
+            "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
+            "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           },
-          "str": "exp := exp \"/\" exp #\nexp := exp # \"*\" exp\nexp := exp # \"+\" exp\nexp := exp # \"-\" exp\nexp := exp # \"/\" exp"
+          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp"
         },
-        "exp := \"(\" exp \")\" #": {
+        "3#exp:'(',exp,')'": {
           "candidates": [
-            "exp := \"(\" exp \")\" #"
+            "3#exp:'(',exp,')'"
           ],
           "nextMap": {
             "number": null,
-            "\"-\"": null,
+            "'-'": null,
             "exp": null,
-            "\"(\"": null,
-            "\")\"": null,
-            "\"+\"": null,
-            "\"*\"": null,
-            "\"/\"": null
+            "'('": null,
+            "')'": null,
+            "'+'": null,
+            "'*'": null,
+            "'/'": null
           },
-          "str": "exp := \"(\" exp \")\" #"
+          "id": "3#exp:'(',exp,')'"
         }
       },
-      "entryState": "exp := # \"(\" exp \")\"\nexp := # \"-\" exp\nexp := # exp \"*\" exp\nexp := # exp \"+\" exp\nexp := # exp \"-\" exp\nexp := # exp \"/\" exp\nexp := # number",
+      "entryState": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number",
       "NTClosures": {
         "exp": [
-          "{ exp: `number` }",
-          "{ exp: `\"-\" exp` }",
-          "{ exp: `\"(\" exp \")\"` }",
-          "{ exp: `exp \"+\" exp` }",
-          "{ exp: `exp \"-\" exp` }",
-          "{ exp: `exp \"*\" exp` }",
-          "{ exp: `exp \"/\" exp` }"
+          "exp:number",
+          "exp:'-',exp",
+          "exp:'(',exp,')'",
+          "exp:exp,'+',exp",
+          "exp:exp,'-',exp",
+          "exp:exp,'*',exp",
+          "exp:exp,'/',exp"
         ]
       },
       "firstSets": {
         "exp": [
           "number",
-          "\"-\"",
-          "\"(\"",
+          "'-'",
+          "'('",
           "exp"
         ]
       },
       "followSets": {
         "exp": [
-          "\")\"",
-          "\"+\"",
-          "\"-\"",
-          "\"*\"",
-          "\"/\""
+          "')'",
+          "'+'",
+          "'-'",
+          "'*'",
+          "'/'"
         ],
         "number": [
-          "\")\"",
-          "\"+\"",
-          "\"-\"",
-          "\"*\"",
-          "\"/\""
+          "')'",
+          "'+'",
+          "'-'",
+          "'*'",
+          "'/'"
         ],
         "": [
           "exp",
           "number",
-          "\"-\"",
-          "\"(\"",
-          "\")\"",
-          "\"+\"",
-          "\"*\"",
-          "\"/\""
+          "'-'",
+          "'('",
+          "')'",
+          "'+'",
+          "'*'",
+          "'/'"
         ]
       }
     }

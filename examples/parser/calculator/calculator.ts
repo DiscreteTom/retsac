@@ -11,9 +11,8 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/()")) // operators
   .build();
 
-export const builder = new ELR.ParserBuilder()
+export const builder = new ELR.ParserBuilder({ lexer })
   .data<number>()
-  .lexer(lexer)
   .define({ exp: "number" }, (d) =>
     // the result of the reducer will be stored in the node's value
     d.reducer(({ matched }) => Number(matched[0].text)),

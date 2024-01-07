@@ -14,8 +14,7 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."[]{},:")) // single char borders without a kind name
   .build();
 
-export const builder = new ELR.AdvancedBuilder()
-  .lexer(lexer)
+export const builder = new ELR.AdvancedBuilder({ lexer })
   .data<unknown>()
   .define(
     { value: `string | number | true | false | null` },
@@ -35,6 +34,20 @@ export const builder = new ELR.AdvancedBuilder()
     // traverse all values in the array and return the result as an array
     (d) => d.traverser(({ $$ }) => $$(`value`).map((v) => v.traverse())),
   )
+  .define(
+    // use `@` to rename a grammar
+    { object_item: `string@key ':' value` },
+    // return an object
+    (d) =>
+      // use `$` to select the first child with the given name
+      d.traverser(({ $ }) => {
+        const result: Record<string, unknown> = {};
+        // remove the double quotes in the key string, then traverse child to get the value
+        result[$(`key`)!.as("string").text.slice(1, -1)] =
+          $(`value`)!.traverse();
+        return result;
+      }),
+  )
   .define({ object: `'{' (object_item (',' object_item)*)? '}'` }, (d) =>
     d.traverser(({ $$ }) => {
       // every object_item's traverse result is an object, we need to merge them
@@ -45,19 +58,6 @@ export const builder = new ELR.AdvancedBuilder()
       });
       return result;
     }),
-  )
-  .define(
-    // use `@` to rename a grammar
-    { object_item: `string@key ':' value` },
-    // return an object
-    (d) =>
-      // use `$` to select the first child with the given name
-      d.traverser(({ $ }) => {
-        const result: Record<string, unknown> = {};
-        // remove the double quotes in the key string, then traverse child to get the value
-        result[$(`key`)!.text!.slice(1, -1)] = $(`value`)!.traverse();
-        return result;
-      }),
   );
 
 export const entry = "value" as const;

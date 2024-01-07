@@ -15,8 +15,7 @@ const lexer = new Lexer.Builder()
   .anonymous(Lexer.exact(..."+-*/():{};=,")) // single char operator
   .build();
 
-export const builder = new ELR.AdvancedBuilder()
-  .lexer(lexer)
+export const builder = new ELR.AdvancedBuilder({ lexer })
   .define({
     // use `@` to rename a node
     fn_def: `

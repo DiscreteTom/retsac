@@ -9,6 +9,7 @@ function generateSerializable<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
+  Global,
 >(
   builder: IParserBuilder<
     Kinds,
@@ -16,7 +17,8 @@ function generateSerializable<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerError,
+    Global
   >,
   entry: Kinds | readonly Kinds[],
 ) {
@@ -38,6 +40,7 @@ export function generateParserDataString<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
+  Global,
 >(
   builder: IParserBuilder<
     Kinds,
@@ -45,7 +48,8 @@ export function generateParserDataString<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerError,
+    Global
   >,
   entry: Kinds | readonly Kinds[],
 ) {
@@ -60,6 +64,7 @@ export function generateParserDataFile<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerActionState,
   LexerError,
+  Global,
 >(
   builder: IParserBuilder<
     Kinds,
@@ -67,7 +72,8 @@ export function generateParserDataFile<
     ErrorType,
     LexerDataBindings,
     LexerActionState,
-    LexerError
+    LexerError,
+    Global
   >,
   entry: Kinds | readonly Kinds[],
   path: string,
