@@ -2,13 +2,12 @@ import { ELR, Lexer } from "../../../src";
 
 describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   test("one RS conflict", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `E d | F`,
         E: `a b c`,
@@ -34,13 +33,12 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   });
 
   test("multi RS conflict", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `E d | F | G c d`,
         E: `a b c`,
@@ -75,13 +73,12 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   });
 
   test("one RR conflict", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `A b | B b`,
         A: `a`,
@@ -113,13 +110,12 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   });
 
   test("one RR conflict, handle end", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `A | B`,
         A: `a`,
@@ -151,13 +147,12 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   });
 
   test("multi RR conflict", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `A b | B b | C b`,
         A: `a`,
@@ -200,13 +195,12 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
   });
 
   test("multi RR conflict, handle end", () => {
-    const { resolvers } = new ELR.ParserBuilder()
-      .lexer(
-        new Lexer.Builder()
-          .anonymous(Lexer.whitespaces())
-          .define(Lexer.wordKind(..."abcdefg"))
-          .build(),
-      )
+    const { resolvers } = new ELR.ParserBuilder({
+      lexer: new Lexer.Builder()
+        .anonymous(Lexer.whitespaces())
+        .define(Lexer.wordKind(..."abcdefg"))
+        .build(),
+    })
       .define({
         entry: `A | B | C`,
         A: `a`,

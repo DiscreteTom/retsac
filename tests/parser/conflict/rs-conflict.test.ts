@@ -32,13 +32,12 @@ function expectRSConflict<Kinds extends string>(
   defs: Definition<Kinds | "entry">,
   conflicts: { reducerNT: Kinds; anotherNT: Kinds }[],
 ) {
-  const { serializable } = new ELR.ParserBuilder()
-    .lexer(
-      new Lexer.Builder()
-        .anonymous(Lexer.whitespaces())
-        .define(Lexer.wordKind(..."abcdefg"))
-        .build(),
-    )
+  const { serializable } = new ELR.ParserBuilder({
+    lexer: new Lexer.Builder()
+      .anonymous(Lexer.whitespaces())
+      .define(Lexer.wordKind(..."abcdefg"))
+      .build(),
+  })
     .define(defs)
     .build({
       entry: "entry",
