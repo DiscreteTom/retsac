@@ -7,6 +7,8 @@ import type {
   Condition,
   ResolvedConflict,
   BuilderDecorator,
+  TokenASTDataMapperExec,
+  TokenASTDataMapper,
 } from "../model";
 import {
   ConflictType,
@@ -101,6 +103,10 @@ export class ParserBuilder<
   >;
   protected _global: Global;
   protected globalCloner: (g: Global) => Global;
+  protected readonly tokenASTDataMapper: Map<
+    ExtractKinds<LexerDataBindings>,
+    TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+  >;
 
   constructor(options: {
     /**
@@ -119,6 +125,7 @@ export class ParserBuilder<
 
     this.builderData = [];
     this.globalCloner = structuredClone;
+    this.tokenASTDataMapper = new Map();
   }
 
   data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
@@ -159,6 +166,17 @@ export class ParserBuilder<
     _this._global = g;
     _this.globalCloner = cloner ?? structuredClone;
     return _this;
+  }
+
+  mapper(m: TokenASTDataMapper<LexerDataBindings, LexerErrorType, ASTData>) {
+    this.tokenASTDataMapper.clear();
+    for (const kind in m) {
+      this.tokenASTDataMapper.set(
+        kind as ExtractKinds<LexerDataBindings>,
+        m[kind as keyof typeof m],
+      );
+    }
+    return this;
   }
 
   // TODO: move this into a base class
@@ -300,6 +318,7 @@ export class ParserBuilder<
       repo,
       NTs,
       this.cascadeQueryPrefix,
+      this.tokenASTDataMapper, // TODO: clone?
       rollback,
       reLex,
     );
@@ -671,7 +690,7 @@ export class ParserBuilder<
 
   private restoreAndHydrate(
     data: SerializableParserData<NTs, LexerDataBindings>,
-    options: Parameters<typeof DFA.fromJSON>[1],
+    options: Parameters<typeof DFA.fromJSON>[2],
   ) {
     const dfa = DFA.fromJSON<
       NTs,
@@ -681,7 +700,11 @@ export class ParserBuilder<
       LexerActionState,
       LexerErrorType,
       Global
-    >(data.data.dfa, options);
+    >(
+      data.data.dfa,
+      this.tokenASTDataMapper, // TODO: clone?
+      options,
+    );
     const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<
@@ -807,7 +830,7 @@ export class ParserBuilder<
         lexer,
         autoCommit,
         ignoreEntryFollow,
-        this._global,
+        this._global, // TODO: clone?
         this.globalCloner,
         debug,
         logger,

@@ -390,24 +390,19 @@ export class TNode<
   TokenType extends GeneralToken,
   Global,
 > extends ASTNode<Kind, NTs, ASTData, ErrorType, TokenType, Global> {
-  // TODO: remove token, #38
-  token: TokenType & { kind: Kind };
-
   /**
    * Token's text content.
    */
-  get text() {
-    return this.token.content;
-  }
+  readonly text: string;
 
   constructor(
     p: Pick<
       TNode<Kind, NTs, ASTData, ErrorType, TokenType, Global>,
-      "kind" | "start" | "token"
+      "kind" | "start" | "text" | "data"
     >,
   ) {
-    super({ ...p, data: undefined, error: undefined });
-    this.token = p.token;
+    super({ ...p, error: undefined });
+    this.text = p.text;
     // parent is set later by parent node
   }
 
@@ -417,7 +412,7 @@ export class TNode<
     ErrorType,
     TokenType extends GeneralToken,
     Global,
-  >(t: Readonly<TokenType>) {
+  >(t: Readonly<TokenType>, data: ASTData | undefined) {
     return new TNode<
       ExtractKinds<TokenType>,
       NTs,
@@ -428,7 +423,8 @@ export class TNode<
     >({
       kind: t.kind,
       start: t.start,
-      token: t,
+      text: t.content,
+      data,
     });
   }
 

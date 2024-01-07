@@ -1,4 +1,8 @@
-import type { GeneralTokenDataBinding } from "../../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  Token,
+} from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -11,7 +15,7 @@ import type {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Parser } from "../parser";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { ASTNode, NTNode } from "../../ast";
+import type { ASTNode, NTNode, TNode } from "../../ast";
 
 export type BuildOptions<
   NTs extends string,
@@ -134,6 +138,21 @@ export type BuildOutput<
   resolvers?: string;
 };
 
+export type TokenASTDataMapperExec<
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerErrorType,
+  ASTData,
+> = (token: Token<LexerDataBindings, LexerErrorType>) => ASTData | undefined;
+
+export type TokenASTDataMapper<
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerErrorType,
+  ASTData,
+> = Record<
+  ExtractKinds<LexerDataBindings>,
+  TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+>;
+
 export interface IParserBuilder<
   NTs extends string,
   ASTData,
@@ -181,6 +200,18 @@ export interface IParserBuilder<
     LexerErrorType,
     NewGlobal
   >;
+  /**
+   * Define how the {@link TNode.data} is generated when creating from a token.
+   * @example
+   * builder
+   *   .data<number>()
+   *   .mapper({
+   *     binary: token => token.data.value,
+   *   })
+   */
+  mapper(
+    m: TokenASTDataMapper<LexerDataBindings, LexerErrorType, ASTData>,
+  ): this;
   /**
    * Define grammar rules.
    */

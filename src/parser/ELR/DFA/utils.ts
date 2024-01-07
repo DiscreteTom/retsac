@@ -24,6 +24,7 @@ import type {
   GrammarRepo,
   GrammarRule,
   ReadonlyGrammarRuleRepo,
+  TokenASTDataMapperExec,
 } from "../model";
 import { ConflictType, GrammarSet, GrammarType } from "../model";
 import type { CandidateRepo } from "./candidate";
@@ -314,6 +315,10 @@ export function lexGrammar<
     LexerActionState,
     LexerErrorType
   >,
+  tokenASTDataMapper: ReadonlyMap<
+    ExtractKinds<LexerDataBindings>,
+    TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+  >,
 ):
   | {
       node: TNode<
@@ -347,7 +352,7 @@ export function lexGrammar<
           ErrorType,
           Token<LexerDataBindings, LexerErrorType>,
           Global
-        >(token),
+        >(token, tokenASTDataMapper.get(token.kind)?.(token)),
         lexer: mutableLexer.trimStart(),
       };
 }

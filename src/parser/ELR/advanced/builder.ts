@@ -7,7 +7,11 @@ import type {
 } from "../builder";
 import { DefinitionContextBuilder, ParserBuilder } from "../builder";
 import { buildSerializable } from "../builder/utils/serialize";
-import type { BuildOptions, IParserBuilder } from "../model";
+import type {
+  BuildOptions,
+  IParserBuilder,
+  TokenASTDataMapper,
+} from "../model";
 import { ConflictType } from "../model";
 import { InvalidPlaceholderFollowError } from "./error";
 import { GrammarExpander } from "./utils/grammar-expander";
@@ -127,7 +131,15 @@ export class AdvancedBuilder<
     const builder = new ParserBuilder({
       lexer: this.lexer,
       cascadeQueryPrefix: this.cascadeQueryPrefix,
-    }).global(this._global, this.globalCloner) as unknown as ParserBuilder<
+    })
+      .global(this._global, this.globalCloner)
+      .mapper(
+        Object.fromEntries(this.tokenASTDataMapper) as TokenASTDataMapper<
+          LexerDataBindings,
+          LexerErrorType,
+          never
+        >,
+      ) as unknown as ParserBuilder<
       // TODO: better typing?
       NTs,
       ASTData,

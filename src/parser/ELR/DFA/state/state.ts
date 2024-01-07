@@ -17,7 +17,7 @@ import type {
   ASTNodeSelector,
 } from "../../../selector";
 import { StateCacheMissError } from "../../error";
-import type { GrammarStringNoName } from "../../model";
+import type { GrammarStringNoName, TokenASTDataMapperExec } from "../../model";
 import {
   type GrammarRepo,
   type GrammarRule,
@@ -298,6 +298,10 @@ export class State<
       LexerActionState,
       LexerErrorType
     >,
+    tokenASTDataMapper: ReadonlyMap<
+      ExtractKinds<LexerDataBindings>,
+      TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+    >,
     debug: boolean,
     logger: Logger,
   ): {
@@ -368,7 +372,11 @@ export class State<
           LexerActionState,
           LexerErrorType,
           Global
-        >(c.current as Grammar<ExtractKinds<LexerDataBindings>>, lexer);
+        >(
+          c.current as Grammar<ExtractKinds<LexerDataBindings>>,
+          lexer,
+          tokenASTDataMapper,
+        );
         // mark this grammar as done, no matter if the lex is successful
         done.set(c.current.grammarStringNoName, r?.node ?? null);
 

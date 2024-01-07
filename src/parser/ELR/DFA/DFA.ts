@@ -13,7 +13,12 @@ import type {
   ASTNodeSelector,
 } from "../../selector";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
-import type { ParsingState, ReLexState, RollbackState } from "../model";
+import type {
+  ParsingState,
+  ReLexState,
+  RollbackState,
+  TokenASTDataMapperExec,
+} from "../model";
 import { hashStringToNum } from "../utils";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
@@ -117,6 +122,10 @@ export class DFA<
     readonly grammars: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
     readonly NTs: ReadonlySet<NTs>,
     private readonly cascadeQueryPrefix: string | undefined,
+    private readonly tokenASTDataMapper: ReadonlyMap<
+      ExtractKinds<LexerDataBindings>,
+      TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+    >,
     public readonly rollback: boolean,
     public readonly reLex: boolean,
   ) {
@@ -430,7 +439,7 @@ export class DFA<
     // end of buffer, try to lex input string to get next ASTNode
     const res = parsingState.stateStack
       .at(-1)!
-      .tryLex(parsingState.lexer, debug, logger);
+      .tryLex(parsingState.lexer, this.tokenASTDataMapper, debug, logger);
     // if no more ASTNode can be lexed
     if (res.length === 0) {
       // try to restore from re-lex stack
@@ -634,6 +643,10 @@ export class DFA<
         Global
       >["toJSON"]
     >,
+    tokenASTDataMapper: ReadonlyMap<
+      ExtractKinds<LexerDataBindings>,
+      TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
+    >,
     options: {
       logger: Logger;
       debug: boolean;
@@ -686,6 +699,7 @@ export class DFA<
       grammars,
       NTs,
       data.cascadeQueryPrefix,
+      tokenASTDataMapper,
       options.rollback,
       options.reLex,
     );
