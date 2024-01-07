@@ -55,8 +55,7 @@ export type ParsingState<
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
 };
 
-// TODO: rename to reLexState
-export type ReActionState<
+export type ReLexState<
   NTs extends string,
   ASTData,
   ErrorType,

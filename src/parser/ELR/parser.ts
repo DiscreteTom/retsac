@@ -9,7 +9,7 @@ import type { ASTNode } from "../ast";
 import type { IParser } from "../model";
 import type { ParserOutput } from "../output";
 import type { DFA } from "./DFA";
-import type { ReActionState, RollbackState } from "./model";
+import type { ReLexState, RollbackState } from "./model";
 
 /**
  * ELR parser.
@@ -60,7 +60,7 @@ export class Parser<
     Global
   >[];
 
-  private reLexStack: ReActionState<
+  private reLexStack: ReLexState<
     NTs,
     ASTData,
     ErrorType,

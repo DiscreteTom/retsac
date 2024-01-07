@@ -13,7 +13,7 @@ import type {
   ASTNodeSelector,
 } from "../../selector";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
-import type { ParsingState, ReActionState, RollbackState } from "../model";
+import type { ParsingState, ReLexState, RollbackState } from "../model";
 import { hashStringToNum } from "../utils";
 import type { ReadonlyCandidateRepo } from "./candidate";
 import { CandidateRepo } from "./candidate";
@@ -151,7 +151,7 @@ export class DFA<
       Global
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
-    reLexStack: ReActionState<
+    reLexStack: ReLexState<
       NTs,
       ASTData,
       ErrorType,
@@ -219,7 +219,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReActionState<
+    reLexStack: ReLexState<
       NTs,
       ASTData,
       ErrorType,
@@ -297,7 +297,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReActionState<
+    reLexStack: ReLexState<
       NTs,
       ASTData,
       ErrorType,
@@ -406,7 +406,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReActionState<
+    reLexStack: ReLexState<
       NTs,
       ASTData,
       ErrorType,
@@ -518,7 +518,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReActionState<
+    reLexStack: ReLexState<
       NTs,
       ASTData,
       ErrorType,
