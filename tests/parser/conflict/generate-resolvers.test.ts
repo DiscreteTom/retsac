@@ -25,7 +25,7 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { E: `a b c` } ===",
+          `=== GrammarRule({"NT":"E","rule":["a","b","c"]}) ===`,
           "ELR.resolveRS({ F: `a b c d` }, { next: `d`, accept: TODO })",
         ].join("\n"),
       );
@@ -61,10 +61,10 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { E: `a b c` } ===",
+          `=== GrammarRule({"NT":"E","rule":["a","b","c"]}) ===`,
           "ELR.resolveRS({ F: `a b c d` }, { next: `d`, accept: TODO })",
           "",
-          "=== { G: `a b` } ===",
+          `=== GrammarRule({"NT":"G","rule":["a","b"]}) ===`,
           "ELR.resolveRS({ E: `a b c` }, { next: `c`, accept: TODO }),",
           "ELR.resolveRS({ F: `a b c d` }, { next: `c`, accept: TODO })",
         ].join("\n"),
@@ -99,10 +99,10 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { A: `a` } ===",
+          `=== GrammarRule({"NT":"A","rule":["a"]}) ===`,
           "ELR.resolveRR({ B: `a` }, { next: `b`, accept: TODO })",
           "",
-          "=== { B: `a` } ===",
+          `=== GrammarRule({"NT":"B","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { next: `b`, accept: TODO })",
         ].join("\n"),
       );
@@ -136,10 +136,10 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { A: `a` } ===",
+          `=== GrammarRule({"NT":"A","rule":["a"]}) ===`,
           "ELR.resolveRR({ B: `a` }, { handleEnd: true, accept: TODO })",
           "",
-          "=== { B: `a` } ===",
+          `=== GrammarRule({"NT":"B","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { handleEnd: true, accept: TODO })",
         ].join("\n"),
       );
@@ -178,15 +178,15 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { A: `a` } ===",
+          `=== GrammarRule({"NT":"A","rule":["a"]}) ===`,
           "ELR.resolveRR({ B: `a` }, { next: `b`, accept: TODO }),",
           "ELR.resolveRR({ C: `a` }, { next: `b`, accept: TODO })",
           "",
-          "=== { B: `a` } ===",
+          `=== GrammarRule({"NT":"B","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { next: `b`, accept: TODO }),",
           "ELR.resolveRR({ C: `a` }, { next: `b`, accept: TODO })",
           "",
-          "=== { C: `a` } ===",
+          `=== GrammarRule({"NT":"C","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { next: `b`, accept: TODO }),",
           "ELR.resolveRR({ B: `a` }, { next: `b`, accept: TODO })",
         ].join("\n"),
@@ -226,15 +226,15 @@ describe.each(["builder", "context"] as const)("generate resolvers", (mode) => {
     } else {
       expect(resolvers).toBe(
         [
-          "=== { A: `a` } ===",
+          `=== GrammarRule({"NT":"A","rule":["a"]}) ===`,
           "ELR.resolveRR({ B: `a` }, { handleEnd: true, accept: TODO }),",
           "ELR.resolveRR({ C: `a` }, { handleEnd: true, accept: TODO })",
           "",
-          "=== { B: `a` } ===",
+          `=== GrammarRule({"NT":"B","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { handleEnd: true, accept: TODO }),",
           "ELR.resolveRR({ C: `a` }, { handleEnd: true, accept: TODO })",
           "",
-          "=== { C: `a` } ===",
+          `=== GrammarRule({"NT":"C","rule":["a"]}) ===`,
           "ELR.resolveRR({ A: `a` }, { handleEnd: true, accept: TODO }),",
           "ELR.resolveRR({ B: `a` }, { handleEnd: true, accept: TODO })",
         ].join("\n"),

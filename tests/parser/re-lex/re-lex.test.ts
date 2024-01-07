@@ -24,10 +24,10 @@ test("re-lex with expectation", () => {
   // this will try `num '--'` first, but failed, then re-lex and try `num '-' num`
   expect(parser.parse("1--1").accept).toBe(true);
   expect(printer).toHaveBeenCalledWith(
-    '[Parser] try lex: store other possibilities for re-lex:\n<anonymous>: "-"',
+    '[Parser] try lex: store other possibilities for re-lex:\nTNode({"name":"","kind":"","start":1,"text":"-"})',
   );
   expect(printer).toHaveBeenCalledWith(
-    '[Parser] re-lex, restored: "--", trying: ASTNode({ kind: "", start: 1, text: "-", data: undefined, error: undefined })',
+    '[Parser] re-lex, restored: "--", trying: TNode({"name":"","kind":"","start":1,"text":"-"})',
   );
 });
 

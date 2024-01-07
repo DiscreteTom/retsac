@@ -1,140 +1,153 @@
-import type { GeneralToken } from "../../src/lexer";
-import { ASTNode } from "../../src/parser";
+import type { TNode } from "../../src/parser";
+import { TheTNode } from "../../src/parser";
+import { ELR, Lexer } from "../../src";
 
-test("from token", () => {
-  const node = ASTNode.from({
-    content: "123",
-    kind: "num",
-    start: 0,
-    data: undefined,
-  });
-  expect(node.kind).toBe("num");
-  expect(node.start).toBe(0);
-  expect(node.text).toBe("123");
-  expect(node.children).toBe(undefined);
-  expect(node.parent).toBe(undefined);
-  expect(node.data).toBe(undefined);
-  expect(node.error).toBe(undefined);
-});
-
-test("to obj", () => {
-  const node1 = ASTNode.from({
-    content: "123",
-    kind: "num",
-    start: 0,
-    data: undefined,
-  });
-  const obj1 = node1.toJSON();
-
-  expect(obj1).toEqual({
-    name: "num",
-    kind: "num",
-    start: 0,
-    text: "123",
-    children: [],
-  });
-
-  const node2 = new ASTNode({
-    kind: "exp",
-    start: 0,
-    children: [node1],
-  });
-  const obj2 = node2.toJSON();
-
-  expect(obj2).toEqual({
-    name: "exp",
-    kind: "exp",
-    start: 0,
-    text: "",
-    children: [
-      {
-        name: "num",
-        kind: "num",
-        start: 0,
-        text: "123",
-        children: [],
-      },
-    ],
-  });
-});
-
-test("to string", () => {
-  expect(
-    ASTNode.from({
-      start: 0,
-      kind: "num",
+describe("TNode", () => {
+  const node = TheTNode.from(
+    {
       content: "123",
-      data: undefined,
-    }).toString(),
-  ).toBe(
-    'ASTNode({ kind: "num", start: 0, text: "123", data: undefined, error: undefined })',
-  );
-
-  expect(
-    ASTNode.from({
+      kind: "num",
       start: 0,
-      kind: "",
-      content: "+",
-      data: undefined,
-    }).toString(),
-  ).toBe(
-    'ASTNode({ kind: "", start: 0, text: "+", data: undefined, error: undefined })',
-  );
-});
-
-test("to tree string", () => {
-  const node = new ASTNode({
-    kind: "exp",
-    start: 0,
-    children: [
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "num",
-        start: 0,
-        text: "123",
-      }),
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "",
-        start: 4,
-        text: "+",
-        name: "plus",
-      }),
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "num",
-        start: 5,
-        text: "123",
-      }),
-    ],
+      data: 1,
+    },
+    2,
+    3,
+  ) as TNode<
+    "num",
+    string,
+    number,
+    number,
+    {
+      content: "123";
+      kind: "num";
+      start: 0;
+      data: 1;
+    },
+    number
+  >;
+  test("from token", () => {
+    expect(node.name).toBe("num");
+    expect(node.kind).toBe("num");
+    expect(node.start).toBe(0);
+    expect(node.text).toBe("123");
+    expect(node.parent).toBe(undefined);
+    expect(node.data).toBe(2);
+    expect(node.error).toBe(undefined);
+    expect(node.global).toBe(3);
   });
 
-  expect(node.toTreeString()).toBe(
-    'exp: \n  num: "123"\n  <anonymous>@plus: "+"\n  num: "123"\n',
-  );
+  test("is", () => expect(node.is("num")).toBe(true));
+  test("not is", () => expect(node.is("exp" as "num")).toBe(false));
+  test("isT", () => expect(node.asASTNode().isT()).toBe(true));
+  test("isNT", () => expect(node.asASTNode().isNT()).toBe(false));
+  test("asT", () => expect(node.asASTNode().asT().text).toBe("123"));
+  test("asNT", () => expect(node.asASTNode().asNT().$).toBe(undefined));
+  test("traverse", () => expect(node.traverse()).toBe(2));
+
+  test("toTreeString", () => {
+    expect(node.toTreeString()).toBe('num: "123"\n');
+  });
+  test("toJSON", () => {
+    expect(node.toJSON()).toEqual({
+      name: "num",
+      kind: "num",
+      start: 0,
+      text: "123",
+      children: [],
+    });
+  });
 });
 
-test("query selector", () => {
-  const node = new ASTNode({
-    kind: "exp",
-    start: 0,
-    children: [
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "num",
-        start: 0,
-        text: "123",
-      }),
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "",
-        start: 4,
-        text: "+",
-        name: "plus",
-      }),
-      new ASTNode<"exp" | "num" | "", unknown, unknown, GeneralToken>({
-        kind: "num",
-        start: 5,
-        text: "123",
-      }),
-    ],
-  });
+describe("NTNode", () => {
+  // simplified calculator
+  const lexer = new Lexer.Builder()
+    .ignore(Lexer.whitespaces()) // ignore blank characters
+    .define({ number: /[0-9]+(?:\.[0-9]+)?/ })
+    .anonymous(Lexer.exact(..."+-*/()")) // operators
+    .build();
 
-  expect(node.$("plus")).toBe(node.children![1]);
-  expect(node.$$("num")).toEqual([node.children![0], node.children![2]]);
+  const { parser } = new ELR.ParserBuilder({ lexer })
+    .data<number>()
+    .define({ exp: "number" }, (d) =>
+      d.traverser(({ children }) => Number(children[0].text)),
+    )
+    .define({ exp: `exp '+' exp` }, (d) =>
+      d.traverser(
+        ({ children }) => children[0].traverse()! + children[2].traverse()!,
+      ),
+    )
+    .priority([{ exp: `exp '+' exp` }])
+    .build({ entry: "exp", checkAll: true });
+
+  const res = parser.parseAll("1+1");
+  if (!res.accept) throw new Error("failed to parse");
+
+  const node = res.buffer[0];
+
+  test("is", () => expect(node.is("exp")).toBe(true));
+  test("not is", () => expect(node.is("number")).toBe(false));
+  test("isT", () => expect(node.isT()).toBe(false));
+  test("isNT", () => expect(node.isNT()).toBe(true));
+  test("asT", () => expect(node.asT().text).toBe(undefined));
+  test("asNT", () => expect(node.asNT().$).not.toBe(undefined));
+  test("data before traverse", () => expect(node.data).toBe(undefined));
+  test("traverse", () => expect(node.traverse()).toBe(2));
+  test("data", () => expect(node.data).toBe(2));
+  test("children", () => expect(node.asNT().children.length).toBe(3));
+  test("$", () =>
+    expect(node.children![0].as("exp").$("number")).not.toBe(undefined));
+  test("$$", () => expect(node.children![0].$$!("number").length).toBe(1));
+
+  test("toTreeString", () => {
+    expect(node.toTreeString()).toBe(
+      `exp:\n  exp:\n    number: "1"\n  <anonymous>: "+"\n  exp:\n    number: "1"\n`,
+    );
+  });
+  test("toJSON", () => {
+    expect(node.toJSON()).toEqual({
+      name: "exp",
+      kind: "exp",
+      start: 0,
+      text: "",
+      children: [
+        {
+          name: "exp",
+          kind: "exp",
+          start: 0,
+          text: "",
+          children: [
+            {
+              name: "number",
+              kind: "number",
+              start: 0,
+              text: "1",
+              children: [],
+            },
+          ],
+        },
+        {
+          name: "",
+          kind: "",
+          start: 1,
+          text: "+",
+          children: [],
+        },
+        {
+          name: "exp",
+          kind: "exp",
+          start: 2,
+          text: "",
+          children: [
+            {
+              name: "number",
+              kind: "number",
+              start: 2,
+              text: "1",
+              children: [],
+            },
+          ],
+        },
+      ],
+    });
+  });
 });

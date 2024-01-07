@@ -54,7 +54,7 @@ function expectRSConflict<Kinds extends string>(
         .conflicts.find(
           (cc) =>
             cc.type === ELR.ConflictType.REDUCE_SHIFT &&
-            cc.anotherRule.startsWith(`{ ${c.anotherNT}`),
+            cc.anotherRule.startsWith(c.anotherNT),
         ),
     ).not.toBeUndefined();
   });
