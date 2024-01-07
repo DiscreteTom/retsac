@@ -116,7 +116,7 @@ export class ParserBuilder<
     this.lexer = options.lexer;
 
     this.builderData = [];
-    this.globalCloner = structuredClone;
+    this.globalCloner = (v) => structuredClone(v);
     this.tokenASTDataMapper = new Map();
   }
 
@@ -156,7 +156,7 @@ export class ParserBuilder<
       NewGlobal
     >;
     _this._global = g;
-    _this.globalCloner = cloner ?? structuredClone;
+    _this.globalCloner = cloner ?? ((v) => structuredClone(v));
     return _this;
   }
 

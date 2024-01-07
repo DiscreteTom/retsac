@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.16.1
+
+- Parser
+  - Fix: `structuredClone` not working in browser. See the details [here](https://stackoverflow.com/questions/77772877/).
+
 ## v0.16.0
 
 - Lexer
