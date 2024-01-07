@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding } from "../../../lexer";
+import type { GeneralTokenDataBinding, IReadonlyLexer } from "../../../lexer";
 import { defaultLogger, type Logger } from "../../../logger";
 import type {
   Definition,
@@ -49,15 +49,20 @@ export class AdvancedBuilder<
     Global
   >;
 
-  constructor(options?: {
+  constructor(options: {
+    /**
+     * Set the lexer. The lexer won't be modified.
+     * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
+     */
+    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * Prefix of the generated placeholder grammar rules.
      * This will also be used as the cascade query prefix.
      */
     prefix?: string;
   }) {
-    const prefix = options?.prefix ?? `__`;
-    super({ cascadeQueryPrefix: prefix });
+    const prefix = options.prefix ?? `__`;
+    super({ lexer: options.lexer, cascadeQueryPrefix: prefix });
     this.expander = new GrammarExpander<
       NTs,
       LexerDataBindings,
@@ -120,10 +125,9 @@ export class AdvancedBuilder<
 
     // generate a new parser builder to prevent side effects
     const builder = new ParserBuilder({
+      lexer: this.lexer,
       cascadeQueryPrefix: this.cascadeQueryPrefix,
-    })
-      .global(this._global, this.globalCloner)
-      .lexer(this._lexer) as unknown as ParserBuilder<
+    }).global(this._global, this.globalCloner) as unknown as ParserBuilder<
       // TODO: better typing?
       NTs,
       ASTData,
@@ -243,7 +247,7 @@ export class AdvancedBuilder<
         new Set(
           options.entry instanceof Array ? options.entry : [options.entry],
         ),
-        this._lexer,
+        this.lexer,
         this.cascadeQueryPrefix,
       );
     }

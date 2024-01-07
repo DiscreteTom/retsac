@@ -91,9 +91,10 @@ export class ParserBuilder<
     Global
   >[];
   /**
-   * The lexer should be readonly. When build the parser, the lexer will be cloned into a mutable lexer.
+   * The lexer should be readonly.
+   * When build the parser, the lexer will be cloned into a mutable lexer, to prevent modify the parser builder.
    */
-  protected _lexer: IReadonlyLexer<
+  protected lexer: IReadonlyLexer<
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
@@ -101,52 +102,23 @@ export class ParserBuilder<
   protected _global: Global;
   protected globalCloner: (g: Global) => Global;
 
-  constructor(options?: {
+  constructor(options: {
+    /**
+     * Set the lexer. The lexer won't be modified.
+     * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
+     */
+    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
      * You can also customize this.
      */
     cascadeQueryPrefix?: string;
   }) {
-    this.builderData = [];
-    this.cascadeQueryPrefix = options?.cascadeQueryPrefix;
-    this.globalCloner = structuredClone;
-  }
+    this.cascadeQueryPrefix = options.cascadeQueryPrefix;
+    this.lexer = options.lexer;
 
-  lexer<
-    NewLexerDataBindings extends [NTs] extends [never]
-      ? [LexerDataBindings] extends [never]
-        ? GeneralTokenDataBinding
-        : never
-      : never,
-    NewLexerActionState,
-    NewLexerErrorType,
-  >(
-    lexer: IReadonlyLexer<
-      NewLexerDataBindings,
-      NewLexerActionState,
-      NewLexerErrorType
-    >,
-  ): IParserBuilder<
-    NTs,
-    ASTData,
-    ErrorType,
-    NewLexerDataBindings,
-    NewLexerActionState,
-    NewLexerErrorType,
-    Global
-  > {
-    const _this = this as unknown as ParserBuilder<
-      NTs,
-      ASTData,
-      ErrorType,
-      NewLexerDataBindings,
-      NewLexerActionState,
-      NewLexerErrorType,
-      Global
-    >;
-    _this._lexer = lexer;
-    return _this;
+    this.builderData = [];
+    this.globalCloner = structuredClone;
   }
 
   data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
@@ -760,7 +732,7 @@ export class ParserBuilder<
     const reLex = options.reLex ?? true;
     const autoCommit = options.autoCommit ?? false;
     const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
-    const lexer = this._lexer.clone(); // prevent modify the builder
+    const lexer = this.lexer.clone(); // prevent modify the builder
 
     const entryNTs = new Set(
       options.entry instanceof Array ? options.entry : [options.entry],

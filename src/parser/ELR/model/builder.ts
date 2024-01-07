@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, IReadonlyLexer } from "../../../lexer";
+import type { GeneralTokenDataBinding } from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
 import type {
@@ -143,41 +143,6 @@ export interface IParserBuilder<
   LexerErrorType,
   Global,
 > {
-  /**
-   * Set the lexer. The lexer won't be modified.
-   * When build the parser, the lexer will be cloned to make sure the builder is not modified.
-   *
-   * This function must and can only be called once and must be called before defining any grammar rules.
-   * @example
-   * const lexer = new Lexer.Builder().build();
-   * new ELR.ParserBuilder().lexer(lexer).define(...).build({...});
-   */
-  // TODO: allow multiple call
-  lexer<
-    // make sure this function can only be called once
-    // and must be called before defining any grammar rules
-    NewLexerDataBindings extends [NTs] extends [never]
-      ? [LexerDataBindings] extends [never] // why array? see [[@type constraints with array]]
-        ? GeneralTokenDataBinding // NewLexerDataBindings should extends GeneralTokenDataBinding
-        : never // LexerDataBindings already set, prevent modification
-      : never, // prevent setting LexerDataBindings after Kinds is defined
-    NewLexerActionState,
-    NewLexerErrorType,
-  >(
-    lexer: IReadonlyLexer<
-      NewLexerDataBindings,
-      NewLexerActionState,
-      NewLexerErrorType
-    >,
-  ): IParserBuilder<
-    NTs,
-    ASTData,
-    ErrorType,
-    NewLexerDataBindings,
-    NewLexerActionState,
-    NewLexerErrorType,
-    Global
-  >;
   /**
    * Set the {@link ASTNode.data} type.
    *
