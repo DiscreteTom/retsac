@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, IReadonlyLexer } from "../../../lexer";
+import type { GeneralTokenDataBinding, ILexer } from "../../../lexer";
 import { defaultLogger, type Logger } from "../../../logger";
 import type {
   Definition,
@@ -58,7 +58,7 @@ export class AdvancedBuilder<
      * Set the lexer. The lexer won't be modified.
      * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
      */
-    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * Prefix of the generated placeholder grammar rules.
      * This will also be used as the cascade query prefix.

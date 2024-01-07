@@ -315,7 +315,6 @@ export interface IParserBuilder<
   >;
   /**
    * Generate the {@link Parser ELR Parser}.
-   * This won't modify the builder, so you can call this multiple times.
    */
   // TODO: overload this to make sure serializable is set if serialize is true? same to mermaid & resolvers
   build(

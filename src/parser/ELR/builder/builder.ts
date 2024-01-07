@@ -36,7 +36,7 @@ import { DFA, DFABuilder } from "../DFA";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyLexer,
+  ILexer,
   IReadonlyLexerCore,
 } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
@@ -92,15 +92,7 @@ export class ParserBuilder<
     LexerErrorType,
     Global
   >[];
-  /**
-   * The lexer should be readonly.
-   * When build the parser, the lexer will be cloned into a mutable lexer, to prevent modify the parser builder.
-   */
-  protected lexer: IReadonlyLexer<
-    LexerDataBindings,
-    LexerActionState,
-    LexerErrorType
-  >;
+  protected lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   protected _global: Global;
   protected globalCloner: (g: Global) => Global;
   protected readonly tokenASTDataMapper: Map<
@@ -113,7 +105,7 @@ export class ParserBuilder<
      * Set the lexer. The lexer won't be modified.
      * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
      */
-    lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
      * You can also customize this.
@@ -318,7 +310,7 @@ export class ParserBuilder<
       repo,
       NTs,
       this.cascadeQueryPrefix,
-      this.tokenASTDataMapper, // TODO: clone?
+      this.tokenASTDataMapper,
       rollback,
       reLex,
     );
@@ -700,11 +692,7 @@ export class ParserBuilder<
       LexerActionState,
       LexerErrorType,
       Global
-    >(
-      data.data.dfa,
-      this.tokenASTDataMapper, // TODO: clone?
-      options,
-    );
+    >(data.data.dfa, this.tokenASTDataMapper, options);
     const ctxs = this.builderData.map(
       (d) => d.ctxBuilder?.build(),
     ) as DefinitionContext<
@@ -755,7 +743,7 @@ export class ParserBuilder<
     const reLex = options.reLex ?? true;
     const autoCommit = options.autoCommit ?? false;
     const ignoreEntryFollow = options.ignoreEntryFollow ?? false;
-    const lexer = this.lexer.clone(); // prevent modify the builder
+    const lexer = this.lexer;
 
     const entryNTs = new Set(
       options.entry instanceof Array ? options.entry : [options.entry],
@@ -830,7 +818,7 @@ export class ParserBuilder<
         lexer,
         autoCommit,
         ignoreEntryFollow,
-        this._global, // TODO: clone?
+        this._global,
         this.globalCloner,
         debug,
         logger,
