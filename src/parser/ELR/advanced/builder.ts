@@ -23,7 +23,7 @@ export class AdvancedBuilder<
     LexerDataBindings extends GeneralTokenDataBinding = never,
     LexerActionState = never,
     LexerErrorType = never,
-    Global = undefined,
+    Global = never,
   >
   extends ParserBuilder<
     NTs,
