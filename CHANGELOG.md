@@ -5,6 +5,7 @@
 - Lexer
   - Feat: add `ExtractToken`.
 - Parser
+  - Feat: `ASTNode`, `$` and `$$` are kind-sensitive.
   - **_Breaking Change_**: rewrite `ASTNode`, add `NTNode` and `TNode`.
     - Rewrite selectors and traversers.
   - **_Breaking Change_**: remove `IParserBuilder.lexer`. Set the lexer in parser builders' constructor instead.
