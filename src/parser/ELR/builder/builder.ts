@@ -164,13 +164,7 @@ export class ParserBuilder<
     return _this;
   }
 
-  data<
-    NewASTData extends [NTs] extends [never]
-      ? [ASTData] extends [never]
-        ? unknown
-        : never
-      : never,
-  >(
+  data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
     _data?: NewASTData,
   ): IParserBuilder<
     NTs,

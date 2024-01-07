@@ -9,6 +9,7 @@
     - Rewrite selectors and traversers.
   - Feat: add `ExtractSerializableParserData`. [#41](https://github.com/DiscreteTom/retsac/issues/41)
   - Feat: add `NTNode.global` to share data across all NT nodes.
+  - Feat: allow multiple calls for `IParserBuilder.data`.
 - Perf: prevent unnecessary calculation.
 - Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
   - Optimize the format of serialized parser data, remove unused strings.

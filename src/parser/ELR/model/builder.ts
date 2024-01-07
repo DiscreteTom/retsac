@@ -180,21 +180,13 @@ export interface IParserBuilder<
   /**
    * Set the `ASTNode.data` type.
    *
-   * This function can only be called once and must be called before defining any grammar rules.
    * @example
    * // provide type explicitly
    * builder.data<number>();
-   * // infer type from a value
+   * // infer type from a value. only the type is used, the value is ignored.
    * builder.data({ a: 1 });
    */
-  // TODO: allow multiple call
-  data<
-    NewASTData extends [NTs] extends [never]
-      ? [ASTData] extends [never] // why array? see [[@type constraints with array]]
-        ? unknown // NewData can be any type
-        : never // ASTData already set, prevent modification
-      : never, // prevent setting ASTData after Kinds is defined
-  >(
+  data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
     data?: NewASTData,
   ): IParserBuilder<
     NTs,
