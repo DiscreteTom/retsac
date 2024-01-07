@@ -386,6 +386,7 @@ export abstract class AbstractASTNode<
   abstract traverse(): ASTData | undefined;
 }
 
+// TODO: make NTNode/TNode interface, hide isNT/isT/asNT/asT
 export class NTNode<
     Kind extends NTs, // the kind name of this node
     NTs extends string, // all NTs' kind names

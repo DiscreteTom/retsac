@@ -38,7 +38,7 @@ export interface IParser<
   ASTData,
   ErrorType,
   LexerDataBindings extends GeneralTokenDataBinding,
-  LexerActionState, // TODO: simplify generic params to LexerType
+  LexerActionState,
   LexerErrorType,
   Global,
 > {
