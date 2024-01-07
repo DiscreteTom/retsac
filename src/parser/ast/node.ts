@@ -279,7 +279,7 @@ export class TheNTNode<
 
     return `${options.initial}${
       this.kind === this.name ? kind : `${kind}@${this.name}`
-    }: \n${this.children
+    }:\n${this.children
       .map((c) =>
         c._toTreeString({
           initial: options.initial + options.indent,
