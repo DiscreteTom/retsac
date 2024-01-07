@@ -11,7 +11,7 @@ import type {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Parser } from "../parser";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { ASTNode } from "../../ast";
+import type { ASTNode, NTNode } from "../../ast";
 
 export type BuildOptions<
   NTs extends string,
@@ -198,6 +198,24 @@ export interface IParserBuilder<
     LexerActionState,
     LexerErrorType,
     Global
+  >;
+  /**
+   * Set the value of {@link NTNode.global}.
+   */
+  global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
+    g: NewGlobal,
+    /**
+     * @default structuredClone
+     */
+    cloner?: (g: NewGlobal) => NewGlobal,
+  ): IParserBuilder<
+    NTs,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType,
+    NewGlobal
   >;
   /**
    * Define grammar rules.

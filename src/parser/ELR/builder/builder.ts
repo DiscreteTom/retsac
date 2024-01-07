@@ -64,7 +64,7 @@ export class ParserBuilder<
   LexerDataBindings extends GeneralTokenDataBinding = never,
   LexerActionState = never,
   LexerErrorType = never,
-  Global = undefined,
+  Global = never,
 > implements
     IParserBuilder<
       NTs,
@@ -149,21 +149,6 @@ export class ParserBuilder<
     return _this;
   }
 
-  global<NewGlobal>(g: NewGlobal, cloner?: (g: NewGlobal) => NewGlobal) {
-    const _this = this as unknown as ParserBuilder<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      NewGlobal
-    >;
-    _this._global = g;
-    _this.globalCloner = cloner ?? structuredClone;
-    return _this;
-  }
-
   data<NewASTData extends [ASTData] extends [NewASTData] ? unknown : never>(
     _data?: NewASTData,
   ): IParserBuilder<
@@ -184,6 +169,24 @@ export class ParserBuilder<
       LexerErrorType,
       Global
     >;
+  }
+
+  global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
+    g: NewGlobal,
+    cloner?: (g: NewGlobal) => NewGlobal,
+  ) {
+    const _this = this as unknown as ParserBuilder<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      NewGlobal
+    >;
+    _this._global = g;
+    _this.globalCloner = cloner ?? structuredClone;
+    return _this;
   }
 
   // TODO: move this into a base class
