@@ -93,8 +93,7 @@ export class ParserBuilder<
     Global
   >[];
   protected lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
-  protected _global: Global;
-  protected globalCloner: (g: Global) => Global;
+  protected globalFactory: () => Global;
   protected readonly tokenASTDataMapper: Map<
     ExtractKinds<LexerDataBindings>,
     TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
@@ -116,7 +115,7 @@ export class ParserBuilder<
     this.lexer = options.lexer;
 
     this.builderData = [];
-    this.globalCloner = (v) => structuredClone(v);
+    this.globalFactory = () => undefined as Global;
     this.tokenASTDataMapper = new Map();
   }
 
@@ -143,8 +142,7 @@ export class ParserBuilder<
   }
 
   global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
-    g: NewGlobal,
-    cloner?: (g: NewGlobal) => NewGlobal,
+    factory: () => NewGlobal,
   ) {
     const _this = this as unknown as ParserBuilder<
       NTs,
@@ -155,8 +153,7 @@ export class ParserBuilder<
       LexerErrorType,
       NewGlobal
     >;
-    _this._global = g;
-    _this.globalCloner = cloner ?? ((v) => structuredClone(v));
+    _this.globalFactory = factory;
     return _this;
   }
 
@@ -818,8 +815,7 @@ export class ParserBuilder<
         lexer,
         autoCommit,
         ignoreEntryFollow,
-        this._global,
-        this.globalCloner,
+        this.globalFactory,
         debug,
         logger,
       ) as unknown as [LexerDataBindings] extends [never]

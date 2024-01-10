@@ -132,7 +132,7 @@ export class AdvancedBuilder<
       lexer: this.lexer,
       cascadeQueryPrefix: this.cascadeQueryPrefix,
     })
-      .global(this._global, this.globalCloner)
+      .global(this.globalFactory)
       .mapper(
         Object.fromEntries(this.tokenASTDataMapper) as TokenASTDataMapper<
           LexerDataBindings,

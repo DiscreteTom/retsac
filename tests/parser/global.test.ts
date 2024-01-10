@@ -5,7 +5,7 @@ describe("ensure NTNode.global is shared", () => {
     const lexer = new Lexer.Builder().define({ a: /a/ }).build();
 
     const { parser } = new ELR.ParserBuilder({ lexer })
-      .global({ n: 0 })
+      .global(() => ({ n: 0 }))
       .define({ b: "a" })
       .define({ entry: "b b b" })
       .build({ entry: "entry" });
@@ -25,7 +25,7 @@ describe("ensure NTNode.global is shared", () => {
     const lexer = new Lexer.Builder().define({ a: /a/ }).build();
 
     const { parser } = new ELR.AdvancedBuilder({ lexer })
-      .global({ n: 0 })
+      .global(() => ({ n: 0 }))
       .define({ b: "a" })
       .define({ entry: "b b b" })
       .build({ entry: "entry" });

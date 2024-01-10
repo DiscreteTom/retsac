@@ -183,14 +183,13 @@ export interface IParserBuilder<
     Global
   >;
   /**
-   * Set the value of {@link NTNode.global}.
+   * Set the factory of {@link NTNode.global}.
+   *
+   * The factory will be called when the parser is built/hydrated,
+   * or when the `parser.reset()` is called.
    */
   global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
-    g: NewGlobal,
-    /**
-     * @default structuredClone
-     */
-    cloner?: (g: NewGlobal) => NewGlobal,
+    factory: () => NewGlobal,
   ): IParserBuilder<
     NTs,
     ASTData,

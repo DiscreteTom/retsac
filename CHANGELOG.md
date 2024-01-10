@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.17.0
+
+- Parser
+  - **_Breaking Change_**: `IParserBuilder.global` now accept a function as the global factory.
+    - Because we won't clone the parser, we don't need a global cloner, just need a global factory.
+  - Fix: `$`/`$$` will check for `TNode` first, instead of `NTNode`.
+
 ## v0.16.1
 
 - Parser
