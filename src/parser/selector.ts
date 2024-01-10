@@ -9,22 +9,24 @@ export type ExtractASTNodeType<
   TokenType extends GeneralToken,
   TargetKind extends StringOrLiteral<NTs | ExtractKinds<TokenType>>,
   Global,
-> = TargetKind extends NTs
-  ? // target is NT
-    NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
-  : TargetKind extends ExtractKinds<TokenType>
-  ? // target is T
-    TNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
-  : // target is a literal or user defined name, use general ASTNode
-    // TODO: can we determine the type by the user defined name?
-    ASTNode<
-      NTs | ExtractKinds<TokenType>,
-      NTs,
-      ASTData,
-      ErrorType,
-      TokenType,
-      Global
-    >;
+> =
+  // check T first, because when define the parser, the lexer's token types are already known
+  TargetKind extends ExtractKinds<TokenType>
+    ? // target is T
+      TNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
+    : TargetKind extends NTs
+    ? // target is NT
+      NTNode<TargetKind, NTs, ASTData, ErrorType, TokenType, Global>
+    : // target is a literal or user defined name, use general ASTNode
+      // TODO: can we determine the type by the user defined name?
+      ASTNode<
+        NTs | ExtractKinds<TokenType>,
+        NTs,
+        ASTData,
+        ErrorType,
+        TokenType,
+        Global
+      >;
 
 /**
  * Select children nodes by the name.

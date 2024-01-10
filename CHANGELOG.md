@@ -4,6 +4,7 @@
 
 - Parser
   - **_Breaking Change_**: `IParserBuilder.global` now accept a function as the global factory.
+  - Fix: `$`/`$$` will check for `TNode` first, instead of `NTNode`.
 
 ## v0.16.1
 
