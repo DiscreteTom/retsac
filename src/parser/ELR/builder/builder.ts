@@ -818,17 +818,7 @@ export class ParserBuilder<
         this.globalFactory,
         debug,
         logger,
-      ) as unknown as [LexerDataBindings] extends [never]
-        ? never // if no lexer, no parser
-        : Parser<
-            NTs,
-            ASTData,
-            ErrorType,
-            LexerDataBindings,
-            LexerActionState,
-            LexerErrorType,
-            Global
-          >,
+      ),
       serializable:
         options.serialize ?? false
           ? ((options.hydrate ??
