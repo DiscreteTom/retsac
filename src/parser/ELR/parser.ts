@@ -97,8 +97,7 @@ export class Parser<
   }
 
   private _global: Global;
-  private globalCloner: (g: Global) => Global;
-  private initialGlobal: Global;
+  private globalFactory: () => Global;
   get global() {
     return this._global;
   }
@@ -121,8 +120,7 @@ export class Parser<
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
     autoCommit: boolean,
     ignoreEntryFollow: boolean,
-    initialGlobal: Global,
-    globalCloner: (g: Global) => Global,
+    globalFactory: () => Global,
     debug: boolean,
     logger: Logger,
   ) {
@@ -134,9 +132,8 @@ export class Parser<
     this.rollbackStack = [];
     this.autoCommit = autoCommit;
     this.ignoreEntryFollow = ignoreEntryFollow;
-    this.initialGlobal = initialGlobal;
-    this._global = globalCloner(initialGlobal);
-    this.globalCloner = globalCloner;
+    this.globalFactory = globalFactory;
+    this._global = globalFactory();
     this.debug = debug;
     this.logger = logger;
   }
@@ -153,7 +150,7 @@ export class Parser<
     this.lexer.reset();
     this._buffer = [];
     this.errors.length = 0;
-    this._global = this.globalCloner(this.initialGlobal);
+    this._global = this.globalFactory();
     return this.commit();
   }
 

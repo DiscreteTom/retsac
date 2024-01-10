@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.17.0
+
+- Parser
+  - **_Breaking Change_**: `IParserBuilder.global` now accept a function as the global factory.
+
 ## v0.16.1
 
 - Parser

@@ -186,11 +186,7 @@ export interface IParserBuilder<
    * Set the value of {@link NTNode.global}.
    */
   global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
-    g: NewGlobal,
-    /**
-     * @default structuredClone
-     */
-    cloner?: (g: NewGlobal) => NewGlobal,
+    factory: () => NewGlobal,
   ): IParserBuilder<
     NTs,
     ASTData,
