@@ -185,8 +185,8 @@ export interface IParserBuilder<
   /**
    * Set the factory of {@link NTNode.global}.
    *
-   * The factory will be called when the parser is built/hydrated,
-   * or when the `parser.reset()` is called.
+   * The factory will be called when the parser is built/hydrated (via {@link IParserBuilder.build}),
+   * or when the {@link IParser.reset} is called.
    */
   global<NewGlobal extends [Global] extends [NewGlobal] ? unknown : never>(
     factory: () => NewGlobal,
