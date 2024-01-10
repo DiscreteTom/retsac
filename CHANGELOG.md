@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Next
+
+- Parser
+  - Note: simplify `BuildOptions` and `BuildOutput`.
+
 ## v0.17.0
 
 - Parser
