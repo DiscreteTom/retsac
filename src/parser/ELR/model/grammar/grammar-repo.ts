@@ -1,4 +1,4 @@
-import type { GrammarString } from "./grammar";
+import type { GrammarString, SerializableGrammar } from "./grammar";
 import { Grammar, GrammarType } from "./grammar";
 
 /**
@@ -131,15 +131,28 @@ export class GrammarRepo<NTs extends string, LexerKinds extends string> {
     return res;
   }
 
-  toJSON() {
+  toJSON(): SerializableGrammar<NTs | LexerKinds>[] {
     return this.map((g) => g.toJSON());
   }
 
   static fromJSON<NTs extends string, LexerKinds extends string>(
-    data: ReturnType<GrammarRepo<NTs, LexerKinds>["toJSON"]>,
+    data: SerializableGrammar<NTs | LexerKinds>[],
   ) {
     const repo = new GrammarRepo<NTs, LexerKinds>();
-    data.forEach((d) => repo.gs.set(d.grammarString, Grammar.fromJSON(d)));
+
+    data.forEach((d) => {
+      const name = d.name ?? d.kind;
+      const mock = { kind: d.kind, name, text: d.text };
+      const g = new Grammar({
+        type: d.type,
+        kind: d.kind,
+        name,
+        text: d.text,
+        grammarString: Grammar.getGrammarString(mock),
+        grammarStringNoName: Grammar.getGrammarStringNoName(mock),
+      });
+      repo.gs.set(g.grammarString, g);
+    });
     return repo;
   }
 }

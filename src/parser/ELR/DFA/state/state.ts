@@ -29,6 +29,7 @@ import {
 import { notUndefinedFilter } from "../../utils";
 import type {
   Candidate,
+  CandidateID,
   CandidateRepo,
   ReadonlyCandidateRepo,
 } from "../candidate";
@@ -40,6 +41,16 @@ import type { StateRepo } from "./state-repo";
  * @see {@link State.id}.
  */
 export type StateID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+
+/**
+ * @see {@link State.toJSON}.
+ */
+export type SerializableState = {
+  candidates: CandidateID[];
+  nextMap: {
+    [key: string]: StateID | null;
+  };
+};
 
 /**
  * State for ELR parsers.
@@ -513,7 +524,7 @@ export class State<
     return rejectedParserOutput;
   }
 
-  toJSON() {
+  toJSON(): SerializableState {
     return {
       candidates: this.candidates.map((c) => c.id),
       nextMap: map2serializable(
@@ -521,7 +532,6 @@ export class State<
         (g) => g.grammarString,
         (s) => (s === null ? null : s.id),
       ),
-      id: this.id,
     };
   }
 
@@ -534,17 +544,7 @@ export class State<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      State<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableState,
     cs: ReadonlyCandidateRepo<
       NTs,
       ASTData,
@@ -556,10 +556,8 @@ export class State<
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
-    const s = new State(
-      data.candidates.map((c) => cs.get(c)!),
-      data.id,
-    );
+    const candidates = data.candidates.map((c) => cs.get(c)!);
+    const s = new State(candidates, State.generateId({ candidates }));
 
     // restore nextMap after the whole state repo is filled.
     const restoreNextMap = (

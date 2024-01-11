@@ -1,6 +1,6 @@
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { GrammarRepo } from "./grammar-repo";
-import type { GrammarRuleID } from "./grammar-rule";
+import type { GrammarRuleID, SerializableGrammarRule } from "./grammar-rule";
 import { GrammarRule } from "./grammar-rule";
 
 /**
@@ -122,7 +122,7 @@ export class ReadonlyGrammarRuleRepo<
     return res;
   }
 
-  toJSON() {
+  toJSON(): SerializableGrammarRule<NTs>[] {
     return this.map((gr) => gr.toJSON());
   }
 
@@ -135,17 +135,7 @@ export class ReadonlyGrammarRuleRepo<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      ReadonlyGrammarRuleRepo<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableGrammarRule<NTs>[],
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
     const callbacks = [] as ((

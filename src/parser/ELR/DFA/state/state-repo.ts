@@ -190,7 +190,7 @@ export class StateRepo<
   }
 
   toJSON() {
-    return stringMap2serializable(this.ss, (s) => s.toJSON());
+    return stringMap2serializable(this.ss, (s) => s.toJSON()); // TODO: use an array, remove id
   }
 
   static fromJSON<

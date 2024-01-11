@@ -23,6 +23,30 @@ import type {
  */
 export type GrammarRuleID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
 
+/**
+ * @see {@link GrammarRule.toJSON}.
+ */
+export type SerializableGrammarRule<NTs extends string> = {
+  NT: NTs;
+  rule: GrammarString[];
+  conflicts: {
+    type: ConflictType;
+    anotherRule: GrammarRuleID;
+    next: GrammarString[];
+    handleEnd: boolean;
+    resolvers: number[];
+  }[];
+  resolved: {
+    type: ConflictType;
+    anotherRule: GrammarRuleID;
+    handleEnd: boolean;
+    next: GrammarString[] | "*";
+    accepter?: boolean;
+    hydrationId?: Readonly<ResolverHydrationId>;
+  }[];
+  hydrationId: number;
+};
+
 export class GrammarRule<
   NT extends NTs, // the target NT
   NTs extends string,
@@ -226,28 +250,7 @@ export class GrammarRule<
       .join(" ")}\` }`;
   }
 
-  toJSON(): {
-    // TODO: remove the return type. currently removing this will cause a type error when running with ts-node
-    NT: NT;
-    rule: GrammarString[];
-    conflicts: {
-      type: ConflictType;
-      anotherRule: GrammarRuleID;
-      next: GrammarString[];
-      handleEnd: boolean;
-      resolvers: number[];
-    }[];
-    resolved: {
-      type: ConflictType;
-      anotherRule: GrammarRuleID;
-      handleEnd: boolean;
-      next: GrammarString[] | "*";
-      accepter: boolean | undefined;
-      hydrationId: Readonly<ResolverHydrationId> | undefined;
-    }[];
-    id: GrammarRuleID;
-    hydrationId: number;
-  } {
+  toJSON(): SerializableGrammarRule<NT> {
     return {
       NT: this.NT,
       rule: this.rule.map((g) => g.grammarString),
@@ -267,7 +270,6 @@ export class GrammarRule<
         accepter: r.hydrationId === undefined ? r.accepter : undefined,
         hydrationId: r.hydrationId === undefined ? undefined : r.hydrationId,
       })),
-      id: this.id,
       hydrationId: this.hydrationId,
     };
   }
@@ -282,20 +284,14 @@ export class GrammarRule<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      GrammarRule<
-        NT,
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableGrammarRule<NTs>,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
+    const mock = {
+      rule: data.rule.map((r) => repo.get(r)!),
+      NT: data.NT as NT,
+      hydrationId: data.hydrationId,
+    };
     const gr = new GrammarRule<
       NT,
       NTs,
@@ -306,10 +302,8 @@ export class GrammarRule<
       LexerErrorType,
       Global
     >({
-      rule: data.rule.map((r) => repo.get(r)!),
-      NT: data.NT as NT,
-      hydrationId: data.hydrationId,
-      id: data.id,
+      ...mock,
+      id: GrammarRule.generateId(mock),
     });
 
     // restore conflicts & resolvers after the whole grammar rule repo is filled.

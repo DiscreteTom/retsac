@@ -11,65 +11,41 @@
       "grammars": [
         {
           "type": 0,
-          "kind": "number",
-          "name": "number",
-          "grammarString": "number",
-          "grammarStringNoName": "number"
+          "kind": "number"
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": "-",
-          "grammarString": "'-'",
-          "grammarStringNoName": "'-'"
+          "text": "-"
         },
         {
           "type": 1,
-          "kind": "exp",
-          "name": "exp",
-          "grammarString": "exp",
-          "grammarStringNoName": "exp"
+          "kind": "exp"
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": "(",
-          "grammarString": "'('",
-          "grammarStringNoName": "'('"
+          "text": "("
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": ")",
-          "grammarString": "')'",
-          "grammarStringNoName": "')'"
+          "text": ")"
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": "+",
-          "grammarString": "'+'",
-          "grammarStringNoName": "'+'"
+          "text": "+"
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": "*",
-          "grammarString": "'*'",
-          "grammarStringNoName": "'*'"
+          "text": "*"
         },
         {
           "type": 0,
           "kind": "",
-          "name": "",
-          "text": "/",
-          "grammarString": "'/'",
-          "grammarStringNoName": "'/'"
+          "text": "/"
         }
       ],
       "grammarRules": [
@@ -80,7 +56,6 @@
           ],
           "conflicts": [],
           "resolved": [],
-          "id": "exp:number",
           "hydrationId": 0
         },
         {
@@ -200,7 +175,6 @@
               "accepter": true
             }
           ],
-          "id": "exp:'-',exp",
           "hydrationId": 1
         },
         {
@@ -212,7 +186,6 @@
           ],
           "conflicts": [],
           "resolved": [],
-          "id": "exp:'(',exp,')'",
           "hydrationId": 2
         },
         {
@@ -348,7 +321,6 @@
               "accepter": true
             }
           ],
-          "id": "exp:exp,'+',exp",
           "hydrationId": 3
         },
         {
@@ -484,7 +456,6 @@
               "accepter": true
             }
           ],
-          "id": "exp:exp,'-',exp",
           "hydrationId": 4
         },
         {
@@ -620,7 +591,6 @@
               "accepter": true
             }
           ],
-          "id": "exp:exp,'*',exp",
           "hydrationId": 5
         },
         {
@@ -756,7 +726,6 @@
               "accepter": true
             }
           ],
-          "id": "exp:exp,'/',exp",
           "hydrationId": 6
         }
       ],
@@ -766,186 +735,161 @@
           "digested": 0,
           "nextMap": {
             "number": "1#exp:number"
-          },
-          "id": "0#exp:number"
+          }
         },
         {
           "gr": "exp:'-',exp",
           "digested": 0,
           "nextMap": {
             "'-'": "1#exp:'-',exp"
-          },
-          "id": "0#exp:'-',exp"
+          }
         },
         {
           "gr": "exp:'(',exp,')'",
           "digested": 0,
           "nextMap": {
             "'('": "1#exp:'(',exp,')'"
-          },
-          "id": "0#exp:'(',exp,')'"
+          }
         },
         {
           "gr": "exp:exp,'+',exp",
           "digested": 0,
           "nextMap": {
             "exp": "1#exp:exp,'+',exp"
-          },
-          "id": "0#exp:exp,'+',exp"
+          }
         },
         {
           "gr": "exp:exp,'-',exp",
           "digested": 0,
           "nextMap": {
             "exp": "1#exp:exp,'-',exp"
-          },
-          "id": "0#exp:exp,'-',exp"
+          }
         },
         {
           "gr": "exp:exp,'*',exp",
           "digested": 0,
           "nextMap": {
             "exp": "1#exp:exp,'*',exp"
-          },
-          "id": "0#exp:exp,'*',exp"
+          }
         },
         {
           "gr": "exp:exp,'/',exp",
           "digested": 0,
           "nextMap": {
             "exp": "1#exp:exp,'/',exp"
-          },
-          "id": "0#exp:exp,'/',exp"
+          }
         },
         {
           "gr": "exp:number",
           "digested": 1,
-          "nextMap": {},
-          "id": "1#exp:number"
+          "nextMap": {}
         },
         {
           "gr": "exp:'-',exp",
           "digested": 1,
           "nextMap": {
             "exp": "2#exp:'-',exp"
-          },
-          "id": "1#exp:'-',exp"
+          }
         },
         {
           "gr": "exp:exp,'+',exp",
           "digested": 1,
           "nextMap": {
             "'+'": "2#exp:exp,'+',exp"
-          },
-          "id": "1#exp:exp,'+',exp"
+          }
         },
         {
           "gr": "exp:exp,'-',exp",
           "digested": 1,
           "nextMap": {
             "'-'": "2#exp:exp,'-',exp"
-          },
-          "id": "1#exp:exp,'-',exp"
+          }
         },
         {
           "gr": "exp:exp,'*',exp",
           "digested": 1,
           "nextMap": {
             "'*'": "2#exp:exp,'*',exp"
-          },
-          "id": "1#exp:exp,'*',exp"
+          }
         },
         {
           "gr": "exp:exp,'/',exp",
           "digested": 1,
           "nextMap": {
             "'/'": "2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'/',exp"
+          }
         },
         {
           "gr": "exp:'(',exp,')'",
           "digested": 1,
           "nextMap": {
             "exp": "2#exp:'(',exp,')'"
-          },
-          "id": "1#exp:'(',exp,')'"
+          }
         },
         {
           "gr": "exp:'-',exp",
           "digested": 2,
-          "nextMap": {},
-          "id": "2#exp:'-',exp"
+          "nextMap": {}
         },
         {
           "gr": "exp:exp,'-',exp",
           "digested": 2,
           "nextMap": {
             "exp": "3#exp:exp,'-',exp"
-          },
-          "id": "2#exp:exp,'-',exp"
+          }
         },
         {
           "gr": "exp:exp,'+',exp",
           "digested": 2,
           "nextMap": {
             "exp": "3#exp:exp,'+',exp"
-          },
-          "id": "2#exp:exp,'+',exp"
+          }
         },
         {
           "gr": "exp:exp,'*',exp",
           "digested": 2,
           "nextMap": {
             "exp": "3#exp:exp,'*',exp"
-          },
-          "id": "2#exp:exp,'*',exp"
+          }
         },
         {
           "gr": "exp:exp,'/',exp",
           "digested": 2,
           "nextMap": {
             "exp": "3#exp:exp,'/',exp"
-          },
-          "id": "2#exp:exp,'/',exp"
+          }
         },
         {
           "gr": "exp:'(',exp,')'",
           "digested": 2,
           "nextMap": {
             "')'": "3#exp:'(',exp,')'"
-          },
-          "id": "2#exp:'(',exp,')'"
+          }
         },
         {
           "gr": "exp:exp,'-',exp",
           "digested": 3,
-          "nextMap": {},
-          "id": "3#exp:exp,'-',exp"
+          "nextMap": {}
         },
         {
           "gr": "exp:exp,'+',exp",
           "digested": 3,
-          "nextMap": {},
-          "id": "3#exp:exp,'+',exp"
+          "nextMap": {}
         },
         {
           "gr": "exp:exp,'*',exp",
           "digested": 3,
-          "nextMap": {},
-          "id": "3#exp:exp,'*',exp"
+          "nextMap": {}
         },
         {
           "gr": "exp:exp,'/',exp",
           "digested": 3,
-          "nextMap": {},
-          "id": "3#exp:exp,'/',exp"
+          "nextMap": {}
         },
         {
           "gr": "exp:'(',exp,')'",
           "digested": 3,
-          "nextMap": {},
-          "id": "3#exp:'(',exp,')'"
+          "nextMap": {}
         }
       ],
       "states": {
@@ -968,8 +912,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number"
+          }
         },
         "1#exp:number": {
           "candidates": [
@@ -984,8 +927,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "1#exp:number"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp": {
           "candidates": [
@@ -1007,8 +949,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp": {
           "candidates": [
@@ -1026,8 +967,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'": {
           "candidates": [
@@ -1049,8 +989,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp": {
           "candidates": [
@@ -1069,8 +1008,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp": {
           "candidates": [
@@ -1092,8 +1030,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp": {
           "candidates": [
@@ -1115,8 +1052,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp": {
           "candidates": [
@@ -1138,8 +1074,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp"
+          }
         },
         "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp": {
           "candidates": [
@@ -1161,8 +1096,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'": {
           "candidates": [
@@ -1181,8 +1115,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp": {
           "candidates": [
@@ -1201,8 +1134,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp": {
           "candidates": [
@@ -1221,8 +1153,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp": {
           "candidates": [
@@ -1241,8 +1172,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp"
+          }
         },
         "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp": {
           "candidates": [
@@ -1261,8 +1191,7 @@
             "'+'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp",
             "'*'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp",
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
-          },
-          "id": "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp"
+          }
         },
         "3#exp:'(',exp,')'": {
           "candidates": [
@@ -1277,8 +1206,7 @@
             "'+'": null,
             "'*'": null,
             "'/'": null
-          },
-          "id": "3#exp:'(',exp,')'"
+          }
         }
       },
       "entryState": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number",

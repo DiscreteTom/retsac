@@ -4,7 +4,7 @@ import type {
   GrammarRule,
   ReadonlyGrammarRuleRepo,
 } from "../../model";
-import type { CandidateID } from "./candidate";
+import type { CandidateID, SerializableCandidate } from "./candidate";
 import { Candidate } from "./candidate";
 
 /**
@@ -133,9 +133,9 @@ export class CandidateRepo<
     return next;
   }
 
-  toJSON() {
-    const res = [] as ReturnType<
-      Candidate<
+  map<R>(
+    callback: (
+      c: Candidate<
         NTs,
         ASTData,
         ErrorType,
@@ -143,10 +143,16 @@ export class CandidateRepo<
         LexerActionState,
         LexerErrorType,
         Global
-      >["toJSON"]
-    >[];
-    this.cs.forEach((c) => res.push(c.toJSON()));
+      >,
+    ) => R,
+  ) {
+    const res = [] as R[];
+    this.cs.forEach((c) => res.push(callback(c)));
     return res;
+  }
+
+  toJSON(): SerializableCandidate[] {
+    return this.map((c) => c.toJSON());
   }
 
   static fromJSON<
@@ -158,17 +164,7 @@ export class CandidateRepo<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      CandidateRepo<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableCandidate[],
     grs: ReadonlyGrammarRuleRepo<
       NTs,
       ASTData,

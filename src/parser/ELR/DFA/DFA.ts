@@ -14,20 +14,29 @@ import type {
 } from "../../selector";
 import { GrammarRepo, ReadonlyGrammarRuleRepo, GrammarSet } from "../model";
 import type {
+  GrammarRuleID,
+  GrammarString,
   ParsingState,
   ReLexState,
   RollbackState,
+  SerializableGrammar,
+  SerializableGrammarRule,
   TokenASTDataMapperExec,
 } from "../model";
 import { hashStringToNum } from "../utils";
-import type { ReadonlyCandidateRepo } from "./candidate";
+import type { ReadonlyCandidateRepo, SerializableCandidate } from "./candidate";
 import { CandidateRepo } from "./candidate";
 import type {
   ReadonlyFirstSets,
   ReadonlyFollowSets,
   ReadonlyNTClosures,
 } from "./model";
-import type { ReadonlyStateRepo, State } from "./state";
+import type {
+  ReadonlyStateRepo,
+  SerializableState,
+  State,
+  StateID,
+} from "./state";
 import { StateRepo } from "./state";
 import {
   stringMap2serializable,
@@ -612,7 +621,28 @@ export class DFA<
     return res;
   }
 
-  toJSON() {
+  toJSON(): {
+    // TODO: extract type
+    NTs: NTs[];
+    entryNTs: NTs[];
+    grammars: SerializableGrammar<NTs | ExtractKinds<LexerDataBindings>>[];
+    grammarRules: SerializableGrammarRule<NTs>[];
+    candidates: SerializableCandidate[];
+    states: {
+      [x: StateID]: SerializableState;
+    };
+    entryState: StateID;
+    NTClosures: {
+      [key in NTs]: GrammarRuleID[];
+    };
+    firstSets: {
+      [key in NTs]: GrammarString[]; // TODO: use Record
+    };
+    followSets: {
+      [key in NTs | ExtractKinds<LexerDataBindings>]: GrammarString[];
+    };
+    cascadeQueryPrefix?: string;
+  } {
     return {
       NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],

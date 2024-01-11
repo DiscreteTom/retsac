@@ -13,86 +13,16 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
       NTs: ["gr"],
       entryNTs: ["gr"],
       grammars: [
-        {
-          type: 0,
-          kind: "grammar",
-          name: "grammar",
-          text: undefined,
-          grammarString: "grammar",
-          grammarStringNoName: "grammar",
-        },
-        {
-          type: 0,
-          kind: "literal",
-          name: "literal",
-          text: undefined,
-          grammarString: "literal",
-          grammarStringNoName: "literal",
-        },
-        {
-          type: 0,
-          kind: "rename",
-          name: "rename",
-          text: undefined,
-          grammarString: "rename",
-          grammarStringNoName: "rename",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: "(",
-          grammarString: "'('",
-          grammarStringNoName: "'('",
-        },
-        {
-          type: 1,
-          kind: "gr",
-          name: "gr",
-          text: undefined,
-          grammarString: "gr",
-          grammarStringNoName: "gr",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: ")",
-          grammarString: "')'",
-          grammarStringNoName: "')'",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: "?",
-          grammarString: "'?'",
-          grammarStringNoName: "'?'",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: "*",
-          grammarString: "'*'",
-          grammarStringNoName: "'*'",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: "+",
-          grammarString: "'+'",
-          grammarStringNoName: "'+'",
-        },
-        {
-          type: 0,
-          kind: "",
-          name: "",
-          text: "|",
-          grammarString: "'|'",
-          grammarStringNoName: "'|'",
-        },
+        { type: 0, kind: "grammar" },
+        { type: 0, kind: "literal" },
+        { type: 0, kind: "rename" },
+        { type: 0, kind: "", text: "(" },
+        { type: 1, kind: "gr" },
+        { type: 0, kind: "", text: ")" },
+        { type: 0, kind: "", text: "?" },
+        { type: 0, kind: "", text: "*" },
+        { type: 0, kind: "", text: "+" },
+        { type: 0, kind: "", text: "|" },
       ],
       grammarRules: [
         {
@@ -100,7 +30,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           rule: ["grammar"],
           conflicts: [],
           resolved: [],
-          id: "gr:grammar",
           hydrationId: 0,
         },
         {
@@ -108,7 +37,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           rule: ["literal"],
           conflicts: [],
           resolved: [],
-          id: "gr:literal",
           hydrationId: 0,
         },
         {
@@ -116,7 +44,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           rule: ["grammar", "rename"],
           conflicts: [],
           resolved: [],
-          id: "gr:grammar,rename",
           hydrationId: 1,
         },
         {
@@ -124,7 +51,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           rule: ["literal", "rename"],
           conflicts: [],
           resolved: [],
-          id: "gr:literal,rename",
           hydrationId: 1,
         },
         {
@@ -132,7 +58,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           rule: ["'('", "gr", "')'"],
           conflicts: [],
           resolved: [],
-          id: "gr:'(',gr,')'",
           hydrationId: 2,
         },
         {
@@ -146,7 +71,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -154,7 +78,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -162,7 +85,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -170,7 +92,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -178,7 +99,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -186,7 +106,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -194,7 +113,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -202,7 +120,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -210,7 +127,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -218,7 +134,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -226,7 +141,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -234,7 +148,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -242,10 +155,8 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
           ],
-          id: "gr:gr,'?'",
           hydrationId: 3,
         },
         {
@@ -259,7 +170,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -267,7 +177,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -275,7 +184,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -283,7 +191,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -291,7 +198,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -299,7 +205,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -307,7 +212,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -315,7 +219,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -323,7 +226,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -331,7 +233,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -339,7 +240,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -347,7 +247,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -355,10 +254,8 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
           ],
-          id: "gr:gr,'*'",
           hydrationId: 4,
         },
         {
@@ -372,7 +269,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -380,7 +276,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -388,7 +283,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -396,7 +290,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -404,7 +297,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -412,7 +304,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -420,7 +311,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -428,7 +318,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -436,7 +325,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -444,7 +332,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -452,7 +339,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -460,7 +346,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -468,10 +353,8 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
           ],
-          id: "gr:gr,'+'",
           hydrationId: 5,
         },
         {
@@ -521,7 +404,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -529,7 +411,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -537,7 +418,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -545,7 +425,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -553,7 +432,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -561,7 +439,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -569,7 +446,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -577,7 +453,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -585,10 +460,8 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
           ],
-          id: "gr:gr,'|',gr",
           hydrationId: 6,
         },
         {
@@ -638,7 +511,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -646,7 +518,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -654,7 +525,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -662,7 +532,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -670,7 +539,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -678,7 +546,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: false,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -686,7 +553,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 1,
@@ -694,7 +560,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: true,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
             {
               type: 0,
@@ -702,189 +567,74 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               handleEnd: false,
               next: "*",
               accepter: true,
-              hydrationId: undefined,
             },
           ],
-          id: "gr:gr,gr",
           hydrationId: 7,
         },
       ],
       candidates: [
-        {
-          gr: "gr:grammar",
-          digested: 0,
-          nextMap: { grammar: "1#gr:grammar" },
-          id: "0#gr:grammar",
-        },
-        {
-          gr: "gr:literal",
-          digested: 0,
-          nextMap: { literal: "1#gr:literal" },
-          id: "0#gr:literal",
-        },
+        { gr: "gr:grammar", digested: 0, nextMap: { grammar: "1#gr:grammar" } },
+        { gr: "gr:literal", digested: 0, nextMap: { literal: "1#gr:literal" } },
         {
           gr: "gr:grammar,rename",
           digested: 0,
           nextMap: { grammar: "1#gr:grammar,rename" },
-          id: "0#gr:grammar,rename",
         },
         {
           gr: "gr:literal,rename",
           digested: 0,
           nextMap: { literal: "1#gr:literal,rename" },
-          id: "0#gr:literal,rename",
         },
         {
           gr: "gr:'(',gr,')'",
           digested: 0,
           nextMap: { "'('": "1#gr:'(',gr,')'" },
-          id: "0#gr:'(',gr,')'",
         },
-        {
-          gr: "gr:gr,'?'",
-          digested: 0,
-          nextMap: { gr: "1#gr:gr,'?'" },
-          id: "0#gr:gr,'?'",
-        },
-        {
-          gr: "gr:gr,'*'",
-          digested: 0,
-          nextMap: { gr: "1#gr:gr,'*'" },
-          id: "0#gr:gr,'*'",
-        },
-        {
-          gr: "gr:gr,'+'",
-          digested: 0,
-          nextMap: { gr: "1#gr:gr,'+'" },
-          id: "0#gr:gr,'+'",
-        },
-        {
-          gr: "gr:gr,'|',gr",
-          digested: 0,
-          nextMap: { gr: "1#gr:gr,'|',gr" },
-          id: "0#gr:gr,'|',gr",
-        },
-        {
-          gr: "gr:gr,gr",
-          digested: 0,
-          nextMap: { gr: "1#gr:gr,gr" },
-          id: "0#gr:gr,gr",
-        },
-        {
-          gr: "gr:grammar",
-          digested: 1,
-          nextMap: {},
-          id: "1#gr:grammar",
-        },
+        { gr: "gr:gr,'?'", digested: 0, nextMap: { gr: "1#gr:gr,'?'" } },
+        { gr: "gr:gr,'*'", digested: 0, nextMap: { gr: "1#gr:gr,'*'" } },
+        { gr: "gr:gr,'+'", digested: 0, nextMap: { gr: "1#gr:gr,'+'" } },
+        { gr: "gr:gr,'|',gr", digested: 0, nextMap: { gr: "1#gr:gr,'|',gr" } },
+        { gr: "gr:gr,gr", digested: 0, nextMap: { gr: "1#gr:gr,gr" } },
+        { gr: "gr:grammar", digested: 1, nextMap: {} },
         {
           gr: "gr:grammar,rename",
           digested: 1,
           nextMap: { rename: "2#gr:grammar,rename" },
-          id: "1#gr:grammar,rename",
         },
-        {
-          gr: "gr:literal",
-          digested: 1,
-          nextMap: {},
-          id: "1#gr:literal",
-        },
+        { gr: "gr:literal", digested: 1, nextMap: {} },
         {
           gr: "gr:literal,rename",
           digested: 1,
           nextMap: { rename: "2#gr:literal,rename" },
-          id: "1#gr:literal,rename",
         },
         {
           gr: "gr:'(',gr,')'",
           digested: 1,
           nextMap: { gr: "2#gr:'(',gr,')'" },
-          id: "1#gr:'(',gr,')'",
         },
-        {
-          gr: "gr:gr,'?'",
-          digested: 1,
-          nextMap: { "'?'": "2#gr:gr,'?'" },
-          id: "1#gr:gr,'?'",
-        },
-        {
-          gr: "gr:gr,'*'",
-          digested: 1,
-          nextMap: { "'*'": "2#gr:gr,'*'" },
-          id: "1#gr:gr,'*'",
-        },
-        {
-          gr: "gr:gr,'+'",
-          digested: 1,
-          nextMap: { "'+'": "2#gr:gr,'+'" },
-          id: "1#gr:gr,'+'",
-        },
+        { gr: "gr:gr,'?'", digested: 1, nextMap: { "'?'": "2#gr:gr,'?'" } },
+        { gr: "gr:gr,'*'", digested: 1, nextMap: { "'*'": "2#gr:gr,'*'" } },
+        { gr: "gr:gr,'+'", digested: 1, nextMap: { "'+'": "2#gr:gr,'+'" } },
         {
           gr: "gr:gr,'|',gr",
           digested: 1,
           nextMap: { "'|'": "2#gr:gr,'|',gr" },
-          id: "1#gr:gr,'|',gr",
         },
-        {
-          gr: "gr:gr,gr",
-          digested: 1,
-          nextMap: { gr: "2#gr:gr,gr" },
-          id: "1#gr:gr,gr",
-        },
-        {
-          gr: "gr:grammar,rename",
-          digested: 2,
-          nextMap: {},
-          id: "2#gr:grammar,rename",
-        },
-        {
-          gr: "gr:literal,rename",
-          digested: 2,
-          nextMap: {},
-          id: "2#gr:literal,rename",
-        },
+        { gr: "gr:gr,gr", digested: 1, nextMap: { gr: "2#gr:gr,gr" } },
+        { gr: "gr:grammar,rename", digested: 2, nextMap: {} },
+        { gr: "gr:literal,rename", digested: 2, nextMap: {} },
         {
           gr: "gr:'(',gr,')'",
           digested: 2,
           nextMap: { "')'": "3#gr:'(',gr,')'" },
-          id: "2#gr:'(',gr,')'",
         },
-        { gr: "gr:gr,gr", digested: 2, nextMap: {}, id: "2#gr:gr,gr" },
-        {
-          gr: "gr:gr,'?'",
-          digested: 2,
-          nextMap: {},
-          id: "2#gr:gr,'?'",
-        },
-        {
-          gr: "gr:gr,'*'",
-          digested: 2,
-          nextMap: {},
-          id: "2#gr:gr,'*'",
-        },
-        {
-          gr: "gr:gr,'+'",
-          digested: 2,
-          nextMap: {},
-          id: "2#gr:gr,'+'",
-        },
-        {
-          gr: "gr:gr,'|',gr",
-          digested: 2,
-          nextMap: { gr: "3#gr:gr,'|',gr" },
-          id: "2#gr:gr,'|',gr",
-        },
-        {
-          gr: "gr:'(',gr,')'",
-          digested: 3,
-          nextMap: {},
-          id: "3#gr:'(',gr,')'",
-        },
-        {
-          gr: "gr:gr,'|',gr",
-          digested: 3,
-          nextMap: {},
-          id: "3#gr:gr,'|',gr",
-        },
+        { gr: "gr:gr,gr", digested: 2, nextMap: {} },
+        { gr: "gr:gr,'?'", digested: 2, nextMap: {} },
+        { gr: "gr:gr,'*'", digested: 2, nextMap: {} },
+        { gr: "gr:gr,'+'", digested: 2, nextMap: {} },
+        { gr: "gr:gr,'|',gr", digested: 2, nextMap: { gr: "3#gr:gr,'|',gr" } },
+        { gr: "gr:'(',gr,')'", digested: 3, nextMap: {} },
+        { gr: "gr:gr,'|',gr", digested: 3, nextMap: {} },
       ],
       states: {
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename":
@@ -906,50 +656,14 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr",
               "')'": null,
               "'?'": null,
               "'*'": null,
               "'+'": null,
               "'|'": null,
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename",
           },
         "1#gr:grammar\n1#gr:grammar,rename": {
           candidates: ["1#gr:grammar", "1#gr:grammar,rename"],
@@ -965,7 +679,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "1#gr:grammar\n1#gr:grammar,rename",
         },
         "1#gr:literal\n1#gr:literal,rename": {
           candidates: ["1#gr:literal", "1#gr:literal,rename"],
@@ -981,7 +694,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "1#gr:literal\n1#gr:literal,rename",
         },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'":
           {
@@ -1003,52 +715,14 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "2#gr:'(',gr,')'",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'",
               "')'": null,
               "'?'": null,
               "'*'": null,
               "'+'": null,
               "'|'": null,
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "1#gr:'(',gr,')'",
           },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr":
           {
@@ -1074,67 +748,15 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "2#gr:gr,gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
               "')'": null,
               "'?'": "2#gr:gr,'?'",
               "'*'": "2#gr:gr,'*'",
               "'+'": "2#gr:gr,'+'",
               "'|'":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "2#gr:gr,'|',gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "1#gr:gr,'*'\n" +
-              "1#gr:gr,'+'\n" +
-              "1#gr:gr,'?'\n" +
-              "1#gr:gr,'|',gr\n" +
-              "1#gr:gr,gr",
           },
         "2#gr:grammar,rename": {
           candidates: ["2#gr:grammar,rename"],
@@ -1150,7 +772,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "2#gr:grammar,rename",
         },
         "2#gr:literal,rename": {
           candidates: ["2#gr:literal,rename"],
@@ -1166,7 +787,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "2#gr:literal,rename",
         },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'":
           {
@@ -1193,68 +813,15 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "2#gr:gr,gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
               "')'": "3#gr:'(',gr,')'",
               "'?'": "2#gr:gr,'?'",
               "'*'": "2#gr:gr,'*'",
               "'+'": "2#gr:gr,'+'",
               "'|'":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "2#gr:gr,'|',gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "1#gr:gr,'*'\n" +
-              "1#gr:gr,'+'\n" +
-              "1#gr:gr,'?'\n" +
-              "1#gr:gr,'|',gr\n" +
-              "1#gr:gr,gr\n" +
-              "2#gr:'(',gr,')'",
           },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr":
           {
@@ -1281,68 +848,15 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "2#gr:gr,gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
               "')'": null,
               "'?'": "2#gr:gr,'?'",
               "'*'": "2#gr:gr,'*'",
               "'+'": "2#gr:gr,'+'",
               "'|'":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "2#gr:gr,'|',gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "1#gr:gr,'*'\n" +
-              "1#gr:gr,'+'\n" +
-              "1#gr:gr,'?'\n" +
-              "1#gr:gr,'|',gr\n" +
-              "1#gr:gr,gr\n" +
-              "2#gr:gr,gr",
           },
         "2#gr:gr,'?'": {
           candidates: ["2#gr:gr,'?'"],
@@ -1358,7 +872,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "2#gr:gr,'?'",
         },
         "2#gr:gr,'*'": {
           candidates: ["2#gr:gr,'*'"],
@@ -1374,7 +887,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "2#gr:gr,'*'",
         },
         "2#gr:gr,'+'": {
           candidates: ["2#gr:gr,'+'"],
@@ -1390,7 +902,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "2#gr:gr,'+'",
         },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr":
           {
@@ -1412,52 +923,14 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "3#gr:gr,'|',gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr",
               "')'": null,
               "'?'": null,
               "'*'": null,
               "'+'": null,
               "'|'": null,
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "2#gr:gr,'|',gr",
           },
         "3#gr:'(',gr,')'": {
           candidates: ["3#gr:'(',gr,')'"],
@@ -1473,7 +946,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'+'": null,
             "'|'": null,
           },
-          id: "3#gr:'(',gr,')'",
         },
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr":
           {
@@ -1500,81 +972,19 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
               literal: "1#gr:literal\n1#gr:literal,rename",
               rename: null,
               "'('":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:'(',gr,')'",
-              gr:
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "1#gr:gr,'*'\n" +
-                "1#gr:gr,'+'\n" +
-                "1#gr:gr,'?'\n" +
-                "1#gr:gr,'|',gr\n" +
-                "1#gr:gr,gr\n" +
-                "2#gr:gr,gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
               "')'": null,
               "'?'": "2#gr:gr,'?'",
               "'*'": "2#gr:gr,'*'",
               "'+'": "2#gr:gr,'+'",
               "'|'":
-                "0#gr:'(',gr,')'\n" +
-                "0#gr:gr,'*'\n" +
-                "0#gr:gr,'+'\n" +
-                "0#gr:gr,'?'\n" +
-                "0#gr:gr,'|',gr\n" +
-                "0#gr:gr,gr\n" +
-                "0#gr:grammar\n" +
-                "0#gr:grammar,rename\n" +
-                "0#gr:literal\n" +
-                "0#gr:literal,rename\n" +
-                "2#gr:gr,'|',gr",
+                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
             },
-            id:
-              "0#gr:'(',gr,')'\n" +
-              "0#gr:gr,'*'\n" +
-              "0#gr:gr,'+'\n" +
-              "0#gr:gr,'?'\n" +
-              "0#gr:gr,'|',gr\n" +
-              "0#gr:gr,gr\n" +
-              "0#gr:grammar\n" +
-              "0#gr:grammar,rename\n" +
-              "0#gr:literal\n" +
-              "0#gr:literal,rename\n" +
-              "1#gr:gr,'*'\n" +
-              "1#gr:gr,'+'\n" +
-              "1#gr:gr,'?'\n" +
-              "1#gr:gr,'|',gr\n" +
-              "1#gr:gr,gr\n" +
-              "3#gr:gr,'|',gr",
           },
       },
       entryState:
-        "0#gr:'(',gr,')'\n" +
-        "0#gr:gr,'*'\n" +
-        "0#gr:gr,'+'\n" +
-        "0#gr:gr,'?'\n" +
-        "0#gr:gr,'|',gr\n" +
-        "0#gr:gr,gr\n" +
-        "0#gr:grammar\n" +
-        "0#gr:grammar,rename\n" +
-        "0#gr:literal\n" +
-        "0#gr:literal,rename",
+        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename",
       NTClosures: {
         gr: [
           "gr:grammar",
@@ -1649,7 +1059,6 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
           "'|'",
         ],
       },
-      cascadeQueryPrefix: undefined,
     },
   },
 };

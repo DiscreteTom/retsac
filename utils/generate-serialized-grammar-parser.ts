@@ -4,7 +4,6 @@ import {
   entry,
 } from "../src/parser/ELR/advanced/utils/grammar-parser-factory";
 import prettier from "prettier";
-import util from "node:util";
 
 // Usage: ts-node utils/generate-serialized-grammar-parser.ts
 
@@ -24,14 +23,8 @@ const content = [
   `import type { ExtractSerializableParserData } from "../../model";`,
   `import type { GrammarParserBuilder } from "./grammar-parser-factory";`,
   "",
-  `export const data: ExtractSerializableParserData<GrammarParserBuilder> = ${util.inspect(
+  `export const data: ExtractSerializableParserData<GrammarParserBuilder> = ${JSON.stringify(
     serializable,
-    {
-      maxArrayLength: Infinity,
-      maxStringLength: Infinity,
-      // depth should be infinity, set it to a limited number in case of circular references
-      depth: 10,
-    },
   )};`,
 ].join("\n");
 

@@ -23,6 +23,16 @@ export type GrammarString = string & NonNullable<unknown>; // same as string, bu
  */
 export type GrammarStringNoName = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
 
+/**
+ * @see {@link Grammar.toJSON}.
+ */
+export type SerializableGrammar<AllKinds extends string> = {
+  type: GrammarType;
+  kind: AllKinds;
+  name?: string;
+  text?: string;
+};
+
 export class Grammar<AllKinds extends string> {
   readonly type: GrammarType;
   /**
@@ -134,27 +144,12 @@ export class Grammar<AllKinds extends string> {
     );
   }
 
-  toJSON() {
+  toJSON(): SerializableGrammar<AllKinds> {
     return {
       type: this.type,
       kind: this.kind,
-      name: this.name,
+      name: this.name === this.kind ? undefined : this.name,
       text: this.text,
-      grammarString: this.grammarString,
-      grammarStringNoName: this.grammarStringNoName,
     };
-  }
-
-  static fromJSON<AllKinds extends string>(
-    data: ReturnType<Grammar<AllKinds>["toJSON"]>,
-  ) {
-    return new Grammar({
-      type: data.type,
-      kind: data.kind,
-      name: data.name,
-      text: data.text,
-      grammarString: data.grammarString,
-      grammarStringNoName: data.grammarStringNoName,
-    });
   }
 }

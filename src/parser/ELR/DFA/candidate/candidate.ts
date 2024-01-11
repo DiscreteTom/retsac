@@ -18,6 +18,7 @@ import type {
   Grammar,
   ReadonlyGrammarRuleRepo,
   GrammarRepo,
+  GrammarRuleID,
 } from "../../model";
 import { GrammarRuleContext, ConflictType } from "../../model";
 import type { ReadonlyFollowSets } from "../model";
@@ -31,6 +32,17 @@ import type {
  * @see {@link Candidate.id}.
  */
 export type CandidateID = string & NonNullable<unknown>; // same as string, but won't be inferred as string literal (new type pattern)
+
+/**
+ * @see {@link Candidate.toJSON}.
+ */
+export type SerializableCandidate = {
+  gr: GrammarRuleID;
+  digested: number;
+  nextMap: {
+    [key: string]: CandidateID | null;
+  };
+};
 
 /** Candidate for ELR parsers. */
 export class Candidate<
@@ -510,7 +522,7 @@ export class Candidate<
     };
   }
 
-  toJSON() {
+  toJSON(): SerializableCandidate {
     return {
       gr: this.gr.id,
       digested: this.digested,
@@ -519,7 +531,6 @@ export class Candidate<
         (g) => g.grammarString,
         (c) => (c === null ? null : c.id),
       ),
-      id: this.id,
     };
   }
 
@@ -532,17 +543,7 @@ export class Candidate<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      Candidate<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableCandidate,
     grs: ReadonlyGrammarRuleRepo<
       NTs,
       ASTData,
@@ -554,6 +555,7 @@ export class Candidate<
     >,
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
   ) {
+    const mock = { gr: grs.get(data.gr)!, digested: data.digested };
     const c = new Candidate<
       NTs,
       ASTData,
@@ -562,11 +564,7 @@ export class Candidate<
       LexerActionState,
       LexerErrorType,
       Global
-    >({
-      gr: grs.get(data.gr)!,
-      digested: data.digested,
-      id: data.id,
-    });
+    >({ ...mock, id: Candidate.generateId(mock) });
 
     // restore next map after the whole candidate repo is filled
     const restoreNextMap = (

@@ -1,8 +1,10 @@
 # CHANGELOG
 
-## Next
+## v0.18.0
 
 - Parser
+  - **_Breaking Change_**: Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
+    - Optimize the format of serialized parser data, remove unnecessary strings.
   - Note: simplify `BuildOptions` and `BuildOutput`.
 
 ## v0.17.0
