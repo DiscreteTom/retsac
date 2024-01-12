@@ -636,36 +636,35 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
         { gr: "gr:'(',gr,')'", digested: 3, nextMap: {} },
         { gr: "gr:gr,'|',gr", digested: 3, nextMap: {} },
       ],
-      states: {
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename":
-          {
-            candidates: [
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr",
-              "')'": null,
-              "'?'": null,
-              "'*'": null,
-              "'+'": null,
-              "'|'": null,
-            },
+      states: [
+        {
+          candidates: [
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr",
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-        "1#gr:grammar\n1#gr:grammar,rename": {
+        },
+        {
           candidates: ["1#gr:grammar", "1#gr:grammar,rename"],
           nextMap: {
             grammar: null,
@@ -680,7 +679,7 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "1#gr:literal\n1#gr:literal,rename": {
+        {
           candidates: ["1#gr:literal", "1#gr:literal,rename"],
           nextMap: {
             grammar: null,
@@ -695,70 +694,68 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'":
-          {
-            candidates: [
-              "1#gr:'(',gr,')'",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'",
-              "')'": null,
-              "'?'": null,
-              "'*'": null,
-              "'+'": null,
-              "'|'": null,
-            },
+        {
+          candidates: [
+            "1#gr:'(',gr,')'",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'",
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr":
-          {
-            candidates: [
-              "1#gr:gr,'?'",
-              "1#gr:gr,'*'",
-              "1#gr:gr,'+'",
-              "1#gr:gr,'|',gr",
-              "1#gr:gr,gr",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
-              "')'": null,
-              "'?'": "2#gr:gr,'?'",
-              "'*'": "2#gr:gr,'*'",
-              "'+'": "2#gr:gr,'+'",
-              "'|'":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
-            },
+        },
+        {
+          candidates: [
+            "1#gr:gr,'?'",
+            "1#gr:gr,'*'",
+            "1#gr:gr,'+'",
+            "1#gr:gr,'|',gr",
+            "1#gr:gr,gr",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
+            "')'": null,
+            "'?'": "2#gr:gr,'?'",
+            "'*'": "2#gr:gr,'*'",
+            "'+'": "2#gr:gr,'+'",
+            "'|'":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
           },
-        "2#gr:grammar,rename": {
+        },
+        {
           candidates: ["2#gr:grammar,rename"],
           nextMap: {
             grammar: null,
@@ -773,7 +770,7 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "2#gr:literal,rename": {
+        {
           candidates: ["2#gr:literal,rename"],
           nextMap: {
             grammar: null,
@@ -788,77 +785,75 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:'(',gr,')'":
-          {
-            candidates: [
-              "2#gr:'(',gr,')'",
-              "1#gr:gr,'?'",
-              "1#gr:gr,'*'",
-              "1#gr:gr,'+'",
-              "1#gr:gr,'|',gr",
-              "1#gr:gr,gr",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
-              "')'": "3#gr:'(',gr,')'",
-              "'?'": "2#gr:gr,'?'",
-              "'*'": "2#gr:gr,'*'",
-              "'+'": "2#gr:gr,'+'",
-              "'|'":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
-            },
+        {
+          candidates: [
+            "2#gr:'(',gr,')'",
+            "1#gr:gr,'?'",
+            "1#gr:gr,'*'",
+            "1#gr:gr,'+'",
+            "1#gr:gr,'|',gr",
+            "1#gr:gr,gr",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
+            "')'": "3#gr:'(',gr,')'",
+            "'?'": "2#gr:gr,'?'",
+            "'*'": "2#gr:gr,'*'",
+            "'+'": "2#gr:gr,'+'",
+            "'|'":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
           },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr":
-          {
-            candidates: [
-              "2#gr:gr,gr",
-              "1#gr:gr,'?'",
-              "1#gr:gr,'*'",
-              "1#gr:gr,'+'",
-              "1#gr:gr,'|',gr",
-              "1#gr:gr,gr",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
-              "')'": null,
-              "'?'": "2#gr:gr,'?'",
-              "'*'": "2#gr:gr,'*'",
-              "'+'": "2#gr:gr,'+'",
-              "'|'":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
-            },
+        },
+        {
+          candidates: [
+            "2#gr:gr,gr",
+            "1#gr:gr,'?'",
+            "1#gr:gr,'*'",
+            "1#gr:gr,'+'",
+            "1#gr:gr,'|',gr",
+            "1#gr:gr,gr",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
+            "')'": null,
+            "'?'": "2#gr:gr,'?'",
+            "'*'": "2#gr:gr,'*'",
+            "'+'": "2#gr:gr,'+'",
+            "'|'":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
           },
-        "2#gr:gr,'?'": {
+        },
+        {
           candidates: ["2#gr:gr,'?'"],
           nextMap: {
             grammar: null,
@@ -873,7 +868,7 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "2#gr:gr,'*'": {
+        {
           candidates: ["2#gr:gr,'*'"],
           nextMap: {
             grammar: null,
@@ -888,7 +883,7 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "2#gr:gr,'+'": {
+        {
           candidates: ["2#gr:gr,'+'"],
           nextMap: {
             grammar: null,
@@ -903,36 +898,35 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr":
-          {
-            candidates: [
-              "2#gr:gr,'|',gr",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr",
-              "')'": null,
-              "'?'": null,
-              "'*'": null,
-              "'+'": null,
-              "'|'": null,
-            },
+        {
+          candidates: [
+            "2#gr:gr,'|',gr",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr",
+            "')'": null,
+            "'?'": null,
+            "'*'": null,
+            "'+'": null,
+            "'|'": null,
           },
-        "3#gr:'(',gr,')'": {
+        },
+        {
           candidates: ["3#gr:'(',gr,')'"],
           nextMap: {
             grammar: null,
@@ -947,42 +941,41 @@ export const data: ExtractSerializableParserData<GrammarParserBuilder> = {
             "'|'": null,
           },
         },
-        "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n3#gr:gr,'|',gr":
-          {
-            candidates: [
-              "3#gr:gr,'|',gr",
-              "1#gr:gr,'?'",
-              "1#gr:gr,'*'",
-              "1#gr:gr,'+'",
-              "1#gr:gr,'|',gr",
-              "1#gr:gr,gr",
-              "0#gr:grammar",
-              "0#gr:literal",
-              "0#gr:grammar,rename",
-              "0#gr:literal,rename",
-              "0#gr:'(',gr,')'",
-              "0#gr:gr,'?'",
-              "0#gr:gr,'*'",
-              "0#gr:gr,'+'",
-              "0#gr:gr,'|',gr",
-              "0#gr:gr,gr",
-            ],
-            nextMap: {
-              grammar: "1#gr:grammar\n1#gr:grammar,rename",
-              literal: "1#gr:literal\n1#gr:literal,rename",
-              rename: null,
-              "'('":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
-              gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
-              "')'": null,
-              "'?'": "2#gr:gr,'?'",
-              "'*'": "2#gr:gr,'*'",
-              "'+'": "2#gr:gr,'+'",
-              "'|'":
-                "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
-            },
+        {
+          candidates: [
+            "3#gr:gr,'|',gr",
+            "1#gr:gr,'?'",
+            "1#gr:gr,'*'",
+            "1#gr:gr,'+'",
+            "1#gr:gr,'|',gr",
+            "1#gr:gr,gr",
+            "0#gr:grammar",
+            "0#gr:literal",
+            "0#gr:grammar,rename",
+            "0#gr:literal,rename",
+            "0#gr:'(',gr,')'",
+            "0#gr:gr,'?'",
+            "0#gr:gr,'*'",
+            "0#gr:gr,'+'",
+            "0#gr:gr,'|',gr",
+            "0#gr:gr,gr",
+          ],
+          nextMap: {
+            grammar: "1#gr:grammar\n1#gr:grammar,rename",
+            literal: "1#gr:literal\n1#gr:literal,rename",
+            rename: null,
+            "'('":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:'(',gr,')'",
+            gr: "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n1#gr:gr,'*'\n1#gr:gr,'+'\n1#gr:gr,'?'\n1#gr:gr,'|',gr\n1#gr:gr,gr\n2#gr:gr,gr",
+            "')'": null,
+            "'?'": "2#gr:gr,'?'",
+            "'*'": "2#gr:gr,'*'",
+            "'+'": "2#gr:gr,'+'",
+            "'|'":
+              "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename\n2#gr:gr,'|',gr",
           },
-      },
+        },
+      ],
       entryState:
         "0#gr:'(',gr,')'\n0#gr:gr,'*'\n0#gr:gr,'+'\n0#gr:gr,'?'\n0#gr:gr,'|',gr\n0#gr:gr,gr\n0#gr:grammar\n0#gr:grammar,rename\n0#gr:literal\n0#gr:literal,rename",
       NTClosures: {
