@@ -892,8 +892,8 @@
           "nextMap": {}
         }
       ],
-      "states": {
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number": {
+      "states": [
+        {
           "candidates": [
             "0#exp:number",
             "0#exp:'-',exp",
@@ -914,7 +914,7 @@
             "'/'": null
           }
         },
-        "1#exp:number": {
+        {
           "candidates": [
             "1#exp:number"
           ],
@@ -929,7 +929,7 @@
             "'/'": null
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'-',exp": {
+        {
           "candidates": [
             "1#exp:'-',exp",
             "0#exp:number",
@@ -951,7 +951,7 @@
             "'/'": null
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp": {
+        {
           "candidates": [
             "1#exp:exp,'+',exp",
             "1#exp:exp,'-',exp",
@@ -969,7 +969,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n1#exp:'(',exp,')'": {
+        {
           "candidates": [
             "1#exp:'(',exp,')'",
             "0#exp:number",
@@ -991,7 +991,7 @@
             "'/'": null
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'-',exp": {
+        {
           "candidates": [
             "2#exp:'-',exp",
             "1#exp:exp,'+',exp",
@@ -1010,7 +1010,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'-',exp": {
+        {
           "candidates": [
             "2#exp:exp,'-',exp",
             "0#exp:number",
@@ -1032,7 +1032,7 @@
             "'/'": null
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'+',exp": {
+        {
           "candidates": [
             "2#exp:exp,'+',exp",
             "0#exp:number",
@@ -1054,7 +1054,7 @@
             "'/'": null
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'*',exp": {
+        {
           "candidates": [
             "2#exp:exp,'*',exp",
             "0#exp:number",
@@ -1076,7 +1076,7 @@
             "'/'": null
           }
         },
-        "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp": {
+        {
           "candidates": [
             "2#exp:exp,'/',exp",
             "0#exp:number",
@@ -1098,7 +1098,7 @@
             "'/'": null
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n2#exp:'(',exp,')'": {
+        {
           "candidates": [
             "2#exp:'(',exp,')'",
             "1#exp:exp,'+',exp",
@@ -1117,7 +1117,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'-',exp": {
+        {
           "candidates": [
             "3#exp:exp,'-',exp",
             "1#exp:exp,'+',exp",
@@ -1136,7 +1136,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'+',exp": {
+        {
           "candidates": [
             "3#exp:exp,'+',exp",
             "1#exp:exp,'+',exp",
@@ -1155,7 +1155,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'*',exp": {
+        {
           "candidates": [
             "3#exp:exp,'*',exp",
             "1#exp:exp,'+',exp",
@@ -1174,7 +1174,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "1#exp:exp,'*',exp\n1#exp:exp,'+',exp\n1#exp:exp,'-',exp\n1#exp:exp,'/',exp\n3#exp:exp,'/',exp": {
+        {
           "candidates": [
             "3#exp:exp,'/',exp",
             "1#exp:exp,'+',exp",
@@ -1193,7 +1193,7 @@
             "'/'": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number\n2#exp:exp,'/',exp"
           }
         },
-        "3#exp:'(',exp,')'": {
+        {
           "candidates": [
             "3#exp:'(',exp,')'"
           ],
@@ -1208,7 +1208,7 @@
             "'/'": null
           }
         }
-      },
+      ],
       "entryState": "0#exp:'(',exp,')'\n0#exp:'-',exp\n0#exp:exp,'*',exp\n0#exp:exp,'+',exp\n0#exp:exp,'-',exp\n0#exp:exp,'/',exp\n0#exp:number",
       "NTClosures": {
         "exp": [

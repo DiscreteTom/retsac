@@ -903,8 +903,8 @@
           "nextMap": {}
         }
       ],
-      "states": {
-        "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true": {
+      "states": [
+        {
           "candidates": [
             "0#value:string",
             "0#value:number",
@@ -940,7 +940,7 @@
             "','": null
           }
         },
-        "1#value:string": {
+        {
           "candidates": [
             "1#value:string"
           ],
@@ -964,7 +964,7 @@
             "','": null
           }
         },
-        "1#value:number": {
+        {
           "candidates": [
             "1#value:number"
           ],
@@ -988,7 +988,7 @@
             "','": null
           }
         },
-        "1#value:true": {
+        {
           "candidates": [
             "1#value:true"
           ],
@@ -1012,7 +1012,7 @@
             "','": null
           }
         },
-        "1#value:false": {
+        {
           "candidates": [
             "1#value:false"
           ],
@@ -1036,7 +1036,7 @@
             "','": null
           }
         },
-        "1#value:null": {
+        {
           "candidates": [
             "1#value:null"
           ],
@@ -1060,7 +1060,7 @@
             "','": null
           }
         },
-        "1#value:object": {
+        {
           "candidates": [
             "1#value:object"
           ],
@@ -1084,7 +1084,7 @@
             "','": null
           }
         },
-        "1#value:array": {
+        {
           "candidates": [
             "1#value:array"
           ],
@@ -1108,7 +1108,7 @@
             "','": null
           }
         },
-        "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true\n1#array:'[',']'\n1#array:'[',value,']'\n1#array:'[',value,__0,']'": {
+        {
           "candidates": [
             "1#array:'[',value,__0,']'",
             "1#array:'[',value,']'",
@@ -1147,7 +1147,7 @@
             "','": null
           }
         },
-        "0#object_item:string@key,':',value\n1#object:'{','}'\n1#object:'{',object_item,'}'\n1#object:'{',object_item,__1,'}'": {
+        {
           "candidates": [
             "1#object:'{',object_item,__1,'}'",
             "1#object:'{',object_item,'}'",
@@ -1174,7 +1174,7 @@
             "','": null
           }
         },
-        "0#__0:',',value\n0#__0:',',value,__0\n2#array:'[',value,']'\n2#array:'[',value,__0,']'": {
+        {
           "candidates": [
             "2#array:'[',value,__0,']'",
             "2#array:'[',value,']'",
@@ -1201,7 +1201,7 @@
             "','": "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true\n1#__0:',',value\n1#__0:',',value,__0"
           }
         },
-        "2#array:'[',']'": {
+        {
           "candidates": [
             "2#array:'[',']'"
           ],
@@ -1225,7 +1225,7 @@
             "','": null
           }
         },
-        "1#object_item:string@key,':',value": {
+        {
           "candidates": [
             "1#object_item:string@key,':',value"
           ],
@@ -1249,7 +1249,7 @@
             "','": null
           }
         },
-        "0#__1:',',object_item\n0#__1:',',object_item,__1\n2#object:'{',object_item,'}'\n2#object:'{',object_item,__1,'}'": {
+        {
           "candidates": [
             "2#object:'{',object_item,__1,'}'",
             "2#object:'{',object_item,'}'",
@@ -1276,7 +1276,7 @@
             "','": "0#object_item:string@key,':',value\n1#__1:',',object_item\n1#__1:',',object_item,__1"
           }
         },
-        "2#object:'{','}'": {
+        {
           "candidates": [
             "2#object:'{','}'"
           ],
@@ -1300,7 +1300,7 @@
             "','": null
           }
         },
-        "3#array:'[',value,__0,']'": {
+        {
           "candidates": [
             "3#array:'[',value,__0,']'"
           ],
@@ -1324,7 +1324,7 @@
             "','": null
           }
         },
-        "3#array:'[',value,']'": {
+        {
           "candidates": [
             "3#array:'[',value,']'"
           ],
@@ -1348,7 +1348,7 @@
             "','": null
           }
         },
-        "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true\n1#__0:',',value\n1#__0:',',value,__0": {
+        {
           "candidates": [
             "1#__0:',',value",
             "1#__0:',',value,__0",
@@ -1386,7 +1386,7 @@
             "','": null
           }
         },
-        "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true\n2#object_item:string@key,':',value": {
+        {
           "candidates": [
             "2#object_item:string@key,':',value",
             "0#value:string",
@@ -1423,7 +1423,7 @@
             "','": null
           }
         },
-        "3#object:'{',object_item,__1,'}'": {
+        {
           "candidates": [
             "3#object:'{',object_item,__1,'}'"
           ],
@@ -1447,7 +1447,7 @@
             "','": null
           }
         },
-        "3#object:'{',object_item,'}'": {
+        {
           "candidates": [
             "3#object:'{',object_item,'}'"
           ],
@@ -1471,7 +1471,7 @@
             "','": null
           }
         },
-        "0#object_item:string@key,':',value\n1#__1:',',object_item\n1#__1:',',object_item,__1": {
+        {
           "candidates": [
             "1#__1:',',object_item",
             "1#__1:',',object_item,__1",
@@ -1497,7 +1497,7 @@
             "','": null
           }
         },
-        "4#array:'[',value,__0,']'": {
+        {
           "candidates": [
             "4#array:'[',value,__0,']'"
           ],
@@ -1521,7 +1521,7 @@
             "','": null
           }
         },
-        "0#__0:',',value\n0#__0:',',value,__0\n2#__0:',',value\n2#__0:',',value,__0": {
+        {
           "candidates": [
             "2#__0:',',value",
             "2#__0:',',value,__0",
@@ -1548,7 +1548,7 @@
             "','": "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true\n1#__0:',',value\n1#__0:',',value,__0"
           }
         },
-        "3#object_item:string@key,':',value": {
+        {
           "candidates": [
             "3#object_item:string@key,':',value"
           ],
@@ -1572,7 +1572,7 @@
             "','": null
           }
         },
-        "4#object:'{',object_item,__1,'}'": {
+        {
           "candidates": [
             "4#object:'{',object_item,__1,'}'"
           ],
@@ -1596,7 +1596,7 @@
             "','": null
           }
         },
-        "0#__1:',',object_item\n0#__1:',',object_item,__1\n2#__1:',',object_item\n2#__1:',',object_item,__1": {
+        {
           "candidates": [
             "2#__1:',',object_item",
             "2#__1:',',object_item,__1",
@@ -1623,7 +1623,7 @@
             "','": "0#object_item:string@key,':',value\n1#__1:',',object_item\n1#__1:',',object_item,__1"
           }
         },
-        "3#__0:',',value,__0": {
+        {
           "candidates": [
             "3#__0:',',value,__0"
           ],
@@ -1647,7 +1647,7 @@
             "','": null
           }
         },
-        "3#__1:',',object_item,__1": {
+        {
           "candidates": [
             "3#__1:',',object_item,__1"
           ],
@@ -1671,7 +1671,7 @@
             "','": null
           }
         }
-      },
+      ],
       "entryState": "0#array:'[',']'\n0#array:'[',value,']'\n0#array:'[',value,__0,']'\n0#object:'{','}'\n0#object:'{',object_item,'}'\n0#object:'{',object_item,__1,'}'\n0#value:array\n0#value:false\n0#value:null\n0#value:number\n0#value:object\n0#value:string\n0#value:true",
       "NTClosures": {
         "value": [

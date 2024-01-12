@@ -1378,8 +1378,8 @@
           "nextMap": {}
         }
       ],
-      "states": {
-        "0#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+      "states": [
+        {
           "candidates": [
             "0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1413,7 +1413,7 @@
             "stmt": null
           }
         },
-        "1#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n1#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n1#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n1#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n1#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n1#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "1#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "1#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1447,7 +1447,7 @@
             "stmt": null
           }
         },
-        "2#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n2#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n2#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n2#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n2#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n2#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "2#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "2#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1481,7 +1481,7 @@
             "stmt": null
           }
         },
-        "3#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n3#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n3#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n3#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n3#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n3#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "3#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "3#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1515,7 +1515,7 @@
             "stmt": null
           }
         },
-        "0#param:identifier,':',identifier\n4#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n4#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n4#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n4#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n4#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n4#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "4#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "4#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1550,7 +1550,7 @@
             "stmt": null
           }
         },
-        "1#param:identifier,':',identifier": {
+        {
           "candidates": [
             "1#param:identifier,':',identifier"
           ],
@@ -1579,7 +1579,7 @@
             "stmt": null
           }
         },
-        "0#__0:',',param\n0#__0:',',param,__0\n5#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n5#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n5#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n5#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "5#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "5#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -1613,7 +1613,7 @@
             "stmt": null
           }
         },
-        "5#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n5#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "5#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'",
             "5#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'"
@@ -1643,7 +1643,7 @@
             "stmt": null
           }
         },
-        "2#param:identifier,':',identifier": {
+        {
           "candidates": [
             "2#param:identifier,':',identifier"
           ],
@@ -1672,7 +1672,7 @@
             "stmt": null
           }
         },
-        "6#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n6#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "6#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "6#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'"
@@ -1702,7 +1702,7 @@
             "stmt": null
           }
         },
-        "6#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n6#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "6#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'",
             "6#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'"
@@ -1732,7 +1732,7 @@
             "stmt": null
           }
         },
-        "0#param:identifier,':',identifier\n1#__0:',',param\n1#__0:',',param,__0": {
+        {
           "candidates": [
             "1#__0:',',param",
             "1#__0:',',param,__0",
@@ -1763,7 +1763,7 @@
             "stmt": null
           }
         },
-        "6#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n6#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "6#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'",
             "6#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'"
@@ -1793,7 +1793,7 @@
             "stmt": null
           }
         },
-        "3#param:identifier,':',identifier": {
+        {
           "candidates": [
             "3#param:identifier,':',identifier"
           ],
@@ -1822,7 +1822,7 @@
             "stmt": null
           }
         },
-        "7#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n7#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "7#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "7#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'"
@@ -1852,7 +1852,7 @@
             "stmt": null
           }
         },
-        "7#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n7#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "7#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'",
             "7#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'"
@@ -1882,7 +1882,7 @@
             "stmt": null
           }
         },
-        "0#__0:',',param\n0#__0:',',param,__0\n2#__0:',',param\n2#__0:',',param,__0": {
+        {
           "candidates": [
             "2#__0:',',param",
             "2#__0:',',param,__0",
@@ -1914,7 +1914,7 @@
             "stmt": null
           }
         },
-        "7#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n7#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "7#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'",
             "7#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'"
@@ -1944,7 +1944,7 @@
             "stmt": null
           }
         },
-        "8#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n8#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "8#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "8#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'"
@@ -1974,7 +1974,7 @@
             "stmt": null
           }
         },
-        "8#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n8#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "8#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'",
             "8#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'"
@@ -2004,7 +2004,7 @@
             "stmt": null
           }
         },
-        "3#__0:',',param,__0": {
+        {
           "candidates": [
             "3#__0:',',param,__0"
           ],
@@ -2033,7 +2033,7 @@
             "stmt": null
           }
         },
-        "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n8#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n8#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "8#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'",
             "8#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'",
@@ -2069,7 +2069,7 @@
             "stmt": "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n1#__1:stmt\n1#__1:stmt,__1"
           }
         },
-        "9#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n9#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "9#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "9#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'"
@@ -2099,7 +2099,7 @@
             "stmt": null
           }
         },
-        "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n9#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n9#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "9#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'",
             "9#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'",
@@ -2135,7 +2135,7 @@
             "stmt": "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n1#__1:stmt\n1#__1:stmt,__1"
           }
         },
-        "9#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "9#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2164,7 +2164,7 @@
             "stmt": null
           }
         },
-        "9#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'": {
+        {
           "candidates": [
             "9#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'"
           ],
@@ -2193,7 +2193,7 @@
             "stmt": null
           }
         },
-        "1#stmt:assign_stmt": {
+        {
           "candidates": [
             "1#stmt:assign_stmt"
           ],
@@ -2222,7 +2222,7 @@
             "stmt": null
           }
         },
-        "1#stmt:ret_stmt": {
+        {
           "candidates": [
             "1#stmt:ret_stmt"
           ],
@@ -2251,7 +2251,7 @@
             "stmt": null
           }
         },
-        "1#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "1#assign_stmt:let,identifier,':',identifier,'=',exp,';'"
           ],
@@ -2280,7 +2280,7 @@
             "stmt": null
           }
         },
-        "0#exp:exp,'+',exp\n0#exp:identifier\n0#exp:integer\n1#ret_stmt:return,exp,';'": {
+        {
           "candidates": [
             "1#ret_stmt:return,exp,';'",
             "0#exp:integer",
@@ -2312,7 +2312,7 @@
             "stmt": null
           }
         },
-        "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n1#__1:stmt\n1#__1:stmt,__1": {
+        {
           "candidates": [
             "1#__1:stmt",
             "1#__1:stmt,__1",
@@ -2348,7 +2348,7 @@
             "stmt": "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n1#__1:stmt\n1#__1:stmt,__1"
           }
         },
-        "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n10#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n10#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "10#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
             "10#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'",
@@ -2384,7 +2384,7 @@
             "stmt": "0#__1:stmt\n0#__1:stmt,__1\n0#assign_stmt:let,identifier,':',identifier,'=',exp,';'\n0#ret_stmt:return,exp,';'\n0#stmt:assign_stmt\n0#stmt:ret_stmt\n1#__1:stmt\n1#__1:stmt,__1"
           }
         },
-        "10#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "10#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2413,7 +2413,7 @@
             "stmt": null
           }
         },
-        "10#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'": {
+        {
           "candidates": [
             "10#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'"
           ],
@@ -2442,7 +2442,7 @@
             "stmt": null
           }
         },
-        "10#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "10#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2471,7 +2471,7 @@
             "stmt": null
           }
         },
-        "2#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "2#assign_stmt:let,identifier,':',identifier,'=',exp,';'"
           ],
@@ -2500,7 +2500,7 @@
             "stmt": null
           }
         },
-        "1#exp:identifier": {
+        {
           "candidates": [
             "1#exp:identifier"
           ],
@@ -2529,7 +2529,7 @@
             "stmt": null
           }
         },
-        "1#exp:exp,'+',exp\n2#ret_stmt:return,exp,';'": {
+        {
           "candidates": [
             "2#ret_stmt:return,exp,';'",
             "1#exp:exp,'+',exp"
@@ -2559,7 +2559,7 @@
             "stmt": null
           }
         },
-        "1#exp:integer": {
+        {
           "candidates": [
             "1#exp:integer"
           ],
@@ -2588,7 +2588,7 @@
             "stmt": null
           }
         },
-        "2#__1:stmt,__1": {
+        {
           "candidates": [
             "2#__1:stmt,__1"
           ],
@@ -2617,7 +2617,7 @@
             "stmt": null
           }
         },
-        "11#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "11#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2646,7 +2646,7 @@
             "stmt": null
           }
         },
-        "11#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'": {
+        {
           "candidates": [
             "11#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'"
           ],
@@ -2675,7 +2675,7 @@
             "stmt": null
           }
         },
-        "11#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "11#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2704,7 +2704,7 @@
             "stmt": null
           }
         },
-        "3#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "3#assign_stmt:let,identifier,':',identifier,'=',exp,';'"
           ],
@@ -2733,7 +2733,7 @@
             "stmt": null
           }
         },
-        "3#ret_stmt:return,exp,';'": {
+        {
           "candidates": [
             "3#ret_stmt:return,exp,';'"
           ],
@@ -2762,7 +2762,7 @@
             "stmt": null
           }
         },
-        "0#exp:exp,'+',exp\n0#exp:identifier\n0#exp:integer\n2#exp:exp,'+',exp": {
+        {
           "candidates": [
             "2#exp:exp,'+',exp",
             "0#exp:integer",
@@ -2794,7 +2794,7 @@
             "stmt": null
           }
         },
-        "12#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'": {
+        {
           "candidates": [
             "12#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'"
           ],
@@ -2823,7 +2823,7 @@
             "stmt": null
           }
         },
-        "4#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "4#assign_stmt:let,identifier,':',identifier,'=',exp,';'"
           ],
@@ -2852,7 +2852,7 @@
             "stmt": null
           }
         },
-        "1#exp:exp,'+',exp\n3#exp:exp,'+',exp": {
+        {
           "candidates": [
             "3#exp:exp,'+',exp",
             "1#exp:exp,'+',exp"
@@ -2882,7 +2882,7 @@
             "stmt": null
           }
         },
-        "0#exp:exp,'+',exp\n0#exp:identifier\n0#exp:integer\n5#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "5#assign_stmt:let,identifier,':',identifier,'=',exp,';'",
             "0#exp:integer",
@@ -2914,7 +2914,7 @@
             "stmt": null
           }
         },
-        "1#exp:exp,'+',exp\n6#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "6#assign_stmt:let,identifier,':',identifier,'=',exp,';'",
             "1#exp:exp,'+',exp"
@@ -2944,7 +2944,7 @@
             "stmt": null
           }
         },
-        "7#assign_stmt:let,identifier,':',identifier,'=',exp,';'": {
+        {
           "candidates": [
             "7#assign_stmt:let,identifier,':',identifier,'=',exp,';'"
           ],
@@ -2973,7 +2973,7 @@
             "stmt": null
           }
         }
-      },
+      ],
       "entryState": "0#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',')',':',identifier@retType,'{',__1,'}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,')',':',identifier@retType,'{',__1,'}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{','}'\n0#fn_def:pub,fn,identifier@funcName,'(',param,__0,')',':',identifier@retType,'{',__1,'}'",
       "NTClosures": {
         "fn_def": [
