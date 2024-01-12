@@ -1,11 +1,15 @@
-import type { Candidate, ReadonlyNTClosures, StateID } from "..";
-import { State } from "..";
 import type { ExtractKinds, GeneralTokenDataBinding } from "../../../../lexer";
 import type { Grammar, GrammarRepo, GrammarRule } from "../../model";
 import { GrammarType } from "../../model";
 import { notNullFilter } from "../../utils";
-import type { CandidateRepo, ReadonlyCandidateRepo } from "../candidate";
-import { stringMap2serializable } from "../utils";
+import type {
+  Candidate,
+  CandidateRepo,
+  ReadonlyCandidateRepo,
+} from "../candidate";
+import type { ReadonlyNTClosures } from "../model";
+import type { SerializableState, StateID } from "./state";
+import { State } from "./state";
 
 /**
  * Store all states.
@@ -189,8 +193,26 @@ export class StateRepo<
     return false;
   }
 
-  toJSON() {
-    return stringMap2serializable(this.ss, (s) => s.toJSON()); // TODO: use an array, remove id
+  map<R>(
+    f: (
+      s: State<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >,
+    ) => R,
+  ) {
+    const res = [] as R[];
+    this.ss.forEach((s) => res.push(f(s)));
+    return res;
+  }
+
+  toJSON(): SerializableState[] {
+    return this.map((s) => s.toJSON());
   }
 
   static fromJSON<
@@ -202,17 +224,7 @@ export class StateRepo<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      StateRepo<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableState[],
     cs: ReadonlyCandidateRepo<
       NTs,
       ASTData,
@@ -244,11 +256,11 @@ export class StateRepo<
         Global
       >,
     ) => void)[];
-    for (const key in data) {
-      const { s, restoreNextMap } = State.fromJSON(data[key], cs, repo);
-      ss.ss.set(key, s);
+    data.forEach((d) => {
+      const { s, restoreNextMap } = State.fromJSON(d, cs, repo);
+      ss.ss.set(s.id, s);
       callbacks.push(restoreNextMap);
-    }
+    });
     // restore nextMap after the whole state repo is filled.
     callbacks.forEach((c) => c(ss));
     return ss;
