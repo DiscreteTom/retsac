@@ -47,6 +47,26 @@ import {
 } from "./utils";
 
 /**
+ * @see {@link DFA.toJSON}.
+ */
+export type SerializableDFA<
+  NTs extends string,
+  LexerDataBindings extends GeneralTokenDataBinding,
+> = {
+  NTs: NTs[];
+  entryNTs: NTs[];
+  grammars: SerializableGrammar<NTs | ExtractKinds<LexerDataBindings>>[];
+  grammarRules: SerializableGrammarRule<NTs>[];
+  candidates: SerializableCandidate[];
+  states: SerializableState[];
+  entryState: StateID;
+  NTClosures: Record<NTs, GrammarRuleID[]>;
+  firstSets: Record<NTs, GrammarString[]>;
+  followSets: Record<NTs | ExtractKinds<LexerDataBindings>, GrammarString[]>;
+  cascadeQueryPrefix?: string;
+};
+
+/**
  * DFA for ELR parsers. Stateless.
  */
 export class DFA<
@@ -621,28 +641,7 @@ export class DFA<
     return res;
   }
 
-  toJSON(): {
-    // TODO: extract type
-    NTs: NTs[];
-    entryNTs: NTs[];
-    grammars: SerializableGrammar<NTs | ExtractKinds<LexerDataBindings>>[];
-    grammarRules: SerializableGrammarRule<NTs>[];
-    candidates: SerializableCandidate[];
-    states: {
-      [x: StateID]: SerializableState;
-    };
-    entryState: StateID;
-    NTClosures: {
-      [key in NTs]: GrammarRuleID[];
-    };
-    firstSets: {
-      [key in NTs]: GrammarString[]; // TODO: use Record
-    };
-    followSets: {
-      [key in NTs | ExtractKinds<LexerDataBindings>]: GrammarString[];
-    };
-    cascadeQueryPrefix?: string;
-  } {
+  toJSON(): SerializableDFA<NTs, LexerDataBindings> {
     return {
       NTs: [...this.NTs],
       entryNTs: [...this.entryNTs],
@@ -669,17 +668,7 @@ export class DFA<
     LexerErrorType,
     Global,
   >(
-    data: ReturnType<
-      DFA<
-        NTs,
-        ASTData,
-        ErrorType,
-        LexerDataBindings,
-        LexerActionState,
-        LexerErrorType,
-        Global
-      >["toJSON"]
-    >,
+    data: SerializableDFA<NTs, LexerDataBindings>,
     tokenASTDataMapper: ReadonlyMap<
       ExtractKinds<LexerDataBindings>,
       TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>

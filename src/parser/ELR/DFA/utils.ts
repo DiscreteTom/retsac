@@ -593,13 +593,13 @@ export function stringMap2serializable<K extends string, V, R>(
   map: ReadonlyMap<K, V>,
   transformer: (v: V) => R,
 ) {
-  const obj = {} as { [key in K]: R };
+  const obj = {} as Record<K, R>;
   map.forEach((v, k) => (obj[k] = transformer(v)));
   return obj;
 }
 
 export function serializable2map<K extends string, V, R>(
-  obj: { [key in K]: R },
+  obj: Record<K, R>,
   transformer: (v: R) => V,
 ) {
   const map = new Map<K, V>();
