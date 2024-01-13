@@ -6,7 +6,7 @@ import type {
   Token,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
-import type { State } from "../DFA";
+import type { ReadonlyState } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
 import type { GrammarStringNoName } from "./grammar";
 
@@ -20,7 +20,7 @@ export type ParsingState<
   Global,
 > = {
   stateStack: Stack<
-    State<
+    ReadonlyState<
       NTs,
       ASTData,
       ErrorType,

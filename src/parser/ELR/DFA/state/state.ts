@@ -594,3 +594,32 @@ export class State<
     return res.join("\n");
   }
 }
+
+export type ReadonlyState<
+  NTs extends string,
+  ASTData,
+  ErrorType,
+  LexerDataBindings extends GeneralTokenDataBinding,
+  LexerActionState,
+  LexerErrorType,
+  Global,
+> = Pick<
+  State<
+    NTs,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType,
+    Global
+  >,
+  | "candidates"
+  | "contains"
+  | "getNext"
+  | "id"
+  | "toJSON"
+  | "toMermaid"
+  | "toString"
+  | "tryLex"
+  | "tryReduce"
+>;
