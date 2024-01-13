@@ -231,7 +231,7 @@ export class DFA<
         buffer: buffer.slice(), // don't modify the original buffer // TODO: maybe a deep copy is needed? prevent copy?
         lexer: lexer.trimStart(),
         startCandidateIndex: 0,
-        skipGrammar: new Set(),
+        lexedGrammars: new Set(),
       },
       reLexStack,
       rollbackStack,
@@ -317,7 +317,7 @@ export class DFA<
     parsingState.index = targetState.index;
     parsingState.lexer = targetState.lexer;
     parsingState.errors = targetState.errors;
-    parsingState.skipGrammar = targetState.skipGrammar;
+    parsingState.lexedGrammars = targetState.lexedGrammars;
     parsingState.startCandidateIndex = targetState.startCandidateIndex;
   }
 
@@ -476,7 +476,7 @@ export class DFA<
         parsingState.lexer,
         this.tokenASTDataMapper,
         parsingState.startCandidateIndex,
-        parsingState.skipGrammar,
+        parsingState.lexedGrammars,
         global,
         debug,
         logger,
@@ -527,7 +527,7 @@ export class DFA<
           index: parsingState.index,
           errors: parsingState.errors.slice(),
           rollbackStackLength: rollbackStack.length,
-          skipGrammar: res.skipGrammar,
+          lexedGrammars: parsingState.lexedGrammars,
           startCandidateIndex: res.nextCandidateIndex,
         });
       }

@@ -313,7 +313,7 @@ export class State<
       TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
     >,
     startCandidateIndex: number,
-    skipGrammar: Set<GrammarStringNoName>,
+    lexedGrammars: Set<GrammarStringNoName>,
     global: Global,
     debug: boolean,
     logger: Logger,
@@ -333,7 +333,6 @@ export class State<
           LexerErrorType
         >;
         nextCandidateIndex: number;
-        skipGrammar: Set<GrammarStringNoName>;
       }
     | undefined {
     for (let i = startCandidateIndex; i < this.candidates.length; i++) {
@@ -343,7 +342,7 @@ export class State<
 
       // if current grammar is already lexed, skip
       // we don't need to check name here since ASTNode's name is set later
-      if (skipGrammar.has(c.current.grammarStringNoName)) {
+      if (lexedGrammars.has(c.current.grammarStringNoName)) {
         if (debug) {
           const info = {
             candidate: c.toString(),
@@ -374,7 +373,7 @@ export class State<
         global,
       );
       // mark this grammar as done, no matter if the lex is successful
-      skipGrammar.add(c.current.grammarStringNoName);
+      lexedGrammars.add(c.current.grammarStringNoName);
 
       if (debug) {
         if (r !== undefined) {
@@ -406,7 +405,6 @@ export class State<
       return {
         ...r,
         nextCandidateIndex: i + 1,
-        skipGrammar,
       };
     }
 

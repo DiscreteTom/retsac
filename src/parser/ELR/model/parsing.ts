@@ -54,8 +54,16 @@ export type ParsingState<
     Global
   >[];
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  /**
+   * From which index to start {@link State.tryLex}.
+   */
   startCandidateIndex: number;
-  skipGrammar: Set<GrammarStringNoName>; // TODO: rename to skippedGrammars
+  /**
+   * Grammars that are already lexed in the current parsing state.
+   * This is used to avoid duplicate lexing.
+   * This will be used and updated in {@link State.tryLex}.
+   */
+  lexedGrammars: Set<GrammarStringNoName>;
 };
 
 export type ReLexState<
