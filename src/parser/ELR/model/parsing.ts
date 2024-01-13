@@ -55,13 +55,15 @@ export type ParsingState<
   >[];
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   /**
-   * From which index to start {@link State.tryLex}.
+   * From which candidate to start {@link State.tryLex} on the current state.
+   * We only need to store this for current state.
    */
   startCandidateIndex: number;
   /**
    * Grammars that are already lexed in the current parsing state.
    * This is used to avoid duplicate lexing.
    * This will be used and updated in {@link State.tryLex}.
+   * We only need to store this for current state.
    */
   lexedGrammars: Set<GrammarStringNoName>;
 };
