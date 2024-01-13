@@ -158,22 +158,9 @@ export class DFA<
     public readonly rollback: boolean,
     public readonly reLex: boolean,
   ) {
-    this.selector = cascadeASTNodeSelectorFactory<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerErrorType,
-      Global
-    >(cascadeQueryPrefix);
-    this.firstMatchSelector = cascadeASTNodeFirstMatchSelectorFactory<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerErrorType,
-      Global
-    >(cascadeQueryPrefix);
+    this.selector = cascadeASTNodeSelectorFactory(cascadeQueryPrefix);
+    this.firstMatchSelector =
+      cascadeASTNodeFirstMatchSelectorFactory(cascadeQueryPrefix);
   }
 
   /**
