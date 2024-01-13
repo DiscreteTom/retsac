@@ -1,5 +1,7 @@
 import type { ExtractKinds, GeneralToken } from "../lexer";
 import type { ASTNode } from "./ast";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { IParser } from "./model";
 
 export type AcceptedParserOutput<
   NTs extends string,
@@ -10,9 +12,9 @@ export type AcceptedParserOutput<
 > = {
   accept: true;
   /**
-   * Current AST nodes.
+   * @see {@link IParser.buffer}.
    */
-  buffer: readonly ASTNode<
+  buffer: ASTNode<
     NTs | ExtractKinds<TokenType>,
     NTs,
     ASTData,

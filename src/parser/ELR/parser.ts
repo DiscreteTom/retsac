@@ -209,7 +209,7 @@ export class Parser<
         // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
         // so we need to update it using `res.lexer`
         this.lexer = res.lexer;
-        this._buffer = res.output.buffer.slice(); // make a copy of buffer
+        this._buffer = res.output.buffer;
         this.errors.push(...res.output.errors);
 
         if (this.autoCommit) this.commit();
@@ -227,7 +227,7 @@ export class Parser<
     Token<LexerDataBindings, LexerErrorType>,
     Global
   > {
-    let buffer: readonly ASTNode<
+    let buffer: ASTNode<
       NTs | ExtractKinds<LexerDataBindings>,
       NTs,
       ASTData,

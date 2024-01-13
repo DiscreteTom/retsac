@@ -228,8 +228,10 @@ export class DFA<
         stateStack: [this.entryState],
         index: 0,
         errors: [],
-        buffer,
+        buffer: buffer.slice(), // don't modify the original buffer // TODO: maybe a deep copy is needed? prevent copy?
         lexer: lexer.trimStart(),
+        startCandidateIndex: 0,
+        skipGrammar: new Set(),
       },
       reLexStack,
       rollbackStack,
@@ -257,6 +259,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
+    // TODO: don't pass reLexStack, pass the top state directly
     reLexStack: ReLexState<
       NTs,
       ASTData,
@@ -314,6 +317,8 @@ export class DFA<
     parsingState.index = targetState.index;
     parsingState.lexer = targetState.lexer;
     parsingState.errors = targetState.errors;
+    parsingState.skipGrammar = targetState.skipGrammar;
+    parsingState.startCandidateIndex = targetState.startCandidateIndex;
   }
 
   private _parse(
@@ -463,19 +468,21 @@ export class DFA<
     global: Global,
     debug: boolean,
     logger: Logger,
-  ) {
+  ): boolean {
     // end of buffer, try to lex input string to get next ASTNode
     const res = parsingState.stateStack
       .at(-1)!
       .tryLex(
         parsingState.lexer,
         this.tokenASTDataMapper,
+        parsingState.startCandidateIndex,
+        parsingState.skipGrammar,
         global,
         debug,
         logger,
       );
     // if no more ASTNode can be lexed
-    if (res.length === 0) {
+    if (res === undefined) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
         if (debug) {
@@ -485,8 +492,18 @@ export class DFA<
           });
         }
         this._reLex(parsingState, reLexStack, rollbackStack, debug, logger);
+        // TODO: prevent recursion
+        return this.tryLex(
+          parsingState,
+          reLexStack,
+          rollbackStack,
+          global,
+          debug,
+          logger,
+        );
       } else {
         // no more ASTNode can be lexed, parsing failed
+        // TODO: enter panic mode, #8
         if (debug) {
           const info = {
             state: parsingState.stateStack.at(-1)!.toString(),
@@ -501,43 +518,23 @@ export class DFA<
         return false;
       }
     } else {
-      // lex success, record all possible lexing results for later use
-      // we need to append reLexStack reversely, so that the first lexing result is at the top of the stack
+      // lex success, record current parsing state for re-lex if re-lex is enabled
       if (this.reLex) {
-        for (let i = res.length - 1; i >= 0; --i) {
-          reLexStack.push({
-            stateStack: parsingState.stateStack.slice(), // make a copy
-            buffer: parsingState.buffer.slice().concat(res[i].node.asASTNode()),
-            lexer: res[i].lexer,
-            index: parsingState.index,
-            errors: parsingState.errors.slice(),
-            rollbackStackLength: rollbackStack.length,
-          });
-        }
-        if (debug) {
-          if (res.length > 1) {
-            const info = {
-              others: res.slice(1).map((r) => r.node.toString()),
-            };
-            logger.log({
-              entity: "Parser",
-              message: `try lex: store other possibilities for re-lex:\n${info.others.join(
-                "\n",
-              )}`,
-            });
-          }
-        }
-        // use the first lexing result to continue parsing
-        const state = reLexStack.pop()!;
-        parsingState.buffer = state.buffer;
-        parsingState.lexer = state.lexer;
-      } else {
-        // use the first lexing result to continue parsing
-        parsingState.buffer = parsingState.buffer.concat(
-          res[0].node.asASTNode(),
-        );
-        parsingState.lexer = res[0].lexer;
+        reLexStack.push({
+          stateStack: parsingState.stateStack.slice(), // make a copy
+          buffer: parsingState.buffer.slice(),
+          lexer: parsingState.lexer, // use the original lexer
+          index: parsingState.index,
+          errors: parsingState.errors.slice(),
+          rollbackStackLength: rollbackStack.length,
+          skipGrammar: res.skipGrammar,
+          startCandidateIndex: res.nextCandidateIndex,
+        });
       }
+      // apply result to the current state
+      parsingState.buffer.push(res.node.asASTNode());
+      parsingState.lexer = res.lexer;
+      // TODO: is this logging needed? since we already logged in State.tryLex
       if (debug) {
         const info = {
           apply: parsingState.buffer.at(-1)!.toString(),

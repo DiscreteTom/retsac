@@ -26,7 +26,6 @@ import {
   type Grammar,
   GrammarType,
 } from "../../model";
-import { notUndefinedFilter } from "../../utils";
 import type {
   Candidate,
   CandidateID,
@@ -313,112 +312,106 @@ export class State<
       ExtractKinds<LexerDataBindings>,
       TokenASTDataMapperExec<LexerDataBindings, LexerErrorType, ASTData>
     >,
+    startCandidateIndex: number,
+    skipGrammar: Set<GrammarStringNoName>,
     global: Global,
     debug: boolean,
     logger: Logger,
-  ): {
-    node: TNode<
-      NTs | ExtractKinds<LexerDataBindings>,
-      NTs,
-      ASTData,
-      ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
-      Global
-    >;
-    lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
-  }[] {
-    // for deduplication
-    const done = new Map<
-      GrammarStringNoName,
-      TNode<
-        NTs | ExtractKinds<LexerDataBindings>,
-        NTs,
-        ASTData,
-        ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
-        Global
-      > | null // don't use undefined, use null
-    >();
-
-    return this.candidates
-      .map((c) => {
-        // if already all digested, or the current grammar is not a T, skip
-        if (c.current === undefined || c.current.type !== GrammarType.T) return;
-
-        // if current grammar is already lexed, skip
-        // we don't need to check name here since ASTNode's name is set later
-        if (done.has(c.current.grammarStringNoName)) {
-          if (debug) {
-            const cache = done.get(c.current.grammarStringNoName);
-            if (cache) {
-              const info = {
-                candidate: c.toString(),
-                got: cache.toString(),
-              };
-              logger.log({
-                entity: "Parser",
-                message: `try lex: got ${info.got} for candidate ${info.candidate} (cache hit)`,
-                info,
-              });
-            } else {
-              const info = {
-                candidate: c.toString(),
-                rest: prettierLexerRest(lexer),
-              };
-              logger.log({
-                entity: "Parser",
-                message: `try lex: failed for candidate ${info.candidate} (cache hit), rest: ${info.rest}`,
-                info,
-              });
-            }
-          }
-          return;
-        }
-
-        // lex candidate.current
-        const r = lexGrammar<
+  ):
+    | {
+        node: TNode<
+          NTs | ExtractKinds<LexerDataBindings>,
           NTs,
           ASTData,
           ErrorType,
+          Token<LexerDataBindings, LexerErrorType>,
+          Global
+        >;
+        lexer: ITrimmedLexer<
           LexerDataBindings,
           LexerActionState,
-          LexerErrorType,
-          Global
-        >(
-          c.current as Grammar<ExtractKinds<LexerDataBindings>>,
-          lexer,
-          tokenASTDataMapper,
-          global,
-        );
-        // mark this grammar as done, no matter if the lex is successful
-        done.set(c.current.grammarStringNoName, r?.node ?? null);
+          LexerErrorType
+        >;
+        nextCandidateIndex: number;
+        skipGrammar: Set<GrammarStringNoName>;
+      }
+    | undefined {
+    for (let i = startCandidateIndex; i < this.candidates.length; i++) {
+      const c = this.candidates[i];
+      // if already all digested, or the current grammar is not a T, skip
+      if (c.current === undefined || c.current.type !== GrammarType.T) continue;
 
+      // if current grammar is already lexed, skip
+      // we don't need to check name here since ASTNode's name is set later
+      if (skipGrammar.has(c.current.grammarStringNoName)) {
         if (debug) {
-          if (r !== undefined) {
-            const info = {
-              candidate: c.toString(),
-              got: r.node.toString(),
-            };
-            logger.log({
-              entity: "Parser",
-              message: `try lex: got ${info.got} for candidate ${info.candidate} (cache miss)`,
-              info: info,
-            });
-          } else {
-            const info = {
-              candidate: c.toString(),
-              rest: prettierLexerRest(lexer),
-            };
-            logger.log({
-              entity: "Parser",
-              message: `try lex: failed for candidate ${info.candidate} (cache miss), rest: ${info.rest}`,
-              info,
-            });
-          }
+          const info = {
+            candidate: c.toString(),
+            rest: prettierLexerRest(lexer),
+          };
+          logger.log({
+            entity: "Parser",
+            message: `try lex: skip for candidate ${info.candidate} (cache hit)`,
+            info,
+          });
         }
-        return r;
-      })
-      .filter(notUndefinedFilter);
+        continue;
+      }
+
+      // lex candidate.current
+      const r = lexGrammar<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >(
+        c.current as Grammar<ExtractKinds<LexerDataBindings>>,
+        lexer,
+        tokenASTDataMapper,
+        global,
+      );
+      // mark this grammar as done, no matter if the lex is successful
+      skipGrammar.add(c.current.grammarStringNoName);
+
+      if (debug) {
+        if (r !== undefined) {
+          const info = {
+            candidate: c.toString(),
+            got: r.node.toString(),
+          };
+          logger.log({
+            entity: "Parser",
+            message: `try lex: got ${info.got} for candidate ${info.candidate} (cache miss)`,
+            info: info,
+          });
+        } else {
+          const info = {
+            candidate: c.toString(),
+            rest: prettierLexerRest(lexer),
+          };
+          logger.log({
+            entity: "Parser",
+            message: `try lex: failed for candidate ${info.candidate} (cache miss), rest: ${info.rest}`,
+            info,
+          });
+        }
+      }
+
+      if (r === undefined) continue;
+
+      // lex successfully, return
+      return {
+        ...r,
+        nextCandidateIndex: i + 1,
+        skipGrammar,
+      };
+    }
+
+    // all candidates checked, no accept, return undefined
+    return undefined;
   }
 
   /**

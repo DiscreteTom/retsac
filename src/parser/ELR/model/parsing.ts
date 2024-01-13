@@ -7,6 +7,7 @@ import type {
 import type { ASTNode } from "../../ast";
 import type { State } from "../DFA";
 import type { Callback, GrammarRuleContext } from "./context";
+import type { GrammarStringNoName } from "./grammar";
 
 export type ParsingState<
   NTs extends string,
@@ -29,7 +30,7 @@ export type ParsingState<
     LexerErrorType,
     Global
   >[];
-  buffer: readonly ASTNode<
+  buffer: ASTNode<
     NTs | ExtractKinds<LexerDataBindings>,
     NTs,
     ASTData,
@@ -53,6 +54,8 @@ export type ParsingState<
     Global
   >[];
   lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  startCandidateIndex: number;
+  skipGrammar: Set<GrammarStringNoName>; // TODO: rename to skippedGrammars
 };
 
 export type ReLexState<

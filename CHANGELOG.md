@@ -5,6 +5,7 @@
 - Parser
   - **_Breaking Change_**: Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
     - Optimize the format of serialized parser data, remove unnecessary strings.
+  - Perf: lazy re-lex.
   - Note: simplify `BuildOptions` and `BuildOutput`.
 
 ## v0.17.0
