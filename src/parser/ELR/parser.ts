@@ -194,8 +194,10 @@ export class Parser<
 
     while (true) {
       const res = this.dfa.parse(
+        // all these parameters may be changed in DFA
+        // so we don't need to clone them here
         this._buffer,
-        this.lexer.clone(), // clone lexer to avoid DFA changing the original lexer
+        this.lexer,
         this.reLexStack,
         this.rollbackStack,
         () => this.commit(),
@@ -206,8 +208,7 @@ export class Parser<
         this.logger,
       );
       if (res.output.accept) {
-        // lexer is stateful and may be changed in DFA(e.g. restore from reLexStack)
-        // so we need to update it using `res.lexer`
+        // TODO: DFA should return other states like reLexStack and rollbackStack
         this.lexer = res.lexer;
         this._buffer = res.output.buffer;
         this.errors.push(...res.output.errors);

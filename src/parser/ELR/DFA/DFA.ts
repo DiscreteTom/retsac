@@ -167,7 +167,7 @@ export class DFA<
    * Try to yield an entry NT.
    */
   parse(
-    buffer: readonly ASTNode<
+    buffer: ASTNode<
       NTs | ExtractKinds<LexerDataBindings>,
       NTs,
       ASTData,
@@ -215,7 +215,7 @@ export class DFA<
         stateStack: [this.entryState],
         index: 0,
         errors: [],
-        buffer: buffer.slice(), // don't modify the original buffer // TODO: maybe a deep copy is needed? prevent copy?
+        buffer,
         lexer: lexer.trimStart(),
         startCandidateIndex: 0,
         lexedGrammars: new Set(),
@@ -232,10 +232,10 @@ export class DFA<
   }
 
   /**
-   * Set the parsing state using the re-lex stack's top state.
-   *
-   * Before re-lex, the caller should make sure the reLexStack is not empty!
+   * Retrieve a parsing state using the re-lex stack.
+   * Call rollbacks.
    */
+  // TODO: rename to rollback?
   private _reLex(
     parsingState: ParsingState<
       NTs,
@@ -266,7 +266,15 @@ export class DFA<
     >[],
     debug: boolean,
     logger: Logger,
-  ) {
+  ): ParsingState<
+    NTs,
+    ASTData,
+    ErrorType,
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType,
+    Global
+  > {
     if (debug) {
       const info = {
         trying: targetState.buffer.at(-1)!.toString(),
@@ -296,13 +304,7 @@ export class DFA<
     }
 
     // apply state
-    parsingState.stateStack = targetState.stateStack;
-    parsingState.buffer = targetState.buffer;
-    parsingState.index = targetState.index;
-    parsingState.lexer = targetState.lexer;
-    parsingState.errors = targetState.errors;
-    parsingState.lexedGrammars = targetState.lexedGrammars;
-    parsingState.startCandidateIndex = targetState.startCandidateIndex;
+    return targetState;
   }
 
   private _parse(
@@ -341,8 +343,9 @@ export class DFA<
     logger: Logger,
   ) {
     while (true) {
-      // if no enough AST nodes, try to lex a new one
+      // if no enough AST nodes
       if (parsingState.index >= parsingState.buffer.length) {
+        // try to lex a new one and update parsingState
         if (
           !this.tryLex(
             parsingState,
@@ -368,6 +371,7 @@ export class DFA<
       );
 
       if (!res.accept) {
+        parsingState = res.parsingState;
         if (res.continue) continue; // try to digest more input
         return { output: rejectedParserOutput, lexer: parsingState.lexer };
       }
@@ -420,6 +424,8 @@ export class DFA<
    * This will try to lex the rest input to get an expected AST node.
    *
    * Return `true` if lex success, `false` if lex failed.
+   *
+   * The `parsingState` will be updated if success.
    */
   private tryLex(
     parsingState: ParsingState<
@@ -453,60 +459,17 @@ export class DFA<
     debug: boolean,
     logger: Logger,
   ): boolean {
-    // end of buffer, try to lex input string to get next ASTNode
-    const res = parsingState.stateStack
-      .at(-1)!
-      .tryLex(
-        parsingState.lexer,
-        this.tokenASTDataMapper,
-        parsingState.startCandidateIndex,
-        parsingState.lexedGrammars,
-        global,
-        debug,
-        logger,
-      );
+    const res = this._tryLex(
+      parsingState,
+      reLexStack,
+      rollbackStack,
+      global,
+      debug,
+      logger,
+    );
     // if no more ASTNode can be lexed
     if (res === undefined) {
-      // try to restore from re-lex stack
-      if (this.reLex && reLexStack.length > 0) {
-        if (debug) {
-          logger.log({
-            entity: "Parser",
-            message: "try lex: all candidates failed, try to re-lex",
-          });
-        }
-        this._reLex(
-          parsingState,
-          reLexStack.pop()!,
-          rollbackStack,
-          debug,
-          logger,
-        );
-        // TODO: prevent recursion
-        return this.tryLex(
-          parsingState,
-          reLexStack,
-          rollbackStack,
-          global,
-          debug,
-          logger,
-        );
-      } else {
-        // no more ASTNode can be lexed, parsing failed
-        // TODO: enter panic mode, #8
-        if (debug) {
-          const info = {
-            state: parsingState.stateStack.at(-1)!.toString(),
-            rest: prettierLexerRest(parsingState.lexer),
-          };
-          logger.log({
-            entity: "Parser",
-            message: `end: no matching token can be lexed, rest: ${info.rest}, state: \n${info.state}`,
-            info,
-          });
-        }
-        return false;
-      }
+      return false;
     } else {
       // lex success, record current parsing state for re-lex if re-lex is enabled
       if (this.reLex) {
@@ -517,7 +480,7 @@ export class DFA<
           index: parsingState.index,
           errors: parsingState.errors.slice(),
           rollbackStackLength: rollbackStack.length,
-          lexedGrammars: parsingState.lexedGrammars,
+          lexedGrammars: new Set(parsingState.lexedGrammars), // lexedGrammars is updated, clone it
           startCandidateIndex: res.nextCandidateIndex,
         });
       }
@@ -538,6 +501,92 @@ export class DFA<
     }
 
     return true;
+  }
+
+  /**
+   * Try lex, if failed, try re-lex.
+   *
+   * Return `undefined` if all failed.
+   */
+  private _tryLex(
+    parsingState: ParsingState<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >,
+    reLexStack: ReLexState<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >[],
+    rollbackStack: RollbackState<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >[],
+    global: Global,
+    debug: boolean,
+    logger: Logger,
+  ) {
+    while (true) {
+      const res = parsingState.stateStack
+        .at(-1)!
+        .tryLex(
+          parsingState.lexer,
+          this.tokenASTDataMapper,
+          parsingState.startCandidateIndex,
+          parsingState.lexedGrammars,
+          global,
+          debug,
+          logger,
+        );
+      if (res !== undefined) return res;
+
+      // try to restore from re-lex stack
+      if (this.reLex && reLexStack.length > 0) {
+        if (debug) {
+          logger.log({
+            entity: "Parser",
+            message: "try lex: all candidates failed, re-lex",
+          });
+        }
+        parsingState = this._reLex(
+          parsingState,
+          reLexStack.pop()!,
+          rollbackStack,
+          debug,
+          logger,
+        );
+        continue;
+      } else {
+        // no more ASTNode can be lexed, parsing failed
+        // TODO: enter panic mode, #8
+        if (debug) {
+          const info = {
+            state: parsingState.stateStack.at(-1)!.toString(),
+            rest: prettierLexerRest(parsingState.lexer),
+          };
+          logger.log({
+            entity: "Parser",
+            message: `end: no matching token can be lexed, rest: ${info.rest}, state: \n${info.state}`,
+            info,
+          });
+        }
+        return undefined;
+      }
+    }
   }
 
   private tryReduce(
@@ -580,14 +629,14 @@ export class DFA<
     if (nextStateResult.state === null) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
-        this._reLex(
+        parsingState = this._reLex(
           parsingState,
           reLexStack.pop()!,
           rollbackStack,
           debug,
           logger,
         );
-        return { accept: false, continue: true } as const;
+        return { accept: false, continue: true, parsingState } as const;
       } else {
         // no more candidate can be constructed, parsing failed
         if (debug) {
@@ -601,12 +650,14 @@ export class DFA<
             info,
           });
         }
-        return { accept: false, continue: false } as const;
+        return { accept: false, continue: false, parsingState } as const;
       }
     }
 
     // next state exist, push stack
     parsingState.stateStack.push(nextStateResult.state);
+    parsingState.startCandidateIndex = 0;
+    parsingState.lexedGrammars.clear();
 
     // try reduce with the new state
     const res = parsingState.stateStack
@@ -627,7 +678,7 @@ export class DFA<
     // rejected
     if (!res.accept) {
       parsingState.index++;
-      return { accept: false, continue: true } as const; // try to digest more
+      return { accept: false, continue: true, parsingState } as const; // try to digest more
     }
     // else, accepted
 
