@@ -259,8 +259,7 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    // TODO: don't pass reLexStack, pass the top state directly
-    reLexStack: ReLexState<
+    targetState: ReLexState<
       NTs,
       ASTData,
       ErrorType,
@@ -268,7 +267,7 @@ export class DFA<
       LexerActionState,
       LexerErrorType,
       Global
-    >[],
+    >,
     rollbackStack: RollbackState<
       NTs,
       ASTData,
@@ -281,8 +280,6 @@ export class DFA<
     debug: boolean,
     logger: Logger,
   ) {
-    const targetState = reLexStack.pop()!;
-
     if (debug) {
       const info = {
         trying: targetState.buffer.at(-1)!.toString(),
@@ -491,7 +488,13 @@ export class DFA<
             message: "try lex: all candidates failed, try to re-lex",
           });
         }
-        this._reLex(parsingState, reLexStack, rollbackStack, debug, logger);
+        this._reLex(
+          parsingState,
+          reLexStack.pop()!,
+          rollbackStack,
+          debug,
+          logger,
+        );
         // TODO: prevent recursion
         return this.tryLex(
           parsingState,
@@ -590,7 +593,13 @@ export class DFA<
     if (nextStateResult.state === null) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
-        this._reLex(parsingState, reLexStack, rollbackStack, debug, logger);
+        this._reLex(
+          parsingState,
+          reLexStack.pop()!,
+          rollbackStack,
+          debug,
+          logger,
+        );
         return { accept: false, continue: true } as const;
       } else {
         // no more candidate can be constructed, parsing failed
