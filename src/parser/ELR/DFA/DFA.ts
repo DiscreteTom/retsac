@@ -1,3 +1,4 @@
+import { Stack } from "../../../helper/stack";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -176,24 +177,28 @@ export class DFA<
       Global
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
-    reLexStack: ReLexState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    reLexStack: Stack<
+      ReLexState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     commitParser: () => void,
     stopOnError: boolean,
     ignoreEntryFollow: boolean,
@@ -212,7 +217,7 @@ export class DFA<
   } {
     return this._parse(
       {
-        stateStack: [this.entryState],
+        stateStack: new Stack([this.entryState]),
         index: 0,
         errors: [],
         buffer,
@@ -255,15 +260,17 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     debug: boolean,
     logger: Logger,
   ): ParsingState<
@@ -317,24 +324,28 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReLexState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    reLexStack: Stack<
+      ReLexState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     commitParser: () => void,
     stopOnError: boolean,
     ignoreEntryFollow: boolean,
@@ -437,24 +448,28 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReLexState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    reLexStack: Stack<
+      ReLexState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     global: Global,
     debug: boolean,
     logger: Logger,
@@ -474,7 +489,7 @@ export class DFA<
       // lex success, record current parsing state for re-lex if re-lex is enabled
       if (this.reLex) {
         reLexStack.push({
-          stateStack: parsingState.stateStack.slice(), // make a copy
+          stateStack: parsingState.stateStack.clone(), // make a copy
           buffer: parsingState.buffer.slice(),
           lexer: parsingState.lexer, // use the original lexer
           index: parsingState.index,
@@ -518,40 +533,42 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReLexState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    reLexStack: Stack<
+      ReLexState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     global: Global,
     debug: boolean,
     logger: Logger,
   ) {
     while (true) {
-      const res = parsingState.stateStack
-        .at(-1)!
-        .tryLex(
-          parsingState.lexer,
-          this.tokenASTDataMapper,
-          parsingState.startCandidateIndex,
-          parsingState.lexedGrammars,
-          global,
-          debug,
-          logger,
-        );
+      const res = parsingState.stateStack.current!.tryLex(
+        parsingState.lexer,
+        this.tokenASTDataMapper,
+        parsingState.startCandidateIndex,
+        parsingState.lexedGrammars,
+        global,
+        debug,
+        logger,
+      );
       if (res !== undefined) return res;
 
       // try to restore from re-lex stack
@@ -575,7 +592,7 @@ export class DFA<
         // TODO: enter panic mode, #8
         if (debug) {
           const info = {
-            state: parsingState.stateStack.at(-1)!.toString(),
+            state: parsingState.stateStack.current!.toString(),
             rest: prettierLexerRest(parsingState.lexer),
           };
           logger.log({
@@ -599,33 +616,38 @@ export class DFA<
       LexerErrorType,
       Global
     >,
-    reLexStack: ReLexState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
-    rollbackStack: RollbackState<
-      NTs,
-      ASTData,
-      ErrorType,
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType,
-      Global
-    >[],
+    reLexStack: Stack<
+      ReLexState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
+    rollbackStack: Stack<
+      RollbackState<
+        NTs,
+        ASTData,
+        ErrorType,
+        LexerDataBindings,
+        LexerActionState,
+        LexerErrorType,
+        Global
+      >
+    >,
     ignoreEntryFollow: boolean,
     global: Global,
     debug: boolean,
     logger: Logger,
   ) {
     // try to construct next state
-    const nextStateResult = parsingState.stateStack
-      .at(-1)!
-      .getNext(this.grammars, parsingState.buffer[parsingState.index]);
+    const nextStateResult = parsingState.stateStack.current!.getNext(
+      this.grammars,
+      parsingState.buffer[parsingState.index],
+    );
     if (nextStateResult.state === null) {
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
@@ -641,7 +663,7 @@ export class DFA<
         // no more candidate can be constructed, parsing failed
         if (debug) {
           const info = {
-            state: parsingState.stateStack.at(-1)!.toString(),
+            state: parsingState.stateStack.current!.toString(),
             node: parsingState.buffer.at(parsingState.index)!.toString(),
           };
           logger.log({
@@ -660,20 +682,18 @@ export class DFA<
     parsingState.lexedGrammars.clear();
 
     // try reduce with the new state
-    const res = parsingState.stateStack
-      .at(-1)!
-      .tryReduce(
-        parsingState.buffer,
-        this.entryNTs,
-        ignoreEntryFollow,
-        this.followSets,
-        parsingState.lexer,
-        this.selector,
-        this.firstMatchSelector,
-        global,
-        debug,
-        logger,
-      );
+    const res = parsingState.stateStack.current!.tryReduce(
+      parsingState.buffer,
+      this.entryNTs,
+      ignoreEntryFollow,
+      this.followSets,
+      parsingState.lexer,
+      this.selector,
+      this.firstMatchSelector,
+      global,
+      debug,
+      logger,
+    );
 
     // rejected
     if (!res.accept) {

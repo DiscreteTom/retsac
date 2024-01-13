@@ -1,3 +1,4 @@
+import { Stack } from "../../helper/stack";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -60,30 +61,34 @@ export class Parser<
     Global
   >[];
 
-  private reLexStack: ReLexState<
-    NTs,
-    ASTData,
-    ErrorType,
-    LexerDataBindings,
-    LexerActionState,
-    LexerErrorType,
-    Global
-  >[];
+  private reLexStack: Stack<
+    ReLexState<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >
+  >;
   /**
    * There will only be one rollback stack for a parser.
    * Every reduce will push a rollback state to this stack.
    *
    * Re-lex will only pop this stack, they don't need to store or restore the stack.
    */
-  private rollbackStack: RollbackState<
-    NTs,
-    ASTData,
-    ErrorType,
-    LexerDataBindings,
-    LexerActionState,
-    LexerErrorType,
-    Global
-  >[];
+  private rollbackStack: Stack<
+    RollbackState<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >
+  >;
 
   get buffer() {
     return this._buffer as readonly ASTNode<
@@ -128,8 +133,8 @@ export class Parser<
     this.lexer = lexer;
     this._buffer = [];
     this.errors = [];
-    this.reLexStack = [];
-    this.rollbackStack = [];
+    this.reLexStack = new Stack();
+    this.rollbackStack = new Stack();
     this.autoCommit = autoCommit;
     this.ignoreEntryFollow = ignoreEntryFollow;
     this.globalFactory = globalFactory;
@@ -140,8 +145,8 @@ export class Parser<
 
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
-    this.reLexStack.length = 0; // clear re-lex stack
-    this.rollbackStack.length = 0; // clear rollback stack
+    this.reLexStack.clear();
+    this.rollbackStack.clear();
     return this;
   }
 

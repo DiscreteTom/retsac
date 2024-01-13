@@ -1,3 +1,4 @@
+import type { Stack } from "../../../helper/stack";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
@@ -18,18 +19,17 @@ export type ParsingState<
   LexerErrorType,
   Global,
 > = {
-  /**
-   * Current state is `states.at(-1)`.
-   */
-  stateStack: State<
-    NTs,
-    ASTData,
-    ErrorType,
-    LexerDataBindings,
-    LexerActionState,
-    LexerErrorType,
-    Global
-  >[];
+  stateStack: Stack<
+    State<
+      NTs,
+      ASTData,
+      ErrorType,
+      LexerDataBindings,
+      LexerActionState,
+      LexerErrorType,
+      Global
+    >
+  >;
   buffer: ASTNode<
     NTs | ExtractKinds<LexerDataBindings>,
     NTs,
