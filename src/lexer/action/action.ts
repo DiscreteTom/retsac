@@ -11,7 +11,7 @@ import type {
   AcceptedActionExecOutput,
 } from "./output";
 import { rejectedActionOutput, AcceptedActionOutput } from "./output";
-import { MultiKindsAction } from "./select";
+import { MultiKindAction } from "./select";
 import { checkRegexNotStartsWithCaret, makeRegexAutoSticky } from "./utils";
 
 /**
@@ -558,7 +558,7 @@ export class Action<
    */
   kinds<NewKinds extends string>(
     ...kinds: NewKinds[]
-  ): MultiKindsAction<
+  ): MultiKindAction<
     // since we are setting kinds, the DataBindings must be set even it's `never`
     {
       kind: NewKinds;
@@ -582,7 +582,7 @@ export class Action<
     const possibleKinds = _this.possibleKinds as Set<NewKinds>; // make mutable
     possibleKinds.clear();
     kinds.forEach((kind) => possibleKinds.add(kind));
-    return new MultiKindsAction(_this);
+    return new MultiKindAction(_this);
   }
 
   /**

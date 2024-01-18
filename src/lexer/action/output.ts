@@ -7,7 +7,7 @@ import type {
 } from "../model";
 import type { ActionInput } from "./input";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { MultiKindsAction } from "./select";
+import type { MultiKindAction } from "./select";
 
 // don't use data bindings as the type parameter
 // since we need these info to do type inference for `Action.exec/simple`.
@@ -64,7 +64,7 @@ export class AcceptedActionOutput<Kinds extends string, Data, ErrorType> {
     > & {
       rest: string | undefined;
       /**
-       * This should only be set by {@link MultiKindsAction.select}.
+       * This should only be set by {@link MultiKindAction.select}.
        */
       kind: Kinds | undefined;
     },

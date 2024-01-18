@@ -16,7 +16,7 @@ export type ActionKindSelector<
 /**
  * @see {@link Action.kinds}
  */
-export class MultiKindsAction<
+export class MultiKindAction<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,

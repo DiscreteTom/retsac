@@ -2,6 +2,8 @@
 
 ## v0.18.0
 
+- Lexer
+  - **_Breaking Change_**: rename `MultiKindsAction` into `MultiKindAction`.
 - Parser
   - **_Breaking Change_**: Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
     - Optimize the format of serialized parser data, remove unnecessary strings.
