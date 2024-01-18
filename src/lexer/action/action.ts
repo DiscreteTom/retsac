@@ -288,7 +288,25 @@ export class Action<
   }
 
   /**
+   * Check the `ActionInput` before the action is executed.
+   * Reject the action if the `condition` returns `true`.
+   * Return a new action.
+   */
+  prevent(
+    rejecter: (input: Readonly<ActionInput<ActionState>>) => boolean,
+  ): Action<DataBindings, ActionState, ErrorType> {
+    const wrapped = this.exec;
+
+    return new Action(
+      (input) => (rejecter(input) ? rejectedActionOutput : wrapped(input)),
+      this.maybeMuted,
+      this.possibleKinds,
+    );
+  }
+
+  /**
    * Apply a decorator to this action.
+   * Usually used to modify the `ActionOutput`.
    * Return a new action.
    */
   apply<NewDataBindings extends GeneralTokenDataBinding, NewErrorType>(
@@ -321,7 +339,7 @@ export class Action<
   }
 
   /**
-   * Mute action if `accept` is `true` and `muted` is/returned `true`.
+   * Set {@link ActionOutput.muted} if the action is accepted.
    * Return a new action.
    */
   mute(
@@ -358,8 +376,7 @@ export class Action<
   }
 
   /**
-   * Check the output if `accept` is `true`.
-   * `condition` should return error, `undefined` means no error.
+   * Set {@link ActionOutput.error} if the action is accepted.
    * Return a new action.
    */
   check<NewErrorType>(
@@ -381,7 +398,7 @@ export class Action<
   }
 
   /**
-   * Set error if `accept` is `true`.
+   * Set {@link ActionOutput.error} if the action is accepted.
    * Return a new action.
    */
   error<NewErrorType>(
@@ -391,8 +408,7 @@ export class Action<
   }
 
   /**
-   * Set data if `accept` is `true`.
-   * This is used when your action can only yield one kind.
+   * Set {@link ActionOutput.data} if the action is accepted.
    * Return a new action.
    */
   data<NewData>(
@@ -421,7 +437,7 @@ export class Action<
   }
 
   /**
-   * Set data to `undefined` if `accept` is `true`.
+   * Set {@link ActionOutput.data} to `undefined` if the action is accepted.
    * Return a new action.
    */
   purge(): Action<
@@ -433,7 +449,7 @@ export class Action<
   }
 
   /**
-   * Reject if `accept` is `true` and `rejecter` is/returns `true`.
+   * Reject the action if the condition is met.
    * Return a new action.
    */
   reject(
@@ -468,23 +484,6 @@ export class Action<
   }
 
   /**
-   * Check the input before the action is executed.
-   * Reject if the `rejecter` returns `true`.
-   * Return a new action.
-   */
-  prevent(
-    rejecter: (input: Readonly<ActionInput<ActionState>>) => boolean,
-  ): Action<DataBindings, ActionState, ErrorType> {
-    const wrapped = this.exec;
-
-    return new Action(
-      (input) => (rejecter(input) ? rejectedActionOutput : wrapped(input)),
-      this.maybeMuted,
-      this.possibleKinds,
-    );
-  }
-
-  /**
    * Call `f` if `accept` is `true` and `peek` is `false`.
    * You can modify the action state in `cb`.
    * Return a new action.
@@ -501,11 +500,11 @@ export class Action<
   }
 
   /**
-   * Execute the new action if current action can't accept input.
+   * Execute another action if current action can't be accepted.
    * Return a new action.
    */
   or(
-    a: IntoAction<
+    another: IntoAction<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
       ActionState,
@@ -513,7 +512,7 @@ export class Action<
     >,
   ): Action<DataBindings, ActionState, ErrorType> {
     const wrapped = this.exec;
-    const other = Action.from(a);
+    const other = Action.from(another);
     const otherWrapped = other.exec;
     return new Action(
       (input) => {
