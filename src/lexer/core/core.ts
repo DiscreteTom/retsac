@@ -111,6 +111,8 @@ export class LexerCore<
     }
 
     return executeActions(
+      // we shouldn't filter actions by expectations here
+      // since muted actions can be accepted with unexpected kinds/text
       this.actions,
       (input) => {
         // cache the result of `startsWith` to avoid duplicate calculation
