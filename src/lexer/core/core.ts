@@ -134,13 +134,12 @@ export class LexerCore<
             skippedActionMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
           }),
-          after: (action, output) => ({
+          after: (output) => ({
             accept:
               // if muted, we don't need to check expectation
               output.muted ||
               // ensure expectation match
-              ((expect.kind === undefined ||
-                action.possibleKinds.has(expect.kind)) &&
+              ((expect.kind === undefined || expect.kind === output.kind) &&
                 (expect.text === undefined || expect.text === output.content)),
             acceptMessageFormatter: (info) =>
               `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${

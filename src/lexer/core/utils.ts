@@ -220,7 +220,7 @@ function tryExecuteAction<
 
   // accepted, validate the output
   const kind = output.kind;
-  const postCheckRes = validator.after(action, output);
+  const postCheckRes = validator.after(output);
   if (postCheckRes.accept) {
     // accepted, return
     if (debug) {

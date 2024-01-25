@@ -25,7 +25,6 @@ export type Validator<
     }) => string;
   };
   after: (
-    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
     output: AcceptedActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
