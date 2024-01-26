@@ -161,8 +161,7 @@ export class Lexer<
     return result;
   }
 
-  // TODO: rename
-  trimStart() {
+  trim() {
     const entity = "Lexer.trimStart";
 
     if (!this.state.trimmed) {
@@ -175,8 +174,7 @@ export class Lexer<
         entity,
       });
       // update state
-      this.state.digest(res.digested, res.rest);
-      this.state.setTrimmed();
+      this.state.trim(res.digested, res.rest);
     }
 
     // TODO: fix type

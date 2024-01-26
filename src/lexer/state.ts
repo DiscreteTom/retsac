@@ -34,9 +34,10 @@ export class LexerState<
     return state;
   }
 
-  // TODO: use trim
-  setTrimmed() {
+  trim(n: number, rest: string | undefined) {
+    this.digested += n;
     this.trimmed = true;
+    this.rest = rest;
   }
 
   getRest() {
