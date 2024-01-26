@@ -343,7 +343,7 @@ export class TheTNode<
       Global
     >({
       kind: t.kind,
-      start: t.start,
+      start: t.range.start,
       text: t.content,
       data,
       global,

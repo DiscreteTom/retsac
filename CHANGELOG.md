@@ -3,6 +3,7 @@
 ## v0.18.0
 
 - Lexer
+  - **_Breaking Change_**: make `Token` a class, add `Token.range` and `Token.buffer`, remove `Token.start`.
   - **_Breaking Change_**: rename `MultiKindsAction` into `MultiKindAction`.
   - Fix: expectational lexing's post check will check the output's kind instead of action's possible kinds.
 - Parser

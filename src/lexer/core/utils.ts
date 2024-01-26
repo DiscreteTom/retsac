@@ -6,11 +6,11 @@ import type {
   ActionOutput,
   ReadonlyAction,
 } from "../action";
+import { Token } from "../model";
 import type {
   GeneralTokenDataBinding,
   ExtractKinds,
   ExtractData,
-  Token,
   ILexerCoreLexOutput,
 } from "../model";
 import type { Validator } from "./model";
@@ -269,11 +269,14 @@ export function output2token<
     >
   >,
 ): Token<DataBindings, ErrorType> {
-  return {
-    kind: output.kind,
-    content: output.content,
-    start: output.start,
-    error: output.error,
-    data: output.data,
-  } as Token<DataBindings, ErrorType>;
+  return Token.from(
+    output.kind,
+    output.data,
+    output.buffer,
+    {
+      start: output.start,
+      end: output.start + output.digested,
+    },
+    output.error,
+  ) as Token<DataBindings, ErrorType>;
 }

@@ -143,8 +143,8 @@ test("number", () => {
     const lexer = buildLexer();
     expect(lexer.reset().lex(str)).toEqual({
       kind: "number",
-      content: str,
-      start: 0,
+      buffer: str,
+      range: { start: 0, end: str.length },
       error: undefined,
       data: undefined,
     } as Token<{ kind: "number"; data: never }, never>);
@@ -163,8 +163,8 @@ test("anonymous", () => {
     const lexer = buildLexer();
     expect(lexer.reset().lex(str)).toEqual({
       kind: "",
-      content: str,
-      start: 0,
+      buffer: str,
+      range: { start: 0, end: str.length },
       error: undefined,
       data: undefined,
     } as Token<{ kind: ""; data: never }, never>);

@@ -1,30 +1,16 @@
-import type { TNode } from "../../src/parser";
 import { TheTNode } from "../../src/parser";
 import { ELR, Lexer } from "../../src";
+import { Token } from "../../src/lexer";
 
 describe("TNode", () => {
   const node = TheTNode.from(
-    {
-      content: "123",
-      kind: "num",
+    Token.from("num", 1, "123", {
       start: 0,
-      data: 1,
-    },
+      end: 3,
+    }),
     2,
     3,
-  ) as TNode<
-    "num",
-    string,
-    number,
-    number,
-    {
-      content: "123";
-      kind: "num";
-      start: 0;
-      data: 1;
-    },
-    number
-  >;
+  );
   test("from token", () => {
     expect(node.name).toBe("num");
     expect(node.kind).toBe("num");
