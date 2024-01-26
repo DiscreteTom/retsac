@@ -18,8 +18,7 @@ export class LexerState<
     this.rest = undefined;
   }
 
-  // TODO: rename
-  take(n: number, rest: string | undefined) {
+  digest(n: number, rest: string | undefined) {
     if (n === 0) return;
 
     this.digested += n;

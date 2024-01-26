@@ -97,7 +97,7 @@ export class Lexer<
       }
     } else throw new InvalidLengthForTakeError(n);
 
-    this.state.take(n, undefined);
+    this.state.digest(n, undefined);
 
     // update action state
     if (state === undefined)
@@ -143,7 +143,7 @@ export class Lexer<
 
     // update state if not peek
     if (!peek) {
-      this.state.take(res.digested, res.rest);
+      this.state.digest(res.digested, res.rest);
       // action state will be updated in core automatically if peek is false
     }
 
@@ -175,7 +175,7 @@ export class Lexer<
         entity,
       });
       // update state
-      this.state.take(res.digested, res.rest);
+      this.state.digest(res.digested, res.rest);
       this.state.setTrimmed();
     }
 
