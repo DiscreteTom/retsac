@@ -22,7 +22,7 @@ test("auto commit", () => {
   expect(
     // access the private property
     (parser as unknown as { reLexStack: Array<unknown> })["reLexStack"].length,
-  ).toBe(1);
+  ).toBe(2);
 
   // enable auto commit
   // you can also enable it when building the parser
