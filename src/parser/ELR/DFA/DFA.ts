@@ -284,20 +284,14 @@ export class DFA<
   > {
     if (debug) {
       const info = {
-        trying: targetState.buffer.at(-1)!.toString(),
-        restored:
-          // the last node must be a TNode
-          targetState.buffer.at(-1)!.asT().text +
-          targetState.lexer.buffer.slice(
-            targetState.lexer.digested,
-            parsingState.lexer.digested,
-          ),
+        restored: targetState.lexer.buffer.slice(
+          targetState.lexer.digested,
+          parsingState.lexer.digested,
+        ),
       };
       logger.log({
         entity: "Parser",
-        message: `re-lex, restored: ${JSON.stringify(info.restored)}, trying: ${
-          info.trying
-        }`,
+        message: `re-lex, restored: ${JSON.stringify(info.restored)}`,
         info,
       });
     }
@@ -357,18 +351,18 @@ export class DFA<
       // if no enough AST nodes
       if (parsingState.index >= parsingState.buffer.length) {
         // try to lex a new one and update parsingState
-        if (
-          !this.tryLex(
-            parsingState,
-            reLexStack,
-            rollbackStack,
-            global,
-            debug,
-            logger,
-          )
-        ) {
+        const res = this.tryLex(
+          parsingState,
+          reLexStack,
+          rollbackStack,
+          global,
+          debug,
+          logger,
+        );
+        if (res === undefined) {
           return { output: rejectedParserOutput, lexer: parsingState.lexer };
         }
+        parsingState = res;
       }
 
       const res = this.tryReduce(
@@ -473,7 +467,7 @@ export class DFA<
     global: Global,
     debug: boolean,
     logger: Logger,
-  ): boolean {
+  ) {
     const res = this._tryLex(
       parsingState,
       reLexStack,
@@ -484,21 +478,9 @@ export class DFA<
     );
     // if no more ASTNode can be lexed
     if (res === undefined) {
-      return false;
+      return undefined;
     } else {
-      // lex success, record current parsing state for re-lex if re-lex is enabled
-      if (this.reLex) {
-        reLexStack.push({
-          stateStack: parsingState.stateStack.clone(), // make a copy
-          buffer: parsingState.buffer.slice(),
-          lexer: parsingState.lexer, // use the original lexer
-          index: parsingState.index,
-          errors: parsingState.errors.slice(),
-          rollbackStackLength: rollbackStack.length,
-          lexedGrammars: new Set(parsingState.lexedGrammars), // lexedGrammars is updated, clone it
-          startCandidateIndex: res.nextCandidateIndex,
-        });
-      }
+      parsingState = res.parsingState;
       // apply result to the current state
       parsingState.buffer.push(res.node.asASTNode());
       parsingState.lexer = res.lexer;
@@ -515,7 +497,7 @@ export class DFA<
       }
     }
 
-    return true;
+    return parsingState;
   }
 
   /**
@@ -569,7 +551,26 @@ export class DFA<
         debug,
         logger,
       );
-      if (res !== undefined) return res;
+      if (res !== undefined) {
+        // if re-lex is enabled, store other possibilities for re-lex
+        if (
+          this.reLex &&
+          res.nextCandidateIndex <
+            parsingState.stateStack.current!.candidates.length
+        ) {
+          reLexStack.push({
+            stateStack: parsingState.stateStack.clone(), // make a copy
+            buffer: parsingState.buffer.slice(),
+            lexer: parsingState.lexer, // use the original lexer
+            index: parsingState.index,
+            errors: parsingState.errors.slice(),
+            rollbackStackLength: rollbackStack.length,
+            lexedGrammars: new Set(parsingState.lexedGrammars), // lexedGrammars is updated, clone it
+            startCandidateIndex: res.nextCandidateIndex,
+          });
+        }
+        return { ...res, parsingState };
+      }
 
       // try to restore from re-lex stack
       if (this.reLex && reLexStack.length > 0) {
