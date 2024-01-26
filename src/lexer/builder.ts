@@ -5,7 +5,7 @@ import type { GeneralTokenDataBinding, ILexer } from "./model";
 import { LexerCore } from "./core";
 import type { Expand } from "../helper";
 
-export type LexerBuildOptions = Partial<
+export type LexerBuilderBuildOptions = Partial<
   Pick<ILexer<never, never, never>, "logger" | "debug">
 >;
 
@@ -64,12 +64,12 @@ export class Builder<
     ActionState,
     ErrorType
   >[];
-  private initialState: Readonly<ActionState>;
-  private stateCloner: ActionStateCloner<ActionState>;
+  private defaultActionState: Readonly<ActionState>;
+  private actionStateCloner: ActionStateCloner<ActionState>;
 
   constructor() {
     this.actions = [];
-    this.stateCloner = defaultActionStateCloner;
+    this.actionStateCloner = defaultActionStateCloner;
   }
 
   /**
@@ -97,8 +97,8 @@ export class Builder<
       NewActionState,
       ErrorType
     >;
-    _this.initialState = state;
-    _this.stateCloner = cloner ?? defaultActionStateCloner;
+    _this.defaultActionState = state;
+    _this.actionStateCloner = cloner ?? defaultActionStateCloner;
     return _this;
   }
 
@@ -264,11 +264,17 @@ export class Builder<
   }
 
   build(
-    options?: LexerBuildOptions,
+    buffer: string,
+    options?: LexerBuilderBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
     return new Lexer<DataBindings, ActionState, ErrorType>(
-      new LexerCore(this.actions, this.initialState, this.stateCloner),
-      options,
+      new LexerCore(this.actions),
+      {
+        buffer,
+        actionStateCloner: this.actionStateCloner,
+        defaultActionState: this.defaultActionState,
+        ...options,
+      },
     );
   }
 }

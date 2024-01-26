@@ -3,51 +3,54 @@ import type { ActionStateCloner } from "../action";
 import type { ExtractKinds } from "./extractor";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
-export type ILexerCoreLexOptions<DataBindings extends GeneralTokenDataBinding> =
-  {
-    /**
-     * From which char of the input string to start lexing.
-     * @default 0
-     */
-    start: number;
-    /**
-     * If NOT `undefined`, the value should be `input.slice(options.offset)`.
-     * This is to optimize the performance if some actions need to get the rest of the input.
-     * @default undefined
-     */
-    rest: string | undefined;
-    /**
-     * Ensure the output token is the expected kind and/or text.
-     *
-     * If `expect.kind` is provided, actions with different kinds will be ignored.
-     *
-     * If `expect.text` is provided, output with different text will be rejected.
-     *
-     * Muted actions will still be executed and their output will not be emitted.
-     * @default
-     * { kind: undefined, text: undefined }
-     */
-    expect: Readonly<{
-      kind?: ExtractKinds<DataBindings>;
-      text?: string;
-    }>;
-    /**
-     * @default false
-     */
-    debug: boolean;
-    /**
-     * @default defaultLogger
-     */
-    logger: Logger;
-    /**
-     * @default "LexerCore.lex"
-     */
-    entity: string;
-    /**
-     * @default false
-     */
-    peek: boolean;
-  };
+export type ILexerCoreLexOptions<
+  DataBindings extends GeneralTokenDataBinding,
+  ActionState,
+> = {
+  /**
+   * From which char of the input string to start lexing.
+   * @default 0
+   */
+  start?: number;
+  /**
+   * If NOT `undefined`, the value should be `input.slice(options.offset)`.
+   * This is to optimize the performance if some actions need to get the rest of the input.
+   * @default undefined
+   */
+  rest?: string | undefined;
+  actionState: ActionState;
+  /**
+   * Ensure the output token is the expected kind and/or text.
+   *
+   * If `expect.kind` is provided, actions with different kinds will be ignored.
+   *
+   * If `expect.text` is provided, output with different text will be rejected.
+   *
+   * Muted actions will still be executed and their output will not be emitted.
+   * @default
+   * { kind: undefined, text: undefined }
+   */
+  expect?: Readonly<{
+    kind?: ExtractKinds<DataBindings>;
+    text?: string;
+  }>;
+  /**
+   * @default false
+   */
+  debug?: boolean;
+  /**
+   * @default defaultLogger
+   */
+  logger?: Logger;
+  /**
+   * @default "LexerCore.lex"
+   */
+  entity?: string;
+  /**
+   * @default false
+   */
+  peek?: boolean;
+};
 
 export type ILexerCoreLexOutput<
   DataBindings extends GeneralTokenDataBinding,
@@ -74,14 +77,14 @@ export type ILexerCoreLexOutput<
   errors: Token<DataBindings, ErrorType>[];
 };
 
-export type ILexerCoreTrimStartOptions = Pick<
-  ILexerCoreLexOptions<never>,
-  "debug" | "logger" | "rest" | "start"
+export type ILexerCoreTrimStartOptions<ActionState> = Pick<
+  ILexerCoreLexOptions<never, ActionState>,
+  "debug" | "logger" | "rest" | "start" | "actionState"
 > & {
   /**
    * @default "LexerCore.trimStart"
    */
-  entity: string;
+  entity?: string;
 };
 
 export type ILexerCoreTrimStartOutput<
@@ -128,7 +131,7 @@ export interface IReadonlyLexerCore<
     // readonly lex, must set peek to true
     // so the options can't be omitted
     options: Readonly<
-      Partial<ILexerCoreLexOptions<DataBindings>> & { peek: true }
+      Partial<ILexerCoreLexOptions<DataBindings, ActionState>> & { peek: true }
     >,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
   /**
@@ -141,7 +144,9 @@ export interface IReadonlyLexerCore<
     buffer: string,
     // readonly lex, must set peek to true
     // so the options can't be omitted
-    options: Readonly<ILexerCoreLexOptions<DataBindings> & { peek: true }>,
+    options: Readonly<
+      ILexerCoreLexOptions<DataBindings, ActionState> & { peek: true }
+    >,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
   /**
    * Get all defined token kinds.
@@ -171,7 +176,9 @@ export interface ILexerCore<
      * The whole input string.
      */
     buffer: string,
-    options?: Readonly<Partial<ILexerCoreLexOptions<DataBindings>>>,
+    options?: Readonly<
+      Partial<ILexerCoreLexOptions<DataBindings, ActionState>>
+    >,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
   /**
    * Lex with full options.
@@ -181,20 +188,20 @@ export interface ILexerCore<
      * The whole input string.
      */
     buffer: string,
-    options: Readonly<ILexerCoreLexOptions<DataBindings>>,
+    options: Readonly<ILexerCoreLexOptions<DataBindings, ActionState>>,
   ): ILexerCoreLexOutput<DataBindings, ErrorType>;
   /**
    * TrimStart with partial options.
    */
   trimStart(
     buffer: string,
-    options?: Readonly<Partial<ILexerCoreTrimStartOptions>>,
+    options?: Readonly<Partial<ILexerCoreTrimStartOptions<ActionState>>>,
   ): ILexerCoreTrimStartOutput<DataBindings, ErrorType>;
   /**
    * TrimStart with full options.
    */
   _trimStart(
     buffer: string,
-    options: Readonly<ILexerCoreTrimStartOptions>,
+    options: Readonly<ILexerCoreTrimStartOptions<ActionState>>,
   ): ILexerCoreTrimStartOutput<DataBindings, ErrorType>;
 }

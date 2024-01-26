@@ -13,7 +13,7 @@ export type ILexerLexOptions<DataBindings extends GeneralTokenDataBinding> = {
    * @default undefined
    */
   input?: string;
-} & Partial<Pick<ILexerCoreLexOptions<DataBindings>, "expect" | "peek">>;
+} & Partial<Pick<ILexerCoreLexOptions<DataBindings, never>, "expect" | "peek">>;
 
 export type ILexerCloneOptions = {
   debug?: boolean;
