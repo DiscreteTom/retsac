@@ -7,7 +7,6 @@ import type {
   GeneralTokenDataBinding,
   ILexerCloneOptions,
   ILexerCoreLexOptions,
-  ITrimmedLexer,
   Token,
 } from "./model";
 import { LexerState } from "./state";
@@ -132,9 +131,7 @@ export class Lexer<
     };
   }
 
-  lex(
-    expectation?: ILexerCoreLexOptions<DataBindings, ActionState>["expect"],
-  ): Token<DataBindings, ErrorType> | null {
+  lex(expectation?: ILexerCoreLexOptions<DataBindings, ActionState>["expect"]) {
     const entity = "Lexer.lex";
 
     const res = this.stateless.lex(this.state.buffer, {
@@ -150,41 +147,60 @@ export class Lexer<
     // update state
     this.state.digest(res.digested, res.rest);
 
-    return res.token;
+    return res;
   }
 
-  lexAll(): Token<DataBindings, ErrorType>[] {
-    const result: Token<DataBindings, ErrorType>[] = [];
+  lexAll() {
+    const result = {
+      tokens: [] as Token<DataBindings, ErrorType>[],
+      digested: 0,
+      errors: [] as Token<DataBindings, ErrorType>[],
+      rest: undefined as string | undefined,
+    };
     while (true) {
       const res = this.lex();
-      if (res !== null) {
-        result.push(res);
-      } else break;
+      result.digested += res.digested;
+      result.errors.push(...res.errors);
+      result.rest = res.rest;
+
+      if (res.token !== undefined) {
+        result.tokens.push(res.token);
+      } else return result;
     }
-    return result;
   }
 
-  trim() {
+  trim(): {
+    digested: number;
+    errors: Token<DataBindings, ErrorType>[];
+    rest: string | undefined;
+    // TODO: fix type
+    // trimmedLexer: ITrimmedLexer<DataBindings, ActionState, ErrorType>;
+  } {
     const entity = "Lexer.trimStart";
 
-    if (!this.state.trimmed) {
-      const res = this.stateless.trim(this.state.buffer, {
-        start: this.state.digested,
+    if (this.state.trimmed)
+      // already trimmed
+      return {
+        digested: 0,
+        errors: [],
         rest: this.state.rest,
-        debug: this.debug,
-        logger: this.logger,
-        actionState: this.actionState,
-        entity,
-      });
-      // update state
-      this.state.trim(res.digested, res.rest);
-    }
+        // trimmedLexer: this,
+      };
 
-    // TODO: fix type
-    return this as unknown as ITrimmedLexer<
-      DataBindings,
-      ActionState,
-      ErrorType
-    >;
+    const res = this.stateless.trim(this.state.buffer, {
+      start: this.state.digested,
+      rest: this.state.rest,
+      debug: this.debug,
+      logger: this.logger,
+      actionState: this.actionState,
+      entity,
+    });
+    // update state
+    this.state.trim(res.digested, res.rest);
+
+    return {
+      ...res,
+      // trimmedLexer: this,
+    };
   }
 }

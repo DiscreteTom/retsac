@@ -53,9 +53,9 @@ export type ILexerCoreLexOutput<
   ErrorType,
 > = {
   /**
-   * `null` if no actions can be accepted or all muted.
+   * `undefined` if no actions can be accepted or all muted.
    */
-  token: Token<DataBindings, ErrorType> | null;
+  token: Token<DataBindings, ErrorType> | undefined;
   /**
    * How many chars are digested during this lex.
    * Zero if no actions can be accepted.

@@ -49,7 +49,7 @@ export function executeActions<
   entity: string,
 ): ILexerCoreLexOutput<DataBindings, ErrorType> {
   const res: ILexerCoreLexOutput<DataBindings, ErrorType> = {
-    token: null,
+    token: undefined,
     digested: 0,
     rest: initialRest,
     errors: [],
