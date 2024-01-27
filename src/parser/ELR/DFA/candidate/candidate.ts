@@ -3,7 +3,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   IReadonlyLexer,
-  Token,
+  IToken,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { ASTNode } from "../../../ast";
@@ -241,7 +241,7 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
     entryNTs: ReadonlySet<string>,
@@ -256,14 +256,14 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >,
     firstMatchSelector: ASTNodeFirstMatchSelector<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >,
     global: Global,
@@ -275,7 +275,7 @@ export class Candidate<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       > & {
         context: GrammarRuleContext<
@@ -480,7 +480,7 @@ export class Candidate<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >({
       kind: this.gr.NT,

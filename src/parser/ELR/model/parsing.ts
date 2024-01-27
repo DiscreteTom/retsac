@@ -3,7 +3,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
-  Token,
+  IToken,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type { ReadonlyState } from "../DFA";
@@ -35,7 +35,7 @@ export type ParsingState<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   /**
@@ -50,7 +50,7 @@ export type ParsingState<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;

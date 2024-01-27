@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, Token } from "../../../lexer";
+import type { GeneralTokenDataBinding, IToken } from "../../../lexer";
 import type { NTNodeTraverser } from "../../traverser";
 import type { Callback, Condition, Reducer } from "../model";
 import { ConflictType, ResolverHydrationType } from "../model";
@@ -69,7 +69,7 @@ export class DefinitionContextBuilder<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
 
@@ -181,7 +181,7 @@ export class DefinitionContextBuilder<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >,
   ) {

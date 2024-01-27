@@ -2,7 +2,7 @@ import { defaultLogger, type Logger } from "../logger";
 import type { ActionStateCloner } from "./action";
 import type { LexerBuilderBuildOptions } from "./builder";
 import { InvalidLengthForTakeError } from "./error";
-import type { ILexerState } from "./model";
+import type { ILexerState, IToken } from "./model";
 import type {
   Expectation,
   GeneralTokenDataBinding,
@@ -10,7 +10,6 @@ import type {
   ILexerCloneOptions,
   IReadonlyLexer,
   IStatelessLexer,
-  Token,
 } from "./model";
 import { LexerState } from "./state";
 
@@ -148,9 +147,9 @@ export class Lexer<
 
   lexAll() {
     const result = {
-      tokens: [] as Token<DataBindings, ErrorType>[],
+      tokens: [] as IToken<DataBindings, ErrorType>[],
       digested: 0,
-      errors: [] as Token<DataBindings, ErrorType>[],
+      errors: [] as IToken<DataBindings, ErrorType>[],
       rest: undefined as string | undefined,
     };
     while (true) {

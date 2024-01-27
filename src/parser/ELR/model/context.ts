@@ -3,7 +3,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   IReadonlyLexer,
-  Token,
+  IToken,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
 import type {
@@ -30,7 +30,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   /**
@@ -42,7 +42,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[] {
     return this._before ?? (this._before = this.beforeFactory());
@@ -58,7 +58,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   /**
@@ -68,7 +68,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   /**
@@ -101,7 +101,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   private _before?: readonly ASTNode<
@@ -109,7 +109,7 @@ export class GrammarRuleContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   private _values?: readonly (ASTData | undefined)[];
@@ -132,21 +132,21 @@ export class GrammarRuleContext<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >[];
       selector: ASTNodeSelector<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >;
       firstMatchSelector: ASTNodeFirstMatchSelector<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >;
     },

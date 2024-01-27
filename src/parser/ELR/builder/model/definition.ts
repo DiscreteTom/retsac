@@ -1,4 +1,4 @@
-import type { GeneralTokenDataBinding, Token } from "../../../../lexer";
+import type { GeneralTokenDataBinding, IToken } from "../../../../lexer";
 import type { NTNodeTraverser } from "../../../traverser";
 import type { Callback, Condition } from "../../model";
 import type { ResolvedPartialTempConflict } from "./resolver";
@@ -84,7 +84,7 @@ export interface DefinitionContext<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   // TODO: reParse?: boolean;

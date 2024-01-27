@@ -3,7 +3,7 @@ import type {
   GeneralToken,
   GeneralTokenDataBinding,
   ILexer,
-  Token,
+  IToken,
 } from "../lexer";
 import type { Logger } from "../logger";
 import type { ParserOutput } from "./output";
@@ -84,7 +84,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   /**
@@ -98,7 +98,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   /**
@@ -109,7 +109,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   hasErrors(): boolean;
@@ -121,7 +121,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   /**
@@ -135,7 +135,7 @@ export interface IParser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
 }

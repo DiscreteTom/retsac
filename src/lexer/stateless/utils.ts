@@ -8,6 +8,7 @@ import type {
   ExtractKinds,
   ExtractData,
   ILexOutput,
+  IToken,
 } from "../model";
 import type { Validator } from "./model";
 
@@ -47,8 +48,8 @@ export function executeActions<
   debug: boolean,
   logger: Logger,
   entity: string,
-): ILexOutput<Token<DataBindings, ErrorType>> {
-  const res: ILexOutput<Token<DataBindings, ErrorType>> = {
+): ILexOutput<IToken<DataBindings, ErrorType>> {
+  const res: ILexOutput<IToken<DataBindings, ErrorType>> = {
     token: undefined,
     digested: 0,
     rest: initialRest,
@@ -282,7 +283,7 @@ export function output2token<
       ErrorType
     >
   >,
-): Token<DataBindings, ErrorType> {
+): IToken<DataBindings, ErrorType> {
   return Token.from(
     output.kind,
     output.data,
@@ -292,5 +293,5 @@ export function output2token<
       end: input.start + output.digested,
     },
     output.error,
-  ) as Token<DataBindings, ErrorType>;
+  ) as IToken<DataBindings, ErrorType>;
 }

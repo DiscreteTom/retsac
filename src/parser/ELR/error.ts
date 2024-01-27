@@ -1,4 +1,8 @@
-import type { ExtractKinds, GeneralTokenDataBinding, Token } from "../../lexer";
+import type {
+  ExtractKinds,
+  GeneralTokenDataBinding,
+  IToken,
+} from "../../lexer";
 import type { ASTNode } from "../ast";
 import type { State } from "./DFA";
 
@@ -40,7 +44,7 @@ export class StateCacheMissError<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >
     >,

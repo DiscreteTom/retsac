@@ -15,7 +15,7 @@ import type { ParserBuilder } from "../../builder";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  Token,
+  IToken,
 } from "../../../../lexer";
 
 /**
@@ -144,7 +144,7 @@ export class GrammarRule<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
 

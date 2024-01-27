@@ -2,7 +2,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   IStatelessLexer,
-  Token,
+  IToken,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { NTNodeTraverser } from "../../../traverser";
@@ -174,7 +174,7 @@ export class TempGrammarRule<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   readonly hydrationId: number;

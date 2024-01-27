@@ -3,7 +3,7 @@ import type {
   GeneralTokenDataBinding,
   ILexer,
   IReadonlyLexer,
-  Token,
+  IToken,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
 import type { ASTNode, TNode } from "../../../ast";
@@ -193,7 +193,7 @@ export class State<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >
     >,
@@ -324,7 +324,7 @@ export class State<
           NTs,
           ASTData,
           ErrorType,
-          Token<LexerDataBindings, LexerErrorType>,
+          IToken<LexerDataBindings, LexerErrorType>,
           Global
         >;
         trimmedLexer: ILexer<
@@ -421,7 +421,7 @@ export class State<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
     entryNTs: ReadonlySet<string>,
@@ -436,14 +436,14 @@ export class State<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >,
     firstMatchSelector: ASTNodeFirstMatchSelector<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >,
     global: Global,
@@ -455,7 +455,7 @@ export class State<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       > & {
         context: GrammarRuleContext<

@@ -3,7 +3,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
-  Token,
+  IToken,
 } from "../../lexer";
 import type { Logger } from "../../logger";
 import type { ASTNode } from "../ast";
@@ -49,7 +49,7 @@ export class Parser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
   readonly errors: ASTNode<
@@ -57,7 +57,7 @@ export class Parser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >[];
 
@@ -96,7 +96,7 @@ export class Parser<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[];
   }
@@ -177,7 +177,7 @@ export class Parser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   > {
     // important! make sure lexer can still lex something not muted.
@@ -215,7 +215,7 @@ export class Parser<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   > {
     let buffer: ASTNode<
@@ -223,7 +223,7 @@ export class Parser<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[] = [];
     /** Aggregate results if the parser can accept more. */
@@ -232,7 +232,7 @@ export class Parser<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[] = [];
     /** If the parser has accepted at least once. */

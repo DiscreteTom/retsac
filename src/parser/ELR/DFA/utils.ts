@@ -3,7 +3,7 @@ import type {
   GeneralTokenDataBinding,
   ILexer,
   IReadonlyLexer,
-  Token,
+  IToken,
 } from "../../../lexer";
 import type { StringOrLiteral } from "../../../helper";
 import type {
@@ -201,7 +201,7 @@ export function cascadeASTNodeSelectorFactory<
   NTs,
   ASTData,
   ErrorType,
-  Token<LexerDataBindings, LexerErrorType>,
+  IToken<LexerDataBindings, LexerErrorType>,
   Global
 > {
   return ((
@@ -211,7 +211,7 @@ export function cascadeASTNodeSelectorFactory<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
   ) => {
@@ -220,7 +220,7 @@ export function cascadeASTNodeSelectorFactory<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[] = [];
     nodes.forEach((n) => {
@@ -234,11 +234,11 @@ export function cascadeASTNodeSelectorFactory<
       ) {
         result.push(
           ...(n.$$(name) as ASTNode<
-            NTs | ExtractKinds<Token<LexerDataBindings, LexerErrorType>>,
+            NTs | ExtractKinds<IToken<LexerDataBindings, LexerErrorType>>,
             NTs,
             ASTData,
             ErrorType,
-            Token<LexerDataBindings, LexerErrorType>,
+            IToken<LexerDataBindings, LexerErrorType>,
             Global
           >[]),
         );
@@ -249,7 +249,7 @@ export function cascadeASTNodeSelectorFactory<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
 }
@@ -266,7 +266,7 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
   NTs,
   ASTData,
   ErrorType,
-  Token<LexerDataBindings, LexerErrorType>,
+  IToken<LexerDataBindings, LexerErrorType>,
   Global
 > {
   return ((
@@ -276,7 +276,7 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
   ) => {
@@ -298,7 +298,7 @@ export function cascadeASTNodeFirstMatchSelectorFactory<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
 }
@@ -335,7 +335,7 @@ export function lexGrammar<
         NTs,
         ASTData,
         ErrorType,
-        Token<LexerDataBindings, LexerErrorType>,
+        IToken<LexerDataBindings, LexerErrorType>,
         Global
       >;
       trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
@@ -358,7 +358,7 @@ export function lexGrammar<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >(token, tokenASTDataMapper.get(token.kind)?.(token), global),
     trimmedLexer: mutableLexer,

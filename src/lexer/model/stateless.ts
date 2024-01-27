@@ -3,7 +3,7 @@ import type { ReadonlyAction } from "../action";
 import type { Expectation } from "./expectation";
 import type { ExtractKinds } from "./extractor";
 import type { ILexOutput, ITrimOutput } from "./output";
-import type { GeneralTokenDataBinding, Token } from "./token";
+import type { GeneralTokenDataBinding, IToken } from "./token";
 
 export type IStatelessLexerLexOptions<
   DataBindings extends GeneralTokenDataBinding,
@@ -103,7 +103,7 @@ export interface IStatelessLexer<
      * `actionState` is required.
      */
     options: Readonly<IStatelessLexerLexOptions<DataBindings, ActionState>>,
-  ): ILexOutput<Token<DataBindings, ErrorType>>;
+  ): ILexOutput<IToken<DataBindings, ErrorType>>;
 
   trim(
     /**
@@ -115,7 +115,7 @@ export interface IStatelessLexer<
      */
     options: Readonly<IStatelessLexerTrimOptions<ActionState>>,
   ): Pick<
-    ITrimOutput<Token<DataBindings, ErrorType>>,
+    ITrimOutput<IToken<DataBindings, ErrorType>>,
     "digested" | "errors" | "rest"
   >;
 }

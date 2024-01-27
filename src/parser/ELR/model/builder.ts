@@ -1,7 +1,7 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  Token,
+  IToken,
 } from "../../../lexer";
 import type { IParser } from "../../model";
 import type { DFA } from "../DFA";
@@ -130,7 +130,7 @@ export type TokenASTDataMapperExec<
   LexerDataBindings extends GeneralTokenDataBinding,
   LexerErrorType,
   ASTData,
-> = (token: Token<LexerDataBindings, LexerErrorType>) => ASTData | undefined;
+> = (token: IToken<LexerDataBindings, LexerErrorType>) => ASTData | undefined;
 
 export type TokenASTDataMapper<
   LexerDataBindings extends GeneralTokenDataBinding,

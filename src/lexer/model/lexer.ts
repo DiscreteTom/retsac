@@ -9,7 +9,7 @@ import type {
   ITrimOutput,
 } from "./output";
 import type { IReadonlyLexerState } from "./state";
-import type { GeneralTokenDataBinding, Token } from "./token";
+import type { GeneralTokenDataBinding, IToken } from "./token";
 
 export type ILexerCloneOptions = {
   buffer: string;
@@ -55,7 +55,7 @@ export interface IReadonlyLexer<
    */
   peek(
     expectation?: Expectation<DataBindings["kind"]>,
-  ): IPeekOutput<Token<DataBindings, ErrorType>, ActionState>;
+  ): IPeekOutput<IToken<DataBindings, ErrorType>, ActionState>;
 }
 
 export interface ILexer<
@@ -95,13 +95,13 @@ export interface ILexer<
   ): this;
   lex(
     expectation?: Expectation<DataBindings["kind"]>,
-  ): ILexOutput<Token<DataBindings, ErrorType>>;
+  ): ILexOutput<IToken<DataBindings, ErrorType>>;
   /**
    * Try to retrieve a token list exhaustively.
    */
-  lexAll(): ILexAllOutput<Token<DataBindings, ErrorType>>;
+  lexAll(): ILexAllOutput<IToken<DataBindings, ErrorType>>;
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
-  trim(): ITrimOutput<Token<DataBindings, ErrorType>>;
+  trim(): ITrimOutput<IToken<DataBindings, ErrorType>>;
 }

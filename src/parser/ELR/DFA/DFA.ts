@@ -3,7 +3,7 @@ import type {
   ExtractKinds,
   GeneralTokenDataBinding,
   ILexer,
-  Token,
+  IToken,
 } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ASTNode } from "../../ast";
@@ -83,14 +83,14 @@ export class DFA<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
   private firstMatchSelector: ASTNodeFirstMatchSelector<
     NTs,
     ASTData,
     ErrorType,
-    Token<LexerDataBindings, LexerErrorType>,
+    IToken<LexerDataBindings, LexerErrorType>,
     Global
   >;
 
@@ -173,7 +173,7 @@ export class DFA<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
     lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
@@ -209,7 +209,7 @@ export class DFA<
       NTs,
       ASTData,
       ErrorType,
-      Token<LexerDataBindings, LexerErrorType>,
+      IToken<LexerDataBindings, LexerErrorType>,
       Global
     >;
     trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
