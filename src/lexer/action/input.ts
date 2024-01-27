@@ -16,7 +16,7 @@ export class ActionInput<ActionState> {
    * If `true`, you may NOT want to mutate the action state.
    * @default false
    */
-  readonly peek: boolean;
+  readonly peek: boolean; // TODO: remove peek
   /**
    * The rest of the input before the action is executed, lazy and cached.
    * Equals to `buffer.slice(start)`.

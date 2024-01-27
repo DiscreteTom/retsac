@@ -86,7 +86,12 @@ export class LexerCore<
               output.muted ||
               // ensure expectation match
               ((expect?.kind === undefined || expect.kind === output.kind) &&
-                (expect?.text === undefined || expect.text === output.content)),
+                (expect?.text === undefined ||
+                  expect.text ===
+                    input.buffer.slice(
+                      input.start,
+                      input.start + output.digested,
+                    ))),
             acceptMessageFormatter: (info) =>
               `accept kind ${info.kind}${info.muted ? "(muted)" : ""}, ${
                 info.content.length
@@ -99,13 +104,14 @@ export class LexerCore<
       peek ?? false,
       initialRest,
       actionState,
-      (output) => {
+      (input, output) => {
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
             updateCtx: true,
             stop: false,
-            token: output.error !== undefined ? output2token(output) : null,
+            token:
+              output.error !== undefined ? output2token(input, output) : null,
           };
         }
 
@@ -113,7 +119,7 @@ export class LexerCore<
         return {
           updateCtx: true,
           stop: true,
-          token: output2token(output),
+          token: output2token(input, output),
         };
       },
       debug ?? false,
@@ -162,13 +168,14 @@ export class LexerCore<
       false,
       initialRest,
       actionState,
-      (output) => {
+      (input, output) => {
         if (output.muted) {
           // accept but muted, don't emit token, just collect errors and re-loop all definitions
           return {
             updateCtx: true,
             stop: false,
-            token: output.error !== undefined ? output2token(output) : null,
+            token:
+              output.error !== undefined ? output2token(input, output) : null,
           };
         }
 

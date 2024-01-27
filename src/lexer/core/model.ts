@@ -1,5 +1,5 @@
 import type { AnonymousKindPlaceholder } from "../../anonymous";
-import type { ReadonlyAction, AcceptedActionOutput } from "../action";
+import type { ReadonlyAction, ActionOutput } from "../action";
 import type {
   GeneralTokenDataBinding,
   ExtractKinds,
@@ -25,7 +25,7 @@ export type Validator<
     }) => string;
   };
   after: (
-    output: AcceptedActionOutput<
+    output: ActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
       ErrorType

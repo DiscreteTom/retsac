@@ -1,11 +1,7 @@
 import { anonymousKindPlaceholder } from "../../anonymous";
 import type { Logger } from "../../logger";
-import { rejectedActionOutput, ActionInput } from "../action";
-import type {
-  AcceptedActionOutput,
-  ActionOutput,
-  ReadonlyAction,
-} from "../action";
+import { ActionInput } from "../action";
+import type { ActionOutput, ReadonlyAction } from "../action";
 import { Token } from "../model";
 import type {
   GeneralTokenDataBinding,
@@ -34,7 +30,8 @@ export function executeActions<
   initialRest: string | undefined,
   state: ActionState,
   cb: (
-    output: AcceptedActionOutput<
+    input: ActionInput<ActionState>,
+    output: ActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
       ErrorType
@@ -104,21 +101,21 @@ export function executeActions<
       entity,
     );
 
-    if (!output.accept) {
+    if (output === undefined) {
       // all definition checked, no accepted action
       // but the digested, rest and errors might be updated by the last iteration
       // so we have to return them
       return { token: null, digested, rest: currentRest, errors };
     }
 
-    const res = cb(output);
+    const res = cb(input, output);
 
     // accumulate errors
     if (res.token?.error !== undefined) errors.push(res.token);
 
     if (res.updateCtx) {
       digested += output.digested;
-      currentRest = output.rest.raw;
+      currentRest = output.rest;
     }
 
     // if not update state, must return to avoid inconsistent state
@@ -144,7 +141,9 @@ function traverseActions<
   debug: boolean,
   logger: Logger,
   entity: string,
-): ActionOutput<DataBindings, ErrorType> {
+):
+  | ActionOutput<DataBindings["kind"], DataBindings["data"], ErrorType>
+  | undefined {
   for (const action of actions) {
     const output = tryExecuteAction(
       input,
@@ -154,7 +153,7 @@ function traverseActions<
       logger,
       entity,
     );
-    if (output.accept) return output;
+    if (output !== undefined) return output;
   }
 
   if (debug) {
@@ -163,7 +162,7 @@ function traverseActions<
       message: "no accept",
     });
   }
-  return rejectedActionOutput;
+  return undefined;
 }
 
 /**
@@ -181,7 +180,9 @@ function tryExecuteAction<
   debug: boolean,
   logger: Logger,
   entity: string,
-): ActionOutput<DataBindings, ErrorType> {
+):
+  | ActionOutput<DataBindings["kind"], DataBindings["data"], ErrorType>
+  | undefined {
   const preCheckRes = validator.before(action);
   if (preCheckRes.skip) {
     if (debug) {
@@ -196,12 +197,12 @@ function tryExecuteAction<
         info,
       });
     }
-    return rejectedActionOutput;
+    return undefined;
   }
 
   const output = action.exec(input);
 
-  if (!output.accept) {
+  if (output === undefined) {
     // rejected
     if (debug) {
       const info = {
@@ -227,7 +228,7 @@ function tryExecuteAction<
       const info = {
         kind: kind || anonymousKindPlaceholder,
         muted: output.muted,
-        content: output.content,
+        content: input.buffer.slice(input.start, input.start + output.digested),
       };
       logger.log({
         entity,
@@ -244,7 +245,7 @@ function tryExecuteAction<
       kinds: [...action.possibleKinds].map((k) =>
         k.length === 0 ? anonymousKindPlaceholder : k,
       ),
-      content: output.content,
+      content: input.buffer.slice(input.start, input.start + output.digested),
     };
     logger.log({
       entity,
@@ -254,15 +255,16 @@ function tryExecuteAction<
       info,
     });
   }
-  return rejectedActionOutput;
+  return undefined;
 }
 
 export function output2token<
   DataBindings extends GeneralTokenDataBinding,
   ErrorType,
 >(
+  input: ActionInput<unknown>,
   output: Readonly<
-    AcceptedActionOutput<
+    ActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,
       ErrorType
@@ -272,10 +274,10 @@ export function output2token<
   return Token.from(
     output.kind,
     output.data,
-    output.buffer,
+    input.buffer,
     {
-      start: output.start,
-      end: output.start + output.digested,
+      start: input.start,
+      end: input.start + output.digested,
     },
     output.error,
   ) as Token<DataBindings, ErrorType>;
