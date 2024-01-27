@@ -263,16 +263,20 @@ export class Builder<
     }) as Builder<DataBindings, ActionState, ErrorType>;
   }
 
+  buildStateless() {
+    return new StatelessLexer(this.actions);
+  }
+
   build(
     buffer: string,
     options?: LexerBuilderBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
     return new Lexer<DataBindings, ActionState, ErrorType>(
-      new StatelessLexer(this.actions),
+      this.buildStateless(),
       {
         buffer,
-        actionStateCloner: this.actionStateCloner,
         defaultActionState: this.defaultActionState,
+        actionStateCloner: this.actionStateCloner,
         ...options,
       },
     );
