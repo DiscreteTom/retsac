@@ -1,7 +1,7 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyLexerCore,
+  IStatelessLexer,
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
@@ -66,17 +66,16 @@ export class TempGrammar {
     /**
      * Lexer is required to lex the literal grammar's kind name.
      */
-    lexer: IReadonlyLexerCore<
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
+    lexer: IStatelessLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    defaultActionState: LexerActionState,
     printAll: boolean,
     logger: Logger,
     isNT = true,
   ) {
     if (this.type === TempGrammarType.LITERAL) {
-      const { token } = lexer.dryClone().lex(this.content);
+      const { token } = lexer.lex(this.content, {
+        actionState: defaultActionState,
+      });
       if (token === null) {
         // for un-lexable literal, throw error instead of using anonymous type
         // this is to prevent mis-writing literal grammar

@@ -1,7 +1,8 @@
 import type {
+  ActionStateCloner,
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyLexerCore,
+  IStatelessLexer,
 } from "../../../lexer";
 import type { Logger } from "../../../logger";
 import type { ParserBuilderData } from "../builder";
@@ -29,11 +30,9 @@ export class DFABuilder {
     Global,
   >(
     repo: GrammarRepo<NTs, ExtractKinds<LexerDataBindings>>,
-    lexer: IReadonlyLexerCore<
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
+    lexer: IStatelessLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    defaultActionState: LexerActionState,
+    actionStateCloner: ActionStateCloner<LexerActionState>,
     entryNTs: ReadonlySet<NTs>,
     data: readonly Readonly<
       ParserBuilderData<
@@ -66,6 +65,7 @@ export class DFABuilder {
               g.toGrammar(
                 repo,
                 lexer,
+                actionStateCloner(defaultActionState),
                 printAll,
                 logger,
                 NTs.has(g.content as NTs),

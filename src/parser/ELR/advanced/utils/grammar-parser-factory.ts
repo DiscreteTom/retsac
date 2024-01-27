@@ -45,7 +45,7 @@ export function grammarParserFactory(placeholderPrefix: string) {
       literal: [stringLiteral(`"`), stringLiteral(`'`)],
     })
     .anonymous(exact(...`|+*()?`))
-    .build();
+    .build("");
 
   const placeholderMap = new PlaceholderMap({
     placeholderPrefix,

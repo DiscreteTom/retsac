@@ -52,7 +52,7 @@ export class GrammarRuleContext<
    * This is lazy and cached.
    */
   get after() {
-    return this.lexer.getRest();
+    return this.lexer.state.rest.value;
   }
   readonly $: NTNodeFirstMatchChildSelector<
     NTs,

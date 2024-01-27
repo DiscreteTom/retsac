@@ -17,7 +17,7 @@ const ruleLexer = new Lexer.Builder()
     or: Lexer.exact("|"),
     literal: [Lexer.stringLiteral(`"`), Lexer.stringLiteral(`'`)],
   })
-  .build();
+  .build("");
 
 /**
  * Definition to TempGrammarRules.
@@ -57,15 +57,16 @@ export function defToTempGRs<
   // parse rules
   for (const NT in defs) {
     /** `[grammar rule index][token index]` */
-    const rules = [[]] as ({
+    const rules = [[]] as {
       name?: string;
-    } & ReturnType<typeof ruleLexer.lex>)[][];
+      token: Lexer.ExtractToken<typeof ruleLexer>;
+    }[][];
     const def = defs[NT];
     const defStr = def instanceof Array ? def.join("|") : (def as string);
     ruleLexer
-      .reset()
-      .lexAll(defStr)
-      .forEach((t) => {
+      .dryClone(defStr)
+      .lexAll()
+      .tokens.forEach((t) => {
         if (t.kind === "or") rules.push([]); // new grammar rule
         else if (t.kind === "rename") {
           const token = rules.at(-1)?.at(-1);
@@ -73,23 +74,26 @@ export function defToTempGRs<
           token.name = t.content.slice(1); // remove `@`
         }
         // append token to the last grammar rule without name
-        else rules.at(-1)!.push(t);
+        else rules.at(-1)!.push({ token: t });
       });
 
-    if (ruleLexer.hasRest())
-      throw new TokenizeGrammarRuleFailedError(defStr, ruleLexer.getRest());
+    if (ruleLexer.state.hasRest())
+      throw new TokenizeGrammarRuleFailedError(
+        defStr,
+        ruleLexer.state.rest.value,
+      );
     if (rules.length === 1 && rules[0].length === 0)
       throw new EmptyRuleError(NT);
 
     rules.forEach((tokens) => {
-      const ruleStr = tokens.map((t) => t.content).join(" ");
+      const ruleStr = tokens.map((t) => t.token.content).join(" ");
 
       if (tokens.length === 0) throw new EmptyRuleError(NT);
 
       if (
         !tokens
-          .filter((t) => t.kind === "literal")
-          .every((t) => t.content.length > 2)
+          .filter((t) => t.token.kind === "literal")
+          .every((t) => t.token.content.length > 2)
       )
         throw new EmptyLiteralError(NT, ruleStr);
 
@@ -106,16 +110,16 @@ export function defToTempGRs<
         >({
           NT,
           rule: tokens.map((t) => {
-            if (t.kind === "grammar")
+            if (t.token.kind === "grammar")
               return new TempGrammar({
                 type: TempGrammarType.GRAMMAR,
-                content: t.content.split("@")[0],
+                content: t.token.content.split("@")[0],
                 name: t.name,
               });
             else
               return new TempGrammar({
                 type: TempGrammarType.LITERAL,
-                content: t.content.slice(1, -1), // remove quotes
+                content: t.token.content.slice(1, -1), // remove quotes
                 name: t.name,
               });
           }),

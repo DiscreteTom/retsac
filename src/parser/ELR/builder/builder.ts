@@ -34,10 +34,11 @@ import type {
 } from "./model";
 import { DFA, DFABuilder } from "../DFA";
 import type {
+  ActionStateCloner,
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexer,
-  IReadonlyLexerCore,
+  IStatelessLexer,
+  Lexer,
 } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
@@ -92,7 +93,7 @@ export class ParserBuilder<
     LexerErrorType,
     Global
   >[];
-  protected lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  protected lexer: Lexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   protected globalFactory: () => Global;
   protected readonly tokenASTDataMapper: Map<
     ExtractKinds<LexerDataBindings>,
@@ -104,7 +105,7 @@ export class ParserBuilder<
      * Set the lexer. The lexer won't be modified.
      * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
      */
-    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    lexer: Lexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
      * You can also customize this.
@@ -241,11 +242,9 @@ export class ParserBuilder<
 
   private buildDFA(
     entryNTs: ReadonlySet<NTs>,
-    lexer: IReadonlyLexerCore<
-      LexerDataBindings,
-      LexerActionState,
-      LexerErrorType
-    >,
+    lexer: IStatelessLexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    defaultActionState: LexerActionState,
+    actionStateCloner: ActionStateCloner<LexerActionState>,
     printAll: boolean,
     debug: boolean,
     logger: Logger,
@@ -282,6 +281,8 @@ export class ParserBuilder<
     >(
       repo,
       lexer,
+      defaultActionState,
+      actionStateCloner,
       entryNTs,
       this.builderData as ParserBuilderData<
         NTs,
@@ -352,7 +353,14 @@ export class ParserBuilder<
                   LexerDataBindings,
                   LexerActionState,
                   LexerErrorType
-                >(repo, lexer, printAll, logger, NTs.has(n as NTs)),
+                >(
+                  repo,
+                  lexer,
+                  actionStateCloner(defaultActionState),
+                  printAll,
+                  logger,
+                  NTs.has(n as NTs),
+                ),
               ),
             );
 
@@ -751,7 +759,9 @@ export class ParserBuilder<
       options.hydrate === undefined
         ? this.buildDFA(
             entryNTs,
-            lexer.core,
+            lexer.stateless,
+            lexer.defaultActionState,
+            lexer.actionStateCloner,
             printAll,
             debug,
             logger,
@@ -767,7 +777,14 @@ export class ParserBuilder<
 
     // check symbols first
     if (options.checkAll || options.checkSymbols)
-      checkSymbols(entryNTs, NTs, lexer.getTokenKinds(), grs, printAll, logger);
+      checkSymbols(
+        entryNTs,
+        NTs,
+        lexer.stateless.getTokenKinds(),
+        grs,
+        printAll,
+        logger,
+      );
 
     // deal with conflicts
     let resolvers: string | undefined = undefined;
