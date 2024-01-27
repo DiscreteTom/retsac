@@ -75,6 +75,7 @@ export class EnhancedActionOutput<Kinds extends string, Data, ErrorType> {
       "buffer" | "start" | "raw"
     >,
   ) {
+    this.raw = props.raw;
     this.buffer = props.buffer;
     this.start = props.start;
     this.rest = new Lazy(
