@@ -8,7 +8,7 @@ import type {
   ILexerCoreTrimStartOptions,
   ILexerCoreTrimStartOutput,
 } from "../model";
-import { executeActions, output2token } from "./utils";
+import { executeActions } from "./utils";
 
 export class LexerCore<
   DataBindings extends GeneralTokenDataBinding,
@@ -66,7 +66,7 @@ export class LexerCore<
           expect?.text !== undefined &&
           !input.buffer.startsWith(expect.text, input.start);
         return {
-          before: (action) => ({
+          skipBeforeExec: (action) => ({
             skip:
               // muted actions must be executed no matter what the expectation is
               // so only never muted actions can be skipped
@@ -79,7 +79,7 @@ export class LexerCore<
             skippedActionMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
           }),
-          after: (output) => ({
+          acceptAfterExec: (output) => ({
             accept:
               // if muted, we don't need to check expectation
               output.muted ||
@@ -102,24 +102,7 @@ export class LexerCore<
       start ?? 0,
       initialRest,
       actionState,
-      (input, output) => {
-        if (output.muted) {
-          // accept but muted, don't emit token, just collect errors and re-loop all definitions
-          return {
-            updateCtx: true,
-            stop: false,
-            token:
-              output.error !== undefined ? output2token(input, output) : null,
-          };
-        }
-
-        // not muted, emit token, collect errors and stop
-        return {
-          updateCtx: true,
-          stop: true,
-          token: output2token(input, output),
-        };
-      },
+      { updateLexOutput: true, createToken: true },
       debug ?? false,
       logger ?? defaultLogger,
       entity ?? "LexerCore.lex",
@@ -142,14 +125,14 @@ export class LexerCore<
     return executeActions(
       this.actions,
       () => ({
-        before: (action) => ({
+        skipBeforeExec: (action) => ({
           // if the action may be muted, we can't skip it
           // if the action is never muted, we just reject it
           skip: action.neverMuted,
           skippedActionMessageFormatter: (info) =>
             `skip (never muted): ${info.kinds}`,
         }),
-        after: () => ({
+        acceptAfterExec: () => ({
           accept: true,
           acceptMessageFormatter: (info) =>
             info.muted
@@ -165,24 +148,7 @@ export class LexerCore<
       start ?? 0,
       initialRest,
       actionState,
-      (input, output) => {
-        if (output.muted) {
-          // accept but muted, don't emit token, just collect errors and re-loop all definitions
-          return {
-            updateCtx: true,
-            stop: false,
-            token:
-              output.error !== undefined ? output2token(input, output) : null,
-          };
-        }
-
-        // else, not muted, don't update state and collect errors, stop
-        return {
-          updateCtx: false,
-          stop: true,
-          token: null,
-        };
-      },
+      { updateLexOutput: false, createToken: false },
       debug ?? false,
       logger ?? defaultLogger,
       entity ?? "LexerCore.trimStart",

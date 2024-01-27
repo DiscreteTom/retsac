@@ -18,13 +18,15 @@ export type Validator<
   /**
    * Check if an action can be skipped before executing it.
    */
-  before: (action: ReadonlyAction<DataBindings, ActionState, ErrorType>) => {
+  skipBeforeExec: (
+    action: ReadonlyAction<DataBindings, ActionState, ErrorType>,
+  ) => {
     skip: boolean;
     skippedActionMessageFormatter: (info: {
       kinds: (AnonymousKindPlaceholder | ExtractKinds<DataBindings>)[];
     }) => string;
   };
-  after: (
+  acceptAfterExec: (
     output: ActionOutput<
       ExtractKinds<DataBindings>,
       ExtractData<DataBindings>,

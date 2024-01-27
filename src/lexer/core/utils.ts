@@ -11,6 +11,21 @@ import type {
 } from "../model";
 import type { Validator } from "./model";
 
+/**
+ * `OutputHandler` controls the behaviour of `executeActions`
+ * when an un-muted action is accepted.
+ */
+export type OutputHandler = {
+  /**
+   * If `true`, fields in `LexerCoreLexOutput` (like `digested`) should be updated.
+   */
+  updateLexOutput: boolean;
+  /**
+   * If `true`, the `LexerCoreLexOutput` should have a token created by the `ActionOutput`.
+   */
+  createToken: boolean;
+};
+
 export function executeActions<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
@@ -28,65 +43,38 @@ export function executeActions<
   start: number,
   initialRest: string | undefined,
   state: ActionState,
-  cb: (
-    input: ActionInput<ActionState>,
-    output: ActionOutput<
-      ExtractKinds<DataBindings>,
-      ExtractData<DataBindings>,
-      ErrorType
-    >,
-  ) => (
-    | {
-        /**
-         * If `true`, update `digested` and `rest`.
-         */
-        updateCtx: true;
-        /**
-         * Only effective when `updateCtx` is `true`.
-         * If `updateCtx` is `false`, iteration must be stopped to avoid inconsistent context.
-         *
-         * If `true`, stop the iteration and return.
-         * If `false`, re-loop all actions.
-         */
-        stop: boolean;
-      }
-    | { updateCtx: false }
-  ) & {
-    /**
-     * If not `null`, the error token will be collected.
-     *
-     * If `stop` is true, the token will be returned.
-     */
-    token: Token<DataBindings, ErrorType> | null;
-  },
+  handler: Readonly<OutputHandler>,
   debug: boolean,
   logger: Logger,
   entity: string,
 ): ILexerCoreLexOutput<DataBindings, ErrorType> {
-  let currentRest = initialRest;
-  let digested = 0;
-  const errors = [] as Token<DataBindings, ErrorType>[];
+  const res: ILexerCoreLexOutput<DataBindings, ErrorType> = {
+    token: null,
+    digested: 0,
+    rest: initialRest,
+    errors: [],
+  };
 
   while (true) {
     // first, ensure rest is not empty
     // since maybe some token is muted in the last iteration which cause the rest is empty
-    if (start + digested >= buffer.length) {
+    if (start + res.digested >= buffer.length) {
       if (debug) {
         logger.log({
           entity,
           message: "no rest",
         });
       }
-      return { token: null, digested, rest: currentRest, errors };
+      return res;
     }
 
     // all actions will reuse this action input to reuse lazy values
     // so we have to create it outside of the loop
     const input = new ActionInput({
       buffer,
-      start: start + digested,
+      start: start + res.digested,
       state,
-      rest: currentRest,
+      rest: res.rest,
     });
     const output = traverseActions(
       input,
@@ -103,24 +91,50 @@ export function executeActions<
       // all definition checked, no accepted action
       // but the digested, rest and errors might be updated by the last iteration
       // so we have to return them
-      return { token: null, digested, rest: currentRest, errors };
+      return res;
     }
 
-    const res = cb(input, output);
+    if (output.error !== undefined) {
+      // create token and collect errors
+      const token = output2token(input, output);
+      res.errors.push(token);
 
-    // accumulate errors
-    if (res.token?.error !== undefined) errors.push(res.token);
+      if (output.muted) {
+        // don't emit token
+        // just update state and continue
+        res.digested += output.digested;
+        continue;
+      }
 
-    if (res.updateCtx) {
-      digested += output.digested;
-      currentRest = output.rest;
+      // else, not muted, check output handler
+      if (handler.updateLexOutput) {
+        res.digested += output.digested;
+      }
+      if (handler.createToken) {
+        res.token = token;
+      }
+      return res;
+    } else {
+      // else, no error
+
+      if (output.muted) {
+        // don't emit token
+        // just update state and continue
+        res.digested += output.digested;
+        continue;
+      }
+
+      // else, not muted, check output handler
+      if (handler.updateLexOutput) {
+        res.digested += output.digested;
+      }
+      if (handler.createToken) {
+        res.token = output2token(input, output);
+      }
+      return res;
     }
 
-    // if not update state, must return to avoid inconsistent state
-    if (!res.updateCtx || res.stop)
-      return { token: res.token, digested, rest: currentRest, errors };
-
-    // else, non-stop, re-loop all actions
+    // unreachable
   }
 }
 
@@ -181,7 +195,7 @@ function tryExecuteAction<
 ):
   | ActionOutput<DataBindings["kind"], DataBindings["data"], ErrorType>
   | undefined {
-  const preCheckRes = validator.before(action);
+  const preCheckRes = validator.skipBeforeExec(action);
   if (preCheckRes.skip) {
     if (debug) {
       const info = {
@@ -219,7 +233,7 @@ function tryExecuteAction<
 
   // accepted, validate the output
   const kind = output.kind;
-  const postCheckRes = validator.after(output);
+  const postCheckRes = validator.acceptAfterExec(output);
   if (postCheckRes.accept) {
     // accepted, return
     if (debug) {
