@@ -10,5 +10,5 @@ export type ExtractData<DataBindings extends GeneralTokenDataBinding> =
  * Extract the token type from a lexer.
  */
 export type ExtractToken<
-  Lexer extends { lex: (...args: never[]) => unknown }, // TODO: optimize typing?
-> = NonNullable<ReturnType<Lexer["lex"]>>;
+  Lexer extends { lex: (...args: never[]) => { token: unknown } }, // TODO: optimize typing?
+> = NonNullable<ReturnType<Lexer["lex"]>["token"]>;
