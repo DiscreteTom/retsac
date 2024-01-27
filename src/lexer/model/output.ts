@@ -28,9 +28,7 @@ export type IPeekOutput<TokenType, ActionState> = {
   actionState: ActionState;
 } & ILexOutput<TokenType>;
 
-export type ITrimOutput<TokenType, TrimmedLexerType> = Pick<
+export type ITrimOutput<TokenType> = Pick<
   ILexOutput<TokenType>,
   "digested" | "errors" | "rest"
-> & {
-  trimmedLexer: TrimmedLexerType;
-};
+>;

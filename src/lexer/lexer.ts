@@ -10,7 +10,6 @@ import type {
   ILexerCloneOptions,
   IReadonlyLexer,
   IStatelessLexer,
-  ITrimmedLexer,
   Token,
 } from "./model";
 import { LexerState } from "./state";
@@ -182,11 +181,6 @@ export class Lexer<
         digested: 0,
         errors: [],
         rest: this._state.rest.raw,
-        trimmedLexer: this as unknown as ITrimmedLexer<
-          DataBindings,
-          ActionState,
-          ErrorType
-        >,
       };
 
     const res = this.stateless.trim(this._state.buffer, {
@@ -200,13 +194,6 @@ export class Lexer<
     // update state
     this._state.trim(res.digested, res.rest);
 
-    return {
-      ...res,
-      trimmedLexer: this as unknown as ITrimmedLexer<
-        DataBindings,
-        ActionState,
-        ErrorType
-      >,
-    };
+    return res;
   }
 }

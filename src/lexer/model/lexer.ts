@@ -103,8 +103,5 @@ export interface ILexer<
   /**
    * Remove ignored chars from the start of the rest of buffer.
    */
-  trim(): ITrimOutput<
-    Token<DataBindings, ErrorType>,
-    ILexer<DataBindings, ActionState, ErrorType>
-  >;
+  trim(): ITrimOutput<Token<DataBindings, ErrorType>>;
 }
