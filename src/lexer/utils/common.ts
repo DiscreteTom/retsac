@@ -1,4 +1,4 @@
-import { Action, rejectedActionOutput } from "../action";
+import { Action } from "../action";
 
 /**
  * Escape regex special characters.
@@ -35,8 +35,7 @@ export function comment<ActionState = never, ErrorType = never>(
 ): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.exec((input) => {
     // check start
-    if (!input.buffer.startsWith(start, input.start))
-      return rejectedActionOutput;
+    if (!input.buffer.startsWith(start, input.start)) return undefined;
 
     // match end
     const rawEndIndex = input.buffer.indexOf(end, input.start);

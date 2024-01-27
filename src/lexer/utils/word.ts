@@ -8,7 +8,7 @@ export function exact<ActionState = never, ErrorType = never>(
 ): Action<{ kind: never; data: undefined }, ActionState, ErrorType> {
   return Action.from((input) => {
     for (const s of ss) {
-      if (input.buffer.startsWith(s, input.start)) return s;
+      if (input.buffer.startsWith(s, input.start)) return s.length;
     }
     return 0;
   });
@@ -71,7 +71,7 @@ export function word<ActionState = never, ErrorType = never>(
         (input.buffer.length === word.length + input.start || // end of input
           /^\W/.test(input.buffer[input.start + word.length])) // next char is word boundary
       )
-        return word;
+        return word.length;
     return 0;
   });
 }

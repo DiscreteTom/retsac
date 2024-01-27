@@ -1,4 +1,4 @@
-import { rejectedActionOutput, Action } from "../../action";
+import { Action } from "../../action";
 import { comment as commonComment } from "../common";
 import { charSize, isIdentifierPart, isIdentifierStart } from "./utils";
 
@@ -28,7 +28,7 @@ export function identifier<ActionState = never, ErrorType = never>() {
     let pos = input.start;
     let ch = text.charCodeAt(pos);
 
-    if (!isIdentifierStart(ch)) return rejectedActionOutput;
+    if (!isIdentifierStart(ch)) return undefined;
 
     pos += charSize(ch);
 

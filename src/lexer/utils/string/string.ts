@@ -1,4 +1,4 @@
-import { Action, rejectedActionOutput } from "../../action";
+import { Action } from "../../action";
 import { SubAction, type IntoSubAction } from "../subaction";
 import type { EscapeHandler, EscapeInfo } from "./escape";
 import * as commonEscapeHandlers from "./handler";
@@ -96,7 +96,7 @@ export function stringLiteral<
   return Action.exec((input) => {
     // match open quote
     const matchOpen = openMatcher.exec(input, input.start);
-    if (!matchOpen.accept) return rejectedActionOutput;
+    if (matchOpen === undefined) return undefined;
 
     const text = input.buffer;
     const end = input.buffer.length;
@@ -104,7 +104,7 @@ export function stringLiteral<
     /**
      * Index of the next char to be read.
      */
-    let pos = input.start + matchOpen.digested; // eat the open quote
+    let pos = input.start + matchOpen; // eat the open quote
     /**
      * The start index of the next value fragment.
      */
@@ -130,9 +130,9 @@ export function stringLiteral<
 
       // check for close quote
       const matchClose = closeMatcher.exec(input, pos);
-      if (matchClose.accept) {
+      if (matchClose !== undefined) {
         data.value += text.substring(start, pos);
-        pos += matchClose.digested; // eat the close quote
+        pos += matchClose; // eat the close quote
         break;
       }
 

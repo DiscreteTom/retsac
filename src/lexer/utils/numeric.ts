@@ -1,4 +1,4 @@
-import { Action, rejectedActionOutput } from "../action";
+import { Action } from "../action";
 import type { IntoSubAction } from "./subaction";
 import { SubAction } from "./subaction";
 
@@ -69,27 +69,24 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
   const suffix = options.suffix;
   const suffixChecker: SubAction<ActionState> = SubAction.from(
     suffix === undefined
-      ? () => ({ accept: true, digested: 0 }) // always accept if no suffix
+      ? () => 0 // always accept if no suffix
       : suffix,
   );
 
   return Action.exec<IntegerLiteralData, ActionState, ErrorType>((input) => {
     // ensure the input starts with prefix
     const prefixMatch = prefixMatcher.exec(input, input.start);
-    if (!prefixMatch.accept) return rejectedActionOutput;
+    if (prefixMatch === undefined) return undefined;
 
     const data: IntegerLiteralData = {
-      prefix: input.buffer.slice(
-        input.start,
-        input.start + prefixMatch.digested,
-      ),
+      prefix: input.buffer.slice(input.start, input.start + prefixMatch),
       body: "",
       suffix: "",
       separators: [],
     };
 
     // check content and separators
-    let pos = input.start + prefixMatch.digested;
+    let pos = input.start + prefixMatch;
     while (true) {
       // check end of text
       if (pos >= input.buffer.length) break;
@@ -97,29 +94,29 @@ export function integerLiteral<ActionState = never, ErrorType = never>(
       // check separator
       if (separator !== undefined) {
         const separatorMatch = separator.exec(input, pos);
-        if (separatorMatch.accept) {
+        if (separatorMatch !== undefined) {
           data.separators.push({
             index: pos,
-            content: input.buffer.slice(pos, pos + separatorMatch.digested),
+            content: input.buffer.slice(pos, pos + separatorMatch),
           });
-          pos += separatorMatch.digested;
+          pos += separatorMatch;
           continue;
         }
       }
 
       // check content
       const contentMatch = contentMatcher.exec(input, pos);
-      if (contentMatch.accept) {
-        data.body += input.buffer.slice(pos, pos + contentMatch.digested);
-        pos += contentMatch.digested;
+      if (contentMatch !== undefined) {
+        data.body += input.buffer.slice(pos, pos + contentMatch);
+        pos += contentMatch;
         continue;
       }
 
       const suffixMatch = suffixChecker.exec(input, pos);
       // check suffix
-      if (suffixMatch.accept) {
-        data.suffix = input.buffer.slice(pos, pos + suffixMatch.digested);
-        pos += suffixMatch.digested;
+      if (suffixMatch !== undefined) {
+        data.suffix = input.buffer.slice(pos, pos + suffixMatch);
+        pos += suffixMatch;
       }
 
       // otherwise
@@ -364,8 +361,8 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
     // check prefix
     if (prefix !== undefined) {
       const prefixMatch = prefix.exec(input, pos);
-      if (!prefixMatch.accept) return rejectedActionOutput;
-      pos += prefixMatch.digested;
+      if (prefixMatch === undefined) return undefined;
+      pos += prefixMatch;
       data.prefix = text.slice(input.start, pos);
       data.integer.index = pos;
     }
@@ -377,21 +374,21 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       // check separator
       if (separator !== undefined) {
         const separatorMatch = separator.exec(input, pos);
-        if (separatorMatch.accept) {
+        if (separatorMatch !== undefined) {
           data.separators.push({
             index: pos,
-            content: input.buffer.slice(pos, pos + separatorMatch.digested),
+            content: input.buffer.slice(pos, pos + separatorMatch),
           });
-          pos += separatorMatch.digested;
+          pos += separatorMatch;
           switch (phase) {
             case NumericLiteralPhase.Integer:
-              data.integer.digested += separatorMatch.digested;
+              data.integer.digested += separatorMatch;
               break;
             case NumericLiteralPhase.Fraction:
-              data.fraction!.digested += separatorMatch.digested;
+              data.fraction!.digested += separatorMatch;
               break;
             case NumericLiteralPhase.Exponent:
-              data.exponent!.digested += separatorMatch.digested;
+              data.exponent!.digested += separatorMatch;
               break;
             default:
               throw new Error("Unknown numeric literal phase.");
@@ -402,51 +399,42 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
 
       // check content
       const contentMatch = contentMatcher.exec(input, pos);
-      if (contentMatch.accept) {
+      if (contentMatch !== undefined) {
         switch (phase) {
           case NumericLiteralPhase.Integer:
-            data.integer.body += input.buffer.slice(
-              pos,
-              pos + contentMatch.digested,
-            );
-            data.integer.digested += contentMatch.digested;
+            data.integer.body += input.buffer.slice(pos, pos + contentMatch);
+            data.integer.digested += contentMatch;
             break;
           case NumericLiteralPhase.Fraction:
-            data.fraction!.body += input.buffer.slice(
-              pos,
-              pos + contentMatch.digested,
-            );
-            data.fraction!.digested += contentMatch.digested;
+            data.fraction!.body += input.buffer.slice(pos, pos + contentMatch);
+            data.fraction!.digested += contentMatch;
             break;
           case NumericLiteralPhase.Exponent:
-            data.exponent!.body += input.buffer.slice(
-              pos,
-              pos + contentMatch.digested,
-            );
-            data.exponent!.digested += contentMatch.digested;
+            data.exponent!.body += input.buffer.slice(pos, pos + contentMatch);
+            data.exponent!.digested += contentMatch;
             break;
           default:
             throw new Error("Unknown numeric literal phase.");
         }
-        pos += contentMatch.digested;
+        pos += contentMatch;
         continue;
       }
 
       // check decimal point
       if (phase === NumericLiteralPhase.Integer && decimal !== undefined) {
         const decimalMatch = decimal.exec(input, pos);
-        if (decimalMatch.accept) {
+        if (decimalMatch !== undefined) {
           phase = NumericLiteralPhase.Fraction;
           data.fraction = {
             point: {
               index: pos,
-              content: input.buffer.slice(pos, pos + decimalMatch.digested),
+              content: input.buffer.slice(pos, pos + decimalMatch),
             },
-            index: pos + decimalMatch.digested,
+            index: pos + decimalMatch,
             body: "",
             digested: 0,
           };
-          pos += decimalMatch.digested;
+          pos += decimalMatch;
           continue;
         }
       }
@@ -458,18 +446,18 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
         scientific !== undefined
       ) {
         const scientificMatch = scientific.exec(input, pos);
-        if (scientificMatch.accept) {
+        if (scientificMatch !== undefined) {
           data.exponent = {
             indicator: {
               index: pos,
-              content: input.buffer.slice(pos, pos + scientificMatch.digested),
+              content: input.buffer.slice(pos, pos + scientificMatch),
             },
-            index: pos + scientificMatch.digested,
+            index: pos + scientificMatch,
             body: "",
             digested: 0,
           };
           phase = NumericLiteralPhase.Exponent;
-          pos += scientificMatch.digested;
+          pos += scientificMatch;
           continue;
         }
       }
@@ -477,9 +465,9 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       // check suffix
       if (suffix !== undefined) {
         const suffixMatch = suffix.exec(input, pos);
-        if (suffixMatch.accept) {
-          data.suffix = input.buffer.slice(pos, pos + suffixMatch.digested);
-          pos += suffixMatch.digested;
+        if (suffixMatch !== undefined) {
+          data.suffix = input.buffer.slice(pos, pos + suffixMatch);
+          pos += suffixMatch;
         }
       }
 
@@ -493,7 +481,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       (data.fraction?.body.length ?? 0) === 0 &&
       (data.exponent?.body.length ?? 0) === 0
     )
-      return rejectedActionOutput;
+      return undefined;
     // reject if no integer and fraction, but exponent exists
     // e.g. `.e1`
     if (
@@ -501,7 +489,7 @@ export function numericLiteral<ActionState = never, ErrorType = never>(
       (data.fraction?.body.length ?? 0) === 0 &&
       data.exponent !== undefined
     )
-      return rejectedActionOutput;
+      return undefined;
 
     return {
       accept: true,

@@ -1,7 +1,7 @@
 import type {
   AcceptedActionDecoratorContext,
-  AcceptedActionOutput,
   Action,
+  EnhancedActionOutput,
 } from "../../action";
 import type {
   EscapeHandler,
@@ -251,14 +251,10 @@ export function simpleStringLiteral<
   >(
     (input) =>
       // match single quote or double quote at the same time to optimize performance
-      ['"', "'"].includes(input.buffer[input.start])
-        ? { accept: true, digested: 1 }
-        : { accept: false },
+      ['"', "'"].includes(input.buffer[input.start]) ? 1 : undefined,
     {
       close: (input, pos) =>
-        input.buffer[input.start] === input.buffer[pos]
-          ? { accept: true, digested: 1 }
-          : { accept: false },
+        input.buffer[input.start] === input.buffer[pos] ? 1 : undefined,
       escape: { handlers: escapeHandlers },
     },
   ).data(stringLiteralDataMapper);
@@ -292,7 +288,7 @@ function templateStringLiteralDataMapperFactory<
   ErrorType,
 >(
   kindMapper: (
-    output: AcceptedActionOutput<
+    output: EnhancedActionOutput<
       never,
       CommonStringLiteralData<EscapeErrorKinds>,
       ErrorType

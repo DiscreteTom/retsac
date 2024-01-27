@@ -1,5 +1,5 @@
 import { tryOrDefault } from "../../../helper";
-import { Action, rejectedActionOutput } from "../../action";
+import { Action } from "../../action";
 
 export type RegexLiteralData = {
   /**
@@ -33,7 +33,7 @@ export function regexLiteral<ActionState = never, ErrorType = never>(): Action<
   // ref: https://github.com/microsoft/TypeScript/blob/efc9c065a2caa52c5bebd08d730eed508075a78a/src/compiler/scanner.ts#L2369
   return Action.exec<RegexLiteralData, ActionState, ErrorType>((input) => {
     // check prefix
-    if (input.buffer[input.start] !== "/") return rejectedActionOutput;
+    if (input.buffer[input.start] !== "/") return undefined;
 
     // scan for content, not include the suffix `/`
     const text = input.buffer;

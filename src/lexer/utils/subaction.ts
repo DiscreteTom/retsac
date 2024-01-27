@@ -1,25 +1,20 @@
 import {
   makeRegexAutoSticky,
   type ActionInput,
-  type RejectedActionOutput,
   checkRegexNotStartsWithCaret,
 } from "../action";
 
-export type AcceptedSubActionOutput = {
-  accept: true;
-  /**
-   * How many chars are digested by the sub-action.
-   */
-  digested: number;
-};
-
+/**
+ * Return how many chars are digested (0 is acceptable).
+ * Return `undefined` if the sub-action is rejected.
+ */
 export type SubActionExec<ActionState> = (
   input: ActionInput<ActionState>,
   /**
    * Index of the next char to be read.
    */
   pos: number,
-) => AcceptedSubActionOutput | RejectedActionOutput;
+) => number | undefined;
 
 /**
  * These types can be converted to a sub-action by {@link SubAction.from}.
@@ -35,9 +30,7 @@ export class SubAction<ActionState> {
 
   static str<ActionState>(s: string) {
     return new SubAction<ActionState>((input, pos) =>
-      input.buffer.startsWith(s, pos)
-        ? { accept: true, digested: s.length }
-        : { accept: false },
+      input.buffer.startsWith(s, pos) ? s.length : undefined,
     );
   }
 
@@ -62,9 +55,7 @@ export class SubAction<ActionState> {
     return new SubAction<ActionState>((input, pos) => {
       r.lastIndex = pos;
       const res = r.exec(input.buffer);
-      return res
-        ? { accept: true, digested: res[0].length }
-        : { accept: false };
+      return res ? res[0].length : undefined;
     });
   }
 
