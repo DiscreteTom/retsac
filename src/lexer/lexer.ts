@@ -1,7 +1,7 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { ActionStateCloner } from "./action";
 import type { LexerBuilderBuildOptions } from "./builder";
-import type { LexerCore } from "./core";
+import type { StatelessLexer } from "./stateless";
 import { InvalidLengthForTakeError } from "./error";
 import type {
   GeneralTokenDataBinding,
@@ -22,21 +22,21 @@ export class Lexer<
 > {
   debug: boolean;
   logger: Logger;
-  readonly core: LexerCore<DataBindings, ActionState, ErrorType>;
+  readonly stateless: StatelessLexer<DataBindings, ActionState, ErrorType>;
   state: LexerState<DataBindings, ErrorType>;
   actionState: ActionState;
   readonly defaultActionState: Readonly<ActionState>;
   readonly actionStateCloner: ActionStateCloner<ActionState>;
 
   constructor(
-    core: LexerCore<DataBindings, ActionState, ErrorType>,
+    core: StatelessLexer<DataBindings, ActionState, ErrorType>,
     options: LexerBuilderBuildOptions & {
       buffer: string;
       defaultActionState: Readonly<ActionState>;
       actionStateCloner: ActionStateCloner<ActionState>;
     },
   ) {
-    this.core = core;
+    this.stateless = core;
     this.state = new LexerState(options.buffer);
 
     this.defaultActionState = options.defaultActionState;
@@ -53,24 +53,30 @@ export class Lexer<
   // }
 
   dryClone(buffer: string, options?: ILexerCloneOptions) {
-    const res = new Lexer<DataBindings, ActionState, ErrorType>(this.core, {
-      defaultActionState: this.defaultActionState,
-      actionStateCloner: this.actionStateCloner,
-      buffer,
-      ...options,
-    });
+    const res = new Lexer<DataBindings, ActionState, ErrorType>(
+      this.stateless,
+      {
+        defaultActionState: this.defaultActionState,
+        actionStateCloner: this.actionStateCloner,
+        buffer,
+        ...options,
+      },
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     return res;
   }
 
   clone(options?: ILexerCloneOptions) {
-    const res = new Lexer<DataBindings, ActionState, ErrorType>(this.core, {
-      defaultActionState: this.defaultActionState,
-      actionStateCloner: this.actionStateCloner,
-      buffer: this.state.buffer,
-      ...options,
-    });
+    const res = new Lexer<DataBindings, ActionState, ErrorType>(
+      this.stateless,
+      {
+        defaultActionState: this.defaultActionState,
+        actionStateCloner: this.actionStateCloner,
+        buffer: this.state.buffer,
+        ...options,
+      },
+    );
     res.debug = options?.debug ?? this.debug;
     res.logger = options?.logger ?? this.logger;
     res.state = this.state.clone();
@@ -118,7 +124,7 @@ export class Lexer<
       text: typeof input === "string" ? undefined : input.expect?.text,
     };
 
-    const res = this.core.lex(this.state.buffer, {
+    const res = this.stateless.lex(this.state.buffer, {
       start: this.state.digested,
       rest: this.state.rest,
       expect,
@@ -153,7 +159,7 @@ export class Lexer<
     const entity = "Lexer.trimStart";
 
     if (!this.state.trimmed) {
-      const res = this.core.trim(this.state.buffer, {
+      const res = this.stateless.trim(this.state.buffer, {
         start: this.state.digested,
         rest: this.state.rest,
         debug: this.debug,
@@ -182,6 +188,6 @@ export class Lexer<
   }
 
   getTokenKinds() {
-    return this.core.getTokenKinds();
+    return this.stateless.getTokenKinds();
   }
 }

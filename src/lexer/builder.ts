@@ -2,7 +2,7 @@ import type { ActionStateCloner, ReadonlyAction } from "./action";
 import { Action, ActionBuilder, defaultActionStateCloner } from "./action";
 import { Lexer } from "./lexer";
 import type { GeneralTokenDataBinding, ILexer } from "./model";
-import { LexerCore } from "./core";
+import { StatelessLexer } from "./stateless";
 import type { Expand } from "../helper";
 
 export type LexerBuilderBuildOptions = Partial<
@@ -268,7 +268,7 @@ export class Builder<
     options?: LexerBuilderBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
     return new Lexer<DataBindings, ActionState, ErrorType>(
-      new LexerCore(this.actions),
+      new StatelessLexer(this.actions),
       {
         buffer,
         actionStateCloner: this.actionStateCloner,

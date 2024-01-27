@@ -10,7 +10,7 @@ import type {
 } from "../model";
 import { executeActions } from "./utils";
 
-export class LexerCore<
+export class StatelessLexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
