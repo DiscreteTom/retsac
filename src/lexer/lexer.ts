@@ -83,14 +83,13 @@ export class Lexer<
     return res;
   }
 
-  take(n = 1, state?: ActionState) {
-    const content = this.state.buffer.slice(
-      this.state.digested,
-      this.state.digested + n,
-    );
-
+  take(n = 1, actionState?: ActionState) {
     if (n > 0) {
       if (this.debug) {
+        const content = this.state.buffer.slice(
+          this.state.digested,
+          this.state.digested + n,
+        );
         const info = { content };
         this.logger.log({
           entity: "Lexer.take",
@@ -105,11 +104,10 @@ export class Lexer<
     this.state.digest(n, undefined);
 
     // update action state
-    if (state === undefined)
-      this.actionState = this.actionStateCloner(this.defaultActionState);
-    else this.actionState = state;
+    this.actionState =
+      actionState ?? this.actionStateCloner(this.defaultActionState);
 
-    return content;
+    return this;
   }
 
   peek(
