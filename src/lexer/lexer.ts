@@ -6,6 +6,7 @@ import { InvalidLengthForTakeError } from "./error";
 import type {
   GeneralTokenDataBinding,
   ILexerCloneOptions,
+  ILexerCoreLexOptions,
   ILexerLexOptions,
   ITrimmedLexer,
   Token,
@@ -113,6 +114,25 @@ export class Lexer<
     return content;
   }
 
+  peek(
+    expectation?: ILexerCoreLexOptions<DataBindings, ActionState>["expect"],
+  ) {
+    const actionState = this.actionStateCloner(this.actionState);
+    const output = this.stateless.lex(this.state.buffer, {
+      start: this.state.digested,
+      rest: this.state.rest,
+      expect: expectation,
+      debug: this.debug,
+      logger: this.logger,
+      actionState,
+      entity: "Lexer.peek",
+    });
+    return {
+      ...output,
+      actionState,
+    };
+  }
+
   lex(
     input: string | Readonly<ILexerLexOptions<DataBindings>> = "",
   ): Token<DataBindings, ErrorType> | null {
@@ -134,12 +154,8 @@ export class Lexer<
       entity,
     });
 
-    // update state if not peek
-    // TODO: add another method `peek`
-    // if (!peek) {
+    // update state
     this.state.digest(res.digested, res.rest);
-    // action state will be updated in core automatically if peek is false
-    // }
 
     return res.token;
   }
