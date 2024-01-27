@@ -32,7 +32,7 @@ test("expectation", () => {
     .ignore(/-/)
     .define({
       A: /a/,
-      B: /b/,
+      B: /a/,
     })
     .build("-a");
 

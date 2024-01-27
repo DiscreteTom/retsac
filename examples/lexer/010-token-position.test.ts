@@ -28,5 +28,5 @@ test("token position", () => {
   expect(pt.lineRanges.length).toBe(3);
   expect(pt.lineRanges[0]).toEqual({ start: 0, end: 4 });
   expect(pt.lineRanges[1]).toEqual({ start: 4, end: 8 });
-  expect(pt.lineRanges[2]).toEqual({ start: 8, end: 4 });
+  expect(pt.lineRanges[2]).toEqual({ start: 8, end: 8 });
 });

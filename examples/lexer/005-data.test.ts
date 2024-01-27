@@ -39,7 +39,7 @@ test("data for multi kind action", () => {
           B: (_ctx) => 123,
         }),
     )
-    .build("ab");
+    .build("aa");
 
   let res = lexer.lex();
   let token = res.token!;

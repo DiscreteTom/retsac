@@ -14,7 +14,7 @@ test("error tokens", () => {
     .define({
       A: (a) =>
         // set error by using `check`
-        a.from(/a/).check((ctx) => (ctx.output.hasRest() ? "end" : undefined)),
+        a.from(/a/).check((ctx) => (ctx.output.hasRest() ? undefined : "end")),
     })
     .build(" a");
 
