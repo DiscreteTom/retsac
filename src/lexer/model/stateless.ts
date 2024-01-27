@@ -115,7 +115,7 @@ export interface IStatelessLexer<
      */
     options: Readonly<IStatelessLexerTrimOptions<ActionState>>,
   ): Pick<
-    ITrimOutput<Token<DataBindings, ErrorType>, never>,
+    ITrimOutput<Token<DataBindings, ErrorType>>,
     "digested" | "errors" | "rest"
   >;
 }
