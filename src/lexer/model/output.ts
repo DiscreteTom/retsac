@@ -6,7 +6,7 @@ export type ILexOutput<TokenType> = {
   /**
    * How many chars are digested during this lex.
    * Zero if no actions can be accepted.
-   * This might be non-zero even the `token` is `null`,
+   * This might be non-zero even the `token` is `undefined`,
    * since there might be some muted actions are accepted.
    */
   digested: number;
