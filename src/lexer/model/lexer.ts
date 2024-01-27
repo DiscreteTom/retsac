@@ -105,61 +105,6 @@ export interface ILexer<
    */
   trim(): ITrimOutput<
     Token<DataBindings, ErrorType>,
-    ITrimmedLexer<DataBindings, ActionState, ErrorType>
+    ILexer<DataBindings, ActionState, ErrorType>
   >;
-}
-
-export interface IReadonlyTrimmedLexer<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> extends Pick<
-    IReadonlyLexer<DataBindings, ActionState, ErrorType>,
-    | "stateless"
-    | "state"
-    | "actionState"
-    | "defaultActionState"
-    | "actionStateCloner"
-    | "debug"
-    | "logger"
-    | "dryClone"
-    | "peek"
-  > {
-  /**
-   * Clone a new lexer with the same definitions and current state.
-   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
-   */
-  // clone a trimmed lexer should get a trimmed lexer
-  clone(
-    options?: ILexerCloneOptions,
-  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
-}
-
-export interface ITrimmedLexer<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> extends Pick<
-    ILexer<DataBindings, ActionState, ErrorType>,
-    | "stateless"
-    | "state"
-    | "actionState"
-    | "defaultActionState"
-    | "actionStateCloner"
-    | "debug"
-    | "logger"
-    | "dryClone"
-    | "take"
-    | "peek"
-    | "lex"
-    | "lexAll"
-  > {
-  /**
-   * Clone a new lexer with the same definitions and current state.
-   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
-   */
-  // clone a trimmed lexer should get a trimmed lexer
-  clone(
-    options?: ILexerCloneOptions,
-  ): ITrimmedLexer<DataBindings, ActionState, ErrorType>;
 }
