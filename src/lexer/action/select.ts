@@ -1,6 +1,5 @@
 import type { ExtractKinds, GeneralTokenDataBinding } from "../model";
 import type { AcceptedActionDecoratorContext, Action } from "./action";
-import { AcceptedActionOutput } from "./output";
 
 /**
  * Select a kind from action's kinds by action's input/output.
@@ -33,11 +32,10 @@ export class MultiKindAction<
     selector: ActionKindSelector<DataBindings, ActionState, ErrorType>,
   ): Action<DataBindings, ActionState, ErrorType> {
     return this.action.apply((ctx) => {
-      return new AcceptedActionOutput({
-        ...ctx.output,
-        rest: ctx.output.rest.raw,
+      return {
+        ...ctx.output.raw,
         kind: selector(ctx),
-      });
+      };
     });
   }
 }

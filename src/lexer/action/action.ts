@@ -5,44 +5,35 @@ import type {
 } from "../model";
 import type { ActionInput } from "./input";
 import type {
-  SimpleAcceptedActionExecOutput,
-  ActionExecOutput,
   ActionOutput,
-  AcceptedActionExecOutput,
+  SimpleActionOutputWithoutKind,
+  ActionOutputWithoutKind,
 } from "./output";
-import { rejectedActionOutput, AcceptedActionOutput } from "./output";
+import { EnhancedActionOutput } from "./output";
 import { MultiKindAction } from "./select";
 import { checkRegexNotStartsWithCaret, makeRegexAutoSticky } from "./utils";
 
 /**
  * User defined action execution function.
  */
-export type ActionExec<Data, ActionState, ErrorType> = (
+export type ActionExec<Kinds extends string, Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
-) => ActionExecOutput<Data, ErrorType>;
+) => ActionOutput<Kinds, Data, ErrorType> | undefined;
 
-/**
- * Wrapped action execution function.
- * The `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` will be set by the action.
- */
-export type WrappedActionExec<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> = (
+export type ActionExecWithoutKind<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
-) => ActionOutput<DataBindings, ErrorType>;
+) => ActionOutputWithoutKind<Data, ErrorType> | undefined;
 
 /**
  * If return a number, the number is how many chars are digested. If the number <= 0, reject.
  *
- * If return a string, the string is the content. If the string is empty, reject.
- *
  * If return a SimpleAcceptedActionExecOutput, missing fields will be filled automatically.
+ *
+ * If return `undefined`, the action is rejected.
  */
-export type SimpleActionExec<Data, ActionState, ErrorType> = (
+export type SimpleActionExecWithoutKind<Data, ActionState, ErrorType> = (
   input: Readonly<ActionInput<ActionState>>,
-) => number | string | SimpleAcceptedActionExecOutput<Data, ErrorType>;
+) => number | SimpleActionOutputWithoutKind<Data, ErrorType> | undefined;
 
 /**
  * These types can be transformed into an `Action` by {@link Action.from}.
@@ -50,7 +41,7 @@ export type SimpleActionExec<Data, ActionState, ErrorType> = (
 export type IntoAction<Kinds extends string, Data, ActionState, ErrorType> =
   | RegExp
   | Action<{ kind: Kinds; data: Data }, ActionState, ErrorType>
-  | SimpleActionExec<Data, ActionState, ErrorType>;
+  | SimpleActionExecWithoutKind<Data, ActionState, ErrorType>;
 
 export type AcceptedActionDecoratorContext<
   DataBindings extends GeneralTokenDataBinding,
@@ -58,7 +49,7 @@ export type AcceptedActionDecoratorContext<
   ErrorType,
 > = {
   readonly input: Readonly<ActionInput<ActionState>>;
-  readonly output: AcceptedActionOutput<
+  readonly output: EnhancedActionOutput<
     ExtractKinds<DataBindings>,
     ExtractData<DataBindings>,
     ErrorType
@@ -73,7 +64,9 @@ export type AcceptedActionDecorator<
   NewErrorType,
 > = (
   ctx: AcceptedActionDecoratorContext<DataBindings, ActionState, ErrorType>,
-) => ActionOutput<NewDataBindings, NewErrorType>;
+) =>
+  | ActionOutput<NewDataBindings["kind"], NewDataBindings["data"], NewErrorType>
+  | undefined;
 
 export class Action<
   DataBindings extends GeneralTokenDataBinding = never,
@@ -87,7 +80,12 @@ export class Action<
    * This is needed by `lexer.getTokenKinds` and `lexer.lex` with expectation.
    */
   readonly possibleKinds: ReadonlySet<ExtractKinds<DataBindings>>;
-  readonly exec: WrappedActionExec<DataBindings, ActionState, ErrorType>;
+  readonly exec: ActionExec<
+    DataBindings["kind"],
+    DataBindings["data"],
+    ActionState,
+    ErrorType
+  >;
   /**
    * This flag is to indicate whether this action's output might be muted.
    * The lexer will based on this flag to accelerate the lexing process.
@@ -107,20 +105,21 @@ export class Action<
 
   /**
    * Make constructor private to prevent user from creating action directly,
-   * because we don't want the user to construct the ActionOutput directly.
-   *
-   * We have to make sure the `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` are the same
-   * as `ActionInput.buffer` and `ActionInput.start`.
+   * because we want to make sure the possible kinds is correct.
    *
    * So for most cases, use {@link Action.exec} as a substitute.
-   * It will set `AcceptedActionOutput.buffer` and `AcceptedActionOutput.start` automatically.
    */
   private constructor(
-    wrapped: WrappedActionExec<DataBindings, ActionState, ErrorType>,
+    exec: ActionExec<
+      DataBindings["kind"],
+      DataBindings["data"],
+      ActionState,
+      ErrorType
+    >,
     maybeMuted: boolean,
     possibleKinds: ReadonlySet<ExtractKinds<DataBindings>>,
   ) {
-    this.exec = wrapped;
+    this.exec = exec;
     this.maybeMuted = maybeMuted;
     this.possibleKinds = possibleKinds;
   }
@@ -130,13 +129,13 @@ export class Action<
    * This should be treat as the public constructor of `Action`.
    */
   static exec<Data = undefined, ActionState = never, ErrorType = never>(
-    exec: ActionExec<Data, ActionState, ErrorType>,
+    exec: ActionExecWithoutKind<Data, ActionState, ErrorType>,
     options?: Partial<
       Pick<Action<never, ActionState, ErrorType>, "maybeMuted">
     >,
   ): Action<
     {
-      // Action constructed with `exec` has no kind
+      // kind should be set later by `kinds` or `bind`
       kind: never;
       data: Data;
     },
@@ -146,8 +145,11 @@ export class Action<
     return new Action(
       (input) => {
         const output = exec(input);
-        if (output.accept) return AcceptedActionOutput.from(input, output);
-        return rejectedActionOutput;
+        if (output === undefined) return undefined;
+        return {
+          kind: undefined as never,
+          ...output,
+        };
       },
       options?.maybeMuted ?? false,
       new Set(),
@@ -158,7 +160,7 @@ export class Action<
    * Create an `Action` from `SimpleActionExec`.
    */
   static simple<Data = undefined, ActionState = never, ErrorType = never>(
-    f: SimpleActionExec<Data, ActionState, ErrorType>,
+    f: SimpleActionExecWithoutKind<Data, ActionState, ErrorType>,
   ): Action<
     {
       // Action constructed with `simple` has no kind
@@ -170,43 +172,30 @@ export class Action<
   > {
     return Action.exec((input) => {
       const res = f(input);
+
       // if javascript support real function overload
       // we can move this type check out of the action's exec
       // to optimize performance
+      if (res === undefined)
+        // reject
+        return undefined;
       if (typeof res === "number") {
-        if (res <= 0) return rejectedActionOutput;
+        if (res <= 0) return undefined;
         return {
-          accept: true,
-          muted: false,
+          data: undefined,
           digested: res,
-          content: input.buffer.slice(input.start, input.start + res),
-          data: undefined,
-        } as AcceptedActionExecOutput<Data, ErrorType>;
-      }
-      if (typeof res === "string") {
-        if (res.length <= 0) return rejectedActionOutput;
-        return {
-          accept: true,
           muted: false,
-          digested: res.length,
-          content: res,
-          data: undefined,
-        } as AcceptedActionExecOutput<Data, ErrorType>;
+        } as ActionOutput<never, Data, ErrorType>;
       }
-      // else, res is SimpleAcceptedActionOutput
-      res.digested ??= res.content!.length; // if digested is undefined, content must be defined
-      if (res.digested <= 0) return rejectedActionOutput;
+      // else, res is SimpleActionOutputWithoutKind
+      if (res.digested <= 0) return undefined;
       return {
-        accept: true,
-        muted: res.muted ?? false,
-        digested: res.digested,
-        error: res.error,
-        content:
-          res.content ??
-          input.buffer.slice(input.start, input.start + res.digested),
         data: res.data,
+        digested: res.digested,
+        muted: res.muted ?? false,
+        error: res.error,
         rest: res.rest,
-      } as AcceptedActionExecOutput<Data, ErrorType>;
+      } as ActionOutput<never, Data, ErrorType>;
     });
   }
 
@@ -240,15 +229,11 @@ export class Action<
       const res = r.exec(input.buffer);
       if (res && res.index !== -1)
         return {
-          accept: true,
-          muted: false,
-          digested: res[0].length,
-          buffer: input.buffer,
-          start: input.start,
-          content: res[0], // reuse the regex result
           data: res,
+          digested: res[0].length,
+          muted: false,
         };
-      return rejectedActionOutput;
+      return undefined;
     });
   }
 
@@ -295,10 +280,10 @@ export class Action<
   prevent(
     rejecter: (input: Readonly<ActionInput<ActionState>>) => boolean,
   ): Action<DataBindings, ActionState, ErrorType> {
-    const wrapped = this.exec;
+    const exec = this.exec;
 
     return new Action(
-      (input) => (rejecter(input) ? rejectedActionOutput : wrapped(input)),
+      (input) => (rejecter(input) ? undefined : exec(input)),
       this.maybeMuted,
       this.possibleKinds,
     );
@@ -321,19 +306,19 @@ export class Action<
       Pick<Action<DataBindings, ActionState, NewErrorType>, "maybeMuted">
     >,
   ): Action<NewDataBindings, ActionState, NewErrorType> {
-    const wrapped = this.exec;
+    const exec = this.exec;
     return new Action(
       (input) => {
-        const output = wrapped(input);
-        if (output.accept) {
-          return decorator({
-            input,
-            output,
-          });
-        }
-        return output;
+        const output = exec(input);
+        if (output === undefined) return undefined;
+        return decorator({
+          input,
+          output: EnhancedActionOutput.from(input, output),
+        });
       },
       optionsOverride?.maybeMuted ?? this.maybeMuted,
+      // apply won't change the kinds, only may change data bindings
+      // so the possible kinds should be the same
       this.possibleKinds as ReadonlySet<ExtractKinds<NewDataBindings>>,
     );
   }
@@ -356,8 +341,8 @@ export class Action<
     if (typeof muted === "boolean") {
       return this.apply(
         (ctx) => {
-          ctx.output.muted = muted;
-          return ctx.output;
+          ctx.output.raw.muted = muted;
+          return ctx.output.raw;
         },
         { maybeMuted: muted },
       );
@@ -365,8 +350,8 @@ export class Action<
       // muted is a function
       return this.apply(
         (ctx) => {
-          ctx.output.muted = muted(ctx);
-          return ctx.output;
+          ctx.output.raw.muted = muted(ctx);
+          return ctx.output.raw;
         },
         // if muted is a function, we can't know whether the output will be muted
         // so we set maybeMuted to true
@@ -387,7 +372,7 @@ export class Action<
     return this.apply((ctx) => {
       // in javascript, type casting should be faster than creating a new object
       // so we don't create a new AcceptedActionOutput, just cast and modify it
-      const output = ctx.output as unknown as AcceptedActionOutput<
+      const output = ctx.output.raw as unknown as ActionOutput<
         ExtractKinds<DataBindings>,
         ExtractData<DataBindings>,
         NewErrorType
@@ -426,7 +411,7 @@ export class Action<
     >((ctx) => {
       // in javascript, type casting should be faster than creating a new object
       // so we don't create a new AcceptedActionOutput, just cast and modify it
-      const output = ctx.output as unknown as AcceptedActionOutput<
+      const output = ctx.output.raw as unknown as ActionOutput<
         ExtractKinds<DataBindings>,
         NewData,
         ErrorType
@@ -463,29 +448,17 @@ export class Action<
           >,
         ) => boolean) = true,
   ): Action<DataBindings, ActionState, ErrorType> {
-    if (typeof rejecter === "boolean") {
-      if (rejecter) {
-        // always reject
-        // ignore maybeMuted since muted is only used when accept is true
-        return new Action(
-          () => rejectedActionOutput,
-          false,
-          this.possibleKinds,
-        );
-      }
-      // else, always accept, just return self, don't override the original output's accept
-      return this;
-    }
-    // else, rejecter is a function
+    const rejecterFn =
+      typeof rejecter === "boolean" ? () => rejecter : rejecter;
+
     return this.apply((ctx) => {
-      if (rejecter(ctx)) return rejectedActionOutput;
-      return ctx.output;
+      if (rejecterFn(ctx)) return undefined;
+      return ctx.output.raw;
     });
   }
 
   /**
-   * Call `f` if `accept` is `true` and `peek` is `false`.
-   * You can modify the action state in `cb`.
+   * Call `f` if the action is accepted.
    * Return a new action.
    */
   then(
@@ -494,8 +467,8 @@ export class Action<
     ) => void,
   ): Action<DataBindings, ActionState, ErrorType> {
     return this.apply((ctx) => {
-      if (!ctx.input.peek) cb(ctx);
-      return ctx.output;
+      cb(ctx);
+      return ctx.output.raw;
     });
   }
 
@@ -511,14 +484,14 @@ export class Action<
       ErrorType
     >,
   ): Action<DataBindings, ActionState, ErrorType> {
-    const wrapped = this.exec;
+    const exec = this.exec;
     const other = Action.from(another);
-    const otherWrapped = other.exec;
+    const otherExec = other.exec;
     return new Action(
       (input) => {
-        const output = wrapped(input);
-        if (output.accept) return output;
-        return otherWrapped(input);
+        const output = exec(input);
+        if (output !== undefined) return output;
+        return otherExec(input);
       },
       this.maybeMuted || other.maybeMuted,
       new Set([...this.possibleKinds, ...other.possibleKinds]),
@@ -639,7 +612,7 @@ export class Action<
     ErrorType
   > {
     return this.apply((ctx) => {
-      const output = ctx.output as unknown as AcceptedActionOutput<
+      const output = ctx.output.raw as unknown as ActionOutput<
         ExtractKinds<DataBindings>,
         ExtractData<DataBindings>,
         ErrorType
