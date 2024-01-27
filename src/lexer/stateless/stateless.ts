@@ -3,10 +3,9 @@ import type { ReadonlyAction } from "../action";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ILexerCoreLexOptions,
-  ILexerCoreLexOutput,
-  ILexerCoreTrimStartOptions,
-  ILexerCoreTrimStartOutput,
+  IStatelessLexer,
+  IStatelessLexerLexOptions,
+  IStatelessLexerTrimOptions,
 } from "../model";
 import { executeActions } from "./utils";
 
@@ -14,17 +13,12 @@ export class StatelessLexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
-> {
-  /**
-   * This is used to accelerate expected lexing.
-   */
+> implements IStatelessLexer<DataBindings, ActionState, ErrorType>
+{
   readonly actionMap: ReadonlyMap<
     DataBindings["kind"],
     readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[]
   >;
-  /**
-   * This is used to accelerate trimming.
-   */
   readonly maybeMutedActions: readonly ReadonlyAction<
     DataBindings,
     ActionState,
@@ -65,14 +59,15 @@ export class StatelessLexer<
 
   getTokenKinds() {
     const res: Set<ExtractKinds<DataBindings>> = new Set();
+    // TODO: use actionMap keys should be faster
     this.actions.forEach((a) => a.possibleKinds.forEach((k) => res.add(k)));
     return res;
   }
 
   lex(
     buffer: string,
-    options: Readonly<ILexerCoreLexOptions<DataBindings, ActionState>>,
-  ): ILexerCoreLexOutput<DataBindings, ErrorType> {
+    options: Readonly<IStatelessLexerLexOptions<DataBindings, ActionState>>,
+  ) {
     const {
       debug,
       logger,
@@ -146,8 +141,8 @@ export class StatelessLexer<
 
   trim(
     buffer: string,
-    options: Readonly<ILexerCoreTrimStartOptions<ActionState>>,
-  ): ILexerCoreTrimStartOutput<DataBindings, ErrorType> {
+    options: Readonly<IStatelessLexerTrimOptions<ActionState>>,
+  ) {
     const {
       debug,
       logger,

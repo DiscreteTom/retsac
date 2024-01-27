@@ -1,9 +1,12 @@
+// TODO: rename file
 import type { Logger } from "../../logger";
-import type { ActionStateCloner } from "../action";
+import type { ReadonlyAction } from "../action";
+import type { Expectation } from "./expectation";
 import type { ExtractKinds } from "./extractor";
+import type { ILexOutput, ITrimOutput } from "./output";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
-export type ILexerCoreLexOptions<
+export type IStatelessLexerLexOptions<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
 > = {
@@ -30,10 +33,7 @@ export type ILexerCoreLexOptions<
    * @default
    * { kind: undefined, text: undefined }
    */
-  expect?: Readonly<{
-    kind?: ExtractKinds<DataBindings>;
-    text?: string;
-  }>;
+  expect?: Readonly<Expectation<DataBindings["kind"]>>;
   /**
    * @default false
    */
@@ -48,33 +48,8 @@ export type ILexerCoreLexOptions<
   entity?: string;
 };
 
-export type ILexerCoreLexOutput<
-  DataBindings extends GeneralTokenDataBinding,
-  ErrorType,
-> = {
-  /**
-   * `undefined` if no actions can be accepted or all muted.
-   */
-  token: Token<DataBindings, ErrorType> | undefined;
-  /**
-   * How many chars are digested during this lex.
-   * Zero if no actions can be accepted.
-   * This might be non-zero even the `token` is `null`,
-   * since there might be some muted actions are accepted.
-   */
-  digested: number;
-  /**
-   * Not `undefined` if the last action's output contains a rest.
-   */
-  rest: string | undefined;
-  /**
-   * Accumulated errors during this lex.
-   */
-  errors: Token<DataBindings, ErrorType>[];
-};
-
-export type ILexerCoreTrimStartOptions<ActionState> = Pick<
-  ILexerCoreLexOptions<never, ActionState>,
+export type IStatelessLexerTrimOptions<ActionState> = Pick<
+  IStatelessLexerLexOptions<never, ActionState>,
   "debug" | "logger" | "rest" | "start" | "actionState"
 > & {
   /**
@@ -83,121 +58,65 @@ export type ILexerCoreTrimStartOptions<ActionState> = Pick<
   entity?: string;
 };
 
-export type ILexerCoreTrimStartOutput<
-  DataBindings extends GeneralTokenDataBinding,
-  ErrorType,
-> = Pick<
-  ILexerCoreLexOutput<DataBindings, ErrorType>,
-  "digested" | "rest" | "errors"
->;
-
-export interface IReadonlyLexerCore<
+/**
+ * Stateless lexer is always readonly.
+ */
+export interface IStatelessLexer<
   DataBindings extends GeneralTokenDataBinding,
   ActionState,
   ErrorType,
 > {
   /**
-   * This is used for {@link IReadonlyLexerCore.dryClone} and {@link ILexerCore.reset}.
+   * All actions.
    */
-  readonly initialState: Readonly<ActionState>;
+  readonly actions: readonly ReadonlyAction<
+    DataBindings,
+    ActionState,
+    ErrorType
+  >[];
   /**
-   * The current state.
+   * This is used to accelerate expected lexing.
    */
-  get state(): Readonly<ActionState>;
+  readonly actionMap: ReadonlyMap<
+    DataBindings["kind"],
+    readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[]
+  >;
   /**
-   * This is used for {@link IReadonlyLexerCore.clone} and {@link ILexerCore.reset}.
+   * This is used to accelerate trimming.
    */
-  readonly stateCloner: ActionStateCloner<ActionState>;
-  /**
-   * Clone a new lexer core with the same definitions and the initial state.
-   */
-  dryClone(): ILexerCore<DataBindings, ActionState, ErrorType>;
-  /**
-   * Clone a new lexer core with the same definitions and the current state.
-   */
-  clone(): ILexerCore<DataBindings, ActionState, ErrorType>;
-  /**
-   * Lex with partial options.
-   */
-  lex(
-    /**
-     * The whole input string.
-     */
-    buffer: string,
-    // readonly lex, must set peek to true
-    // so the options can't be omitted
-    options: Readonly<
-      Partial<ILexerCoreLexOptions<DataBindings, ActionState>> & { peek: true }
-    >,
-  ): ILexerCoreLexOutput<DataBindings, ErrorType>;
-  /**
-   * Lex with full options.
-   */
-  _lex(
-    /**
-     * The whole input string.
-     */
-    buffer: string,
-    // readonly lex, must set peek to true
-    // so the options can't be omitted
-    options: Readonly<
-      ILexerCoreLexOptions<DataBindings, ActionState> & { peek: true }
-    >,
-  ): ILexerCoreLexOutput<DataBindings, ErrorType>;
+  readonly maybeMutedActions: readonly ReadonlyAction<
+    DataBindings,
+    ActionState,
+    ErrorType
+  >[];
+
   /**
    * Get all defined token kinds.
    */
   getTokenKinds(): Set<ExtractKinds<DataBindings>>;
-}
 
-export interface ILexerCore<
-  DataBindings extends GeneralTokenDataBinding,
-  ActionState,
-  ErrorType,
-> extends IReadonlyLexerCore<DataBindings, ActionState, ErrorType> {
-  /**
-   * Return this as a readonly lexer core.
-   */
-  get readonly(): IReadonlyLexerCore<DataBindings, ActionState, ErrorType>;
-  state: ActionState; // make the state mutable
-  /**
-   * Reset the lexer core to the initial state.
-   */
-  reset(): this;
-  /**
-   * Lex with partial options.
-   */
   lex(
     /**
      * The whole input string.
      */
     buffer: string,
-    options?: Readonly<
-      Partial<ILexerCoreLexOptions<DataBindings, ActionState>>
-    >,
-  ): ILexerCoreLexOutput<DataBindings, ErrorType>;
-  /**
-   * Lex with full options.
-   */
-  _lex(
+    /**
+     * `actionState` is required.
+     */
+    options: Readonly<IStatelessLexerLexOptions<DataBindings, ActionState>>,
+  ): ILexOutput<Token<DataBindings, ErrorType>>;
+
+  trim(
     /**
      * The whole input string.
      */
     buffer: string,
-    options: Readonly<ILexerCoreLexOptions<DataBindings, ActionState>>,
-  ): ILexerCoreLexOutput<DataBindings, ErrorType>;
-  /**
-   * TrimStart with partial options.
-   */
-  trimStart(
-    buffer: string,
-    options?: Readonly<Partial<ILexerCoreTrimStartOptions<ActionState>>>,
-  ): ILexerCoreTrimStartOutput<DataBindings, ErrorType>;
-  /**
-   * TrimStart with full options.
-   */
-  _trimStart(
-    buffer: string,
-    options: Readonly<ILexerCoreTrimStartOptions<ActionState>>,
-  ): ILexerCoreTrimStartOutput<DataBindings, ErrorType>;
+    /**
+     * `actionState` is required.
+     */
+    options: Readonly<IStatelessLexerTrimOptions<ActionState>>,
+  ): Pick<
+    ITrimOutput<Token<DataBindings, ErrorType>, never>,
+    "digested" | "errors" | "rest"
+  >;
 }

@@ -7,7 +7,7 @@ import type {
   GeneralTokenDataBinding,
   ExtractKinds,
   ExtractData,
-  ILexerCoreLexOutput,
+  ILexOutput,
 } from "../model";
 import type { Validator } from "./model";
 
@@ -47,8 +47,8 @@ export function executeActions<
   debug: boolean,
   logger: Logger,
   entity: string,
-): ILexerCoreLexOutput<DataBindings, ErrorType> {
-  const res: ILexerCoreLexOutput<DataBindings, ErrorType> = {
+): ILexOutput<Token<DataBindings, ErrorType>> {
+  const res: ILexOutput<Token<DataBindings, ErrorType>> = {
     token: undefined,
     digested: 0,
     rest: initialRest,

@@ -1,4 +1,5 @@
-import type { GeneralTokenDataBinding, Token } from "./token";
+import type { LazyString } from "../../helper";
+import type { GeneralTokenDataBinding } from "./token";
 
 /**
  * The inner state of a lexer.
@@ -17,43 +18,42 @@ export interface ILexerState<
    */
   readonly digested: number;
   /**
-   * How many chars in each line.
-   */
-  readonly lineChars: readonly number[];
-  /**
-   * `true` if the lexer is `trimStart`-ed.
+   * `true` if there is no muted token at the beginning of the rest of input.
    */
   readonly trimmed: boolean;
-  /**
-   * Currently accumulated errors.
-   */
-  readonly errors: Readonly<Token<DataBindings, ErrorType>>[];
-  readonly rest: string | undefined;
+  readonly rest: LazyString;
 
   /**
-   * Reset the lexer's state.
+   * Readonly version of this state.
    */
-  reset(): void;
+  get readonly(): IReadonlyLexerState<DataBindings, ErrorType>;
+
+  clone(): ILexerState<DataBindings, ErrorType>;
+
   /**
-   * Append new input to the end of the buffer and update related states.
-   */
-  feed(input: string): void;
-  /**
-   * Take `n` chars from the buffer and update related states.
-   * The caller should ensure the `n` is valid (greater or equal to 0), and provide the content.
+   * Take `n` chars from the rest of the input and update related states.
+   * The caller should ensure the `n` is greater or equal to 0.
    *
    * If the caller can get the rest unintentionally, it can be passed to the `rest` parameter.
    */
-  take(n: number, content: string, rest: string | undefined): void;
-  clone(): ILexerState<DataBindings, ErrorType>;
+  digest(n: number, rest: string | undefined): void;
+
   /**
    * Set `trimmed` to `true`.
    */
-  setTrimmed(): void;
+  trim(n: number, rest: string | undefined): void;
+
   /**
-   * Get the un-digested string buffer.
-   * The rest string might be very long, be care of using this method.
-   * The result will be cached in the lexer state and will be auto invalidated when the state is changed.
+   * Return `true` if there is still some chars in the rest of input.
+   * This will NOT calculate the rest of input.
    */
-  getRest(): string;
+  hasRest(): boolean;
 }
+
+export type IReadonlyLexerState<
+  DataBindings extends GeneralTokenDataBinding,
+  ErrorType,
+> = Pick<
+  ILexerState<DataBindings, ErrorType>,
+  "buffer" | "digested" | "trimmed" | "rest" | "clone" | "hasRest"
+>;
