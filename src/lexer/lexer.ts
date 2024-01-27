@@ -7,7 +7,6 @@ import type {
   GeneralTokenDataBinding,
   ILexerCloneOptions,
   ILexerCoreLexOptions,
-  ILexerLexOptions,
   ITrimmedLexer,
   Token,
 } from "./model";
@@ -134,20 +133,14 @@ export class Lexer<
   }
 
   lex(
-    input: string | Readonly<ILexerLexOptions<DataBindings>> = "",
+    expectation?: ILexerCoreLexOptions<DataBindings, ActionState>["expect"],
   ): Token<DataBindings, ErrorType> | null {
     const entity = "Lexer.lex";
-
-    // calculate expect & peek
-    const expect = {
-      kind: typeof input === "string" ? undefined : input.expect?.kind,
-      text: typeof input === "string" ? undefined : input.expect?.text,
-    };
 
     const res = this.stateless.lex(this.state.buffer, {
       start: this.state.digested,
       rest: this.state.rest,
-      expect,
+      expect: expectation,
       debug: this.debug,
       logger: this.logger,
       actionState: this.actionState,
