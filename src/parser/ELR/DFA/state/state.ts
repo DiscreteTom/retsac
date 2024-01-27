@@ -1,8 +1,8 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyTrimmedLexer,
-  ITrimmedLexer,
+  ILexer,
+  IReadonlyLexer,
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
@@ -303,7 +303,7 @@ export class State<
    * Return all the possible results after deduplication.
    */
   tryLex(
-    lexer: IReadonlyTrimmedLexer<
+    trimmedLexer: IReadonlyLexer<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
@@ -327,7 +327,7 @@ export class State<
           Token<LexerDataBindings, LexerErrorType>,
           Global
         >;
-        lexer: ITrimmedLexer<
+        trimmedLexer: ILexer<
           LexerDataBindings,
           LexerActionState,
           LexerErrorType
@@ -346,7 +346,7 @@ export class State<
         if (debug) {
           const info = {
             candidate: c.toString(),
-            rest: prettierLexerRest(lexer),
+            rest: prettierLexerRest(trimmedLexer),
           };
           logger.log({
             entity: "Parser",
@@ -368,7 +368,7 @@ export class State<
         Global
       >(
         c.current as Grammar<ExtractKinds<LexerDataBindings>>,
-        lexer,
+        trimmedLexer,
         tokenASTDataMapper,
         global,
       );
@@ -389,7 +389,7 @@ export class State<
         } else {
           const info = {
             candidate: c.toString(),
-            rest: prettierLexerRest(lexer),
+            rest: prettierLexerRest(trimmedLexer),
           };
           logger.log({
             entity: "Parser",
@@ -427,7 +427,7 @@ export class State<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
-    lexer: IReadonlyTrimmedLexer<
+    trimmedLexer: IReadonlyLexer<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
@@ -495,7 +495,7 @@ export class State<
         entryNTs,
         ignoreEntryFollow,
         followSets,
-        lexer,
+        trimmedLexer,
         selector,
         firstMatchSelector,
         global,

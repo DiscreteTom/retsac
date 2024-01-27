@@ -34,7 +34,7 @@ export class Parser<
       Global
     >
 {
-  lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   readonly dfa: DFA<
     NTs,
     ASTData,
@@ -129,8 +129,9 @@ export class Parser<
     debug: boolean,
     logger: Logger,
   ) {
+    lexer.trim();
     this.dfa = dfa;
-    this.lexer = lexer;
+    this.trimmedLexer = lexer;
     this._buffer = [];
     this.errors = [];
     this.reLexStack = new Stack();
@@ -143,24 +144,23 @@ export class Parser<
     this.logger = logger;
   }
 
+  reload(buffer: string): this {
+    this.trimmedLexer.reload(buffer);
+    this.trimmedLexer.trim();
+
+    // reset other states
+    this._buffer = [];
+    this.errors.length = 0;
+    this.reLexStack.clear();
+    this.rollbackStack.clear();
+    this._global = this.globalFactory();
+    return this;
+  }
+
   /** Clear re-lex stack (abandon all other possibilities). */
   commit() {
     this.reLexStack.clear();
     this.rollbackStack.clear();
-    return this;
-  }
-
-  reset() {
-    // this.dfa.reset(); // DFA is stateless so no need to reset
-    this.lexer.reset();
-    this._buffer = [];
-    this.errors.length = 0;
-    this._global = this.globalFactory();
-    return this.commit();
-  }
-
-  feed(input: string) {
-    this.lexer.feed(input);
     return this;
   }
 
@@ -173,40 +173,27 @@ export class Parser<
     return this._buffer.splice(0, n);
   }
 
-  parse(
-    input?: string | { input?: string; stopOnError?: boolean },
-  ): ParserOutput<
+  parse(): ParserOutput<
     NTs,
     ASTData,
     ErrorType,
     Token<LexerDataBindings, LexerErrorType>,
     Global
   > {
-    // feed input if provided
-    if (typeof input === "string") {
-      this.feed(input);
-    } else {
-      if (input?.input) this.feed(input.input);
-    }
-
-    const stopOnError =
-      typeof input === "string" ? false : input?.stopOnError ?? false;
-
     // important! make sure lexer can still lex something not muted.
     // DON'T put this in `DFA.parse` because we need to update lexer using `trimStart`.
     // If we put this in `DFA.parse` and parse failed, the lexer won't be updated.
-    if (!this.lexer.trimStart().hasRest()) return { accept: false };
+    if (!this.trimmedLexer.state.hasRest()) return { accept: false };
 
     while (true) {
       const res = this.dfa.parse(
         // all these parameters may be changed in DFA
         // so we don't need to clone them here
         this._buffer,
-        this.lexer,
+        this.trimmedLexer,
         this.reLexStack,
         this.rollbackStack,
         () => this.commit(),
-        stopOnError,
         this.ignoreEntryFollow,
         this._global,
         this.debug,
@@ -214,7 +201,7 @@ export class Parser<
       );
       if (res.output.accept) {
         // TODO: DFA should return other states like reLexStack and rollbackStack
-        this.lexer = res.lexer;
+        this.trimmedLexer = res.trimmedLexer;
         this._buffer = res.output.buffer;
         this.errors.push(...res.output.errors);
 
@@ -224,9 +211,7 @@ export class Parser<
     }
   }
 
-  parseAll(
-    input: string | { input?: string; stopOnError?: boolean } = "",
-  ): ParserOutput<
+  parseAll(): ParserOutput<
     NTs,
     ASTData,
     ErrorType,
@@ -253,18 +238,8 @@ export class Parser<
     /** If the parser has accepted at least once. */
     let accepted = false;
 
-    // feed input if provided
-    if (typeof input === "string") {
-      this.feed(input);
-    } else {
-      if (input?.input) this.feed(input.input);
-    }
-
-    const stopOnError =
-      typeof input === "string" ? false : input?.stopOnError ?? false;
-
     while (true) {
-      const res = this.parse({ stopOnError });
+      const res = this.parse();
       if (res.accept) {
         accepted = true;
         buffer = res.buffer;

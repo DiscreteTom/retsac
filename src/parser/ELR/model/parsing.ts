@@ -2,7 +2,7 @@ import type { Stack } from "../../../helper/stack";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  ITrimmedLexer,
+  ILexer,
   Token,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
@@ -53,7 +53,7 @@ export type ParsingState<
     Token<LexerDataBindings, LexerErrorType>,
     Global
   >[];
-  lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   /**
    * From which candidate to start {@link State.tryLex} on the current state.
    * We only need to store this for current state.

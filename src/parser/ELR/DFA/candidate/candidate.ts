@@ -2,7 +2,7 @@ import type { CandidateRepo, ReadonlyCandidateRepo } from "./candidate-repo";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyTrimmedLexer,
+  IReadonlyLexer,
   Token,
 } from "../../../../lexer";
 import type { Logger } from "../../../../logger";
@@ -247,7 +247,7 @@ export class Candidate<
     entryNTs: ReadonlySet<string>,
     ignoreEntryFollow: boolean,
     followSets: ReadonlyFollowSets<NTs, ExtractKinds<LexerDataBindings>>,
-    lexer: IReadonlyTrimmedLexer<
+    trimmedLexer: IReadonlyLexer<
       LexerDataBindings,
       LexerActionState,
       LexerErrorType
@@ -308,7 +308,7 @@ export class Candidate<
       Global
     >({
       matched,
-      lexer,
+      lexer: trimmedLexer,
       beforeFactory: () => buffer.slice(0, -this.gr.rule.length),
       selector,
       firstMatchSelector,
@@ -317,7 +317,7 @@ export class Candidate<
     // check follow for LR(1) with the rest input string
     // important! make sure lexer can still lex something not muted
     // otherwise, we will get stuck because lexer will always return null and follow set check will always fail
-    const nextTokenExists = lexer.lex({ peek: true }) !== null;
+    const nextTokenExists = trimmedLexer.peek().token !== undefined;
     if (nextTokenExists) {
       if (entryNTs.has(this.gr.NT) && ignoreEntryFollow) {
         // entry NT, no need to check follow set if `ignoreEntryFollow` is set
@@ -329,14 +329,10 @@ export class Candidate<
         let mismatch = true; // if follow mismatch, reject
         for (const [_, g] of followSets.get(this.gr.NT)!.grammars) {
           if (
-            lexer.lex({
-              // peek with expectation
-              peek: true,
-              expect: {
-                kind: g.kind as ExtractKinds<LexerDataBindings>,
-                text: g.text,
-              },
-            }) !== null
+            trimmedLexer.peek({
+              kind: g.kind as ExtractKinds<LexerDataBindings>,
+              text: g.text,
+            }) !== undefined
           ) {
             // found valid follow, continue
             mismatch = false;
@@ -418,15 +414,11 @@ export class Candidate<
         undefined;
       for (const g of c.next.grammars.values()) {
         next = g;
-        const token = context.lexer.lex({
-          // peek with expectation
-          peek: true,
-          expect: {
-            kind: g.kind as ExtractKinds<LexerDataBindings>,
-            text: g.text,
-          },
+        const token = context.lexer.peek({
+          kind: g.kind as ExtractKinds<LexerDataBindings>,
+          text: g.text,
         });
-        if (token === null) continue; // next not match, check next next
+        if (token === undefined) continue; // next not match, check next next
         for (const r of c.resolvers) {
           // find related resolver by the next
           if (r.next === "*" || r.next.has(g)) {

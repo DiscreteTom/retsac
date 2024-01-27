@@ -66,16 +66,16 @@ export interface IParser<
    * @default false
    */
   ignoreEntryFollow: boolean; // TODO: rename this to a more intuitive name
-  readonly lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  readonly trimmedLexer: ILexer<
+    LexerDataBindings,
+    LexerActionState,
+    LexerErrorType
+  >;
   get global(): Global;
   /**
-   * Reset state.
+   * Load a new buffer.
    */
-  reset(): this;
-  /**
-   * Feed a string to the lexer.
-   */
-  feed(input: string): this;
+  reload(buffer: string): this;
   /**
    * Try to yield an entry NT.
    * Stop when the first entry NT is reduced and follow match(or reach EOF).

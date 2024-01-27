@@ -2,7 +2,7 @@ import type { StringOrLiteral } from "../../../helper";
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
-  IReadonlyTrimmedLexer,
+  IReadonlyLexer,
   Token,
 } from "../../../lexer";
 import type { ASTNode } from "../../ast";
@@ -72,10 +72,10 @@ export class GrammarRuleContext<
     Global
   >;
   /**
-   * Current lexer state.
+   * Current lexer state. The lexer is always already trimmed.
    * If you need to modify it, please use `lexer.clone()` or `lexer.dryClone()`.
    */
-  readonly lexer: IReadonlyTrimmedLexer<
+  readonly lexer: IReadonlyLexer<
     LexerDataBindings,
     LexerActionState,
     LexerErrorType

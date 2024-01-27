@@ -81,7 +81,7 @@ export function checkSymbols<
   // grs.grammarRules.forEach((gr) => {
   //   gr.rule.forEach((grammar) => {
   //     if (grammar.text !== undefined) {
-  //       if (lexer.reset().lex(grammar.text!) === null) {
+  //       if (lexer.reset().lex(grammar.text!) === undefined) {
   //         const e = new InvalidLiteralError(grammar.text!);
   //         if (printAll) logger.log({ entity: "Parser", message: e.message });
   //         else throw e;

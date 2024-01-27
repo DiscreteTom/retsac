@@ -63,25 +63,20 @@ export function defToTempGRs<
     }[][];
     const def = defs[NT];
     const defStr = def instanceof Array ? def.join("|") : (def as string);
-    ruleLexer
-      .dryClone(defStr)
-      .lexAll()
-      .tokens.forEach((t) => {
-        if (t.kind === "or") rules.push([]); // new grammar rule
-        else if (t.kind === "rename") {
-          const token = rules.at(-1)?.at(-1);
-          if (!token) throw new NoRenameTargetError(def!, t.content);
-          token.name = t.content.slice(1); // remove `@`
-        }
-        // append token to the last grammar rule without name
-        else rules.at(-1)!.push({ token: t });
-      });
+    const lexer = ruleLexer.clone({ buffer: defStr });
+    lexer.lexAll().tokens.forEach((t) => {
+      if (t.kind === "or") rules.push([]); // new grammar rule
+      else if (t.kind === "rename") {
+        const token = rules.at(-1)?.at(-1);
+        if (!token) throw new NoRenameTargetError(def!, t.content);
+        token.name = t.content.slice(1); // remove `@`
+      }
+      // append token to the last grammar rule without name
+      else rules.at(-1)!.push({ token: t });
+    });
 
-    if (ruleLexer.state.hasRest())
-      throw new TokenizeGrammarRuleFailedError(
-        defStr,
-        ruleLexer.state.rest.value,
-      );
+    if (lexer.state.hasRest())
+      throw new TokenizeGrammarRuleFailedError(defStr, lexer.state.rest.value);
     if (rules.length === 1 && rules[0].length === 0)
       throw new EmptyRuleError(NT);
 

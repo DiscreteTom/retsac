@@ -37,8 +37,8 @@ import type {
   ActionStateCloner,
   ExtractKinds,
   GeneralTokenDataBinding,
+  ILexer,
   IStatelessLexer,
-  Lexer,
 } from "../../../lexer";
 import { appendConflicts, getUnresolvedConflicts } from "./utils/conflict";
 import { Parser } from "../parser";
@@ -93,7 +93,7 @@ export class ParserBuilder<
     LexerErrorType,
     Global
   >[];
-  protected lexer: Lexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+  protected lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   protected globalFactory: () => Global;
   protected readonly tokenASTDataMapper: Map<
     ExtractKinds<LexerDataBindings>,
@@ -105,7 +105,7 @@ export class ParserBuilder<
      * Set the lexer. The lexer won't be modified.
      * When build the parser, the lexer will be cloned to make sure the parser builder is not modified.
      */
-    lexer: Lexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     /**
      * For most cases, this is used by {@link AdvancedBuilder} for cascading query.
      * You can also customize this.

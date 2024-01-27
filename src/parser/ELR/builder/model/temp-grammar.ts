@@ -76,7 +76,7 @@ export class TempGrammar {
       const { token } = lexer.lex(this.content, {
         actionState: defaultActionState,
       });
-      if (token === null) {
+      if (token === undefined) {
         // for un-lexable literal, throw error instead of using anonymous type
         // this is to prevent mis-writing literal grammar
         const e = new InvalidLiteralError(this.content);

@@ -200,7 +200,6 @@ export class DFA<
       >
     >,
     commitParser: () => void,
-    stopOnError: boolean,
     ignoreEntryFollow: boolean,
     global: Global,
     debug: boolean,
@@ -213,22 +212,22 @@ export class DFA<
       Token<LexerDataBindings, LexerErrorType>,
       Global
     >;
-    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+    trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   } {
+    lexer.trim();
     return this._parse(
       {
         stateStack: new Stack([this.entryState]),
         index: 0,
         errors: [],
         buffer,
-        lexer: lexer.trimStart(),
+        trimmedLexer: lexer,
         startCandidateIndex: 0,
         lexedGrammars: new Set(),
       },
       reLexStack,
       rollbackStack,
       commitParser,
-      stopOnError,
       ignoreEntryFollow,
       global,
       debug,
@@ -284,9 +283,9 @@ export class DFA<
   > {
     if (debug) {
       const info = {
-        restored: targetState.lexer.buffer.slice(
-          targetState.lexer.digested,
-          parsingState.lexer.digested,
+        restored: targetState.trimmedLexer.state.buffer.slice(
+          targetState.trimmedLexer.state.digested,
+          parsingState.trimmedLexer.state.digested,
         ),
       };
       logger.log({
@@ -341,7 +340,6 @@ export class DFA<
       >
     >,
     commitParser: () => void,
-    stopOnError: boolean,
     ignoreEntryFollow: boolean,
     global: Global,
     debug: boolean,
@@ -360,7 +358,10 @@ export class DFA<
           logger,
         );
         if (res === undefined) {
-          return { output: rejectedParserOutput, lexer: parsingState.lexer };
+          return {
+            output: rejectedParserOutput,
+            trimmedLexer: parsingState.trimmedLexer,
+          };
         }
         parsingState = res;
       }
@@ -378,7 +379,10 @@ export class DFA<
       if (!res.accept) {
         parsingState = res.parsingState;
         if (res.continue) continue; // try to digest more input
-        return { output: rejectedParserOutput, lexer: parsingState.lexer };
+        return {
+          output: rejectedParserOutput,
+          trimmedLexer: parsingState.trimmedLexer,
+        };
       }
 
       if (res.commit) {
@@ -407,18 +411,18 @@ export class DFA<
             buffer: parsingState.buffer,
             errors: parsingState.errors,
           },
-          lexer: parsingState.lexer,
+          trimmedLexer: parsingState.trimmedLexer,
         };
       // if stop on error, return partial result
-      if (stopOnError && parsingState.errors.length > 0)
-        return {
-          output: {
-            accept: true,
-            buffer: parsingState.buffer,
-            errors: parsingState.errors,
-          },
-          lexer: parsingState.lexer,
-        };
+      // if (stopOnError && parsingState.errors.length > 0)
+      //   return {
+      //     output: {
+      //       accept: true,
+      //       buffer: parsingState.buffer,
+      //       errors: parsingState.errors,
+      //     },
+      //     trimmedLexer: parsingState.trimmedLexer,
+      //   };
 
       // continue loop, try to digest more with the newly reduced buffer
     }
@@ -483,7 +487,7 @@ export class DFA<
       parsingState = res.parsingState;
       // apply result to the current state
       parsingState.buffer.push(res.node.asASTNode());
-      parsingState.lexer = res.lexer;
+      parsingState.trimmedLexer = res.trimmedLexer;
       // TODO: is this logging needed? since we already logged in State.tryLex
       if (debug) {
         const info = {
@@ -543,7 +547,7 @@ export class DFA<
   ) {
     while (true) {
       const res = parsingState.stateStack.current!.tryLex(
-        parsingState.lexer,
+        parsingState.trimmedLexer,
         this.tokenASTDataMapper,
         parsingState.startCandidateIndex,
         parsingState.lexedGrammars,
@@ -561,7 +565,7 @@ export class DFA<
           reLexStack.push({
             stateStack: parsingState.stateStack.clone(), // make a copy
             buffer: parsingState.buffer.slice(),
-            lexer: parsingState.lexer, // use the original lexer
+            trimmedLexer: parsingState.trimmedLexer, // use the original lexer
             index: parsingState.index,
             errors: parsingState.errors.slice(),
             rollbackStackLength: rollbackStack.length,
@@ -594,7 +598,7 @@ export class DFA<
         if (debug) {
           const info = {
             state: parsingState.stateStack.current!.toString(),
-            rest: prettierLexerRest(parsingState.lexer),
+            rest: prettierLexerRest(parsingState.trimmedLexer),
           };
           logger.log({
             entity: "Parser",
@@ -688,7 +692,7 @@ export class DFA<
       this.entryNTs,
       ignoreEntryFollow,
       this.followSets,
-      parsingState.lexer,
+      parsingState.trimmedLexer,
       this.selector,
       this.firstMatchSelector,
       global,

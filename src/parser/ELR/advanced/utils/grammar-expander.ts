@@ -64,10 +64,13 @@ export class GrammarExpander<
         >;
       }[],
     };
-    const res = this.parser.reset().parseAll(s);
+    const res = this.parser.reload(s).parseAll();
 
     if (!res.accept || !this.allParsed())
-      throw new InvalidGrammarRuleError(s, this.parser.lexer.getRest());
+      throw new InvalidGrammarRuleError(
+        s,
+        this.parser.trimmedLexer.state.rest.value,
+      );
 
     const expanded = res.buffer[0].traverse()!;
 
@@ -130,14 +133,9 @@ export class GrammarExpander<
 
   private allParsed() {
     return (
-      !this.parser.lexer.trimStart().hasRest() &&
+      !this.parser.trimmedLexer.state.hasRest() &&
       this.parser.buffer.length === 1
     );
-  }
-
-  resetAll() {
-    this.parser.reset();
-    this.placeholderMap.reset();
   }
 
   generatePlaceholderGrammarRules<ASTData, ErrorType>(

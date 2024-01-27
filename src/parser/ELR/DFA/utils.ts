@@ -1,9 +1,8 @@
 import type {
   ExtractKinds,
   GeneralTokenDataBinding,
+  ILexer,
   IReadonlyLexer,
-  IReadonlyTrimmedLexer,
-  ITrimmedLexer,
   Token,
 } from "../../../lexer";
 import type { StringOrLiteral } from "../../../helper";
@@ -319,7 +318,7 @@ export function lexGrammar<
   Global,
 >(
   g: Grammar<ExtractKinds<LexerDataBindings>>,
-  lexer: IReadonlyTrimmedLexer<
+  trimmedLexer: IReadonlyLexer<
     LexerDataBindings,
     LexerActionState,
     LexerErrorType
@@ -339,32 +338,31 @@ export function lexGrammar<
         Token<LexerDataBindings, LexerErrorType>,
         Global
       >;
-      lexer: ITrimmedLexer<LexerDataBindings, LexerActionState, LexerErrorType>;
+      trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
     }
   | undefined {
   // prevent side effect. we can't use peek here since the lexer's state will be changed after re-lex
   // so we will need many lexers with different states
-  const mutableLexer = lexer.clone(); // TODO: is there a way to prevent clone every time?
+  const mutableLexer = trimmedLexer.clone(); // TODO: is there a way to prevent clone every time?
 
   const token = mutableLexer.lex({
-    expect: {
-      kind: g.kind,
-      text: g.text, // maybe undefined
-    },
-  });
+    kind: g.kind,
+    text: g.text, // maybe undefined
+  }).token;
 
-  return token === null
-    ? undefined
-    : {
-        node: TheTNode.from<
-          NTs,
-          ASTData,
-          ErrorType,
-          Token<LexerDataBindings, LexerErrorType>,
-          Global
-        >(token, tokenASTDataMapper.get(token.kind)?.(token), global),
-        lexer: mutableLexer.trimStart(),
-      };
+  if (token === undefined) return undefined;
+
+  mutableLexer.trim();
+  return {
+    node: TheTNode.from<
+      NTs,
+      ASTData,
+      ErrorType,
+      Token<LexerDataBindings, LexerErrorType>,
+      Global
+    >(token, tokenASTDataMapper.get(token.kind)?.(token), global),
+    trimmedLexer: mutableLexer,
+  };
 }
 
 /**
@@ -621,10 +619,15 @@ export function prettierLexerRest<
 >(lexer: IReadonlyLexer<LexerDataBindings, LexerActionState, LexerErrorType>) {
   const showLength = 30;
   return `${JSON.stringify(
-    lexer.buffer.slice(lexer.digested, lexer.digested + showLength),
+    lexer.state.buffer.slice(
+      lexer.state.digested,
+      lexer.state.digested + showLength,
+    ),
   )}${
-    lexer.buffer.length - lexer.digested > showLength
-      ? `...${lexer.buffer.length - lexer.digested - showLength} more chars`
+    lexer.state.buffer.length - lexer.state.digested > showLength
+      ? `...${
+          lexer.state.buffer.length - lexer.state.digested - showLength
+        } more chars`
       : ""
   }`;
 }
