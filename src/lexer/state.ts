@@ -43,4 +43,8 @@ export class LexerState<
   getRest() {
     return this.rest ?? (this.rest = this.buffer.slice(this.digested));
   }
+
+  hasRest() {
+    return this.digested < this.buffer.length;
+  }
 }

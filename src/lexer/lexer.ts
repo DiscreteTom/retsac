@@ -20,23 +20,23 @@ export class Lexer<
   ActionState,
   ErrorType,
 > {
-  debug: boolean;
-  logger: Logger;
   readonly stateless: StatelessLexer<DataBindings, ActionState, ErrorType>;
-  state: LexerState<DataBindings, ErrorType>;
+  private state: LexerState<DataBindings, ErrorType>;
   actionState: ActionState;
   readonly defaultActionState: Readonly<ActionState>;
   readonly actionStateCloner: ActionStateCloner<ActionState>;
+  debug: boolean;
+  logger: Logger;
 
   constructor(
-    core: StatelessLexer<DataBindings, ActionState, ErrorType>,
+    stateless: StatelessLexer<DataBindings, ActionState, ErrorType>,
     options: LexerBuilderBuildOptions & {
       buffer: string;
       defaultActionState: Readonly<ActionState>;
       actionStateCloner: ActionStateCloner<ActionState>;
     },
   ) {
-    this.stateless = core;
+    this.stateless = stateless;
     this.state = new LexerState(options.buffer);
 
     this.defaultActionState = options.defaultActionState;
@@ -177,17 +177,5 @@ export class Lexer<
       ActionState,
       ErrorType
     >;
-  }
-
-  getRest() {
-    return this.state.getRest();
-  }
-
-  hasRest() {
-    return this.state.digested < this.state.buffer.length;
-  }
-
-  getTokenKinds() {
-    return this.stateless.getTokenKinds();
   }
 }
