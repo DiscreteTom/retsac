@@ -12,6 +12,7 @@ import type { IReadonlyLexerState } from "./state";
 import type { GeneralTokenDataBinding, Token } from "./token";
 
 export type ILexerCloneOptions = {
+  buffer: string;
   debug?: boolean;
   logger?: Logger;
 };
@@ -40,15 +41,9 @@ export interface IReadonlyLexer<
    */
   get logger(): Logger;
   /**
-   * Clone a new lexer with a new buffer, the same definitions and the initial state.
-   * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
-   */
-  cloneWith(
-    buffer: string,
-    options?: ILexerCloneOptions,
-  ): ILexer<DataBindings, ActionState, ErrorType>;
-  /**
-   * Clone a new lexer with the same definitions and current state.
+   * If `options.buffer` is not provided, clone a new lexer with the same definitions and current state.
+   * If `options.buffer` is provided, the new lexer will use it as the buffer,
+   * and the new lexer's state will be reset.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
   clone(

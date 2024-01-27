@@ -64,35 +64,22 @@ export class Lexer<
     return this;
   }
 
-  cloneWith(buffer: string, options?: ILexerCloneOptions) {
-    const res = new Lexer<DataBindings, ActionState, ErrorType>(
-      this.stateless,
-      {
-        defaultActionState: this.defaultActionState,
-        actionStateCloner: this.actionStateCloner,
-        buffer,
-        ...options,
-      },
-    );
-    res.debug = options?.debug ?? this.debug;
-    res.logger = options?.logger ?? this.logger;
-    return res;
-  }
-
   clone(options?: ILexerCloneOptions) {
     const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.stateless,
       {
         defaultActionState: this.defaultActionState,
         actionStateCloner: this.actionStateCloner,
-        buffer: this._state.buffer,
-        ...options,
+        buffer: options?.buffer ?? this._state.buffer,
+        debug: options?.debug ?? this.debug,
+        logger: options?.logger ?? this.logger,
       },
     );
-    res.debug = options?.debug ?? this.debug;
-    res.logger = options?.logger ?? this.logger;
-    res._state = this._state.clone();
-    res.actionState = this.actionStateCloner(this.actionState);
+    if (options?.buffer === undefined) {
+      // no new buffer, clone current state
+      res._state = this._state.clone();
+      res.actionState = this.actionStateCloner(this.actionState);
+    }
     return res;
   }
 
