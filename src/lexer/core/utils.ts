@@ -26,7 +26,6 @@ export function executeActions<
   ) => Validator<DataBindings, ActionState, ErrorType>,
   buffer: string,
   start: number,
-  peek: boolean,
   initialRest: string | undefined,
   state: ActionState,
   cb: (
@@ -87,7 +86,6 @@ export function executeActions<
       buffer,
       start: start + digested,
       state,
-      peek,
       rest: currentRest,
     });
     const output = traverseActions(

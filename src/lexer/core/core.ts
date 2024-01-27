@@ -41,7 +41,6 @@ export class LexerCore<
       start,
       rest: initialRest,
       actionState,
-      peek,
     } = options;
 
     // debug output
@@ -101,7 +100,6 @@ export class LexerCore<
       },
       buffer,
       start ?? 0,
-      peek ?? false,
       initialRest,
       actionState,
       (input, output) => {
@@ -165,7 +163,6 @@ export class LexerCore<
       }),
       buffer,
       start ?? 0,
-      false,
       initialRest,
       actionState,
       (input, output) => {

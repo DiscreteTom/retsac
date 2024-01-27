@@ -117,18 +117,6 @@ export class Lexer<
       kind: typeof input === "string" ? undefined : input.expect?.kind,
       text: typeof input === "string" ? undefined : input.expect?.text,
     };
-    const peek = typeof input === "string" ? false : input.peek ?? false;
-
-    if (this.debug) {
-      if (peek) {
-        const info = { peek };
-        this.logger.log({
-          entity,
-          message: `peek`,
-          info,
-        });
-      }
-    }
 
     const res = this.core.lex(this.state.buffer, {
       start: this.state.digested,
@@ -138,14 +126,14 @@ export class Lexer<
       logger: this.logger,
       actionState: this.actionState,
       entity,
-      peek,
     });
 
     // update state if not peek
-    if (!peek) {
-      this.state.digest(res.digested, res.rest);
-      // action state will be updated in core automatically if peek is false
-    }
+    // TODO: add another method `peek`
+    // if (!peek) {
+    this.state.digest(res.digested, res.rest);
+    // action state will be updated in core automatically if peek is false
+    // }
 
     return res.token;
   }

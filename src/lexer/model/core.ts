@@ -46,10 +46,6 @@ export type ILexerCoreLexOptions<
    * @default "LexerCore.lex"
    */
   entity?: string;
-  /**
-   * @default false
-   */
-  peek?: boolean;
 };
 
 export type ILexerCoreLexOutput<
