@@ -1,14 +1,15 @@
 import { defaultLogger, type Logger } from "../logger";
 import type { ActionStateCloner } from "./action";
 import type { LexerBuilderBuildOptions } from "./builder";
-import type { StatelessLexer } from "./stateless";
 import { InvalidLengthForTakeError } from "./error";
+import type { ILexerState } from "./model";
 import type {
   Expectation,
   GeneralTokenDataBinding,
   ILexer,
   ILexerCloneOptions,
   IReadonlyLexer,
+  IStatelessLexer,
   ITrimmedLexer,
   Token,
 } from "./model";
@@ -23,8 +24,8 @@ export class Lexer<
   ErrorType,
 > implements ILexer<DataBindings, ActionState, ErrorType>
 {
-  readonly stateless: StatelessLexer<DataBindings, ActionState, ErrorType>;
-  private _state: LexerState<DataBindings, ErrorType>;
+  readonly stateless: IStatelessLexer<DataBindings, ActionState, ErrorType>;
+  private _state: ILexerState<DataBindings, ErrorType>;
   actionState: ActionState;
   readonly defaultActionState: Readonly<ActionState>;
   readonly actionStateCloner: ActionStateCloner<ActionState>;
@@ -32,7 +33,7 @@ export class Lexer<
   logger: Logger;
 
   constructor(
-    stateless: StatelessLexer<DataBindings, ActionState, ErrorType>,
+    stateless: IStatelessLexer<DataBindings, ActionState, ErrorType>,
     options: LexerBuilderBuildOptions & {
       buffer: string;
       defaultActionState: Readonly<ActionState>;
