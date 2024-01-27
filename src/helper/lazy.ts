@@ -19,6 +19,10 @@ export class Lazy<Value> {
       : this._value;
   }
 
+  set value(value: Value | undefined) {
+    this._value = value;
+  }
+
   /**
    * Get the raw value without calculating it.
    */
