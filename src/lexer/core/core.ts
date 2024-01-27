@@ -144,7 +144,7 @@ export class LexerCore<
     );
   }
 
-  trimStart(
+  trim(
     buffer: string,
     options: Readonly<ILexerCoreTrimStartOptions<ActionState>>,
   ): ILexerCoreTrimStartOutput<DataBindings, ErrorType> {

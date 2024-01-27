@@ -153,7 +153,7 @@ export class Lexer<
     const entity = "Lexer.trimStart";
 
     if (!this.state.trimmed) {
-      const res = this.core.trimStart(this.state.buffer, {
+      const res = this.core.trim(this.state.buffer, {
         start: this.state.digested,
         rest: this.state.rest,
         debug: this.debug,
