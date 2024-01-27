@@ -98,6 +98,13 @@ export class EnhancedActionOutput<Kinds extends string, Data, ErrorType> {
       raw: output,
     });
   }
+
+  /**
+   * Check if there are chars left in the input without calculating the rest.
+   */
+  hasRest() {
+    return this.start + this.digested < this.buffer.length;
+  }
 }
 
 /**
