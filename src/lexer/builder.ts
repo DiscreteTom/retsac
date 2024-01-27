@@ -268,13 +268,13 @@ export class Builder<
   }
 
   build(
-    buffer: string,
+    buffer?: string,
     options?: LexerBuilderBuildOptions,
   ): Lexer<DataBindings, ActionState, ErrorType> {
     return new Lexer<DataBindings, ActionState, ErrorType>(
       this.buildStateless(),
       {
-        buffer,
+        buffer: buffer ?? "",
         defaultActionState: this.defaultActionState,
         actionStateCloner: this.actionStateCloner,
         ...options,
