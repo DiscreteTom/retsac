@@ -1,4 +1,3 @@
-// TODO: rename file
 import type { Logger } from "../../logger";
 import type { ReadonlyAction } from "../action";
 import type { Expectation } from "./expectation";

@@ -1,6 +1,6 @@
 import type { Logger } from "../../logger";
 import type { ActionStateCloner } from "../action";
-import type { IStatelessLexer } from "./core";
+import type { IStatelessLexer } from "./stateless";
 import type { Expectation } from "./expectation";
 import type {
   ILexAllOutput,
