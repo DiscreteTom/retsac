@@ -15,13 +15,53 @@ export class LexerCore<
   ActionState,
   ErrorType,
 > {
+  /**
+   * This is used to accelerate expected lexing.
+   */
+  readonly actionMap: ReadonlyMap<
+    DataBindings["kind"],
+    readonly ReadonlyAction<DataBindings, ActionState, ErrorType>[]
+  >;
+  /**
+   * This is used to accelerate trimming.
+   */
+  readonly maybeMutedActions: readonly ReadonlyAction<
+    DataBindings,
+    ActionState,
+    ErrorType
+  >[];
+
   constructor(
     readonly actions: readonly ReadonlyAction<
       DataBindings,
       ActionState,
       ErrorType
     >[],
-  ) {}
+  ) {
+    const actionMap = new Map<
+      DataBindings["kind"],
+      ReadonlyAction<DataBindings, ActionState, ErrorType>[]
+    >();
+    // prepare action map, add list for all possible kinds
+    actions.forEach((a) => {
+      a.possibleKinds.forEach((k) => {
+        actionMap.set(k, []);
+      });
+    });
+    // fill action map
+    actions.forEach((a) => {
+      if (a.maybeMuted) {
+        // maybe muted, all to all kinds
+        actionMap.forEach((v) => v.push(a));
+      } else {
+        // never muted, only add to possible kinds
+        a.possibleKinds.forEach((k) => actionMap.get(k)!.push(a));
+      }
+    });
+
+    this.actionMap = actionMap;
+    this.maybeMutedActions = actions.filter((a) => a.maybeMuted);
+  }
 
   getTokenKinds() {
     const res: Set<ExtractKinds<DataBindings>> = new Set();
@@ -56,9 +96,9 @@ export class LexerCore<
     }
 
     return executeActions(
-      // we shouldn't filter actions by expectations here
-      // since muted actions can be accepted with unexpected kinds/text
-      this.actions,
+      expect?.kind === undefined
+        ? this.actions // no expectation, use all actions
+        : this.actionMap.get(expect.kind) ?? this.actions,
       (input) => {
         // cache the result of `startsWith` to avoid duplicate calculation
         // since we need to check `startsWith` for every definition
@@ -68,14 +108,9 @@ export class LexerCore<
         return {
           skipBeforeExec: (action) => ({
             skip:
-              // muted actions must be executed no matter what the expectation is
-              // so only never muted actions can be skipped
-              action.neverMuted &&
-              // def.kind mismatch expectation
-              ((expect?.kind !== undefined &&
-                !action.possibleKinds.has(expect.kind)) ||
-                // rest head mismatch the text expectation
-                textMismatch),
+              // since we already filtered actions, we only need to skip actions
+              // which are never muted and text mismatch
+              action.neverMuted && textMismatch,
             skippedActionMessageFormatter: (info) =>
               `skip (unexpected and never muted): ${info.kinds}`,
           }),
@@ -123,12 +158,11 @@ export class LexerCore<
     } = options;
 
     return executeActions(
-      this.actions,
+      this.maybeMutedActions,
       () => ({
-        skipBeforeExec: (action) => ({
-          // if the action may be muted, we can't skip it
-          // if the action is never muted, we just reject it
-          skip: action.neverMuted,
+        skipBeforeExec: (_) => ({
+          // we already filtered actions, so never skip
+          skip: false,
           skippedActionMessageFormatter: (info) =>
             `skip (never muted): ${info.kinds}`,
         }),
