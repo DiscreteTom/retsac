@@ -43,7 +43,7 @@ export interface IReadonlyLexer<
    * Clone a new lexer with a new buffer, the same definitions and the initial state.
    * If `options.debug/logger` is omitted, the new lexer will inherit from the original one.
    */
-  dryClone(
+  cloneWith(
     buffer: string,
     options?: ILexerCloneOptions,
   ): ILexer<DataBindings, ActionState, ErrorType>;
@@ -75,6 +75,11 @@ export interface ILexer<
   actionState: ActionState; // make mutable
   set debug(value: boolean);
   set logger(value: Logger);
+  /**
+   * Reload the lexer with a new buffer.
+   * The lexer's state and action state will be reset.
+   */
+  reload(buffer: string): this;
   /**
    * Take at most `n` chars from the rest of input and update state.
    * This is useful when you have external logic to handle the token (e.g. error handling).

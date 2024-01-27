@@ -58,7 +58,13 @@ export class Lexer<
     return this as IReadonlyLexer<DataBindings, ActionState, ErrorType>;
   }
 
-  dryClone(buffer: string, options?: ILexerCloneOptions) {
+  reload(buffer: string) {
+    this._state = new LexerState(buffer);
+    this.actionState = this.actionStateCloner(this.defaultActionState);
+    return this;
+  }
+
+  cloneWith(buffer: string, options?: ILexerCloneOptions) {
     const res = new Lexer<DataBindings, ActionState, ErrorType>(
       this.stateless,
       {
