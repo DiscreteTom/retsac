@@ -251,6 +251,7 @@ export class TheNTNode<
 
   traverse(): ASTData | undefined {
     const res = this.traverser(this);
+    // handle void
     this.data =
       res ??
       (res === null
@@ -352,7 +353,8 @@ export class TheTNode<
 
   traverse(): ASTData | undefined {
     // for T nodes, data should be set by the user
-    // and the traverse function won't calculate data
+    // when transforming a token into a T node
+    // so the traverse function won't calculate data
     // just return the data
     return this.data;
   }
