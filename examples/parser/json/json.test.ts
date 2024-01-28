@@ -10,7 +10,7 @@ const { parser } = builder.build({
 });
 
 function getResult(input: string) {
-  const res = parser.reset().parse(input);
+  const res = parser.reload(input).parse();
   if (!res.accept) throw new Error("rejected");
   if (res.buffer.length !== 1) throw new Error("unfinished reduction");
   return res.buffer[0].traverse();

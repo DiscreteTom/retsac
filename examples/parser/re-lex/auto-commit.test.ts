@@ -15,8 +15,8 @@ test("auto commit", () => {
 
   // this will try `num '-' '-' num` first
   // and save `num '--' num` as another possibility
-  expect(parser.reset().parse("1--1").accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.reload("1--1").parse().accept).toBe(true);
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
   expect(parser.buffer.length).toBe(1);
   expect(parser.buffer[0].children!.length).toBe(4);
   expect(
@@ -30,8 +30,8 @@ test("auto commit", () => {
   // now when `parser.parse` is successful
   // the parser will auto commit
   // remove all other possibilities
-  expect(parser.reset().parse("1--1").accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.reload("1--1").parse().accept).toBe(true);
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
   expect(parser.buffer.length).toBe(1);
   expect(parser.buffer[0].children!.length).toBe(4);
   expect(

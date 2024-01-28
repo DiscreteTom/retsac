@@ -7,7 +7,7 @@ test("simple traverse", () => {
     c = a + b;
   `;
 
-  const res = parser.reset().parseAll(input);
+  const res = parser.reload(input).parseAll();
   expect(res.accept).toBe(true);
   if (!res.accept) return;
 
@@ -25,7 +25,7 @@ test("function traverse", () => {
     }
   `;
 
-  const res = parser2.reset().parseAll(input);
+  const res = parser2.reload(input).parseAll();
   expect(res.accept).toBe(true);
   if (!res.accept) return;
 

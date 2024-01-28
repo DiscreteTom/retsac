@@ -21,9 +21,9 @@ test("calculator", () => {
   // when we use `parse` to parse the input, it will stop when it get the first entry NT
   // so when we parse `1+1`, the parser transform the first `1` into a `number` then into an `exp`
   // and stopped here, so the `+1` won't be parsed
-  let res = parser.reset().parse("1+1");
+  let res = parser.reload("1+1").parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("+1");
+  expect(parser.trimmedLexer.state.rest.value).toBe("+1");
   expect(parser.buffer[0].kind).toBe("exp");
   expect(parser.buffer[0].children![0].kind).toBe("number");
   expect(parser.buffer[0].children![0].text).toBe("1");
@@ -32,9 +32,9 @@ test("calculator", () => {
   // it will try to parse until the parser can't accept more input
   // and since the entry NT `exp` is also a part of some grammar rules
   // the parser can continue the reducing process
-  res = parser.reset().parseAll("1+1");
+  res = parser.reload("1+1").parseAll();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
   expect(parser.buffer[0].kind).toBe("exp");
   expect(parser.buffer[0].children?.length).toBe(3);
   expect(parser.buffer[0].children![0].kind).toBe("exp");
@@ -65,15 +65,15 @@ test("programming language", () => {
     });
 
   // the parser is working with single top-level statements
-  let res = parser.reset().parse("fn foo();");
+  let res = parser.reload("fn foo();").parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
 
   // however, the parser can't accept input with multi top-level statements.
   // not a single top-level statement is accepted
-  res = parser.reset().parse("fn foo(); fn bar();");
+  res = parser.reload("fn foo(); fn bar();").parse();
   expect(res.accept).toBe(false);
-  expect(parser.lexer.getRest()).toBe("fn foo(); fn bar();");
+  expect(parser.trimmedLexer.state.rest.value).toBe("fn foo(); fn bar();");
   // the reason of this behaviour is that, the follow set of `fn_def_stmt` is empty
   // since `fn_def_stmt` is an entry NT, nothing should follow it
   // so when we are trying to accept `fn foo();`, the parser peek the next token `fn`
@@ -81,9 +81,9 @@ test("programming language", () => {
 
   // calling `parseAll` won't help, either
   // because the `parseAll` will call `parse` internally to try to parse the input
-  res = parser.reset().parseAll("fn foo(); fn bar();");
+  res = parser.reload("fn foo(); fn bar();").parseAll();
   expect(res.accept).toBe(false);
-  expect(parser.lexer.getRest()).toBe("fn foo(); fn bar();");
+  expect(parser.trimmedLexer.state.rest.value).toBe("fn foo(); fn bar();");
 
   // a work around is to define a new entry, which accept multiple top-level statements
   const { parser: newParser } = new ELR.AdvancedBuilder({
@@ -103,17 +103,17 @@ test("programming language", () => {
     });
 
   // now we can use `parseAll` to parse the input
-  let newRes = newParser.reset().parseAll("fn foo(); fn bar();");
+  let newRes = newParser.reload("fn foo(); fn bar();").parseAll();
   expect(newRes.accept).toBe(true);
-  expect(newParser.lexer.getRest()).toBe("");
+  expect(newParser.trimmedLexer.state.rest.value).toBe("");
 
   // since the `+` is greedy, we can also use `parse`.
   // when we are trying to accept `fn foo();` as the entry
   // the generated conflict resolver will make the parser to accept more input
   // until we digest all the input
-  newRes = newParser.reset().parse("fn foo(); fn bar();");
+  newRes = newParser.reload("fn foo(); fn bar();").parse();
   expect(newRes.accept).toBe(true);
-  expect(newParser.lexer.getRest()).toBe("");
+  expect(newParser.trimmedLexer.state.rest.value).toBe("");
 });
 
 test("with ignoreEntryFollow", () => {
@@ -142,20 +142,20 @@ test("with ignoreEntryFollow", () => {
   // without checking the follow set of the entry NT
 
   // now we can use `parse` to get the first top-level statement
-  let res = parser.reset().parse("fn foo(); fn bar();");
+  let res = parser.reload("fn foo(); fn bar();").parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("fn bar();");
+  expect(parser.trimmedLexer.state.rest.value).toBe("fn bar();");
   // and take it out from the parser buffer
   parser.take(1);
   // then parse the second top-level statement
   res = parser.parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
 
   // since we need to take out the parsed ASTNode from the parser buffer after the first parse
   // we can't use `parseAll` to do this automatically
   // the parser will throw error because no grammar rule has `fn_def_stmt` as the first grammar
-  expect(() => parser.reset().parseAll("fn foo(); fn bar();")).toThrow(
+  expect(() => parser.reload("fn foo(); fn bar();").parseAll()).toThrow(
     StateCacheMissError,
   );
 });
@@ -180,9 +180,9 @@ test("abuse", () => {
   // when we parsing `a b`, the parser first evaluate { entry: `a` } and found next `b`
   // but `b` is not in `entry`'s follow set, so the parser rejects to accept { entry: `a` }
   // and the parser will try to evaluate { entry: `a b` } and accept it
-  let res = parser.reset().parse("a b");
+  let res = parser.reload("a b").parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("");
+  expect(parser.trimmedLexer.state.rest.value).toBe("");
 
   // however, if we enable `ignoreEntryFollow`
   parser = new ELR.AdvancedBuilder({
@@ -199,9 +199,9 @@ test("abuse", () => {
 
   // the parser will accept { entry: `a` } immediately without checking the follow set
   // thus the `b` will never be parsed
-  res = parser.reset().parse("a b");
+  res = parser.reload("a b").parse();
   expect(res.accept).toBe(true);
-  expect(parser.lexer.getRest()).toBe("b");
+  expect(parser.trimmedLexer.state.rest.value).toBe("b");
 
   // as you can see, if the entry NT can be early accepted if we ignore entry follow,
   // we shouldn't use `ignoreEntryFollow`

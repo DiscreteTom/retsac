@@ -13,7 +13,9 @@ const lexer = new Lexer.Builder()
 /** name => value */
 export const varMap = new Map<string, number>();
 
-export const { parser } = new ELR.ParserBuilder({ lexer: lexer.dryClone() })
+export const { parser } = new ELR.ParserBuilder({
+  lexer: lexer.clone({ buffer: "" }),
+})
   .data<number>()
   // if a node has only one child, the default traverser will return the child's data.
   // if the child's data is undefined, the child's traverser will be called to get the data.
