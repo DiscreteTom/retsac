@@ -18,20 +18,7 @@ export type ParseExec<
   ErrorType,
   TokenType extends GeneralToken,
   Global,
-> = (
-  input?:
-    | string
-    | {
-        input?: string;
-        /**
-         * Stop parsing when the first error is generated.
-         * Be ware, this might cause inconsistent buffer state.
-         *
-         * @default false
-         */
-        stopOnError?: boolean;
-      },
-) => ParserOutput<NTs, ASTData, ErrorType, TokenType, Global>;
+> = () => ParserOutput<NTs, ASTData, ErrorType, TokenType, Global>;
 
 export interface IParser<
   NTs extends string,
