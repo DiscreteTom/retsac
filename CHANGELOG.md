@@ -3,7 +3,30 @@
 ## v0.18.0
 
 - Lexer
-  - **_Breaking Change_**: rewrite lexer.
+  - **_Breaking Change_**: remove `ActionInput.peek`. `Action.then` will be executed even peek.
+    - Add `Lexer.peek`, which will clone the action state to avoid mutation to the original action state.
+  - **_Breaking Change_**: remove `RejectedActionOutput`.
+    - Rewrite `ActionOutput`.
+    - Use `undefined` as a rejected result of an action. Add `EnhancedActionOutput`.
+  - **_Breaking Change_**: rename `MultiKindsAction` to `MultiKindAction`.
+  - **_Breaking Change_**: new function signature for `Lexer.lex/lexAll`.
+  - **_Breaking Change_**: remove `trimStart`, add `trim`.
+  - **_Breaking Change_**: remove `lexer.reset/feed`, add `lexer.reload`.
+  - **_Breaking Change_**: remove `LexerCore`, add `StatelessLexer`.
+    - Remove `Lexer.core`, add `Lexer.stateless`.
+  - **_Breaking Change_**: action state will be stored in the lexer.
+  - **_Breaking Change_**: remove `Lexer.errors/hasRest/hasErrors`.
+  - **_Breaking Change_**: remove `Lexer.lineChars/getPos` and `LexerCore.lineChars/errors`, add `PositionTransformer`.
+  - **_Breaking Change_**: remove `Lexer.dryClone`. `lexer.clone` can accept a buffer as the parameter.
+  - **_Breaking Change_**: remove `Lexer.takeUntil`.
+  - **_Breaking Change_**: remove `ITrimmedLexer` and `IReadonlyTrimmedLexer`.
+  - **_Breaking Change_**: remove `LexerState.take/setTrimmed`, add `LexerState.digest/trim`.
+  - **_Breaking Change_**: remove `LexerState.getRest`, add `LexerState.hasRest`.
+  - **_Breaking Change_**: rename `Token` to `IToken`, add `Token` as a class.
+  - **_Breaking Change_**: `SubAction` will treat number as accepted output, treat `undefined` as rejected output.
+  - Feat: add `Builder.buildStateless`.
+  - Feat: add `IReadonlyLexerState` and `Lexer.state`.
+  - Perf: pre-calculate action map and maybe-muted actions to accelerate expectational lex and trim.
 - Parser
   - **_Breaking Change_**: Reduce package size. [#31](https://github.com/DiscreteTom/retsac/issues/31)
     - Optimize the format of serialized parser data, remove unnecessary strings.
