@@ -12,38 +12,40 @@ test("lexer action state", () => {
     .build();
 
   // ensure initial value
-  expect(lexer.core.state.value).toBe(1);
+  expect(lexer.actionState.value).toBe(1);
 
   // modify the state
-  lexer.lex("123");
-  expect(lexer.core.state.value).toBe(124);
+  lexer.reload("123").lex();
+  expect(lexer.actionState.value).toBe(124);
 
   // reset the value
-  lexer.reset();
-  expect(lexer.core.state.value).toBe(1);
+  lexer.reload("");
+  expect(lexer.actionState.value).toBe(1);
 
   // clone the lexer
   const clone = lexer.clone();
 
   // ensure initial value
-  expect(clone.core.state.value).toBe(1);
+  expect(clone.actionState.value).toBe(1);
 
   // modify the state
-  clone.lex("123");
-  expect(clone.core.state.value).toBe(124);
+  clone.reload("123").lex();
+  expect(clone.actionState.value).toBe(124);
 
   // original lexer should not be affected
-  expect(lexer.core.state.value).toBe(1);
+  expect(lexer.actionState.value).toBe(1);
 
   // clone with state
   const cloneWithState = clone.clone();
-  expect(cloneWithState.core.state.value).toBe(124);
+  expect(cloneWithState.actionState.value).toBe(124);
 
-  // dry clone
-  const dryClone = clone.dryClone();
-  expect(dryClone.core.state.value).toBe(1);
+  // clone with new buffer (dryClone) will reset the state
+  const dryClone = clone.clone({ buffer: "1" });
+  expect(dryClone.actionState.value).toBe(1);
 
   // peek won't change the state
-  expect(lexer.reset().lex({ input: "123", peek: true })).not.toBeNull();
-  expect(lexer.core.state.value).toBe(1);
+  const peek = lexer.reload("123").peek();
+  expect(peek.token).not.toBeUndefined();
+  expect(peek.actionState.value).toBe(124);
+  expect(lexer.actionState.value).toBe(1);
 });

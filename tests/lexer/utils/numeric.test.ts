@@ -12,10 +12,12 @@ describe("integerLiteral", () => {
     >,
     input: string,
     overrides: Partial<
-      Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
-    > & { data: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]> },
+      Omit<NonNullable<ReturnType<typeof lexer.lex>["token"]>, "data">
+    > & {
+      data: Partial<NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"]>;
+    },
   ) {
-    const token = lexer.reset().lex(input)!;
+    const token = lexer.reload(input).lex().token!;
     expect(token.content).toBe(overrides?.content ?? input);
     expect(token.kind).toBe("int");
     expect(token.error).toBe(undefined);
@@ -36,7 +38,7 @@ describe("integerLiteral", () => {
     >,
     input: string,
   ) {
-    expect(lexer.reset().lex(input)).toBe(null);
+    expect(lexer.reload(input).lex().token).toBe(undefined);
   }
 
   describe("default", () => {
@@ -471,13 +473,18 @@ describe("numericLiteral", () => {
     >,
     input: string,
     overrides: Partial<
-      Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
+      Omit<NonNullable<ReturnType<typeof lexer.lex>["token"]>, "data">
     > & {
-      data: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]> &
-        Pick<NonNullable<ReturnType<typeof lexer.lex>>["data"], "integer">;
+      data: Partial<
+        NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"]
+      > &
+        Pick<
+          NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"],
+          "integer"
+        >;
     },
   ) {
-    const token = lexer.reset().lex(input)!;
+    const token = lexer.reload(input).lex().token!;
     expect(token.content).toBe(overrides?.content ?? input);
     expect(token.kind).toBe("number");
     expect(token.error).toBe(undefined);
@@ -500,7 +507,7 @@ describe("numericLiteral", () => {
     >,
     input: string,
   ) {
-    expect(lexer.reset().lex(input)).toBe(null);
+    expect(lexer.reload(input).lex().token).toBe(undefined);
   }
 
   describe("default", () => {

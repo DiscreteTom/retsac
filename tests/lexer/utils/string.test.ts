@@ -16,12 +16,14 @@ describe("stringLiteral", () => {
     >,
     input: string,
     overrides?: Partial<
-      Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
+      Omit<NonNullable<ReturnType<typeof lexer.lex>["token"]>, "data">
     > & {
-      data?: Partial<NonNullable<ReturnType<typeof lexer.lex>>["data"]>;
+      data?: Partial<
+        NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"]
+      >;
     },
   ) {
-    const token = lexer.reset().lex(input)!;
+    const token = lexer.reload(input).lex().token!;
     expect(token.content).toBe(overrides?.content ?? input);
     expect(token.kind).toBe("string");
     expect(token.error).toBe(undefined);
@@ -45,7 +47,7 @@ describe("stringLiteral", () => {
     >,
     input: string,
   ) {
-    expect(lexer.reset().lex(input)).toBe(null);
+    expect(lexer.reload(input).lex().token).toBe(undefined);
   }
 
   describe("default", () => {
@@ -91,14 +93,10 @@ describe("stringLiteral", () => {
         .define({
           string: Lexer.stringLiteral(
             (input) =>
-              ['"', "'"].includes(input.buffer[input.start])
-                ? { accept: true, digested: 1 }
-                : { accept: false },
+              ['"', "'"].includes(input.buffer[input.start]) ? 1 : undefined,
             {
               close: (input, pos) =>
-                input.buffer[input.start] === input.buffer[pos]
-                  ? { accept: true, digested: 1 }
-                  : { accept: false },
+                input.buffer[input.start] === input.buffer[pos] ? 1 : undefined,
             },
           ),
         })
@@ -113,16 +111,14 @@ describe("stringLiteral", () => {
         .define({
           string: Lexer.stringLiteral(
             (input) =>
-              input.buffer.startsWith("`", input.start)
-                ? { accept: true, digested: 1 }
-                : { accept: false },
+              input.buffer.startsWith("`", input.start) ? 1 : undefined,
             {
               close: (input, pos) =>
                 input.buffer[pos] === "`"
-                  ? { accept: true, digested: 1 }
+                  ? 1
                   : input.buffer.startsWith("${", pos)
-                  ? { accept: true, digested: 2 }
-                  : { accept: false },
+                  ? 2
+                  : undefined,
             },
           ),
         })

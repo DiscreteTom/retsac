@@ -69,18 +69,21 @@ function expectAccept<EscapeErrorKinds extends string>(
   >,
   input: string,
   overrides?: Partial<
-    Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
+    Omit<NonNullable<ReturnType<typeof lexer.lex>["token"]>, "data">
   > & {
     data?: Partial<
-      Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+      Omit<
+        NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"],
+        "invalid"
+      >
     > & {
       invalid?: Partial<
-        NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+        NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"]["invalid"]
       >;
     };
   },
 ) {
-  const token = lexer.reset().lex(input)!;
+  const token = lexer.reload(input).lex().token!;
   expect(token.content).toBe(overrides?.content ?? input);
   expect(token.kind).toBe("string");
   expect(token.error).toBe(undefined);
@@ -107,7 +110,7 @@ function expectReject<EscapeErrorKinds extends string>(
   >,
   input: string,
 ) {
-  expect(lexer.reset().lex(input)).toBe(null);
+  expect(lexer.reload(input).lex().token).toBe(undefined);
 }
 
 describe("singleQuoteStringLiteral", () => {
@@ -421,18 +424,21 @@ describe("template string", () => {
     >,
     input: string,
     overrides?: Partial<
-      Omit<NonNullable<ReturnType<typeof lexer.lex>>, "data">
+      Omit<NonNullable<ReturnType<typeof lexer.lex>["token"]>, "data">
     > & {
       data?: Partial<
-        Omit<NonNullable<ReturnType<typeof lexer.lex>>["data"], "invalid">
+        Omit<
+          NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"],
+          "invalid"
+        >
       > & {
         invalid?: Partial<
-          NonNullable<ReturnType<typeof lexer.lex>>["data"]["invalid"]
+          NonNullable<ReturnType<typeof lexer.lex>["token"]>["data"]["invalid"]
         >;
       };
     },
   ) {
-    const token = lexer.reset().lex(input)!;
+    const token = lexer.reload(input).lex().token!;
     expect(token.content).toBe(overrides?.content ?? input);
     expect(token.kind).toBe(overrides?.kind);
     expect(token.error).toBe(undefined);

@@ -1,6 +1,6 @@
 import { Lexer } from "../../../src";
 
-test("trimStart should collect muted errors", () => {
+test("trim should collect muted errors", () => {
   const lexer = new Lexer.Builder()
     .error<string>()
     .define({
@@ -8,14 +8,14 @@ test("trimStart should collect muted errors", () => {
     })
     .build();
 
-  lexer.reset().trimStart("  ");
-  expect(lexer.hasErrors()).toBe(true);
-  expect(lexer.errors[0].kind).toBe("ws");
-  expect(lexer.errors[0].content).toBe("  ");
-  expect(lexer.errors[0].error).toBe("error");
+  const res = lexer.reload("  ").trim();
+  expect(res.errors.length).toBe(1);
+  expect(res.errors[0].kind).toBe("ws");
+  expect(res.errors[0].content).toBe("  ");
+  expect(res.errors[0].error).toBe("error");
 });
 
-test("trimStart shouldn't collect non-muted errors", () => {
+test("trim should collect non-muted errors", () => {
   const lexer = new Lexer.Builder()
     .error<string>()
     .ignore(Lexer.whitespaces())
@@ -26,6 +26,6 @@ test("trimStart shouldn't collect non-muted errors", () => {
     })
     .build();
 
-  lexer.reset().trimStart("  a");
-  expect(lexer.hasErrors()).toBe(false);
+  const res = lexer.reload("  a").trim();
+  expect(res.errors.length).toBe(1);
 });

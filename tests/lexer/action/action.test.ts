@@ -1,14 +1,10 @@
-import type { IntoAction, AcceptedActionOutput } from "../../../src/lexer";
+import type { ActionOutput, IntoAction } from "../../../src/lexer";
 import { Action, ActionInput, CaretNotAllowedError } from "../../../src/lexer";
 
 function expectAccept<Kinds extends string, Data, ErrorType>(
   buffer: string,
   src: IntoAction<Kinds, Data, never, ErrorType>,
-  override?: Partial<
-    Omit<AcceptedActionOutput<Kinds, Data, ErrorType>, "rest"> & {
-      rest: string;
-    }
-  >,
+  override?: Partial<ActionOutput<Kinds, Data, ErrorType>>,
 ) {
   const action = Action.from(src);
 
@@ -18,19 +14,10 @@ function expectAccept<Kinds extends string, Data, ErrorType>(
     start: 0,
     rest: buffer,
     state: undefined as never,
-    peek: false,
   });
-  const output = action.exec(input) as AcceptedActionOutput<
-    Kinds,
-    Data,
-    ErrorType
-  >;
-  expect(output.accept).toBe(true);
-  expect(output.buffer).toBe(override?.buffer ?? buffer);
-  expect(output.start).toBe(override?.start ?? 0);
+  const output = action.exec(input)!;
   expect(output.digested).toBe(override?.digested ?? buffer.length);
-  expect(output.content).toBe(override?.content ?? buffer);
-  expect(output.rest.value).toBe(override?.rest ?? "");
+  expect(output.rest).toBe(override?.rest ?? undefined);
   expect(output.error).toBe(override?.error ?? undefined);
   expect(output.muted).toBe(override?.muted ?? false);
   expect(output.data).toBe(override?.data ?? undefined);
@@ -43,20 +30,11 @@ function expectAccept<Kinds extends string, Data, ErrorType>(
     buffer: newBuffer,
     start: 1,
     state: undefined as never,
-    peek: false,
     rest: undefined,
   });
-  const newOutput = action.exec(newInput) as AcceptedActionOutput<
-    Kinds,
-    Data,
-    ErrorType
-  >;
-  expect(newOutput.accept).toBe(true);
-  expect(newOutput.buffer).toBe(" " + (override?.buffer ?? buffer));
-  expect(newOutput.start).toBe((override?.start ?? 0) + 1);
+  const newOutput = action.exec(newInput)!;
   expect(newOutput.digested).toBe(override?.digested ?? buffer.length);
-  expect(newOutput.content).toBe(override?.content ?? buffer);
-  expect(newOutput.rest.value).toBe(override?.rest ?? "");
+  expect(newOutput.rest).toBe(override?.rest ?? undefined);
   expect(newOutput.error).toBe(override?.error ?? undefined);
   expect(newOutput.muted).toBe(override?.muted ?? false);
   expect(newOutput.data).toBe(override?.data ?? undefined);
@@ -71,10 +49,9 @@ function expectReject<Kinds extends string, Data, ErrorType>(
     buffer,
     start: 0,
     state: undefined as never,
-    peek: false,
     rest: undefined,
   });
-  expect(Action.from(src).exec(input).accept).toBe(false);
+  expect(Action.from(src).exec(input)).toBe(undefined);
 }
 
 describe("Lexer action constructor", () => {
@@ -94,15 +71,9 @@ describe("Lexer action constructor", () => {
 
   test("from simple", () => {
     const buffer = "123";
-    expectAccept(buffer, ({ rest }) => rest.value); // return string, accept
-    expectReject(buffer, () => ""); // return string, reject
     expectAccept(buffer, ({ rest }) => rest.value.length); // return number, accept
     expectReject(buffer, () => 0); // return number, reject
     // simple accepted output
-    expectAccept(buffer, ({ rest }) => ({
-      content: rest.value,
-    }));
-    expectReject(buffer, () => ({ content: "" }));
     expectAccept(buffer, ({ rest }) => ({
       digested: rest.value.length,
     }));
@@ -113,15 +84,11 @@ describe("Lexer action constructor", () => {
       error: undefined,
       muted: false,
     }));
-    // ensure data is undefined by default
-    expectAccept(buffer, ({ rest }) => ({
-      content: rest.value,
-    }));
     // ensure data can be set correctly
     expectAccept(
       buffer,
       ({ rest }) => ({
-        content: rest.value,
+        digested: rest.value.length,
         data: 123,
       }),
       { data: 123 },
@@ -134,18 +101,9 @@ describe("Lexer action constructor", () => {
       start: 0,
       rest: undefined,
       state: undefined as never,
-      peek: false,
     });
     const action = Action.match(/\s*/);
-    expect(
-      (
-        action.exec(input) as AcceptedActionOutput<
-          never,
-          RegExpExecArray,
-          never
-        >
-      ).data[0],
-    ).not.toBe(null);
+    expect(action.exec(input)!.data[0]).not.toBe(null);
   });
 
   test("dry match, no data", () => {
@@ -358,20 +316,11 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
-      peek: false,
       rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<
-      never,
-      never,
-      string
-    >;
-    expect(output.accept).toBe(true);
-    expect(output.buffer).toBe(buffer);
-    expect(output.start).toBe(3);
+    const output = action.exec(input)!;
     expect(output.digested).toBe(3);
-    expect(output.content).toBe("123");
-    expect(output.rest.value).toBe("");
+    expect(output.rest).toBe(undefined);
     expect(output.error).toBe(undefined);
     expect(output.muted).toBe(false);
   });
@@ -383,20 +332,11 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
-      peek: false,
       rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<
-      never,
-      never,
-      string
-    >;
-    expect(output.accept).toBe(true);
-    expect(output.buffer).toBe(buffer);
-    expect(output.start).toBe(3);
+    const output = action.exec(input)!;
     expect(output.digested).toBe(3);
-    expect(output.content).toBe("123");
-    expect(output.rest.value).toBe("");
+    expect(output.rest).toBe(undefined);
     expect(output.error).toBe(undefined);
     expect(output.muted).toBe(false);
   });
@@ -408,20 +348,11 @@ describe("sticky regex related", () => {
       buffer,
       start: 3,
       state: undefined as never,
-      peek: false,
       rest: undefined,
     });
-    const output = action.exec(input) as AcceptedActionOutput<
-      never,
-      RegExpExecArray,
-      never
-    >;
-    expect(output.accept).toBe(true);
-    expect(output.buffer).toBe(buffer);
-    expect(output.start).toBe(3);
+    const output = action.exec(input)!;
     expect(output.digested).toBe(3);
-    expect(output.content).toBe("123");
-    expect(output.rest.value).toBe("");
+    expect(output.rest).toBe(undefined);
     expect(output.error).toBe(undefined);
     expect(output.muted).toBe(false);
   });
@@ -449,7 +380,6 @@ describe("peek & then", () => {
           buffer: "123", // accept
           start: 0,
           state,
-          peek: false,
           rest: undefined,
         }),
       );
@@ -467,25 +397,6 @@ describe("peek & then", () => {
           buffer: "12", // reject
           start: 0,
           state,
-          peek: false,
-          rest: undefined,
-        }),
-      );
-    expect(state.value).toBe(0);
-  });
-
-  test("peek won't update action state", () => {
-    const state = {
-      value: 0,
-    };
-    Action.from<never, never, typeof state>(/123/)
-      .then(({ input }) => (input.state.value = 1))
-      .exec(
-        new ActionInput({
-          buffer: "123",
-          start: 0,
-          state,
-          peek: true,
           rest: undefined,
         }),
       );

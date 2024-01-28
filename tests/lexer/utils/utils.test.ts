@@ -7,14 +7,14 @@ test("lexer utils exact", () => {
       a: Lexer.exact("123"),
     })
     .build();
-  expect(lexer.reset().lex("1")?.content).toBe(undefined);
-  expect(lexer.reset().lex("123")?.content).toBe("123");
-  expect(lexer.reset().lex("1234")?.content).toBe("123");
+  expect(lexer.reload("1").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("123").lex().token?.content).toBe("123");
+  expect(lexer.reload("1234").lex().token?.content).toBe("123");
 
   // additional test for #6
-  expect(lexer.reset().lex("  1")?.content).toBe(undefined);
-  expect(lexer.reset().lex("  123")?.content).toBe("123");
-  expect(lexer.reset().lex("  1234")?.content).toBe("123");
+  expect(lexer.reload("  1").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("  123").lex().token?.content).toBe("123");
+  expect(lexer.reload("  1234").lex().token?.content).toBe("123");
 });
 
 test("lexer utils exactArray", () => {
@@ -22,10 +22,10 @@ test("lexer utils exactArray", () => {
   expect(actions.length).toBe(2);
 
   const lexer = new Lexer.Builder().anonymous(...actions).build();
-  expect(lexer.reset().lex("123")?.content).toBe("123");
-  expect(lexer.reset().lex("123456")?.content).toBe("123");
-  expect(lexer.reset().lex("456")?.content).toBe("456");
-  expect(lexer.reset().lex("456123")?.content).toBe("456");
+  expect(lexer.reload("123").lex().token?.content).toBe("123");
+  expect(lexer.reload("123456").lex().token?.content).toBe("123");
+  expect(lexer.reload("456").lex().token?.content).toBe("456");
+  expect(lexer.reload("456123").lex().token?.content).toBe("456");
 });
 
 test("lexer utils exactKind", () => {
@@ -34,8 +34,8 @@ test("lexer utils exactKind", () => {
     .define(Lexer.exactKind("123"))
     .build();
 
-  expect(lexer.reset().lex("123")?.kind).toBe("123");
-  expect(lexer.reset().lex("123456")?.kind).toBe("123");
+  expect(lexer.reload("123").lex().token?.kind).toBe("123");
+  expect(lexer.reload("123456").lex().token?.kind).toBe("123");
 });
 
 test("lexer utils word", () => {
@@ -45,16 +45,16 @@ test("lexer utils word", () => {
       a: Lexer.word("123"),
     })
     .build();
-  expect(lexer.reset().lex("1")?.content).toBe(undefined);
-  expect(lexer.reset().lex("123")?.content).toBe("123");
-  expect(lexer.reset().lex("1234")?.content).toBe(undefined);
-  expect(lexer.reset().lex("123 ")?.content).toBe("123");
+  expect(lexer.reload("1").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("123").lex().token?.content).toBe("123");
+  expect(lexer.reload("1234").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("123 ").lex().token?.content).toBe("123");
 
   // additional test for #6
-  expect(lexer.reset().lex("  1")?.content).toBe(undefined);
-  expect(lexer.reset().lex("  123")?.content).toBe("123");
-  expect(lexer.reset().lex("  1234")?.content).toBe(undefined);
-  expect(lexer.reset().lex("  123 ")?.content).toBe("123");
+  expect(lexer.reload("  1").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("  123").lex().token?.content).toBe("123");
+  expect(lexer.reload("  1234").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("  123 ").lex().token?.content).toBe("123");
 });
 
 test("lexer utils wordArray", () => {
@@ -62,12 +62,12 @@ test("lexer utils wordArray", () => {
   expect(actions.length).toBe(2);
 
   const lexer = new Lexer.Builder().anonymous(...actions).build();
-  expect(lexer.reset().lex("123")?.content).toBe("123");
-  expect(lexer.reset().lex("123 123")?.content).toBe("123");
-  expect(lexer.reset().lex("123123")?.content).toBe(undefined);
-  expect(lexer.reset().lex("456")?.content).toBe("456");
-  expect(lexer.reset().lex("456 456")?.content).toBe("456");
-  expect(lexer.reset().lex("456456")?.content).toBe(undefined);
+  expect(lexer.reload("123").lex().token?.content).toBe("123");
+  expect(lexer.reload("123 123").lex().token?.content).toBe("123");
+  expect(lexer.reload("123123").lex().token?.content).toBe(undefined);
+  expect(lexer.reload("456").lex().token?.content).toBe("456");
+  expect(lexer.reload("456 456").lex().token?.content).toBe("456");
+  expect(lexer.reload("456456").lex().token?.content).toBe(undefined);
 });
 
 test("lexer utils wordKind", () => {
@@ -76,8 +76,8 @@ test("lexer utils wordKind", () => {
     .define(Lexer.wordKind("123"))
     .build();
 
-  expect(lexer.reset().lex("123")?.kind).toBe("123");
-  expect(lexer.reset().lex("123123")?.kind).toBe(undefined);
+  expect(lexer.reload("123").lex().token?.kind).toBe("123");
+  expect(lexer.reload("123123").lex().token?.kind).toBe(undefined);
 });
 
 test("lexer utils Lexer.whitespaces()", () => {
@@ -86,24 +86,24 @@ test("lexer utils Lexer.whitespaces()", () => {
     .define({ ws: Lexer.whitespaces() })
     .build();
 
-  expect(lexer.reset().lex(`123`)).toBe(null);
-  expect(lexer.reset().lex(` `)?.content).toBe(` `);
-  expect(lexer.reset().lex(`  `)?.content).toBe(`  `);
-  expect(lexer.reset().lex(`\t`)?.content).toBe(`\t`);
-  expect(lexer.reset().lex(`\t\t`)?.content).toBe(`\t\t`);
-  expect(lexer.reset().lex(`\n`)?.content).toBe(`\n`);
-  expect(lexer.reset().lex(`\n\n`)?.content).toBe(`\n\n`);
-  expect(lexer.reset().lex(` \t\n`)?.content).toBe(` \t\n`);
+  expect(lexer.reload(`123`).lex().token).toBe(undefined);
+  expect(lexer.reload(` `).lex().token?.content).toBe(` `);
+  expect(lexer.reload(`  `).lex().token?.content).toBe(`  `);
+  expect(lexer.reload(`\t`).lex().token?.content).toBe(`\t`);
+  expect(lexer.reload(`\t\t`).lex().token?.content).toBe(`\t\t`);
+  expect(lexer.reload(`\n`).lex().token?.content).toBe(`\n`);
+  expect(lexer.reload(`\n\n`).lex().token?.content).toBe(`\n\n`);
+  expect(lexer.reload(` \t\n`).lex().token?.content).toBe(` \t\n`);
 
   // additional test for #6
-  expect(lexer.reset().lex(`ignore123`)).toBe(null);
-  expect(lexer.reset().lex(`ignore `)?.content).toBe(` `);
-  expect(lexer.reset().lex(`ignore  `)?.content).toBe(`  `);
-  expect(lexer.reset().lex(`ignore\t`)?.content).toBe(`\t`);
-  expect(lexer.reset().lex(`ignore\t\t`)?.content).toBe(`\t\t`);
-  expect(lexer.reset().lex(`ignore\n`)?.content).toBe(`\n`);
-  expect(lexer.reset().lex(`ignore\n\n`)?.content).toBe(`\n\n`);
-  expect(lexer.reset().lex(`ignore \t\n`)?.content).toBe(` \t\n`);
+  expect(lexer.reload(`ignore123`).lex().token).toBe(undefined);
+  expect(lexer.reload(`ignore `).lex().token?.content).toBe(` `);
+  expect(lexer.reload(`ignore  `).lex().token?.content).toBe(`  `);
+  expect(lexer.reload(`ignore\t`).lex().token?.content).toBe(`\t`);
+  expect(lexer.reload(`ignore\t\t`).lex().token?.content).toBe(`\t\t`);
+  expect(lexer.reload(`ignore\n`).lex().token?.content).toBe(`\n`);
+  expect(lexer.reload(`ignore\n\n`).lex().token?.content).toBe(`\n\n`);
+  expect(lexer.reload(`ignore \t\n`).lex().token?.content).toBe(` \t\n`);
 });
 
 test("lexer utils comment", () => {
@@ -118,26 +118,30 @@ test("lexer utils comment", () => {
     })
     .build();
 
-  expect(lexer.reset().lex(`123`)).toBe(null);
-  expect(lexer.reset().lex(`// 123`)?.content).toBe(`// 123`);
-  expect(lexer.reset().lex(`// 123\n`)?.content).toBe(`// 123\n`);
-  expect(lexer.reset().lex(`// 123\n123`)?.content).toBe(`// 123\n`);
-  expect(lexer.reset().lex(`/* 123 */`)?.content).toBe(`/* 123 */`);
-  expect(lexer.reset().lex(`/* 123\n123 */`)?.content).toBe(`/* 123\n123 */`);
-  expect(lexer.reset().lex(`/* 123\n123 */123`)?.content).toBe(
+  expect(lexer.reload(`123`).lex().token).toBe(undefined);
+  expect(lexer.reload(`// 123`).lex().token?.content).toBe(`// 123`);
+  expect(lexer.reload(`// 123\n`).lex().token?.content).toBe(`// 123\n`);
+  expect(lexer.reload(`// 123\n123`).lex().token?.content).toBe(`// 123\n`);
+  expect(lexer.reload(`/* 123 */`).lex().token?.content).toBe(`/* 123 */`);
+  expect(lexer.reload(`/* 123\n123 */`).lex().token?.content).toBe(
     `/* 123\n123 */`,
   );
-  expect(lexer.reset().lex(`# 123\n123`)?.content).toBe(`# 123\n`);
+  expect(lexer.reload(`/* 123\n123 */123`).lex().token?.content).toBe(
+    `/* 123\n123 */`,
+  );
+  expect(lexer.reload(`# 123\n123`).lex().token?.content).toBe(`# 123\n`);
 
   // additional test for #6
-  expect(lexer.reset().lex(`  123`)).toBe(null);
-  expect(lexer.reset().lex(`  // 123`)?.content).toBe(`// 123`);
-  expect(lexer.reset().lex(`  // 123\n`)?.content).toBe(`// 123\n`);
-  expect(lexer.reset().lex(`  // 123\n123`)?.content).toBe(`// 123\n`);
-  expect(lexer.reset().lex(`  /* 123 */`)?.content).toBe(`/* 123 */`);
-  expect(lexer.reset().lex(`  /* 123\n123 */`)?.content).toBe(`/* 123\n123 */`);
-  expect(lexer.reset().lex(`  /* 123\n123 */123`)?.content).toBe(
+  expect(lexer.reload(`  123`).lex().token).toBe(undefined);
+  expect(lexer.reload(`  // 123`).lex().token?.content).toBe(`// 123`);
+  expect(lexer.reload(`  // 123\n`).lex().token?.content).toBe(`// 123\n`);
+  expect(lexer.reload(`  // 123\n123`).lex().token?.content).toBe(`// 123\n`);
+  expect(lexer.reload(`  /* 123 */`).lex().token?.content).toBe(`/* 123 */`);
+  expect(lexer.reload(`  /* 123\n123 */`).lex().token?.content).toBe(
     `/* 123\n123 */`,
   );
-  expect(lexer.reset().lex(`  # 123\n123`)?.content).toBe(`# 123\n`);
+  expect(lexer.reload(`  /* 123\n123 */123`).lex().token?.content).toBe(
+    `/* 123\n123 */`,
+  );
+  expect(lexer.reload(`  # 123\n123`).lex().token?.content).toBe(`# 123\n`);
 });

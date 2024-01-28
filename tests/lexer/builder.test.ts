@@ -19,31 +19,31 @@ function newBuilder() {
 
 test("builder ignore", () => {
   const lexer = newBuilder().build();
-  expect(lexer.reset().lex(" ")).toBe(null);
-  expect(lexer.reset().lex("   ")).toBe(null);
+  expect(lexer.reload(" ").lex().token).toBe(undefined);
+  expect(lexer.reload("   ").lex().token).toBe(undefined);
 });
 
 test("builder define", () => {
   const lexer = newBuilder().build();
-  expect(lexer.reset().lex("1")?.kind).toBe("number");
-  expect(lexer.reset().lex("123")?.kind).toBe("number");
+  expect(lexer.reload("1").lex().token?.kind).toBe("number");
+  expect(lexer.reload("123").lex().token?.kind).toBe("number");
 });
 
 test("builder anonymous", () => {
   const lexer = newBuilder().build();
-  expect(lexer.reset().lex("+")?.kind).toBe("");
-  expect(lexer.reset().lex("+")?.content).toBe("+");
+  expect(lexer.reload("+").lex().token?.kind).toBe("");
+  expect(lexer.reload("+").lex().token?.content).toBe("+");
 });
 
 test("error", () => {
   const lexer = newBuilder().build();
-  expect(lexer.reset().lex("error")?.error).toBe("error");
+  expect(lexer.reload("error").lex().token?.error).toBe("error");
 });
 
 test("stateful", () => {
   const lexer = newBuilder().build();
-  expect(lexer.lex("state")).not.toBe(null);
-  expect(lexer.lex("state")).toBe(null);
+  expect(lexer.reload("state state").lex().token).not.toBe(undefined);
+  expect(lexer.lex().token).toBe(undefined);
 });
 
 test("builder define using array", () => {
@@ -57,9 +57,9 @@ test("builder define using array", () => {
     })
     .build();
 
-  expect(lexer.reset().lex(`'abc'`)?.kind).toBe("string");
-  expect(lexer.reset().lex(`"abc"`)?.kind).toBe("string");
-  expect(lexer.reset().lex("`abc`")?.kind).toBe("string");
+  expect(lexer.reload(`'abc'`).lex().token?.kind).toBe("string");
+  expect(lexer.reload(`"abc"`).lex().token?.kind).toBe("string");
+  expect(lexer.reload("`abc`").lex().token?.kind).toBe("string");
 });
 
 test("define action with multiple kinds", () => {
@@ -73,6 +73,6 @@ test("define action with multiple kinds", () => {
         ),
     )
     .build();
-  expect(lexer.reset().lex(" ")?.kind).toBe("singleWs");
-  expect(lexer.reset().lex("  ")?.kind).toBe("multiWs");
+  expect(lexer.reload(" ").lex().token?.kind).toBe("singleWs");
+  expect(lexer.reload("  ").lex().token?.kind).toBe("multiWs");
 });
