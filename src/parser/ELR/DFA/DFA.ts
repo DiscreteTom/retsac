@@ -176,7 +176,7 @@ export class DFA<
       IToken<LexerDataBindings, LexerErrorType>,
       Global
     >[],
-    lexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
+    trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>,
     reLexStack: Stack<
       ReLexState<
         NTs,
@@ -214,14 +214,13 @@ export class DFA<
     >;
     trimmedLexer: ILexer<LexerDataBindings, LexerActionState, LexerErrorType>;
   } {
-    lexer.trim();
     return this._parse(
       {
         stateStack: new Stack([this.entryState]),
         index: 0,
         errors: [],
         buffer,
-        trimmedLexer: lexer,
+        trimmedLexer,
         startCandidateIndex: 0,
         lexedGrammars: new Set(),
       },
