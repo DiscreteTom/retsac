@@ -159,7 +159,7 @@ export class StateRepo<
       );
     const nextCandidates = directCandidates.concat(indirectCandidates);
 
-    // no next states
+    // no next state
     if (nextCandidates.length === 0) return { state: null, changed: false };
 
     // check cache
