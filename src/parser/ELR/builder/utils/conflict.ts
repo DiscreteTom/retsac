@@ -12,9 +12,9 @@ import { GrammarSet, GrammarType, ConflictType } from "../../model";
 import { TooManyEndHandlerError } from "../error";
 
 /**
- * Return a grammar set contains NTs which might be the last input grammar.
- * E.g. entry NT is A, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
- * These grammars will be used to check end of input.
+ * Return a grammar set contains NTs which might appear at EOF.
+ * E.g. entry NT is `A`, and we have `A: B C | D E`, then the result will be `{A, C, E}`.
+ * The result will be used to check if some grammar rules have R-R conflict when reach EOF.
  */
 function getEndSet<
   NTs extends string,
@@ -46,10 +46,10 @@ function getEndSet<
     let changed = false;
     grs.grammarRules.forEach((gr) => {
       if (result.has(repo.NT(gr.NT, gr.NT))) {
-        // current NT is in result, so we need to check the last grammar of its rule
+        // gr's NT is in result, so we need to check the last grammar of gr's rule
         if (gr.rule.at(-1)!.type === GrammarType.NT) {
           const NT = gr.rule.at(-1)!.kind;
-          // last grammar is a NT, so we need to check it in result
+          // last grammar is a NT, so we need to append it in result
           const last = repo.NT(NT as NTs, NT);
           if (!result.has(last)) {
             result.add(last);
@@ -344,7 +344,7 @@ export function appendConflicts<
     });
 
     // all reduce-able candidates may have RS conflicts with non-reduce-able candidates
-    const anothers = state.candidates.filter(
+    const shifter = state.candidates.filter(
       (c) =>
         c.canDigestMore() &&
         // if digested === 0, this candidate has indirect RS conflict with reducer, skip it.
@@ -352,20 +352,20 @@ export function appendConflicts<
         c.digested !== 0,
     );
     reducers.forEach((reducer) => {
-      anothers.forEach((another) => {
-        // if there is no overlap between reducer's NT's follow and another's next
+      shifter.forEach((shifter) => {
+        // if shifter's current is a T/Literal and is not in reducer's NT's follow
         // then there is no RS conflict
-        if (another.current!.type === GrammarType.T) {
-          if (!dfa.followSets.get(reducer.gr.NT)!.has(another.current!)) {
+        if (shifter.current!.type === GrammarType.T) {
+          if (!dfa.followSets.get(reducer.gr.NT)!.has(shifter.current!)) {
             // no overlap, no RS conflict
             if (debug) {
               const info = {
                 reducerRule: reducer.gr.toString(),
-                anotherRule: another.gr.toString(),
+                anotherRule: shifter.gr.toString(),
               };
               logger.log({
                 entity: "Parser",
-                message: `auto resolve RS (no follow overlap): ${reducer.gr.toString()} vs ${another.gr.toString()}`,
+                message: `auto resolve RS (no follow overlap): ${reducer.gr.toString()} vs ${shifter.gr.toString()}`,
                 info,
               });
             }
@@ -376,26 +376,26 @@ export function appendConflicts<
               !reducer.gr.conflicts.some(
                 (c) =>
                   c.type === ConflictType.REDUCE_SHIFT &&
-                  c.anotherRule === another.gr &&
-                  c.next.has(another.current!),
+                  c.anotherRule === shifter.gr &&
+                  c.next.has(shifter.current!),
                 // we don't need to check handleEnd for RS conflict
               )
             )
               reducer.gr.conflicts.push({
                 type: ConflictType.REDUCE_SHIFT,
-                anotherRule: another.gr,
+                anotherRule: shifter.gr,
                 handleEnd: false,
                 next: new GrammarSet<NTs, ExtractKinds<LexerDataBindings>>([
-                  another.current!,
+                  shifter.current!,
                 ]),
                 resolvers: [],
               });
           }
         } else {
-          // another's next is a NT, check if reducer's NT's follow has some grammar that is also in another's next's first
+          // shifter's current is an NT, check if reducer's NT's follow has some grammar that is also in shifter's current's first
           const overlap = dfa.followSets
             .get(reducer.gr.NT)!
-            .overlap(dfa.firstSets.get(another.current!.kind as NTs)!);
+            .overlap(dfa.firstSets.get(shifter.current!.kind as NTs)!);
 
           if (overlap.grammars.size > 0) {
             // overlap, RS conflict
@@ -405,14 +405,14 @@ export function appendConflicts<
                 !reducer.gr.conflicts.some(
                   (c) =>
                     c.type === ConflictType.REDUCE_SHIFT &&
-                    c.anotherRule === another.gr &&
+                    c.anotherRule === shifter.gr &&
                     c.next.has(g),
                 ),
             );
             if (unrecordedNext.grammars.size > 0)
               reducer.gr.conflicts.push({
                 type: ConflictType.REDUCE_SHIFT,
-                anotherRule: another.gr,
+                anotherRule: shifter.gr,
                 handleEnd: false,
                 next: unrecordedNext,
                 resolvers: [],
@@ -421,7 +421,7 @@ export function appendConflicts<
             if (debug) {
               const info = {
                 reducerRule: reducer.gr.toString(),
-                anotherRule: another.gr.toString(),
+                anotherRule: shifter.gr.toString(),
               };
               if (overlap.grammars.size === 0) {
                 logger.log({
