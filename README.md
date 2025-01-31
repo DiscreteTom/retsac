@@ -1,3 +1,7 @@
+# Deprecated
+
+See [whitehole](https://github.com/DiscreteTom/whitehole).
+
 # Retsac
 
 [![npm](https://img.shields.io/npm/v/retsac?style=flat-square)](https://www.npmjs.com/package/retsac)
